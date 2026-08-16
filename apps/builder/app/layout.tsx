@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import { Theme } from "frosted-ui";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
@@ -17,6 +18,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Theme appearance="dark" accentColor="blue" className="min-h-dvh bg-canvas text-gray-12">
           {children}
         </Theme>
+        <Analytics />
       </body>
     </html>
   );
