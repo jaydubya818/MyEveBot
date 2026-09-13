@@ -62,6 +62,7 @@ export const DEFAULT_SPECIALIST_SKILLS: Readonly<Record<Exclude<SkillAgentId, "s
     "planning-and-task-breakdown",
     "principle-prove-it-works",
     "principle-test-behavior-not-implementation",
+    "scope-creep-detector",
     "source-driven-development",
     "spec-driven-development",
     "tdd",
@@ -76,6 +77,7 @@ export const DEFAULT_SPECIALIST_SKILLS: Readonly<Record<Exclude<SkillAgentId, "s
   ],
   "trust-resilience": [
     "blast-radius",
+    "dependency-doctor",
     "deprecation-and-migration",
     "observability-and-instrumentation",
     "principle-boundary-discipline",

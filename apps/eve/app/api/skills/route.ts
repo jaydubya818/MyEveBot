@@ -72,12 +72,14 @@ export async function GET(request: Request): Promise<Response> {
     contentHash: string;
     sourcePath: null;
     repository: null;
+    repositoryPath: null;
     revision: null;
     license: null;
     sourceEvalPath: null;
     routingPromptCount: 0;
     negativeRoutingPromptCount: 0;
     behavioralEvalCount: 0;
+    activationExplicit: false;
   }> = [];
   let savedSkillsStatus: "ready" | "setup_required" | "unavailable" =
     capability.state === "ready" ? "ready" : "setup_required";
@@ -93,12 +95,14 @@ export async function GET(request: Request): Promise<Response> {
         contentHash: personalSkillContentHash(skill),
         sourcePath: null,
         repository: null,
+        repositoryPath: null,
         revision: null,
         license: null,
         sourceEvalPath: null,
         routingPromptCount: 0,
         negativeRoutingPromptCount: 0,
         behavioralEvalCount: 0,
+        activationExplicit: false,
       }));
     } catch (error) {
       console.error("Saved skills list failed", error);
@@ -309,7 +313,14 @@ export async function PUT(request: Request): Promise<Response> {
       contentHash: personalSkillContentHash(stored),
       sourcePath: null,
       repository: null,
+      repositoryPath: null,
       revision: null,
+      license: null,
+      sourceEvalPath: null,
+      routingPromptCount: 0,
+      negativeRoutingPromptCount: 0,
+      behavioralEvalCount: 0,
+      activationExplicit: false,
     },
   });
 }

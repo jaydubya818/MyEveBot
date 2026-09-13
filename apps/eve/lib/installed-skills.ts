@@ -9,12 +9,14 @@ export interface InstalledSkill {
   contentHash: string;
   sourcePath: string;
   repository: string | null;
+  repositoryPath: string | null;
   revision: string | null;
   license: string | null;
   sourceEvalPath: string | null;
   routingPrompts: readonly string[];
   negativeRoutingPrompts: readonly { prompt: string; owner?: string }[];
   behavioralEvalCount: number;
+  activationExplicit: boolean;
 }
 
 export const installedSkills: readonly InstalledSkill[] = catalog;

@@ -89,6 +89,18 @@
         "source-driven-development",
         "spec-driven-development"
       ]
+    },
+    {
+      "repository": "Shubhamsaboo/awesome-llm-apps",
+      "revision": "6272f8bd1fdeb75153d1a95d7fc761e26e477116",
+      "path": "agent_skills",
+      "evalPath": "evals/skill-cases/awesome-llm-apps",
+      "license": "Apache-2.0",
+      "skills": [
+        "dependency-doctor",
+        "scope-creep-detector",
+        "thinking-out-loud"
+      ]
     }
   ]
 }

@@ -88,6 +88,7 @@ async function sourceBySkill() {
       }
       index.set(skill, {
         repository: entry.repository,
+        repositoryPath: `${entry.path}/${skill}`,
         revision: entry.revision,
         license: entry.license ?? null,
         sourceEvalPath,
@@ -119,6 +120,7 @@ export async function buildInstalledSkillCatalog(directory = skillsDirectory) {
     const name = frontmatterField(markdown, "name");
     const description = frontmatterField(markdown, "description");
     const userInvocable = metadataField(markdown, "user-invocable") !== "false";
+    const activationExplicit = metadataField(markdown, "activation") === "explicit";
     if (name !== entry.name) {
       throw new Error(`${skillPath} declares name ${name}; expected ${entry.name}`);
     }
@@ -142,12 +144,14 @@ export async function buildInstalledSkillCatalog(directory = skillsDirectory) {
       contentHash: contentHash.digest("hex"),
       sourcePath: `agent/skills/${name}/SKILL.md`,
       repository: source?.repository ?? null,
+      repositoryPath: source?.repositoryPath ?? null,
       revision: source?.revision ?? null,
       license: source?.license ?? null,
       sourceEvalPath: source?.sourceEvalPath ?? null,
       routingPrompts: source?.routingPrompts ?? [],
       negativeRoutingPrompts: source?.negativeRoutingPrompts ?? [],
       behavioralEvalCount: source?.behavioralEvalCount ?? 0,
+      activationExplicit,
     });
   }
 

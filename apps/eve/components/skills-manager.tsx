@@ -37,12 +37,14 @@ interface SkillItem {
   contentHash: string;
   sourcePath: string | null;
   repository: string | null;
+  repositoryPath: string | null;
   revision: string | null;
   license: string | null;
   sourceEvalPath: string | null;
   routingPromptCount: number;
   negativeRoutingPromptCount: number;
   behavioralEvalCount: number;
+  activationExplicit: boolean;
   markdown?: string;
   updatedAt?: string;
 }
@@ -713,8 +715,14 @@ export function SkillsManager() {
                 <div>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate font-mono text-lg font-semibold">{selected.name}</p>
-                      <p className="mt-1 text-xs text-kumo-subtle">{selected.userInvocable ? "Automatic or slash command" : "Automatic routing"}</p>
+                      <p className="break-words font-mono text-base leading-5 font-semibold">{selected.name}</p>
+                      <p className="mt-1 text-xs text-kumo-subtle">
+                        {selected.activationExplicit
+                          ? "Explicit request or slash command"
+                          : selected.userInvocable
+                            ? "Automatic or slash command"
+                            : "Automatic routing"}
+                      </p>
                     </div>
                     <span className="flex items-center gap-1 text-[11px] text-kumo-success"><CheckCircleIcon className="size-3.5" weight="fill" aria-hidden />Valid</span>
                   </div>
@@ -869,7 +877,7 @@ export function SkillsManager() {
                         </>
                       )}
                       {selected.repository !== null && (
-                        <a className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-kumo-subtle hover:bg-kumo-tint hover:text-kumo-default" href={`https://github.com/${selected.repository}/tree/${selected.revision ?? "main"}/skills/${selected.name}`} target="_blank" rel="noreferrer">
+                        <a className="inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-xs font-medium text-kumo-subtle hover:bg-kumo-tint hover:text-kumo-default" href={`https://github.com/${selected.repository}/tree/${selected.revision ?? "main"}/${selected.repositoryPath ?? `skills/${selected.name}`}`} target="_blank" rel="noreferrer">
                           <CodeIcon className="size-3.5" aria-hidden />Source<ArrowSquareOutIcon className="size-3" aria-hidden />
                         </a>
                       )}

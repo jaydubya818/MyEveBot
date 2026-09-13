@@ -37,7 +37,7 @@ test("runtime skill packages preserve every installed skill and its supporting f
   );
 
   assert.deepEqual(generated, expected);
-  assert.equal(generated.length, 74);
+  assert.equal(generated.length, 77);
   assert.ok(generated.every((skill) => skill.markdown.includes("description:")));
   assert.ok(generated.find((skill) => skill.name === "architect").files["references/runner-prompt.md"]);
 });
@@ -117,10 +117,59 @@ test("curated agent-skills import preserves provenance, evals, and package refer
   }
 });
 
+test("approved awesome-llm-apps skills preserve provenance, evals, and activation policy", async () => {
+  const catalog = await buildInstalledSkillCatalog();
+  const packages = await buildRuntimeSkillPackageCatalog();
+  const sources = JSON.parse(
+    await readFile(join(appRoot, "agent", "skill-sources.json"), "utf8"),
+  );
+  const source = sources.imports.find(
+    (entry) => entry.repository === "Shubhamsaboo/awesome-llm-apps",
+  );
+  const catalogByName = new Map(catalog.map((skill) => [skill.name, skill]));
+  const packagesByName = new Map(packages.map((skill) => [skill.name, skill]));
+
+  assert.equal(source.revision, "6272f8bd1fdeb75153d1a95d7fc761e26e477116");
+  assert.equal(source.path, "agent_skills");
+  assert.equal(source.license, "Apache-2.0");
+  assert.deepEqual(source.skills, [
+    "dependency-doctor",
+    "scope-creep-detector",
+    "thinking-out-loud",
+  ]);
+
+  for (const name of source.skills) {
+    const skill = catalogByName.get(name);
+    const skillPackage = packagesByName.get(name);
+    assert.ok(skill, `${name} is not cataloged`);
+    assert.ok(skillPackage, `${name} is not packaged`);
+    assert.equal(skill.repository, source.repository);
+    assert.equal(skill.repositoryPath, `${source.path}/${name}`);
+    assert.equal(skill.revision, source.revision);
+    assert.equal(skill.license, "Apache-2.0");
+    assert.match(skill.sourceEvalPath, new RegExp(`/${name}\\.json$`));
+    assert.ok(skill.routingPrompts.length >= 3, `${name} needs positive routing prompts`);
+    assert.ok(skill.negativeRoutingPrompts.length >= 2, `${name} needs negative routing prompts`);
+    assert.ok(skill.behavioralEvalCount >= 1, `${name} needs a behavioral eval`);
+    assert.ok(skillPackage.files["LICENSE"], `${name} is missing its license`);
+  }
+
+  assert.equal(catalogByName.get("thinking-out-loud").activationExplicit, true);
+  assert.equal(catalogByName.get("dependency-doctor").activationExplicit, false);
+  assert.ok(DEFAULT_SPECIALIST_SKILLS["functional-state"].includes("scope-creep-detector"));
+  assert.ok(DEFAULT_SPECIALIST_SKILLS["trust-resilience"].includes("dependency-doctor"));
+  assert.ok(
+    Object.values(DEFAULT_SPECIALIST_SKILLS).every(
+      (skills) => !skills.includes("thinking-out-loud"),
+    ),
+    "thinking-out-loud stays Sofie-only",
+  );
+});
+
 test("curated agent-skills pass combined-catalog routing checks", async () => {
   const result = await checkImportedSkillRouting();
   assert.deepEqual(result.messages, []);
   assert.equal(result.errors, 0);
-  assert.equal(result.checks, 74);
+  assert.equal(result.checks, 93);
   assert.ok(result.rankOnePercent >= 85);
 });
