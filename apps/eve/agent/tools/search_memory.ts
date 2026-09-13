@@ -1,6 +1,7 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 import { memoryStore } from "../lib/memory-store";
+import { memoryAccessForTool } from "../lib/memory-tool-context";
 
 export default defineTool({
   description:
@@ -8,8 +9,8 @@ export default defineTool({
   inputSchema: z.object({
     query: z.string().min(1).max(500).describe("What to look for, phrased as a plain question or topic"),
   }),
-  async execute({ query }) {
-    const results = await memoryStore.search(query);
+  async execute({ query }, ctx) {
+    const results = await memoryStore.search(query, await memoryAccessForTool(ctx));
     return { results };
   },
 });

@@ -87,7 +87,6 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/search_memory.ts",
     "agent/tools/list_memories.ts",
     "agent/schedules/memory-consolidation.ts",
-    "agent/instructions/memory.ts",
   ],
   proactive: [
     "agent/tools/create_reminder.ts",

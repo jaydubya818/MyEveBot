@@ -14,10 +14,10 @@ Nightly memory consolidation. Review your long-term memory about ${ownerName()} 
 tidy it. Work only through list_memories, remember, and forget; do not
 message anyone.
 
-1. Load everything with list_memories.
+1. Load all memory visible to the primary Agent with list_memories. Never attempt to inspect another Agent's private scope.
 2. Merge duplicates: when several entries say the same thing, save one entry
    with the best phrasing (entity-centric, e.g. "${ownerName()} prefers window seats")
-   using remember, then forget the redundant ones. Skip this when entries
+   using remember in the same scope, then forget the redundant ones. Skip this when entries
    only look similar but carry distinct details.
 3. Resolve contradictions: when two entries conflict, keep the more recent
    one (updatedAt) and forget the outdated one. If recency is unclear, keep

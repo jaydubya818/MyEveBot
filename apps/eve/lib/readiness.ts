@@ -161,7 +161,7 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
     checks.push(setup(memoryBase, "Add SUPERMEMORY_API_KEY to enable long-term memory."));
   } else {
     checks.push(
-      await probe(memoryBase, () => memoryStore.profile(), "Supermemory accepted a profile request."),
+      await probe(memoryBase, () => memoryStore.healthcheck(), "Supermemory accepted a memory-list request."),
     );
   }
 
