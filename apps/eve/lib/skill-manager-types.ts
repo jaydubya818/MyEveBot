@@ -55,24 +55,35 @@ export const SKILL_AGENTS: readonly SkillAgentDefinition[] = [
 
 export const DEFAULT_SPECIALIST_SKILLS: Readonly<Record<Exclude<SkillAgentId, "sofie">, readonly string[]>> = {
   "functional-state": [
+    "api-and-interface-design",
+    "constraint-driven-development",
     "create-verification-skill",
     "evidence-driven-testing",
+    "planning-and-task-breakdown",
     "principle-prove-it-works",
     "principle-test-behavior-not-implementation",
+    "source-driven-development",
+    "spec-driven-development",
     "tdd",
   ],
   "ux-accessibility": [
     "before-and-after",
     "evidence-driven-testing",
+    "frontend-ui-engineering",
+    "performance-optimization",
     "principle-experience-first",
     "principle-minimize-reader-load",
   ],
   "trust-resilience": [
     "blast-radius",
+    "deprecation-and-migration",
+    "observability-and-instrumentation",
     "principle-boundary-discipline",
     "principle-fix-root-causes",
     "principle-make-operations-idempotent",
     "principle-prove-it-works",
+    "security-and-hardening",
+    "shipping-and-launch",
   ],
 };
 

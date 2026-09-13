@@ -51,7 +51,14 @@ export async function GET(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
   if (denied) return denied;
 
-  const installed = installedSkills.map((skill) => ({ ...skill, source: "installed" as const }));
+  const installed = installedSkills.map(
+    ({ routingPrompts, negativeRoutingPrompts, ...skill }) => ({
+      ...skill,
+      routingPromptCount: routingPrompts.length,
+      negativeRoutingPromptCount: negativeRoutingPrompts.length,
+      source: "installed" as const,
+    }),
+  );
   const capability = capabilityMap().skills;
   let saved: Array<{
     name: string;
@@ -66,6 +73,11 @@ export async function GET(request: Request): Promise<Response> {
     sourcePath: null;
     repository: null;
     revision: null;
+    license: null;
+    sourceEvalPath: null;
+    routingPromptCount: 0;
+    negativeRoutingPromptCount: 0;
+    behavioralEvalCount: 0;
   }> = [];
   let savedSkillsStatus: "ready" | "setup_required" | "unavailable" =
     capability.state === "ready" ? "ready" : "setup_required";
@@ -82,6 +94,11 @@ export async function GET(request: Request): Promise<Response> {
         sourcePath: null,
         repository: null,
         revision: null,
+        license: null,
+        sourceEvalPath: null,
+        routingPromptCount: 0,
+        negativeRoutingPromptCount: 0,
+        behavioralEvalCount: 0,
       }));
     } catch (error) {
       console.error("Saved skills list failed", error);

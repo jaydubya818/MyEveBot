@@ -77,9 +77,23 @@ async function sourceBySkill() {
   const index = new Map();
   for (const entry of sources.imports ?? []) {
     for (const skill of entry.skills ?? []) {
+      const sourceEvalPath =
+        typeof entry.evalPath === "string" ? `${entry.evalPath}/${skill}.json` : null;
+      let sourceEval = null;
+      if (sourceEvalPath !== null) {
+        sourceEval = JSON.parse(await readFile(join(appRoot, sourceEvalPath), "utf8"));
+        if (sourceEval.skill_name !== skill) {
+          throw new Error(`${sourceEvalPath} declares ${sourceEval.skill_name}; expected ${skill}`);
+        }
+      }
       index.set(skill, {
         repository: entry.repository,
         revision: entry.revision,
+        license: entry.license ?? null,
+        sourceEvalPath,
+        routingPrompts: (sourceEval?.trigger?.positive ?? []).map((item) => item.prompt),
+        negativeRoutingPrompts: sourceEval?.trigger?.negative ?? [],
+        behavioralEvalCount: sourceEval?.evals?.length ?? 0,
       });
     }
   }
@@ -129,6 +143,11 @@ export async function buildInstalledSkillCatalog(directory = skillsDirectory) {
       sourcePath: `agent/skills/${name}/SKILL.md`,
       repository: source?.repository ?? null,
       revision: source?.revision ?? null,
+      license: source?.license ?? null,
+      sourceEvalPath: source?.sourceEvalPath ?? null,
+      routingPrompts: source?.routingPrompts ?? [],
+      negativeRoutingPrompts: source?.negativeRoutingPrompts ?? [],
+      behavioralEvalCount: source?.behavioralEvalCount ?? 0,
     });
   }
 

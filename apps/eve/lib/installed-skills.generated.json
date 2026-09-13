@@ -1,5 +1,34 @@
 [
   {
+    "name": "api-and-interface-design",
+    "description": "Guides stable API and interface design. Use when designing APIs, module boundaries, or any public interface. Use when creating REST or GraphQL endpoints, defining type contracts between modules, or establishing boundaries between frontend and backend.",
+    "userInvocable": true,
+    "fileCount": 2,
+    "sizeBytes": 15952,
+    "contentHash": "8c2411a11bfedf0d263c49d3e6aab6de8fa939cbae0bda83b37ce5c3a15e18d3",
+    "sourcePath": "agent/skills/api-and-interface-design/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/api-and-interface-design.json",
+    "routingPrompts": [
+      "Design a REST endpoint for creating invoices, including error responses and versioning",
+      "What should the public interface of this payments module expose to other teams?",
+      "Help me define the contract between the frontend and the orders service"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "My unit test is failing with a null pointer exception",
+        "owner": "debugging-and-error-recovery"
+      },
+      {
+        "prompt": "Make this landing page responsive on mobile",
+        "owner": "frontend-ui-engineering"
+      }
+    ],
+    "behavioralEvalCount": 1
+  },
+  {
     "name": "architect",
     "description": "Sketch types, signatures, and module structure before code, then stay in the loop while implementation fills in. Use for /architect, 'architect this', 'design this', or non-trivial work where jumping to code would lock in the wrong shape.",
     "userInvocable": true,
@@ -8,7 +37,12 @@
     "contentHash": "e0891bcb9f0e8ddad5c237d0b97b669d646052e4e510c057466d305d9700110d",
     "sourcePath": "agent/skills/architect/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "arena",
@@ -19,7 +53,12 @@
     "contentHash": "79fb259923f6e405c058ec1b23645aa45db675afca25a15fd00923278d89e5b5",
     "sourcePath": "agent/skills/arena/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "automate-me",
@@ -30,7 +69,12 @@
     "contentHash": "a425cdbde67140c46c862cf946ae9144ba56805de62da67b234baaaff0feb6ff",
     "sourcePath": "agent/skills/automate-me/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "babysit",
@@ -41,7 +85,12 @@
     "contentHash": "f2839656dba2ac415c247080f4131f2fddfec2edc9f58e29918ab388a52b06bc",
     "sourcePath": "agent/skills/babysit/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "before-and-after",
@@ -52,7 +101,12 @@
     "contentHash": "f94eda5f145af9dc41e666e92d8f9999801b954f6746c21b9433571934adc9d3",
     "sourcePath": "agent/skills/before-and-after/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "blast-radius",
@@ -63,7 +117,12 @@
     "contentHash": "d7d816fa90bb8e3d403bc70c5096534ab4e29a898c5f160420bca413fc94682e",
     "sourcePath": "agent/skills/blast-radius/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "bro",
@@ -74,7 +133,12 @@
     "contentHash": "97906b7da89213765a19c82222e52ba225ea319b7a7e7bc5ddc3c2f1f18c0599",
     "sourcePath": "agent/skills/bro/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "code-structure",
@@ -85,7 +149,47 @@
     "contentHash": "c3f4571d1599019aadf3fe231f09f4502b94b9c7b3d0d848d50ddda90eec8fe3",
     "sourcePath": "agent/skills/code-structure/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "constraint-driven-development",
+    "description": "Establishes a project's quality bar as a written contract and stops agents quietly lowering it. Interviews the user on which dimensions matter, supplies sane default thresholds when they have no number in mind, records everything in CONSTRAINTS.md, and watches the diff for a weakened bar — new @ts-ignore or eslint-disable suppressions, skipped or deleted tests, assertions stripped out, unimplemented stubs, thresholds edited down. Use when no quality bar is written down, when the user says \"set up constraints\" or \"define our standards\", when the user wants dimensions they care about — accessibility, web performance, coverage — set up as enforced constraints, when an agent keeps silencing checks or skipping tests to get to green, when you need a coverage or performance threshold and don't know what number to pick, or when an agent writes more code than anyone will read.",
+    "userInvocable": true,
+    "fileCount": 3,
+    "sizeBytes": 27704,
+    "contentHash": "4b1cc397b5ca8de96ca204053031fc73d0caa425706f3611ecaa25415d3faf2d",
+    "sourcePath": "agent/skills/constraint-driven-development/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/constraint-driven-development.json",
+    "routingPrompts": [
+      "Set up quality constraints for this project — I want to define our bar before the agent writes more code",
+      "We have no written standards. Ask me what I care about and write it down with sane defaults",
+      "The agent keeps adding @ts-ignore and skipping tests to get green. How do I stop that?",
+      "What coverage threshold should we enforce, and where should it run so it doesn't slow us down?",
+      "I care about accessibility and web performance — set those up as enforced constraints"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Review this pull request across correctness and security",
+        "owner": "code-review-and-quality"
+      },
+      {
+        "prompt": "Add a deploy stage to our pipeline with a manual approval gate",
+        "owner": "ci-cd-and-automation"
+      },
+      {
+        "prompt": "Write a failing test for this bug before we fix it",
+        "owner": "test-driven-development"
+      }
+    ],
+    "behavioralEvalCount": 3
   },
   {
     "name": "create-verification-skill",
@@ -96,7 +200,42 @@
     "contentHash": "4da1d5da856abe7d6be16f7a82a9ccf722796955b9b4cf986890c9ec87500529",
     "sourcePath": "agent/skills/create-verification-skill/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "deprecation-and-migration",
+    "description": "Manages deprecation and migration. Use when removing old systems, APIs, or features. Use when migrating users from one implementation to another. Use when migrating a database schema in production, such as renaming or dropping a column without downtime (expand/contract). Use when deciding whether to maintain or sunset existing code.",
+    "userInvocable": true,
+    "fileCount": 2,
+    "sizeBytes": 13706,
+    "contentHash": "f211ed8a419ee763a42328e200d3eb1ef26cf7210925906d9f855599076145a5",
+    "sourcePath": "agent/skills/deprecation-and-migration/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/deprecation-and-migration.json",
+    "routingPrompts": [
+      "We are sunsetting the v1 API, plan the deprecation",
+      "Migrate users off the legacy auth system without breaking them",
+      "How do I remove this old feature safely for existing users?",
+      "Rename a database column without downtime",
+      "How do I drop a column safely in production?"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Add dark mode to the settings page"
+      },
+      {
+        "prompt": "Why is this test flaky on CI?",
+        "owner": "ci-cd-and-automation"
+      }
+    ],
+    "behavioralEvalCount": 1
   },
   {
     "name": "deslop",
@@ -107,7 +246,41 @@
     "contentHash": "888abcd405cf7ea939cd8788c690de3b74cbeea68bd2a35bc3db79b80ea8fdfa",
     "sourcePath": "agent/skills/deslop/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "documentation-and-adrs",
+    "description": "Records decisions and documentation. Use when you need to document an architecture decision (ADR) or the reasoning behind a design choice, when changing public APIs, shipping features, or when you need to record context that future engineers and agents will need to understand the codebase.",
+    "userInvocable": true,
+    "fileCount": 2,
+    "sizeBytes": 10916,
+    "contentHash": "45660ae38936bf743bb11d2b7ffc709f36fc9f1dfb50ea1916b960ad103c6162",
+    "sourcePath": "agent/skills/documentation-and-adrs/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/documentation-and-adrs.json",
+    "routingPrompts": [
+      "Write an ADR for choosing Postgres over MongoDB",
+      "Document the architecture decision behind the queue design",
+      "Update the documentation for the new setup flow and record why it changed"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Find the root cause of the memory leak in the worker",
+        "owner": "debugging-and-error-recovery"
+      },
+      {
+        "prompt": "Harden the login endpoint against brute force attacks",
+        "owner": "security-and-hardening"
+      }
+    ],
+    "behavioralEvalCount": 1
   },
   {
     "name": "evidence-driven-testing",
@@ -118,7 +291,12 @@
     "contentHash": "21c35c8063aeb13e340be656ef18cbb90a932d3260bbd3de44fd86b8af616b36",
     "sourcePath": "agent/skills/evidence-driven-testing/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "figure-it-out",
@@ -129,7 +307,12 @@
     "contentHash": "b63753870e9282f3cfa61bfc69897c0be024c6d9e8e3390f89451bce4ecf88ef",
     "sourcePath": "agent/skills/figure-it-out/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "fix-ci",
@@ -140,7 +323,12 @@
     "contentHash": "41a4443872ebaab3c3d8f2a6344d19c312047bfc71344de97f33f6dd17564c36",
     "sourcePath": "agent/skills/fix-ci/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "fix-merge-conflicts",
@@ -151,7 +339,42 @@
     "contentHash": "d34a20b1b2ca7e9652e183c4e0a1ea7ea9e7e6ab8d63395cfe79fe95b58e8a0d",
     "sourcePath": "agent/skills/fix-merge-conflicts/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "frontend-ui-engineering",
+    "description": "Builds production-quality, accessible, responsive user-facing UIs. Use when building or modifying interfaces and pages, creating components, implementing layouts, meeting WCAG accessibility requirements, managing state, or when the output needs to look and feel production-quality rather than AI-generated.",
+    "userInvocable": true,
+    "fileCount": 3,
+    "sizeBytes": 16979,
+    "contentHash": "0aff1d0dadd1dfff506b702ec085279c6637583fcd9635c67c3469e02a63183e",
+    "sourcePath": "agent/skills/frontend-ui-engineering/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/frontend-ui-engineering.json",
+    "routingPrompts": [
+      "Make this page responsive and WCAG compliant",
+      "Build an accessible modal component with keyboard support",
+      "Make the pricing page accessible and responsive on mobile",
+      "Refactor the dashboard into reusable components with sane state management",
+      "Rework the profile page into reusable components with proper state management"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Optimize the slow database indexes",
+        "owner": "performance-optimization"
+      },
+      {
+        "prompt": "Tag and publish the release"
+      }
+    ],
+    "behavioralEvalCount": 1
   },
   {
     "name": "get-pr-comments",
@@ -162,7 +385,12 @@
     "contentHash": "105ca1c3490036d199f95679f2840812c675fb64205351368e804733c45b382d",
     "sourcePath": "agent/skills/get-pr-comments/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "greploop",
@@ -173,7 +401,12 @@
     "contentHash": "d45346d530a6a740c07a3929f6011f0865694b2b14c8f5751863f63b8367c546",
     "sourcePath": "agent/skills/greploop/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "greploop-apps",
@@ -184,7 +417,12 @@
     "contentHash": "d3cc75b6dab8a91f86b3374677d1cc71ea9680a7551660916bdbf29750bd5f06",
     "sourcePath": "agent/skills/greploop-apps/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "how",
@@ -195,7 +433,12 @@
     "contentHash": "5c13aa0ea4670dc59a08f2257efb342098be6bcab1d2f6d1b11ecfdc8bd16716",
     "sourcePath": "agent/skills/how/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "interrogate",
@@ -206,7 +449,12 @@
     "contentHash": "4d4a16a38979a084c9fea885abfe258c68c0749a50728007bcb083478b672810",
     "sourcePath": "agent/skills/interrogate/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "maintain-verification-skill",
@@ -217,7 +465,12 @@
     "contentHash": "e198b1fb6cdf266b8da1789f9de0a7c20703009d267d1a2ada45d174e8a31a24",
     "sourcePath": "agent/skills/maintain-verification-skill/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "make-pr-easy-to-review",
@@ -228,7 +481,12 @@
     "contentHash": "78a2c9dddd52c0cc2fa7efa358e966245ff1d63868bf10d9c6b0b6ac0405aabc",
     "sourcePath": "agent/skills/make-pr-easy-to-review/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "mission-control-delivery",
@@ -239,7 +497,12 @@
     "contentHash": "87c9f0e38da328e9cf31b944b0719e5843c897e10fdbe12fa05790b0be6e7836",
     "sourcePath": "agent/skills/mission-control-delivery/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "new-feature",
@@ -250,7 +513,12 @@
     "contentHash": "27b20245cbb2f821d2edab5e27cf994531491497e6afe4627ecda41d76694918",
     "sourcePath": "agent/skills/new-feature/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "no-comments",
@@ -261,7 +529,99 @@
     "contentHash": "eacda0467da9b0870d7f93e58935e5eab5394be61d167140d2aa515d7017760e",
     "sourcePath": "agent/skills/no-comments/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "observability-and-instrumentation",
+    "description": "Instruments code so production behavior is visible and diagnosable. Use when adding logging, metrics, tracing, or alerting. Use when shipping any feature that runs in production and you need evidence it works. Use when production issues are reported but you can't tell what happened from the available data.",
+    "userInvocable": true,
+    "fileCount": 3,
+    "sizeBytes": 20129,
+    "contentHash": "694cc11852d0c6a8f2fca55593dfb275734314483c9604f5b46e9b924974e1d9",
+    "sourcePath": "agent/skills/observability-and-instrumentation/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/observability-and-instrumentation.json",
+    "routingPrompts": [
+      "Add structured logging and metrics to the checkout service",
+      "Set up tracing so we can follow a request across services",
+      "What alerts should we page on for this new endpoint?"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Simplify this over-clever component",
+        "owner": "code-simplification"
+      },
+      {
+        "prompt": "Draft the PRD for the referral program"
+      }
+    ],
+    "behavioralEvalCount": 1
+  },
+  {
+    "name": "performance-optimization",
+    "description": "Optimizes application performance across frontend, backend, queries, and databases. Use when performance requirements exist, when you suspect performance regressions, when Core Web Vitals or load times need improvement, when N+1 query patterns need fixing, or when profiling reveals bottlenecks.",
+    "userInvocable": true,
+    "fileCount": 3,
+    "sizeBytes": 35912,
+    "contentHash": "49215aed25866f6ba0ebc0c9c7675aabae970586f5916b22606003867f44866b",
+    "sourcePath": "agent/skills/performance-optimization/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/performance-optimization.json",
+    "routingPrompts": [
+      "Optimize this N+1 query",
+      "The dashboard takes eight seconds to load, profile it and fix the bottleneck",
+      "Profile these slow database queries and add the right indexes",
+      "The orders endpoint has a slow N+1 query pattern, profile it and fix the bottleneck",
+      "Core Web Vitals are failing, improve our LCP"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Draft the deprecation notice for the v1 API",
+        "owner": "deprecation-and-migration"
+      },
+      {
+        "prompt": "Design the public interface for the billing module",
+        "owner": "api-and-interface-design"
+      }
+    ],
+    "behavioralEvalCount": 1
+  },
+  {
+    "name": "planning-and-task-breakdown",
+    "description": "Breaks work into ordered tasks. Use when you have a spec or clear requirements and need to break work into implementable tasks. Use when a task feels too large to start, when you need to estimate scope, or when parallel work is possible.",
+    "userInvocable": true,
+    "fileCount": 3,
+    "sizeBytes": 15395,
+    "contentHash": "9f68873f6b35f2c4aed3cf4f87bdca7d353ea44848d1d18de328681381e66978",
+    "sourcePath": "agent/skills/planning-and-task-breakdown/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/planning-and-task-breakdown.json",
+    "routingPrompts": [
+      "Break this spec into small verifiable tasks with acceptance criteria",
+      "Turn the PRD into an ordered task list we can execute",
+      "Plan the work into implementable chunks before we start coding"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Debug the crash on startup",
+        "owner": "debugging-and-error-recovery"
+      },
+      {
+        "prompt": "Encode the output so it is safe against XSS"
+      }
+    ],
+    "behavioralEvalCount": 1
   },
   {
     "name": "poteto-mode",
@@ -272,7 +632,12 @@
     "contentHash": "7236af42d83fedffbc20f35cdbe9ffa5a2f8dd221b3d7494850d5dee0ac6c501",
     "sourcePath": "agent/skills/poteto-mode/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-attack-the-premise",
@@ -283,7 +648,12 @@
     "contentHash": "bd254be936a9067a19cdc4a9a118916cff453d05f3a9586dc39deb2bb6ad888e",
     "sourcePath": "agent/skills/principle-attack-the-premise/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-boundary-discipline",
@@ -294,7 +664,12 @@
     "contentHash": "2f2d9ff29ded087c5051b28b3d1c85baf2df042e2470de21db80942889a2b653",
     "sourcePath": "agent/skills/principle-boundary-discipline/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-build-the-lever",
@@ -305,7 +680,12 @@
     "contentHash": "ca2a741c6b02944eff74d639aeb69b0dbc0560aecfcf358438bbf7ab7bb0d8b0",
     "sourcePath": "agent/skills/principle-build-the-lever/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-encode-lessons-in-structure",
@@ -316,7 +696,12 @@
     "contentHash": "19200587733da922714b8ecdac4dd62442bca1f1ff9548143e364dc34a9061e7",
     "sourcePath": "agent/skills/principle-encode-lessons-in-structure/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-exhaust-the-design-space",
@@ -327,7 +712,12 @@
     "contentHash": "5e8a514a73485189462ffd2d524bcc15d0ebbe20e45f1caefe5b781d107d49fb",
     "sourcePath": "agent/skills/principle-exhaust-the-design-space/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-experience-first",
@@ -338,7 +728,12 @@
     "contentHash": "6a874e6a497dc0a03473aabfb5ed37b740930531fac19959aa21fb9eea7d6eff",
     "sourcePath": "agent/skills/principle-experience-first/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-fix-root-causes",
@@ -349,7 +744,12 @@
     "contentHash": "df290a800f95ca8680559e67b2c57f963326f693a6166c8144b06f472a7fb756",
     "sourcePath": "agent/skills/principle-fix-root-causes/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-foundational-thinking",
@@ -360,7 +760,12 @@
     "contentHash": "e482afed954e488502d90fd8284216da3c09d3995616ee4523eac024442503cc",
     "sourcePath": "agent/skills/principle-foundational-thinking/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-guard-the-context-window",
@@ -371,7 +776,12 @@
     "contentHash": "fdc7b86eefee61dc7deb7c4eb9c157cd4b74cfb2e2d979230eb98ec589d436cc",
     "sourcePath": "agent/skills/principle-guard-the-context-window/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-laziness-protocol",
@@ -382,7 +792,12 @@
     "contentHash": "46e463e590a53806d5440019daefaee8542e457df16e29c5aaff9825a308fac9",
     "sourcePath": "agent/skills/principle-laziness-protocol/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-make-operations-idempotent",
@@ -393,7 +808,12 @@
     "contentHash": "084f82850c99dace11d779a3aeb3998daa40871f08361c5c042c3586ee943c5a",
     "sourcePath": "agent/skills/principle-make-operations-idempotent/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-migrate-callers-then-delete-legacy-apis",
@@ -404,7 +824,12 @@
     "contentHash": "5f9f362add068446cb0a6b324ab68694b1d3811e1e73b296101014ef0ed9d493",
     "sourcePath": "agent/skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-minimize-reader-load",
@@ -415,7 +840,12 @@
     "contentHash": "317f4440fe85bdf6b6af017d03dbb2742c03bf23c36e430b01be791203ea8b40",
     "sourcePath": "agent/skills/principle-minimize-reader-load/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-model-the-domain",
@@ -426,7 +856,12 @@
     "contentHash": "ae58248335de3e7ccbce6982d95f66a36bd2a335aa284b56f5095bdc3877a01b",
     "sourcePath": "agent/skills/principle-model-the-domain/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-never-block-on-the-human",
@@ -437,7 +872,12 @@
     "contentHash": "bdc3ce03442de4c31d3a260205d260c7f07012da4c5afa6286617ac68cbf6de7",
     "sourcePath": "agent/skills/principle-never-block-on-the-human/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-outcome-oriented-execution",
@@ -448,7 +888,12 @@
     "contentHash": "4aa471879f7f39bec5282c16f86d16f18b92dc195e0b569ac3f0070761c08f7d",
     "sourcePath": "agent/skills/principle-outcome-oriented-execution/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-prove-it-works",
@@ -459,7 +904,12 @@
     "contentHash": "fbff45e1c8916352903b0c2258250a9fbcfb0dc411b1cfb6aff36ffcace889c6",
     "sourcePath": "agent/skills/principle-prove-it-works/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-redesign-from-first-principles",
@@ -470,7 +920,12 @@
     "contentHash": "32d93673c89087bb8e1263b1b1c3a3958447389f4a6fb6f9f691bade0ed366f2",
     "sourcePath": "agent/skills/principle-redesign-from-first-principles/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-separate-before-serializing-shared-state",
@@ -481,7 +936,12 @@
     "contentHash": "eac9432b501e63dd72f8651e9432700888a51c24bbd0c57f7681091a75c99664",
     "sourcePath": "agent/skills/principle-separate-before-serializing-shared-state/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-sequence-verifiable-units",
@@ -492,7 +952,12 @@
     "contentHash": "8d5cd1c13c4a2d0b773a3c8a92e7b93670ced62f50be06b48f81a3827f9d421c",
     "sourcePath": "agent/skills/principle-sequence-verifiable-units/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-subtract-before-you-add",
@@ -503,7 +968,12 @@
     "contentHash": "b642d1f0516eeec04dc6af3ea71bcb04cd65a5e27cfe77f77eb18704c93a394f",
     "sourcePath": "agent/skills/principle-subtract-before-you-add/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-test-behavior-not-implementation",
@@ -514,7 +984,12 @@
     "contentHash": "a76151521b036720087f320a8fbdde96891c62e4314bcb418f5ffa512894d34e",
     "sourcePath": "agent/skills/principle-test-behavior-not-implementation/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "principle-type-system-discipline",
@@ -525,7 +1000,12 @@
     "contentHash": "7d8f0e6d47266b72189d56c6191628e6c8c80bc6eaee35b0973e95cf04b63c5c",
     "sourcePath": "agent/skills/principle-type-system-discipline/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "product-qa",
@@ -536,7 +1016,12 @@
     "contentHash": "f2645c32261db2444f59920a92f1adb8e8e0db21ebc1efc55a058040fb2dfdc5",
     "sourcePath": "agent/skills/product-qa/SKILL.md",
     "repository": null,
-    "revision": null
+    "revision": null,
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "recall",
@@ -547,7 +1032,12 @@
     "contentHash": "bfb38a5d7f0fd35d7be9cfbdb576f61fe7dc4ab76d5507182c7127e3be90ce79",
     "sourcePath": "agent/skills/recall/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "reflect",
@@ -558,7 +1048,43 @@
     "contentHash": "a2306e76d799dfaef0aff5c8ac73e1ac5bf17d45f2fd4c59328e81a6cdfa36aa",
     "sourcePath": "agent/skills/reflect/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "security-and-hardening",
+    "description": "Hardens code against vulnerabilities. Use when auditing an input handler for vulnerabilities, when handling user input, authentication, data storage, or external integrations, or when checking a login flow is safe against the OWASP Top Ten. Use when building any feature that accepts untrusted data, manages user sessions, or interacts with third-party services. Use when auditing dependencies for known vulnerabilities, triaging package-manager audit findings, or assessing supply-chain risk in a new package. Use when personal data or privacy compliance (GDPR, CCPA) is involved.",
+    "userInvocable": true,
+    "fileCount": 3,
+    "sizeBytes": 43049,
+    "contentHash": "76d4d38b3b14aacd0f3d3823796ab73d77a722d71bafa690dc8b9e4d3ae06096",
+    "sourcePath": "agent/skills/security-and-hardening/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/security-and-hardening.json",
+    "routingPrompts": [
+      "Audit this file upload handler for vulnerabilities",
+      "Is this login flow safe against the OWASP top ten?",
+      "Harden the webhook endpoint that fetches user-supplied URLs",
+      "Run a dependency audit and triage the findings",
+      "Is this new package safe to install? Check for typosquatting and supply chain risk"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Rename these variables for clarity",
+        "owner": "code-simplification"
+      },
+      {
+        "prompt": "Set up the release tagging workflow",
+        "owner": "git-workflow-and-versioning"
+      }
+    ],
+    "behavioralEvalCount": 1
   },
   {
     "name": "setup-jstack",
@@ -569,7 +1095,40 @@
     "contentHash": "e4d7cc79718c94b0823c56c4292d8a591a8803186a6bf91f3edaea1333cfae40",
     "sourcePath": "agent/skills/setup-jstack/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "shipping-and-launch",
+    "description": "Prepares production launches. Use when preparing to deploy to production, or when asking what needs to be in place before shipping. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.",
+    "userInvocable": true,
+    "fileCount": 6,
+    "sizeBytes": 48596,
+    "contentHash": "81799229c3cdf7655e7b2d57374f013957f797a639c42e3f091a3ea4bee5018c",
+    "sourcePath": "agent/skills/shipping-and-launch/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/shipping-and-launch.json",
+    "routingPrompts": [
+      "Run the pre-launch checklist before we go live tomorrow",
+      "What needs to be in place before shipping this to production?",
+      "Prepare the rollback plan for Friday's deploy"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Refine my rough product idea into something concrete",
+        "owner": "idea-refine"
+      },
+      {
+        "prompt": "Why is this function so slow on large inputs?"
+      }
+    ],
+    "behavioralEvalCount": 2
   },
   {
     "name": "show-me-your-work",
@@ -580,7 +1139,76 @@
     "contentHash": "33f6454accee590646a58f695e8306004d043be1980889280d169c35511026e0",
     "sourcePath": "agent/skills/show-me-your-work/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
+  },
+  {
+    "name": "source-driven-development",
+    "description": "Grounds every implementation decision in official documentation. Use when you want to verify an approach against the official docs before implementing it, or when you want authoritative, source-cited code free from outdated patterns. Use when building with any framework or library where correctness matters.",
+    "userInvocable": true,
+    "fileCount": 2,
+    "sizeBytes": 11106,
+    "contentHash": "47a2ac8d929450ab0f23abdb3b179a45405d2bbcf10861317679ff727b91f875",
+    "sourcePath": "agent/skills/source-driven-development/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/source-driven-development.json",
+    "routingPrompts": [
+      "Verify against the official Next.js docs before implementing this",
+      "I want source-cited code for the new Stripe integration",
+      "Ground every framework decision in the official documentation"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Fix the flaky test in CI",
+        "owner": "ci-cd-and-automation"
+      },
+      {
+        "prompt": "Break the spec into ordered tasks",
+        "owner": "planning-and-task-breakdown"
+      }
+    ],
+    "behavioralEvalCount": 1
+  },
+  {
+    "name": "spec-driven-development",
+    "description": "Creates specs before coding. Use when starting a new project, feature, or significant change and no specification exists yet. Use when drafting a PRD or requirements document with objectives and scope, or when requirements are unclear, ambiguous, or only exist as a vague idea. Use when a single requirement spans several independently testable capabilities and needs decomposing into a capability map of modules before specifying.",
+    "userInvocable": true,
+    "fileCount": 2,
+    "sizeBytes": 13566,
+    "contentHash": "807dcaafb9f895786c8e4b648839523cf32c43b4e9373466831a79c2ee4ecf4e",
+    "sourcePath": "agent/skills/spec-driven-development/SKILL.md",
+    "repository": "addyosmani/agent-skills",
+    "revision": "be4e44a9fbc5e8df0beaefadbb28bd22ee61cc39",
+    "license": "MIT",
+    "sourceEvalPath": "evals/skill-cases/addyosmani-agent-skills/spec-driven-development.json",
+    "routingPrompts": [
+      "Write a spec for the new billing feature before we write any code",
+      "Draft a PRD with objectives and boundaries for this project",
+      "We are starting a new service, define the requirements first",
+      "This one requirement covers identity, billing, notifications, and reporting — decompose it into independently specifiable modules first",
+      "Before we spec this platform, map the capabilities and their dependency order"
+    ],
+    "negativeRoutingPrompts": [
+      {
+        "prompt": "Trace this request across our services",
+        "owner": "observability-and-instrumentation"
+      },
+      {
+        "prompt": "Simplify this clever one-liner into readable code",
+        "owner": "code-simplification"
+      },
+      {
+        "prompt": "Break the approved spec into ordered implementation tasks",
+        "owner": "planning-and-task-breakdown"
+      }
+    ],
+    "behavioralEvalCount": 2
   },
   {
     "name": "swarm",
@@ -591,7 +1219,12 @@
     "contentHash": "a1d30f99ec649f0922202cc8ee7221016f1c216217ef568ca71a804bb5c30434",
     "sourcePath": "agent/skills/swarm/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "tdd",
@@ -602,7 +1235,12 @@
     "contentHash": "12b217d2d578b8061b4c0e005ccbfd5ff33be01cd62dbadcff1c74992528e654",
     "sourcePath": "agent/skills/tdd/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "teach",
@@ -613,7 +1251,12 @@
     "contentHash": "5377e19a975638a9af0cd1d354f791a2d11980f11c8e0036669f44d73e4a81c2",
     "sourcePath": "agent/skills/teach/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "technical-writing",
@@ -624,7 +1267,12 @@
     "contentHash": "15cb5607dae302cc1c21d12b7e18fc90e60835f185cfc3a5e2d60bd8d5a4e220",
     "sourcePath": "agent/skills/technical-writing/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "thermo-nuclear-code-quality-review",
@@ -635,7 +1283,12 @@
     "contentHash": "ba2cfc24655062d0cab147af3e40659ce484fb2e959ec572dd37412b6bdee2aa",
     "sourcePath": "agent/skills/thermo-nuclear-code-quality-review/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "typescript-best-practices",
@@ -646,7 +1299,12 @@
     "contentHash": "ccabaa37508e92b0a474be823ac8818f5601e37b8c2b19d7edb2318029fd7e62",
     "sourcePath": "agent/skills/typescript-best-practices/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "unslop",
@@ -657,7 +1315,12 @@
     "contentHash": "d614219c70a548854a94f44a236525365b84e46a49b860a83b084422df5de3c0",
     "sourcePath": "agent/skills/unslop/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "what-did-i-get-done",
@@ -668,7 +1331,12 @@
     "contentHash": "bc78cfae72eeee1f4803b2d43ebdadbbfa7ac24614ba7f99c60b07cf0e05326d",
     "sourcePath": "agent/skills/what-did-i-get-done/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   },
   {
     "name": "why",
@@ -679,6 +1347,11 @@
     "contentHash": "e043f83353533b8bf2ef2dd5f972c4a3413c0c131df8668f6ea312c1982e4c5f",
     "sourcePath": "agent/skills/why/SKILL.md",
     "repository": "jaydubya818/skillz",
-    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
+    "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16",
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0
   }
 ]

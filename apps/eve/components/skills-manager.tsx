@@ -38,6 +38,11 @@ interface SkillItem {
   sourcePath: string | null;
   repository: string | null;
   revision: string | null;
+  license: string | null;
+  sourceEvalPath: string | null;
+  routingPromptCount: number;
+  negativeRoutingPromptCount: number;
+  behavioralEvalCount: number;
   markdown?: string;
   updatedAt?: string;
 }
@@ -810,6 +815,17 @@ export function SkillsManager() {
                           </span>
                           <span className={cn("font-medium", evalTone(selected, evaluation))}>{evalLabel(selected, evaluation)}</span>
                         </div>
+                        {selected.sourceEvalPath !== null && (
+                          <div className="flex items-center gap-3 px-3 py-2.5">
+                            <CheckCircleIcon className="size-4 text-kumo-success" weight="fill" aria-hidden />
+                            <span className="min-w-0 flex-1">
+                              <span className="block">Source eval suite</span>
+                              <span className="block text-[10px] leading-4 text-kumo-subtle">
+                                {selected.routingPromptCount} positive · {selected.negativeRoutingPromptCount} negative · {selected.behavioralEvalCount} behavioral
+                              </span>
+                            </span>
+                          </div>
+                        )}
                       </div>
                       {selected.source === "installed" && (
                         <div className="mt-2 flex items-center justify-between gap-2">
@@ -839,6 +855,8 @@ export function SkillsManager() {
                         <dt className="text-kumo-subtle">Files</dt><dd>{selected.fileCount} · {formatBytes(selected.sizeBytes)}</dd>
                         <dt className="text-kumo-subtle">Source</dt><dd className="truncate font-mono" title={selected.sourcePath ?? undefined}>{selected.repository ?? "Conversation"}</dd>
                         {selected.revision !== null && <><dt className="text-kumo-subtle">Revision</dt><dd className="truncate font-mono" title={selected.revision}>{selected.revision.slice(0, 9)}</dd></>}
+                        {selected.license !== null && <><dt className="text-kumo-subtle">License</dt><dd>{selected.license}</dd></>}
+                        {selected.sourceEvalPath !== null && <><dt className="text-kumo-subtle">Eval spec</dt><dd className="truncate font-mono text-[10px]" title={selected.sourceEvalPath}>{selected.name}.json</dd></>}
                         {selected.sourcePath !== null && <><dt className="text-kumo-subtle">Path</dt><dd className="break-all font-mono text-[10px]">{selected.sourcePath}</dd></>}
                       </dl>
                     </div>
