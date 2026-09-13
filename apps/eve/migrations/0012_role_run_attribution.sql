@@ -1,3 +1,8 @@
+-- Dependencies: 0001_runtime_core.sql provides web_chat_threads; 0008_persistent_agents.sql
+-- provides agents, agent_runs, and owner/agent attribution on web_chat_threads.
+-- This migration is intentionally independent of 0009 scoped memory, 0010 Agent Computer,
+-- and 0011 Knowledge Core. Its reserved 0012 version may follow gaps on phase-local branches.
+
 ALTER TABLE web_chat_threads
   ADD COLUMN IF NOT EXISTS role_id text;
 

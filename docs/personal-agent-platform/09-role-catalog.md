@@ -54,6 +54,12 @@ Goal → Task → persistent Agent → Run → Evidence → Outcome
 
 Persistent Agent and on-demand Role runs use the same `agent_runs` infrastructure. `executor_kind` distinguishes `primary-agent`, `persistent-agent`, and `on-demand-role`; `role_id` is present only for on-demand Role runs. A Role run uses the primary Agent runtime and actual capability/approval policy without creating a persistent identity. There is no separate Role Run model.
 
+Migration `0012_role_run_attribution.sql` depends only on the canonical schema available after `0008_persistent_agents.sql`: `web_chat_threads`, `agents` (including `is_primary`), and `agent_runs`. It has no dependency on `0009` Scoped Memory, `0010` Agent Computer, or `0011` Knowledge Core. Phase-local branches may therefore contain a deliberate numeric gap before `0012`; the migration loader sorts versions, rejects duplicates, and does not require contiguous numbering.
+
+Phase 6 attributes `computer_sessions`, `computer_actions`, and `computer_artifacts` to the existing `agents` and `task_runs` schemas. Role attribution extends `agent_runs` and `web_chat_threads` instead. The migrations do not share table alterations, foreign keys, constraints, or index names. A future integration should preserve that distinction: computer execution remains linked through `task_runs`, while conversational Agent and Role execution remains attributed through `agent_runs`.
+
+Phase 9A is independent. Role execution does not require or foreign-key into Knowledge tables, and Knowledge integration remains deferred.
+
 ## Delegation policy
 
 The workflow hard ceiling is 16 delegated calls. It is a guardrail, not a target:

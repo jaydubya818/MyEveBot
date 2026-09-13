@@ -80,9 +80,13 @@ test("Role Catalog UI exposes both on-demand and persistent actions", async () =
 
 test("on-demand Role execution is attributed on canonical Agent Runs", async () => {
   const sessionSource = await readFile(new URL("../agent/lib/session-settings.ts", import.meta.url), "utf8");
-  const migration = await readFile(new URL("../migrations/0010_role_run_attribution.sql", import.meta.url), "utf8");
+  const migration = await readFile(new URL("../migrations/0012_role_run_attribution.sql", import.meta.url), "utf8");
   assert.match(sessionSource, /on-demand-role/);
   assert.match(sessionSource, /INSERT INTO agent_runs/);
   assert.match(migration, /role_id/);
+  assert.match(migration, /0008_persistent_agents\.sql/);
+  assert.doesNotMatch(migration, /ALTER TABLE task_runs/);
+  assert.doesNotMatch(migration, /computer_sessions/);
+  assert.doesNotMatch(migration, /knowledge_/);
   assert.doesNotMatch(migration, /CREATE TABLE[^;]*role_runs/i);
 });
