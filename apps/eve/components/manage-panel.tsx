@@ -19,6 +19,7 @@ import {
   PlusIcon,
   PulseIcon,
   ReceiptIcon,
+  UsersThreeIcon,
   TrashIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
@@ -27,6 +28,7 @@ import { useEffect, useState } from "react";
 
 import type { CapabilityId, CapabilityStatus } from "@/lib/capabilities";
 import { AppearancePanel } from "@/components/appearance-panel";
+import { AgentsPanel } from "@/components/agents-panel";
 import { FinancePanel } from "@/components/finance-panel";
 import { SkillsManager } from "@/components/skills-manager";
 import { SystemHealthPanel } from "@/components/system-health-panel";
@@ -35,6 +37,7 @@ import { ReviewDeliverySettings } from "@/components/review-delivery-settings";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 import type { AgentActivityView } from "@/lib/agents";
+import type { AgentView } from "@/lib/agents";
 
 // Management surface for everything Sofie does or knows on her own: scheduled
 // reminders, event-trigger webhooks, long-term memory, connected apps, and
@@ -423,7 +426,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -453,6 +456,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
         label: "Appearance",
         description: "Identity and theme",
         icon: PaletteIcon,
+      },
+      {
+        id: "agents" as const,
+        label: "Agents",
+        description: "Role catalog and persistent Agents",
+        icon: UsersThreeIcon,
       },
     ],
   },
@@ -595,9 +604,11 @@ function SectionShell({
 
 export function ManagePanel({
   onOpenThread,
+  onStartAgentChat,
 }: {
   /** Jump to a thread (e.g. one a reminder delivered). */
   onOpenThread: (threadId: string) => void;
+  onStartAgentChat: (agent: AgentView) => void;
 }) {
   const [selectedSection, setSelectedSection] = useState<ManageSection | null>(null);
   const [capabilities, setCapabilities] = useState<CapabilityStatus[] | null>(null);
@@ -706,13 +717,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity"
+    id === "system" || id === "activity" || id === "agents"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || capabilityFor(id)?.state !== "excluded";
+    id === "system" || id === "activity" || id === "agents" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -754,6 +765,8 @@ export function ManagePanel({
     sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {
     sectionContent = <AppearancePanel />;
+  } else if (activeSection === "agents") {
+    sectionContent = <AgentsPanel embedded onStartChat={onStartAgentChat} />;
   } else if (activeSection === "reminders") {
     sectionContent = automationError ? (
       <ErrorNote>{automationError}</ErrorNote>
