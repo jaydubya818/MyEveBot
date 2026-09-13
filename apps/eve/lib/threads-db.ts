@@ -1,5 +1,7 @@
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 
+import { BUILTIN_ROLE_CATALOG } from "./builtin-role-catalog.ts";
+
 // Lazy init: DATABASE_URL may be absent at build time (same pattern as
 // agent/lib/receipts-db.ts).
 let _sql: NeonQueryFunction<false, false> | null = null;
@@ -34,6 +36,7 @@ async function ensureTable(): Promise<void> {
     `;
     await sql()`ALTER TABLE web_chat_threads ADD COLUMN IF NOT EXISTS owner_id text`;
     await sql()`ALTER TABLE web_chat_threads ADD COLUMN IF NOT EXISTS agent_id text`;
+    await sql()`ALTER TABLE web_chat_threads ADD COLUMN IF NOT EXISTS role_id text`;
   })();
   await ensured;
 }
@@ -49,6 +52,8 @@ export interface ThreadMetaRow {
   origin?: ThreadOrigin;
   agentId?: string;
   agentName?: string;
+  roleId?: string;
+  roleName?: string;
 }
 
 export interface ThreadRow extends ThreadMetaRow {
@@ -62,7 +67,7 @@ function toOrigin(value: unknown): ThreadOrigin {
 export async function listThreads(ownerId: string): Promise<ThreadRow[]> {
   await ensureTable();
   const rows = await sql()`
-    SELECT t.id, t.title, t.updated_at, t.pinned, t.renamed, t.origin, t.agent_id, a.name AS agent_name
+    SELECT t.id, t.title, t.updated_at, t.pinned, t.renamed, t.origin, t.agent_id, t.role_id, a.name AS agent_name
     FROM web_chat_threads t LEFT JOIN agents a ON a.owner_id=t.owner_id AND a.id=t.agent_id
     WHERE t.owner_id = ${ownerId} ORDER BY t.updated_at DESC
   `;
@@ -75,6 +80,8 @@ export async function listThreads(ownerId: string): Promise<ThreadRow[]> {
     origin: toOrigin(row.origin),
     agentId: nullableThreadText(row.agent_id),
     agentName: nullableThreadText(row.agent_name),
+    roleId: nullableThreadText(row.role_id),
+    roleName: BUILTIN_ROLE_CATALOG.roles.find((role) => role.id === row.role_id)?.name,
   }));
 }
 
@@ -155,8 +162,8 @@ export async function upsertThread(
   await ensureTable();
   await assertThreadOwner(ownerId, id);
   await sql()`
-    INSERT INTO web_chat_threads (id, owner_id, agent_id, title, updated_at, pinned, renamed, origin, chat)
-    VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
+    INSERT INTO web_chat_threads (id, owner_id, agent_id, role_id, title, updated_at, pinned, renamed, origin, chat)
+    VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.roleId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
             ${meta.origin ?? "web"}, ${JSON.stringify(chat)}::jsonb)
     ON CONFLICT (id) DO UPDATE
       SET title = EXCLUDED.title,
@@ -164,7 +171,8 @@ export async function upsertThread(
           pinned = EXCLUDED.pinned,
           renamed = EXCLUDED.renamed,
           chat = EXCLUDED.chat,
-          agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id)
+          agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id),
+          role_id = coalesce(web_chat_threads.role_id, EXCLUDED.role_id)
       WHERE web_chat_threads.owner_id = EXCLUDED.owner_id
   `;
 }
@@ -174,15 +182,16 @@ export async function upsertThreadMeta(ownerId: string, id: string, meta: Thread
   await ensureTable();
   await assertThreadOwner(ownerId, id);
   await sql()`
-    INSERT INTO web_chat_threads (id, owner_id, agent_id, title, updated_at, pinned, renamed, origin)
-    VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
+    INSERT INTO web_chat_threads (id, owner_id, agent_id, role_id, title, updated_at, pinned, renamed, origin)
+    VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.roleId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
             ${meta.origin ?? "web"})
     ON CONFLICT (id) DO UPDATE
       SET title = EXCLUDED.title,
           updated_at = EXCLUDED.updated_at,
           pinned = EXCLUDED.pinned,
           renamed = EXCLUDED.renamed,
-          agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id)
+          agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id),
+          role_id = coalesce(web_chat_threads.role_id, EXCLUDED.role_id)
       WHERE web_chat_threads.owner_id = EXCLUDED.owner_id
   `;
 }

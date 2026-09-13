@@ -38,6 +38,7 @@ Creating a persistent Agent from a Role copies only safe defaults: role name, de
 
 - **General:** Researcher, Writer, Analyst, Scheduler.
 - **Software Development:** Product manager, Researcher, Product designer, Software architect, Software developer, Test automation engineer, Code & security reviewer, Release & reliability engineer, Support & incident agent, Analyst. Its local lifecycle is Direction → Discovery → Design → Build → Verify → Release → Operate → Learn.
+- **Marketing Engineering:** Marketing Engineer, Market Researcher, Product Marketer, Content Strategist, Creative / Brand Designer, Growth / Performance Marketer, SEO / AEO Specialist, Lifecycle / Email Marketer, Landing Page / CRO Specialist, Marketing Operations, Marketing Analyst. Its local lifecycle is Understand → Research → Plan → Produce → Verify → Approve → Execute → Measure → Learn.
 - **Verification:** Functional & State, UX & Accessibility, Trust & Resilience.
 
 General and Software Development roles are available for bounded on-demand delegation. Verification roles are the existing isolated product-QA specialists and remain invocable only through the existing product-QA workflow. This does not create a second QA execution model.
@@ -51,7 +52,7 @@ Goal → Task → on-demand Role → Run → Evidence → Outcome
 Goal → Task → persistent Agent → Run → Evidence → Outcome
 ```
 
-Persistent Agent runs already have durable Agent attribution. This slice does not change shared schema. Before on-demand Role runs become durable first-class records, add a minimal executor attribution seam to the existing Run metadata—conceptually `executorKind` (`primary-agent`, `persistent-agent`, or `on-demand-role`) plus an optional `roleId`. Do not create a separate Role Run model.
+Persistent Agent and on-demand Role runs use the same `agent_runs` infrastructure. `executor_kind` distinguishes `primary-agent`, `persistent-agent`, and `on-demand-role`; `role_id` is present only for on-demand Role runs. A Role run uses the primary Agent runtime and actual capability/approval policy without creating a persistent identity. There is no separate Role Run model.
 
 ## Delegation policy
 

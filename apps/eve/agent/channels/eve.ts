@@ -8,11 +8,13 @@ export function ownerSession(): AuthFn<Request> {
     const principal = webPrincipal(request);
     if (principal === null) return null;
     const requestedAgentId = request.headers.get("x-myeve-agent-id")?.trim();
+    const requestedRoleId = request.headers.get("x-myeve-role-id")?.trim();
     const requestedThreadId = request.headers.get("x-myeve-thread-id")?.trim();
     return {
       attributes: {
         owner: "true",
         ...(requestedAgentId && requestedAgentId.length <= 100 ? { myeveAgentId: requestedAgentId } : {}),
+        ...(requestedRoleId && requestedRoleId.length <= 100 ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),
       },
       authenticator: "myeve-web-session",

@@ -3,6 +3,7 @@ import { apiError, requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
 import { requestOwnerId } from "@/lib/agent-api";
 import { getAgent } from "@/lib/agents";
+import { BUILTIN_ROLE_CATALOG } from "@/lib/builtin-role-catalog";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -36,6 +37,7 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
     renamed?: unknown;
     origin?: unknown;
     agentId?: unknown;
+    roleId?: unknown;
     chat?: unknown;
   } | null;
   if (body === null || typeof body.title !== "string" || typeof body.updatedAt !== "number") {
@@ -51,12 +53,20 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
       ? body.origin
       : "web") as "web" | "reminder" | "webhook",
     agentId: typeof body.agentId === "string" ? body.agentId : undefined,
+    roleId: typeof body.roleId === "string" ? body.roleId : undefined,
   };
   // Meta-only updates (rename, pin) omit the chat payload to leave it intact.
   try {
     const ownerId = requestOwnerId(request);
     if (meta.agentId && await getAgent(ownerId, meta.agentId) === null) {
       return apiError(request, 400, "invalid_agent", "Agent not found for this owner.");
+    }
+    if (meta.agentId && meta.roleId) {
+      return apiError(request, 400, "invalid_executor", "Choose either a persistent Agent or an on-demand Role.");
+    }
+    const role = meta.roleId ? BUILTIN_ROLE_CATALOG.roles.find((candidate) => candidate.id === meta.roleId) : undefined;
+    if (meta.roleId && role?.executionMode !== "on-demand") {
+      return apiError(request, 400, "invalid_role", "Role is not available for on-demand use.");
     }
     if (typeof body.chat === "object" && body.chat !== null) {
       await upsertThread(ownerId, id, meta, body.chat);
