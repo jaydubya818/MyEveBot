@@ -95,7 +95,7 @@ Implement Option 1. Keep manual brief/review generation first, compute risk with
 - Added migration 0006, owner-scoped Outcome persistence, review checkpoints, and event delivery classification.
 - Added deterministic Daily Brief, Weekly Review, stalled-work, deadline, dependency, and capability risk projections.
 - Added shared authenticated APIs, Eve tools/instructions, builder ownership, and the first-class `/review` UI.
-- Passed 39 unit tests, both database integration tests, migration validation, typecheck, manifest/capability checks, production build, dependency audit, and desktop/mobile browser checks.
+- Passed 42 unit tests, database integration tests, migration validation, typecheck, manifest/capability checks, production build, dependency audit, and desktop/mobile browser checks.
 
 **Learnings:**
 - An explicit blocked goal must surface even when it has no tasks.
@@ -113,6 +113,19 @@ Implement Option 1. Keep manual brief/review generation first, compute risk with
 **Learnings:**
 - The project has Database/Blob preview configuration but no saved preview web-auth variables, so ordinary previews fail closed until auth is supplied by the deployment workflow.
 - Vercel team deployment protection remains enabled; authenticated CLI/browser context is required before the app's own owner session can be exercised.
+
+### 2026-09-13 - Final integrity hardening
+
+**By:** Codex
+
+**Actions:**
+- Added agent parity for explicit owner feedback and required replay-safe outcome idempotency keys.
+- Replaced per-goal review loading with bounded owner-scoped batch queries.
+- Tightened outcome lineage, evidence, timestamp, and duplicate-feedback validation.
+- Requalified Daily and Weekly Review states, checkpoint confirmation, build, typecheck, migrations, and database integration behavior.
+
+**Learnings:**
+- Review generation needs bounded bulk reads; otherwise a large goal set creates avoidable query fan-out.
 
 ## Notes
 

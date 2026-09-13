@@ -29,7 +29,7 @@ An Outcome links to a Goal or Run and may additionally link to a Goal Task and e
 - `ineffective`
 - `unknown`
 
-Owner feedback is one of `helpful`, `neutral`, `unhelpful`, or `unknown`. Agent-created outcomes default to `unknown`; agent instructions prohibit inferring it.
+Owner feedback is one of `helpful`, `neutral`, `unhelpful`, or `unknown`. Agent-created outcomes default to `unknown`; agent instructions prohibit inferring it. The Review UI and `update_outcome_feedback` tool use the same owner-scoped repository, so Sofie can apply only feedback the owner states directly.
 
 ## Deterministic review rules
 
