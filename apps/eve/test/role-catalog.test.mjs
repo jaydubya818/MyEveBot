@@ -6,24 +6,26 @@ import { BUILTIN_ROLE_CATALOG, BUILTIN_ROLE_PACKS, DECLARED_QA_ROLE_IDS } from "
 import { CAPABILITY_DEFINITIONS } from "../lib/capability-registry.ts";
 import { DELEGATION_BUDGETS } from "../lib/delegation-policy.ts";
 import { createRoleCatalog, roleAgentDefaults } from "../lib/role-catalog.ts";
+import { MARKETING_ENGINEERING_ROLE_PACK } from "../lib/role-packs/marketing-engineering.ts";
 import { SOFTWARE_DEVELOPMENT_ROLE_PACK } from "../lib/role-packs/software-development.ts";
 
 const roleIds = BUILTIN_ROLE_CATALOG.roles.map((role) => role.id);
 
-test("built-in catalog exposes the General, Software Development, and Verification packs", () => {
+test("built-in catalog exposes the General, Software Development, Marketing Engineering, and Verification packs", () => {
   assert.deepEqual(BUILTIN_ROLE_PACKS.map((pack) => pack.id), [
     "general",
     "software-development",
+    "marketing-engineering",
     "verification",
   ]);
   assert.equal(new Set(roleIds).size, roleIds.length);
-  assert.equal(BUILTIN_ROLE_CATALOG.roles.length, 15);
+  assert.equal(BUILTIN_ROLE_CATALOG.roles.length, 19);
 });
 
 test("shared roles are deduplicated and conflicting definitions are rejected", () => {
   const researcherEntries = BUILTIN_ROLE_PACKS.flatMap((pack) => pack.roles)
     .filter(({ role }) => role.id === "researcher");
-  assert.equal(researcherEntries.length, 2);
+  assert.equal(researcherEntries.length, 3);
   assert.equal(researcherEntries[0].role, researcherEntries[1].role);
 
   assert.throws(() => createRoleCatalog([
@@ -32,10 +34,26 @@ test("shared roles are deduplicated and conflicting definitions are rejected", (
   ]), /conflicting definitions/);
 });
 
+test("Marketing Engineering reuses canonical shared roles by reference", () => {
+  for (const roleId of ["researcher", "writer", "analyst", "scheduler"]) {
+    const entries = BUILTIN_ROLE_PACKS.flatMap((pack) => pack.roles)
+      .filter(({ role }) => role.id === roleId);
+    assert.ok(entries.length > 1, `${roleId} should be shared across packs`);
+    assert.ok(entries.every((entry) => entry.role === entries[0].role), `${roleId} should use one canonical definition`);
+  }
+});
+
 test("software development pack covers every lifecycle stage", () => {
   const lifecycleIds = SOFTWARE_DEVELOPMENT_ROLE_PACK.lifecycle.stages.map((stage) => stage.id);
   const assignedIds = new Set(SOFTWARE_DEVELOPMENT_ROLE_PACK.roles.flatMap((entry) => entry.lifecycleStages ?? []));
   assert.deepEqual(lifecycleIds, ["direction", "discovery", "design", "build", "verify", "release", "operate", "learn"]);
+  assert.deepEqual([...assignedIds].sort(), [...lifecycleIds].sort());
+});
+
+test("marketing engineering pack covers its complete lifecycle", () => {
+  const lifecycleIds = MARKETING_ENGINEERING_ROLE_PACK.lifecycle.stages.map((stage) => stage.id);
+  const assignedIds = new Set(MARKETING_ENGINEERING_ROLE_PACK.roles.flatMap((entry) => entry.lifecycleStages ?? []));
+  assert.deepEqual(lifecycleIds, ["direction", "research", "create", "build", "verify", "launch", "measure", "optimize"]);
   assert.deepEqual([...assignedIds].sort(), [...lifecycleIds].sort());
 });
 
@@ -57,6 +75,18 @@ test("Verification remains the fixed three declared QA specialists", () => {
   const declared = BUILTIN_ROLE_CATALOG.roles.filter((role) => role.executionMode === "declared-specialist");
   assert.deepEqual(declared.map((role) => role.id), DECLARED_QA_ROLE_IDS);
   assert.ok(declared.every((role) => role.verificationRole));
+  assert.ok(MARKETING_ENGINEERING_ROLE_PACK.roles.every(({ role }) => role.executionMode === "on-demand"));
+});
+
+test("marketing launch roles retain approval and independent-review boundaries", () => {
+  const marketingEngineer = BUILTIN_ROLE_CATALOG.roles.find((role) => role.id === "marketing-engineer");
+  const lifecycleEngineer = BUILTIN_ROLE_CATALOG.roles.find((role) => role.id === "lifecycle-marketing-engineer");
+  const reviewer = BUILTIN_ROLE_CATALOG.roles.find((role) => role.id === "marketing-qa-compliance-reviewer");
+  assert.ok(marketingEngineer?.boundaries.some((boundary) => /explicit approval/i.test(boundary)));
+  assert.ok(lifecycleEngineer?.boundaries.some((boundary) => /explicit approval/i.test(boundary)));
+  assert.equal(reviewer?.verificationRole, true);
+  assert.ok(reviewer?.boundaries.some((boundary) => /independent/i.test(boundary)));
+  assert.equal(reviewer?.executionMode, "on-demand");
 });
 
 test("creating a persistent Agent from a Role produces editable configuration defaults", () => {

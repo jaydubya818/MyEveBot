@@ -38,9 +38,12 @@ Creating a persistent Agent from a Role copies only safe defaults: role name, de
 
 - **General:** Researcher, Writer, Analyst, Scheduler.
 - **Software Development:** Product manager, Researcher, Product designer, Software architect, Software developer, Test automation engineer, Code & security reviewer, Release & reliability engineer, Support & incident agent, Analyst. Its local lifecycle is Direction → Discovery → Design → Build → Verify → Release → Operate → Learn.
+- **Marketing Engineering:** Marketing strategist, Researcher, Writer, Marketing engineer, Lifecycle marketing engineer, Marketing QA & compliance reviewer, Scheduler, Analyst. Its local lifecycle is Direction → Research → Create → Build → Verify → Launch → Measure → Optimize.
 - **Verification:** Functional & State, UX & Accessibility, Trust & Resilience.
 
-General and Software Development roles are available for bounded on-demand delegation. Verification roles are the existing isolated product-QA specialists and remain invocable only through the existing product-QA workflow. This does not create a second QA execution model.
+General, Software Development, and Marketing Engineering roles are available for bounded on-demand delegation. Marketing QA & compliance review remains an on-demand Role; it does not become a declared specialist or a parallel QA runtime. Verification roles are the existing isolated product-QA specialists and remain invocable only through the existing product-QA workflow. This does not create a second QA execution model.
+
+The Marketing Engineering pack is intentionally execution-neutral. Recommended capabilities cover research, files, browser validation, integrations, scheduling, and goals, but do not grant access. Campaign publication, external sends, standing automations, audience changes, tracking changes, and spend remain subject to the selected Agent's effective capability policy and owner approval.
 
 ## Runs and attribution
 
@@ -97,7 +100,7 @@ The catalog is owner- and primary-Agent-agnostic. Future deployments can select 
 
 Future shareable Role Packs may serialize definitions, recommended capabilities, default instructions, safety boundaries, suggested skills, and suggested routines. They must never contain credentials, private memories, conversation history, connected-account tokens, or owner-specific data.
 
-Potential future packs include Personal Productivity, Travel, Job Search, Content Creation, Small Business, Sales, Marketing, Finance, and Research. Marketplace sharing is not implemented here.
+Potential future packs include Personal Productivity, Travel, Job Search, Content Creation, Small Business, Sales, Finance, and Research. Marketplace sharing is not implemented here.
 
 ## Change classification and parallel boundaries
 
