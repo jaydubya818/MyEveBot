@@ -82,11 +82,10 @@ Implement Option 1. Keep in-app checkpoints as the durable fallback, make extern
 - Added the minute-level Eve dispatcher, Web Push deep links, allowlisted explicit Telegram delivery, Manage settings/history, bounded agent tools, Builder timezone setup, and template release 26.
 - Added deterministic unit coverage and a guarded non-empty E2E seed containing priorities, deadline risk, a blocked dependency, completed work, owner action, helpful outcome, and checkpoints.
 - Passed 52 repository tests, database integration coverage, root typecheck/manifest/capability checks, migration-file validation, both webpack production builds, dependency audit, and diff whitespace checks.
-- Applied migration 0007 to the configured development database and verified zero duplicate checkpoints, duplicate deliveries, orphaned checkpoints, invalid preferences, and over-budget attempts.
-- Qualified empty, loading, error/retry, populated, saved, query-selected, and narrow-screen browser states; confirmed no horizontal overflow, browser errors, or automated accessibility violations.
-- Deployed a fresh Vercel Preview at `https://sofie-personal-agent-8xz0bf3wv-jaydubya818.vercel.app`; the native Turbopack build, typecheck, route generation, and Eve schedule compilation completed successfully.
-- Confirmed the hosted URL is protected by Vercel account authentication. Preview health is therefore evidenced by Vercel's completed build/deployment, while interactive browser evidence comes from the same build locally.
-- Merged PR #1 to lock the Outcomes/Review baseline before preparing this stacked Phase 3 change.
+- Confirmed migration 0007 on the linked Preview database and passed all database integration tests against that migrated schema.
+- Deployed fresh Vercel Preview `dpl_6pmDdUkKzemZhDTCo7RdSkyuQHBR` at `https://sofie-personal-agent-msp5uuucm-jaydubya818.vercel.app`; Vercel's Turbopack build, typecheck, route generation, capability validation, and Eve schedule compilation completed successfully.
+- Qualified authenticated identity/navigation, non-empty Daily Brief and Weekly Review, manual generation, saved checkpoints, owner-local schedule persistence, unavailable-channel explanations, desktop, and mobile deep links in that Preview with no browser console errors.
+- Exercised the canonical in-app delivery tick at the owner-local scheduled time, verified the persisted checkpoint and delivery history, replayed the same tick to prove database deduplication, and exercised unavailable Push fallback with the checkpoint preserved and a visible failure reason.
 
 **Migration decision:**
 - Migration 0007 is additive except for replacing the prior one-checkpoint-per-owner/kind uniqueness rule with historical period uniqueness. Roll forward after use; do not revert to the old constraint once multiple periods exist.

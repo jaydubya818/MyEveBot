@@ -87,7 +87,7 @@ await updateOutcomeFeedback(ownerId, outcome.id, "helpful");
 await updateReviewDeliveryPreferences(ownerId, {
   ownerTimezone: timezone,
   dailyBriefEnabled: true,
-  dailyBriefTime: "08:00",
+  dailyBriefTime: "07:00",
   weeklyReviewEnabled: true,
   weeklyReviewDay: 0,
   weeklyReviewTime: "19:00",
