@@ -40,6 +40,21 @@ test("outcomes and reviews preserve owner scope, lineage, and checkpoints", { sk
     assert.equal((await listOutcomes(`not-${ownerId}`)).length, 0);
 
     const unrelatedGoal = await createGoal({ ownerId, title: "Unrelated lineage", source: "test" });
+    const unrelatedTask = await createGoalTask(ownerId, unrelatedGoal.id, {
+      title: "Unrelated task",
+      status: "ready",
+    });
+    await assert.rejects(
+      createOutcome({
+        ownerId,
+        goalId: goal.id,
+        goalTaskId: unrelatedTask.id,
+        status: "unknown",
+        summary: "Mismatched goal and task links must be rejected.",
+        idempotencyKey: `outcome-${randomUUID()}`,
+      }),
+      /does not belong/i,
+    );
     const unrelatedEvents = await db().query(
       "SELECT id FROM eve_events WHERE owner_id = $1 AND goal_id = $2 ORDER BY occurred_at LIMIT 1",
       [ownerId, unrelatedGoal.id],
