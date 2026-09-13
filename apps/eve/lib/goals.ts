@@ -193,6 +193,27 @@ function taskView(
   };
 }
 
+function nextActionForGoal(
+  goal: Pick<GoalSummaryView, "id" | "title" | "status" | "priority" | "targetDate">,
+  tasks: readonly GoalTaskView[],
+): GoalFocusItem | null {
+  return rankFocusCandidates(
+    tasks.map((task) => ({ goal, task })),
+  )[0] ?? null;
+}
+
+function groupByGoal<T>(
+  rows: readonly Row[],
+  project: (row: Row) => T,
+): Map<string, T[]> {
+  const grouped = new Map<string, T[]>();
+  for (const row of rows) {
+    const goalIdValue = text(row.goal_id);
+    grouped.set(goalIdValue, [...(grouped.get(goalIdValue) ?? []), project(row)]);
+  }
+  return grouped;
+}
+
 const GOAL_SUMMARY_SELECT = `
   SELECT g.*,
     count(t.id) FILTER (WHERE t.status <> 'cancelled')::int AS task_count,
@@ -283,18 +304,6 @@ export async function getGoal(
     db().query(`SELECT id FROM task_runs WHERE owner_id = $1 AND goal_id = $2 ORDER BY updated_at DESC`, [ownerId, id]),
   ])) as [Row[], Row[], Row[], Row[], Row[]];
   const summary = goalSummary(row);
-  const focus = rankFocusCandidates(
-    tasks.map((task) => ({
-      goal: {
-        id: summary.id,
-        title: summary.title,
-        status: summary.status,
-        priority: summary.priority,
-        targetDate: summary.targetDate,
-      },
-      task,
-    })),
-  );
   return {
     ...summary,
     plans: planRows.map(planView),
@@ -303,8 +312,107 @@ export async function getGoal(
     threadIds: threadRows.map((item) => text(item.thread_id)),
     events: eventRows.map(eventView),
     linkedRunIds: runRows.map((item) => text(item.id)),
-    nextAction: focus[0] ?? null,
+    nextAction: nextActionForGoal(summary, tasks),
   };
+}
+
+export async function listGoalDetails(
+  ownerId: string,
+  filters: GoalListFilters = {},
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<GoalDetailView[]> {
+  const summaries = await listGoals(ownerId, filters);
+  const goalIds = summaries.map((goal) => goal.id);
+  if (goalIds.length === 0) return [];
+
+  const [taskRows, dependencyRows, planRows, milestoneRows, threadRows, eventRows, runRows] =
+    (await Promise.all([
+      db().query(
+        `SELECT * FROM goal_tasks
+         WHERE goal_id = ANY($1::text[]) ORDER BY goal_id, position, created_at, id`,
+        [goalIds],
+      ),
+      db().query(
+        `SELECT d.task_id, d.depends_on_task_id
+         FROM goal_task_dependencies d
+         JOIN goal_tasks t ON t.id = d.task_id
+         WHERE t.goal_id = ANY($1::text[])
+         ORDER BY d.task_id, d.depends_on_task_id`,
+        [goalIds],
+      ),
+      db().query(
+        `SELECT * FROM goal_plans
+         WHERE goal_id = ANY($1::text[]) ORDER BY goal_id, version DESC`,
+        [goalIds],
+      ),
+      db().query(
+        `SELECT * FROM goal_milestones
+         WHERE goal_id = ANY($1::text[]) ORDER BY goal_id, position, created_at, id`,
+        [goalIds],
+      ),
+      db().query(
+        `SELECT goal_id, thread_id FROM goal_thread_links
+         WHERE owner_id = $1 AND goal_id = ANY($2::text[])
+         ORDER BY goal_id, created_at`,
+        [ownerId, goalIds],
+      ),
+      db().query(
+        `SELECT id, goal_id, type, severity, summary, rationale, occurred_at
+         FROM (
+           SELECT id, goal_id, type, severity, summary, rationale, occurred_at,
+                  row_number() OVER (
+                    PARTITION BY goal_id ORDER BY occurred_at DESC, id DESC
+                  ) AS position
+           FROM eve_events
+           WHERE owner_id = $1 AND goal_id = ANY($2::text[])
+         ) ranked
+         WHERE position <= 100
+         ORDER BY goal_id, occurred_at DESC, id DESC`,
+        [ownerId, goalIds],
+      ),
+      db().query(
+        `SELECT goal_id, id FROM task_runs
+         WHERE owner_id = $1 AND goal_id = ANY($2::text[])
+         ORDER BY goal_id, updated_at DESC`,
+        [ownerId, goalIds],
+      ),
+    ])) as [Row[], Row[], Row[], Row[], Row[], Row[], Row[]];
+
+  const dependencies = new Map<string, string[]>();
+  for (const row of dependencyRows) {
+    const taskIdValue = text(row.task_id);
+    dependencies.set(taskIdValue, [
+      ...(dependencies.get(taskIdValue) ?? []),
+      text(row.depends_on_task_id),
+    ]);
+  }
+  const completedTaskIds = new Set(
+    taskRows.filter((row) => row.status === "completed").map((row) => text(row.id)),
+  );
+  const tasksByGoal = groupByGoal(taskRows, (row) =>
+    taskView(row, dependencies, completedTaskIds, env),
+  );
+  const plansByGoal = groupByGoal(planRows, planView);
+  const milestonesByGoal = groupByGoal(milestoneRows, (row) => row);
+  const threadsByGoal = groupByGoal(threadRows, (row) => text(row.thread_id));
+  const eventsByGoal = groupByGoal(eventRows, eventView);
+  const runsByGoal = groupByGoal(runRows, (row) => text(row.id));
+
+  return summaries.map((summary) => {
+    const tasks = tasksByGoal.get(summary.id) ?? [];
+    return {
+      ...summary,
+      plans: plansByGoal.get(summary.id) ?? [],
+      milestones: (milestonesByGoal.get(summary.id) ?? []).map((row) =>
+        milestoneView(row, tasks),
+      ),
+      tasks,
+      threadIds: threadsByGoal.get(summary.id) ?? [],
+      events: eventsByGoal.get(summary.id) ?? [],
+      linkedRunIds: runsByGoal.get(summary.id) ?? [],
+      nextAction: nextActionForGoal(summary, tasks),
+    };
+  });
 }
 
 export interface CreateGoalInput {

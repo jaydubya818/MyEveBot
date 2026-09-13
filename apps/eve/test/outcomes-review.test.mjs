@@ -59,7 +59,7 @@ test("explicitly blocked goals surface even before they have tasks", () => {
   const blocked = goal({ status: "blocked", tasks: [], taskCount: 0, targetDate: null });
   const brief = buildDailyBrief([blocked], new Date("2026-09-12T12:00:00.000Z"));
   assert.ok(brief.blocked.some((item) => item.goalId === blocked.id && item.taskId === null));
-  assert.ok(brief.atRisk.some((item) => item.goalId === blocked.id && item.reason === "no_recent_progress"));
+  assert.ok(brief.atRisk.some((item) => item.goalId === blocked.id && item.reason === "work_blocked"));
 });
 
 test("weekly review only reports outcomes in its period", () => {

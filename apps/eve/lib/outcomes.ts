@@ -62,10 +62,11 @@ async function evidenceForOutcomes(ids: readonly string[]): Promise<Map<string, 
 }
 
 export async function listOutcomes(ownerId: string, limit = 100): Promise<OutcomeView[]> {
+  const boundedLimit = Number.isFinite(limit) ? Math.max(1, Math.min(limit, 200)) : 100;
   const rows = (await db().query(
     `SELECT * FROM outcomes WHERE owner_id = $1
      ORDER BY occurred_at DESC, id DESC LIMIT $2`,
-    [ownerId, Math.max(1, Math.min(limit, 200))],
+    [ownerId, boundedLimit],
   )) as Row[];
   const evidence = await evidenceForOutcomes(rows.map((row) => text(row.id)));
   return rows.map((row) => outcomeFromRow(row, evidence.get(text(row.id)) ?? []));
@@ -96,36 +97,81 @@ export interface CreateOutcomeInput {
   source?: "owner" | "agent" | "web";
 }
 
-async function validateLinks(input: CreateOutcomeInput): Promise<void> {
+interface ValidatedLinks {
+  goalId: string | null;
+  goalTaskId: string | null;
+  runId: string | null;
+}
+
+function assertSameLink(
+  label: string,
+  requested: string | null,
+  linked: unknown,
+): void {
+  const linkedId = nullableText(linked);
+  if (requested !== null && linkedId !== null && requested !== linkedId) {
+    throw new Error(`${label} does not belong to the supplied outcome lineage.`);
+  }
+}
+
+async function validateLinks(input: CreateOutcomeInput): Promise<ValidatedLinks> {
   if (!input.goalId && !input.runId) throw new Error("An outcome must link to a goal or run.");
-  if (input.goalTaskId && !input.goalId) throw new Error("A goal is required when linking a goal task.");
-  if (input.goalId) {
+  let goalId = input.goalId ?? null;
+  let goalTaskId = input.goalTaskId ?? null;
+  const runId = input.runId ?? null;
+
+  if (runId !== null) {
+    const runs = (await db().query(
+      `SELECT id, goal_id, goal_task_id FROM task_runs
+       WHERE owner_id = $1 AND id = $2 LIMIT 1`,
+      [input.ownerId, runId],
+    )) as Row[];
+    const run = runs[0];
+    if (!run) throw new Error("Linked run not found.");
+    assertSameLink("Linked run goal", goalId, run.goal_id);
+    assertSameLink("Linked run task", goalTaskId, run.goal_task_id);
+    goalId ??= nullableText(run.goal_id);
+    goalTaskId ??= nullableText(run.goal_task_id);
+  }
+
+  if (goalTaskId && !goalId) throw new Error("A goal is required when linking a goal task.");
+  if (goalId) {
     const goals = (await db().query(
       `SELECT g.id, t.id AS task_id FROM goals g
        LEFT JOIN goal_tasks t ON t.goal_id = g.id AND t.id = $3
        WHERE g.owner_id = $1 AND g.id = $2 LIMIT 1`,
-      [input.ownerId, input.goalId, input.goalTaskId ?? null],
+      [input.ownerId, goalId, goalTaskId],
     )) as Row[];
     if (!goals[0]) throw new Error("Linked goal not found.");
-    if (input.goalTaskId && !goals[0].task_id) throw new Error("Linked task does not belong to the goal.");
+    if (goalTaskId && !goals[0].task_id) {
+      throw new Error("Linked task does not belong to the goal.");
+    }
   }
-  if (input.runId) {
-    const runs = (await db().query(
-      `SELECT id FROM task_runs WHERE owner_id = $1 AND id = $2 LIMIT 1`,
-      [input.ownerId, input.runId],
-    )) as Row[];
-    if (!runs[0]) throw new Error("Linked run not found.");
-  }
+
   for (const evidence of input.evidence ?? []) {
     const rows = evidence.type === "event"
-      ? await db().query(`SELECT id FROM eve_events WHERE owner_id = $1 AND id = $2 LIMIT 1`, [input.ownerId, evidence.id])
+      ? await db().query(
+          `SELECT id, goal_id, goal_task_id, run_id FROM eve_events
+           WHERE owner_id = $1 AND id = $2 LIMIT 1`,
+          [input.ownerId, evidence.id],
+        )
       : await db().query(
-          `SELECT a.id FROM task_artifacts a JOIN task_runs r ON r.id = a.task_id
+          `SELECT a.id, a.task_id AS run_id, r.goal_id, r.goal_task_id
+           FROM task_artifacts a JOIN task_runs r ON r.id = a.task_id
            WHERE r.owner_id = $1 AND a.id = $2 LIMIT 1`,
           [input.ownerId, evidence.id],
         );
-    if (!(rows as Row[])[0]) throw new Error(`Linked ${evidence.type} evidence not found.`);
+    const linked = (rows as Row[])[0];
+    if (!linked) throw new Error(`Linked ${evidence.type} evidence not found.`);
+    assertSameLink(`Linked ${evidence.type} goal`, goalId, linked.goal_id);
+    assertSameLink(`Linked ${evidence.type} task`, goalTaskId, linked.goal_task_id);
+    if (evidence.type === "task_artifact") {
+      assertSameLink("Linked task artifact run", runId, linked.run_id);
+    } else {
+      assertSameLink("Linked event run", runId, linked.run_id);
+    }
   }
+  return { goalId, goalTaskId, runId };
 }
 
 export async function createOutcome(input: CreateOutcomeInput): Promise<OutcomeView> {
@@ -139,36 +185,51 @@ export async function createOutcome(input: CreateOutcomeInput): Promise<OutcomeV
     )) as Row[];
     if (existing[0]) return (await getOutcome(input.ownerId, text(existing[0].id)))!;
   }
-  await validateLinks(input);
+  const links = await validateLinks(input);
   const id = `outcome_${randomUUID()}`;
   const eventId = `event_${randomUUID()}`;
   const rationale = (input.rationale ?? []).map((value) => clean(value, 500)).filter(Boolean).slice(0, 20);
-  const occurredAt = input.occurredAt ?? new Date().toISOString();
-  await db().transaction((tx) => [
-    tx`INSERT INTO outcomes (
-      id, owner_id, goal_id, goal_task_id, run_id, status, owner_feedback,
-      summary, rationale, idempotency_key, occurred_at
-    ) VALUES (
-      ${id}, ${input.ownerId}, ${input.goalId ?? null}, ${input.goalTaskId ?? null},
-      ${input.runId ?? null}, ${input.status}, ${input.ownerFeedback ?? "unknown"},
-      ${summary}, ${JSON.stringify(rationale)}::jsonb, ${idempotencyKey}, ${occurredAt}
-    )`,
-    ...(input.evidence ?? []).map((evidence) => tx`
-      INSERT INTO outcome_evidence_links (outcome_id, evidence_type, evidence_id)
-      VALUES (${id}, ${evidence.type}, ${evidence.id}) ON CONFLICT DO NOTHING
-    `),
-    tx`INSERT INTO eve_events (
-      id, owner_id, type, source_type, source_id, goal_id, goal_task_id, run_id,
-      severity, summary, rationale, payload, delivery_classification
-    ) VALUES (
-      ${eventId}, ${input.ownerId}, 'OUTCOME_RECORDED', ${input.source ?? "agent"}, ${id},
-      ${input.goalId ?? null}, ${input.goalTaskId ?? null}, ${input.runId ?? null},
-      ${input.status === "failed" || input.status === "ineffective" ? "warning" : "info"},
-      ${summary}, ${JSON.stringify(rationale)}::jsonb,
-      ${JSON.stringify({ outcomeId: id, status: input.status, ownerFeedback: input.ownerFeedback ?? "unknown" })}::jsonb,
-      'activity'
-    )`,
-  ]);
+  const occurredAt = new Date(input.occurredAt ?? Date.now());
+  if (!Number.isFinite(occurredAt.getTime())) throw new Error("Outcome time is invalid.");
+  if (occurredAt.getTime() > Date.now() + 5 * 60_000) {
+    throw new Error("An outcome cannot be recorded in the future.");
+  }
+  try {
+    await db().transaction((tx) => [
+      tx`INSERT INTO outcomes (
+        id, owner_id, goal_id, goal_task_id, run_id, status, owner_feedback,
+        summary, rationale, idempotency_key, occurred_at
+      ) VALUES (
+        ${id}, ${input.ownerId}, ${links.goalId}, ${links.goalTaskId},
+        ${links.runId}, ${input.status}, ${input.ownerFeedback ?? "unknown"},
+        ${summary}, ${JSON.stringify(rationale)}::jsonb, ${idempotencyKey}, ${occurredAt.toISOString()}
+      )`,
+      ...(input.evidence ?? []).map((evidence) => tx`
+        INSERT INTO outcome_evidence_links (outcome_id, evidence_type, evidence_id)
+        VALUES (${id}, ${evidence.type}, ${evidence.id}) ON CONFLICT DO NOTHING
+      `),
+      tx`INSERT INTO eve_events (
+        id, owner_id, type, source_type, source_id, goal_id, goal_task_id, run_id,
+        severity, summary, rationale, payload, delivery_classification
+      ) VALUES (
+        ${eventId}, ${input.ownerId}, 'OUTCOME_RECORDED', ${input.source ?? "agent"}, ${id},
+        ${links.goalId}, ${links.goalTaskId}, ${links.runId},
+        ${input.status === "failed" || input.status === "ineffective" ? "warning" : "info"},
+        ${summary}, ${JSON.stringify(rationale)}::jsonb,
+        ${JSON.stringify({ outcomeId: id, status: input.status, ownerFeedback: input.ownerFeedback ?? "unknown" })}::jsonb,
+        'activity'
+      )`,
+    ]);
+  } catch (error) {
+    if (idempotencyKey) {
+      const existing = (await db().query(
+        `SELECT id FROM outcomes WHERE owner_id = $1 AND idempotency_key = $2 LIMIT 1`,
+        [input.ownerId, idempotencyKey],
+      )) as Row[];
+      if (existing[0]) return (await getOutcome(input.ownerId, text(existing[0].id)))!;
+    }
+    throw error;
+  }
   return (await getOutcome(input.ownerId, id))!;
 }
 
@@ -177,19 +238,25 @@ export async function updateOutcomeFeedback(
   id: string,
   ownerFeedback: OwnerFeedback,
 ): Promise<OutcomeView> {
-  const rows = (await db().query(
-    `UPDATE outcomes SET owner_feedback = $3, updated_at = now()
-     WHERE owner_id = $1 AND id = $2 RETURNING goal_id, goal_task_id, run_id, summary`,
-    [ownerId, id, ownerFeedback],
-  )) as Row[];
-  if (!rows[0]) throw new Error("Outcome not found.");
   await db().query(
-    `INSERT INTO eve_events (
-      id, owner_id, type, source_type, source_id, goal_id, goal_task_id, run_id,
-      summary, payload, delivery_classification
-    ) VALUES ($1, $2, 'OUTCOME_FEEDBACK_UPDATED', 'owner', $3, $4, $5, $6, $7, $8::jsonb, 'silent')`,
-    [`event_${randomUUID()}`, ownerId, id, rows[0].goal_id, rows[0].goal_task_id, rows[0].run_id,
-      `Owner feedback updated for: ${text(rows[0].summary)}`.slice(0, 1000), JSON.stringify({ ownerFeedback })],
+    `WITH updated AS (
+       UPDATE outcomes SET owner_feedback = $3, updated_at = now()
+       WHERE owner_id = $1 AND id = $2 AND owner_feedback IS DISTINCT FROM $3
+       RETURNING goal_id, goal_task_id, run_id, summary
+     )
+     INSERT INTO eve_events (
+       id, owner_id, type, source_type, source_id, goal_id, goal_task_id, run_id,
+       summary, payload, delivery_classification
+     )
+     SELECT $4, $1, 'OUTCOME_FEEDBACK_UPDATED', 'owner', $2,
+            goal_id, goal_task_id, run_id,
+            left('Owner feedback updated for: ' || summary, 1000),
+            $5::jsonb, 'silent'
+     FROM updated
+     RETURNING id`,
+    [ownerId, id, ownerFeedback, `event_${randomUUID()}`, JSON.stringify({ ownerFeedback })],
   );
-  return (await getOutcome(ownerId, id))!;
+  const outcome = await getOutcome(ownerId, id);
+  if (outcome === null) throw new Error("Outcome not found.");
+  return outcome;
 }

@@ -1,4 +1,5 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
+import { capabilityMap } from "@/lib/capabilities";
 import { REVIEW_KINDS, type ReviewKind } from "@/lib/review-types";
 import { generateProgressReview } from "@/lib/reviews";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
@@ -10,7 +11,12 @@ function kindFrom(value: unknown): ReviewKind | null {
 }
 
 function guard(request: Request) {
-  return requireWebAuth(request) ?? requireDatabase(request);
+  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  if (denied) return denied;
+  if (capabilityMap().goals.state === "excluded") {
+    return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");
+  }
+  return null;
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -33,7 +39,8 @@ export async function POST(request: Request): Promise<Response> {
   const denied = guard(request);
   if (denied) return denied;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
-  const kind = kindFrom(body?.kind ?? "daily");
+  if (body === null) return apiError(request, 400, "invalid_review_request", "Choose a daily or weekly review.");
+  const kind = kindFrom(body.kind);
   if (kind === null) return apiError(request, 400, "invalid_review_kind", "Review kind must be daily or weekly.");
   try {
     return Response.json({ review: await generateProgressReview(webPrincipal(request)!.id, kind, { checkpoint: true }) });

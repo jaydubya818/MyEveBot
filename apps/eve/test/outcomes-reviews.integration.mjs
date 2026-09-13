@@ -31,7 +31,29 @@ test("outcomes and reviews preserve owner scope, lineage, and checkpoints", { sk
 
     const updated = await updateOutcomeFeedback(ownerId, recorded.id, "helpful");
     assert.equal(updated.ownerFeedback, "helpful");
+    await updateOutcomeFeedback(ownerId, recorded.id, "helpful");
+    const feedbackEvents = await db().query(
+      "SELECT id FROM eve_events WHERE owner_id = $1 AND type = 'OUTCOME_FEEDBACK_UPDATED' AND source_id = $2",
+      [ownerId, recorded.id],
+    );
+    assert.equal(feedbackEvents.length, 1);
     assert.equal((await listOutcomes(`not-${ownerId}`)).length, 0);
+
+    const unrelatedGoal = await createGoal({ ownerId, title: "Unrelated lineage", source: "test" });
+    const unrelatedEvents = await db().query(
+      "SELECT id FROM eve_events WHERE owner_id = $1 AND goal_id = $2 ORDER BY occurred_at LIMIT 1",
+      [ownerId, unrelatedGoal.id],
+    );
+    await assert.rejects(
+      createOutcome({
+        ownerId,
+        goalId: goal.id,
+        status: "unknown",
+        summary: "Mismatched evidence must be rejected.",
+        evidence: [{ type: "event", id: String(unrelatedEvents[0].id) }],
+      }),
+      /lineage/i,
+    );
 
     const daily = await generateProgressReview(ownerId, "daily", { checkpoint: true, now: new Date("2026-09-12T12:00:00.000Z") });
     assert.equal(daily.kind, "daily");

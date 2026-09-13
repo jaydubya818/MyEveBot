@@ -2,17 +2,11 @@ import { randomUUID } from "node:crypto";
 
 import { db } from "../agent/lib/receipts-db.ts";
 import { buildDailyBrief, buildWeeklyReview } from "./goal-insights.ts";
-import { getGoal, listGoals } from "./goals.ts";
+import { listGoalDetails } from "./goals.ts";
 import { listOutcomes } from "./outcomes.ts";
 import type { ProgressReview, ReviewKind } from "./review-types.ts";
 
 type Row = Record<string, unknown>;
-
-async function canonicalGoals(ownerId: string) {
-  const summaries = await listGoals(ownerId, { limit: 200 });
-  return (await Promise.all(summaries.map((goal) => getGoal(ownerId, goal.id))))
-    .filter((goal): goal is NonNullable<typeof goal> => goal !== null);
-}
 
 export async function generateProgressReview(
   ownerId: string,
@@ -20,7 +14,7 @@ export async function generateProgressReview(
   options: { checkpoint?: boolean; now?: Date } = {},
 ): Promise<ProgressReview> {
   const now = options.now ?? new Date();
-  const goals = await canonicalGoals(ownerId);
+  const goals = await listGoalDetails(ownerId, { limit: 200 });
   const review = kind === "daily"
     ? buildDailyBrief(goals, now)
     : buildWeeklyReview(goals, await listOutcomes(ownerId, 200), now);

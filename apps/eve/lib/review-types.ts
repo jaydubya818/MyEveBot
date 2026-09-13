@@ -5,6 +5,8 @@ export const REVIEW_KINDS = ["daily", "weekly"] as const;
 export const RISK_REASONS = [
   "deadline_approaching",
   "deadline_overdue",
+  "work_blocked",
+  "task_failed",
   "unfinished_critical_task",
   "dependency_incomplete",
   "no_recent_progress",

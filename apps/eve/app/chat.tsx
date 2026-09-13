@@ -665,7 +665,11 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         const labels = setupRequiredCapabilityLabels(body.capabilities);
         const included = body.capabilities.find((capability) => capability.id === "goals")?.state !== "excluded";
         setGoalsIncluded(included);
-        if (!included && window.location.pathname.startsWith("/goals")) {
+        if (
+          !included &&
+          (window.location.pathname.startsWith("/goals") ||
+            window.location.pathname.startsWith("/review"))
+        ) {
           setView("chat");
           window.history.replaceState(null, "", "/");
         }

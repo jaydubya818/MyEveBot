@@ -39,6 +39,8 @@ Focus uses the existing deterministic ranker. All recommendations retain at leas
 
 - deadline approaching (goal within seven days; task within three)
 - deadline overdue
+- explicitly blocked goals or tasks
+- failed tasks awaiting recovery
 - unfinished critical task
 - incomplete dependency when the dependent work is current, urgent, or high priority
 - unavailable required capability

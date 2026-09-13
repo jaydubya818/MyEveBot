@@ -19,7 +19,9 @@ export default defineTool({
       id: z.string().min(1),
     })).max(50).default([]),
     occurredAt: z.string().datetime().optional(),
-    idempotencyKey: z.string().min(1).max(200).optional(),
+    idempotencyKey: z.string().min(1).max(200).describe(
+      "Stable key for this observation so a resumed tool call cannot record it twice.",
+    ),
   }),
   async execute(input, ctx) {
     return createOutcome({ ownerId: taskOwnerFromAuth(ctx.session.auth), ...input, source: "agent" });
