@@ -7,6 +7,8 @@ import { CAPABILITY_DEFINITIONS } from "../lib/capability-registry.ts";
 import { DELEGATION_BUDGETS } from "../lib/delegation-policy.ts";
 import { createRoleCatalog, roleAgentDefaults } from "../lib/role-catalog.ts";
 import { SOFTWARE_DEVELOPMENT_ROLE_PACK } from "../lib/role-packs/software-development.ts";
+import { BUILTIN_SOLUTION_PACK_CATALOG, BUILTIN_SOLUTION_PACKS } from "../lib/builtin-solution-packs.ts";
+import { createSolutionPackCatalog, resolveSolutionPackRoles } from "../lib/solution-packs.ts";
 
 const roleIds = BUILTIN_ROLE_CATALOG.roles.map((role) => role.id);
 
@@ -90,4 +92,59 @@ test("generic Role Catalog primitives contain no product, owner, or software ass
 test("workflow consumes the shared 16-worker guardrail", async () => {
   const source = await readFile(new URL("../agent/tools/workflow.ts", import.meta.url), "utf8");
   assert.match(source, /maxSubagents:\s*DELEGATION_BUDGETS\.hardCeiling/);
+});
+
+test("Founder OS composes existing roles and platform primitives without creating authority", () => {
+  assert.deepEqual(BUILTIN_SOLUTION_PACKS.map((pack) => pack.id), ["founder-os"]);
+  const founderOs = BUILTIN_SOLUTION_PACK_CATALOG.packs[0];
+  assert.ok(founderOs);
+  assert.deepEqual(resolveSolutionPackRoles(founderOs, BUILTIN_ROLE_CATALOG).map(({ role }) => role.id), [
+    "software-product-manager",
+    "researcher",
+    "analyst",
+    "writer",
+    "scheduler",
+  ]);
+  assert.deepEqual(founderOs.capabilityRecommendations.map(({ capabilityId }) => capabilityId), [
+    "goals.operating-system",
+    "notification.review-delivery",
+    "scheduler.automations",
+  ]);
+  const capabilityIds = new Set(CAPABILITY_DEFINITIONS.map(({ id }) => id));
+  for (const capabilityId of [
+    ...founderOs.capabilityRecommendations.map(({ capabilityId }) => capabilityId),
+    ...founderOs.checkpoints.flatMap(({ recommendedCapabilityIds }) => recommendedCapabilityIds),
+  ]) assert.ok(capabilityIds.has(capabilityId), `Founder OS recommends unknown capability ${capabilityId}`);
+  assert.match(founderOs.guardrails.join(" "), /grant no execution authority/i);
+  assert.match(founderOs.guardrails.join(" "), /Persistent Agents must be created separately/i);
+});
+
+test("Solution Pack catalog rejects invalid composition references", () => {
+  const founderOs = BUILTIN_SOLUTION_PACKS[0];
+  const capabilityIds = new Set(CAPABILITY_DEFINITIONS.map(({ id }) => id));
+  assert.throws(() => createSolutionPackCatalog([
+    { ...founderOs, roles: [{ ...founderOs.roles[0], packId: "missing" }] },
+  ], BUILTIN_ROLE_CATALOG, capabilityIds), /unknown Role Pack missing/);
+  assert.throws(() => createSolutionPackCatalog([
+    { ...founderOs, capabilityRecommendations: [{ capabilityId: "missing", purpose: "Invalid" }] },
+  ], BUILTIN_ROLE_CATALOG, capabilityIds), /unknown capability missing/);
+  assert.throws(() => createSolutionPackCatalog([
+    { ...founderOs, roles: [founderOs.roles[0], founderOs.roles[0]] },
+  ], BUILTIN_ROLE_CATALOG, capabilityIds), /selects .* more than once/);
+  assert.throws(() => createSolutionPackCatalog([
+    founderOs,
+    founderOs,
+  ], BUILTIN_ROLE_CATALOG, capabilityIds), /defined more than once/);
+});
+
+test("Solution Packs expose a read-only discovery capability", () => {
+  const capability = CAPABILITY_DEFINITIONS.find((candidate) => candidate.id === "tool.list_solution_packs");
+  assert.equal(capability?.source.reference, "agent/tools/list_solution_packs.ts");
+  assert.deepEqual(capability?.permissions, ["agents.read"]);
+  assert.equal(capability?.risk.level, "low");
+});
+
+test("generic Solution Pack primitives contain no founder or software assumptions", async () => {
+  const source = await readFile(new URL("../lib/solution-packs.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /Founder|Sofie|Jay|SellerFi|software|SDLC/i);
 });

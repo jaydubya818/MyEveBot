@@ -6,8 +6,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AgentView } from "@/lib/agents";
 import { BUILTIN_ROLE_CATALOG } from "@/lib/builtin-role-catalog";
+import { BUILTIN_SOLUTION_PACK_CATALOG } from "@/lib/builtin-solution-packs";
 import type { ResolvedCapability } from "@/lib/capability-registry";
 import { roleAgentDefaults, type RoleDefinition, type RoleExecutionMode } from "@/lib/role-catalog";
+import { resolveSolutionPackRoles } from "@/lib/solution-packs";
 import { cn } from "@/lib/utils";
 
 const RISK = { low: 0, medium: 1, high: 2, critical: 3 } as const;
@@ -36,6 +38,29 @@ const MODE_LABEL: Record<RoleExecutionMode, string> = {
   "on-demand": "On demand",
   "declared-specialist": "Declared specialist",
 };
+
+function SolutionPacksPanel() {
+  return <section className="mt-8 border-t border-kumo-hairline pt-6" aria-labelledby="solution-packs-title">
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div><p className="text-xs font-medium uppercase tracking-[.14em] text-kumo-subtle">Outcome templates</p><h2 id="solution-packs-title" className="mt-1 text-base font-semibold">Solution packs</h2><p className="mt-1 max-w-2xl text-sm text-kumo-subtle">Curated combinations of existing roles and platform primitives. Viewing a pack changes nothing.</p></div>
+      <span className="rounded-full border border-kumo-hairline px-2 py-1 text-[11px] text-kumo-subtle">Recommendations only</span>
+    </div>
+    <div className="mt-4 grid gap-4">
+      {BUILTIN_SOLUTION_PACK_CATALOG.packs.map((pack) => {
+        const roles = resolveSolutionPackRoles(pack, BUILTIN_ROLE_CATALOG);
+        return <article key={pack.id} className="rounded-2xl border border-kumo-brand/20 bg-kumo-brand/5 p-4 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3"><div><h3 className="text-lg font-semibold">{pack.name}</h3><p className="mt-1 max-w-2xl text-sm leading-6 text-kumo-subtle">{pack.description}</p></div><span className="rounded-full border border-kumo-brand/20 bg-kumo-base px-2 py-1 text-[11px] text-kumo-brand">Built in</span></div>
+          <p className="mt-3 text-sm"><span className="font-medium">Outcome:</span> <span className="text-kumo-subtle">{pack.outcome}</span></p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <section><h4 className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Included roles</h4><ul className="mt-2 space-y-2">{roles.map(({ packId, role, contribution }) => <li key={`${packId}:${role.id}`} className="rounded-xl border border-kumo-hairline bg-kumo-base p-3"><p className="text-sm font-medium">{role.name}</p><p className="mt-0.5 text-xs leading-5 text-kumo-subtle">{contribution}</p></li>)}</ul></section>
+            <section><h4 className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Operating rhythm</h4><ol className="mt-2 space-y-2">{pack.checkpoints.map((checkpoint, index) => <li key={checkpoint.id} className="flex gap-3 rounded-xl border border-kumo-hairline bg-kumo-base p-3"><span className="grid size-6 shrink-0 place-items-center rounded-full bg-kumo-tint text-xs font-semibold">{index + 1}</span><span><span className="block text-sm font-medium">{checkpoint.name}</span><span className="mt-0.5 block text-xs leading-5 text-kumo-subtle">{checkpoint.description}</span></span></li>)}</ol></section>
+          </div>
+          <details className="mt-4 border-t border-kumo-hairline pt-3"><summary className="cursor-pointer text-sm font-medium">Capabilities and guardrails</summary><div className="mt-3 grid gap-4 text-xs leading-5 md:grid-cols-2"><section><h4 className="font-medium">Recommended capabilities</h4><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{pack.capabilityRecommendations.map((item) => <li key={item.capabilityId}><span className="font-medium text-kumo-default">{item.capabilityId}:</span> {item.purpose}</li>)}</ul></section><section><h4 className="font-medium">Guardrails</h4><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{pack.guardrails.map((item) => <li key={item}>{item}</li>)}</ul></section></div></details>
+        </article>;
+      })}
+    </div>
+  </section>;
+}
 
 function RoleCatalogPanel({ onCreateAgent }: { onCreateAgent: (role: RoleDefinition) => void }) {
   return <section className="mt-8 border-t border-kumo-hairline pt-6" aria-labelledby="role-catalog-title">
@@ -139,6 +164,7 @@ export function AgentsPanel({ onStartChat, embedded = false }: { onStartChat: (a
         </article> : <p className="text-sm text-kumo-subtle">Create an Agent to add specialized execution capacity.</p>}
       </div>
     </div>
+    <SolutionPacksPanel />
     <RoleCatalogPanel onCreateAgent={beginCreate} />
   </section>;
 }
