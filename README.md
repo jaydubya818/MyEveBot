@@ -9,7 +9,7 @@ Each deployment serves one owner by default for a simple security boundary. Code
 **Chat**
 
 - **Web chat** — threads (rename/pin/delete), streaming responses, file attachments, slash-command prompts, model picker, and HTML artifact previews.
-- **Command palette (⌘K)** — jump to threads, start a new chat, open the manage page, toggle notifications.
+- **Command palette (⌘K)** — jump to threads, start a new chat, open goals or reviews, open the manage page, toggle notifications.
 - **Full-text search** — sidebar search matches message content across all threads, not just titles.
 - **Message actions** — copy a reply, edit & resend, regenerate the last reply, or fork a thread from any message.
 - **Telegram channel** — private-DM-only bot with a user-id allowlist.
@@ -23,12 +23,16 @@ Each deployment serves one owner by default for a simple security boundary. Code
 **Agent capabilities**
 
 - **Goal OS** — persistent goals, versioned plans, milestones, tasks, dependencies, progress, Focus, and explainable next actions.
+- **Outcome loop** — first-class effectiveness outcomes linked to goals, tasks, runs, and evidence; explicit owner feedback stays separate from execution status.
+- **Daily brief and weekly review** — deterministic priorities, due work, blockers, completion, stalled-work, and dependency/capability risk signals from persisted state. Manual generation records resumable checkpoints; scheduled delivery is intentionally deferred.
 - **Long-term memory** — Supermemory-backed remember/forget/search tools with nightly consolidation and a profile summary injected each turn.
 - **App integrations** — Composio connections (Gmail, GitHub, Notion, Linear, …) with a UI to connect/disconnect apps.
 - **Chat-created skills** — Eve can write, list, and delete her own skills at runtime; manage them from the UI.
 - **File sharing** — Eve uploads sandbox files to Blob storage and hands back a public link.
 - **Receipt tracking** — log/query/summarize spending, backed by Neon.
 - **Browser control** — sandboxed browser extension for web tasks.
+
+**Review page** — `/review` generates the owner’s daily brief or weekly review and exposes recent outcome feedback.
 
 **Manage page** — `/manage` shows reminders (with run history), webhooks, memories, connections, and skills in one place.
 
@@ -75,7 +79,7 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 | Variable | Used for |
 | --- | --- |
 | `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, `MYEVE_OWNER_ID` | Single-owner production web access |
-| `DATABASE_URL` | Neon Postgres (threads, reminders, webhooks, receipts, push) |
+| `DATABASE_URL` | Neon Postgres (threads, goals, outcomes, reviews, reminders, webhooks, receipts, push) |
 | `SUPERMEMORY_API_KEY` | Long-term memory |
 | `COMPOSIO_API_KEY` | App integrations |
 | `BLOB_READ_WRITE_TOKEN` | File sharing + skill store |

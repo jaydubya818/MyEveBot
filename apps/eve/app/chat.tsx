@@ -13,6 +13,7 @@ import {
   BellIcon,
   BellSlashIcon,
   BrainIcon,
+  CalendarCheckIcon,
   CaretDownIcon,
   CheckIcon,
   CopyIcon,
@@ -46,6 +47,7 @@ import {
 } from "@/components/capability-notice";
 import { ManagePanel } from "@/components/manage-panel";
 import { GoalsPanel } from "@/components/goals-panel";
+import { ReviewPanel } from "@/components/review-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
 import { usePushNotifications } from "@/components/use-push";
@@ -600,7 +602,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage" | "goals";
+type MainView = "chat" | "manage" | "goals" | "review";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -951,6 +953,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       setView(
         window.location.pathname.startsWith("/manage")
           ? "manage"
+          : window.location.pathname.startsWith("/review")
+            ? "review"
           : window.location.pathname.startsWith("/goals")
             ? "goals"
             : "chat",
@@ -964,7 +968,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "goals" ? "/goals" : "/";
+    const path = next === "manage" ? "/manage" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1134,6 +1138,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               className={cn(view === "goals" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "goals" ? "chat" : "goals")}
             />}
+            {goalsIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={CalendarCheckIcon}
+              aria-label="Review"
+              aria-pressed={view === "review"}
+              title="Daily brief and weekly review"
+              className={cn(view === "review" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "review" ? "chat" : "review")}
+            />}
             {push.status !== "unsupported" && push.status !== "loading" && (
               <Button
                 variant="ghost"
@@ -1243,7 +1258,22 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "goals" ? (
+      {view === "review" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="absolute start-2 top-2 z-20 md:hidden"
+            aria-label="Open threads"
+            onClick={() => setSidebarOpen(true)}
+          />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <ReviewPanel />
+          </div>
+        </main>
+      ) : view === "goals" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button
             variant="ghost"
@@ -1322,6 +1352,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         onSelectThread={selectThread}
         onNewChat={newThread}
         onOpenGoals={() => showView("goals")}
+        onOpenReview={() => showView("review")}
         goalsAvailable={goalsIncluded}
         onOpenManage={() => showView("manage")}
         pushStatus={push.status}

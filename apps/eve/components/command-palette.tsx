@@ -4,6 +4,7 @@ import { Loader } from "@cloudflare/kumo";
 import {
   BellIcon,
   BellSlashIcon,
+  CalendarCheckIcon,
   ChatCircleIcon,
   GearSixIcon,
   MagnifyingGlassIcon,
@@ -73,6 +74,7 @@ export function CommandPalette({
   onSelectThread,
   onNewChat,
   onOpenGoals,
+  onOpenReview,
   goalsAvailable,
   onOpenManage,
   pushStatus,
@@ -84,6 +86,7 @@ export function CommandPalette({
   onSelectThread: (id: string) => void;
   onNewChat: () => void;
   onOpenGoals: () => void;
+  onOpenReview: () => void;
   goalsAvailable: boolean;
   onOpenManage: () => void;
   /** "on" | "off" | "denied" | "unsupported" | "loading" from usePushNotifications. */
@@ -127,6 +130,17 @@ export function CommandPalette({
         icon: <TargetIcon className="size-4" />,
         run: () => {
           onOpenGoals();
+          onClose();
+        },
+      }] : []),
+      ...(goalsAvailable ? [{
+        key: "action:review",
+        kind: "action" as const,
+        label: "Open review",
+        detail: "Daily brief, weekly review, outcomes, and risks",
+        icon: <CalendarCheckIcon className="size-4" />,
+        run: () => {
+          onOpenReview();
           onClose();
         },
       }] : []),
@@ -201,7 +215,7 @@ export function CommandPalette({
     );
 
     return list;
-  }, [query, threads, hits, pushStatus, goalsAvailable, onNewChat, onOpenGoals, onOpenManage, onTogglePush, onSelectThread, onClose]);
+  }, [query, threads, hits, pushStatus, goalsAvailable, onNewChat, onOpenGoals, onOpenReview, onOpenManage, onTogglePush, onSelectThread, onClose]);
 
   const active = Math.min(activeIndex, Math.max(0, entries.length - 1));
 
