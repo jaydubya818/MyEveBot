@@ -28,6 +28,7 @@ export const EXCLUDED = [
   "node_modules/",
   "scripts/migrate-memories.ts",
   "scripts/seed-review-e2e.ts",
+  "scripts/seed-knowledge-preview.ts",
   "tsconfig.tsbuildinfo",
 ] as const;
 
@@ -63,6 +64,16 @@ export const CORE_PRUNABLE_FILES = [
 
 /** Feature → the prunable files it owns. */
 export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
+  knowledge: [
+    "agent/instructions/knowledge.md",
+    "agent/tools/record_fact.ts",
+    "agent/tools/record_observation.ts",
+    "agent/tools/record_decision.ts",
+    "agent/tools/record_commitment.ts",
+    "agent/tools/search_knowledge.ts",
+    "agent/tools/list_decisions.ts",
+    "agent/tools/list_commitments.ts",
+  ],
   goals: [
     "agent/tools/create_goal.ts",
     "agent/tools/list_goals.ts",

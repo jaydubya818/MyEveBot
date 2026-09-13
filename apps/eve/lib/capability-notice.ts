@@ -10,6 +10,7 @@ const CAPABILITY_LABELS: Record<CapabilityId, string> = {
   computer: "Computer",
   finance: "Finance",
   goals: "Goals",
+  knowledge: "Knowledge",
 };
 
 export function capabilityLabel(id: CapabilityId): string {

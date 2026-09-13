@@ -22,7 +22,7 @@ test("configured capabilities report ready", () => {
     BLOB_READ_WRITE_TOKEN: "configured",
   });
 
-  for (const id of ["reminders", "triggers", "memory", "connections", "skills", "finance", "goals"]) {
+  for (const id of ["reminders", "triggers", "memory", "connections", "skills", "finance", "goals", "knowledge"]) {
     assert.equal(capabilities[id].state, "ready", id);
   }
 });
@@ -35,5 +35,6 @@ test("builder feature selection marks omitted capabilities as excluded", () => {
   assert.equal(capabilities.finance.state, "excluded");
   assert.equal(capabilities.connections.state, "excluded");
   assert.equal(capabilities.goals.state, "excluded");
+  assert.equal(capabilities.knowledge.state, "excluded");
   assert.equal(capabilities.appearance.state, "ready");
 });

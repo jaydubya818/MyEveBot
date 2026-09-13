@@ -76,6 +76,21 @@ export function generateInstructions(input: InstructionsInput): string {
     );
   }
 
+  if (has("knowledge")) {
+    sections.push(
+      [
+        "# Structured Knowledge",
+        "",
+        "Knowledge is durable typed state with inspectable provenance, separate from",
+        "conversation memory. Record only clearly expressed facts, observations,",
+        "decisions, and commitments with the matching tool. Never silently promote an",
+        "observation to a preference or overwrite history; explicit replacements",
+        "supersede earlier records. Search structured Knowledge before claiming it does",
+        "not exist.",
+      ].join("\n"),
+    );
+  }
+
   if (has("skills")) {
     sections.push(
       [

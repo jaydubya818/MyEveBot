@@ -14,6 +14,7 @@
     "eval:skills": "eve eval skills/routing --strict --max-concurrency 2",
     "skills:catalog": "node scripts/generate-skill-catalog.mjs",
     "skills:prepare": "node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs",
+    "seed:knowledge-preview": "node --env-file-if-exists=.env.local scripts/seed-knowledge-preview.ts",
     "start": "next start",
     "typecheck": "tsc && tsx scripts/check-capability-registry.ts"
   },

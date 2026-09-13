@@ -61,6 +61,12 @@ interface FeatureInfo {
 
 const FEATURES: FeatureInfo[] = [
   {
+    id: "knowledge",
+    name: "Knowledge & provenance",
+    description: "Preserves typed facts, decisions, commitments, and the evidence behind them.",
+    needs: null,
+  },
+  {
     id: "goals",
     name: "Goals & focus",
     description: "Turns outcomes into milestones, tasks, dependencies, and a clear next action.",

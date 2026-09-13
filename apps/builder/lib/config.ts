@@ -11,6 +11,7 @@ export const FEATURE_IDS = [
   "browser",
   "utilities",
   "goals",
+  "knowledge",
 ] as const;
 
 export type FeatureId = (typeof FEATURE_IDS)[number];
