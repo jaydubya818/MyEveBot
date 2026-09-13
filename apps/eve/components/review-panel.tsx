@@ -470,10 +470,11 @@ export function ReviewPanel() {
               id={`review-tab-${value}`}
               type="button"
               role="tab"
+              disabled={generating}
               aria-selected={tab === value}
               aria-controls={`review-panel-${value}`}
               className={cn(
-                "border-b-2 px-3 py-2 text-sm capitalize",
+                "border-b-2 px-3 py-2 text-sm capitalize disabled:cursor-not-allowed disabled:opacity-60",
                 tab === value
                   ? "border-kumo-brand font-medium text-kumo-strong"
                   : "border-transparent text-kumo-subtle hover:text-kumo-default",
