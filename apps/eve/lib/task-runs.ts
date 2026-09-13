@@ -56,6 +56,7 @@ export interface CreateProductQaTaskInput {
   previewUrl: string;
   goalId?: string;
   goalTaskId?: string;
+  agentId?: string;
 }
 
 export async function createProductQaTask(
@@ -81,13 +82,13 @@ export async function createProductQaTask(
 
   await sql.transaction((tx) => [
     tx`INSERT INTO task_runs (
-      id, owner_id, kind, title, thread_id, goal_id, goal_task_id, status, target,
+      id, owner_id, kind, title, thread_id, goal_id, goal_task_id, agent_id, status, target,
       max_duration_seconds, max_specialists, max_model_steps,
       max_retries_per_specialist, max_estimated_cost_usd,
       started_at, deadline_at
     ) VALUES (
       ${taskId}, ${input.ownerId}, 'product_qa', ${title}, ${input.threadId ?? null},
-      ${input.goalId ?? null}, ${input.goalTaskId ?? null}, 'running', ${target}::jsonb,
+      ${input.goalId ?? null}, ${input.goalTaskId ?? null}, ${input.agentId ?? null}, 'running', ${target}::jsonb,
       ${BALANCED_GUARDRAILS.maxDurationSeconds}, ${BALANCED_GUARDRAILS.maxSpecialists},
       ${BALANCED_GUARDRAILS.maxModelSteps}, ${BALANCED_GUARDRAILS.maxRetriesPerSpecialist},
       ${BALANCED_GUARDRAILS.maxEstimatedCostUsd}, now(),
@@ -184,6 +185,7 @@ export async function getTaskRun(ownerId: string, taskId: string): Promise<TaskR
 
   return {
     id: textValue(run.id),
+    agentId: nullableText(run.agent_id),
     kind: "product_qa",
     title: textValue(run.title),
     threadId: nullableText(run.thread_id),

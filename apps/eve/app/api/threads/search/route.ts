@@ -1,6 +1,7 @@
 import { searchThreads } from "@/lib/threads-db";
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
+import { requestOwnerId } from "@/lib/agent-api";
 
 // Full-text search across the server-side thread store. Matches user and
 // assistant message text inside each thread's persisted event log, so old
@@ -16,7 +17,7 @@ export async function GET(request: Request): Promise<Response> {
   if (query.length < 2) return Response.json({ results: [] });
 
   try {
-    const results = await searchThreads(query, 20);
+    const results = await searchThreads(requestOwnerId(request), query, 20);
     return Response.json({ results });
   } catch (error) {
     console.error("Thread search failed", error);

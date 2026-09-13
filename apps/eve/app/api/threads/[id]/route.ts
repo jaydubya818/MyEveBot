@@ -1,6 +1,8 @@
 import { deleteThread, getThreadChat, upsertThread, upsertThreadMeta } from "@/lib/threads-db";
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
+import { requestOwnerId } from "@/lib/agent-api";
+import { getAgent } from "@/lib/agents";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -14,7 +16,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
   if (denied) return denied;
   const { id } = await ctx.params;
   try {
-    const chat = await getThreadChat(id);
+    const chat = await getThreadChat(requestOwnerId(request), id);
     if (chat === null) return new Response("Not found", { status: 404 });
     return Response.json({ chat });
   } catch (error) {
@@ -33,6 +35,7 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
     pinned?: unknown;
     renamed?: unknown;
     origin?: unknown;
+    agentId?: unknown;
     chat?: unknown;
   } | null;
   if (body === null || typeof body.title !== "string" || typeof body.updatedAt !== "number") {
@@ -47,13 +50,18 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
     origin: (body.origin === "reminder" || body.origin === "webhook"
       ? body.origin
       : "web") as "web" | "reminder" | "webhook",
+    agentId: typeof body.agentId === "string" ? body.agentId : undefined,
   };
   // Meta-only updates (rename, pin) omit the chat payload to leave it intact.
   try {
+    const ownerId = requestOwnerId(request);
+    if (meta.agentId && await getAgent(ownerId, meta.agentId) === null) {
+      return apiError(request, 400, "invalid_agent", "Agent not found for this owner.");
+    }
     if (typeof body.chat === "object" && body.chat !== null) {
-      await upsertThread(id, meta, body.chat);
+      await upsertThread(ownerId, id, meta, body.chat);
     } else {
-      await upsertThreadMeta(id, meta);
+      await upsertThreadMeta(ownerId, id, meta);
     }
     return Response.json({ ok: true });
   } catch (error) {
@@ -67,7 +75,7 @@ export async function DELETE(request: Request, ctx: RouteContext): Promise<Respo
   if (denied) return denied;
   const { id } = await ctx.params;
   try {
-    await deleteThread(id);
+    await deleteThread(requestOwnerId(request), id);
     return Response.json({ ok: true });
   } catch (error) {
     console.error("Thread delete failed", error);

@@ -41,6 +41,7 @@ export async function deliverToWebChatThread(
 
   const threadId = crypto.randomUUID();
   await upsertThread(
+    process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim() || "owner",
     threadId,
     {
       title: clipTitle(title),

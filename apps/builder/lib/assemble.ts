@@ -5,6 +5,7 @@ import path from "node:path";
 import type { CustomSchedule, FeatureId } from "./config";
 import { allowedPrunableFiles, isExcluded, isPrunable } from "./manifest";
 import { generateScheduleFile, scheduleSlug } from "./schedule-codegen";
+import { generatePrimaryBootstrapSource } from "./primary-bootstrap";
 
 // Turns the live apps/eve source into the file set for one configured
 // deployment: walk, filter (exclusions + feature pruning), transform
@@ -57,6 +58,9 @@ export interface AssembleInput {
   features: readonly FeatureId[];
   instructions: string;
   schedules: readonly CustomSchedule[];
+  /** Present for new Builder deployments; updates fall back to baked public identity. */
+  agentName?: string;
+  model?: string;
 }
 
 /** Locates apps/eve both in dev (cwd = apps/builder) and in the traced Vercel bundle. */
@@ -234,6 +238,18 @@ export const TEMPLATE_STAMP = {
   const stampIndex = out.findIndex((file) => file.file === TEMPLATE_STAMP_FILE);
   if (stampIndex >= 0) out[stampIndex] = stampPayload;
   else out.push(stampPayload);
+
+  // This is initialization input, not a second live configuration store:
+  // PostgreSQL becomes canonical after ensurePrimaryAgent creates the record.
+  const primaryBootstrapSource = generatePrimaryBootstrapSource(input);
+  const primaryBootstrapPayload = {
+    file: "lib/primary-agent-bootstrap.ts",
+    data: Buffer.from(primaryBootstrapSource, "utf8").toString("base64"),
+    encoding: "base64" as const,
+  };
+  const primaryIndex = out.findIndex((file) => file.file === primaryBootstrapPayload.file);
+  if (primaryIndex >= 0) out[primaryIndex] = primaryBootstrapPayload;
+  else out.push(primaryBootstrapPayload);
 
   return out;
 }
