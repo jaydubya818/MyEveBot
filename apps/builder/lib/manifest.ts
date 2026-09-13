@@ -65,7 +65,12 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/manage_goal_task.ts",
     "agent/tools/manage_goal_structure.ts",
     "agent/tools/goal_focus.ts",
+    "agent/tools/record_outcome.ts",
+    "agent/tools/list_outcomes.ts",
+    "agent/tools/update_outcome_feedback.ts",
+    "agent/tools/review_progress.ts",
     "agent/instructions/goals.ts",
+    "agent/instructions/outcomes.ts",
   ],
   memory: [
     "agent/tools/remember.ts",
