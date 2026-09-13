@@ -1,5 +1,5 @@
 ---
-status: ready
+status: complete
 priority: p2
 issue_id: "007"
 tags: [skills, evals, agents, provenance, eve]
@@ -42,16 +42,16 @@ Implement Option 2. Keep the other 13 skills deferred until a combined routing e
 
 ## Acceptance Criteria
 
-- [ ] Exactly 12 approved upstream skills are imported at the pinned revision.
-- [ ] MIT license, repository, revision, and source eval provenance are preserved.
-- [ ] Every imported skill is a self-contained Eve package with no broken shared-reference paths.
-- [ ] The generated catalogs include all 74 project skills and supporting files.
-- [ ] Sofie's routing eval uses upstream natural-language positive prompts for imported skills.
-- [ ] Deterministic combined-catalog checks cover positive and negative upstream routing cases.
-- [ ] Default specialist assignments include the relevant imported skills without changing Sofie's primary access.
-- [ ] The Skills Manager exposes source eval coverage and assignment controls for the imported skills.
-- [ ] Unit, type, manifest, catalog, and browser qualification pass.
-- [ ] A fresh stacked Preview and pull request are created without changing the Phase 3 branch.
+- [x] Exactly 12 approved upstream skills are imported at the pinned revision.
+- [x] MIT license, repository, revision, and source eval provenance are preserved.
+- [x] Every imported skill is a self-contained Eve package with no broken shared-reference paths.
+- [x] The generated catalogs include all 74 project skills and supporting files.
+- [x] Sofie's routing eval uses upstream natural-language positive prompts for imported skills.
+- [x] Deterministic combined-catalog checks cover positive and negative upstream routing cases.
+- [x] Default specialist assignments include the relevant imported skills without changing Sofie's primary access.
+- [x] The Skills Manager exposes source eval coverage and assignment controls for the imported skills.
+- [x] Unit, type, manifest, catalog, and browser qualification pass.
+- [x] A fresh stacked Preview and pull request are created without changing the Phase 3 branch.
 
 ## Work Log
 
@@ -84,6 +84,14 @@ Implement Option 2. Keep the other 13 skills deferred until a combined routing e
 **Learnings:**
 - `planning-and-task-breakdown` is the necessary routing companion to `spec-driven-development`; importing the latter alone makes an explicit planning request route to the wrong owner.
 - Source eval fixtures belong under the app eval tree, not Eve's authored `agent/` root, which intentionally rejects unsupported directories.
+
+### 2026-09-13 - Delivered
+
+**By:** Codex
+
+**Actions:**
+- Published Preview: `https://sofie-personal-agent-bilaeeifc-jaydubya818.vercel.app/manage/skills`.
+- Opened stacked pull request: `https://github.com/jaydubya818/eveclaw/pull/3` against `feat/proactive-review-delivery`.
 
 ## Notes
 
