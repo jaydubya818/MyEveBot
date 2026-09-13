@@ -21,6 +21,7 @@ import type {
   ReviewWorkItem,
   WeeklyReviewView,
 } from "@/lib/review-types";
+import type { ReviewCheckpoint } from "@/lib/review-schedule-types";
 import { cn } from "@/lib/utils";
 
 type Tab = "daily" | "weekly";
@@ -352,7 +353,7 @@ export function ReviewPanel() {
     }
     try {
       const [reviewBody, outcomeBody] = await Promise.all([
-        requestJson<{ review: ProgressReview }>(
+        requestJson<{ review: ProgressReview; checkpoint?: ReviewCheckpoint | null }>(
           `/api/reviews${checkpoint ? "" : `?kind=${kind}`}`,
           checkpoint
             ? {
@@ -367,7 +368,9 @@ export function ReviewPanel() {
       if (requestVersion !== requestVersionRef.current) return;
       setReview(reviewBody.review);
       setOutcomes(outcomeBody.outcomes);
-      if (checkpoint) setSavedReview({ kind, at: reviewBody.review.generatedAt });
+      if (checkpoint || reviewBody.checkpoint) {
+        setSavedReview({ kind, at: reviewBody.checkpoint?.generatedAt ?? reviewBody.review.generatedAt });
+      }
     } catch (caught) {
       if (requestVersion !== requestVersionRef.current) return;
       setError(caught instanceof Error ? caught.message : "The review could not be loaded.");
@@ -377,6 +380,11 @@ export function ReviewPanel() {
         setGenerating(false);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    const requestedKind = new URLSearchParams(window.location.search).get("kind");
+    if (requestedKind === "weekly") setTab("weekly");
   }, []);
 
   useEffect(() => {

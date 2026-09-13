@@ -5,6 +5,7 @@ import { assembleDeployment, templateFiles, templateInfo } from "@/lib/assemble"
 import { requiredKeys, validateConfig, type AgentConfig, type DeployTarget } from "@/lib/config";
 import { validCron } from "@/lib/schedule-codegen";
 import {
+  assertRequiredProjectEnvKeys,
   connectStoreToProject,
   createBlobStore,
   createDeployment,
@@ -45,6 +46,7 @@ function buildEnv(config: AgentConfig, stamps: UpdateStamps): EnvVar[] {
   const vapid = webpush.generateVAPIDKeys();
   const vars: EnvVar[] = [
     { key: "OWNER_NAME", value: config.ownerName.trim() },
+    { key: "OWNER_TIMEZONE", value: config.ownerTimezone },
     // Display identity for the web UI; NEXT_PUBLIC_* is inlined at build time.
     { key: "NEXT_PUBLIC_AGENT_NAME", value: config.agentName.trim() },
     { key: "NEXT_PUBLIC_OWNER_NAME", value: config.ownerName.trim() },
@@ -85,6 +87,13 @@ function buildEnv(config: AgentConfig, stamps: UpdateStamps): EnvVar[] {
     }
     if (config.telegram.allowedUserIds.trim().length > 0) {
       vars.push({ key: "TELEGRAM_ALLOWED_USER_IDS", value: config.telegram.allowedUserIds.trim() });
+      const proactiveChatId = config.telegram.allowedUserIds
+        .split(",")
+        .map((value) => value.trim())
+        .find(Boolean);
+      if (proactiveChatId) {
+        vars.push({ key: "TELEGRAM_PROACTIVE_CHAT_ID", value: proactiveChatId });
+      }
     }
   }
   return vars;
@@ -228,6 +237,11 @@ export async function POST(request: Request): Promise<Response> {
       }
     }
     await upsertEnv(token, teamId, project.id, env);
+    const persistedEnvKeys = await listProjectEnvKeys(token, teamId, project.id, "env");
+    assertRequiredProjectEnvKeys(
+      persistedEnvKeys,
+      buildEnv(config, stamps).map((entry) => entry.key),
+    );
     const files = await assembleDeployment(config);
     const deployment = await createDeployment(token, teamId, project.name, files);
     return Response.json({

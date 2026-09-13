@@ -150,9 +150,16 @@ function recommendationsFromFocus(
   return recommendations;
 }
 
-export function buildDailyBrief(goals: readonly GoalDetailView[], now = new Date()): DailyBriefView {
-  const periodStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const periodEnd = new Date(periodStart.getTime() + DAY_MS);
+export function buildDailyBrief(
+  goals: readonly GoalDetailView[],
+  now = new Date(),
+  period: { start: Date; end: Date } = {
+    start: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+    end: new Date(new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() + DAY_MS),
+  },
+): DailyBriefView {
+  const periodStart = period.start;
+  const periodEnd = period.end;
   const risks = detectGoalRisks(goals, now);
   const focus = allFocus(goals, now);
   const operatingGoals = goals.filter((goal) => ["active", "blocked", "waiting"].includes(goal.status));
@@ -170,7 +177,7 @@ export function buildDailyBrief(goals: readonly GoalDetailView[], now = new Date
     approaching: [...approachingGoals.map((goal) => item(goal, null, goal.targetDate)), ...unfinished.filter(({ task }) => task.dueAt !== null && (daysUntil(task.dueAt, now) ?? 99) >= 0 && (daysUntil(task.dueAt, now) ?? 99) <= 3).map(({ goal, task }) => item(goal, task, task.dueAt))],
     blocked: [...operatingGoals.filter((goal) => goal.status === "blocked").map((goal) => item(goal, null, goal.targetDate)), ...unfinished.filter(({ task }) => task.status === "blocked" || task.blockedByDependencies || task.unavailableCapabilities.length > 0).map(({ goal, task }) => item(goal, task, task.dueAt))],
     pendingOwnerActions: [...operatingGoals.filter((goal) => goal.status === "waiting").map((goal) => item(goal, null, goal.targetDate)), ...unfinished.filter(({ task }) => task.status === "waiting" || task.assignedTo === "owner").map(({ goal, task }) => item(goal, task, task.dueAt))],
-    completed: [...goals.filter((goal) => goal.completedAt !== null && new Date(goal.completedAt) >= periodStart).map((goal) => item(goal, null, goal.completedAt)), ...tasks.filter(({ task }) => task.completedAt !== null && new Date(task.completedAt) >= periodStart).map(({ goal, task }) => item(goal, task, task.completedAt))],
+    completed: [...goals.filter((goal) => goal.completedAt !== null && new Date(goal.completedAt) >= periodStart && new Date(goal.completedAt) < periodEnd).map((goal) => item(goal, null, goal.completedAt)), ...tasks.filter(({ task }) => task.completedAt !== null && new Date(task.completedAt) >= periodStart && new Date(task.completedAt) < periodEnd).map(({ goal, task }) => item(goal, task, task.completedAt))],
     atRisk: risks,
     recommendations: recommendationsFromFocus(focus, risks, 7),
   };
@@ -180,14 +187,18 @@ export function buildWeeklyReview(
   goals: readonly GoalDetailView[],
   outcomes: readonly OutcomeView[],
   now = new Date(),
+  period: { start: Date; end: Date } = {
+    start: new Date(now.getTime() - 7 * DAY_MS),
+    end: new Date(now),
+  },
 ): WeeklyReviewView {
-  const periodEnd = new Date(now);
-  const periodStart = new Date(now.getTime() - 7 * DAY_MS);
+  const periodEnd = period.end;
+  const periodStart = period.start;
   const risks = detectGoalRisks(goals, now);
   const operatingGoals = goals.filter((goal) => ["active", "blocked", "waiting"].includes(goal.status));
   const tasks = goals.flatMap((goal) => goal.tasks.map((task) => ({ goal, task })));
   const operatingTasks = operatingGoals.flatMap((goal) => goal.tasks.map((task) => ({ goal, task })));
-  const withinPeriod = (value: string | null) => value !== null && new Date(value) >= periodStart && new Date(value) <= periodEnd;
+  const withinPeriod = (value: string | null) => value !== null && new Date(value) >= periodStart && new Date(value) < periodEnd;
   return {
     kind: "weekly",
     generatedAt: now.toISOString(),

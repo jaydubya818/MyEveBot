@@ -23,6 +23,7 @@ const config: AgentConfig = {
   agentName: "Smoke",
   projectName,
   ownerName: "Smoke Tester",
+  ownerTimezone: "UTC",
   accessPassword: "smoke-test-password-only",
   model: "anthropic/claude-haiku-4-5",
   features: ["utilities"],

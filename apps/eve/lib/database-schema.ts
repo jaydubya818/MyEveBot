@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0006_outcomes_and_review_loop.sql";
+export const CURRENT_DATABASE_MIGRATION = "0007_proactive_review_delivery.sql";

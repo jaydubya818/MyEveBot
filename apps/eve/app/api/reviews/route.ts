@@ -1,7 +1,9 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { capabilityMap } from "@/lib/capabilities";
+import { getReviewDeliveryPreferences, listReviewDeliveries } from "@/lib/review-delivery-db";
 import { REVIEW_KINDS, type ReviewKind } from "@/lib/review-types";
-import { generateProgressReview } from "@/lib/reviews";
+import { generateProgressReview, generateProgressReviewCheckpoint, getReviewCheckpoint } from "@/lib/reviews";
+import { reviewPeriod } from "@/lib/review-time";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 function kindFrom(value: unknown): ReviewKind | null {
@@ -25,8 +27,16 @@ export async function GET(request: Request): Promise<Response> {
   const kind = kindFrom(new URL(request.url).searchParams.get("kind") ?? "daily");
   if (kind === null) return apiError(request, 400, "invalid_review_kind", "Review kind must be daily or weekly.");
   try {
+    const ownerId = webPrincipal(request)!.id;
+    const preferences = await getReviewDeliveryPreferences(ownerId);
+    const period = reviewPeriod(kind, preferences.ownerTimezone);
+    const checkpoint = await getReviewCheckpoint(ownerId, kind, period.key);
     return Response.json(
-      { review: await generateProgressReview(webPrincipal(request)!.id, kind) },
+      {
+        review: checkpoint?.review ?? await generateProgressReview(ownerId, kind, { timezone: preferences.ownerTimezone }),
+        checkpoint,
+        deliveries: await listReviewDeliveries(ownerId, 10),
+      },
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch (error) {
@@ -43,7 +53,14 @@ export async function POST(request: Request): Promise<Response> {
   const kind = kindFrom(body.kind);
   if (kind === null) return apiError(request, 400, "invalid_review_kind", "Review kind must be daily or weekly.");
   try {
-    return Response.json({ review: await generateProgressReview(webPrincipal(request)!.id, kind, { checkpoint: true }) });
+    const ownerId = webPrincipal(request)!.id;
+    const preferences = await getReviewDeliveryPreferences(ownerId);
+    const generated = await generateProgressReviewCheckpoint(ownerId, kind, { timezone: preferences.ownerTimezone });
+    return Response.json({
+      review: generated.checkpoint.review,
+      checkpoint: generated.checkpoint,
+      deliveries: await listReviewDeliveries(ownerId, 10),
+    });
   } catch (error) {
     console.error("Review generation failed", error);
     return apiError(request, 503, "review_unavailable", "The progress review is temporarily unavailable.");

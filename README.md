@@ -24,7 +24,7 @@ Each deployment serves one owner by default for a simple security boundary. Code
 
 - **Goal OS** — persistent goals, versioned plans, milestones, tasks, dependencies, progress, Focus, and explainable next actions.
 - **Outcome loop** — first-class effectiveness outcomes linked to goals, tasks, runs, and evidence; explicit owner feedback stays separate from execution status.
-- **Daily brief and weekly review** — deterministic priorities, due work, blockers, completion, stalled-work, and dependency/capability risk signals from persisted state. Manual generation records resumable checkpoints; scheduled delivery is intentionally deferred.
+- **Daily brief and weekly review** — deterministic priorities, due work, blockers, completion, stalled-work, and dependency/capability risk signals from persisted state. Owner-controlled schedules create durable, deduplicated checkpoints and deliver them in-app or through a configured Web Push or Telegram channel.
 - **Long-term memory** — Supermemory-backed remember/forget/search tools with nightly consolidation and a profile summary injected each turn.
 - **App integrations** — Composio connections (Gmail, GitHub, Notion, Linear, …) with a UI to connect/disconnect apps.
 - **Chat-created skills** — Eve can write, list, and delete her own skills at runtime; manage them from the UI.
@@ -34,7 +34,7 @@ Each deployment serves one owner by default for a simple security boundary. Code
 
 **Review page** — `/review` generates the owner’s daily brief or weekly review and exposes recent outcome feedback.
 
-**Manage page** — `/manage` shows reminders (with run history), webhooks, memories, connections, and skills in one place.
+**Manage page** — `/manage` shows review schedules and delivery history, reminders (with run history), webhooks, memories, connections, and skills in one place.
 
 **MyEve Builder (`apps/builder`)** — create a named personal agent and deploy it into **your** Vercel account, then update it later when the template changes:
 
@@ -79,12 +79,13 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 | Variable | Used for |
 | --- | --- |
 | `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, `MYEVE_OWNER_ID` | Single-owner production web access |
+| `OWNER_TIMEZONE` | Default IANA timezone for owner-facing review schedules |
 | `DATABASE_URL` | Neon Postgres (threads, goals, outcomes, reviews, reminders, webhooks, receipts, push) |
 | `SUPERMEMORY_API_KEY` | Long-term memory |
 | `COMPOSIO_API_KEY` | App integrations |
 | `BLOB_READ_WRITE_TOKEN` | File sharing + skill store |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Web push notifications |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS` | Telegram channel (optional) |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS`, `TELEGRAM_PROACTIVE_CHAT_ID` | Telegram channel and explicit proactive destination (optional) |
 
 Before starting a deployed app, apply the checked-in database migrations:
 
@@ -96,6 +97,10 @@ Migrations are ordered, checksum-protected, and safe to rerun. Apply them to loc
 production databases before the matching application release. Existing runtime table guards remain
 temporarily for backwards compatibility; new schema changes must be added under
 `apps/eve/migrations/` instead of application startup code.
+
+Preview deployments use the same fail-closed owner authentication as production. Configure
+`MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, and `MYEVE_OWNER_ID` for the Vercel Preview
+environment before qualification; do not weaken the auth boundary to make a preview testable.
 
 ## Scripts
 

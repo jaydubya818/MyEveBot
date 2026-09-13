@@ -5,6 +5,7 @@ import {
   ArrowLeftIcon,
   ArrowSquareOutIcon,
   BellIcon,
+  CalendarDotsIcon,
   BrainIcon,
   CaretDownIcon,
   CaretRightIcon,
@@ -30,6 +31,7 @@ import { FinancePanel } from "@/components/finance-panel";
 import { SkillsManager } from "@/components/skills-manager";
 import { SystemHealthPanel } from "@/components/system-health-panel";
 import { TaskRunsPanel } from "@/components/task-runs-panel";
+import { ReviewDeliverySettings } from "@/components/review-delivery-settings";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 
@@ -408,7 +410,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -421,6 +423,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
   {
     label: "General",
     sections: [
+      {
+        id: "review-delivery" as const,
+        label: "Briefs & reviews",
+        description: "Scheduled proactive delivery",
+        icon: CalendarDotsIcon,
+      },
       {
         id: "system" as const,
         label: "System",
@@ -685,7 +693,11 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" ? undefined : capabilityById.get(id);
+    id === "system" || id === "activity"
+      ? undefined
+      : id === "review-delivery"
+        ? capabilityById.get("goals")
+        : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
     id === "system" || id === "activity" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
@@ -723,6 +735,8 @@ export function ManagePanel({
   let sectionContent: React.ReactNode;
   if (activeSection === "system") {
     sectionContent = <SystemHealthPanel />;
+  } else if (activeSection === "review-delivery") {
+    sectionContent = <ReviewDeliverySettings />;
   } else if (activeSection === "activity") {
     sectionContent = <TaskRunsPanel onOpenThread={onOpenThread} />;
   } else if (activeSection === "appearance") {

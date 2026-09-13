@@ -170,6 +170,9 @@ export function BuilderWizard() {
   const [projectName, setProjectName] = useState("sofie");
   const [projectNameEdited, setProjectNameEdited] = useState(false);
   const [ownerName, setOwnerName] = useState("");
+  const [ownerTimezone, setOwnerTimezone] = useState(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+  );
   const [accessPassword, setAccessPassword] = useState("");
   const [accessPasswordConfirm, setAccessPasswordConfirm] = useState("");
   const [personality, setPersonality] = useState("");
@@ -241,6 +244,7 @@ export function BuilderWizard() {
       agentName: agentName.trim(),
       projectName,
       ownerName: ownerName.trim(),
+      ownerTimezone,
       accessPassword,
       model: effectiveModel,
       features: [...features],
@@ -266,6 +270,7 @@ export function BuilderWizard() {
       agentName,
       projectName,
       ownerName,
+      ownerTimezone,
       accessPassword,
       effectiveModel,
       features,
@@ -716,6 +721,19 @@ export function BuilderWizard() {
                 />
               </FormField>
             </div>
+            <FormField
+              label="Your timezone"
+              htmlFor="owner-timezone"
+              description="Used for scheduled briefs, reviews, reminders, and daylight-saving changes."
+            >
+              <TextField.Input
+                id="owner-timezone"
+                size="3"
+                value={ownerTimezone}
+                placeholder="America/Los_Angeles"
+                onChange={(event) => setOwnerTimezone(event.target.value)}
+              />
+            </FormField>
             <FormField
               label="Vercel project name"
               htmlFor="project-name"

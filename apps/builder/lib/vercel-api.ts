@@ -10,13 +10,14 @@ const API = "https://api.vercel.com";
 export type DeployStage = "token" | "project" | "storage" | "env" | "deploy" | "build";
 
 export class VercelApiError extends Error {
-  constructor(
-    public stage: DeployStage,
-    message: string,
-    public status?: number,
-  ) {
+  public stage: DeployStage;
+  public status?: number;
+
+  constructor(stage: DeployStage, message: string, status?: number) {
     super(message);
     this.name = "VercelApiError";
+    this.stage = stage;
+    this.status = status;
   }
 }
 
@@ -246,13 +247,28 @@ export async function listProjectEnvKeys(
   token: string,
   teamId: string | null,
   projectId: string,
+  stage: DeployStage = "storage",
 ): Promise<string[]> {
   const body = await api<{ envs?: { key: string }[] }>(`/v10/projects/${projectId}/env`, {
     token,
     teamId,
-    stage: "storage",
+    stage,
   });
   return (body.envs ?? []).map((entry) => entry.key);
+}
+
+export function assertRequiredProjectEnvKeys(
+  actualKeys: readonly string[],
+  requiredKeys: readonly string[],
+): void {
+  const actual = new Set(actualKeys);
+  const missing = requiredKeys.filter((key) => !actual.has(key));
+  if (missing.length > 0) {
+    throw new VercelApiError(
+      "env",
+      `Vercel did not persist required environment variables: ${missing.join(", ")}. Deployment stopped before build.`,
+    );
+  }
 }
 
 export interface EnvVar {
@@ -299,7 +315,8 @@ export async function createDeployment(
     inspectorUrl?: string;
     readyState?: string;
     status?: string;
-  }>("/v13/deployments?skipAutoDetectionConfirmation=1", {
+    target?: string | null;
+  }>("/v13/deployments?forceNew=1&skipAutoDetectionConfirmation=1", {
     token,
     teamId,
     method: "POST",
@@ -312,6 +329,12 @@ export async function createDeployment(
     },
     stage: "deploy",
   });
+  if (deployment.target !== "production") {
+    throw new VercelApiError(
+      "deploy",
+      `Vercel created a ${deployment.target ?? "preview"} deployment instead of Production. Deployment stopped without presenting it as live.`,
+    );
+  }
   return {
     id: deployment.id,
     url: deployment.url,

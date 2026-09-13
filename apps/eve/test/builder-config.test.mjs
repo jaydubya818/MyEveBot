@@ -9,6 +9,7 @@ function validConfig() {
     agentName: "Sofie",
     projectName: "sofie",
     ownerName: "Jay",
+    ownerTimezone: "America/Los_Angeles",
     accessPassword: "a-strong-access-password",
     model: "openai/gpt-5.2",
     features: [],
@@ -30,6 +31,18 @@ test("builder requires a strong production access password", () => {
   assert.match(validateConfig(short), /at least 12 characters/);
 
   assert.equal(validateConfig(validConfig()), null);
+});
+
+test("builder requires an IANA owner timezone", () => {
+  assert.match(
+    validateConfig({ ...validConfig(), ownerTimezone: "somewhere nearby" }),
+    /valid IANA timezone/,
+  );
+  assert.match(
+    validateConfig({ ...validConfig(), ownerTimezone: "PST" }),
+    /valid IANA timezone/,
+  );
+  assert.equal(validateConfig({ ...validConfig(), ownerTimezone: "UTC" }), null);
 });
 
 test("builder-generated identity is owner and agent configurable", () => {

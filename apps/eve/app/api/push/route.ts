@@ -1,6 +1,6 @@
 import { deleteSubscription, parseSubscription, saveSubscription } from "@/lib/push-db";
 import { requireDatabase } from "@/lib/api-errors";
-import { requireWebAuth } from "@/lib/web-auth";
+import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function POST(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
@@ -11,7 +11,7 @@ export async function POST(request: Request): Promise<Response> {
   if (subscription === null) {
     return new Response("Invalid subscription", { status: 400 });
   }
-  await saveSubscription(subscription);
+  await saveSubscription(webPrincipal(request)!.id, subscription);
   return Response.json({ ok: true });
 }
 
@@ -24,6 +24,6 @@ export async function DELETE(request: Request): Promise<Response> {
   if (body === null || typeof body.endpoint !== "string") {
     return new Response("Invalid body", { status: 400 });
   }
-  await deleteSubscription(body.endpoint);
+  await deleteSubscription(webPrincipal(request)!.id, body.endpoint);
   return Response.json({ ok: true });
 }

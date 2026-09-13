@@ -46,6 +46,8 @@ export interface AgentConfig {
   projectName: string;
   /** The single owner this deployment serves. */
   ownerName: string;
+  /** IANA timezone used for owner-facing schedules and review periods. */
+  ownerTimezone: string;
   /** Password for the deployment's single-owner production web session. */
   accessPassword: string;
   /** Default model id ("provider/model"), routed via the AI Gateway. */
@@ -106,6 +108,14 @@ export function validateConfig(config: AgentConfig): string | null {
     return "Project name must be lowercase letters, digits, and dashes";
   }
   if (config.ownerName.trim().length === 0) return "Owner name is required";
+  if (config.ownerTimezone !== "UTC" && !config.ownerTimezone.includes("/")) {
+    return "Owner timezone must be a valid IANA timezone";
+  }
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: config.ownerTimezone }).format(new Date(0));
+  } catch {
+    return "Owner timezone must be a valid IANA timezone";
+  }
   if (typeof config.accessPassword !== "string" || config.accessPassword.length < 12) {
     return "Web access password must be at least 12 characters";
   }
