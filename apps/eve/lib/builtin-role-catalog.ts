@@ -1,4 +1,5 @@
 import { createRoleCatalog } from "./role-catalog.ts";
+import { FOUNDER_OS_ROLE_PACK } from "./role-packs/founder-os.ts";
 import { GENERAL_ROLE_PACK } from "./role-packs/general.ts";
 import { MARKETING_ENGINEERING_ROLE_PACK } from "./role-packs/marketing-engineering.ts";
 import { SOFTWARE_DEVELOPMENT_ROLE_PACK } from "./role-packs/software-development.ts";
@@ -8,6 +9,7 @@ export const BUILTIN_ROLE_PACKS = [
   GENERAL_ROLE_PACK,
   SOFTWARE_DEVELOPMENT_ROLE_PACK,
   MARKETING_ENGINEERING_ROLE_PACK,
+  FOUNDER_OS_ROLE_PACK,
   VERIFICATION_ROLE_PACK,
 ] as const;
 

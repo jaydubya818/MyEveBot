@@ -11,15 +11,16 @@ import { SOFTWARE_DEVELOPMENT_ROLE_PACK } from "../lib/role-packs/software-devel
 
 const roleIds = BUILTIN_ROLE_CATALOG.roles.map((role) => role.id);
 
-test("built-in catalog exposes the General, Software Development, Marketing Engineering, and Verification packs", () => {
+test("built-in catalog exposes canonical Role Packs, including the internal Founder OS pack", () => {
   assert.deepEqual(BUILTIN_ROLE_PACKS.map((pack) => pack.id), [
     "general",
     "software-development",
     "marketing-engineering",
+    "founder-os-core",
     "verification",
   ]);
   assert.equal(new Set(roleIds).size, roleIds.length);
-  assert.equal(BUILTIN_ROLE_CATALOG.roles.length, 19);
+  assert.equal(BUILTIN_ROLE_CATALOG.roles.length, 40);
 });
 
 test("shared roles are deduplicated and conflicting definitions are rejected", () => {
@@ -29,8 +30,8 @@ test("shared roles are deduplicated and conflicting definitions are rejected", (
   assert.equal(researcherEntries[0].role, researcherEntries[1].role);
 
   assert.throws(() => createRoleCatalog([
-    { id: "one", name: "One", description: "", roles: [{ role: researcherEntries[0].role }] },
-    { id: "two", name: "Two", description: "", roles: [{ role: { ...researcherEntries[0].role } }] },
+    { id: "one", name: "One", description: "First test pack.", roles: [{ role: researcherEntries[0].role }] },
+    { id: "two", name: "Two", description: "Second test pack.", roles: [{ role: { ...researcherEntries[0].role } }] },
   ]), /conflicting definitions/);
 });
 

@@ -1,7 +1,7 @@
 import type { RoleDefinition, RolePack } from "../role-catalog.ts";
 import { ANALYST_ROLE, RESEARCHER_ROLE, SCHEDULER_ROLE, WRITER_ROLE } from "./general.ts";
 
-const MARKETING_STRATEGIST_ROLE: RoleDefinition = {
+export const MARKETING_STRATEGIST_ROLE: RoleDefinition = {
   id: "marketing-strategist",
   name: "Marketing strategist",
   description: "Turns a business objective into a focused audience, offer, channel, and measurement brief.",
@@ -23,7 +23,7 @@ const MARKETING_STRATEGIST_ROLE: RoleDefinition = {
   executionMode: "on-demand",
 };
 
-const MARKETING_ENGINEER_ROLE: RoleDefinition = {
+export const MARKETING_ENGINEER_ROLE: RoleDefinition = {
   id: "marketing-engineer",
   name: "Marketing engineer",
   description: "Builds reliable campaign surfaces, instrumentation, integrations, and experiments from an approved brief.",
@@ -46,7 +46,7 @@ const MARKETING_ENGINEER_ROLE: RoleDefinition = {
   executionMode: "on-demand",
 };
 
-const LIFECYCLE_MARKETING_ENGINEER_ROLE: RoleDefinition = {
+export const LIFECYCLE_MARKETING_ENGINEER_ROLE: RoleDefinition = {
   id: "lifecycle-marketing-engineer",
   name: "Lifecycle marketing engineer",
   description: "Designs and implements consent-aware customer journeys, segmentation, and messaging automation.",
@@ -75,7 +75,7 @@ const LIFECYCLE_MARKETING_ENGINEER_ROLE: RoleDefinition = {
   executionMode: "on-demand",
 };
 
-const MARKETING_QA_COMPLIANCE_REVIEWER_ROLE: RoleDefinition = {
+export const MARKETING_QA_COMPLIANCE_REVIEWER_ROLE: RoleDefinition = {
   id: "marketing-qa-compliance-reviewer",
   name: "Marketing QA & compliance reviewer",
   description: "Independently verifies campaign quality, claims, consent controls, tracking, and launch readiness.",

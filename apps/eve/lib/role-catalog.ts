@@ -11,6 +11,8 @@ export interface RoleDefinition {
   description: string;
   category: string;
   responsibilities: readonly string[];
+  typicalInputs?: readonly string[];
+  typicalOutputs?: readonly string[];
   boundaries: readonly string[];
   recommendedCapabilities: readonly string[];
   recommendedModel?: string;
@@ -36,8 +38,10 @@ export interface RolePack {
   id: string;
   name: string;
   description: string;
+  domain?: string;
   roles: readonly RolePackEntry[];
   lifecycle?: RolePackLifecycle;
+  catalogVisibility?: "visible" | "internal";
   tags?: readonly string[];
 }
 
@@ -63,9 +67,22 @@ export interface RoleAgentDefaults {
 }
 
 export function createRoleCatalog(packs: readonly RolePack[]): RoleCatalog {
+  const packIds = new Set<string>();
   const roles = new Map<string, RoleDefinition>();
   for (const pack of packs) {
+    if (packIds.has(pack.id)) throw new Error(`Role Pack ${pack.id} is duplicated.`);
+    packIds.add(pack.id);
+    if (!pack.id || !pack.name || !pack.description || pack.roles.length === 0) {
+      throw new Error(`Role Pack ${pack.id || "unknown"} is incomplete.`);
+    }
+    const lifecycleIds = new Set(pack.lifecycle?.stages.map((stage) => stage.id) ?? []);
     for (const entry of pack.roles) {
+      if (!entry.role.id || !entry.role.name || !entry.role.description) {
+        throw new Error(`Role Pack ${pack.id} contains an incomplete Role.`);
+      }
+      for (const stage of entry.lifecycleStages ?? []) {
+        if (!lifecycleIds.has(stage)) throw new Error(`${pack.id}:${entry.role.id} references unknown lifecycle stage ${stage}.`);
+      }
       const existing = roles.get(entry.role.id);
       if (existing && existing !== entry.role) {
         throw new Error(`Role ${entry.role.id} has conflicting definitions.`);

@@ -6,9 +6,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AgentView } from "@/lib/agents";
 import { BUILTIN_ROLE_CATALOG } from "@/lib/builtin-role-catalog";
+import { BUILTIN_SOLUTION_PACKS } from "@/lib/builtin-solution-packs";
 import type { ResolvedCapability } from "@/lib/capability-registry";
 import { roleAgentDefaults, type RoleDefinition, type RoleExecutionMode } from "@/lib/role-catalog";
+import type { SolutionPack } from "@/lib/solution-packs";
 import { cn } from "@/lib/utils";
+import { SolutionPackCatalogCard } from "@/components/solution-pack-catalog-card";
 
 const RISK = { low: 0, medium: 1, high: 2, critical: 3 } as const;
 type FormState = {
@@ -37,14 +40,15 @@ const MODE_LABEL: Record<RoleExecutionMode, string> = {
   "declared-specialist": "Declared specialist",
 };
 
-function RoleCatalogPanel({ onCreateAgent }: { onCreateAgent: (role: RoleDefinition) => void }) {
+function RoleCatalogPanel({ onCreateAgent, onUseSolutionPack }: { onCreateAgent: (role: RoleDefinition) => void; onUseSolutionPack: (pack: SolutionPack) => void }) {
+  const visibleRolePacks = BUILTIN_ROLE_CATALOG.packs.filter((pack) => pack.catalogVisibility !== "internal");
   return <section className="mt-8 border-t border-kumo-hairline pt-6" aria-labelledby="role-catalog-title">
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div><h2 id="role-catalog-title" className="text-base font-semibold">Available roles</h2><p className="mt-1 max-w-2xl text-sm text-kumo-subtle">Reusable expertise for bounded work. Use a role on demand or create a persistent Agent from it.</p></div>
-      <span className="rounded-full border border-kumo-hairline px-2 py-1 text-[11px] text-kumo-subtle">{BUILTIN_ROLE_CATALOG.packs.length} built-in packs</span>
+      <span className="rounded-full border border-kumo-hairline px-2 py-1 text-[11px] text-kumo-subtle">{visibleRolePacks.length} Role Packs · {BUILTIN_SOLUTION_PACKS.length} Solution Pack</span>
     </div>
     <div className="mt-4 grid gap-4">
-      {BUILTIN_ROLE_CATALOG.packs.map((pack) => <section key={pack.id} className="rounded-xl border border-kumo-hairline bg-kumo-tint/40 p-4">
+      {visibleRolePacks.map((pack) => <section key={pack.id} className={cn("rounded-xl border border-kumo-hairline bg-kumo-tint/40 p-4", pack.id === "verification" && "order-last")}>
           <div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="text-sm font-semibold">{pack.name}</h3><p className="mt-1 text-xs leading-5 text-kumo-subtle">{pack.description}</p></div><span className="text-[11px] text-kumo-subtle">{pack.roles.length} roles</span></div>
           {pack.lifecycle && <div className="mt-3 flex flex-wrap items-center gap-1 text-[10px] text-kumo-subtle"><span className="sr-only">{pack.lifecycle.name}:</span>{pack.lifecycle.stages.map((stage, index) => <span key={stage.id} className="contents"><span className="rounded-md border border-kumo-hairline px-1.5 py-1">{stage.label}</span>{index < pack.lifecycle!.stages.length - 1 && <ArrowRightIcon aria-hidden className="size-3" />}</span>)}</div>}
           <div className="mt-3 grid gap-x-5 md:grid-cols-2">{pack.roles.map(({ role, lifecycleStages }) => <details key={`${pack.id}:${role.id}`} className="group border-t border-kumo-hairline py-3">
@@ -56,6 +60,8 @@ function RoleCatalogPanel({ onCreateAgent }: { onCreateAgent: (role: RoleDefinit
             <div className="ms-5 mt-2 border-s border-kumo-hairline ps-4 text-xs leading-5">
               {lifecycleStages && <p className="mb-2 text-kumo-subtle"><span className="font-medium text-kumo-default">Lifecycle:</span> {lifecycleStages.map((stage) => pack.lifecycle?.stages.find((item) => item.id === stage)?.label ?? stage).join(", ")}</p>}
               <p className="font-medium text-kumo-default">Responsibilities</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul>
+              {role.typicalInputs && <><p className="mt-2 font-medium text-kumo-default">Typical inputs</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.typicalInputs.map((item) => <li key={item}>{item}</li>)}</ul></>}
+              {role.typicalOutputs && <><p className="mt-2 font-medium text-kumo-default">Typical outputs</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.typicalOutputs.map((item) => <li key={item}>{item}</li>)}</ul></>}
               <p className="mt-2 font-medium text-kumo-default">Recommended capabilities</p><p className="text-kumo-subtle">{role.recommendedCapabilities.join(" · ") || "Reasoning only"}</p>
               <p className="mt-2 font-medium text-kumo-default">Safety boundaries</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.boundaries.map((item) => <li key={item}>{item}</li>)}</ul>
               <p className="mt-2 text-kumo-subtle"><span className="font-medium text-kumo-default">Model:</span> {role.recommendedModel ?? "Runtime default"} · <span className="font-medium text-kumo-default">Reasoning:</span> {role.recommendedReasoning ?? "default"}</p>
@@ -64,11 +70,12 @@ function RoleCatalogPanel({ onCreateAgent }: { onCreateAgent: (role: RoleDefinit
             </div>
           </details>)}</div>
         </section>)}
+      {BUILTIN_SOLUTION_PACKS.map((pack) => <SolutionPackCatalogCard key={pack.id} pack={pack} roleCatalog={BUILTIN_ROLE_CATALOG} onCreateAgent={onCreateAgent} onUseSolutionPack={onUseSolutionPack} />)}
     </div>
   </section>;
 }
 
-export function AgentsPanel({ onStartChat, embedded = false }: { onStartChat: (agent: AgentView) => void; embedded?: boolean }) {
+export function AgentsPanel({ onStartChat, onUseSolutionPack, embedded = false }: { onStartChat: (agent: AgentView) => void; onUseSolutionPack: (pack: SolutionPack) => void; embedded?: boolean }) {
   const [agents, setAgents] = useState<AgentView[] | null>(null);
   const [registry, setRegistry] = useState<ResolvedCapability[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -139,6 +146,6 @@ export function AgentsPanel({ onStartChat, embedded = false }: { onStartChat: (a
         </article> : <p className="text-sm text-kumo-subtle">Create an Agent to add specialized execution capacity.</p>}
       </div>
     </div>
-    <RoleCatalogPanel onCreateAgent={beginCreate} />
+    <RoleCatalogPanel onCreateAgent={beginCreate} onUseSolutionPack={onUseSolutionPack} />
   </section>;
 }
