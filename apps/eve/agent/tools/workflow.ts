@@ -5,4 +5,5 @@ import { experimental_workflow } from "eve/tools";
 // fan-out over a list, feed one result into the next, map-reduce — as one
 // durable step. The cap keeps a runaway fan-out from spawning dozens of
 // child sessions.
-export default experimental_workflow({ maxSubagents: 10 });
+// Three distinct specialists, plus at most one product-level retry for each.
+export default experimental_workflow({ maxSubagents: 6 });

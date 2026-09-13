@@ -41,13 +41,32 @@ export const PRUNABLE_DIRS = [
 
 /** Prunable files that ship regardless of feature selection. */
 export const CORE_PRUNABLE_FILES = [
+  "agent/instructions/capabilities.ts",
   "agent/instructions/channel.ts",
+  "agent/instructions/installed-skills.ts",
   "agent/instructions/time.ts",
+  "agent/tools/agent.ts",
+  "agent/tools/complete_task.ts",
+  "agent/tools/discover_capabilities.ts",
+  "agent/tools/inspect_tasks.ts",
+  "agent/tools/record_task_evidence.ts",
+  "agent/tools/start_product_qa.ts",
+  "agent/tools/update_task.ts",
   "agent/tools/workflow.ts",
 ] as const;
 
 /** Feature → the prunable files it owns. */
 export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
+  goals: [
+    "agent/tools/create_goal.ts",
+    "agent/tools/list_goals.ts",
+    "agent/tools/get_goal.ts",
+    "agent/tools/update_goal.ts",
+    "agent/tools/manage_goal_task.ts",
+    "agent/tools/manage_goal_structure.ts",
+    "agent/tools/goal_focus.ts",
+    "agent/instructions/goals.ts",
+  ],
   memory: [
     "agent/tools/remember.ts",
     "agent/tools/forget.ts",
@@ -72,8 +91,12 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/delete_receipt.ts",
   ],
   skills: [
+    "agent/tools/assign_skill.ts",
     "agent/tools/create_skill.ts",
     "agent/tools/delete_skill.ts",
+    "agent/tools/inspect_skills.ts",
+    "agent/tools/run_skill_evals.ts",
+    "agent/tools/unassign_skill.ts",
     "agent/instructions/custom-skills.ts",
   ],
   "file-sharing": ["agent/tools/share_file.ts"],

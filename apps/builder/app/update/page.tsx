@@ -32,7 +32,7 @@ export default function UpdatePage({
       <header className="border-b border-gray-a4">
         <div className="mx-auto flex w-full max-w-5xl items-baseline gap-3 px-6 py-4">
           <Link href="/" className="text-base font-semibold text-gray-12 hover:underline">
-            eveclaw
+            MyEve
           </Link>
           <p className="text-sm text-gray-11">Update an existing agent onto the latest template.</p>
         </div>

@@ -10,7 +10,28 @@ import type { NextConfig } from "next";
 // deployment.
 const TEMPLATE_ROUTES = ["/api/deploy", "/api/update", "/api/template-version"] as const;
 
-const templateIncludes = ["../eve/**"];
+// Keep this as an allowlist instead of tracing the whole sibling workspace.
+// Eve's local runtime creates linked dependency trees under `.eve/`; Turbopack
+// can attempt to hash those directory links as files before excludes apply.
+const templateIncludes = [
+  "../eve/.eve-template-release",
+  "../eve/agent/**",
+  "../eve/app/**",
+  "../eve/components/**",
+  "../eve/components.json",
+  "../eve/lib/**",
+  "../eve/migrations/**",
+  "../eve/next-env.d.ts",
+  "../eve/next.config.ts",
+  "../eve/package.json",
+  "../eve/postcss.config.mjs",
+  "../eve/proxy.ts",
+  "../eve/public/**",
+  "../eve/skills-lock.json",
+  "../eve/test/**",
+  "../eve/tsconfig.json",
+  "../eve/vercel.json",
+];
 const templateExcludes = [
   "../eve/node_modules/**",
   "../eve/.next/**",

@@ -7,7 +7,10 @@
 import { get } from "@vercel/blob";
 
 const API_BASE = "https://api.supermemory.ai";
-const CONTAINER_TAG = "micky";
+const OWNER_NAME = process.env.OWNER_NAME?.trim() || "Jay";
+const CONTAINER_TAG =
+  process.env.MEMORY_CONTAINER_TAG?.trim() ||
+  `owner-${OWNER_NAME.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}`;
 const BLOB_PATH = "memory/memories.json";
 
 interface LegacyMemory {
@@ -47,9 +50,9 @@ async function main(): Promise<void> {
   await api("/v3/settings", "PATCH", {
     shouldLLMFilter: true,
     filterPrompt:
-      "Personal assistant memory for a single user, Micky (Michael Shimeles). " +
-      "The containerTag is 'micky'. We store durable facts, preferences, routines, " +
-      "people, and project context about Micky. Ignore secrets and one-time codes.",
+      `Personal assistant memory for a single user, ${OWNER_NAME}. ` +
+      `The containerTag is '${CONTAINER_TAG}'. We store durable facts, preferences, routines, ` +
+      `people, and project context about ${OWNER_NAME}. Ignore secrets and one-time codes.`,
   });
 
   const legacy = await readLegacyMemories();

@@ -46,6 +46,7 @@ const config: AgentConfig = {
   agentName: "Debug",
   projectName,
   ownerName: "Debug",
+  accessPassword: "debug-password-only",
   model: "anthropic/claude-haiku-4-5",
   features: ["utilities"],
   instructions: "# Debug",

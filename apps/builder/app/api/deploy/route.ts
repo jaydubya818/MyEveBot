@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { randomBytes } from "node:crypto";
 
 import { assembleDeployment, templateFiles, templateInfo } from "@/lib/assemble";
 import { requiredKeys, validateConfig, type AgentConfig, type DeployTarget } from "@/lib/config";
@@ -47,6 +48,9 @@ function buildEnv(config: AgentConfig, stamps: UpdateStamps): EnvVar[] {
     // Display identity for the web UI; NEXT_PUBLIC_* is inlined at build time.
     { key: "NEXT_PUBLIC_AGENT_NAME", value: config.agentName.trim() },
     { key: "NEXT_PUBLIC_OWNER_NAME", value: config.ownerName.trim() },
+    { key: "MYEVE_ACCESS_PASSWORD", value: config.accessPassword },
+    { key: "MYEVE_SESSION_SECRET", value: randomBytes(48).toString("base64url") },
+    { key: "MYEVE_OWNER_ID", value: "owner" },
     { key: "EVE_ENABLED_FEATURES", value: config.features.join(",") },
     { key: "NEXT_PUBLIC_VAPID_PUBLIC_KEY", value: vapid.publicKey },
     { key: "VAPID_PRIVATE_KEY", value: vapid.privateKey },
