@@ -38,6 +38,14 @@ test("available capability filtering respects risk and permission", () => {
   assert.deepEqual(available.map((capability) => capability.id), ["tool.roll_dice"]);
 });
 
+test("computer capabilities are granular and require the durable control plane", () => {
+  for (const id of ["computer.session.create", "computer.session.stop", "browser.navigate", "browser.read", "browser.click", "browser.type", "terminal.execute"]) {
+    assert.ok(CAPABILITY_DEFINITIONS.some((capability) => capability.id === id), id);
+  }
+  assert.equal(checkCapabilityAvailability("browser.navigate", { EVE_ENABLED_FEATURES: "browser" }).status, "unconfigured");
+  assert.equal(checkCapabilityAvailability("browser.navigate", { EVE_ENABLED_FEATURES: "browser", DATABASE_URL: "postgres://configured" }).status, "available");
+});
+
 test("objective discovery returns relevant available capabilities only", () => {
   const env = {
     EVE_ENABLED_FEATURES: "memory,integrations,browser",

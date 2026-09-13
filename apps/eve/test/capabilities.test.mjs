@@ -7,7 +7,8 @@ test("included capabilities report setup requirements instead of disappearing", 
   const capabilities = capabilityMap({});
 
   assert.equal(capabilities.appearance.state, "ready");
-  assert.equal(capabilities.computer.state, "ready");
+  assert.equal(capabilities.computer.state, "setup_required");
+  assert.match(capabilities.computer.setupHint, /0010/);
   assert.equal(capabilities.reminders.state, "setup_required");
   assert.match(capabilities.reminders.setupHint, /DATABASE_URL/);
   assert.equal(capabilities.memory.state, "setup_required");
@@ -22,7 +23,7 @@ test("configured capabilities report ready", () => {
     BLOB_READ_WRITE_TOKEN: "configured",
   });
 
-  for (const id of ["reminders", "triggers", "memory", "connections", "skills", "finance", "goals"]) {
+  for (const id of ["reminders", "triggers", "memory", "connections", "skills", "computer", "finance", "goals"]) {
     assert.equal(capabilities[id].state, "ready", id);
   }
 });
@@ -31,7 +32,7 @@ test("builder feature selection marks omitted capabilities as excluded", () => {
   const capabilities = capabilityMap({ EVE_ENABLED_FEATURES: "memory, browser" });
 
   assert.equal(capabilities.memory.state, "setup_required");
-  assert.equal(capabilities.computer.state, "ready");
+  assert.equal(capabilities.computer.state, "setup_required");
   assert.equal(capabilities.finance.state, "excluded");
   assert.equal(capabilities.connections.state, "excluded");
   assert.equal(capabilities.goals.state, "excluded");
