@@ -2,7 +2,7 @@ import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
 
-import { clientTurnSettings, sessionAgent } from "./lib/session-settings.ts";
+import { clientTurnSettings, resolveSessionAgent } from "./lib/session-settings.ts";
 
 const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
 
@@ -31,7 +31,7 @@ export default defineAgent({
     fallback: DEFAULT_MODEL,
     events: {
       "turn.started": async (_event, ctx) => {
-        const agent = await sessionAgent(ctx.session.auth.current?.principalId, ctx.session.auth.current?.attributes.myeveAgentId, ctx.session.auth.current?.attributes.owner === "true");
+        const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
         return agent?.preferredModel ?? clientTurnSettings(ctx.messages).model;
       },
       // Reasoning effort is a per-call AI SDK setting, not a field the dynamic
@@ -41,7 +41,7 @@ export default defineAgent({
       // and the turn-scoped string selection (plain prompt-cache path) wins.
       "step.started": async (_event, ctx) => {
         const requested = clientTurnSettings(ctx.messages);
-        const agent = await sessionAgent(ctx.session.auth.current?.principalId, ctx.session.auth.current?.attributes.myeveAgentId, ctx.session.auth.current?.attributes.owner === "true");
+        const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
         const model = agent?.preferredModel ?? requested.model;
         const configuredReasoning = agent?.reasoningPreference;
         const selectedReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;

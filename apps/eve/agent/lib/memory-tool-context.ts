@@ -1,13 +1,18 @@
-import { ensurePrimaryAgent, getAgent } from "../../lib/agents.ts";
 import type { MemoryScope } from "../../lib/memory-scopes.ts";
 import { db } from "./receipts-db.ts";
 import type { MemoryAccessContext } from "./memory-store.ts";
+import { resolveSessionAgent } from "./session-settings.ts";
 
 interface ToolContext {
   session: {
     id: string;
     auth: {
       current: {
+        principalId?: string;
+        principalType?: string;
+        attributes: Record<string, unknown>;
+      } | null;
+      initiator?: {
         principalId?: string;
         principalType?: string;
         attributes: Record<string, unknown>;
@@ -22,10 +27,8 @@ export async function memoryAccessForTool(ctx: ToolContext): Promise<MemoryAcces
     ? principal.principalId?.trim()
     : process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim();
   if (!ownerId) throw new Error("An owner identity is required for memory access.");
-  const requestedAgentId = typeof principal?.attributes.myeveAgentId === "string" ? principal.attributes.myeveAgentId : null;
-  const agent = requestedAgentId ? await getAgent(ownerId, requestedAgentId) : await ensurePrimaryAgent(ownerId);
+  const agent = await resolveSessionAgent({ ownerId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: true });
   if (!agent) throw new Error("Agent does not belong to the current owner.");
-  if (agent.status !== "active") throw new Error(`${agent.name} is ${agent.status} and cannot access memory.`);
   const rows = await db().query(
     `SELECT goal_id,coalesce(goal_task_id,task_run_id) AS task_id
      FROM context_assemblies WHERE owner_id=$1 AND agent_id=$2 AND session_id=$3

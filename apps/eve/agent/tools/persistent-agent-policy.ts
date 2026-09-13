@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
-import { sessionAgent } from "../lib/session-settings.ts";
+import { resolveSessionAgent } from "../lib/session-settings.ts";
 
 const BUILTIN_CAPABILITIES: Record<string, string> = {
   bash: "computer.browser", glob: "files.read", grep: "files.read", read_file: "files.read",
@@ -28,7 +28,7 @@ const TOOL_POLICY = policyMap();
 export default defineDynamic({
   events: {
     "turn.started": async (_event, ctx) => {
-      const agent = await sessionAgent(ctx.session.auth.current?.principalId, ctx.session.auth.current?.attributes.myeveAgentId, ctx.session.auth.current?.attributes.owner === "true");
+      const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
       if (!agent || agent.isPrimary) return null;
       return Object.fromEntries(Object.entries(TOOL_POLICY).flatMap(([toolName, capabilityId]) => {
         const decision = effectiveCapability(agent, capabilityId);
