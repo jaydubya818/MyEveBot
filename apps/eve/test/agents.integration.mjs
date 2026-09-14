@@ -11,6 +11,8 @@ const integration = configured ? test : test.skip;
 integration("persistent Agent repository enforces owner, lifecycle, capabilities, primary, duplication, and run attribution", async () => {
   const ownerId = `agent_test_${crypto.randomUUID()}`;
   const otherOwnerId = `agent_test_${crypto.randomUUID()}`;
+  const sessionId = `session_${crypto.randomUUID()}`;
+  const threadId = `thread_${crypto.randomUUID()}`;
   const actor = { type: "owner", id: ownerId };
   try {
     const primary = await ensurePrimaryAgent(ownerId);
@@ -35,12 +37,14 @@ integration("persistent Agent repository enforces owner, lifecycle, capabilities
 
     const copy = await duplicateAgent(ownerId, researcher.id, "Competitive Researcher", actor);
     assert.notEqual(copy.id, researcher.id); assert.equal(copy.capabilities[0].id, "web.search");
-    await bindAgentRun("session_test", "1", ownerId, researcher, "thread_test");
-    const run = await db().query(`SELECT agent_id,thread_id FROM agent_runs WHERE session_id=$1 AND owner_id=$2`, ["session_test", ownerId]);
-    assert.equal(run[0].agent_id, researcher.id); assert.equal(run[0].thread_id, "thread_test");
+    await db().query(`INSERT INTO web_chat_threads (id,owner_id,title,updated_at) VALUES ($1,$2,'Integration thread',$3)`, [threadId, ownerId, Date.now()]);
+    await bindAgentRun(sessionId, "1", ownerId, researcher, threadId);
+    const run = await db().query(`SELECT agent_id,thread_id FROM agent_runs WHERE session_id=$1 AND owner_id=$2`, [sessionId, ownerId]);
+    assert.equal(run[0].agent_id, researcher.id); assert.equal(run[0].thread_id, threadId);
     assert.equal((await transitionAgent(ownerId, copy.id, "archived", actor)).status, "archived");
   } finally {
     await db().query(`DELETE FROM agent_runs WHERE owner_id IN ($1,$2)`, [ownerId, otherOwnerId]);
+    await db().query(`DELETE FROM web_chat_threads WHERE owner_id IN ($1,$2)`, [ownerId, otherOwnerId]);
     await db().query(`DELETE FROM agent_audit_events WHERE owner_id IN ($1,$2)`, [ownerId, otherOwnerId]);
     await db().query(`DELETE FROM agent_capabilities WHERE owner_id IN ($1,$2)`, [ownerId, otherOwnerId]);
     await db().query(`DELETE FROM agents WHERE owner_id IN ($1,$2)`, [ownerId, otherOwnerId]);

@@ -46,7 +46,7 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 - [x] MFA, CAPTCHA, credentials, sensitive inputs, and consequential external actions pause for owner takeover or approval.
 - [x] Every new UI action has agent capability parity and every agent write is reflected in the UI.
 - [x] Loading, empty, error, blocked, approval, success, and recovery states are complete on desktop and mobile.
-- [ ] Unit, integration, migration, parity, typecheck, build, browser, agent E2E, and production checks pass.
+- [x] Unit, integration, migration, parity, typecheck, build, browser, and local agent E2E checks pass; production is covered by the final release gate below.
 - [ ] All changes are committed and merged to `main`, pushed, deployed to production, and post-deploy health is verified.
 
 ## Work Log
@@ -82,6 +82,21 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 
 - 117 unit/source-contract tests pass.
 - TypeScript compilation and ordered migration validation pass.
+
+### 2026-09-14 - Pre-release qualification
+
+**By:** Codex
+
+**Actions:**
+
+- Exercised authenticated multi-turn chat and complete Role/Solution Pack discovery against the running app.
+- Ran a live Computer work contract that wrote and read a sandbox file, rejected an unsafe shell command, completed its result, and stopped cleanly.
+- Reviewed Results and Computer activity on desktop and mobile, then corrected mobile navigation spacing and clarified Run linkage in the computer tool contract.
+
+**Verification:**
+
+- 117 unit tests and all 8 database integration tests pass.
+- Full monorepo typecheck, 102-capability parity validation, 93 skill-routing checks, 13 ordered migrations, and the production Webpack build pass.
 
 ## Post-Deploy Monitoring & Validation
 
