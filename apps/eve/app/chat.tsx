@@ -82,6 +82,7 @@ import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
 import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
 import type { CapabilityStatus } from "@/lib/capabilities";
 import type { SolutionPack } from "@/lib/solution-packs";
+import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 
 const THREADS_KEY = "eve-web-threads";
@@ -185,6 +186,9 @@ interface ThreadMeta {
   /** Persistent Agent used for this conversation; absent means the primary Agent. */
   agentId?: string;
   agentName?: string;
+  /** On-demand Role applied to this conversation; never creates a persistent Agent. */
+  roleId?: string;
+  roleName?: string;
 }
 
 interface ThreadIndex {
@@ -280,6 +284,8 @@ function threadMetaBody(meta: ThreadMeta) {
     origin: meta.origin,
     agentId: meta.agentId,
     agentName: meta.agentName,
+    roleId: meta.roleId,
+    roleName: meta.roleName,
   };
 }
 
@@ -1045,6 +1051,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     showView("chat");
   }
 
+  function useRole(role: RoleDefinition) {
+    const meta: ThreadMeta = { ...newThreadMeta(), title: `Use ${role.name}`, renamed: true, roleId: role.id, roleName: role.name };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
+    setPendingDraft(null);
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
   function selectThread(id: string) {
     setPendingDraft(null);
     setIndex((prev) => ({ ...prev, activeId: id }));
@@ -1062,6 +1078,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       title: source ? `Fork: ${source.title}`.slice(0, 80) : "Forked thread",
       agentId: source?.agentId,
       agentName: source?.agentName,
+      roleId: source?.roleId,
+      roleName: source?.roleName,
       // Protect the fork title from the auto-titling backfill.
       renamed: true,
     };
@@ -1360,7 +1378,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
-          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseSolutionPack={useSolutionPack} /></div>
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} /></div>
         </main>
       ) : view === "review" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
@@ -1410,7 +1428,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
                 Configure what {AGENT_NAME} knows, connects to, and handles for you.
               </p>
             </header>
-            <ManagePanel onOpenThread={selectThread} onStartAgentChat={startAgentChat} onUseSolutionPack={useSolutionPack} />
+            <ManagePanel onOpenThread={selectThread} onStartAgentChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} />
           </div>
         </main>
       ) : activeChat && activeChat.threadId === index.activeId ? (
@@ -1419,6 +1437,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           threadId={index.activeId}
           agentId={index.threads.find((thread) => thread.id === index.activeId)?.agentId}
           agentName={index.threads.find((thread) => thread.id === index.activeId)?.agentName ?? AGENT_NAME}
+          roleId={index.threads.find((thread) => thread.id === index.activeId)?.roleId}
+          roleName={index.threads.find((thread) => thread.id === index.activeId)?.roleName}
           initialChat={activeChat.chat}
           initialDraft={
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
@@ -1632,6 +1652,8 @@ function ChatThread({
   threadId,
   agentId,
   agentName,
+  roleId,
+  roleName,
   initialChat,
   initialDraft,
   onTitle,
@@ -1654,6 +1676,8 @@ function ChatThread({
   threadId: string;
   agentId?: string;
   agentName: string;
+  roleId?: string;
+  roleName?: string;
   initialChat: SavedChat;
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
@@ -1677,6 +1701,7 @@ function ChatThread({
   /** A reattached stream settled; remount me with the merged chat. */
   onResumed: (chat: SavedChat) => void;
 }) {
+  const activeLabel = roleName ?? agentName;
   const [draft, setDraft] = useState(initialDraft ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
@@ -1729,6 +1754,7 @@ function ChatThread({
     headers: {
       "x-myeve-thread-id": threadId,
       ...(agentId ? { "x-myeve-agent-id": agentId } : {}),
+      ...(roleId ? { "x-myeve-role-id": roleId } : {}),
     },
     initialEvents: initialChat.events ?? [],
     initialSession: initialChat.session,
@@ -1747,6 +1773,7 @@ function ChatThread({
           eveWebModel: model,
           webThreadId: threadId,
           ...(agentId ? { myeveAgentId: agentId } : {}),
+          ...(roleId ? { myeveRoleId: roleId } : {}),
           ...(reasoning !== "default" ? { eveWebReasoning: reasoning } : {}),
           clientTime: new Date().toLocaleString("en-CA", {
             year: "numeric",
@@ -2067,7 +2094,7 @@ function ChatThread({
       .map((message) => {
         const text = messageText(message);
         return text.length > 0
-          ? `${message.role === "user" ? OWNER_NAME : agentName}: ${text}`
+          ? `${message.role === "user" ? OWNER_NAME : activeLabel}: ${text}`
           : null;
       })
       .filter((line): line is string => line !== null);
@@ -2174,6 +2201,13 @@ function ChatThread({
           </div>
         )}
 
+        {roleId && roleName && (
+          <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
+            <span><span className="font-semibold">{roleName}</span><span className="ms-2 text-xs text-kumo-subtle">Bounded on-demand Role</span></span>
+            <a href="/manage/agents" className="text-xs font-medium text-kumo-brand hover:underline">Role Catalog</a>
+          </div>
+        )}
+
         <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
 
         <MessageScrollerProvider autoScroll>
@@ -2182,10 +2216,12 @@ function ChatThread({
               <MessageScrollerContent className="gap-5 py-6">
                 {!hasMessages && (
                   <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{agentName}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{activeLabel}</p>
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
-                      {agentId
+                      {roleId && roleName
+                        ? `Give ${roleName} one bounded assignment. This uses the primary Agent's runtime and does not create a persistent identity.`
+                        : agentId
                         ? `${agentName} can use only the capabilities assigned on its Agent record.`
                         : capabilityNotice.kind === "ready"
                         ? "Ask me anything — I have your memory, a browser, and all your connected apps."
@@ -2317,8 +2353,8 @@ function ChatThread({
             <InputArea
               ref={composerRef}
               value={draft}
-              aria-label={`Message ${agentName}`}
-              placeholder={`Message ${agentName}... (/ for commands)`}
+              aria-label={`Message ${activeLabel}`}
+              placeholder={`Message ${activeLabel}... (/ for commands)`}
               autoResize
               minRows={1}
               maxRows={7}

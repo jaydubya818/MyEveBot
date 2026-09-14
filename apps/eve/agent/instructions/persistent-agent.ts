@@ -1,8 +1,9 @@
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { ensurePrimaryAgent } from "../../lib/agents.ts";
+import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { assembleContext, recentConversationContext } from "../lib/context-assembly.ts";
-import { bindAgentRun, resolveSessionAgent } from "../lib/session-settings.ts";
+import { bindExecutorRun, resolveSessionAgent } from "../lib/session-settings.ts";
 
 export default defineDynamic({
   events: {
@@ -16,7 +17,18 @@ export default defineDynamic({
       const agent = selected ?? await ensurePrimaryAgent(ownerId);
       const authenticatedThreadId = ctx.session.auth.initiator?.attributes.webThreadId ?? principal?.attributes.webThreadId;
       const threadId = typeof authenticatedThreadId === "string" ? authenticatedThreadId : null;
-      await bindAgentRun(ctx.session.id, String(ctx.messages.length), ownerId, agent, threadId);
+      const currentRoleId = typeof principal?.attributes.myeveRoleId === "string" ? principal.attributes.myeveRoleId : null;
+      const initiatingRoleId = typeof ctx.session.auth.initiator?.attributes.myeveRoleId === "string" ? ctx.session.auth.initiator.attributes.myeveRoleId : null;
+      if (currentRoleId && initiatingRoleId && currentRoleId !== initiatingRoleId) throw new Error("Role binding does not match the persisted session binding.");
+      const authenticatedRoleId = initiatingRoleId ?? currentRoleId;
+      const role = authenticatedRoleId
+        ? BUILTIN_ROLE_CATALOG.roles.find((candidate) => candidate.id === authenticatedRoleId)
+        : undefined;
+      if (authenticatedRoleId && role?.executionMode !== "on-demand") throw new Error("This Role is not available for on-demand use.");
+      if (authenticatedRoleId && (principal?.attributes.myeveAgentId || ctx.session.auth.initiator?.attributes.myeveAgentId)) throw new Error("Choose either a persistent Agent or an on-demand Role.");
+      await bindExecutorRun(ctx.session.id, String(ctx.messages.length), ownerId, agent, threadId, role
+        ? { kind: "on-demand-role", roleId: role.id }
+        : { kind: agent.isPrimary ? "primary-agent" : "persistent-agent" });
       const assembled = await assembleContext({
         ownerId,
         agentId: agent.id,

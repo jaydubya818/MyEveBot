@@ -12,6 +12,8 @@ const qaRole = (
   description,
   category: "Verification",
   responsibilities,
+  typicalInputs: ["Task contract", "Acceptance checks", "Target environment"],
+  typicalOutputs: ["Independent verdict", "Evidence artifacts", "Blocking findings"],
   boundaries,
   recommendedCapabilities: ["computer.browser", "files.write"],
   recommendedReasoning: "high",
@@ -49,6 +51,7 @@ export const VERIFICATION_ROLE_PACK: RolePack = {
   id: "verification",
   name: "Verification",
   description: "The fixed independent product-QA panel with isolated tools and evidence requirements.",
+  domain: "Product QA",
   roles: [FUNCTIONAL_STATE_ROLE, UX_ACCESSIBILITY_ROLE, TRUST_RESILIENCE_ROLE].map((role) => ({ role })),
   tags: ["qa", "verification"],
 };

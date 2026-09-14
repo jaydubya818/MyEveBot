@@ -1,11 +1,17 @@
 import type { RoleDefinition, RolePack } from "../role-catalog.ts";
 import type { ApprovalPolicyDefinition, ArtifactDefinition, GoalTemplateDefinition, MetricDefinition, SolutionPack, SolutionPackDomain } from "../solution-packs.ts";
-import { ANALYST_ROLE, RESEARCHER_ROLE, WRITER_ROLE } from "./general.ts";
 import {
-  LIFECYCLE_MARKETING_ENGINEER_ROLE,
+  CONTENT_STRATEGIST_ROLE,
+  GROWTH_PERFORMANCE_ROLE,
+  LANDING_PAGE_CRO_ROLE,
+  LIFECYCLE_EMAIL_ROLE,
+  MARKET_RESEARCHER_ROLE,
+  MARKETING_ANALYST_ROLE,
   MARKETING_ENGINEER_ROLE,
-  MARKETING_QA_COMPLIANCE_REVIEWER_ROLE,
-  MARKETING_STRATEGIST_ROLE,
+  MARKETING_ENGINEERING_ROLE_PACK,
+  MARKETING_OPERATIONS_ROLE,
+  PRODUCT_MARKETER_ROLE,
+  SEO_AEO_ROLE,
 } from "./marketing-engineering.ts";
 
 const PREPARATION_BOUNDARY = "May research, analyze, plan, forecast, draft, create Tasks, and prepare unpublished artifacts.";
@@ -114,12 +120,12 @@ export const FOUNDER_GOAL_TEMPLATES: readonly GoalTemplateDefinition[] = [
 const artifact = (id: string, name: string, domainId: string, roleIds: readonly string[], template = false): ArtifactDefinition => ({ id, name, domainId, description: `A reviewable ${name.toLowerCase()} grounded in current business evidence.`, inputs: ["Relevant authorized business context", "Goal", "Evidence", "Known constraints"], outputType: "markdown", recommendedRoleIds: roleIds, requiredKnowledge: ["company", "customers", "offer", "metrics"], checks: ["Inputs and missing data are explicit", "Claims trace to evidence", "Owner decisions are separated from recommendations"], approvalPolicyId: APPROVAL_POLICY.id, ...(template ? { templateRef: `docs/templates/founder-os/${id}.md` } : {}) });
 
 export const FOUNDER_ARTIFACT_DEFINITIONS: readonly ArtifactDefinition[] = [
-  artifact("ideal-customer-profile", "Ideal Customer Profile", "traffic", [MARKETING_STRATEGIST_ROLE.id, RESEARCHER_ROLE.id], true),
-  artifact("brand-positioning", "Brand Positioning", "traffic", [MARKETING_STRATEGIST_ROLE.id]), artifact("content-strategy", "Content Strategy", "traffic", [WRITER_ROLE.id]), artifact("campaign-brief", "Campaign Brief", "traffic", [MARKETING_STRATEGIST_ROLE.id, MARKETING_ENGINEER_ROLE.id], true),
-  artifact("lead-magnet", "Lead Magnet", "leads", ["founder-lead-magnet-strategist"]), artifact("funnel-map", "Funnel Map", "leads", ["founder-funnel-strategist"]), artifact("nurture-sequence", "Nurture Sequence", "leads", [LIFECYCLE_MARKETING_ENGINEER_ROLE.id]),
-  artifact("landing-page", "Landing Page", "conversion", [MARKETING_ENGINEER_ROLE.id]), artifact("vsl-script", "VSL Script", "conversion", ["founder-conversion-strategist"]), artifact("application-funnel", "Application Funnel", "conversion", ["founder-funnel-strategist", MARKETING_ENGINEER_ROLE.id]),
+  artifact("ideal-customer-profile", "Ideal Customer Profile", "traffic", [PRODUCT_MARKETER_ROLE.id, MARKET_RESEARCHER_ROLE.id], true),
+  artifact("brand-positioning", "Brand Positioning", "traffic", [PRODUCT_MARKETER_ROLE.id]), artifact("content-strategy", "Content Strategy", "traffic", [CONTENT_STRATEGIST_ROLE.id]), artifact("campaign-brief", "Campaign Brief", "traffic", [PRODUCT_MARKETER_ROLE.id, MARKETING_ENGINEER_ROLE.id], true),
+  artifact("lead-magnet", "Lead Magnet", "leads", ["founder-lead-magnet-strategist"]), artifact("funnel-map", "Funnel Map", "leads", ["founder-funnel-strategist"]), artifact("nurture-sequence", "Nurture Sequence", "leads", [LIFECYCLE_EMAIL_ROLE.id]),
+  artifact("landing-page", "Landing Page", "conversion", [LANDING_PAGE_CRO_ROLE.id]), artifact("vsl-script", "VSL Script", "conversion", ["founder-conversion-strategist"]), artifact("application-funnel", "Application Funnel", "conversion", ["founder-funnel-strategist", LANDING_PAGE_CRO_ROLE.id]),
   artifact("sales-call-script", "Sales Call Script", "sales", ["founder-sales-enablement", "founder-sales-strategist"], true), artifact("objection-handling", "Objection Handling", "sales", ["founder-sales-enablement", "founder-customer-research"]), artifact("sales-review-scorecard", "Sales Call Review Scorecard", "sales", ["founder-customer-research"]), artifact("proposal-sow", "Proposal / SOW", "sales", ["founder-sales-enablement"]),
-  artifact("offer-architecture", "Offer Architecture", "offer", ["founder-offer-strategist", MARKETING_STRATEGIST_ROLE.id], true), artifact("pricing-matrix", "Pricing Matrix", "offer", ["founder-pricing-strategist"]), artifact("value-ladder", "Value Ladder", "offer", ["founder-offer-strategist"]), artifact("competitor-analysis", "Competitor Analysis", "offer", ["founder-market-analyst", RESEARCHER_ROLE.id]),
+  artifact("offer-architecture", "Offer Architecture", "offer", ["founder-offer-strategist", PRODUCT_MARKETER_ROLE.id], true), artifact("pricing-matrix", "Pricing Matrix", "offer", ["founder-pricing-strategist"]), artifact("value-ladder", "Value Ladder", "offer", ["founder-offer-strategist"]), artifact("competitor-analysis", "Competitor Analysis", "offer", ["founder-market-analyst", MARKET_RESEARCHER_ROLE.id]),
   artifact("client-onboarding-plan", "Client Onboarding Plan", "delivery", ["founder-onboarding-specialist", "founder-customer-success"], true), artifact("milestone-tracker", "Milestone Tracker", "delivery", ["founder-delivery-operations"]), artifact("implementation-checklist", "Implementation Checklist", "delivery", ["founder-delivery-operations"]), artifact("case-study-template", "Case Study Template", "delivery", ["founder-customer-success"]),
   artifact("revenue-forecast", "Revenue Forecast", "finance", ["founder-business-forecaster"]), artifact("cash-flow-forecast", "Cash Flow Forecast", "finance", ["founder-business-forecaster", "founder-financial-analyst"]), artifact("runway-model", "Runway Model", "finance", ["founder-business-forecaster"]), artifact("margin-analysis", "Margin Analysis", "finance", ["founder-unit-economics-analyst"]), artifact("scenario-plan", "Scenario Plan", "finance", ["founder-business-forecaster"]),
   artifact("hiring-plan", "Hiring Plan", "systems", ["founder-people-hiring"]), artifact("role-scorecard", "Role Scorecard", "systems", ["founder-people-hiring"]), artifact("sop", "Standard Operating Procedure", "systems", ["founder-process-sop"]), artifact("quarterly-business-review", "Quarterly Business Review", "strategy", [FOUNDER_CHIEF_OF_STAFF_ROLE.id, "founder-business-planner"], true),
@@ -147,19 +153,19 @@ const domain = (id: string, name: string, purpose: string, roleIds: readonly str
 
 export const FOUNDER_OS_DOMAINS: readonly SolutionPackDomain[] = [
   domain("strategy", "Strategy", "Set direction, choose priorities, and make explicit strategic tradeoffs.", ["founder-strategy-advisor", "founder-market-analyst", "founder-business-planner"]),
-  domain("traffic", "Traffic", "Build relevant awareness with the right audience.", [MARKETING_STRATEGIST_ROLE.id, MARKETING_ENGINEER_ROLE.id, RESEARCHER_ROLE.id, WRITER_ROLE.id], ["strategy", "offer"]),
-  domain("leads", "Leads", "Turn relevant attention into qualified demand.", [MARKETING_STRATEGIST_ROLE.id, LIFECYCLE_MARKETING_ENGINEER_ROLE.id, ANALYST_ROLE.id, "founder-lead-magnet-strategist", "founder-funnel-strategist"], ["traffic", "offer"]),
-  domain("conversion", "Conversion", "Help qualified prospects take the next intended step.", ["founder-conversion-strategist", MARKETING_ENGINEER_ROLE.id, LIFECYCLE_MARKETING_ENGINEER_ROLE.id, MARKETING_QA_COMPLIANCE_REVIEWER_ROLE.id], ["leads", "offer"]),
+  domain("traffic", "Traffic", "Build relevant awareness with the right audience.", [PRODUCT_MARKETER_ROLE.id, MARKET_RESEARCHER_ROLE.id, CONTENT_STRATEGIST_ROLE.id, GROWTH_PERFORMANCE_ROLE.id, SEO_AEO_ROLE.id], ["strategy", "offer"]),
+  domain("leads", "Leads", "Turn relevant attention into qualified demand.", [PRODUCT_MARKETER_ROLE.id, LIFECYCLE_EMAIL_ROLE.id, MARKETING_ANALYST_ROLE.id, "founder-lead-magnet-strategist", "founder-funnel-strategist"], ["traffic", "offer"]),
+  domain("conversion", "Conversion", "Help qualified prospects take the next intended step.", ["founder-conversion-strategist", LANDING_PAGE_CRO_ROLE.id, LIFECYCLE_EMAIL_ROLE.id, MARKETING_OPERATIONS_ROLE.id], ["leads", "offer"]),
   domain("sales", "Sales", "Convert qualified opportunities through a trustworthy, repeatable sales process.", ["founder-sales-strategist", "founder-sales-enablement", "founder-customer-research"], ["conversion", "offer"]),
-  domain("offer", "Offer", "Align positioning, packaging, pricing, and value with customer evidence and delivery reality.", ["founder-offer-strategist", MARKETING_STRATEGIST_ROLE.id, "founder-pricing-strategist"], ["strategy", "delivery", "finance"]),
+  domain("offer", "Offer", "Align positioning, packaging, pricing, and value with customer evidence and delivery reality.", ["founder-offer-strategist", PRODUCT_MARKETER_ROLE.id, "founder-pricing-strategist"], ["strategy", "delivery", "finance"]),
   domain("delivery", "Delivery", "Deliver promised outcomes reliably and create retention and expansion capacity.", ["founder-customer-success", "founder-onboarding-specialist", "founder-delivery-operations"], ["offer", "systems"]),
   domain("finance", "Finance", "Provide transparent financial analysis, forecasts, and constraints without money-movement authority.", ["founder-financial-analyst", "founder-business-forecaster", "founder-unit-economics-analyst"]),
   domain("systems", "Systems", "Improve people, process, capacity, and operating reliability across the business.", ["founder-operations", "founder-people-hiring", "founder-process-sop"]),
 ];
 
-export const FOUNDER_BUSINESS_REVIEW_WORKFLOW = { id: "founder-business-review", name: "Founder Business Review", description: "Reviews current business evidence to identify the primary constraint, risks, owner decisions, and next priorities.", coordinatorRoleId: FOUNDER_CHIEF_OF_STAFF_ROLE.id, contributorRoleIds: ["founder-strategy-advisor", ANALYST_ROLE.id, "founder-sales-strategist", "founder-delivery-operations", "founder-financial-analyst", "founder-operations"], domainIds: FOUNDER_OS_DOMAINS.map((item) => item.id), inputs: ["Goals", "Recent outcomes", "Business metrics", "Decisions", "Commitments", "Risks", "Domain state"], outputs: ["What's working", "What's not", "Current constraint", "Key risks", "Decisions needed", "Top priorities", "Recommended next actions", "Evidence, assumptions, and missing data"], stages: ["Review Goals", "Review metrics and outcomes", "Inspect each applicable domain", "Identify constraint", "Identify risks", "Set priorities", "Request owner approval"], checks: ["No missing metric is fabricated", "Constraint is supported by evidence", "Recommendations focus on the constraint", "Consequential actions remain unexecuted"], approvalPolicyId: APPROVAL_POLICY.id } as const;
+export const FOUNDER_BUSINESS_REVIEW_WORKFLOW = { id: "founder-business-review", name: "Founder Business Review", description: "Reviews current business evidence to identify the primary constraint, risks, owner decisions, and next priorities.", coordinatorRoleId: FOUNDER_CHIEF_OF_STAFF_ROLE.id, contributorRoleIds: ["founder-strategy-advisor", MARKETING_ANALYST_ROLE.id, "founder-sales-strategist", "founder-delivery-operations", "founder-financial-analyst", "founder-operations"], domainIds: FOUNDER_OS_DOMAINS.map((item) => item.id), inputs: ["Goals", "Recent outcomes", "Business metrics", "Decisions", "Commitments", "Risks", "Domain state"], outputs: ["What's working", "What's not", "Current constraint", "Key risks", "Decisions needed", "Top priorities", "Recommended next actions", "Evidence, assumptions, and missing data"], stages: ["Review Goals", "Review metrics and outcomes", "Inspect each applicable domain", "Identify constraint", "Identify risks", "Set priorities", "Request owner approval"], checks: ["No missing metric is fabricated", "Constraint is supported by evidence", "Recommendations focus on the constraint", "Consequential actions remain unexecuted"], approvalPolicyId: APPROVAL_POLICY.id } as const;
 
-const marketingSelections = [MARKETING_STRATEGIST_ROLE, MARKETING_ENGINEER_ROLE, LIFECYCLE_MARKETING_ENGINEER_ROLE, MARKETING_QA_COMPLIANCE_REVIEWER_ROLE, RESEARCHER_ROLE, WRITER_ROLE, ANALYST_ROLE];
+const marketingSelections = MARKETING_ENGINEERING_ROLE_PACK.roles.map(({ role: selected }) => selected);
 export const FOUNDER_OS_SOLUTION_PACK: SolutionPack = {
   id: "founder-os", name: "Founder OS", description: "A Goal-centric operating system for understanding business state, finding the current constraint, assembling expertise, and preparing owner decisions.", purpose: "Help an owner operate the business as a connected system rather than a collection of unrelated chats or bots.",
   rolePackIds: ["founder-os-core", "marketing-engineering"],

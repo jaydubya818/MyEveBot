@@ -42,7 +42,29 @@ export interface RolePack {
   roles: readonly RolePackEntry[];
   lifecycle?: RolePackLifecycle;
   catalogVisibility?: "visible" | "internal";
+  workflows?: readonly RoleWorkflowDefinition[];
   tags?: readonly string[];
+}
+
+export interface RoleWorkflowCheck {
+  id: string;
+  label: string;
+  kind: "deterministic" | "judgment";
+}
+
+export interface RoleWorkflowDefinition {
+  id: string;
+  name: string;
+  description: string;
+  skillId?: string;
+  lifecycleStages: readonly string[];
+  coordinatorRoleId: string;
+  contributorRoleIds: readonly string[];
+  requiredContext: readonly string[];
+  outputs: readonly string[];
+  checks: readonly RoleWorkflowCheck[];
+  approvalBoundary: string;
+  stopCondition: string;
 }
 
 export interface RoleCatalog {
@@ -76,6 +98,7 @@ export function createRoleCatalog(packs: readonly RolePack[]): RoleCatalog {
       throw new Error(`Role Pack ${pack.id || "unknown"} is incomplete.`);
     }
     const lifecycleIds = new Set(pack.lifecycle?.stages.map((stage) => stage.id) ?? []);
+    const packRoleIds = new Set(pack.roles.map(({ role }) => role.id));
     for (const entry of pack.roles) {
       if (!entry.role.id || !entry.role.name || !entry.role.description) {
         throw new Error(`Role Pack ${pack.id} contains an incomplete Role.`);
@@ -88,6 +111,17 @@ export function createRoleCatalog(packs: readonly RolePack[]): RoleCatalog {
         throw new Error(`Role ${entry.role.id} has conflicting definitions.`);
       }
       roles.set(entry.role.id, entry.role);
+    }
+    for (const workflow of pack.workflows ?? []) {
+      if (!packRoleIds.has(workflow.coordinatorRoleId)) {
+        throw new Error(`${pack.id}:${workflow.id} references unknown coordinator Role ${workflow.coordinatorRoleId}.`);
+      }
+      for (const roleId of workflow.contributorRoleIds) {
+        if (!packRoleIds.has(roleId)) throw new Error(`${pack.id}:${workflow.id} references unknown contributor Role ${roleId}.`);
+      }
+      for (const stage of workflow.lifecycleStages) {
+        if (!lifecycleIds.has(stage)) throw new Error(`${pack.id}:${workflow.id} references unknown lifecycle stage ${stage}.`);
+      }
     }
   }
   return { packs, roles: [...roles.values()] };

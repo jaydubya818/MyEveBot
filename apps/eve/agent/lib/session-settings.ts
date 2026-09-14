@@ -99,19 +99,49 @@ export async function resolveSessionAgent(input: SessionAgentResolutionInput): P
 }
 
 export async function bindAgentRun(sessionId: string, turnId: string, ownerId: string, agent: AgentView, threadId: string | null): Promise<void> {
-  const existing = await db().query(`SELECT DISTINCT agent_id FROM agent_runs WHERE session_id=$1 AND owner_id=$2`, [sessionId, ownerId]) as Array<Record<string, unknown>>;
-  if (existing.some((row) => String(row.agent_id) !== agent.id)) throw new Error("Cannot change a persisted session Agent binding.");
+  return bindExecutorRun(sessionId, turnId, ownerId, agent, threadId);
+}
+
+export async function bindExecutorRun(
+  sessionId: string,
+  turnId: string,
+  ownerId: string,
+  agent: AgentView,
+  threadId: string | null,
+  executor: { kind: "primary-agent" | "persistent-agent" | "on-demand-role"; roleId?: string } = {
+    kind: agent.isPrimary ? "primary-agent" : "persistent-agent",
+  },
+): Promise<void> {
+  if ((executor.kind === "on-demand-role") !== Boolean(executor.roleId)) {
+    throw new Error("On-demand Role runs require Role attribution, and other Runs must not carry it.");
+  }
+  const existing = await db().query(
+    `SELECT DISTINCT agent_id,executor_kind,role_id FROM agent_runs WHERE session_id=$1 AND owner_id=$2`,
+    [sessionId, ownerId],
+  ) as Array<Record<string, unknown>>;
+  if (existing.some((row) =>
+    String(row.agent_id) !== agent.id ||
+    (typeof row.executor_kind === "string" && row.executor_kind !== executor.kind) ||
+    (typeof row.role_id === "string" ? row.role_id : null) !== (executor.roleId ?? null)
+  )) throw new Error("Cannot change a persisted session executor binding.");
   if (threadId) {
-    await db().query(`UPDATE web_chat_threads SET agent_id=$3 WHERE owner_id=$1 AND id=$2 AND agent_id IS NULL`, [ownerId, threadId, agent.id]);
-    const threads = await db().query(`SELECT owner_id,agent_id FROM web_chat_threads WHERE id=$1 LIMIT 1`, [threadId]) as Array<Record<string, unknown>>;
+    if (executor.kind === "on-demand-role") {
+      await db().query(`UPDATE web_chat_threads SET role_id=$3 WHERE owner_id=$1 AND id=$2 AND role_id IS NULL AND agent_id IS NULL`, [ownerId, threadId, executor.roleId]);
+    } else {
+      await db().query(`UPDATE web_chat_threads SET agent_id=$3 WHERE owner_id=$1 AND id=$2 AND agent_id IS NULL AND role_id IS NULL`, [ownerId, threadId, agent.id]);
+    }
+    const threads = await db().query(`SELECT owner_id,agent_id,role_id FROM web_chat_threads WHERE id=$1 LIMIT 1`, [threadId]) as Array<Record<string, unknown>>;
     const thread = threads[0];
     if (thread && String(thread.owner_id) !== ownerId) throw new Error("Thread does not belong to the current owner.");
-    if (typeof thread?.agent_id === "string" && thread.agent_id !== agent.id) throw new Error("Cannot change a persisted thread Agent binding.");
+    const threadAgentId = typeof thread?.agent_id === "string" ? thread.agent_id : null;
+    const threadRoleId = typeof thread?.role_id === "string" ? thread.role_id : null;
+    if (executor.kind === "on-demand-role" && (threadAgentId || threadRoleId !== executor.roleId)) throw new Error("Cannot change a persisted thread Role binding.");
+    if (executor.kind !== "on-demand-role" && (threadRoleId || threadAgentId !== agent.id)) throw new Error("Cannot change a persisted thread Agent binding.");
   }
   await db().query(
-    `INSERT INTO agent_runs (id, session_id, owner_id, agent_id, thread_id) VALUES ($1,$2,$3,$4,$5)
-     ON CONFLICT (id) DO UPDATE SET agent_id=EXCLUDED.agent_id, thread_id=coalesce(EXCLUDED.thread_id,agent_runs.thread_id), status='running', completed_at=NULL, updated_at=now()`,
-    [`agent_run_${sessionId}_${turnId}`, sessionId, ownerId, agent.id, threadId],
+    `INSERT INTO agent_runs (id, session_id, owner_id, agent_id, thread_id, executor_kind, role_id) VALUES ($1,$2,$3,$4,$5,$6,$7)
+     ON CONFLICT (id) DO UPDATE SET agent_id=EXCLUDED.agent_id, thread_id=coalesce(EXCLUDED.thread_id,agent_runs.thread_id), executor_kind=EXCLUDED.executor_kind, role_id=EXCLUDED.role_id, status='running', completed_at=NULL, updated_at=now()`,
+    [`agent_run_${sessionId}_${turnId}`, sessionId, ownerId, agent.id, threadId, executor.kind, executor.roleId ?? null],
   );
 }
 

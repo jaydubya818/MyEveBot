@@ -2,6 +2,7 @@ import { ForbiddenError, type AuthFn, localDev, vercelOidc } from "eve/channels/
 import { eveChannel } from "eve/channels/eve";
 
 import { getAgent } from "../../lib/agents.ts";
+import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { webPrincipal } from "../../lib/web-auth.ts";
 
 export function ownerSession(): AuthFn<Request> {
@@ -10,6 +11,8 @@ export function ownerSession(): AuthFn<Request> {
     if (principal === null) return null;
     const agentHeader = request.headers.get("x-myeve-agent-id");
     const requestedAgentId = agentHeader?.trim();
+    const roleHeader = request.headers.get("x-myeve-role-id");
+    const requestedRoleId = roleHeader?.trim();
     const requestedThreadId = request.headers.get("x-myeve-thread-id")?.trim();
     if (agentHeader !== null && (!requestedAgentId || requestedAgentId.length > 100)) {
       throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent binding is invalid." });
@@ -19,10 +22,23 @@ export function ownerSession(): AuthFn<Request> {
       if (!agent) throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent does not belong to the current owner." });
       if (agent.status !== "active") throw new ForbiddenError({ code: "inactive_agent_binding", message: `${agent.name} is ${agent.status} and cannot execute new work.` });
     }
+    if (roleHeader !== null && (!requestedRoleId || requestedRoleId.length > 100)) {
+      throw new ForbiddenError({ code: "invalid_role_binding", message: "Role binding is invalid." });
+    }
+    if (requestedRoleId) {
+      const role = BUILTIN_ROLE_CATALOG.roles.find((candidate) => candidate.id === requestedRoleId);
+      if (!role || role.executionMode !== "on-demand") {
+        throw new ForbiddenError({ code: "invalid_role_binding", message: "Role is not available for on-demand use." });
+      }
+    }
+    if (requestedAgentId && requestedRoleId) {
+      throw new ForbiddenError({ code: "conflicting_executor_binding", message: "Choose either a persistent Agent or an on-demand Role." });
+    }
     return {
       attributes: {
         owner: "true",
         ...(requestedAgentId ? { myeveAgentId: requestedAgentId } : {}),
+        ...(requestedRoleId ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),
       },
       authenticator: "myeve-web-session",

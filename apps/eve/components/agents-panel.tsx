@@ -40,17 +40,21 @@ const MODE_LABEL: Record<RoleExecutionMode, string> = {
   "declared-specialist": "Declared specialist",
 };
 
-function RoleCatalogPanel({ onCreateAgent, onUseSolutionPack }: { onCreateAgent: (role: RoleDefinition) => void; onUseSolutionPack: (pack: SolutionPack) => void }) {
+function RoleCatalogPanel({ onCreateAgent, onUseRole, onUseSolutionPack }: { onCreateAgent: (role: RoleDefinition) => void; onUseRole: (role: RoleDefinition) => void; onUseSolutionPack: (pack: SolutionPack) => void }) {
   const visibleRolePacks = BUILTIN_ROLE_CATALOG.packs.filter((pack) => pack.catalogVisibility !== "internal");
   return <section className="mt-8 border-t border-kumo-hairline pt-6" aria-labelledby="role-catalog-title">
     <div className="flex flex-wrap items-end justify-between gap-3">
-      <div><h2 id="role-catalog-title" className="text-base font-semibold">Available roles</h2><p className="mt-1 max-w-2xl text-sm text-kumo-subtle">Reusable expertise for bounded work. Use a role on demand or create a persistent Agent from it.</p></div>
+      <div><p className="text-xs font-medium uppercase tracking-[.14em] text-kumo-subtle">Available expertise</p><h2 id="role-catalog-title" className="mt-1 text-base font-semibold">Role Catalog</h2><p className="mt-1 max-w-2xl text-sm text-kumo-subtle">Role Packs describe reusable expertise. Use a Role for one bounded run, or create a persistent identity you can customize.</p></div>
       <span className="rounded-full border border-kumo-hairline px-2 py-1 text-[11px] text-kumo-subtle">{visibleRolePacks.length} Role Packs · {BUILTIN_SOLUTION_PACKS.length} Solution Pack</span>
     </div>
     <div className="mt-4 grid gap-4">
-      {visibleRolePacks.map((pack) => <section key={pack.id} className={cn("rounded-xl border border-kumo-hairline bg-kumo-tint/40 p-4", pack.id === "verification" && "order-last")}>
-          <div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="text-sm font-semibold">{pack.name}</h3><p className="mt-1 text-xs leading-5 text-kumo-subtle">{pack.description}</p></div><span className="text-[11px] text-kumo-subtle">{pack.roles.length} roles</span></div>
-          {pack.lifecycle && <div className="mt-3 flex flex-wrap items-center gap-1 text-[10px] text-kumo-subtle"><span className="sr-only">{pack.lifecycle.name}:</span>{pack.lifecycle.stages.map((stage, index) => <span key={stage.id} className="contents"><span className="rounded-md border border-kumo-hairline px-1.5 py-1">{stage.label}</span>{index < pack.lifecycle!.stages.length - 1 && <ArrowRightIcon aria-hidden className="size-3" />}</span>)}</div>}
+      {visibleRolePacks.map((pack) => <details key={pack.id} className="group/pack rounded-xl border border-kumo-hairline bg-kumo-tint/40" open={pack.id === "marketing-engineering"}>
+          <summary className="flex cursor-pointer list-none items-start gap-3 rounded-xl p-4 outline-none focus-visible:ring-2 focus-visible:ring-kumo-brand/50 [&::-webkit-details-marker]:hidden">
+            <span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-2"><span className="text-sm font-semibold">{pack.name}</span><span className="rounded-full border border-kumo-hairline px-2 py-0.5 text-[10px] text-kumo-subtle">{pack.roles.length} Roles</span>{pack.domain && <span className="text-[10px] font-medium uppercase tracking-wide text-kumo-subtle">{pack.domain}</span>}</span><span className="mt-1 block text-xs leading-5 text-kumo-subtle">{pack.description}</span></span>
+            <span className="mt-0.5 text-kumo-subtle transition-transform group-open/pack:rotate-90" aria-hidden>›</span>
+          </summary>
+          <div className="border-t border-kumo-hairline px-4 pb-1">
+          {pack.lifecycle && <div className="mt-3"><p className="mb-2 text-[10px] font-medium uppercase tracking-wide text-kumo-subtle">{pack.lifecycle.name}</p><div className="flex flex-wrap items-center gap-1 text-[10px] text-kumo-subtle">{pack.lifecycle.stages.map((stage, index) => <span key={stage.id} className="contents"><span className="rounded-md border border-kumo-hairline px-1.5 py-1">{stage.label}</span>{index < pack.lifecycle!.stages.length - 1 && <ArrowRightIcon aria-hidden className="size-3" />}</span>)}</div></div>}
           <div className="mt-3 grid gap-x-5 md:grid-cols-2">{pack.roles.map(({ role, lifecycleStages }) => <details key={`${pack.id}:${role.id}`} className="group border-t border-kumo-hairline py-3">
             <summary className="flex cursor-pointer list-none items-start gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-kumo-brand/50 [&::-webkit-details-marker]:hidden">
               <span className={cn("mt-1 size-2 shrink-0 rounded-full", role.verificationRole ? "bg-kumo-success" : "bg-kumo-line")} aria-hidden />
@@ -59,23 +63,24 @@ function RoleCatalogPanel({ onCreateAgent, onUseSolutionPack }: { onCreateAgent:
             </summary>
             <div className="ms-5 mt-2 border-s border-kumo-hairline ps-4 text-xs leading-5">
               {lifecycleStages && <p className="mb-2 text-kumo-subtle"><span className="font-medium text-kumo-default">Lifecycle:</span> {lifecycleStages.map((stage) => pack.lifecycle?.stages.find((item) => item.id === stage)?.label ?? stage).join(", ")}</p>}
+              <p className="font-medium text-kumo-default">Purpose</p><p className="text-kumo-subtle">{role.description}</p>
               <p className="font-medium text-kumo-default">Responsibilities</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul>
               {role.typicalInputs && <><p className="mt-2 font-medium text-kumo-default">Typical inputs</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.typicalInputs.map((item) => <li key={item}>{item}</li>)}</ul></>}
               {role.typicalOutputs && <><p className="mt-2 font-medium text-kumo-default">Typical outputs</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.typicalOutputs.map((item) => <li key={item}>{item}</li>)}</ul></>}
               <p className="mt-2 font-medium text-kumo-default">Recommended capabilities</p><p className="text-kumo-subtle">{role.recommendedCapabilities.join(" · ") || "Reasoning only"}</p>
               <p className="mt-2 font-medium text-kumo-default">Safety boundaries</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.boundaries.map((item) => <li key={item}>{item}</li>)}</ul>
-              <p className="mt-2 text-kumo-subtle"><span className="font-medium text-kumo-default">Model:</span> {role.recommendedModel ?? "Runtime default"} · <span className="font-medium text-kumo-default">Reasoning:</span> {role.recommendedReasoning ?? "default"}</p>
-              {role.executionMode === "on-demand" && <Button className="mt-3" size="sm" variant="secondary" icon={PlusIcon} onClick={() => onCreateAgent(role)}>Create persistent Agent</Button>}
+              {(role.recommendedModel || role.recommendedReasoning) && <p className="mt-2 text-kumo-subtle">{role.recommendedModel && <><span className="font-medium text-kumo-default">Model:</span> {role.recommendedModel}</>}{role.recommendedModel && role.recommendedReasoning && " · "}{role.recommendedReasoning && <><span className="font-medium text-kumo-default">Reasoning:</span> {role.recommendedReasoning}</>}</p>}
+              {role.executionMode === "on-demand" && <div className="mt-3 flex flex-wrap gap-2"><Button size="sm" variant="primary" icon={PlayIcon} onClick={() => onUseRole(role)}>Use Role</Button><Button size="sm" variant="secondary" icon={PlusIcon} onClick={() => onCreateAgent(role)}>Create Agent</Button></div>}
               {role.executionMode === "declared-specialist" && <p className="mt-3 rounded-lg border border-kumo-success/20 bg-kumo-success/5 px-2.5 py-2 text-kumo-subtle">This role is an isolated QA specialist and is only invoked through the existing product-QA workflow.</p>}
             </div>
-          </details>)}</div>
-        </section>)}
+          </details>)}</div></div>
+        </details>)}
       {BUILTIN_SOLUTION_PACKS.map((pack) => <SolutionPackCatalogCard key={pack.id} pack={pack} roleCatalog={BUILTIN_ROLE_CATALOG} onCreateAgent={onCreateAgent} onUseSolutionPack={onUseSolutionPack} />)}
     </div>
   </section>;
 }
 
-export function AgentsPanel({ onStartChat, onUseSolutionPack, embedded = false }: { onStartChat: (agent: AgentView) => void; onUseSolutionPack: (pack: SolutionPack) => void; embedded?: boolean }) {
+export function AgentsPanel({ onStartChat, onUseRole, onUseSolutionPack, embedded = false }: { onStartChat: (agent: AgentView) => void; onUseRole: (role: RoleDefinition) => void; onUseSolutionPack: (pack: SolutionPack) => void; embedded?: boolean }) {
   const [agents, setAgents] = useState<AgentView[] | null>(null);
   const [registry, setRegistry] = useState<ResolvedCapability[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -146,6 +151,6 @@ export function AgentsPanel({ onStartChat, onUseSolutionPack, embedded = false }
         </article> : <p className="text-sm text-kumo-subtle">Create an Agent to add specialized execution capacity.</p>}
       </div>
     </div>
-    <RoleCatalogPanel onCreateAgent={beginCreate} onUseSolutionPack={onUseSolutionPack} />
+    <RoleCatalogPanel onCreateAgent={beginCreate} onUseRole={onUseRole} onUseSolutionPack={onUseSolutionPack} />
   </section>;
 }
