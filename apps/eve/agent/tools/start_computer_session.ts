@@ -2,8 +2,7 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 import { createComputerSession, transitionComputerSession } from "../../lib/computer-sessions.ts";
-import { computerOwnerId } from "../lib/computer-context.ts";
-import { sessionAgent } from "../lib/session-settings.ts";
+import { computerAgent, computerOwnerId } from "../lib/computer-context.ts";
 import { PRIVATE_IPV4_CIDRS, normalizeAllowedDomains } from "../../lib/computer-types.ts";
 
 export default defineTool({
@@ -18,7 +17,7 @@ export default defineTool({
   }),
   async execute(input, ctx) {
     const ownerId = computerOwnerId(ctx);
-    const agent = await sessionAgent(ownerId, ctx.session.auth.current?.attributes.myeveAgentId, ctx.session.auth.current?.attributes.owner === "true");
+    const agent = await computerAgent(ctx);
     if (!agent) throw new Error("The current runtime is not attributed to an Agent.");
     const session = await createComputerSession({
       ownerId,

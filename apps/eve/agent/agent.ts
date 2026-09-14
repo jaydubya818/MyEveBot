@@ -27,6 +27,10 @@ function reasoningMiddleware(reasoning: ReasoningLevel): LanguageModelMiddleware
 }
 
 export default defineAgent({
+  // The dynamic fallback is newer than the framework's bundled Gateway
+  // catalog. Use a conservative known window so compaction can compile and
+  // starts early enough even when the selected model supports a larger one.
+  modelContextWindowTokens: 200_000,
   model: defineDynamic({
     fallback: DEFAULT_MODEL,
     events: {

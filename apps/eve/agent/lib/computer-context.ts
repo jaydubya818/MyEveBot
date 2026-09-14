@@ -1,7 +1,7 @@
 import type { ToolContext } from "eve/tools";
 
 import { assertComputerCapability } from "../../lib/computer-sessions.ts";
-import { sessionAgent } from "./session-settings.ts";
+import { resolveSessionAgent } from "./session-settings.ts";
 
 export function computerOwnerId(ctx: Pick<ToolContext, "session">): string {
   const ownerId = ctx.session.auth.current?.principalId?.trim();
@@ -9,9 +9,19 @@ export function computerOwnerId(ctx: Pick<ToolContext, "session">): string {
   return ownerId;
 }
 
+export async function computerAgent(ctx: Pick<ToolContext, "session">) {
+  const ownerId = computerOwnerId(ctx);
+  return resolveSessionAgent({
+    ownerId,
+    sessionId: ctx.session.id,
+    auth: ctx.session.auth,
+    primaryFallback: ctx.session.auth.current?.attributes.owner === "true",
+  });
+}
+
 export async function requireComputerCapability(ctx: ToolContext, capabilityId: string) {
   const ownerId = computerOwnerId(ctx);
-  const agent = await sessionAgent(ownerId, ctx.session.auth.current?.attributes.myeveAgentId, ctx.session.auth.current?.attributes.owner === "true");
+  const agent = await computerAgent(ctx);
   if (!agent) throw new Error("The current runtime is not attributed to an Agent.");
   return assertComputerCapability({
     ownerId,

@@ -17,10 +17,10 @@ import {
   diagnoseRevenueConstraint,
 } from "../lib/role-packs/founder-os.ts";
 import {
-  LIFECYCLE_MARKETING_ENGINEER_ROLE,
+  LANDING_PAGE_CRO_ROLE,
+  LIFECYCLE_EMAIL_ROLE,
   MARKETING_ENGINEER_ROLE,
-  MARKETING_QA_COMPLIANCE_REVIEWER_ROLE,
-  MARKETING_STRATEGIST_ROLE,
+  PRODUCT_MARKETER_ROLE,
 } from "../lib/role-packs/marketing-engineering.ts";
 
 test("one built-in catalog exposes one valid Founder OS Solution Pack", () => {
@@ -32,16 +32,16 @@ test("one built-in catalog exposes one valid Founder OS Solution Pack", () => {
   assert.ok(FOUNDER_OS_DOMAINS.every((domain) => domain.health === "unknown" && domain.healthBasis === "unavailable"));
 });
 
-test("Founder OS has 21 native Roles and 27 distinct domain Roles", () => {
+test("Founder OS has 21 native Roles and 29 distinct domain Roles", () => {
   assert.equal(FOUNDER_OS_ROLE_PACK.roles.length, 21);
   const domainRoleIds = new Set(FOUNDER_OS_DOMAINS.flatMap((domain) => domain.roleIds));
-  assert.equal(domainRoleIds.size, 27);
-  assert.equal(FOUNDER_OS_SOLUTION_PACK.roles.length, 28);
-  assert.equal(new Set(FOUNDER_OS_SOLUTION_PACK.roles.map((selection) => selection.roleId)).size, 28);
+  assert.equal(domainRoleIds.size, 29);
+  assert.equal(FOUNDER_OS_SOLUTION_PACK.roles.length, 32);
+  assert.equal(new Set(FOUNDER_OS_SOLUTION_PACK.roles.map((selection) => selection.roleId)).size, 32);
 });
 
 test("Founder OS reuses canonical Marketing Engineering Roles by identity", () => {
-  const reused = [MARKETING_STRATEGIST_ROLE, MARKETING_ENGINEER_ROLE, LIFECYCLE_MARKETING_ENGINEER_ROLE, MARKETING_QA_COMPLIANCE_REVIEWER_ROLE];
+  const reused = [PRODUCT_MARKETER_ROLE, MARKETING_ENGINEER_ROLE, LIFECYCLE_EMAIL_ROLE, LANDING_PAGE_CRO_ROLE];
   for (const role of reused) {
     assert.equal(BUILTIN_ROLE_CATALOG.roles.find((candidate) => candidate.id === role.id), role);
     assert.ok(FOUNDER_OS_SOLUTION_PACK.roles.some((selection) => selection.packId === "marketing-engineering" && selection.roleId === role.id));

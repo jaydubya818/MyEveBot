@@ -165,7 +165,14 @@
     "contentHash": "6751f81865c6c27342b766022884c2abaa6eb32034ff065a29d84f6b16ccb501",
     "sourcePath": "agent/skills/campaign-research-brief/SKILL.md",
     "repository": null,
-    "revision": null
+    "repositoryPath": null,
+    "revision": null,
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0,
+    "activationExplicit": false
   },
   {
     "name": "code-structure",
