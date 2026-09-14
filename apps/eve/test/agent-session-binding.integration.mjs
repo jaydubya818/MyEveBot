@@ -66,6 +66,12 @@ integration("session and thread Agent bindings are authoritative across requests
     const boundSessionId = `session_${crypto.randomUUID()}`;
     sessionIds.push(boundSessionId);
     await bindAgentRun(boundSessionId, "0", ownerId, researcher, null);
+    await bindAgentRun(boundSessionId, "1", ownerId, researcher, null);
+    const distinctTurnRuns = await db().query(
+      `SELECT id FROM agent_runs WHERE session_id=$1 AND owner_id=$2 ORDER BY id`,
+      [boundSessionId, ownerId],
+    );
+    assert.equal(distinctTurnRuns.length, 2, "each durable turn must have a separate Agent Run budget");
     const fromPersistedRun = await resolveSessionAgent({
       ownerId, sessionId: boundSessionId,
       auth: { current: principal(ownerId), initiator: principal(ownerId) },
@@ -132,8 +138,8 @@ integration("session and thread Agent bindings are authoritative across requests
       /Requested Agent does not match|persisted session or thread binding/,
     );
     await assert.rejects(
-      () => bindAgentRun(boundSessionId, "1", ownerId, finance, null),
-      /Cannot change a persisted session Agent binding/,
+      () => bindAgentRun(boundSessionId, "2", ownerId, finance, null),
+      /Cannot change a persisted session executor binding/,
     );
 
     const unbound = await resolveSessionAgent({

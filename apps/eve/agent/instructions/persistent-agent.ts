@@ -5,9 +5,18 @@ import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { assembleContext, recentConversationContext } from "../lib/context-assembly.ts";
 import { bindExecutorRun, resolveSessionAgent } from "../lib/session-settings.ts";
 
+function durableTurnId(event: unknown): string {
+  if (!event || typeof event !== "object") throw new Error("Eve turn event is missing.");
+  const data = (event as { data?: unknown }).data;
+  if (!data || typeof data !== "object") throw new Error("Eve turn event data is missing.");
+  const turnId = (data as { turnId?: unknown }).turnId;
+  if (typeof turnId !== "string" || turnId.length === 0) throw new Error("Eve turn id is missing.");
+  return turnId;
+}
+
 export default defineDynamic({
   events: {
-    "turn.started": async (_event, ctx) => {
+    "turn.started": async (event, ctx) => {
       const principal = ctx.session.auth.current;
       const ownerId = principal?.principalType === "user"
         ? principal.principalId
@@ -26,7 +35,7 @@ export default defineDynamic({
         : undefined;
       if (authenticatedRoleId && role?.executionMode !== "on-demand") throw new Error("This Role is not available for on-demand use.");
       if (authenticatedRoleId && (principal?.attributes.myeveAgentId || ctx.session.auth.initiator?.attributes.myeveAgentId)) throw new Error("Choose either a persistent Agent or an on-demand Role.");
-      await bindExecutorRun(ctx.session.id, String(ctx.messages.length), ownerId, agent, threadId, role
+      await bindExecutorRun(ctx.session.id, durableTurnId(event), ownerId, agent, threadId, role
         ? { kind: "on-demand-role", roleId: role.id }
         : { kind: agent.isPrimary ? "primary-agent" : "persistent-agent" });
       const assembled = await assembleContext({
