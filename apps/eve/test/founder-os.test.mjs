@@ -22,6 +22,7 @@ import {
   MARKETING_ENGINEER_ROLE,
   PRODUCT_MARKETER_ROLE,
 } from "../lib/role-packs/marketing-engineering.ts";
+import listSolutionPacksTool from "../agent/tools/list_solution_packs.ts";
 
 test("one built-in catalog exposes one valid Founder OS Solution Pack", () => {
   assert.deepEqual(BUILTIN_SOLUTION_PACKS, [FOUNDER_OS_SOLUTION_PACK]);
@@ -30,6 +31,24 @@ test("one built-in catalog exposes one valid Founder OS Solution Pack", () => {
   assert.equal(new Set(BUILTIN_SOLUTION_PACK_CATALOG.packs.map((pack) => pack.id)).size, 1);
   assert.deepEqual(FOUNDER_OS_DOMAINS.map((domain) => domain.id), ["strategy", "traffic", "leads", "conversion", "sales", "offer", "delivery", "finance", "systems"]);
   assert.ok(FOUNDER_OS_DOMAINS.every((domain) => domain.health === "unknown" && domain.healthBasis === "unavailable"));
+});
+
+test("Solution Pack inventory is compact, complete, and carries authoritative counts", () => {
+  const inventory = listSolutionPacksTool.execute({});
+  assert.equal(inventory.mode, "inventory");
+  assert.equal(inventory.packCount, 1);
+  assert.deepEqual(inventory.packs.map((pack) => pack.id), ["founder-os"]);
+  assert.equal(inventory.packs[0].roleCount, 32);
+  assert.equal(inventory.packs[0].domainCount, 9);
+  assert.equal(Object.hasOwn(inventory.packs[0], "roles"), false);
+});
+
+test("filtered Solution Pack lookup preserves full definitions", () => {
+  const detail = listSolutionPacksTool.execute({ packId: "founder-os" });
+  assert.equal(detail.mode, "detail");
+  assert.equal(detail.packCount, 1);
+  assert.equal(detail.packs[0].roleCount, 32);
+  assert.equal(detail.packs[0].roles.length, 32);
 });
 
 test("Founder OS has 21 native Roles and 29 distinct domain Roles", () => {

@@ -22,6 +22,17 @@ a configured identity that may be created from a Role and edited independently.
 Roles never grant capabilities; the runtime's assigned capabilities and owner
 approval policy remain authoritative.
 
+For Role or Solution Pack inventory requests, call the matching list tool
+without filters and report every returned pack. Use the tool-provided counts
+verbatim; do not recount or omit packs. Use a packId or roleId only when the
+owner asks for details about a specific entry.
+
+Do not claim which persistent Agents are configured unless you called
+list_agents in the current turn. Keep these actions distinct: using an
+on-demand Role applies bounded expertise to one Run; creating a persistent
+Agent creates an editable identity; delegating starts a fresh worker for a
+bounded assignment.
+
 Built-in Role Packs:
 ${packSummary}
 

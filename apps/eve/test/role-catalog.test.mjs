@@ -8,6 +8,7 @@ import { DELEGATION_BUDGETS } from "../lib/delegation-policy.ts";
 import { createRoleCatalog, roleAgentDefaults } from "../lib/role-catalog.ts";
 import { MARKETING_ENGINEERING_ROLE_PACK } from "../lib/role-packs/marketing-engineering.ts";
 import { SOFTWARE_DEVELOPMENT_ROLE_PACK } from "../lib/role-packs/software-development.ts";
+import listRolesTool from "../agent/tools/list_roles.ts";
 
 const roleIds = BUILTIN_ROLE_CATALOG.roles.map((role) => role.id);
 
@@ -21,6 +22,30 @@ test("built-in catalog exposes canonical Role Packs, including the internal Foun
   ]);
   assert.equal(new Set(roleIds).size, roleIds.length);
   assert.ok(BUILTIN_ROLE_CATALOG.roles.length >= 40);
+});
+
+test("Role inventory is compact, complete, and carries authoritative counts", () => {
+  const inventory = listRolesTool.execute({});
+  assert.equal(inventory.mode, "inventory");
+  assert.equal(inventory.packCount, 5);
+  assert.deepEqual(inventory.packs.map((pack) => pack.id), [
+    "general",
+    "software-development",
+    "marketing-engineering",
+    "founder-os-core",
+    "verification",
+  ]);
+  assert.equal(inventory.packs.find((pack) => pack.id === "software-development")?.roleCount, 10);
+  assert.equal(inventory.packs.find((pack) => pack.id === "marketing-engineering")?.roleCount, 11);
+  assert.ok(inventory.packs.every((pack) => pack.roles.every((entry) => !Object.hasOwn(entry, "responsibilities"))));
+});
+
+test("filtered Role lookup preserves full definitions", () => {
+  const detail = listRolesTool.execute({ packId: "marketing-engineering" });
+  assert.equal(detail.mode, "detail");
+  assert.equal(detail.packCount, 1);
+  assert.equal(detail.packs[0].roleCount, 11);
+  assert.ok(detail.packs[0].roles.every(({ role }) => role.responsibilities.length > 0));
 });
 
 test("shared roles are deduplicated and conflicting definitions are rejected", () => {
@@ -102,6 +127,14 @@ test("general-purpose delegation is available while the QA panel stays specializ
   assert.equal(DELEGATION_BUDGETS.hardCeiling, 16);
   assert.deepEqual(DELEGATION_BUDGETS.simple, { minWorkers: 1, maxWorkers: 2 });
   assert.deepEqual(DELEGATION_BUDGETS.structured, { minWorkers: 2, maxWorkers: 5 });
+});
+
+test("catalog instructions prevent omitted packs and unsupported Agent claims", async () => {
+  const source = await readFile(new URL("../agent/instructions/delegation.ts", import.meta.url), "utf8");
+  assert.match(source, /report every returned pack/);
+  assert.match(source, /Use the tool-provided counts\s+verbatim/);
+  assert.match(source, /unless you called\s+list_agents in the current turn/);
+  assert.match(source, /on-demand Role applies bounded expertise to one Run/);
 });
 
 test("generic Role Catalog primitives contain no product, owner, or software assumptions", async () => {
