@@ -1,6 +1,6 @@
-# MyEve
+# MyEveBot
 
-MyEve is a deployable personal-agent platform. Sofie is the reference agent instance; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Whop's [Frosted UI](https://github.com/whopio/frosted-ui) design system.
+[MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Whop's [Frosted UI](https://github.com/whopio/frosted-ui) design system.
 
 Each deployment serves one owner by default for a simple security boundary. Code and data remain owner-scoped and agent-neutral so a future Relay capability plane can authorize a primary agent, specialists, and additional agents without renaming product concepts or rebuilding integrations.
 
@@ -54,7 +54,7 @@ apps/eve/         # the agent app (also the builder's deploy template)
   app/            # Next.js web chat UI + API routes (threads, search, update-check, …)
   components/     # UI components (Frosted UI design system)
   lib/            # Neon-backed stores (threads, push), Composio connect, web auth
-apps/builder/     # the eveclaw agent builder
+apps/builder/     # the MyEve agent builder
   app/            # create/update UI + API routes (deploy, update, template-version, …)
   components/     # wizard + update flow
   lib/            # Vercel API client, feature manifest, assembler, generators
@@ -116,4 +116,37 @@ environment before qualification; do not weaken the auth boundary to make a prev
 
 ## Deploy
 
-Deployed to Vercel; the agent service is bundled into the same deployment and routed under `/eve/v1/**`.
+Sofie runs in the existing Vercel project `sofie-personal-agent`:
+
+| Setting | Value |
+| --- | --- |
+| Production URL | [sofie-personal-agent.vercel.app](https://sofie-personal-agent.vercel.app) |
+| Source repository | [jaydubya818/MyEveBot](https://github.com/jaydubya818/MyEveBot) |
+| Production branch | `main` |
+| Vercel root directory | `apps/eve` |
+
+The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. Pushes to `main` create production deployments through the Vercel Git integration. Other branches create previews.
+
+Before shipping, run the repository checks from the root:
+
+```bash
+npm test
+npm run typecheck
+npm run db:migrations:check
+npm run build
+```
+
+Database migrations must be applied before deploying application code that depends on them:
+
+```bash
+npm run db:migrate
+```
+
+For an intentional manual production deployment, use the linked application directory:
+
+```bash
+cd apps/eve
+vercel deploy --prod --yes
+```
+
+After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
