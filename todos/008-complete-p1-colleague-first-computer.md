@@ -1,5 +1,5 @@
 ---
-status: in_progress
+status: complete
 priority: p1
 issue_id: "008"
 tags: [reliability, delegation, results, routines, agents, computer, eve, ui]
@@ -36,7 +36,7 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 
 ## Acceptance Criteria
 
-- [ ] Production release gate exercises authenticated multi-turn chat, catalog discovery, Run lifecycle, and an isolated Computer smoke task.
+- [x] Production release gate exercises authenticated multi-turn chat, catalog discovery, Run lifecycle, and an isolated Computer smoke task.
 - [x] Stale Runs reconcile safely and runtime failures expose an actionable retry path.
 - [x] Multi-step work has an explicit outcome, accountable Agent, meaningful milestones, stop/retry/resume, and evidence-backed completion.
 - [x] Results Desk lists durable artifacts with source Run/thread/Agent, review state, provenance, retention, and revoke/delete controls.
@@ -47,7 +47,7 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 - [x] Every new UI action has agent capability parity and every agent write is reflected in the UI.
 - [x] Loading, empty, error, blocked, approval, success, and recovery states are complete on desktop and mobile.
 - [x] Unit, integration, migration, parity, typecheck, build, browser, and local agent E2E checks pass; production is covered by the final release gate below.
-- [ ] All changes are committed and merged to `main`, pushed, deployed to production, and post-deploy health is verified.
+- [x] All changes are committed and merged to `main`, pushed, deployed to production, and post-deploy health is verified.
 
 ## Work Log
 
@@ -97,6 +97,22 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 
 - 117 unit tests and all 8 database integration tests pass.
 - Full monorepo typecheck, 102-capability parity validation, 93 skill-routing checks, 13 ordered migrations, and the production Webpack build pass.
+
+### 2026-09-14 - Production release completed
+
+**By:** Codex
+
+**Actions:**
+
+- Merged the colleague-first workflow and follow-up Computer attribution fix into `main`, pushed the tracked repository, and deployed the linked Vercel production project.
+- Ran authenticated multi-turn production chat, complete Role/Solution Pack discovery, a bounded work Run, and a real isolated Vercel Computer session.
+- Verified the Computer wrote and read `/workspace/production-check.txt` with exact content `sofie-production-computer-ok`, completed its work Run, stopped cleanly, and appeared in Results and Computer activity with Agent/Run/thread attribution.
+
+**Verification:**
+
+- Production health reports ready and the canonical production alias serves the release.
+- Production Computer session `computer_738e642c-5332-404f-8832-f9b1b615d3bd` completed two audited actions with no network domains and stopped.
+- Production Result links Sofie, `task_670a79d7-6c0d-42ca-aafe-1ca9fae2519a`, and thread `40928874-ac0d-4f90-86d9-d9276e163f6d`.
 
 ## Post-Deploy Monitoring & Validation
 
