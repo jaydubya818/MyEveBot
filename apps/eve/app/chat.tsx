@@ -51,6 +51,7 @@ import {
 import { ManagePanel } from "@/components/manage-panel";
 import { AgentsPanel } from "@/components/agents-panel";
 import { GoalsPanel } from "@/components/goals-panel";
+import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
@@ -611,7 +612,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage" | "goals" | "review" | "agents" | "computer";
+type MainView = "chat" | "manage" | "goals" | "review" | "agents" | "computer" | "knowledge";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -661,6 +662,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     kind: "loading",
   });
   const [goalsIncluded, setGoalsIncluded] = useState(true);
+  const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -674,11 +676,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         const labels = setupRequiredCapabilityLabels(body.capabilities);
         const included = body.capabilities.find((capability) => capability.id === "goals")?.state !== "excluded";
         setGoalsIncluded(included);
+        const hasKnowledge = body.capabilities.find((capability) => capability.id === "knowledge")?.state !== "excluded";
+        setKnowledgeIncluded(hasKnowledge);
         if (
           !included &&
           (window.location.pathname.startsWith("/goals") ||
             window.location.pathname.startsWith("/review"))
         ) {
+          setView("chat");
+          window.history.replaceState(null, "", "/");
+        }
+        if (!hasKnowledge && window.location.pathname.startsWith("/knowledge")) {
           setView("chat");
           window.history.replaceState(null, "", "/");
         }
@@ -977,6 +985,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             ? "review"
           : window.location.pathname.startsWith("/goals")
             ? "goals"
+          : window.location.pathname.startsWith("/knowledge")
+            ? "knowledge"
             : "chat",
       );
     }
@@ -988,7 +998,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
+    const path = next === "manage" ? "/manage" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1170,6 +1180,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               className={cn(view === "goals" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "goals" ? "chat" : "goals")}
             />}
+            {knowledgeIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={BrainIcon}
+              aria-label="Knowledge"
+              aria-pressed={view === "knowledge"}
+              title="Knowledge and provenance"
+              className={cn(view === "knowledge" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "knowledge" ? "chat" : "knowledge")}
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1316,6 +1337,11 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerSessionsPanel /></div>
+        </main>
+      ) : view === "knowledge" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><KnowledgePanel /></div>
         </main>
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">

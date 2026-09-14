@@ -8,6 +8,7 @@ export const CAPABILITY_IDS = [
   "computer",
   "finance",
   "goals",
+  "knowledge",
 ] as const;
 
 export type CapabilityId = (typeof CAPABILITY_IDS)[number];
@@ -30,6 +31,7 @@ const ALL_FEATURES = [
   "browser",
   "utilities",
   "goals",
+  "knowledge",
 ] as const;
 
 function enabledSet(env: NodeJS.ProcessEnv): Set<string> {
@@ -97,6 +99,10 @@ export function getCapabilityStatuses(
     status("goals", enabled.has("goals"), databaseReady, {
       reason: "Goals need a database before the agent can keep plans, tasks, and progress reliably.",
       setupHint: "Add DATABASE_URL and apply the Goal OS migration, then reload this page.",
+    }),
+    status("knowledge", enabled.has("knowledge"), databaseReady, {
+      reason: "Knowledge needs a database before it can preserve claims, decisions, and provenance.",
+      setupHint: "Add DATABASE_URL and apply the Knowledge migration, then reload this page.",
     }),
   ];
 }

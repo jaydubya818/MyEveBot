@@ -60,3 +60,13 @@ test("objective discovery returns relevant available capabilities only", () => {
   const memory = findCapabilities("memory", { availability: "available" }, env);
   assert.ok(memory.some((capability) => capability.id === "memory.supermemory"));
 });
+
+test("structured Knowledge is database-backed and independent of Supermemory", () => {
+  const capabilities = getCapabilitiesForObjective("What did we decide about Relay?", {
+    EVE_ENABLED_FEATURES: "knowledge",
+    DATABASE_URL: "postgres://configured",
+  });
+  assert.ok(capabilities.some((capability) => capability.id === "knowledge.structured"));
+  assert.ok(capabilities.some((capability) => capability.id === "tool.list_decisions"));
+  assert.ok(capabilities.every((capability) => capability.id !== "memory.supermemory"));
+});

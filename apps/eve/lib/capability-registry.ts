@@ -329,6 +329,17 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     source: { type: "builtin", reference: "lib/goals.ts" },
     keywords: ["goal", "milestone", "task", "plan", "focus", "next action", "progress"],
   }),
+  platform("knowledge.structured", "Structured knowledge", "database", "Preserve typed claims, decisions, commitments, relationships, and inspectable provenance.", {
+    feature: "knowledge",
+    configuration: ["DATABASE_URL"],
+    permissions: ["knowledge.read", "knowledge.write"],
+    risk: { level: "medium", categories: ["durable-data", "personal-data"] },
+    approvalPolicy: { mode: "conditional" },
+    evidence: { supported: true, required: true, types: ["source", "provenance"] },
+    dependencies: ["database.neon"],
+    source: { type: "builtin", reference: "lib/knowledge.ts" },
+    keywords: ["knowledge", "fact", "observation", "hypothesis", "decision", "decide", "commitment", "preference", "provenance"],
+  }),
   platform("specialist.functional-state", "Functional & State specialist", "specialist", "Checks critical behavior and state transitions.", {
     configuration: ["DATABASE_URL", "BLOB_READ_WRITE_TOKEN"],
     permissions: ["qa.execute", "evidence.write"],
@@ -384,6 +395,13 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("review_progress", { description: "Generate a deterministic daily brief or weekly review from canonical state.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["daily brief", "weekly review", "stalled", "risk", "priority"] }),
   tool("get_review_schedule", { description: "Inspect owner review schedules, available delivery channels, and recent delivery results.", feature: "goals", permissions: ["reviews.read"], configuration: ["DATABASE_URL"], dependencies: ["notification.review-delivery"], keywords: ["daily brief", "weekly review", "schedule", "delivery history"] }),
   tool("update_review_schedule", { description: "Update an explicitly owner-approved review schedule and delivery policy.", feature: "goals", permissions: ["reviews.schedule"], risk: "medium", riskCategories: ["proactive-action", "external-communication"], approval: "always", configuration: ["DATABASE_URL", "OWNER_TIMEZONE"], dependencies: ["notification.review-delivery"], keywords: ["daily brief", "weekly review", "schedule", "timezone", "quiet hours", "delivery"] }),
+  tool("record_fact", { description: "Record a durable fact with confidence and current-conversation provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["fact", "know", "confirm", "provenance"] }),
+  tool("record_observation", { description: "Record a noticed pattern without promoting it to a preference.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["observation", "pattern", "noticed", "evidence"] }),
+  tool("record_decision", { description: "Record an explicit decision with rationale, reopen condition, and provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "standing-intent"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["decision", "decide", "rationale", "revisit", "supersede"] }),
+  tool("record_commitment", { description: "Record an explicit owner obligation without broad automatic extraction.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "standing-intent"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["commitment", "promise", "due", "obligation"] }),
+  tool("search_knowledge", { description: "Search typed structured knowledge with status, Goal, confidence, and date filters.", feature: "knowledge", permissions: ["knowledge.read"], configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["knowledge", "search", "fact", "decision", "history"] }),
+  tool("list_decisions", { description: "List durable decisions and their history.", feature: "knowledge", permissions: ["knowledge.read"], configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["decision", "decide", "rationale", "reopen", "history"] }),
+  tool("list_commitments", { description: "List durable commitments and their lifecycle state.", feature: "knowledge", permissions: ["knowledge.read"], configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["commitment", "obligation", "due", "open"] }),
   tool("agent", { description: "Delegate a bounded assignment to a declared specialist.", permissions: ["agents.delegate"], risk: "medium", riskCategories: ["delegated-execution"], approval: "conditional", keywords: ["delegate", "specialist"] }),
   tool("workflow", { description: "Run declared specialist work as a coordinated workflow.", permissions: ["agents.delegate"], risk: "medium", riskCategories: ["delegated-execution"], approval: "conditional", keywords: ["workflow", "parallel", "delegate"] }),
   tool("start_product_qa", { description: "Create the fixed three-specialist product-QA contract.", permissions: ["qa.write", "qa.execute"], risk: "medium", approval: "conditional", configuration: ["DATABASE_URL", "BLOB_READ_WRITE_TOKEN"], dependencies: ["database.neon", "storage.blob"], keywords: ["qa", "test", "preview"] }),
@@ -419,7 +437,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
 function enabledFeatures(env: NodeJS.ProcessEnv): Set<string> {
   const raw = env.EVE_ENABLED_FEATURES;
   if (raw === undefined || raw.trim().length === 0) {
-    return new Set(["memory", "proactive", "receipts", "skills", "file-sharing", "integrations", "browser", "utilities", "goals"]);
+    return new Set(["memory", "proactive", "receipts", "skills", "file-sharing", "integrations", "browser", "utilities", "goals", "knowledge"]);
   }
   return new Set(raw.split(",").map((value) => value.trim()).filter(Boolean));
 }

@@ -61,6 +61,15 @@ test("builder-generated identity is owner and agent configurable", () => {
   assert.doesNotMatch(instructions, /\bSofie\b|\bJay\b/);
 });
 
+test("builder-generated Knowledge guidance preserves the Memory boundary", () => {
+  const instructions = generateInstructions({
+    agentName: "Ava", ownerName: "Ada", personality: "", features: ["knowledge"], telegramEnabled: false,
+  });
+  assert.match(instructions, /Knowledge is durable typed state/);
+  assert.match(instructions, /separate from\s+conversation memory/);
+  assert.doesNotMatch(instructions, /Supermemory/);
+});
+
 test("builder bakes the configured primary Agent bootstrap without platform names", () => {
   const config = { ...validConfig(), agentName: "Ava", ownerName: "Sarah", instructions: "You are Ava. Help Sarah with her goals.", model: "openai/gpt-5.2" };
   const source = generatePrimaryBootstrapSource(config);
