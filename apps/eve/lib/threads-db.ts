@@ -42,7 +42,7 @@ async function ensureTable(): Promise<void> {
 }
 
 /** Who started the thread: the user, a fired reminder, or a webhook event. */
-export type ThreadOrigin = "web" | "reminder" | "webhook";
+export type ThreadOrigin = "web" | "reminder" | "webhook" | "email" | "notification" | "voice";
 
 export interface ThreadMetaRow {
   title: string;
@@ -61,7 +61,13 @@ export interface ThreadRow extends ThreadMetaRow {
 }
 
 function toOrigin(value: unknown): ThreadOrigin {
-  return value === "reminder" || value === "webhook" ? value : "web";
+  return value === "reminder" ||
+    value === "webhook" ||
+    value === "email" ||
+    value === "notification" ||
+    value === "voice"
+    ? value
+    : "web";
 }
 
 export async function listThreads(ownerId: string): Promise<ThreadRow[]> {

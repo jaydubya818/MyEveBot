@@ -49,9 +49,13 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
     pinned: body.pinned === true,
     renamed: body.renamed === true,
     // Origin only matters on first insert; existing rows keep theirs.
-    origin: (body.origin === "reminder" || body.origin === "webhook"
+    origin: (body.origin === "reminder" ||
+    body.origin === "webhook" ||
+    body.origin === "email" ||
+    body.origin === "notification" ||
+    body.origin === "voice"
       ? body.origin
-      : "web") as "web" | "reminder" | "webhook",
+      : "web") as import("@/lib/threads-db").ThreadOrigin,
     agentId: typeof body.agentId === "string" ? body.agentId : undefined,
     roleId: typeof body.roleId === "string" ? body.roleId : undefined,
   };

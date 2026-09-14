@@ -17,7 +17,9 @@ import {
   CaretDownIcon,
   CheckIcon,
   CopyIcon,
+  EnvelopeIcon,
   FileIcon,
+  FilesIcon,
   GearSixIcon,
   GitBranchIcon,
   LightningIcon,
@@ -45,6 +47,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
 import { ComputerSessionsPanel } from "@/components/computer-sessions-panel";
+import { EmailClient } from "@/components/email-client";
+import { FilesPage } from "@/components/files-page";
 import {
   CapabilityNotice,
   type CapabilityNoticeState,
@@ -184,7 +188,7 @@ interface ThreadMeta {
   /** Set once the user renames a thread, so auto-titles stop overwriting it. */
   renamed?: boolean;
   /** Who started the thread; reminder/webhook threads get a sidebar badge. */
-  origin?: "web" | "reminder" | "webhook";
+  origin?: "web" | "reminder" | "webhook" | "email" | "notification" | "voice";
   /** Persistent Agent used for this conversation; absent means the primary Agent. */
   agentId?: string;
   agentName?: string;
@@ -621,7 +625,17 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage" | "goals" | "review" | "results" | "agents" | "computer" | "knowledge";
+type MainView =
+  | "chat"
+  | "manage"
+  | "goals"
+  | "review"
+  | "results"
+  | "agents"
+  | "computer"
+  | "knowledge"
+  | "email"
+  | "files";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -984,7 +998,11 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   useEffect(() => {
     function onPopState() {
       setView(
-        window.location.pathname.startsWith("/manage")
+        window.location.pathname.startsWith("/email")
+          ? "email"
+          : window.location.pathname.startsWith("/files")
+            ? "files"
+        : window.location.pathname.startsWith("/manage")
           ? "manage"
           : window.location.pathname.startsWith("/results")
             ? "results"
@@ -1009,7 +1027,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
+    const path = next === "manage" ? "/manage" : next === "email" ? "/email" : next === "files" ? "/files" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1305,6 +1323,28 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               variant="ghost"
               size="sm"
               shape="square"
+              icon={EnvelopeIcon}
+              aria-label="Email"
+              aria-pressed={view === "email"}
+              title={`${AGENT_NAME}'s inbox`}
+              className={cn(view === "email" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "email" ? "chat" : "email")}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={FilesIcon}
+              aria-label="Files"
+              aria-pressed={view === "files"}
+              title="Files uploaded in chat"
+              className={cn(view === "files" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "files" ? "chat" : "files")}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
               icon={GearSixIcon}
               aria-label="Manage"
               aria-pressed={view === "manage"}
@@ -1390,7 +1430,15 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "results" ? (
+      {view === "email" ? (
+        <EmailClient onOpenSidebar={() => setSidebarOpen(true)} />
+      ) : view === "files" ? (
+        <FilesPage
+          onOpenSidebar={() => setSidebarOpen(true)}
+          onBack={() => showView("chat")}
+          onOpenThread={selectThread}
+        />
+      ) : view === "results" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><ResultsPanel onStartPrompt={startPromptThread} /></div>

@@ -32,6 +32,7 @@
   },
   "include": [
     "next-env.d.ts",
+    "types/**/*.d.ts",
     "agent/**/*.ts",
     "evals/**/*.ts",
     "scripts/**/*.ts",
