@@ -77,6 +77,17 @@
     "revision": "a4bb4914be14f0d529a5b3dd2d09eeb9e93bec16"
   },
   {
+    "name": "campaign-research-brief",
+    "description": "Use when the owner wants to research a market, develop evidence-backed campaign angles, or create a campaign brief for review.",
+    "userInvocable": true,
+    "fileCount": 7,
+    "sizeBytes": 8951,
+    "contentHash": "febf7c616cf6c5ae17be2067deced77c13459cdbfbd55a1139c788c753dca511",
+    "sourcePath": "agent/skills/campaign-research-brief/SKILL.md",
+    "repository": null,
+    "revision": null
+  },
+  {
     "name": "code-structure",
     "description": "Use when multiple workflows duplicate the same operational logic, when deciding what belongs in actions vs shared services, or when refactoring repeated operational blocks across domain flows. Use when adding new features that share mechanics with existing ones.",
     "userInvocable": true,

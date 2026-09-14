@@ -38,6 +38,7 @@ import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 import type { AgentActivityView } from "@/lib/agents";
 import type { AgentView } from "@/lib/agents";
+import type { RoleDefinition } from "@/lib/role-catalog";
 
 // Management surface for everything Sofie does or knows on her own: scheduled
 // reminders, event-trigger webhooks, long-term memory, connected apps, and
@@ -605,10 +606,12 @@ function SectionShell({
 export function ManagePanel({
   onOpenThread,
   onStartAgentChat,
+  onUseRole,
 }: {
   /** Jump to a thread (e.g. one a reminder delivered). */
   onOpenThread: (threadId: string) => void;
   onStartAgentChat: (agent: AgentView) => void;
+  onUseRole: (role: RoleDefinition) => void;
 }) {
   const [selectedSection, setSelectedSection] = useState<ManageSection | null>(null);
   const [capabilities, setCapabilities] = useState<CapabilityStatus[] | null>(null);
@@ -766,7 +769,7 @@ export function ManagePanel({
   } else if (activeSection === "appearance") {
     sectionContent = <AppearancePanel />;
   } else if (activeSection === "agents") {
-    sectionContent = <AgentsPanel embedded onStartChat={onStartAgentChat} />;
+    sectionContent = <AgentsPanel embedded onStartChat={onStartAgentChat} onUseRole={onUseRole} />;
   } else if (activeSection === "reminders") {
     sectionContent = automationError ? (
       <ErrorNote>{automationError}</ErrorNote>

@@ -43,11 +43,27 @@ export async function sessionAgent(ownerId: string | undefined, authenticatedAge
 }
 
 export async function bindAgentRun(sessionId: string, turnId: string, ownerId: string, agent: AgentView, threadId: string | null): Promise<void> {
+  return bindExecutorRun(sessionId, turnId, ownerId, agent, threadId);
+}
+
+export async function bindExecutorRun(
+  sessionId: string,
+  turnId: string,
+  ownerId: string,
+  agent: AgentView,
+  threadId: string | null,
+  executor: { kind: "primary-agent" | "persistent-agent" | "on-demand-role"; roleId?: string } = {
+    kind: agent.isPrimary ? "primary-agent" : "persistent-agent",
+  },
+): Promise<void> {
+  if ((executor.kind === "on-demand-role") !== Boolean(executor.roleId)) {
+    throw new Error("On-demand Role runs require Role attribution, and other Runs must not carry it.");
+  }
   const { db } = await import("./receipts-db.ts");
   await db().query(
-    `INSERT INTO agent_runs (id, session_id, owner_id, agent_id, thread_id) VALUES ($1,$2,$3,$4,$5)
-     ON CONFLICT (id) DO UPDATE SET agent_id=EXCLUDED.agent_id, thread_id=coalesce(EXCLUDED.thread_id,agent_runs.thread_id), status='running', completed_at=NULL, updated_at=now()`,
-    [`agent_run_${sessionId}_${turnId}`, sessionId, ownerId, agent.id, threadId],
+    `INSERT INTO agent_runs (id, session_id, owner_id, agent_id, thread_id, executor_kind, role_id) VALUES ($1,$2,$3,$4,$5,$6,$7)
+     ON CONFLICT (id) DO UPDATE SET agent_id=EXCLUDED.agent_id, thread_id=coalesce(EXCLUDED.thread_id,agent_runs.thread_id), executor_kind=EXCLUDED.executor_kind, role_id=EXCLUDED.role_id, status='running', completed_at=NULL, updated_at=now()`,
+    [`agent_run_${sessionId}_${turnId}`, sessionId, ownerId, agent.id, threadId, executor.kind, executor.roleId ?? null],
   );
 }
 
