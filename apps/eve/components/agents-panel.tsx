@@ -1,12 +1,17 @@
 "use client";
 
 import { Button, Input, InputArea, Loader } from "@cloudflare/kumo";
-import { CopyIcon, PauseIcon, PlayIcon, PlusIcon, RobotIcon, TrayIcon } from "@phosphor-icons/react";
+import { ArrowRightIcon, CopyIcon, PauseIcon, PlayIcon, PlusIcon, RobotIcon, TrayIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { AgentView } from "@/lib/agents";
+import { BUILTIN_ROLE_CATALOG } from "@/lib/builtin-role-catalog";
+import { BUILTIN_SOLUTION_PACKS } from "@/lib/builtin-solution-packs";
 import type { ResolvedCapability } from "@/lib/capability-registry";
+import { roleAgentDefaults, type RoleDefinition, type RoleExecutionMode } from "@/lib/role-catalog";
+import type { SolutionPack } from "@/lib/solution-packs";
 import { cn } from "@/lib/utils";
+import { SolutionPackCatalogCard } from "@/components/solution-pack-catalog-card";
 
 const RISK = { low: 0, medium: 1, high: 2, critical: 3 } as const;
 type FormState = {
@@ -30,7 +35,47 @@ function Status({ agent }: { agent: AgentView }) {
   return <span className={cn("rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize", agent.status === "active" ? "border-kumo-success/25 bg-kumo-success/10 text-kumo-success" : "border-kumo-hairline bg-kumo-tint text-kumo-subtle")}>{agent.status}</span>;
 }
 
-export function AgentsPanel({ onStartChat }: { onStartChat: (agent: AgentView) => void }) {
+const MODE_LABEL: Record<RoleExecutionMode, string> = {
+  "on-demand": "On demand",
+  "declared-specialist": "Declared specialist",
+};
+
+function RoleCatalogPanel({ onCreateAgent, onUseSolutionPack }: { onCreateAgent: (role: RoleDefinition) => void; onUseSolutionPack: (pack: SolutionPack) => void }) {
+  const visibleRolePacks = BUILTIN_ROLE_CATALOG.packs.filter((pack) => pack.catalogVisibility !== "internal");
+  return <section className="mt-8 border-t border-kumo-hairline pt-6" aria-labelledby="role-catalog-title">
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div><h2 id="role-catalog-title" className="text-base font-semibold">Available roles</h2><p className="mt-1 max-w-2xl text-sm text-kumo-subtle">Reusable expertise for bounded work. Use a role on demand or create a persistent Agent from it.</p></div>
+      <span className="rounded-full border border-kumo-hairline px-2 py-1 text-[11px] text-kumo-subtle">{visibleRolePacks.length} Role Packs · {BUILTIN_SOLUTION_PACKS.length} Solution Pack</span>
+    </div>
+    <div className="mt-4 grid gap-4">
+      {visibleRolePacks.map((pack) => <section key={pack.id} className={cn("rounded-xl border border-kumo-hairline bg-kumo-tint/40 p-4", pack.id === "verification" && "order-last")}>
+          <div className="flex flex-wrap items-start justify-between gap-2"><div><h3 className="text-sm font-semibold">{pack.name}</h3><p className="mt-1 text-xs leading-5 text-kumo-subtle">{pack.description}</p></div><span className="text-[11px] text-kumo-subtle">{pack.roles.length} roles</span></div>
+          {pack.lifecycle && <div className="mt-3 flex flex-wrap items-center gap-1 text-[10px] text-kumo-subtle"><span className="sr-only">{pack.lifecycle.name}:</span>{pack.lifecycle.stages.map((stage, index) => <span key={stage.id} className="contents"><span className="rounded-md border border-kumo-hairline px-1.5 py-1">{stage.label}</span>{index < pack.lifecycle!.stages.length - 1 && <ArrowRightIcon aria-hidden className="size-3" />}</span>)}</div>}
+          <div className="mt-3 grid gap-x-5 md:grid-cols-2">{pack.roles.map(({ role, lifecycleStages }) => <details key={`${pack.id}:${role.id}`} className="group border-t border-kumo-hairline py-3">
+            <summary className="flex cursor-pointer list-none items-start gap-3 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-kumo-brand/50 [&::-webkit-details-marker]:hidden">
+              <span className={cn("mt-1 size-2 shrink-0 rounded-full", role.verificationRole ? "bg-kumo-success" : "bg-kumo-line")} aria-hidden />
+              <span className="min-w-0 flex-1"><span className="flex flex-wrap items-center gap-x-2 gap-y-1"><span className="text-sm font-medium">{role.name}</span><span className="rounded-full border border-kumo-hairline px-1.5 py-0.5 text-[10px] text-kumo-subtle">{MODE_LABEL[role.executionMode]}</span>{role.verificationRole && <span className="text-[10px] font-medium text-kumo-success">Verification</span>}</span><span className="mt-0.5 block text-xs leading-5 text-kumo-subtle">{role.description}</span></span>
+              <span className="mt-0.5 text-kumo-subtle transition-transform group-open:rotate-90" aria-hidden>›</span>
+            </summary>
+            <div className="ms-5 mt-2 border-s border-kumo-hairline ps-4 text-xs leading-5">
+              {lifecycleStages && <p className="mb-2 text-kumo-subtle"><span className="font-medium text-kumo-default">Lifecycle:</span> {lifecycleStages.map((stage) => pack.lifecycle?.stages.find((item) => item.id === stage)?.label ?? stage).join(", ")}</p>}
+              <p className="font-medium text-kumo-default">Responsibilities</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.responsibilities.map((item) => <li key={item}>{item}</li>)}</ul>
+              {role.typicalInputs && <><p className="mt-2 font-medium text-kumo-default">Typical inputs</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.typicalInputs.map((item) => <li key={item}>{item}</li>)}</ul></>}
+              {role.typicalOutputs && <><p className="mt-2 font-medium text-kumo-default">Typical outputs</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.typicalOutputs.map((item) => <li key={item}>{item}</li>)}</ul></>}
+              <p className="mt-2 font-medium text-kumo-default">Recommended capabilities</p><p className="text-kumo-subtle">{role.recommendedCapabilities.join(" · ") || "Reasoning only"}</p>
+              <p className="mt-2 font-medium text-kumo-default">Safety boundaries</p><ul className="mt-1 list-disc ps-4 text-kumo-subtle">{role.boundaries.map((item) => <li key={item}>{item}</li>)}</ul>
+              <p className="mt-2 text-kumo-subtle"><span className="font-medium text-kumo-default">Model:</span> {role.recommendedModel ?? "Runtime default"} · <span className="font-medium text-kumo-default">Reasoning:</span> {role.recommendedReasoning ?? "default"}</p>
+              {role.executionMode === "on-demand" && <Button className="mt-3" size="sm" variant="secondary" icon={PlusIcon} onClick={() => onCreateAgent(role)}>Create persistent Agent</Button>}
+              {role.executionMode === "declared-specialist" && <p className="mt-3 rounded-lg border border-kumo-success/20 bg-kumo-success/5 px-2.5 py-2 text-kumo-subtle">This role is an isolated QA specialist and is only invoked through the existing product-QA workflow.</p>}
+            </div>
+          </details>)}</div>
+        </section>)}
+      {BUILTIN_SOLUTION_PACKS.map((pack) => <SolutionPackCatalogCard key={pack.id} pack={pack} roleCatalog={BUILTIN_ROLE_CATALOG} onCreateAgent={onCreateAgent} onUseSolutionPack={onUseSolutionPack} />)}
+    </div>
+  </section>;
+}
+
+export function AgentsPanel({ onStartChat, onUseSolutionPack, embedded = false }: { onStartChat: (agent: AgentView) => void; onUseSolutionPack: (pack: SolutionPack) => void; embedded?: boolean }) {
   const [agents, setAgents] = useState<AgentView[] | null>(null);
   const [registry, setRegistry] = useState<ResolvedCapability[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -55,6 +100,11 @@ export function AgentsPanel({ onStartChat }: { onStartChat: (agent: AgentView) =
     capability.id !== "notification.review-delivery"
   ), [registry]);
 
+  function beginCreate(role?: RoleDefinition) {
+    setForm(role ? roleAgentDefaults(role) : EMPTY);
+    setCreating(true); setEditing(true); setError(null);
+    requestAnimationFrame(() => document.getElementById("your-agents")?.scrollIntoView({ block: "start" }));
+  }
   function edit(agent: AgentView) { setForm(formFrom(agent)); setEditing(true); setCreating(false); setError(null); }
   async function save() {
     setBusy(true); setError(null);
@@ -73,8 +123,9 @@ export function AgentsPanel({ onStartChat }: { onStartChat: (agent: AgentView) =
   }
   if (agents === null) return <div className="grid min-h-80 place-items-center"><Loader aria-label="Loading Agents" /></div>;
   return <section>
-    <header className="mb-5 flex items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-[.14em] text-kumo-subtle">Execution resources</p><h1 className="mt-1 text-2xl font-semibold tracking-tight">My Agents</h1><p className="mt-1 text-sm text-kumo-subtle">Specialized help for your goals, governed by explicit capabilities.</p></div><Button variant="primary" icon={PlusIcon} onClick={() => { setForm(EMPTY); setCreating(true); setEditing(true); }}>Create Agent</Button></header>
+    <header className="mb-5 flex items-end justify-between gap-4"><div>{!embedded && <><p className="text-xs font-medium uppercase tracking-[.14em] text-kumo-subtle">Execution resources</p><h1 className="mt-1 text-2xl font-semibold tracking-tight">Agents</h1></>}<p className={cn("text-sm text-kumo-subtle", !embedded && "mt-1")}>Persistent Agents are configured identities. Roles are reusable expertise for bounded work.</p></div><Button variant="primary" icon={PlusIcon} onClick={() => beginCreate()}>Create Agent</Button></header>
     {error && <p role="alert" className="mb-4 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-3 text-sm text-kumo-danger">{error}</p>}
+    <div id="your-agents" className="mb-3 scroll-mt-4"><h2 className="text-base font-semibold">Your Agents</h2><p className="mt-1 text-sm text-kumo-subtle">Persistent identities you can open directly, pause, duplicate, or archive.</p></div>
     <div className="grid gap-5 lg:grid-cols-[17rem_minmax(0,1fr)]">
       <nav aria-label="Agents" className="space-y-2">{agents.map((agent) => <button key={agent.id} type="button" onClick={() => { setSelectedId(agent.id); setEditing(false); setCreating(false); }} className={cn("w-full rounded-2xl border p-3 text-left", selectedId === agent.id ? "border-kumo-brand/40 bg-kumo-brand/5" : "border-kumo-hairline hover:bg-kumo-tint", agent.status === "archived" && "opacity-60")}><div className="flex items-start gap-3"><span className="grid size-9 place-items-center rounded-xl bg-kumo-tint"><RobotIcon className="size-5" /></span><span className="min-w-0 flex-1"><span className="flex items-center gap-2 font-medium"><span className="truncate">{agent.name}</span>{agent.isPrimary && <span className="text-[10px] uppercase tracking-wide text-kumo-brand">Primary</span>}</span><span className="mt-0.5 block truncate text-xs text-kumo-subtle">{agent.role}</span></span><Status agent={agent} /></div></button>)}</nav>
       <div className="min-w-0 rounded-2xl border border-kumo-hairline p-4 sm:p-6">
@@ -95,5 +146,6 @@ export function AgentsPanel({ onStartChat }: { onStartChat: (agent: AgentView) =
         </article> : <p className="text-sm text-kumo-subtle">Create an Agent to add specialized execution capacity.</p>}
       </div>
     </div>
+    <RoleCatalogPanel onCreateAgent={beginCreate} onUseSolutionPack={onUseSolutionPack} />
   </section>;
 }

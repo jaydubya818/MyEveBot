@@ -81,6 +81,7 @@ import {
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
 import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
 import type { CapabilityStatus } from "@/lib/capabilities";
+import type { SolutionPack } from "@/lib/solution-packs";
 import { cn } from "@/lib/utils";
 
 const THREADS_KEY = "eve-web-threads";
@@ -1031,6 +1032,19 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     showView("chat");
   }
 
+  function useSolutionPack(pack: SolutionPack) {
+    const meta = { ...newThreadMeta(), title: `Use ${pack.name}`, renamed: true };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
+    setPendingDraft({
+      threadId: meta.id,
+      text: `Use the ${pack.name} Solution Pack for this business Goal. Start by asking for the desired outcome, current business state, timeframe, known metrics, and constraints. Diagnose the narrowest current constraint before recommending work. Do not execute consequential actions without explicit owner approval.`,
+    });
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
   function selectThread(id: string) {
     setPendingDraft(null);
     setIndex((prev) => ({ ...prev, activeId: id }));
@@ -1346,7 +1360,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
-          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} /></div>
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseSolutionPack={useSolutionPack} /></div>
         </main>
       ) : view === "review" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
@@ -1396,7 +1410,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
                 Configure what {AGENT_NAME} knows, connects to, and handles for you.
               </p>
             </header>
-            <ManagePanel onOpenThread={selectThread} />
+            <ManagePanel onOpenThread={selectThread} onStartAgentChat={startAgentChat} onUseSolutionPack={useSolutionPack} />
           </div>
         </main>
       ) : activeChat && activeChat.threadId === index.activeId ? (
