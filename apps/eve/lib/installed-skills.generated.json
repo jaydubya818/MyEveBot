@@ -1224,6 +1224,24 @@
     "activationExplicit": false
   },
   {
+    "name": "sandbox-workspace",
+    "description": "Use for open-ended work that benefits from files, commands, or reproducible execution in Sofie's isolated workspace: creating or modifying projects, cloning codebases, implementing or repairing features, running builds and tests, starting development servers, downloading or transforming files, crunching datasets, generating artifacts, investigating failures, or preparing a verified code change for review and shipping, including a bounded self-healing repair loop.",
+    "userInvocable": true,
+    "fileCount": 1,
+    "sizeBytes": 5935,
+    "contentHash": "87eb7f4ed09e6cf83b0ab5a4b16215ca1e31de83382a5dbb24df45722d629753",
+    "sourcePath": "agent/skills/sandbox-workspace/SKILL.md",
+    "repository": null,
+    "repositoryPath": null,
+    "revision": null,
+    "license": null,
+    "sourceEvalPath": null,
+    "routingPrompts": [],
+    "negativeRoutingPrompts": [],
+    "behavioralEvalCount": 0,
+    "activationExplicit": false
+  },
+  {
     "name": "scope-creep-detector",
     "description": "Analyzes a working, staged, saved, or branch git diff against a one-line intent. Use when the user asks whether a change grew beyond the intended fix, whether a PR is too broad, what unrelated files they touched, or wants evidence-backed keep, split, or justify guidance. Operates locally, offline, and read-only.",
     "userInvocable": true,

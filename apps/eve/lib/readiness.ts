@@ -3,7 +3,7 @@ import { gateway } from "ai";
 
 import { memoryStore } from "@/agent/lib/memory-store";
 import { db } from "@/agent/lib/receipts-db";
-import { CANDIDATE_TOOLKITS, manageConnections } from "@/lib/composio-connect";
+import { FALLBACK_TOOLKITS, manageConnections } from "@/lib/composio-connect";
 import { capabilityMap } from "@/lib/capabilities";
 import { CURRENT_DATABASE_MIGRATION } from "@/lib/database-schema";
 import { webAuthConfigStatus, webAuthRequired } from "@/lib/web-auth";
@@ -178,7 +178,7 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
     checks.push(
       await probe(
         connectionsBase,
-        () => manageConnections([{ name: CANDIDATE_TOOLKITS[0], action: "list" }]),
+        () => manageConnections([{ name: FALLBACK_TOOLKITS[0].slug, action: "list" }]),
         "Composio accepted a connection-status request.",
       ),
     );

@@ -34,6 +34,11 @@ export default telegramChannel({
     const hasContent = (message.text || message.caption).trim().length > 0 || message.attachments.length > 0;
     if (!hasContent) return null;
 
+    // Remember the owner's DM so web-created reminders and triggers can
+    // deliver to Telegram when the owner picks it in Manage.
+    const { rememberOwnerTelegramChat } = await import("../lib/delivery");
+    await rememberOwnerTelegramChat(message.chat.id);
+
     await ctx.telegram.startTyping();
     return { auth: defaultTelegramAuth(message) };
   },

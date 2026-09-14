@@ -37,7 +37,7 @@ test("runtime skill packages preserve every installed skill and its supporting f
   );
 
   assert.deepEqual(generated, expected);
-  assert.equal(generated.length, 78);
+  assert.equal(generated.length, 79);
   assert.ok(generated.every((skill) => skill.markdown.includes("description:")));
   assert.ok(generated.find((skill) => skill.name === "architect").files["references/runner-prompt.md"]);
 });

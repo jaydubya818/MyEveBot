@@ -1,4 +1,9 @@
-import { CANDIDATE_TOOLKITS, manageConnections } from "@/lib/composio-connect";
+import {
+  FALLBACK_TOOLKITS,
+  listComposioToolkits,
+  manageConnections,
+  mergeComposioToolkitCatalogs,
+} from "@/lib/composio-connect";
 import { apiError } from "@/lib/api-errors";
 import { capabilityMap } from "@/lib/capabilities";
 import { requireWebAuth } from "@/lib/web-auth";
@@ -44,14 +49,23 @@ export async function GET(request: Request): Promise<Response> {
   }
 
   try {
+    let catalogComplete = true;
+    const toolkits = await listComposioToolkits().catch((error: unknown) => {
+      catalogComplete = false;
+      console.error("Composio toolkit catalog failed:", error);
+      return [...FALLBACK_TOOLKITS];
+    });
+    const checkedToolkits = mergeComposioToolkitCatalogs(FALLBACK_TOOLKITS, toolkits);
     const data = await manageConnections(
-      CANDIDATE_TOOLKITS.map((name) => ({ name, action: "list" as const })),
+      checkedToolkits.map(({ slug }) => ({ name: slug, action: "list" as const })),
     );
     const results = (data.results ?? {}) as Record<string, ToolkitResult>;
+    const names = new Map(checkedToolkits.map((toolkit) => [toolkit.slug, toolkit.name]));
     const connections = Object.values(results)
       .filter((entry) => (entry.accounts?.length ?? 0) > 0)
       .map((entry) => ({
         toolkit: entry.toolkit ?? "",
+        name: names.get(entry.toolkit ?? "") ?? entry.toolkit ?? "",
         accounts: (entry.accounts ?? []).map((account) => ({
           id: account.id ?? "",
           status: account.status ?? "unknown",
@@ -59,7 +73,7 @@ export async function GET(request: Request): Promise<Response> {
           label: accountLabel(account.user_info),
         })),
       }));
-    return Response.json({ connections, checked: CANDIDATE_TOOLKITS });
+    return Response.json({ connections, toolkits, catalogComplete });
   } catch (error) {
     console.error("Connections list failed:", error);
     return apiError(request, 502, "connections_unavailable", "Connected apps are unavailable.");
