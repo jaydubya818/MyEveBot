@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { createProductQaTask, taskOwnerFromAuth } from "../../lib/task-runs.ts";
 import { agentName } from "../lib/owner.ts";
+import { agentForSession } from "../lib/session-settings.ts";
 
 export default defineTool({
   description:
@@ -15,8 +16,11 @@ export default defineTool({
     goalTaskId: z.string().startsWith("gtask_").optional().describe("Optional task within goalId to link to this run."),
   }),
   async execute(input, ctx) {
+    const ownerId = taskOwnerFromAuth(ctx.session.auth);
+    const persistentAgent = await agentForSession(ctx.session.id, ownerId);
     return createProductQaTask({
-      ownerId: taskOwnerFromAuth(ctx.session.auth),
+      ownerId,
+      agentId: persistentAgent?.id,
       sessionId: ctx.session.id,
       threadId: input.threadId,
       localUrl: input.localUrl,

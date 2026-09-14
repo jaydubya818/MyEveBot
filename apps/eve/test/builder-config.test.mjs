@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { validateConfig } from "../../builder/lib/config.ts";
+import { isExcluded } from "../../builder/lib/manifest.ts";
 import { generateInstructions } from "../../builder/lib/instructions.ts";
+import { generatePrimaryBootstrapSource } from "../../builder/lib/primary-bootstrap.ts";
 
 function validConfig() {
   return {
@@ -57,6 +59,25 @@ test("builder-generated identity is owner and agent configurable", () => {
   assert.match(instructions, /You are Ava, Ada's personal assistant/);
   assert.match(instructions, /Calm and precise/);
   assert.doesNotMatch(instructions, /\bSofie\b|\bJay\b/);
+});
+
+test("builder bakes the configured primary Agent bootstrap without platform names", () => {
+  const config = { ...validConfig(), agentName: "Ava", ownerName: "Sarah", instructions: "You are Ava. Help Sarah with her goals.", model: "openai/gpt-5.2" };
+  const source = generatePrimaryBootstrapSource(config);
+  assert.match(source, /Ava/); assert.match(source, /Help Sarah/); assert.match(source, /openai\/gpt-5\.2/);
+  assert.doesNotMatch(source, /\bJay\b|\bSofie\b/);
+});
+
+test("assembled deployments include every script referenced by package commands", () => {
+  for (const required of [
+    "scripts/check-capability-registry.ts",
+    "scripts/generate-skill-catalog.mjs",
+    "scripts/migrate-database.ts",
+    "scripts/normalize-imported-skills.mjs",
+  ]) {
+    assert.equal(isExcluded(required), false, `${required} must ship in Builder deployments`);
+  }
+  assert.equal(isExcluded("scripts/seed-review-e2e.ts"), true);
 });
 
 test("builder requires a Telegram allowlist when the channel is enabled", () => {

@@ -209,6 +209,27 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     source: { type: "builtin", reference: "agent/extensions/browser/extension.ts" },
     keywords: ["browse", "website", "computer", "form", "research"],
   }),
+  platform("web.search", "Web search", "browser", "Search the public web without taking actions on websites.", {
+    permissions: ["web.search"],
+    risk: { level: "low", categories: ["external-read"] },
+    keywords: ["web", "search", "research", "sources"],
+  }),
+  platform("web.read", "Web reading", "browser", "Fetch and read public web pages without interactive browser control.", {
+    permissions: ["web.read"],
+    risk: { level: "low", categories: ["external-read"] },
+    keywords: ["web", "read", "fetch", "research", "sources"],
+  }),
+  platform("files.read", "File reading", "storage", "Read and search files in the Agent sandbox.", {
+    permissions: ["files.read"],
+    risk: { level: "low", categories: ["sandbox-data"] },
+    keywords: ["file", "read", "search", "research"],
+  }),
+  platform("files.write", "File writing", "storage", "Create and update files in the Agent sandbox.", {
+    permissions: ["files.write"],
+    risk: { level: "medium", categories: ["sandbox-data", "durable-data"] },
+    approvalPolicy: { mode: "conditional" },
+    keywords: ["file", "write", "artifact", "report"],
+  }),
   platform("finance.receipts", "Receipt finance", "finance", "Record and summarize owner-provided receipt information.", {
     feature: "receipts",
     configuration: ["DATABASE_URL"],
@@ -292,6 +313,10 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     keywords: ["qa", "test", "security", "auth", "failure", "recovery"],
   }),
   tool("discover_capabilities", { description: "Discover which capabilities can help accomplish an objective, including availability, risk, and approval requirements.", permissions: ["capabilities.read"], keywords: ["capability", "available", "tool", "plan", "objective"] }),
+  tool("list_agents", { description: "List persistent owner Agents and their effective capability state.", permissions: ["agents.read"], configuration: ["DATABASE_URL"], dependencies: ["database.neon"], keywords: ["agent", "specialist", "lifecycle"] }),
+  tool("get_agent", { description: "Inspect one owner-scoped persistent Agent.", permissions: ["agents.read"], configuration: ["DATABASE_URL"], dependencies: ["database.neon"], keywords: ["agent", "specialist", "configuration"] }),
+  tool("manage_agent", { description: "Create and manage owner-scoped persistent Agents with explicit capabilities.", permissions: ["agents.write"], risk: "medium", riskCategories: ["standing-behavior", "delegated-execution"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["database.neon"], keywords: ["agent", "create", "pause", "resume", "duplicate", "archive"] }),
+  tool("persistent-agent-policy", { description: "Enforce persistent Agent lifecycle, capability, availability, and risk boundaries at execution time.", permissions: ["agents.enforce"], configuration: ["DATABASE_URL"], dependencies: ["database.neon"], keywords: ["agent", "policy", "capability", "security"] }),
   tool("create_goal", { description: "Create a durable goal, optionally with its first plan, milestones, and tasks.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "plan", "milestone", "task", "outcome"] }),
   tool("list_goals", { description: "List owner goals and their progress.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "progress", "status"] }),
   tool("get_goal", { description: "Inspect one goal, including plan, tasks, dependencies, events, and next action.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "task", "plan", "activity"] }),

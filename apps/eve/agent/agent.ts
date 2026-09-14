@@ -1,80 +1,28 @@
-import type { LanguageModelMiddleware, ModelMessage } from "ai";
+import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
 
-const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
+import { clientTurnSettings, resolveSessionAgent } from "./lib/session-settings.ts";
 
-const MODEL_ID_PATTERN = /^[\w.-]+\/[\w.:-]+$/;
+const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
 
 /** The AI SDK's provider-agnostic reasoning effort levels, minus the default. */
 const REASONING_LEVELS = ["none", "minimal", "low", "medium", "high", "xhigh"] as const;
 type ReasoningLevel = (typeof REASONING_LEVELS)[number];
 
-function isReasoningLevel(value: unknown): value is ReasoningLevel {
-  return typeof value === "string" && (REASONING_LEVELS as readonly string[]).includes(value);
-}
-
-const CLIENT_CONTEXT_PREFIX = "Client context:\n";
-
-interface TurnSettings {
-  model: string | null;
-  reasoning: ReasoningLevel | null;
-}
-
-const NO_SETTINGS: TurnSettings = { model: null, reasoning: null };
-
-/**
- * The web chat attaches `{ eveWebModel, eveWebReasoning? }` as one-turn
- * `clientContext`, which the eve channel delivers as a user-role message of
- * the exact form `Client context:\n<json>`. Scan the visible conversation
- * from the end for a message that parses to that shape, so ordinary
- * conversation text merely mentioning the keys cannot match.
- */
-function requestedSettings(messages: readonly ModelMessage[]): TurnSettings {
-  for (let index = messages.length - 1; index >= 0; index--) {
-    const { content } = messages[index];
-    const texts =
-      typeof content === "string"
-        ? [content]
-        : content.map((part) => ("text" in part && typeof part.text === "string" ? part.text : ""));
-    for (const text of texts) {
-      const settings = parseSettingsMarker(text);
-      if (settings !== null) return settings;
-    }
-  }
-  return NO_SETTINGS;
-}
-
-function parseSettingsMarker(text: string): TurnSettings | null {
-  if (!text.startsWith(CLIENT_CONTEXT_PREFIX)) return null;
-  try {
-    const parsed: unknown = JSON.parse(text.slice(CLIENT_CONTEXT_PREFIX.length));
-    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return null;
-    const record = parsed as Record<string, unknown>;
-    const modelValue = record.eveWebModel;
-    const model =
-      typeof modelValue === "string" && MODEL_ID_PATTERN.test(modelValue) ? modelValue : null;
-    const reasoning = isReasoningLevel(record.eveWebReasoning) ? record.eveWebReasoning : null;
-    if (model === null && reasoning === null) return null;
-    return { model, reasoning };
-  } catch {
-    return null;
-  }
-}
-
 function reasoningMiddleware(reasoning: ReasoningLevel): LanguageModelMiddleware {
   return {
     specificationVersion: "v4",
     transformParams: async ({ params }) => ({
-      ...params,
-      reasoning: params.reasoning ?? reasoning,
-      providerOptions: {
-        ...params.providerOptions,
-        // eve enables the gateway's automatic prompt caching for string model
-        // ids only; a live model bypasses that path, so re-apply it here.
-        gateway: { caching: "auto", ...params.providerOptions?.gateway },
-      },
-    }),
+        ...params,
+        reasoning: params.reasoning ?? reasoning,
+        providerOptions: {
+          ...params.providerOptions,
+          // eve enables the gateway's automatic prompt caching for string model
+          // ids only; a live model bypasses that path, so re-apply it here.
+          gateway: { caching: "auto", ...params.providerOptions?.gateway },
+        },
+      }),
   };
 }
 
@@ -82,14 +30,22 @@ export default defineAgent({
   model: defineDynamic({
     fallback: DEFAULT_MODEL,
     events: {
-      "turn.started": (_event, ctx) => requestedSettings(ctx.messages).model,
+      "turn.started": async (_event, ctx) => {
+        const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
+        return agent?.preferredModel ?? clientTurnSettings(ctx.messages).model;
+      },
       // Reasoning effort is a per-call AI SDK setting, not a field the dynamic
       // model selection object accepts, so a requested level rides on a live
       // gateway model wrapped with default settings. Live models are only
       // allowed from step.started; with no level requested this returns null
       // and the turn-scoped string selection (plain prompt-cache path) wins.
-      "step.started": (_event, ctx) => {
-        const { model, reasoning } = requestedSettings(ctx.messages);
+      "step.started": async (_event, ctx) => {
+        const requested = clientTurnSettings(ctx.messages);
+        const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
+        const model = agent?.preferredModel ?? requested.model;
+        const configuredReasoning = agent?.reasoningPreference;
+        const selectedReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
+        const reasoning = selectedReasoning === "default" ? null : selectedReasoning;
         if (reasoning === null) return null;
         return wrapLanguageModel({
           model: gateway(model ?? DEFAULT_MODEL),

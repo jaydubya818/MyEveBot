@@ -26,7 +26,8 @@ export const EXCLUDED = [
   "CLAUDE.md",
   "PLAN.md",
   "node_modules/",
-  "scripts/",
+  "scripts/migrate-memories.ts",
+  "scripts/seed-review-e2e.ts",
   "tsconfig.tsbuildinfo",
 ] as const;
 
@@ -44,10 +45,15 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/capabilities.ts",
   "agent/instructions/channel.ts",
   "agent/instructions/installed-skills.ts",
+  "agent/instructions/persistent-agent.ts",
   "agent/instructions/time.ts",
   "agent/tools/agent.ts",
   "agent/tools/complete_task.ts",
   "agent/tools/discover_capabilities.ts",
+  "agent/tools/list_agents.ts",
+  "agent/tools/get_agent.ts",
+  "agent/tools/manage_agent.ts",
+  "agent/tools/persistent-agent-policy.ts",
   "agent/tools/inspect_tasks.ts",
   "agent/tools/record_task_evidence.ts",
   "agent/tools/start_product_qa.ts",
@@ -81,7 +87,6 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/search_memory.ts",
     "agent/tools/list_memories.ts",
     "agent/schedules/memory-consolidation.ts",
-    "agent/instructions/memory.ts",
   ],
   proactive: [
     "agent/tools/create_reminder.ts",

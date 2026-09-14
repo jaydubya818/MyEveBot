@@ -34,6 +34,7 @@ import { TaskRunsPanel } from "@/components/task-runs-panel";
 import { ReviewDeliverySettings } from "@/components/review-delivery-settings";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
+import type { AgentActivityView } from "@/lib/agents";
 
 // Management surface for everything Sofie does or knows on her own: scheduled
 // reminders, event-trigger webhooks, long-term memory, connected apps, and
@@ -85,6 +86,18 @@ interface ConnectionItem {
     alias: string | null;
     label: string | null;
   }[];
+}
+
+function AgentActivity() {
+  const [events, setEvents] = useState<AgentActivityView[] | null>(null);
+  useEffect(() => {
+    void fetch("/api/agents/activity", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((body: { activity?: AgentActivityView[] } | null) => setEvents(body?.activity ?? []))
+      .catch(() => setEvents([]));
+  }, []);
+  if (!events?.length) return null;
+  return <section className="mb-6"><h3 className="text-sm font-semibold">Agent lifecycle</h3><ol className="mt-2 divide-y divide-kumo-hairline rounded-xl border border-kumo-hairline px-3">{events.slice(0, 10).map((event) => <li key={event.id} className="py-3"><p className="text-sm">{event.summary}</p><p className="mt-1 text-[11px] text-kumo-subtle">{event.agentName} · {event.actorType} · {new Date(event.createdAt).toLocaleString()}</p></li>)}</ol></section>;
 }
 
 function formatWhen(iso: string | null): string {
@@ -738,7 +751,7 @@ export function ManagePanel({
   } else if (activeSection === "review-delivery") {
     sectionContent = <ReviewDeliverySettings />;
   } else if (activeSection === "activity") {
-    sectionContent = <TaskRunsPanel onOpenThread={onOpenThread} />;
+    sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {
     sectionContent = <AppearancePanel />;
   } else if (activeSection === "reminders") {

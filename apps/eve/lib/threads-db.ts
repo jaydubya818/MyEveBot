@@ -32,6 +32,8 @@ async function ensureTable(): Promise<void> {
       ALTER TABLE web_chat_threads
         ADD COLUMN IF NOT EXISTS origin text NOT NULL DEFAULT 'web'
     `;
+    await sql()`ALTER TABLE web_chat_threads ADD COLUMN IF NOT EXISTS owner_id text`;
+    await sql()`ALTER TABLE web_chat_threads ADD COLUMN IF NOT EXISTS agent_id text`;
   })();
   await ensured;
 }
@@ -45,6 +47,8 @@ export interface ThreadMetaRow {
   pinned: boolean;
   renamed: boolean;
   origin?: ThreadOrigin;
+  agentId?: string;
+  agentName?: string;
 }
 
 export interface ThreadRow extends ThreadMetaRow {
@@ -55,11 +59,12 @@ function toOrigin(value: unknown): ThreadOrigin {
   return value === "reminder" || value === "webhook" ? value : "web";
 }
 
-export async function listThreads(): Promise<ThreadRow[]> {
+export async function listThreads(ownerId: string): Promise<ThreadRow[]> {
   await ensureTable();
   const rows = await sql()`
-    SELECT id, title, updated_at, pinned, renamed, origin
-    FROM web_chat_threads ORDER BY updated_at DESC
+    SELECT t.id, t.title, t.updated_at, t.pinned, t.renamed, t.origin, t.agent_id, a.name AS agent_name
+    FROM web_chat_threads t LEFT JOIN agents a ON a.owner_id=t.owner_id AND a.id=t.agent_id
+    WHERE t.owner_id = ${ownerId} ORDER BY t.updated_at DESC
   `;
   return rows.map((row) => ({
     id: row.id as string,
@@ -68,7 +73,13 @@ export async function listThreads(): Promise<ThreadRow[]> {
     pinned: Boolean(row.pinned),
     renamed: Boolean(row.renamed),
     origin: toOrigin(row.origin),
+    agentId: nullableThreadText(row.agent_id),
+    agentName: nullableThreadText(row.agent_name),
   }));
+}
+
+function nullableThreadText(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 export interface ThreadSearchResult {
@@ -85,7 +96,7 @@ export interface ThreadSearchResult {
  * in `message.received`, assistant replies in `message.completed`), so this
  * is a scan — fine at personal-assistant thread counts.
  */
-export async function searchThreads(query: string, limit: number): Promise<ThreadSearchResult[]> {
+export async function searchThreads(ownerId: string, query: string, limit: number): Promise<ThreadSearchResult[]> {
   await ensureTable();
   const escaped = query.replace(/[%_\\]/g, (char) => `\\${char}`);
   const pattern = `%${escaped}%`;
@@ -99,6 +110,7 @@ export async function searchThreads(query: string, limit: number): Promise<Threa
           ''
         ) AS body
       FROM web_chat_threads
+      WHERE owner_id = ${ownerId}
     ) AS threads
     WHERE title ILIKE ${pattern} OR body ILIKE ${pattern}
     ORDER BY updated_at DESC
@@ -126,49 +138,61 @@ export async function searchThreads(query: string, limit: number): Promise<Threa
 }
 
 /** Returns the stored chat payload, or null when the thread doesn't exist. */
-export async function getThreadChat(id: string): Promise<unknown | null> {
+export async function getThreadChat(ownerId: string, id: string): Promise<unknown | null> {
   await ensureTable();
-  const rows = await sql()`SELECT chat FROM web_chat_threads WHERE id = ${id}`;
+  const rows = await sql()`SELECT chat FROM web_chat_threads WHERE owner_id=${ownerId} AND id = ${id}`;
   return rows.length > 0 ? rows[0].chat : null;
 }
 
 // Origin is written once on insert and never updated: rename/pin/chat writes
 // from the UI must not reset a reminder/webhook thread back to "web".
 export async function upsertThread(
+  ownerId: string,
   id: string,
   meta: ThreadMetaRow,
   chat: unknown,
 ): Promise<void> {
   await ensureTable();
+  await assertThreadOwner(ownerId, id);
   await sql()`
-    INSERT INTO web_chat_threads (id, title, updated_at, pinned, renamed, origin, chat)
-    VALUES (${id}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
+    INSERT INTO web_chat_threads (id, owner_id, agent_id, title, updated_at, pinned, renamed, origin, chat)
+    VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
             ${meta.origin ?? "web"}, ${JSON.stringify(chat)}::jsonb)
     ON CONFLICT (id) DO UPDATE
       SET title = EXCLUDED.title,
           updated_at = EXCLUDED.updated_at,
           pinned = EXCLUDED.pinned,
           renamed = EXCLUDED.renamed,
-          chat = EXCLUDED.chat
+          chat = EXCLUDED.chat,
+          agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id)
+      WHERE web_chat_threads.owner_id = EXCLUDED.owner_id
   `;
 }
 
 /** Updates thread metadata (rename, pin) without touching the chat payload. */
-export async function upsertThreadMeta(id: string, meta: ThreadMetaRow): Promise<void> {
+export async function upsertThreadMeta(ownerId: string, id: string, meta: ThreadMetaRow): Promise<void> {
   await ensureTable();
+  await assertThreadOwner(ownerId, id);
   await sql()`
-    INSERT INTO web_chat_threads (id, title, updated_at, pinned, renamed, origin)
-    VALUES (${id}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
+    INSERT INTO web_chat_threads (id, owner_id, agent_id, title, updated_at, pinned, renamed, origin)
+    VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
             ${meta.origin ?? "web"})
     ON CONFLICT (id) DO UPDATE
       SET title = EXCLUDED.title,
           updated_at = EXCLUDED.updated_at,
           pinned = EXCLUDED.pinned,
-          renamed = EXCLUDED.renamed
+          renamed = EXCLUDED.renamed,
+          agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id)
+      WHERE web_chat_threads.owner_id = EXCLUDED.owner_id
   `;
 }
 
-export async function deleteThread(id: string): Promise<void> {
+export async function deleteThread(ownerId: string, id: string): Promise<void> {
   await ensureTable();
-  await sql()`DELETE FROM web_chat_threads WHERE id = ${id}`;
+  await sql()`DELETE FROM web_chat_threads WHERE owner_id=${ownerId} AND id = ${id}`;
+}
+
+async function assertThreadOwner(ownerId: string, id: string): Promise<void> {
+  const rows = await sql()`SELECT owner_id FROM web_chat_threads WHERE id=${id} LIMIT 1`;
+  if (rows[0] && rows[0].owner_id !== ownerId) throw new Error("Thread belongs to another owner.");
 }

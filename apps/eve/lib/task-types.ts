@@ -114,6 +114,7 @@ export interface TaskMilestoneView {
 
 export interface TaskRunView {
   id: string;
+  agentId: string | null;
   kind: "product_qa";
   title: string;
   threadId: string | null;

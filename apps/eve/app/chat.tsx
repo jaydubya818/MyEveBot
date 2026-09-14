@@ -36,6 +36,7 @@ import {
   TargetIcon,
   TrashIcon,
   WrenchIcon,
+  UsersThreeIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -46,6 +47,7 @@ import {
   type CapabilityNoticeState,
 } from "@/components/capability-notice";
 import { ManagePanel } from "@/components/manage-panel";
+import { AgentsPanel } from "@/components/agents-panel";
 import { GoalsPanel } from "@/components/goals-panel";
 import { ReviewPanel } from "@/components/review-panel";
 import { Markdown } from "@/components/markdown";
@@ -176,6 +178,9 @@ interface ThreadMeta {
   renamed?: boolean;
   /** Who started the thread; reminder/webhook threads get a sidebar badge. */
   origin?: "web" | "reminder" | "webhook";
+  /** Persistent Agent used for this conversation; absent means the primary Agent. */
+  agentId?: string;
+  agentName?: string;
 }
 
 interface ThreadIndex {
@@ -269,6 +274,8 @@ function threadMetaBody(meta: ThreadMeta) {
     pinned: meta.pinned === true,
     renamed: meta.renamed === true,
     origin: meta.origin,
+    agentId: meta.agentId,
+    agentName: meta.agentName,
   };
 }
 
@@ -602,7 +609,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage" | "goals" | "review";
+type MainView = "chat" | "manage" | "goals" | "review" | "agents";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -760,6 +767,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   // page, so the first message does not pay the backend's cold-start cost.
   useEffect(() => {
     void fetch("/eve/v1/info").catch(() => undefined);
+    // Canonical initialization creates the configured primary Agent exactly
+    // once for new and upgraded deployments; subsequent calls are read-only.
+    void fetch("/api/agents").catch(() => undefined);
   }, []);
 
   // Put every installed and saved skill one "/" away.
@@ -957,6 +967,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       setView(
         window.location.pathname.startsWith("/manage")
           ? "manage"
+          : window.location.pathname.startsWith("/agents")
+            ? "agents"
           : window.location.pathname.startsWith("/review")
             ? "review"
           : window.location.pathname.startsWith("/goals")
@@ -972,7 +984,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
+    const path = next === "manage" ? "/manage" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -995,6 +1007,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     showView("chat");
   }
 
+  function startAgentChat(agent: import("@/lib/agents").AgentView) {
+    const meta = { ...newThreadMeta(), title: `Chat with ${agent.name}`, renamed: true, agentId: agent.id, agentName: agent.name };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
+    setPendingDraft(null);
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
   function selectThread(id: string) {
     setPendingDraft(null);
     setIndex((prev) => ({ ...prev, activeId: id }));
@@ -1010,6 +1032,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     const meta: ThreadMeta = {
       ...newThreadMeta(),
       title: source ? `Fork: ${source.title}`.slice(0, 80) : "Forked thread",
+      agentId: source?.agentId,
+      agentName: source?.agentName,
       // Protect the fork title from the auto-titling backfill.
       renamed: true,
     };
@@ -1142,6 +1166,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               className={cn(view === "goals" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "goals" ? "chat" : "goals")}
             />}
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={UsersThreeIcon}
+              aria-label="Agents"
+              aria-pressed={view === "agents"}
+              title="Persistent Agents"
+              className={cn(view === "agents" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "agents" ? "chat" : "agents")}
+            />
             {goalsIncluded && <Button
               variant="ghost"
               size="sm"
@@ -1262,7 +1297,12 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "review" ? (
+      {view === "agents" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} /></div>
+        </main>
+      ) : view === "review" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button
             variant="ghost"
@@ -1317,6 +1357,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         <ChatThread
           key={`${index.activeId}:${activeChat.revision ?? 0}`}
           threadId={index.activeId}
+          agentId={index.threads.find((thread) => thread.id === index.activeId)?.agentId}
+          agentName={index.threads.find((thread) => thread.id === index.activeId)?.agentName ?? AGENT_NAME}
           initialChat={activeChat.chat}
           initialDraft={
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
@@ -1528,6 +1570,8 @@ function SidebarThread({
 
 function ChatThread({
   threadId,
+  agentId,
+  agentName,
   initialChat,
   initialDraft,
   onTitle,
@@ -1548,6 +1592,8 @@ function ChatThread({
   onResumed,
 }: {
   threadId: string;
+  agentId?: string;
+  agentName: string;
   initialChat: SavedChat;
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
@@ -1620,6 +1666,10 @@ function ChatThread({
   }
 
   const agent = useEveAgent({
+    headers: {
+      "x-myeve-thread-id": threadId,
+      ...(agentId ? { "x-myeve-agent-id": agentId } : {}),
+    },
     initialEvents: initialChat.events ?? [],
     initialSession: initialChat.session,
     // Ride the selected gateway model (and reasoning effort, when set) along
@@ -1636,6 +1686,7 @@ function ChatThread({
         clientContext: {
           eveWebModel: model,
           webThreadId: threadId,
+          ...(agentId ? { myeveAgentId: agentId } : {}),
           ...(reasoning !== "default" ? { eveWebReasoning: reasoning } : {}),
           clientTime: new Date().toLocaleString("en-CA", {
             year: "numeric",
@@ -1956,7 +2007,7 @@ function ChatThread({
       .map((message) => {
         const text = messageText(message);
         return text.length > 0
-          ? `${message.role === "user" ? OWNER_NAME : AGENT_NAME}: ${text}`
+          ? `${message.role === "user" ? OWNER_NAME : agentName}: ${text}`
           : null;
       })
       .filter((line): line is string => line !== null);
@@ -2056,6 +2107,13 @@ function ChatThread({
           onClick={onOpenSidebar}
         />
 
+        {agentId && (
+          <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
+            <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-subtle">Direct Agent conversation</span></span>
+            <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-brand hover:underline">View Agent</a>
+          </div>
+        )}
+
         <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
 
         <MessageScrollerProvider autoScroll>
@@ -2064,9 +2122,12 @@ function ChatThread({
               <MessageScrollerContent className="gap-5 py-6">
                 {!hasMessages && (
                   <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{agentName}</p>
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
-                      {capabilityNotice.kind === "ready"
+                      {agentId
+                        ? `${agentName} can use only the capabilities assigned on its Agent record.`
+                        : capabilityNotice.kind === "ready"
                         ? "Ask me anything — I have your memory, a browser, and all your connected apps."
                         : "Ask me anything — available capabilities stay active while setup is completed."}
                     </p>
@@ -2196,8 +2257,8 @@ function ChatThread({
             <InputArea
               ref={composerRef}
               value={draft}
-              aria-label={`Message ${AGENT_NAME}`}
-              placeholder={`Message ${AGENT_NAME}... (/ for commands)`}
+              aria-label={`Message ${agentName}`}
+              placeholder={`Message ${agentName}... (/ for commands)`}
               autoResize
               minRows={1}
               maxRows={7}

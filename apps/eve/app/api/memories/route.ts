@@ -2,6 +2,7 @@ import { memoryStore } from "@/agent/lib/memory-store";
 import { apiError } from "@/lib/api-errors";
 import { capabilityMap } from "@/lib/capabilities";
 import { requireWebAuth } from "@/lib/web-auth";
+import { requestOwnerId } from "@/lib/agent-api";
 
 function memoryGuard(request: Request): Response | null {
   const denied = requireWebAuth(request);
@@ -16,7 +17,7 @@ export async function GET(request: Request): Promise<Response> {
   const denied = memoryGuard(request);
   if (denied) return denied;
   try {
-    const memories = await memoryStore.list();
+    const memories = await memoryStore.listForOwner(requestOwnerId(request));
     return Response.json({ memories });
   } catch (error) {
     console.error("Memory list failed", error);
@@ -32,7 +33,7 @@ export async function DELETE(request: Request): Promise<Response> {
     return new Response("Invalid body", { status: 400 });
   }
   try {
-    const forgotten = await memoryStore.delete(body.id);
+    const forgotten = await memoryStore.deleteForOwner(requestOwnerId(request), body.id);
     if (!forgotten) return new Response("Not found", { status: 404 });
     return Response.json({ ok: true });
   } catch (error) {
