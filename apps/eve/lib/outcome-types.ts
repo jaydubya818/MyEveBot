@@ -35,4 +35,7 @@ export interface OutcomeView {
   occurredAt: string;
   createdAt: string;
   updatedAt: string;
+  runTitle: string | null;
+  threadId: string | null;
+  agentName: string | null;
 }

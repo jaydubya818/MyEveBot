@@ -28,6 +28,24 @@ export interface SessionAgentResolutionInput {
   primaryFallback?: boolean;
 }
 
+/** Close orphaned budgets before a new turn binds its own durable Run. */
+export async function reconcileStaleAgentRuns(
+  ownerId: string,
+  sessionId: string,
+): Promise<number> {
+  const rows = await db().query(
+    `UPDATE agent_runs AS run
+     SET status='failed', completed_at=now(), updated_at=now()
+     FROM agents AS agent
+     WHERE run.owner_id=$1 AND run.session_id=$2 AND run.status='running'
+       AND agent.owner_id=run.owner_id AND agent.id=run.agent_id
+       AND run.started_at + (agent.max_runtime_seconds * interval '1 second') <= now()
+     RETURNING run.id`,
+    [ownerId, sessionId],
+  ) as Array<Record<string, unknown>>;
+  return rows.length;
+}
+
 function marker(text: string): ClientTurnSettings | null {
   if (!text.startsWith(CLIENT_CONTEXT_PREFIX)) return null;
   try {

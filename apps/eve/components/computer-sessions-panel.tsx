@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, Button, Loader } from "@cloudflare/kumo";
-import { ArrowClockwiseIcon, ArrowSquareOutIcon, BrowserIcon, FileIcon, MonitorIcon, StopIcon, TerminalWindowIcon } from "@phosphor-icons/react";
+import { ArrowClockwiseIcon, ArrowSquareOutIcon, BrowserIcon, FileIcon, MonitorIcon, PauseIcon, PlayIcon, StopIcon, TerminalWindowIcon } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 
 import type { ComputerActionView, ComputerSessionView } from "@/lib/computer-types";
@@ -26,7 +26,7 @@ export function ComputerSessionsPanel() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [actions, setActions] = useState<ComputerActionView[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [stopping, setStopping] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -49,16 +49,16 @@ export function ComputerSessionsPanel() {
   }, [selectedId, sessions]);
 
   const selected = sessions?.find((session) => session.id === selectedId) ?? null;
-  async function stop() {
+  async function update(action: "pause" | "resume" | "stop") {
     if (!selected) return;
-    setStopping(true);
+    setUpdating(true);
     try {
-      const response = await fetch(`/api/computer-sessions/${selected.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "stop" }) });
+      const response = await fetch(`/api/computer-sessions/${selected.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) });
       const body = await response.json().catch(() => null) as { error?: { message?: string } } | null;
-      if (!response.ok) throw new Error(body?.error?.message ?? "Computer session could not be stopped.");
+      if (!response.ok) throw new Error(body?.error?.message ?? "Computer session could not be updated.");
       await load();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Computer session could not be stopped."); }
-    finally { setStopping(false); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Computer session could not be updated."); }
+    finally { setUpdating(false); }
   }
 
   if (sessions === null && !error) return <div className="flex justify-center py-16"><Loader size={18} /></div>;
@@ -66,12 +66,12 @@ export function ComputerSessionsPanel() {
   const activeCount = sessions.filter((session) => ACTIVE.has(session.status)).length;
 
   return <div className="flex flex-col gap-5">
-    <header className="flex flex-wrap items-end justify-between gap-4"><div><div className="flex items-center gap-2 text-kumo-subtle"><MonitorIcon className="size-4" /><span className="text-xs font-medium uppercase tracking-[0.14em]">Agent runtime</span></div><h1 className="mt-2 text-xl font-semibold tracking-tight">Computer sessions</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-kumo-subtle">Inspect isolated browser and sandbox work, attributable actions, and durable evidence.</p></div><div className="rounded-xl border border-kumo-hairline bg-kumo-tint px-3 py-2 text-xs tabular-nums text-kumo-subtle"><span className="font-semibold text-kumo-strong">{activeCount}</span> active · {sessions.length} recent</div></header>
+    <header className="flex flex-wrap items-end justify-between gap-4 ps-8 md:ps-0"><div><div className="flex items-center gap-2 text-kumo-subtle"><MonitorIcon className="size-4" /><span className="text-xs font-medium uppercase tracking-[0.14em]">Agent runtime</span></div><h1 className="mt-2 text-xl font-semibold tracking-tight">Computer sessions</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-kumo-subtle">Inspect isolated browser and sandbox work, attributable actions, and durable evidence.</p></div><div className="rounded-xl border border-kumo-hairline bg-kumo-tint px-3 py-2 text-xs tabular-nums text-kumo-subtle"><span className="font-semibold text-kumo-strong">{activeCount}</span> active · {sessions.length} recent</div></header>
     {error && <p className="rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 px-4 py-3 text-sm">{error}</p>}
     {sessions.length === 0 ? <div className="rounded-2xl border border-dashed border-kumo-hairline px-6 py-14 text-center"><MonitorIcon className="mx-auto size-7 text-kumo-subtle" /><p className="mt-4 text-sm font-medium">No computer sessions yet</p><p className="mx-auto mt-1 max-w-md text-sm leading-6 text-kumo-subtle">Ask an Agent with computer capabilities to perform browser or sandbox work. Its session and evidence trail will appear here.</p></div> :
       <div className="grid min-h-[560px] overflow-hidden rounded-2xl border border-kumo-hairline lg:grid-cols-[300px_minmax(0,1fr)]">
         <aside className="border-b border-kumo-hairline bg-kumo-tint/40 p-2 lg:border-b-0 lg:border-e"><ul className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Computer sessions">{sessions.map((session) => <li key={session.id} className="min-w-64 lg:min-w-0"><button type="button" onClick={() => setSelectedId(session.id)} className={cn("w-full rounded-xl border px-3.5 py-3 text-start transition-colors", selectedId === session.id ? "border-kumo-interact/40 bg-kumo-elevated shadow-sm" : "border-transparent hover:border-kumo-hairline hover:bg-kumo-elevated")}><span className="flex items-center justify-between gap-3"><span className="truncate text-sm font-medium">{session.agentName}</span><span className={cn("size-2 rounded-full", ACTIVE.has(session.status) ? "bg-kumo-success" : session.status === "failed" ? "bg-kumo-danger" : "bg-kumo-inactive")} /></span><span className="mt-1.5 block truncate text-xs text-kumo-subtle">{session.taskTitle ?? session.goalTitle ?? "Unlinked computer work"}</span><span className="mt-2 flex justify-between text-[11px] text-kumo-subtle"><span className="capitalize">{session.status}</span><span>{formatWhen(session.startedAt)}</span></span></button></li>)}</ul></aside>
-        {selected && <article className="min-w-0 p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4 border-b border-kumo-hairline pb-5"><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">{selected.agentName}&rsquo;s computer</h2><Badge variant={selected.status === "failed" ? "destructive" : "secondary"}>{selected.status}</Badge></div><p className="mt-1 text-xs text-kumo-subtle">Started {formatWhen(selected.startedAt)} · {duration(selected)} · expires {formatWhen(selected.expiresAt)}</p></div>{ACTIVE.has(selected.status) && <Button size="sm" variant="secondary" icon={StopIcon} disabled={stopping} onClick={() => void stop()}>{stopping ? "Stopping…" : "Stop"}</Button>}</div>
+        {selected && <article className="min-w-0 p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4 border-b border-kumo-hairline pb-5"><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">{selected.agentName}&rsquo;s computer</h2><Badge variant={selected.status === "failed" ? "destructive" : "secondary"}>{selected.status}</Badge></div><p className="mt-1 text-xs text-kumo-subtle">Started {formatWhen(selected.startedAt)} · {duration(selected)} · expires {formatWhen(selected.expiresAt)}</p></div>{ACTIVE.has(selected.status) && <div className="flex gap-2">{selected.status === "paused" ? <Button size="sm" variant="secondary" icon={PlayIcon} disabled={updating} onClick={() => void update("resume")}>Resume</Button> : <Button size="sm" variant="secondary" icon={PauseIcon} disabled={updating} onClick={() => void update("pause")}>Take over</Button>}<Button size="sm" variant="secondary" icon={StopIcon} disabled={updating} onClick={() => void update("stop")}>Stop</Button></div>}</div>
           {(selected.failureSummary || selected.failureCode) && <div className="mt-4 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-3 text-sm"><p className="font-medium">{selected.failureCode?.replaceAll("_", " ")}</p><p className="mt-1 text-kumo-subtle">{selected.failureSummary}</p></div>}
           <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Current page" value={selected.browser?.currentUrl ?? "No page open"} /><Metric label="Actions" value={`${selected.actionCount} / ${selected.resourceLimits.maxBrowserActions}`} /><Metric label="Environment" value={selected.environmentType.replaceAll("-", " ")} /><Metric label="Artifacts" value={String(selected.artifacts.length)} /></dl>
           <section className="mt-7"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Timeline</h3>{actions.length === 0 ? <p className="mt-3 text-sm text-kumo-subtle">No detailed actions recorded yet.</p> : <ol className="mt-3 divide-y divide-kumo-hairline">{actions.map((action) => <ActionRow key={action.id} action={action} />)}</ol>}</section>

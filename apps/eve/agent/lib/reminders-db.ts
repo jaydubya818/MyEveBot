@@ -21,6 +21,9 @@ export interface ReminderRow {
   status: string;
   created_at: string;
   last_fired_at: string | null;
+  routine_name: string | null;
+  approval_boundary: string | null;
+  source_outcome_id: string | null;
 }
 
 const PROJECTION = `
@@ -33,6 +36,7 @@ const PROJECTION = `
   status,
   created_at::text AS created_at,
   last_fired_at::text AS last_fired_at
+  , routine_name, approval_boundary, source_outcome_id
 `;
 
 let ensured = false;
@@ -53,6 +57,9 @@ async function ensureTable(): Promise<void> {
       last_fired_at timestamptz
     )
   `);
+  await db().query(`ALTER TABLE reminders ADD COLUMN IF NOT EXISTS routine_name text`);
+  await db().query(`ALTER TABLE reminders ADD COLUMN IF NOT EXISTS approval_boundary text`);
+  await db().query(`ALTER TABLE reminders ADD COLUMN IF NOT EXISTS source_outcome_id text`);
   ensured = true;
 }
 
@@ -67,15 +74,44 @@ export async function createReminder(input: {
   timezone: string;
   nextFireAt: Date;
   chatId: string | null;
+  routineName?: string | null;
+  approvalBoundary?: string | null;
+  sourceOutcomeId?: string | null;
 }): Promise<ReminderRow> {
   await ensureTable();
   const rows = await db().query(
-    `INSERT INTO reminders (prompt, cron, timezone, next_fire_at, chat_id)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO reminders (prompt, cron, timezone, next_fire_at, chat_id, routine_name, approval_boundary, source_outcome_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
      RETURNING ${PROJECTION}`,
-    [input.prompt, input.cron, input.timezone, input.nextFireAt.toISOString(), input.chatId],
+    [input.prompt, input.cron, input.timezone, input.nextFireAt.toISOString(), input.chatId, input.routineName ?? null, input.approvalBoundary ?? null, input.sourceOutcomeId ?? null],
   );
   return rows[0] as ReminderRow;
+}
+
+export async function listRoutines(): Promise<ReminderRow[]> {
+  await ensureTable();
+  return await db().query(`SELECT ${PROJECTION} FROM reminders WHERE routine_name IS NOT NULL AND status IN ('active','paused') ORDER BY created_at DESC`) as ReminderRow[];
+}
+
+export async function manageRoutine(input: { id: number; action: "pause" | "resume" | "update"; prompt?: string; cron?: string; timezone?: string; approvalBoundary?: string }): Promise<ReminderRow> {
+  await ensureTable();
+  const current = (await db().query(`SELECT ${PROJECTION} FROM reminders WHERE id=$1 AND routine_name IS NOT NULL LIMIT 1`, [input.id]) as ReminderRow[])[0];
+  if (!current) throw new Error("Routine not found.");
+  if (input.action === "pause") {
+    if (current.status !== "active") throw new Error(`Routine cannot pause from ${current.status}.`);
+    return (await db().query(`UPDATE reminders SET status='paused',claimed_until=NULL WHERE id=$1 RETURNING ${PROJECTION}`, [input.id]) as ReminderRow[])[0]!;
+  }
+  if (input.action === "resume") {
+    if (current.status !== "paused" || !current.cron) throw new Error(`Routine cannot resume from ${current.status}.`);
+    const next = nextCronOccurrence(current.cron, current.timezone);
+    return (await db().query(`UPDATE reminders SET status='active',next_fire_at=$2 WHERE id=$1 RETURNING ${PROJECTION}`, [input.id, next.toISOString()]) as ReminderRow[])[0]!;
+  }
+  const prompt = input.prompt?.trim() || current.prompt;
+  const cron = input.cron?.trim() || current.cron;
+  const timezone = input.timezone?.trim() || current.timezone;
+  if (!cron) throw new Error("A routine requires a recurring cron expression.");
+  const next = nextCronOccurrence(cron, timezone);
+  return (await db().query(`UPDATE reminders SET prompt=$2,cron=$3,timezone=$4,next_fire_at=$5,approval_boundary=$6,claimed_until=NULL WHERE id=$1 RETURNING ${PROJECTION}`, [input.id, prompt, cron, timezone, next.toISOString(), input.approvalBoundary?.trim() || current.approval_boundary]) as ReminderRow[])[0]!;
 }
 
 export async function listReminders(): Promise<ReminderRow[]> {

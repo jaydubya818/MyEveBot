@@ -40,6 +40,9 @@ function outcomeFromRow(row: Row, evidence: OutcomeEvidenceRef[]): OutcomeView {
     occurredAt: text(row.occurred_at),
     createdAt: text(row.created_at),
     updatedAt: text(row.updated_at),
+    runTitle: nullableText(row.run_title),
+    threadId: nullableText(row.thread_id),
+    agentName: nullableText(row.agent_name),
   };
 }
 
@@ -64,8 +67,10 @@ async function evidenceForOutcomes(ids: readonly string[]): Promise<Map<string, 
 export async function listOutcomes(ownerId: string, limit = 100): Promise<OutcomeView[]> {
   const boundedLimit = Number.isFinite(limit) ? Math.max(1, Math.min(limit, 200)) : 100;
   const rows = (await db().query(
-    `SELECT * FROM outcomes WHERE owner_id = $1
-     ORDER BY occurred_at DESC, id DESC LIMIT $2`,
+    `SELECT o.*,r.title AS run_title,r.thread_id,a.name AS agent_name
+     FROM outcomes o LEFT JOIN task_runs r ON r.id=o.run_id AND r.owner_id=o.owner_id
+     LEFT JOIN agents a ON a.id=r.agent_id AND a.owner_id=o.owner_id
+     WHERE o.owner_id = $1 ORDER BY o.occurred_at DESC,o.id DESC LIMIT $2`,
     [ownerId, boundedLimit],
   )) as Row[];
   const evidence = await evidenceForOutcomes(rows.map((row) => text(row.id)));
@@ -74,7 +79,10 @@ export async function listOutcomes(ownerId: string, limit = 100): Promise<Outcom
 
 export async function getOutcome(ownerId: string, id: string): Promise<OutcomeView | null> {
   const rows = (await db().query(
-    `SELECT * FROM outcomes WHERE owner_id = $1 AND id = $2 LIMIT 1`,
+    `SELECT o.*,r.title AS run_title,r.thread_id,a.name AS agent_name
+     FROM outcomes o LEFT JOIN task_runs r ON r.id=o.run_id AND r.owner_id=o.owner_id
+     LEFT JOIN agents a ON a.id=r.agent_id AND a.owner_id=o.owner_id
+     WHERE o.owner_id = $1 AND o.id = $2 LIMIT 1`,
     [ownerId, id],
   )) as Row[];
   if (!rows[0]) return null;
@@ -256,7 +264,20 @@ export async function updateOutcomeFeedback(
      RETURNING id`,
     [ownerId, id, ownerFeedback, `event_${randomUUID()}`, JSON.stringify({ ownerFeedback })],
   );
+  await db().query(
+    `UPDATE task_runs r SET review_status = $3, updated_at = now()
+     FROM outcomes o
+     WHERE o.owner_id = $1 AND o.id = $2 AND o.run_id = r.id AND r.owner_id = o.owner_id`,
+    [ownerId, id, ownerFeedback === "helpful" ? "accepted" : ownerFeedback === "unhelpful" ? "revision_requested" : "ready_for_review"],
+  );
   const outcome = await getOutcome(ownerId, id);
   if (outcome === null) throw new Error("Outcome not found.");
   return outcome;
+}
+
+export async function deleteOutcome(ownerId: string, id: string): Promise<void> {
+  const rows = await db().query(`DELETE FROM outcomes WHERE owner_id=$1 AND id=$2 RETURNING id,run_id,summary`, [ownerId, id]) as Row[];
+  const deleted = rows[0];
+  if (!deleted) throw new Error("Outcome not found.");
+  await db().query(`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,run_id,summary,payload,delivery_classification) VALUES ($1,$2,'OUTCOME_DELETED','owner',$3,$4,$5,$6::jsonb,'silent')`, [`event_${randomUUID()}`, ownerId, id, deleted.run_id, `Deleted result: ${text(deleted.summary).slice(0,900)}`, JSON.stringify({ outcomeId: id })]);
 }

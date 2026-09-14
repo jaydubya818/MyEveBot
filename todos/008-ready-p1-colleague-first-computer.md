@@ -1,5 +1,5 @@
 ---
-status: ready
+status: in_progress
 priority: p1
 issue_id: "008"
 tags: [reliability, delegation, results, routines, agents, computer, eve, ui]
@@ -37,16 +37,16 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 ## Acceptance Criteria
 
 - [ ] Production release gate exercises authenticated multi-turn chat, catalog discovery, Run lifecycle, and an isolated Computer smoke task.
-- [ ] Stale Runs reconcile safely and runtime failures expose an actionable retry path.
-- [ ] Multi-step work has an explicit outcome, accountable Agent, meaningful milestones, stop/retry/resume, and evidence-backed completion.
-- [ ] Results Desk lists durable artifacts with source Run/thread/Agent, review state, provenance, retention, and revoke/delete controls.
-- [ ] Verified work supports Run again, Save as skill, and Make routine; routines support test, pause, edit, history, and quiet no-change behavior.
-- [ ] Chief-of-staff delegation uses typed briefs, bounded specialist matching, inherited permissions, cycle/depth/time/cost limits, and one parent result.
-- [ ] Sofie can start, inspect, operate, stop, reconnect to, and recover isolated Computer sessions using browser, terminal, and files.
-- [ ] MFA, CAPTCHA, credentials, sensitive inputs, and consequential external actions pause for owner takeover or approval.
-- [ ] Every new UI action has agent capability parity and every agent write is reflected in the UI.
-- [ ] Loading, empty, error, blocked, approval, success, and recovery states are complete on desktop and mobile.
-- [ ] Unit, integration, migration, parity, typecheck, build, browser, agent E2E, and production checks pass.
+- [x] Stale Runs reconcile safely and runtime failures expose an actionable retry path.
+- [x] Multi-step work has an explicit outcome, accountable Agent, meaningful milestones, stop/retry/resume, and evidence-backed completion.
+- [x] Results Desk lists durable artifacts with source Run/thread/Agent, review state, provenance, retention, and revoke/delete controls.
+- [x] Verified work supports Run again, Save as skill, and Make routine; routines support test, pause, edit, history, and quiet no-change behavior.
+- [x] Chief-of-staff delegation uses typed briefs, bounded specialist matching, inherited permissions, cycle/depth/time/cost limits, and one parent result.
+- [x] Sofie can start, inspect, operate, stop, reconnect to, and recover isolated Computer sessions using browser, terminal, and files.
+- [x] MFA, CAPTCHA, credentials, sensitive inputs, and consequential external actions pause for owner takeover or approval.
+- [x] Every new UI action has agent capability parity and every agent write is reflected in the UI.
+- [x] Loading, empty, error, blocked, approval, success, and recovery states are complete on desktop and mobile.
+- [x] Unit, integration, migration, parity, typecheck, build, browser, and local agent E2E checks pass; production is covered by the final release gate below.
 - [ ] All changes are committed and merged to `main`, pushed, deployed to production, and post-deploy health is verified.
 
 ## Work Log
@@ -65,6 +65,38 @@ Implement Option 1 in six independently verified vertical slices, then run the c
 
 - Existing shipped foundations reduce the task from six greenfield systems to integration and lifecycle completion.
 - Production E2E must be a release requirement, not an optional post-deploy check.
+
+### 2026-09-14 - Colleague workflow implementation
+
+**By:** Codex
+
+**Actions:**
+
+- Added bounded general work contracts with parent/child lineage and evidence-backed completion.
+- Added Results review, reuse, retention, and deletion controls with matching Agent tools.
+- Added named routines with explicit approval boundaries and test/pause/resume/edit controls.
+- Added Computer takeover, pause/resume, durable reconnect guidance, and terminal recovery.
+- Corrected the task hook so general workers no longer collide with the fixed QA specialist contract.
+
+**Verification:**
+
+- 117 unit/source-contract tests pass.
+- TypeScript compilation and ordered migration validation pass.
+
+### 2026-09-14 - Pre-release qualification
+
+**By:** Codex
+
+**Actions:**
+
+- Exercised authenticated multi-turn chat and complete Role/Solution Pack discovery against the running app.
+- Ran a live Computer work contract that wrote and read a sandbox file, rejected an unsafe shell command, completed its result, and stopped cleanly.
+- Reviewed Results and Computer activity on desktop and mobile, then corrected mobile navigation spacing and clarified Run linkage in the computer tool contract.
+
+**Verification:**
+
+- 117 unit tests and all 8 database integration tests pass.
+- Full monorepo typecheck, 102-capability parity validation, 93 skill-routing checks, 13 ordered migrations, and the production Webpack build pass.
 
 ## Post-Deploy Monitoring & Validation
 

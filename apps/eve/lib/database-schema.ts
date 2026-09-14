@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0012_role_run_attribution.sql";
+export const CURRENT_DATABASE_MIGRATION = "0013_colleague_first_execution.sql";
