@@ -1,5 +1,5 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
-import { getComputerSession, stopComputerSession } from "@/lib/computer-sessions";
+import { getComputerSession, pauseComputerSession, resumeComputerSession, stopComputerSession } from "@/lib/computer-sessions";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -21,14 +21,22 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
 export async function PATCH(request: Request, ctx: RouteContext): Promise<Response> {
   const denied = guard(request); if (denied) return denied;
   const body = (await request.json().catch(() => null)) as { action?: unknown } | null;
-  if (body?.action !== "stop") return apiError(request, 400, "invalid_action", "Use stop.");
+  if (body?.action !== "stop" && body?.action !== "pause" && body?.action !== "resume") {
+    return apiError(request, 400, "invalid_action", "Use pause, resume, or stop.");
+  }
   const { id } = await ctx.params;
   try {
-    return Response.json({ session: await stopComputerSession(webPrincipal(request)!.id, id) });
+    const ownerId = webPrincipal(request)!.id;
+    const session = body.action === "stop"
+      ? await stopComputerSession(ownerId, id)
+      : body.action === "pause"
+        ? await pauseComputerSession(ownerId, id)
+        : await resumeComputerSession(ownerId, id);
+    return Response.json({ session });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Computer session could not be stopped.";
+    const message = error instanceof Error ? error.message : "Computer session could not be updated.";
     if (/not found/i.test(message)) return apiError(request, 404, "computer_session_not_found", message);
     if (/cannot transition/i.test(message)) return apiError(request, 409, "invalid_transition", message);
-    return apiError(request, 503, "computer_session_stop_failed", "Computer session could not be stopped safely.");
+    return apiError(request, 503, "computer_session_update_failed", "Computer session could not be updated safely.");
   }
 }

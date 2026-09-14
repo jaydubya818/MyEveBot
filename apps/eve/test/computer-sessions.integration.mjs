@@ -7,9 +7,12 @@ import {
   assertComputerCapability,
   createComputerSession,
   getComputerSession,
+  activeComputerAgentId,
   listComputerActions,
   recordComputerActionRequested,
   recordComputerActionResult,
+  pauseComputerSession,
+  resumeComputerSession,
   stopComputerSession,
   transitionComputerSession,
 } from "../lib/computer-sessions.ts";
@@ -69,6 +72,11 @@ integration("Agent Run computer sessions enforce links, isolation, capabilities,
 
     const stoppable = await createComputerSession({ ownerId, agentId: firstAgent.id, runtimeSessionId: `runtime_${crypto.randomUUID()}` });
     await transitionComputerSession({ ownerId, id: stoppable.id, to: "ready", sandboxId: "sandbox_stop_test" });
+    assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), firstAgent.id);
+    assert.equal((await pauseComputerSession(ownerId, stoppable.id)).status, "paused");
+    assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), null);
+    assert.equal((await resumeComputerSession(ownerId, stoppable.id)).status, "ready");
+    assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), firstAgent.id);
     assert.equal((await stopComputerSession(ownerId, stoppable.id)).status, "stopped");
 
     await transitionAgent(ownerId, secondAgent.id, "disabled", actor);

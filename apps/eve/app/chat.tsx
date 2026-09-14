@@ -37,6 +37,7 @@ import {
   TargetIcon,
   TrashIcon,
   WrenchIcon,
+  TrayIcon,
   UsersThreeIcon,
   XIcon,
 } from "@phosphor-icons/react";
@@ -53,6 +54,7 @@ import { AgentsPanel } from "@/components/agents-panel";
 import { GoalsPanel } from "@/components/goals-panel";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
+import { ResultsPanel } from "@/components/results-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
 import { usePushNotifications } from "@/components/use-push";
@@ -619,7 +621,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage" | "goals" | "review" | "agents" | "computer" | "knowledge";
+type MainView = "chat" | "manage" | "goals" | "review" | "results" | "agents" | "computer" | "knowledge";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -984,6 +986,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       setView(
         window.location.pathname.startsWith("/manage")
           ? "manage"
+          : window.location.pathname.startsWith("/results")
+            ? "results"
           : window.location.pathname.startsWith("/computer")
             ? "computer"
           : window.location.pathname.startsWith("/agents")
@@ -1005,7 +1009,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
+    const path = next === "manage" ? "/manage" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1046,6 +1050,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       threadId: meta.id,
       text: `Use the ${pack.name} Solution Pack for this business Goal. Start by asking for the desired outcome, current business state, timeframe, known metrics, and constraints. Diagnose the narrowest current constraint before recommending work. Do not execute consequential actions without explicit owner approval.`,
     });
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
+  function startPromptThread(title: string, text: string) {
+    const meta = { ...newThreadMeta(), title, renamed: true };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
+    setPendingDraft({ threadId: meta.id, text });
     setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
     setSidebarOpen(false);
     showView("chat");
@@ -1227,6 +1241,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               variant="ghost"
               size="sm"
               shape="square"
+              icon={TrayIcon}
+              aria-label="Results"
+              aria-pressed={view === "results"}
+              title="Completed work and evidence"
+              className={cn(view === "results" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "results" ? "chat" : "results")}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
               icon={MonitorIcon}
               aria-label="Computer"
               aria-pressed={view === "computer"}
@@ -1365,7 +1390,12 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "computer" ? (
+      {view === "results" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><ResultsPanel onStartPrompt={startPromptThread} /></div>
+        </main>
+      ) : view === "computer" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerSessionsPanel /></div>

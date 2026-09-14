@@ -115,13 +115,20 @@ export interface TaskMilestoneView {
 export interface TaskRunView {
   id: string;
   agentId: string | null;
-  kind: "product_qa";
+  kind: "product_qa" | "delegated_work";
   title: string;
   threadId: string | null;
   goalId: string | null;
   goalTaskId: string | null;
   status: TaskStatus;
   statusReason: string | null;
+  objective: string | null;
+  expectedOutput: string | null;
+  parentTaskId: string | null;
+  sourceTaskId: string | null;
+  roleId: string | null;
+  resultSummary: string | null;
+  reviewStatus: "draft" | "ready_for_review" | "accepted" | "revision_requested" | "superseded";
   target: { localUrl: string; previewUrl: string };
   guardrails: {
     maxDurationSeconds: number;

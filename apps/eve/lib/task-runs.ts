@@ -59,6 +59,56 @@ export interface CreateProductQaTaskInput {
   agentId?: string;
 }
 
+export interface CreateDelegatedTaskInput {
+  ownerId: string;
+  sessionId: string;
+  title: string;
+  objective: string;
+  expectedOutput: string;
+  threadId?: string;
+  goalId?: string;
+  goalTaskId?: string;
+  agentId?: string;
+  parentTaskId?: string;
+  sourceTaskId?: string;
+  roleId?: string;
+  maxDurationSeconds?: number;
+  maxModelSteps?: number;
+  maxEstimatedCostUsd?: number;
+  maxWorkers?: number;
+}
+
+export async function createDelegatedTask(input: CreateDelegatedTaskInput): Promise<TaskRunView> {
+  const taskId = `task_${randomUUID()}`;
+  const maxDurationSeconds = Math.max(60, Math.min(86_400, input.maxDurationSeconds ?? 1800));
+  const maxModelSteps = Math.max(1, Math.min(200, input.maxModelSteps ?? 60));
+  const maxEstimatedCostUsd = Math.max(0.01, Math.min(100, input.maxEstimatedCostUsd ?? 10));
+  const maxWorkers = Math.max(1, Math.min(16, input.maxWorkers ?? 5));
+  if (input.parentTaskId === taskId) throw new Error("A task cannot delegate to itself.");
+  if (input.parentTaskId) {
+    const parent = await getTaskRun(input.ownerId, input.parentTaskId);
+    if (!parent) throw new Error("Parent task not found.");
+    if (parent.parentTaskId) throw new Error("Delegation depth is limited to one child level.");
+  }
+  await db().transaction((tx) => [
+    tx`INSERT INTO task_runs (
+      id,owner_id,kind,title,thread_id,goal_id,goal_task_id,agent_id,status,target,
+      max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,
+      started_at,deadline_at,objective,expected_output,parent_task_id,source_task_id,role_id
+    ) VALUES (
+      ${taskId},${input.ownerId},'delegated_work',${input.title.trim().slice(0,200)},${input.threadId ?? null},
+      ${input.goalId ?? null},${input.goalTaskId ?? null},${input.agentId ?? null},'running','{}'::jsonb,
+      ${maxDurationSeconds},${maxWorkers},${maxModelSteps},0,${maxEstimatedCostUsd},now(),now()+(${maxDurationSeconds}*interval '1 second'),
+      ${input.objective.trim().slice(0,4000)},${input.expectedOutput.trim().slice(0,2000)},${input.parentTaskId ?? null},${input.sourceTaskId ?? null},${input.roleId ?? null}
+    )`,
+    tx`INSERT INTO task_run_sessions (task_id,session_id,role) VALUES (${taskId},${input.sessionId},'orchestrator')`,
+    tx`INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) VALUES (${taskId},NULL,'queued','system','Work contract created')`,
+    tx`INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) VALUES (${taskId},'queued','running','agent','Delegated work started')`,
+    tx`INSERT INTO task_milestones (task_id,kind,summary,metadata) VALUES (${taskId},'task_started','Delegated work started',${JSON.stringify({ expectedOutput: input.expectedOutput, roleId: input.roleId ?? null })}::jsonb)`,
+  ]);
+  return (await getTaskRun(input.ownerId, taskId))!;
+}
+
 export async function createProductQaTask(
   input: CreateProductQaTaskInput,
 ): Promise<TaskRunView> {
@@ -186,13 +236,20 @@ export async function getTaskRun(ownerId: string, taskId: string): Promise<TaskR
   return {
     id: textValue(run.id),
     agentId: nullableText(run.agent_id),
-    kind: "product_qa",
+    kind: textValue(run.kind) as TaskRunView["kind"],
     title: textValue(run.title),
     threadId: nullableText(run.thread_id),
     goalId: nullableText(run.goal_id),
     goalTaskId: nullableText(run.goal_task_id),
     status: textValue(run.status) as TaskStatus,
     statusReason: nullableText(run.status_reason),
+    objective: nullableText(run.objective),
+    expectedOutput: nullableText(run.expected_output),
+    parentTaskId: nullableText(run.parent_task_id),
+    sourceTaskId: nullableText(run.source_task_id),
+    roleId: nullableText(run.role_id),
+    resultSummary: nullableText(run.result_summary),
+    reviewStatus: textValue(run.review_status || "draft") as TaskRunView["reviewStatus"],
     target: {
       localUrl: textValue(target.localUrl),
       previewUrl: textValue(target.previewUrl),
@@ -251,6 +308,31 @@ export async function getTaskRun(ownerId: string, taskId: string): Promise<TaskR
       createdAt: isoValue(row.created_at),
     })),
   };
+}
+
+export async function completeDelegatedTask(input: {
+  ownerId: string;
+  taskId: string;
+  summary: string;
+  evidenceSummary: string;
+}): Promise<TaskRunView> {
+  const run = await getTaskRun(input.ownerId, input.taskId);
+  if (!run) throw new Error("Task not found.");
+  if (run.kind !== "delegated_work") throw new Error("Use the audited QA completion path for product QA.");
+  if (run.status !== "running") throw new Error(`Task cannot complete from ${run.status}.`);
+  const summary = redactEvidenceText(input.summary.trim()).slice(0, 1000);
+  const evidenceSummary = redactEvidenceText(input.evidenceSummary.trim()).slice(0, 2000);
+  if (!summary || !evidenceSummary) throw new Error("A result summary and verification evidence are required.");
+  const outcomeId = `outcome_${randomUUID()}`;
+  await db().transaction((tx) => [
+    tx`UPDATE task_runs SET status='completed',result_summary=${summary},review_status='ready_for_review',completed_at=now(),updated_at=now() WHERE owner_id=${input.ownerId} AND id=${input.taskId} AND status='running'`,
+    tx`INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) VALUES (${input.taskId},'running','completed','agent','Evidence-backed result recorded')`,
+    tx`INSERT INTO task_milestones (task_id,kind,summary,metadata) VALUES (${input.taskId},'result_ready',${summary},${JSON.stringify({ evidenceSummary })}::jsonb)`,
+    tx`INSERT INTO outcomes (id,owner_id,goal_id,goal_task_id,run_id,status,summary,rationale,idempotency_key)
+       VALUES (${outcomeId},${input.ownerId},${run.goalId},${run.goalTaskId},${run.id},'successful',${summary},${JSON.stringify([evidenceSummary])}::jsonb,${`task-result:${run.id}`})
+       ON CONFLICT (owner_id,idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING`,
+  ]);
+  return (await getTaskRun(input.ownerId, input.taskId))!;
 }
 
 export async function listTaskRuns(ownerId: string, threadId?: string): Promise<TaskRunView[]> {
@@ -378,6 +460,22 @@ export async function registerTaskSubagent(input: {
 }): Promise<void> {
   const taskId = await taskIdForSession(input.parentSessionId);
   if (taskId === null) return;
+  const taskRows = await db().query(`SELECT kind,max_specialists FROM task_runs WHERE id=$1 AND status='running' LIMIT 1`, [taskId]) as Row[];
+  const task = taskRows[0];
+  if (!task) return;
+  if (textValue(task.kind) === "delegated_work") {
+    const rows = await db().query(
+      `INSERT INTO task_run_sessions (task_id,session_id,role,call_id)
+       SELECT $1,$2,$3,$4
+       WHERE (SELECT count(*) FROM task_run_sessions WHERE task_id=$1 AND role <> 'orchestrator')
+         < (SELECT max_specialists FROM task_runs WHERE id=$1)
+       ON CONFLICT DO NOTHING RETURNING task_id`,
+      [taskId, input.childSessionId, `worker:${input.name.slice(0,100)}`, input.callId],
+    ) as Row[];
+    if (rows.length === 0) throw new Error(`Delegation worker limit reached (${numberValue(task.max_specialists)}).`);
+    await db().query(`INSERT INTO task_milestones (task_id,kind,summary,metadata) VALUES ($1,'worker_started',$2,$3::jsonb)`, [taskId, `${input.name} started`, JSON.stringify({ callId: input.callId, childSessionId: input.childSessionId })]);
+    return;
+  }
   const role = specialistRole(input.name);
   if (role === null) {
     const reason = `Unapproved specialist attempted: ${input.name}`;
@@ -493,6 +591,11 @@ export async function completeTaskSubagent(input: {
 }): Promise<void> {
   const taskId = await taskIdForSession(input.parentSessionId);
   if (taskId === null) return;
+  const runRows = await db().query(`SELECT kind FROM task_runs WHERE id=$1 LIMIT 1`, [taskId]) as Row[];
+  if (textValue(runRows[0]?.kind) === "delegated_work") {
+    await db().query(`INSERT INTO task_milestones (task_id,kind,summary,metadata) VALUES ($1,'worker_completed',$2,$3::jsonb)`, [taskId, `${input.name} completed`, JSON.stringify({ callId: input.callId, summary: redactEvidenceText(input.summary).slice(0,2000) })]);
+    return;
+  }
   const role = specialistRole(input.name);
   if (role === null) return;
   const safeSummary = redactEvidenceText(input.summary).slice(0, 4000);
@@ -512,6 +615,13 @@ export async function failTaskSubagent(input: {
   error: string;
 }): Promise<void> {
   const taskId = await taskIdForSession(input.parentSessionId);
+  if (taskId !== null) {
+    const runRows = await db().query(`SELECT kind FROM task_runs WHERE id=$1 LIMIT 1`, [taskId]) as Row[];
+    if (textValue(runRows[0]?.kind) === "delegated_work") {
+      await db().query(`INSERT INTO task_milestones (task_id,kind,summary,metadata) VALUES ($1,'worker_failed',$2,$3::jsonb)`, [taskId, `${input.name} failed`, JSON.stringify({ error: redactEvidenceText(input.error).slice(0,1000) })]);
+      return;
+    }
+  }
   const role = specialistRole(input.name);
   if (taskId === null || role === null) return;
   const safeError = redactEvidenceText(input.error).slice(0, 1000);

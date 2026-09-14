@@ -217,11 +217,26 @@ export async function activeComputerAgentId(ownerId: string, runtimeSessionId: s
   const rows = await db().query(
     `SELECT agent_id FROM computer_sessions
      WHERE owner_id=$1 AND runtime_session_id=$2
-       AND status IN ('ready','running','paused') AND expires_at > now()
+       AND status IN ('ready','running') AND expires_at > now()
      ORDER BY started_at DESC LIMIT 1`,
     [ownerId, runtimeSessionId],
   ) as Row[];
   return rows[0] ? text(rows[0].agent_id) : null;
+}
+
+export async function pauseComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
+  const session = await getComputerSession(ownerId, id);
+  if (!session) throw new Error("Computer session not found.");
+  if (session.status === "paused") return session;
+  return transitionComputerSession({ ownerId, id, to: "paused" });
+}
+
+export async function resumeComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
+  const session = await getComputerSession(ownerId, id);
+  if (!session) throw new Error("Computer session not found.");
+  if (session.status !== "paused") throw new Error(`Computer session cannot resume from ${session.status}.`);
+  if (new Date(session.expiresAt).getTime() <= Date.now()) throw new Error("Computer session has expired.");
+  return transitionComputerSession({ ownerId, id, to: "ready" });
 }
 
 export async function listComputerSessions(ownerId: string, limit = 30): Promise<ComputerSessionView[]> {

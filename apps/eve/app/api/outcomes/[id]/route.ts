@@ -1,7 +1,7 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { capabilityMap } from "@/lib/capabilities";
 import { OWNER_FEEDBACK_VALUES, type OwnerFeedback } from "@/lib/outcome-types";
-import { updateOutcomeFeedback } from "@/lib/outcomes";
+import { deleteOutcome, updateOutcomeFeedback } from "@/lib/outcomes";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function PATCH(
@@ -25,5 +25,18 @@ export async function PATCH(
   } catch (error) {
     const message = error instanceof Error ? error.message : "The outcome request failed.";
     return apiError(request, message.includes("not found") ? 404 : 400, "invalid_outcome", message);
+  }
+}
+
+export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }): Promise<Response> {
+  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  if (denied) return denied;
+  try {
+    const { id } = await context.params;
+    await deleteOutcome(webPrincipal(request)!.id, id);
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "The result could not be deleted.";
+    return apiError(request, /not found/i.test(message) ? 404 : 503, "result_delete_failed", message);
   }
 }

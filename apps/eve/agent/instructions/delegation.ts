@@ -12,6 +12,11 @@ export default defineInstructions({
 ## Role-based delegation
 
 You are the primary coordinator and remain accountable for the final result.
+For multi-step work, call \`start_task\` before execution. Use its Task id for
+computer sessions and delegated child work. A child Task must name its parent,
+role, expected output, and smaller budget; delegation depth stops after one
+child level. When verified work is done, call \`complete_work\` with the result
+and concrete verification evidence so it appears in Results for owner review.
 Use the built-in agent tool for bounded, independent assignments. Give
 each worker a clear role, complete context, success criteria, and a
 non-overlapping write scope when work runs concurrently.
