@@ -32,6 +32,8 @@ test("computer takeover pauses tool access and exposes explicit recovery", async
   assert.match(policy, /Start a computer session before using browser tools/);
   assert.match(controls, />Take over</);
   assert.match(controls, />Resume</);
+  assert.match(sessions, /r\.title AS run_title/);
+  assert.match(controls, /session\.taskTitle \?\? session\.runTitle \?\? session\.goalTitle/);
   assert.match(instructions, /pause_for_takeover/);
 });
 

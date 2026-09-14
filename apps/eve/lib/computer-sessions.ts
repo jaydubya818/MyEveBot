@@ -82,7 +82,8 @@ async function sessionView(row: Row): Promise<ComputerSessionView> {
   return {
     id: text(row.id), ownerId: text(row.owner_id), agentId: text(row.agent_id), agentName: text(row.agent_name),
     goalId: nullableText(row.goal_id), goalTitle: nullableText(row.goal_title),
-    taskId: nullableText(row.goal_task_id), taskTitle: nullableText(row.task_title), runId: nullableText(row.run_id),
+    taskId: nullableText(row.goal_task_id), taskTitle: nullableText(row.task_title),
+    runId: nullableText(row.run_id), runTitle: nullableText(row.run_title),
     runtimeSessionId: text(row.runtime_session_id), sandboxId: nullableText(row.sandbox_id),
     status: text(row.status) as ComputerSessionStatus,
     environmentType: text(row.environment_type) as ComputerSessionView["environmentType"],
@@ -100,12 +101,13 @@ async function sessionView(row: Row): Promise<ComputerSessionView> {
 }
 
 const SESSION_SELECT = `
-  SELECT s.*, a.name AS agent_name, g.title AS goal_title, t.title AS task_title,
+  SELECT s.*, a.name AS agent_name, g.title AS goal_title, t.title AS task_title, r.title AS run_title,
          (SELECT count(*)::int FROM computer_actions ca WHERE ca.computer_session_id=s.id) AS action_count
   FROM computer_sessions s
   JOIN agents a ON a.owner_id=s.owner_id AND a.id=s.agent_id
   LEFT JOIN goals g ON g.id=s.goal_id
   LEFT JOIN goal_tasks t ON t.id=s.goal_task_id
+  LEFT JOIN task_runs r ON r.owner_id=s.owner_id AND r.id=s.run_id
 `;
 
 export async function expireComputerSessions(now = new Date()): Promise<number> {
