@@ -1,7 +1,7 @@
 import type { FeatureId } from "./config";
 
 // Generates the deployed agent's instructions.md from wizard answers. The
-// shape mirrors the personal Eve's instructions, with sections included only
+// shape mirrors the MyEve reference agent's instructions, with sections included only
 // when the matching feature ships. The wizard shows the output in an editor,
 // so this is a strong draft, not a straitjacket.
 

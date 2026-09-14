@@ -2,9 +2,21 @@
 // Single-user agent, so everything lives under one container tag.
 
 import { swrCache } from "./swr-cache";
+import { ownerName } from "./owner";
 
 const API_BASE = "https://api.supermemory.ai";
-const CONTAINER_TAG = "micky";
+
+function containerTag(): string {
+  const configured = process.env.MEMORY_CONTAINER_TAG?.trim();
+  if (configured) return configured;
+  const ownerSlug = ownerName()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  return `owner-${ownerSlug || "default"}`;
+}
+
+const CONTAINER_TAG = containerTag();
 
 export interface MemoryProfile {
   static: string[];

@@ -13,6 +13,7 @@ import {
   BellIcon,
   BellSlashIcon,
   BrainIcon,
+  CalendarCheckIcon,
   CaretDownIcon,
   CheckIcon,
   CopyIcon,
@@ -32,6 +33,7 @@ import {
   SparkleIcon,
   StarIcon,
   StopIcon,
+  TargetIcon,
   TrashIcon,
   WrenchIcon,
   XIcon,
@@ -39,8 +41,15 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
+import {
+  CapabilityNotice,
+  type CapabilityNoticeState,
+} from "@/components/capability-notice";
 import { ManagePanel } from "@/components/manage-panel";
+import { GoalsPanel } from "@/components/goals-panel";
+import { ReviewPanel } from "@/components/review-panel";
 import { Markdown } from "@/components/markdown";
+import { TaskRunCard } from "@/components/task-run-card";
 import { usePushNotifications } from "@/components/use-push";
 import {
   Attachment,
@@ -65,6 +74,8 @@ import {
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
+import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
+import type { CapabilityStatus } from "@/lib/capabilities";
 import { cn } from "@/lib/utils";
 
 const THREADS_KEY = "eve-web-threads";
@@ -173,7 +184,20 @@ interface ThreadIndex {
 }
 
 function newThreadMeta(): ThreadMeta {
-  return { id: crypto.randomUUID(), title: "New chat", updatedAt: Date.now() };
+  return { id: browserRandomId(), title: "New chat", updatedAt: Date.now() };
+}
+
+function browserRandomId(): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") return globalThis.crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  globalThis.crypto?.getRandomValues(bytes);
+  if (bytes.every((byte) => byte === 0)) {
+    return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 function loadThreadIndex(): ThreadIndex {
@@ -578,7 +602,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage";
+type MainView = "chat" | "manage" | "goals" | "review";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -613,17 +637,50 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   // First run on this device (no stored seen map): the first server sync
   // adopts every thread as read so history doesn't arrive covered in dots.
   const needsSeenSeedRef = useRef(Object.keys(seenAt).length === 0);
-  // Whether the main column shows the chat or the manage panel. The sidebar
+  // Whether the main column shows chat, goals, or manage. The sidebar
   // stays mounted either way; the URL is kept in sync via pushState so
   // /manage is linkable and back/forward work without remounting the app.
   const [view, setView] = useState<MainView>(initialView);
   // Web push opt-in for proactive notifications.
   const push = usePushNotifications();
-  // Slash-command palette: built-ins plus skills saved from chat.
+  // Slash-command palette: built-ins plus installed and chat-created skills.
   const [commands, setCommands] = useState<SlashCommand[]>(BUILTIN_COMMANDS);
   // Model picker: catalog from the Vercel AI Gateway, selection persisted.
   const [models, setModels] = useState<ModelOption[]>([]);
   const [model, setModel] = useState<string>(loadSavedModel);
+  const [capabilityNotice, setCapabilityNotice] = useState<CapabilityNoticeState>({
+    kind: "loading",
+  });
+  const [goalsIncluded, setGoalsIncluded] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/capabilities", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Capability status could not be loaded.");
+        return response.json() as Promise<{ capabilities?: CapabilityStatus[] }>;
+      })
+      .then((body) => {
+        if (body.capabilities === undefined) throw new Error("Capability status is incomplete.");
+        const labels = setupRequiredCapabilityLabels(body.capabilities);
+        const included = body.capabilities.find((capability) => capability.id === "goals")?.state !== "excluded";
+        setGoalsIncluded(included);
+        if (
+          !included &&
+          (window.location.pathname.startsWith("/goals") ||
+            window.location.pathname.startsWith("/review"))
+        ) {
+          setView("chat");
+          window.history.replaceState(null, "", "/");
+        }
+        setCapabilityNotice(labels.length > 0 ? { kind: "limited", labels } : { kind: "ready" });
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setCapabilityNotice({ kind: "unavailable" });
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     void fetch("/api/models")
@@ -699,15 +756,13 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     );
   }, [index]);
 
-  // In production the session routes sit behind HTTP Basic auth. Probing a
-  // protected route on load makes the browser show its login prompt up front
-  // instead of on the first send.
+  // Warm the session route after the signed owner boundary has admitted the
+  // page, so the first message does not pay the backend's cold-start cost.
   useEffect(() => {
     void fetch("/eve/v1/info").catch(() => undefined);
   }, []);
 
-  // Extend the slash palette with skills the agent has saved (check_schedule
-  // and friends), so they're one "/" away.
+  // Put every installed and saved skill one "/" away.
   useEffect(() => {
     void fetch("/api/commands")
       .then((response) => (response.ok ? response.json() : null))
@@ -895,11 +950,19 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Back/forward between "/" and "/manage" (we navigate with pushState so the
+  // Back/forward between chat, goals, and any /manage section (we navigate with pushState so the
   // app, and especially the sidebar, never remounts).
   useEffect(() => {
     function onPopState() {
-      setView(window.location.pathname === "/manage" ? "manage" : "chat");
+      setView(
+        window.location.pathname.startsWith("/manage")
+          ? "manage"
+          : window.location.pathname.startsWith("/review")
+            ? "review"
+          : window.location.pathname.startsWith("/goals")
+            ? "goals"
+            : "chat",
+      );
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -909,9 +972,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : "/";
+    const path = next === "manage" ? "/manage" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
+    }
+  }
+
+  function showSystemStatus() {
+    setView("manage");
+    if (window.location.pathname !== "/manage/system") {
+      window.history.pushState(null, "", "/manage/system");
     }
   }
 
@@ -1061,6 +1131,28 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             {AGENT_NAME}
           </button>
           <div className="flex items-center">
+            {goalsIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={TargetIcon}
+              aria-label="Goals"
+              aria-pressed={view === "goals"}
+              title="Goals and focus"
+              className={cn(view === "goals" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "goals" ? "chat" : "goals")}
+            />}
+            {goalsIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={CalendarCheckIcon}
+              aria-label="Review"
+              aria-pressed={view === "review"}
+              title="Daily brief and weekly review"
+              className={cn(view === "review" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "review" ? "chat" : "review")}
+            />}
             {push.status !== "unsupported" && push.status !== "loading" && (
               <Button
                 variant="ghost"
@@ -1142,7 +1234,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
                     key={thread.id}
                     thread={thread}
                     // The active-thread highlight and the gear highlight are
-                    // mutually exclusive: on the manage view the gear owns it.
+                    // Section buttons and active-thread highlighting are mutually exclusive.
                     active={view === "chat" && thread.id === index.activeId}
                     busy={busyIds.has(thread.id)}
                     unread={
@@ -1170,7 +1262,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "manage" ? (
+      {view === "review" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button
             variant="ghost"
@@ -1181,12 +1273,41 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             aria-label="Open threads"
             onClick={() => setSidebarOpen(true)}
           />
-          <div className="w-full max-w-3xl px-6 py-6">
-            <header className="mb-5">
-              <h1 className="text-lg font-semibold">Manage</h1>
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <ReviewPanel />
+          </div>
+        </main>
+      ) : view === "goals" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="absolute start-2 top-2 z-20 md:hidden"
+            aria-label="Open threads"
+            onClick={() => setSidebarOpen(true)}
+          />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <GoalsPanel />
+          </div>
+        </main>
+      ) : view === "manage" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="absolute start-2 top-2 z-20 md:hidden"
+            aria-label="Open threads"
+            onClick={() => setSidebarOpen(true)}
+          />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <header className="mb-5 ps-8 md:ps-0">
+              <h1 className="text-xl font-semibold tracking-tight">Manage</h1>
               <p className="text-sm text-kumo-subtle">
-                What {AGENT_NAME} does and knows on her own. Create reminders, triggers, and
-                skills by asking in chat.
+                Configure what {AGENT_NAME} knows, connects to, and handles for you.
               </p>
             </header>
             <ManagePanel onOpenThread={selectThread} />
@@ -1212,6 +1333,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           onModelChange={selectModel}
           reasoning={reasoning}
           onReasoningChange={selectReasoning}
+          capabilityNotice={capabilityNotice}
+          onReviewSystem={showSystemStatus}
           allowResume={
             resumeAttemptRef.current.get(index.activeId) !==
             (activeChat.chat.events?.length ?? 0)
@@ -1232,6 +1355,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           .map((thread) => ({ id: thread.id, title: thread.title, updatedAt: thread.updatedAt }))}
         onSelectThread={selectThread}
         onNewChat={newThread}
+        onOpenGoals={() => showView("goals")}
+        onOpenReview={() => showView("review")}
+        goalsAvailable={goalsIncluded}
         onOpenManage={() => showView("manage")}
         pushStatus={push.status}
         onTogglePush={push.toggle}
@@ -1401,7 +1527,7 @@ function SidebarThread({
 }
 
 function ChatThread({
-  threadId: _threadId,
+  threadId,
   initialChat,
   initialDraft,
   onTitle,
@@ -1416,6 +1542,8 @@ function ChatThread({
   onModelChange,
   reasoning,
   onReasoningChange,
+  capabilityNotice,
+  onReviewSystem,
   allowResume,
   onResumed,
 }: {
@@ -1436,6 +1564,8 @@ function ChatThread({
   onModelChange: (id: string) => void;
   reasoning: ReasoningId;
   onReasoningChange: (id: ReasoningId) => void;
+  capabilityNotice: CapabilityNoticeState;
+  onReviewSystem: () => void;
   /** Gate on the interrupted-turn stream reattach (one attempt per visit). */
   allowResume: boolean;
   /** A reattached stream settled; remount me with the merged chat. */
@@ -1505,6 +1635,7 @@ function ChatThread({
         ...input,
         clientContext: {
           eveWebModel: model,
+          webThreadId: threadId,
           ...(reasoning !== "default" ? { eveWebReasoning: reasoning } : {}),
           clientTime: new Date().toLocaleString("en-CA", {
             year: "numeric",
@@ -1692,7 +1823,7 @@ function ChatThread({
       if (file.size > MAX_ATTACHMENT_BYTES) continue;
       try {
         additions.push({
-          id: crypto.randomUUID(),
+          id: browserRandomId(),
           name: file.name || "pasted-file",
           mediaType: file.type || "application/octet-stream",
           size: file.size,
@@ -1925,6 +2056,8 @@ function ChatThread({
           onClick={onOpenSidebar}
         />
 
+        <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+
         <MessageScrollerProvider autoScroll>
           <MessageScroller className="flex-1">
             <MessageScrollerViewport className="[scrollbar-width:none]! [&::-webkit-scrollbar]:hidden">
@@ -1933,7 +2066,9 @@ function ChatThread({
                   <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
-                      Ask me anything — I have your memory, a browser, and all your connected apps.
+                      {capabilityNotice.kind === "ready"
+                        ? "Ask me anything — I have your memory, a browser, and all your connected apps."
+                        : "Ask me anything — available capabilities stay active while setup is completed."}
                     </p>
                   </div>
                 )}
@@ -1961,6 +2096,7 @@ function ChatThread({
                     />
                   </MessageScrollerItem>
                 ))}
+                <TaskRunCard threadId={threadId} />
                 {showThinking && (
                   <MessageScrollerItem messageId="thinking">
                     <Marker role="status">

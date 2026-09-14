@@ -22,6 +22,7 @@ async function ensureTable(): Promise<void> {
       CREATE TABLE IF NOT EXISTS push_subscriptions (
         endpoint text PRIMARY KEY,
         subscription jsonb NOT NULL,
+        owner_id text,
         created_at timestamptz NOT NULL DEFAULT now()
       )
     `;
@@ -58,25 +59,42 @@ export function parseSubscription(input: unknown): PushSubscription | null {
   };
 }
 
-export async function saveSubscription(subscription: PushSubscription): Promise<void> {
+export async function saveSubscription(ownerId: string, subscription: PushSubscription): Promise<void> {
   await ensureTable();
   await sql()`
-    INSERT INTO push_subscriptions (endpoint, subscription)
-    VALUES (${subscription.endpoint}, ${JSON.stringify(subscription)}::jsonb)
-    ON CONFLICT (endpoint) DO UPDATE SET subscription = EXCLUDED.subscription
+    INSERT INTO push_subscriptions (endpoint, subscription, owner_id)
+    VALUES (${subscription.endpoint}, ${JSON.stringify(subscription)}::jsonb, ${ownerId})
+    ON CONFLICT (endpoint) DO UPDATE SET
+      subscription = EXCLUDED.subscription,
+      owner_id = EXCLUDED.owner_id
   `;
 }
 
-export async function deleteSubscription(endpoint: string): Promise<void> {
+export async function deleteSubscription(ownerId: string, endpoint: string): Promise<void> {
   await ensureTable();
-  await sql()`DELETE FROM push_subscriptions WHERE endpoint = ${endpoint}`;
+  await sql()`DELETE FROM push_subscriptions WHERE endpoint = ${endpoint} AND owner_id = ${ownerId}`;
 }
 
-/** Sends a notification to every subscribed browser; prunes dead endpoints. */
-export async function sendPushToAll(payload: { title: string; body: string }): Promise<void> {
-  if (!configureVapid()) return;
+export async function pushAvailability(ownerId: string): Promise<{ available: boolean; reason: string | null }> {
+  if (!configureVapid()) return { available: false, reason: "Web Push keys are not configured." };
   await ensureTable();
-  const rows = await sql()`SELECT endpoint, subscription FROM push_subscriptions`;
+  const rows = await sql()`SELECT count(*)::int AS count FROM push_subscriptions WHERE owner_id = ${ownerId}`;
+  return Number(rows[0]?.count ?? 0) > 0
+    ? { available: true, reason: null }
+    : { available: false, reason: "Enable browser notifications on this device first." };
+}
+
+/** Sends one owner-scoped notification and reports provider failures to the delivery policy. */
+export async function sendPushToOwner(
+  ownerId: string,
+  payload: { title: string; body: string; url?: string },
+): Promise<{ delivered: number; failed: number }> {
+  if (!configureVapid()) throw new Error("push_not_configured");
+  await ensureTable();
+  const rows = await sql()`SELECT endpoint, subscription FROM push_subscriptions WHERE owner_id = ${ownerId}`;
+  if (rows.length === 0) throw new Error("push_destination_missing");
+  let delivered = 0;
+  let failed = 0;
 
   await Promise.all(
     rows.map(async (row) => {
@@ -84,18 +102,29 @@ export async function sendPushToAll(payload: { title: string; body: string }): P
       // instead of failing local validation on every delivery.
       const subscription = parseSubscription(row.subscription);
       if (subscription === null) {
-        await deleteSubscription(row.endpoint as string);
+        await deleteSubscription(ownerId, row.endpoint as string);
         return;
       }
       try {
-        await webpush.sendNotification(subscription, JSON.stringify(payload));
+        await webpush.sendNotification(subscription, JSON.stringify(payload), { timeout: 15_000 });
+        delivered += 1;
       } catch (error) {
         if (error instanceof WebPushError && (error.statusCode === 404 || error.statusCode === 410)) {
-          await deleteSubscription(row.endpoint as string);
+          await deleteSubscription(ownerId, row.endpoint as string);
           return;
         }
+        failed += 1;
         console.error("Push delivery failed:", error);
       }
     }),
   );
+  if (delivered === 0 && failed > 0) throw new Error("push_provider_failed");
+  if (delivered === 0) throw new Error("push_destination_missing");
+  return { delivered, failed };
+}
+
+/** Compatibility path for existing reminder/webhook delivery in a single-owner deployment. */
+export async function sendPushToAll(payload: { title: string; body: string }): Promise<void> {
+  const ownerId = process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim() || "owner";
+  await sendPushToOwner(ownerId, payload).catch(() => undefined);
 }

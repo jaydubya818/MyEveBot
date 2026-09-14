@@ -1,9 +1,11 @@
 import { CANDIDATE_TOOLKITS, manageConnections } from "@/lib/composio-connect";
+import { apiError } from "@/lib/api-errors";
+import { capabilityMap } from "@/lib/capabilities";
 import { requireWebAuth } from "@/lib/web-auth";
 
 // Connections manager: which Composio apps are linked, plus connect (returns
 // an OAuth link to open) and disconnect. Uses the same Composio Connect MCP
-// the agent uses, so the panel reflects exactly what Ruth can reach.
+// the agent uses, so the panel reflects exactly what Sofie can reach.
 
 interface ToolkitResult {
   toolkit?: string;
@@ -32,6 +34,14 @@ function accountLabel(info: Record<string, unknown> | undefined): string | null 
 export async function GET(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
   if (denied) return denied;
+  if (capabilityMap().connections.state !== "ready") {
+    return apiError(
+      request,
+      503,
+      "connections_not_configured",
+      "Connected apps need Composio setup.",
+    );
+  }
 
   try {
     const data = await manageConnections(
@@ -52,13 +62,21 @@ export async function GET(request: Request): Promise<Response> {
     return Response.json({ connections, checked: CANDIDATE_TOOLKITS });
   } catch (error) {
     console.error("Connections list failed:", error);
-    return new Response("Connections unavailable", { status: 502 });
+    return apiError(request, 502, "connections_unavailable", "Connected apps are unavailable.");
   }
 }
 
 export async function POST(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
   if (denied) return denied;
+  if (capabilityMap().connections.state !== "ready") {
+    return apiError(
+      request,
+      503,
+      "connections_not_configured",
+      "Connected apps need Composio setup.",
+    );
+  }
 
   const body = (await request.json().catch(() => null)) as { toolkit?: unknown } | null;
   if (body === null || typeof body.toolkit !== "string" || !/^[a-z0-9_-]+$/.test(body.toolkit)) {
@@ -70,18 +88,34 @@ export async function POST(request: Request): Promise<Response> {
     const results = (data.results ?? {}) as Record<string, ToolkitResult>;
     const entry = results[body.toolkit];
     if (entry?.redirect_url) return Response.json({ url: entry.redirect_url });
-    return new Response(entry?.error_message ?? "No auth link returned", { status: 502 });
+    return apiError(
+      request,
+      502,
+      "connection_link_unavailable",
+      entry?.error_message ? "The provider could not create a connection link." : "No connection link was returned.",
+    );
   } catch (error) {
     console.error("Connection add failed:", error);
-    return new Response(error instanceof Error ? error.message : "Connect failed", {
-      status: 502,
-    });
+    return apiError(
+      request,
+      502,
+      "connection_failed",
+      "The app could not be connected.",
+    );
   }
 }
 
 export async function DELETE(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
   if (denied) return denied;
+  if (capabilityMap().connections.state !== "ready") {
+    return apiError(
+      request,
+      503,
+      "connections_not_configured",
+      "Connected apps need Composio setup.",
+    );
+  }
 
   const body = (await request.json().catch(() => null)) as {
     toolkit?: unknown;
@@ -104,6 +138,6 @@ export async function DELETE(request: Request): Promise<Response> {
     return Response.json({ ok: true });
   } catch (error) {
     console.error("Connection remove failed:", error);
-    return new Response("Disconnect failed", { status: 502 });
+    return apiError(request, 502, "disconnect_failed", "The app could not be disconnected.");
   }
 }

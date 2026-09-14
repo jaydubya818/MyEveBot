@@ -1,11 +1,11 @@
 import { defineTool } from "eve/tools";
+import { ownerName } from "../lib/owner";
 import { z } from "zod";
 
 import { deleteWebhook } from "../lib/webhooks-db";
 
 export default defineTool({
-  description:
-    "Delete an event-trigger webhook by id (find it with list_webhooks). The URL stops working immediately; remind Micky to remove it from the sending service too.",
+  description: `Delete an event-trigger webhook by id (find it with list_webhooks). The URL stops working immediately; remind ${ownerName()} to remove it from the sending service too.`,
   inputSchema: z.object({
     id: z.string().min(1),
   }),

@@ -1,5 +1,6 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { ownerName } from "../lib/owner";
 import { skillStore } from "../lib/skill-store";
 
 export default defineTool({
@@ -17,7 +18,7 @@ export default defineTool({
       .min(1)
       .max(300)
       .describe(
-        "Routing hint written as the task that should trigger this skill, e.g. 'Use when Micky asks for his weekly review.'",
+        `Routing hint written as the task that should trigger this skill, e.g. 'Use when ${ownerName()} asks for their weekly review.'`,
       ),
     markdown: z
       .string()
