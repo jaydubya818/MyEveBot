@@ -16,7 +16,7 @@ import {
   WarningCircleIcon,
   XIcon,
 } from "@phosphor-icons/react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import type {
   SkillAgentDefinition,
@@ -242,6 +242,7 @@ function ManagerNotice({ children }: { children: React.ReactNode }) {
 
 export function SkillsManager() {
   const [response, setResponse] = useState<SkillsResponse | null>(null);
+  const responseRef = useRef<SkillsResponse | null>(null);
   const [failed, setFailed] = useState(false);
   const [query, setQuery] = useState("");
   const [scope, setScope] = useState<ScopeFilter>("all");
@@ -256,18 +257,20 @@ export function SkillsManager() {
   const [deleteArmed, setDeleteArmed] = useState(false);
   const [evalPending, setEvalPending] = useState(false);
   const [evalError, setEvalError] = useState<string | null>(null);
+  const [changedRunArmed, setChangedRunArmed] = useState(false);
 
   const loadSkills = useCallback(async () => {
     const result = await fetch("/api/skills", { cache: "no-store" }).catch(() => null);
     if (result === null || !result.ok) {
-      setFailed(true);
+      if (responseRef.current === null) setFailed(true);
       return;
     }
     const body = (await result.json()) as SkillsResponse;
     if (body.manager === undefined) {
-      setFailed(true);
+      if (responseRef.current === null) setFailed(true);
       return;
     }
+    responseRef.current = body;
     setResponse(body);
     setFailed(false);
     setSelectedName((current) => current ?? body.skills?.[0]?.name ?? null);
@@ -435,6 +438,7 @@ export function SkillsManager() {
   }
 
   async function runSkillEvals(mode: "manual" | "changed", names: string[] = []) {
+    setChangedRunArmed(false);
     setEvalPending(true);
     setEvalError(null);
     const result = await fetch("/api/skills", {
@@ -522,26 +526,56 @@ export function SkillsManager() {
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-kumo-hairline px-3 py-2.5">
         <p className="text-xs text-kumo-subtle">
-          <span className={cn("font-medium", changedProjectSkills.length > 0 ? "text-kumo-warning" : "text-kumo-success")}>
-            {changedProjectSkills.length}
-          </span>{" "}
-          project {changedProjectSkills.length === 1 ? "skill needs" : "skills need"} a current routing check
+          {changedRunArmed ? (
+            <>
+              <span className="font-medium text-kumo-warning">Confirm:</span> this runs{" "}
+              {changedProjectSkills.length} real model checks. Provider charges apply.
+            </>
+          ) : (
+            <>
+              <span
+                className={cn(
+                  "font-medium",
+                  changedProjectSkills.length > 0 ? "text-kumo-warning" : "text-kumo-success",
+                )}
+              >
+                {changedProjectSkills.length}
+              </span>{" "}
+              project {changedProjectSkills.length === 1 ? "skill needs" : "skills need"} a
+              current routing check
+            </>
+          )}
         </p>
-        <Button
-          size="sm"
-          variant="secondary"
-          icon={ArrowsClockwiseIcon}
-          loading={evalPending}
-          disabled={
-            changedProjectSkills.length === 0 ||
-            evalRunActive ||
-            manager.evalExecutionStatus !== "ready"
-          }
-          title={manager.evalExecutionStatus === "ready" ? "Uses real model calls and may incur provider cost" : "Run changed-skill evals in CI for this deployment"}
-          onClick={() => void runSkillEvals("changed")}
-        >
-          {changedProjectSkills.length === 0 ? "All current" : `Run ${changedProjectSkills.length} changed`}
-        </Button>
+        <div className="flex items-center gap-1">
+          {changedRunArmed && (
+            <Button size="sm" variant="ghost" onClick={() => setChangedRunArmed(false)}>Cancel</Button>
+          )}
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={ArrowsClockwiseIcon}
+            loading={evalPending}
+            disabled={
+              changedProjectSkills.length === 0 ||
+              evalRunActive ||
+              manager.evalExecutionStatus !== "ready"
+            }
+            title={manager.evalExecutionStatus === "ready" ? "Uses real model calls and may incur provider cost" : "Run changed-skill evals in CI for this deployment"}
+            onClick={() => {
+              if (!changedRunArmed) {
+                setChangedRunArmed(true);
+                return;
+              }
+              void runSkillEvals("changed");
+            }}
+          >
+            {changedProjectSkills.length === 0
+              ? "All current"
+              : changedRunArmed
+                ? `Confirm ${changedProjectSkills.length} checks`
+                : `Run ${changedProjectSkills.length} changed`}
+          </Button>
+        </div>
       </div>
 
       {latestRun !== null && (

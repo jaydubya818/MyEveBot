@@ -418,7 +418,20 @@ function evalRunFromRow(row: Row): SkillEvalRunSummary {
   };
 }
 
+async function expireStaleSkillEvalRuns(ownerId: string): Promise<void> {
+  await db().query(
+    `UPDATE skill_eval_runs
+     SET status = 'failed',
+         error = coalesce(error, 'The eval runner stopped reporting progress.'),
+         completed_at = now()
+     WHERE owner_id = $1 AND status IN ('queued', 'running')
+       AND started_at < now() - interval '2 hours'`,
+    [ownerId],
+  );
+}
+
 export async function latestSkillEvalRun(ownerId: string): Promise<SkillEvalRunSummary | null> {
+  await expireStaleSkillEvalRuns(ownerId);
   const rows = (await db().query(
     `SELECT * FROM skill_eval_runs
      WHERE owner_id = $1 ORDER BY started_at DESC LIMIT 1`,
@@ -428,6 +441,7 @@ export async function latestSkillEvalRun(ownerId: string): Promise<SkillEvalRunS
 }
 
 export async function activeSkillEvalRun(ownerId: string): Promise<SkillEvalRunSummary | null> {
+  await expireStaleSkillEvalRuns(ownerId);
   const rows = (await db().query(
     `SELECT * FROM skill_eval_runs
      WHERE owner_id = $1 AND status IN ('queued', 'running')

@@ -114,7 +114,7 @@ Implement Option 1. Keep manual brief/review generation first, compute risk with
 - The project has Database/Blob preview configuration but no saved preview web-auth variables, so ordinary previews fail closed until auth is supplied by the deployment workflow.
 - Vercel team deployment protection remains enabled; authenticated CLI/browser context is required before the app's own owner session can be exercised.
 
-### 2026-09-13 - Final integrity hardening
+### 2026-09-13 - Final integrity and interaction hardening
 
 **By:** Codex
 
@@ -122,10 +122,12 @@ Implement Option 1. Keep manual brief/review generation first, compute risk with
 - Added agent parity for explicit owner feedback and required replay-safe outcome idempotency keys.
 - Replaced per-goal review loading with bounded owner-scoped batch queries.
 - Tightened outcome lineage, evidence, timestamp, and duplicate-feedback validation.
-- Requalified Daily and Weekly Review states, checkpoint confirmation, build, typecheck, migrations, and database integration behavior.
+- Serialized Skills Manager polling, added stale eval recovery, and required confirmation before paid changed-skill evals.
+- Requalified Daily and Weekly Review states, checkpoint confirmation, Skills Manager confirmation, build, typecheck, migrations, and database integration behavior.
 
 **Learnings:**
 - Review generation needs bounded bulk reads; otherwise a large goal set creates avoidable query fan-out.
+- Paid evals need an explicit confirmation boundary, and abandoned eval runs must fail closed instead of blocking the control plane indefinitely.
 
 ## Notes
 
