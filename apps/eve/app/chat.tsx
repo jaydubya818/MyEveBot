@@ -2267,7 +2267,19 @@ function ChatThread({
                 {agent.error && (
                   <MessageScrollerItem messageId="error">
                     <Bubble variant="destructive">
-                      <BubbleContent>{agent.error.message}</BubbleContent>
+                      <BubbleContent>
+                        <p>{agent.error.message}</p>
+                        <Button
+                          className="mt-3"
+                          size="sm"
+                          variant="secondary"
+                          disabled={isBusy || !lastUserId}
+                          icon={ArrowClockwiseIcon}
+                          onClick={regenerateLastReply}
+                        >
+                          Retry request
+                        </Button>
+                      </BubbleContent>
                     </Bubble>
                   </MessageScrollerItem>
                 )}

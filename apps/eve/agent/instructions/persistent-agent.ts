@@ -3,7 +3,7 @@ import { defineDynamic, defineInstructions } from "eve/instructions";
 import { ensurePrimaryAgent } from "../../lib/agents.ts";
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { assembleContext, recentConversationContext } from "../lib/context-assembly.ts";
-import { bindExecutorRun, resolveSessionAgent } from "../lib/session-settings.ts";
+import { bindExecutorRun, reconcileStaleAgentRuns, resolveSessionAgent } from "../lib/session-settings.ts";
 
 function durableTurnId(event: unknown): string {
   if (!event || typeof event !== "object") throw new Error("Eve turn event is missing.");
@@ -22,6 +22,7 @@ export default defineDynamic({
         ? principal.principalId
         : process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim();
       if (!ownerId) return null;
+      await reconcileStaleAgentRuns(ownerId, ctx.session.id);
       const selected = await resolveSessionAgent({ ownerId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: principal?.attributes.owner === "true" });
       const agent = selected ?? await ensurePrimaryAgent(ownerId);
       const authenticatedThreadId = ctx.session.auth.initiator?.attributes.webThreadId ?? principal?.attributes.webThreadId;

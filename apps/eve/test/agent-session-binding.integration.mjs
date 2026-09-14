@@ -4,7 +4,7 @@ import { routeAuth } from "eve/channels/auth";
 
 import { eveAuth } from "../agent/channels/eve.ts";
 import { db } from "../agent/lib/receipts-db.ts";
-import { bindAgentRun, resolveSessionAgent } from "../agent/lib/session-settings.ts";
+import { bindAgentRun, reconcileStaleAgentRuns, resolveSessionAgent } from "../agent/lib/session-settings.ts";
 import { createAgent, ensurePrimaryAgent, transitionAgent } from "../lib/agents.ts";
 import { createWebSessionToken, WEB_SESSION_COOKIE } from "../lib/web-auth.ts";
 
@@ -72,6 +72,13 @@ integration("session and thread Agent bindings are authoritative across requests
       [boundSessionId, ownerId],
     );
     assert.equal(distinctTurnRuns.length, 2, "each durable turn must have a separate Agent Run budget");
+    await db().query(
+      `UPDATE agent_runs SET started_at=now() - interval '901 seconds' WHERE id=$1`,
+      [distinctTurnRuns[0].id],
+    );
+    assert.equal(await reconcileStaleAgentRuns(ownerId, boundSessionId), 1);
+    const reconciled = await db().query(`SELECT status FROM agent_runs WHERE id=$1`, [distinctTurnRuns[0].id]);
+    assert.equal(reconciled[0].status, "failed", "expired orphan Runs must not poison a later turn");
     const fromPersistedRun = await resolveSessionAgent({
       ownerId, sessionId: boundSessionId,
       auth: { current: principal(ownerId), initiator: principal(ownerId) },
