@@ -27,6 +27,11 @@ function reasoningMiddleware(reasoning: ReasoningLevel): LanguageModelMiddleware
 }
 
 export default defineAgent({
+  // Keep native and build-tool packages out of eve's hosted bundle. The
+  // framework traces them into the Vercel output for runtime Node resolution.
+  build: {
+    externalDependencies: ["@remotion/bundler", "@remotion/renderer", "heif2jpeg"],
+  },
   // The dynamic fallback is newer than the framework's bundled Gateway
   // catalog. Use a conservative known window so compaction can compile and
   // starts early enough even when the selected model supports a larger one.

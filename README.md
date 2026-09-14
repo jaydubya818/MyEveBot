@@ -8,17 +8,19 @@ Each deployment serves one owner by default for a simple security boundary. Code
 
 **Chat**
 
-- **Web chat** — threads (rename/pin/delete), streaming responses, file attachments, slash-command prompts, model picker, and HTML artifact previews.
+- **Web chat** — threads (rename/pin/delete), streaming responses, file attachments, slash-command prompts, model picker, and artifact previews.
+- **Artifact workspace** — create, revise, restore, comment on, and share versioned documents, spreadsheets, presentations, and other generated files.
+- **Email and file views** — first-class inbox and file-library routes alongside chat, goals, reviews, and agent management.
 - **Command palette (⌘K)** — jump to threads, start a new chat, open goals or reviews, open the manage page, toggle notifications.
 - **Full-text search** — sidebar search matches message content across all threads, not just titles.
 - **Message actions** — copy a reply, edit & resend, regenerate the last reply, or fork a thread from any message.
-- **Telegram channel** — private-DM-only bot with a user-id allowlist.
+- **Messaging channels** — private Telegram DMs, Slack, routed iMessage, dedicated SMS/iMessage/voice, and browser-based realtime voice. Each channel fails closed when its required owner or provider configuration is absent.
 
 **Proactive**
 
 - **Reminders & schedules** — ask Eve for one-off or recurring (cron) reminders; they fire into a new thread.
 - **Event triggers** — Eve can mint webhook URLs so external services can start conversations.
-- **Push notifications** — browser web-push for proactive threads, plus unread indicators in the sidebar.
+- **Proactive delivery** — browser web push, Telegram, email, phone, iMessage, and Slack destinations when configured, plus unread indicators in the sidebar.
 
 **Agent capabilities**
 
@@ -29,9 +31,13 @@ Each deployment serves one owner by default for a simple security boundary. Code
 - **Long-term memory** — Supermemory-backed remember/forget/search tools with nightly consolidation and a profile summary injected each turn.
 - **App integrations** — Composio connections (Gmail, GitHub, Notion, Linear, …) with a UI to connect/disconnect apps.
 - **Chat-created skills** — Eve can write, list, and delete her own skills at runtime; manage them from the UI.
-- **File sharing** — Eve uploads sandbox files to Blob storage and hands back a public link.
+- **Files and controlled sharing** — private Blob-backed uploads, immutable artifact revisions, authenticated content routes, and revocable exact-version share links.
 - **Receipt tracking** — log/query/summarize spending, backed by Neon.
-- **Browser control** — sandboxed browser extension for web tasks.
+- **Computer control** — sandboxed browser tasks, a persistent Orgo cloud desktop, and an approval-gated local Mac bridge with explicit filesystem roots.
+- **Agent communications** — an AgentMail inbox, custom email domains, Slack, routed iMessage, and a dedicated AgentPhone number.
+- **Payments** — owner-approved Agentcard connection, verification, consent, wallet funding, and bounded virtual-card workflows.
+- **Voice and media** — OpenAI realtime voice, inbound phone voice streaming, image conversion, and server-side Remotion video rendering.
+- **Observability and evals** — privacy-aware OpenTelemetry, optional Braintrust and Raindrop export, plus routing, memory, safety, reminder, receipt, and persona evaluation suites.
 
 **Review page** — `/review` generates the owner’s daily brief or weekly review and exposes recent outcome feedback.
 
@@ -63,6 +69,26 @@ apps/builder/     # the MyEve agent builder
 
 The Next.js app mounts the agent on the same origin via `withEve` — `/eve/v1/**` routes to the agent service. One dev server, one Vercel deployment.
 
+### Capability readiness
+
+Core chat, goals, reviews, agents, skills, reminders, and authenticated owner scoping ship with the application. Integrations are included but only become ready when their configuration is present:
+
+| Capability | Required setup |
+| --- | --- |
+| Database-backed state | `DATABASE_URL` plus applied migrations |
+| Artifacts and file sharing | Private Vercel Blob store |
+| Connected apps | Composio or Vercel Connect credentials |
+| Email | AgentMail key or a key saved from `/email` |
+| Cloud computer | Orgo key or a key saved under Manage → Computer |
+| Local Mac control | Sofie Local MCP bridge, token, and an optional Cloudflare Access pair |
+| Card workflows | Agentcard backend credentials, database, and admin token |
+| Routed iMessage | Photon Spectrum router or an `IMESSAGE_ROUTER_URL` |
+| Dedicated phone | AgentPhone key and admin token |
+| Realtime browser voice | OpenAI API key |
+| Telemetry export | Braintrust, Raindrop, or generic OTLP configuration |
+
+Unavailable integrations stay disabled or report setup requirements; they do not silently inherit another agent's authority.
+
 ## Getting started
 
 Requires Node 24.
@@ -86,7 +112,16 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 | `DATABASE_URL` | Neon Postgres (threads, goals, outcomes, reviews, reminders, webhooks, receipts, push) |
 | `SUPERMEMORY_API_KEY` | Long-term memory |
 | `COMPOSIO_API_KEY` | App integrations |
-| `BLOB_READ_WRITE_TOKEN` | File sharing + skill store |
+| `BLOB_READ_WRITE_TOKEN` | Private artifacts, file sharing, and skill store |
+| `AGENTMAIL_*` | Agent inbox, custom domain, and inbound email webhook |
+| `ORGO_*` | Persistent cloud desktop and computer tasks |
+| `SOFIE_LOCAL_*` | Approval-gated local Mac bridge |
+| `AGENTCARD_*` | Card connection, verification, consent, and spending workflows |
+| `SPECTRUM_*`, `IMESSAGE_*` | Shared-number iMessage router and pairing |
+| `AGENTPHONE_*` | Dedicated phone, text, iMessage, and voice |
+| `SLACK_CONNECT_CLIENT_ID`, `SLACK_OWNER_USER_ID` | Slack channel and owner authorization |
+| `OPENAI_API_KEY` | Browser realtime voice |
+| `BRAINTRUST_*`, `RAINDROP_WRITE_KEY`, `OTEL_*` | Optional tracing and evaluation export |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Web push notifications |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS`, `TELEGRAM_PROACTIVE_CHAT_ID` | Telegram channel and explicit proactive destination (optional) |
 
@@ -112,6 +147,11 @@ environment before qualification; do not weaken the auth boundary to make a prev
 - `npm run db:migrate` — apply pending database migrations
 - `npm run db:migrations:check` — validate migration order and files without a database
 - `npm run typecheck` — TypeScript checks + builder manifest completeness
+- `npm test` — core Node test suite
+- `npm test --workspace=eve-agent` — agent, integration, API, and security regression suite
+- `npm run eval:list --workspace=eve-agent` — list available agent evaluations
+- `npm run eval:fast --workspace=eve-agent` — run the fast evaluation set
+- `npm run eval:ci --workspace=eve-agent` — strict CI evaluations with JUnit output
 - `VERCEL_TOKEN=… DATABASE_URL=… npx tsx apps/builder/scripts/smoke-deploy.ts` — manual end-to-end deploy test (creates and deletes a real project)
 
 ## Deploy
@@ -124,6 +164,7 @@ Sofie runs in the existing Vercel project `sofie-personal-agent`:
 | Source repository | [jaydubya818/MyEveBot](https://github.com/jaydubya818/MyEveBot) |
 | Production branch | `main` |
 | Vercel root directory | `apps/eve` |
+| Current template release | `255` |
 
 The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. Pushes to `main` create production deployments through the Vercel Git integration. Other branches create previews.
 
@@ -131,6 +172,7 @@ Before shipping, run the repository checks from the root:
 
 ```bash
 npm test
+npm test --workspace=eve-agent
 npm run typecheck
 npm run db:migrations:check
 npm run build
