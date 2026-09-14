@@ -103,6 +103,7 @@ export interface ComputerSessionView {
   taskId: string | null;
   taskTitle: string | null;
   runId: string | null;
+  runTitle: string | null;
   runtimeSessionId: string;
   sandboxId: string | null;
   status: ComputerSessionStatus;

@@ -53,6 +53,7 @@ integration("Agent Run computer sessions enforce links, isolation, capabilities,
     assert.equal(session.goalId, goalId);
     assert.equal(session.taskId, goalTaskId);
     assert.equal(session.runId, runId);
+    assert.equal(session.runTitle, "Computer integration");
     assert.equal(await getComputerSession(otherOwnerId, session.id), null);
     await transitionComputerSession({ ownerId, id: session.id, to: "ready", sandboxId: "sandbox_test" });
 
