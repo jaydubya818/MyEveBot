@@ -1,16 +1,25 @@
-import { defineDynamic, defineTool } from "eve/tools";
+import { defineDynamic, defineTool, type DynamicResolveContext, type DynamicToolEntry, type DynamicToolSet } from "eve/tools";
+import * as browserTools from "@agent-browser/eve/tools";
 import { z } from "zod";
 
 import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
+import { activeComputerAgentId } from "../../lib/computer-sessions.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
 import { resolveSessionAgent } from "../lib/session-settings.ts";
 
 const BUILTIN_CAPABILITIES: Record<string, string> = {
-  bash: "computer.browser", glob: "files.read", grep: "files.read", read_file: "files.read",
+  bash: "terminal.execute", glob: "files.read", grep: "files.read", read_file: "files.read",
   write_file: "files.write", web_fetch: "web.read", web_search: "web.search",
   connection_search: "integration.composio", load_skill: "skill.authored", workflow: "specialist.functional-state",
 };
-const BROWSER_TOOLS = ["click","close","console","drag","evaluate","fill","find","get","hover","navigate","network_requests","press_key","read","screenshot","scroll","select_option","set_checked","snapshot","tabs","upload","wait_for"];
+const BROWSER_CAPABILITIES: Record<string, string> = {
+  click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
+  press_key: "browser.click", scroll: "browser.click", select_option: "browser.click", set_checked: "browser.click",
+  fill: "browser.type", upload: "files.write", navigate: "browser.navigate",
+  console: "browser.read", evaluate: "browser.read", find: "browser.read", get: "browser.read",
+  network_requests: "browser.read", read: "browser.read", screenshot: "browser.read", snapshot: "browser.read",
+  tabs: "browser.read", wait_for: "browser.read",
+};
 
 function policyMap(): Record<string, string> {
   const map = { ...BUILTIN_CAPABILITIES };
@@ -19,26 +28,44 @@ function policyMap(): Record<string, string> {
       map[capability.source.reference.slice("agent/tools/".length, -3)] = capability.id;
     }
   }
-  for (const tool of BROWSER_TOOLS) map[`browser__${tool}`] = "computer.browser";
+  for (const [tool, capability] of Object.entries(BROWSER_CAPABILITIES)) map[`browser__${tool}`] = capability;
   return map;
 }
 
 const TOOL_POLICY = policyMap();
 
+async function resolvePolicy(ctx: DynamicResolveContext) {
+  const ownerId = ctx.session.auth.current?.principalId;
+  const agent = await resolveSessionAgent({
+    ownerId,
+    sessionId: ctx.session.id,
+    auth: ctx.session.auth,
+    primaryFallback: ctx.session.auth.current?.attributes.owner === "true",
+  });
+  if (!agent) return null;
+  const activeAgentId = ownerId ? await activeComputerAgentId(ownerId, ctx.session.id) : null;
+  const resolved: Record<string, DynamicToolEntry<any, any>> = {};
+  for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
+    const decision = effectiveCapability(agent, capabilityId);
+    const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
+    if (decision.allowed && browserName && activeAgentId === agent.id) {
+      resolved[toolName] = browserTools[browserName] as unknown as DynamicToolEntry<any, any>;
+      continue;
+    }
+    if (decision.allowed && !browserName) continue;
+    const reason = decision.allowed ? "Start a computer session before using browser tools." : decision.reason;
+    resolved[toolName] = defineTool({
+      description: `${toolName} is unavailable to ${agent.name} under its assigned capability policy.`,
+      inputSchema: z.object({ request: z.unknown().optional() }).loose(),
+      execute: async () => { throw new Error(reason ?? `Capability unavailable for ${agent.name}.`); },
+    }) as unknown as DynamicToolEntry<any, any>;
+  }
+  return resolved satisfies DynamicToolSet;
+}
+
 export default defineDynamic({
   events: {
-    "turn.started": async (_event, ctx) => {
-      const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-      if (!agent || agent.isPrimary) return null;
-      return Object.fromEntries(Object.entries(TOOL_POLICY).flatMap(([toolName, capabilityId]) => {
-        const decision = effectiveCapability(agent, capabilityId);
-        if (decision.allowed) return [];
-        return [[toolName, defineTool({
-          description: `${toolName} is unavailable to ${agent.name} under its assigned capability policy.`,
-          inputSchema: z.object({ request: z.unknown().optional() }).loose(),
-          execute: async () => { throw new Error(decision.reason ?? `Capability unavailable for ${agent.name}.`); },
-        })]];
-      }));
-    },
+    "turn.started": async (_event, ctx) => resolvePolicy(ctx),
+    "step.started": async (_event, ctx) => resolvePolicy(ctx),
   },
 });

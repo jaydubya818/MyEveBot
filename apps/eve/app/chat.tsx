@@ -24,6 +24,7 @@ import {
   MagnifyingGlassIcon,
   KeyIcon,
   MicrophoneIcon,
+  MonitorIcon,
   PaperclipIcon,
   PencilSimpleIcon,
   PlusIcon,
@@ -42,6 +43,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
+import { ComputerSessionsPanel } from "@/components/computer-sessions-panel";
 import {
   CapabilityNotice,
   type CapabilityNoticeState,
@@ -609,7 +611,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage" | "goals" | "review" | "agents";
+type MainView = "chat" | "manage" | "goals" | "review" | "agents" | "computer";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -967,6 +969,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       setView(
         window.location.pathname.startsWith("/manage")
           ? "manage"
+          : window.location.pathname.startsWith("/computer")
+            ? "computer"
           : window.location.pathname.startsWith("/agents")
             ? "agents"
           : window.location.pathname.startsWith("/review")
@@ -984,7 +988,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
+    const path = next === "manage" ? "/manage" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1170,6 +1174,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               variant="ghost"
               size="sm"
               shape="square"
+              icon={MonitorIcon}
+              aria-label="Computer"
+              aria-pressed={view === "computer"}
+              title="Agent computer sessions"
+              className={cn(view === "computer" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "computer" ? "chat" : "computer")}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
               icon={UsersThreeIcon}
               aria-label="Agents"
               aria-pressed={view === "agents"}
@@ -1297,7 +1312,12 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "agents" ? (
+      {view === "computer" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerSessionsPanel /></div>
+        </main>
+      ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} /></div>

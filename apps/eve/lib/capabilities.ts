@@ -86,9 +86,9 @@ export function getCapabilityStatuses(
       reason: "Saved skills need durable file storage.",
       setupHint: "Add BLOB_READ_WRITE_TOKEN, then reload this page.",
     }),
-    status("computer", enabled.has("browser"), true, {
-      reason: "Computer access is not included in this deployment.",
-      setupHint: "Enable the browser feature for this deployment.",
+    status("computer", enabled.has("browser"), databaseReady, {
+      reason: "Computer sessions need a database for isolation, attribution, and evidence records.",
+      setupHint: "Enable the browser feature, add DATABASE_URL, and apply migration 0010.",
     }),
     status("finance", enabled.has("receipts"), databaseReady, {
       reason: "Finance needs a database before the agent can store receipts.",
