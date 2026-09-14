@@ -61,6 +61,18 @@ interface FeatureInfo {
 
 const FEATURES: FeatureInfo[] = [
   {
+    id: "knowledge",
+    name: "Knowledge & provenance",
+    description: "Preserves typed facts, decisions, commitments, and the evidence behind them.",
+    needs: null,
+  },
+  {
+    id: "goals",
+    name: "Goals & focus",
+    description: "Turns outcomes into milestones, tasks, dependencies, and a clear next action.",
+    needs: null,
+  },
+  {
     id: "memory",
     name: "Long-term memory",
     description: "Remembers facts across conversations, with a nightly consolidation pass.",
@@ -160,10 +172,15 @@ export function BuilderWizard() {
   const [identifyError, setIdentifyError] = useState<string | null>(null);
 
   // Step 2: identity
-  const [agentName, setAgentName] = useState("Eve");
-  const [projectName, setProjectName] = useState("eve");
+  const [agentName, setAgentName] = useState("Sofie");
+  const [projectName, setProjectName] = useState("sofie");
   const [projectNameEdited, setProjectNameEdited] = useState(false);
   const [ownerName, setOwnerName] = useState("");
+  const [ownerTimezone, setOwnerTimezone] = useState(
+    () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC",
+  );
+  const [accessPassword, setAccessPassword] = useState("");
+  const [accessPasswordConfirm, setAccessPasswordConfirm] = useState("");
   const [personality, setPersonality] = useState("");
   const [model, setModel] = useState("anthropic/claude-sonnet-5");
   const [customModel, setCustomModel] = useState("");
@@ -233,6 +250,8 @@ export function BuilderWizard() {
       agentName: agentName.trim(),
       projectName,
       ownerName: ownerName.trim(),
+      ownerTimezone,
+      accessPassword,
       model: effectiveModel,
       features: [...features],
       instructions,
@@ -257,6 +276,8 @@ export function BuilderWizard() {
       agentName,
       projectName,
       ownerName,
+      ownerTimezone,
+      accessPassword,
       effectiveModel,
       features,
       instructions,
@@ -309,7 +330,7 @@ export function BuilderWizard() {
 
   function regenerateInstructions(): string {
     return generateInstructions({
-      agentName: agentName.trim() || "Eve",
+      agentName: agentName.trim() || "Sofie",
       ownerName: ownerName.trim() || "your user",
       personality,
       features: [...features],
@@ -387,11 +408,16 @@ export function BuilderWizard() {
         return (
           agentName.trim().length > 0 &&
           ownerName.trim().length > 0 &&
+          accessPassword.length >= 12 &&
+          accessPassword === accessPasswordConfirm &&
           /^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$/.test(projectName) &&
           effectiveModel.length > 0
         );
       case "Channels":
-        return !telegramEnabled || telegramBotToken.trim().length > 0;
+        return (
+          !telegramEnabled ||
+          (telegramBotToken.trim().length > 0 && telegramAllowedIds.trim().length > 0)
+        );
       case "Schedules":
         return schedules.every(
           (schedule) =>
@@ -684,7 +710,7 @@ export function BuilderWizard() {
                   id="agent-name"
                   size="3"
                   value={agentName}
-                  placeholder="Eve"
+                  placeholder="Sofie"
                   onChange={(event) => {
                     setAgentName(event.target.value);
                     if (!projectNameEdited) setProjectName(slugify(event.target.value));
@@ -702,6 +728,19 @@ export function BuilderWizard() {
               </FormField>
             </div>
             <FormField
+              label="Your timezone"
+              htmlFor="owner-timezone"
+              description="Used for scheduled briefs, reviews, reminders, and daylight-saving changes."
+            >
+              <TextField.Input
+                id="owner-timezone"
+                size="3"
+                value={ownerTimezone}
+                placeholder="America/Los_Angeles"
+                onChange={(event) => setOwnerTimezone(event.target.value)}
+              />
+            </FormField>
+            <FormField
               label="Vercel project name"
               htmlFor="project-name"
               description="Lowercase letters, digits, and dashes. Also the deployment URL prefix."
@@ -716,6 +755,37 @@ export function BuilderWizard() {
                 }}
               />
             </FormField>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <FormField
+                label="Web access password"
+                htmlFor="access-password"
+                description="At least 12 characters. This protects the production web app."
+              >
+                <TextField.Input
+                  id="access-password"
+                  size="3"
+                  type="password"
+                  value={accessPassword}
+                  autoComplete="new-password"
+                  onChange={(event) => setAccessPassword(event.target.value)}
+                />
+              </FormField>
+              <FormField label="Confirm password" htmlFor="access-password-confirm">
+                <TextField.Input
+                  id="access-password-confirm"
+                  size="3"
+                  type="password"
+                  value={accessPasswordConfirm}
+                  autoComplete="new-password"
+                  color={
+                    accessPasswordConfirm.length > 0 && accessPassword !== accessPasswordConfirm
+                      ? "red"
+                      : undefined
+                  }
+                  onChange={(event) => setAccessPasswordConfirm(event.target.value)}
+                />
+              </FormField>
+            </div>
             <FormField
               label="Personality notes"
               htmlFor="personality"
@@ -838,7 +908,7 @@ export function BuilderWizard() {
                   <FormField
                     label="Allowed user ids"
                     htmlFor="allowed-ids"
-                    description="Comma-separated Telegram user ids. Empty = anyone can DM it."
+                    description="Required. Only these comma-separated Telegram user ids can reach your agent."
                   >
                     <TextField.Input
                       id="allowed-ids"
@@ -1125,6 +1195,7 @@ export function BuilderWizard() {
               <>
                 <dl className="grid grid-cols-1 gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
                   <SummaryRow label="Agent" value={`${agentName.trim()} (for ${ownerName.trim()})`} />
+                  <SummaryRow label="Web access" value="Password protected" />
                   <SummaryRow label="Model" value={effectiveModel} />
                   <SummaryRow
                     label="Features"
@@ -1159,10 +1230,10 @@ export function BuilderWizard() {
                   <Callout.Icon>
                     <Info className="size-4" />
                   </Callout.Icon>
-                  <Callout.Title>The deployed chat has no login</Callout.Title>
+                  <Callout.Title>The deployed chat is password protected</Callout.Title>
                   <Callout.Description>
-                    Anyone with the URL can talk to your agent. Enable Vercel Deployment Protection
-                    on the project if you want a gate.
+                    Sign in with the web access password you chose. Vercel Deployment Protection is
+                    optional if you want a second gate in front of MyEve.
                   </Callout.Description>
                 </Callout.Root>
                 <div>
@@ -1240,7 +1311,7 @@ export function BuilderWizard() {
                       : phase.sessionError === "finalize-failed" || phase.sessionError === "no-alias"
                         ? "The deploy finished, but the post-deploy verification couldn't run against a public domain, so the link below may be the deployment-specific URL — that one requires your Vercel login. Find the public production domain on the project page in your Vercel dashboard and try the chat there."
                         : phase.sessionError === "protected"
-                        ? "This project has Vercel Deployment Protection enabled, so the chat requires Vercel SSO — it works for you while logged into Vercel, but not for anyone else. To share it publicly, disable Deployment Protection in the project's settings."
+                        ? "This project has Vercel Deployment Protection enabled, so Vercel SSO is required before the MyEve password screen. Disable Deployment Protection only if you want the MyEve password to be the sole access gate."
                         : /channel handler/i.test(phase.sessionError ?? "")
                           ? "Starting a conversation failed. If you recently deleted a project with this same name, Vercel serves stale identity tokens for up to ~2 hours — wait, then redeploy from your Vercel dashboard (or rename the project and redeploy). Otherwise check the runtime logs."
                           : `The app is up, but the agent hasn't answered a test message yet${phase.sessionError !== null && phase.sessionError !== "timeout" ? ` (${phase.sessionError})` : ""}. A brand-new deployment can need a couple of minutes to warm up — open the chat and try saying hi; if it keeps failing, check the runtime logs in your Vercel dashboard.`}
@@ -1269,10 +1340,8 @@ export function BuilderWizard() {
                         : "registration failed — check the bot token"}
                     </li>
                   )}
-                  <li>
-                    • Want a login gate? Enable Deployment Protection in your Vercel project
-                    settings.
-                  </li>
+                  <li>• Web access uses the password you chose during setup.</li>
+                  <li>• Vercel Deployment Protection can add a second access gate.</li>
                 </ul>
               </div>
             )}

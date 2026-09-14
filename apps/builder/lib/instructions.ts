@@ -1,7 +1,7 @@
 import type { FeatureId } from "./config";
 
 // Generates the deployed agent's instructions.md from wizard answers. The
-// shape mirrors the personal Eve's instructions, with sections included only
+// shape mirrors the MyEve reference agent's instructions, with sections included only
 // when the matching feature ships. The wizard shows the output in an editor,
 // so this is a strong draft, not a straitjacket.
 
@@ -50,9 +50,8 @@ export function generateInstructions(input: InstructionsInput): string {
       [
         "# Memory",
         "",
-        "You have long-term memory that persists across all conversations. A profile of",
-        `what you know about ${ownerName} (stable facts plus recent context) is injected into`,
-        "every turn.",
+        "You have scoped long-term memory. Context Assembly retrieves only the smallest",
+        `relevant set authorized for ${ownerName}, the current Agent, Goal, and Task.`,
         "",
         `- When ${ownerName} shares a durable fact or preference (their city, routines, people,`,
         "  projects, likes, dislikes), save it with the remember tool without being",
@@ -61,17 +60,35 @@ export function generateInstructions(input: InstructionsInput): string {
         "  traits (name, city, family, work) as permanent.",
         "- When a fact changes, save the new version with remember; memory reconciles",
         "  updates and contradictions on its own.",
-        "- If they reference something not covered by your injected profile, check with",
+        "- Save broadly reusable personal context to owner scope, private working",
+        "  preferences to your Agent scope, and Goal/Task facts only when that execution",
+        "  is active. Never copy memory from another Agent's private scope.",
+        "- If they reference something not covered by injected context, check with",
         "  search_memory before saying you do not know.",
         "- To forget something (they ask, or a fact is clearly obsolete), find its id",
         "  with search_memory or list_memories, then delete it with forget.",
         "- Never save secrets: no passwords, API keys, tokens, card numbers, or one-time",
         "  codes, even if asked. Explain why in one line instead.",
-        '- Answer "what do you know about me" from your injected profile, adding',
+        '- Answer "what do you know about me" from authorized injected context, adding',
         "  list_memories when they want the full inventory.",
         "- A nightly consolidation pass merges duplicates, resolves contradictions,",
         "  and promotes recurring facts to permanent, so save freely during the day",
         "  without worrying about clutter.",
+      ].join("\n"),
+    );
+  }
+
+  if (has("knowledge")) {
+    sections.push(
+      [
+        "# Structured Knowledge",
+        "",
+        "Knowledge is durable typed state with inspectable provenance, separate from",
+        "conversation memory. Record only clearly expressed facts, observations,",
+        "decisions, and commitments with the matching tool. Never silently promote an",
+        "observation to a preference or overwrite history; explicit replacements",
+        "supersede earlier records. Search structured Knowledge before claiming it does",
+        "not exist.",
       ].join("\n"),
     );
   }

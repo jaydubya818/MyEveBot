@@ -1,0 +1,85 @@
+"use client";
+
+import { Badge, Button, Loader } from "@cloudflare/kumo";
+import { ArrowClockwiseIcon, ArrowSquareOutIcon, BrowserIcon, FileIcon, MonitorIcon, StopIcon, TerminalWindowIcon } from "@phosphor-icons/react";
+import { useCallback, useEffect, useState } from "react";
+
+import type { ComputerActionView, ComputerSessionView } from "@/lib/computer-types";
+import { cn } from "@/lib/utils";
+
+const ACTIVE = new Set(["provisioning", "ready", "running", "paused"]);
+
+function formatWhen(value: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : date.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+function duration(session: ComputerSessionView): string {
+  const end = session.completedAt ? new Date(session.completedAt).getTime() : Date.now();
+  const seconds = Math.max(0, Math.round((end - new Date(session.startedAt).getTime()) / 1000));
+  return seconds < 60 ? `${seconds}s` : `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+}
+
+export function ComputerSessionsPanel() {
+  const [sessions, setSessions] = useState<ComputerSessionView[] | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [actions, setActions] = useState<ComputerActionView[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [stopping, setStopping] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch("/api/computer-sessions", { cache: "no-store" });
+      if (!response.ok) throw new Error("Computer activity could not be loaded.");
+      const next = ((await response.json()) as { sessions?: ComputerSessionView[] }).sessions ?? [];
+      setSessions(next); setError(null);
+      setSelectedId((current) => current && next.some((session) => session.id === current) ? current : next[0]?.id ?? null);
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Computer activity could not be loaded."); }
+  }, []);
+
+  useEffect(() => { void load(); const timer = window.setInterval(() => void load(), 5000); return () => window.clearInterval(timer); }, [load]);
+  useEffect(() => {
+    if (!selectedId) { setActions([]); return; }
+    const controller = new AbortController();
+    void fetch(`/api/computer-sessions/${selectedId}/actions`, { cache: "no-store", signal: controller.signal })
+      .then(async (response) => { if (!response.ok) throw new Error("Session actions could not be loaded."); setActions(((await response.json()) as { actions?: ComputerActionView[] }).actions ?? []); })
+      .catch((cause: unknown) => { if (!(cause instanceof DOMException && cause.name === "AbortError")) setError(cause instanceof Error ? cause.message : "Session actions could not be loaded."); });
+    return () => controller.abort();
+  }, [selectedId, sessions]);
+
+  const selected = sessions?.find((session) => session.id === selectedId) ?? null;
+  async function stop() {
+    if (!selected) return;
+    setStopping(true);
+    try {
+      const response = await fetch(`/api/computer-sessions/${selected.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "stop" }) });
+      const body = await response.json().catch(() => null) as { error?: { message?: string } } | null;
+      if (!response.ok) throw new Error(body?.error?.message ?? "Computer session could not be stopped.");
+      await load();
+    } catch (cause) { setError(cause instanceof Error ? cause.message : "Computer session could not be stopped."); }
+    finally { setStopping(false); }
+  }
+
+  if (sessions === null && !error) return <div className="flex justify-center py-16"><Loader size={18} /></div>;
+  if (sessions === null) return <div className="rounded-2xl border border-kumo-danger/25 bg-kumo-danger/5 p-5"><p className="text-sm font-medium">Computer activity unavailable</p><p className="mt-1 text-sm text-kumo-subtle">{error}</p><Button className="mt-4" size="sm" variant="secondary" icon={ArrowClockwiseIcon} onClick={() => void load()}>Retry</Button></div>;
+  const activeCount = sessions.filter((session) => ACTIVE.has(session.status)).length;
+
+  return <div className="flex flex-col gap-5">
+    <header className="flex flex-wrap items-end justify-between gap-4"><div><div className="flex items-center gap-2 text-kumo-subtle"><MonitorIcon className="size-4" /><span className="text-xs font-medium uppercase tracking-[0.14em]">Agent runtime</span></div><h1 className="mt-2 text-xl font-semibold tracking-tight">Computer sessions</h1><p className="mt-1 max-w-2xl text-sm leading-6 text-kumo-subtle">Inspect isolated browser and sandbox work, attributable actions, and durable evidence.</p></div><div className="rounded-xl border border-kumo-hairline bg-kumo-tint px-3 py-2 text-xs tabular-nums text-kumo-subtle"><span className="font-semibold text-kumo-strong">{activeCount}</span> active · {sessions.length} recent</div></header>
+    {error && <p className="rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 px-4 py-3 text-sm">{error}</p>}
+    {sessions.length === 0 ? <div className="rounded-2xl border border-dashed border-kumo-hairline px-6 py-14 text-center"><MonitorIcon className="mx-auto size-7 text-kumo-subtle" /><p className="mt-4 text-sm font-medium">No computer sessions yet</p><p className="mx-auto mt-1 max-w-md text-sm leading-6 text-kumo-subtle">Ask an Agent with computer capabilities to perform browser or sandbox work. Its session and evidence trail will appear here.</p></div> :
+      <div className="grid min-h-[560px] overflow-hidden rounded-2xl border border-kumo-hairline lg:grid-cols-[300px_minmax(0,1fr)]">
+        <aside className="border-b border-kumo-hairline bg-kumo-tint/40 p-2 lg:border-b-0 lg:border-e"><ul className="flex gap-2 overflow-x-auto lg:flex-col" aria-label="Computer sessions">{sessions.map((session) => <li key={session.id} className="min-w-64 lg:min-w-0"><button type="button" onClick={() => setSelectedId(session.id)} className={cn("w-full rounded-xl border px-3.5 py-3 text-start transition-colors", selectedId === session.id ? "border-kumo-interact/40 bg-kumo-elevated shadow-sm" : "border-transparent hover:border-kumo-hairline hover:bg-kumo-elevated")}><span className="flex items-center justify-between gap-3"><span className="truncate text-sm font-medium">{session.agentName}</span><span className={cn("size-2 rounded-full", ACTIVE.has(session.status) ? "bg-kumo-success" : session.status === "failed" ? "bg-kumo-danger" : "bg-kumo-inactive")} /></span><span className="mt-1.5 block truncate text-xs text-kumo-subtle">{session.taskTitle ?? session.goalTitle ?? "Unlinked computer work"}</span><span className="mt-2 flex justify-between text-[11px] text-kumo-subtle"><span className="capitalize">{session.status}</span><span>{formatWhen(session.startedAt)}</span></span></button></li>)}</ul></aside>
+        {selected && <article className="min-w-0 p-4 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4 border-b border-kumo-hairline pb-5"><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">{selected.agentName}&rsquo;s computer</h2><Badge variant={selected.status === "failed" ? "destructive" : "secondary"}>{selected.status}</Badge></div><p className="mt-1 text-xs text-kumo-subtle">Started {formatWhen(selected.startedAt)} · {duration(selected)} · expires {formatWhen(selected.expiresAt)}</p></div>{ACTIVE.has(selected.status) && <Button size="sm" variant="secondary" icon={StopIcon} disabled={stopping} onClick={() => void stop()}>{stopping ? "Stopping…" : "Stop"}</Button>}</div>
+          {(selected.failureSummary || selected.failureCode) && <div className="mt-4 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-3 text-sm"><p className="font-medium">{selected.failureCode?.replaceAll("_", " ")}</p><p className="mt-1 text-kumo-subtle">{selected.failureSummary}</p></div>}
+          <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Current page" value={selected.browser?.currentUrl ?? "No page open"} /><Metric label="Actions" value={`${selected.actionCount} / ${selected.resourceLimits.maxBrowserActions}`} /><Metric label="Environment" value={selected.environmentType.replaceAll("-", " ")} /><Metric label="Artifacts" value={String(selected.artifacts.length)} /></dl>
+          <section className="mt-7"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Timeline</h3>{actions.length === 0 ? <p className="mt-3 text-sm text-kumo-subtle">No detailed actions recorded yet.</p> : <ol className="mt-3 divide-y divide-kumo-hairline">{actions.map((action) => <ActionRow key={action.id} action={action} />)}</ol>}</section>
+          <section className="mt-7"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Artifacts</h3>{selected.artifacts.length === 0 ? <p className="mt-3 text-sm text-kumo-subtle">No durable artifacts captured.</p> : <ul className="mt-3 grid gap-2 sm:grid-cols-2">{selected.artifacts.map((artifact) => <li key={artifact.id}><a className="flex items-center gap-3 rounded-xl border border-kumo-hairline px-3 py-3 hover:bg-kumo-tint" href={`/api/computer-sessions/${selected.id}/artifacts/${artifact.id}`} target="_blank" rel="noreferrer"><FileIcon className="size-4 shrink-0 text-kumo-subtle" /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium">{artifact.filename}</span><span className="text-xs text-kumo-subtle">{artifact.kind} · {Math.max(1, Math.round(artifact.sizeBytes / 1024))} KB</span></span><ArrowSquareOutIcon className="size-3.5 text-kumo-subtle" /></a></li>)}</ul>}</section>
+        </article>}
+      </div>}
+  </div>;
+}
+
+function Metric({ label, value }: { label: string; value: string }) { return <div className="min-w-0 rounded-xl bg-kumo-tint p-3"><dt className="text-xs text-kumo-subtle">{label}</dt><dd className="mt-1 truncate text-sm font-semibold capitalize" title={value}>{value}</dd></div>; }
+function ActionRow({ action }: { action: ComputerActionView }) { const Icon = action.type.startsWith("browser.") ? BrowserIcon : action.type.startsWith("terminal.") ? TerminalWindowIcon : FileIcon; return <li className="flex gap-3 py-3.5"><span className="mt-0.5 rounded-lg bg-kumo-tint p-2"><Icon className="size-4 text-kumo-subtle" /></span><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-medium">{action.type.replace(".", " · ")}</p><span className="text-[11px] capitalize text-kumo-subtle">{action.status} · {formatWhen(action.startedAt)}</span></div><p className="mt-1 truncate text-xs text-kumo-subtle">{action.target ?? action.inputSummary}</p>{action.failureSummary && <p className="mt-1 text-xs text-kumo-danger">{action.failureSummary}</p>}</div></li>; }

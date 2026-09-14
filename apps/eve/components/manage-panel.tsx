@@ -1,23 +1,47 @@
 "use client";
 
-import { Badge, Button, DropdownMenu, Input, InputArea, Loader, Tabs } from "@cloudflare/kumo";
+import { Badge, Button, DropdownMenu, Input, Loader } from "@cloudflare/kumo";
 import {
+  ArrowLeftIcon,
   ArrowSquareOutIcon,
+  BellIcon,
+  CalendarDotsIcon,
+  BrainIcon,
   CaretDownIcon,
   CaretRightIcon,
   CheckIcon,
   CopyIcon,
-  PencilSimpleIcon,
+  LightningIcon,
+  ListChecksIcon,
+  MagicWandIcon,
+  PaletteIcon,
   PlugsIcon,
   PlusIcon,
+  PulseIcon,
+  ReceiptIcon,
+  UsersThreeIcon,
   TrashIcon,
+  WarningCircleIcon,
 } from "@phosphor-icons/react";
+import type { Icon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
+import type { CapabilityId, CapabilityStatus } from "@/lib/capabilities";
+import { AppearancePanel } from "@/components/appearance-panel";
+import { AgentsPanel } from "@/components/agents-panel";
+import { FinancePanel } from "@/components/finance-panel";
+import { SkillsManager } from "@/components/skills-manager";
+import { SystemHealthPanel } from "@/components/system-health-panel";
+import { TaskRunsPanel } from "@/components/task-runs-panel";
+import { ReviewDeliverySettings } from "@/components/review-delivery-settings";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
+import type { AgentActivityView } from "@/lib/agents";
+import type { AgentView } from "@/lib/agents";
+import type { RoleDefinition } from "@/lib/role-catalog";
+import type { SolutionPack } from "@/lib/solution-packs";
 
-// Management surface for everything Ruth does or knows on her own: scheduled
+// Management surface for everything Sofie does or knows on her own: scheduled
 // reminders, event-trigger webhooks, long-term memory, connected apps, and
 // saved skills. Reminders/webhooks/memory stay read + delete (creation is
 // conversational); connections can be added/removed here because that's an
@@ -69,11 +93,16 @@ interface ConnectionItem {
   }[];
 }
 
-interface SkillItem {
-  name: string;
-  description: string;
-  markdown: string;
-  updatedAt: string;
+function AgentActivity() {
+  const [events, setEvents] = useState<AgentActivityView[] | null>(null);
+  useEffect(() => {
+    void fetch("/api/agents/activity", { cache: "no-store" })
+      .then((response) => response.ok ? response.json() : null)
+      .then((body: { activity?: AgentActivityView[] } | null) => setEvents(body?.activity ?? []))
+      .catch(() => setEvents([]));
+  }, []);
+  if (!events?.length) return null;
+  return <section className="mb-6"><h3 className="text-sm font-semibold">Agent lifecycle</h3><ol className="mt-2 divide-y divide-kumo-hairline rounded-xl border border-kumo-hairline px-3">{events.slice(0, 10).map((event) => <li key={event.id} className="py-3"><p className="text-sm">{event.summary}</p><p className="mt-1 text-[11px] text-kumo-subtle">{event.agentName} · {event.actorType} · {new Date(event.createdAt).toLocaleString()}</p></li>)}</ol></section>;
 }
 
 function formatWhen(iso: string | null): string {
@@ -153,6 +182,15 @@ function LoadingRow() {
   return (
     <div className="flex justify-center py-8">
       <Loader size={18} />
+    </div>
+  );
+}
+
+function ErrorNote({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex gap-3 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm">
+      <WarningCircleIcon className="mt-0.5 size-4 shrink-0 text-kumo-danger" aria-hidden />
+      <p>{children}</p>
     </div>
   );
 }
@@ -383,166 +421,6 @@ function ConnectionsTab() {
   );
 }
 
-// --- Skills tab ---
-
-function SkillsTab() {
-  const [skills, setSkills] = useState<SkillItem[] | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [draftDescription, setDraftDescription] = useState("");
-  const [draftMarkdown, setDraftMarkdown] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    void fetch("/api/skills")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body: { skills?: SkillItem[] } | null) => setSkills(body?.skills ?? []))
-      .catch(() => setSkills([]));
-  }, []);
-
-  function startEdit(skill: SkillItem) {
-    setEditing(skill.name);
-    setExpanded(skill.name);
-    setDraftDescription(skill.description);
-    setDraftMarkdown(skill.markdown);
-  }
-
-  function saveEdit(name: string) {
-    if (draftDescription.trim().length === 0 || draftMarkdown.trim().length === 0) return;
-    setSaving(true);
-    void fetch("/api/skills", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, description: draftDescription, markdown: draftMarkdown }),
-    })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body: { skill?: SkillItem } | null) => {
-        if (body?.skill) {
-          setSkills(
-            (prev) => prev?.map((skill) => (skill.name === name ? body.skill! : skill)) ?? null,
-          );
-        }
-        setEditing(null);
-      })
-      .finally(() => setSaving(false));
-  }
-
-  function deleteSkill(name: string) {
-    setSkills((prev) => prev?.filter((skill) => skill.name !== name) ?? null);
-    void fetch("/api/skills", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
-    });
-  }
-
-  if (skills === null) return <LoadingRow />;
-  if (skills.length === 0) {
-    return (
-      <EmptyNote>
-          No saved skills. Describe a repeatable workflow in chat and ask {AGENT_NAME} to save it
-          as a skill.
-      </EmptyNote>
-    );
-  }
-
-  return (
-    <ul className="flex flex-col">
-      {skills.map((skill) => {
-        const isExpanded = expanded === skill.name;
-        const isEditing = editing === skill.name;
-        return (
-          <li key={skill.name} className="border-b border-kumo-hairline py-2 last:border-b-0">
-            <div className="flex items-center gap-1">
-              <ExpandCaret
-                expanded={isExpanded}
-                label={`${isExpanded ? "Collapse" : "Expand"} ${skill.name}`}
-                onToggle={() => {
-                  setExpanded(isExpanded ? null : skill.name);
-                  if (editing === skill.name) setEditing(null);
-                }}
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-mono text-sm">/{skill.name}</p>
-                <p className="truncate text-xs text-kumo-subtle" title={skill.description}>
-                  {skill.description}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                shape="square"
-                icon={PencilSimpleIcon}
-                aria-label={`Edit ${skill.name}`}
-                title={`Edit ${skill.name}`}
-                onClick={() => (isEditing ? setEditing(null) : startEdit(skill))}
-              />
-              <DeleteButton
-                label={`Delete skill ${skill.name}`}
-                onDelete={() => deleteSkill(skill.name)}
-              />
-            </div>
-            {isExpanded && !isEditing && (
-              <pre className="mt-2 max-h-64 overflow-y-auto rounded-md bg-kumo-recessed p-3 text-xs whitespace-pre-wrap text-kumo-subtle [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {skill.markdown}
-              </pre>
-            )}
-            {isExpanded && isEditing && (
-              <div className="mt-2 flex flex-col gap-2">
-                <Input
-                  size="sm"
-                  value={draftDescription}
-                  aria-label="Skill description"
-                  placeholder={`When should ${AGENT_NAME} use this skill?`}
-                  onChange={(event) => setDraftDescription(event.target.value)}
-                />
-                <InputArea
-                  value={draftMarkdown}
-                  aria-label="Skill instructions"
-                  autoResize
-                  minRows={6}
-                  maxRows={14}
-                  className="font-mono text-xs"
-                  onChange={(event) => setDraftMarkdown(event.target.value)}
-                />
-                <div className="flex justify-end gap-2">
-                  <Button variant="secondary" size="sm" onClick={() => setEditing(null)}>
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    disabled={saving}
-                    onClick={() => saveEdit(skill.name)}
-                  >
-                    {saving ? "Saving…" : "Save"}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
-interface FeatureFlags {
-  memory: boolean;
-  proactive: boolean;
-  integrations: boolean;
-  skills: boolean;
-}
-
-// Personal deployments have everything; builder deployments report what they
-// shipped via /api/features so tabs for absent features never render.
-const ALL_FEATURES_ON: FeatureFlags = {
-  memory: true,
-  proactive: true,
-  integrations: true,
-  skills: true,
-};
-
 interface UpdateInfo {
   updateAvailable: boolean;
   currentVersion?: string;
@@ -550,61 +428,266 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents";
+
+interface SectionDefinition {
+  id: ManageSection;
+  label: string;
+  description: string;
+  icon: Icon;
+}
+
+const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
+  {
+    label: "General",
+    sections: [
+      {
+        id: "review-delivery" as const,
+        label: "Briefs & reviews",
+        description: "Scheduled proactive delivery",
+        icon: CalendarDotsIcon,
+      },
+      {
+        id: "system" as const,
+        label: "System",
+        description: "Setup and service health",
+        icon: PulseIcon,
+      },
+      {
+        id: "appearance" as const,
+        label: "Appearance",
+        description: "Identity and theme",
+        icon: PaletteIcon,
+      },
+      {
+        id: "agents" as const,
+        label: "Agents",
+        description: "Role catalog and persistent Agents",
+        icon: UsersThreeIcon,
+      },
+    ],
+  },
+  {
+    label: "Automations",
+    sections: [
+      {
+        id: "reminders" as const,
+        label: "Reminders",
+        description: "Scheduled follow-ups",
+        icon: BellIcon,
+      },
+      {
+        id: "triggers" as const,
+        label: "Triggers",
+        description: "Event-driven work",
+        icon: LightningIcon,
+      },
+    ],
+  },
+  {
+    label: "Knowledge & tools",
+    sections: [
+      {
+        id: "memory" as const,
+        label: "Memory",
+        description: `What ${AGENT_NAME} remembers`,
+        icon: BrainIcon,
+      },
+      {
+        id: "connections" as const,
+        label: "Connections",
+        description: "Apps and accounts",
+        icon: PlugsIcon,
+      },
+      {
+        id: "skills" as const,
+        label: "Skills",
+        description: "Reusable procedures",
+        icon: MagicWandIcon,
+      },
+    ],
+  },
+  {
+    label: "Operations",
+    sections: [
+      {
+        id: "activity" as const,
+        label: "Activity",
+        description: "Audited tasks and evidence",
+        icon: ListChecksIcon,
+      },
+      {
+        id: "finance" as const,
+        label: "Finance",
+        description: "Recorded receipts",
+        icon: ReceiptIcon,
+      },
+    ],
+  },
+];
+
+const ALL_SECTIONS = SECTION_GROUPS.flatMap((group) => group.sections);
+
+function isManageSection(value: string | undefined): value is ManageSection {
+  return ALL_SECTIONS.some((section) => section.id === value);
+}
+
+function sectionFromPath(pathname: string): ManageSection | null {
+  const segment = pathname.split("/").filter(Boolean)[1];
+  return isManageSection(segment) ? segment : null;
+}
+
+function SectionStatus({ capability }: { capability: CapabilityStatus | undefined }) {
+  if (capability?.state === "setup_required") {
+    return <Badge variant="secondary">Setup</Badge>;
+  }
+  if (capability?.state === "ready") {
+    return (
+      <span className="flex items-center gap-1 text-[11px] text-kumo-subtle">
+        <span className="size-1.5 rounded-full bg-kumo-success" aria-hidden />
+        Ready
+      </span>
+    );
+  }
+  return null;
+}
+
+function SetupRequired({ capability }: { capability: CapabilityStatus }) {
+  return (
+    <div className="rounded-2xl border border-kumo-hairline bg-kumo-tint p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-kumo-recessed">
+          <WarningCircleIcon className="size-5 text-kumo-subtle" aria-hidden />
+        </span>
+        <div>
+          <h3 className="text-sm font-semibold">Setup required</h3>
+          <p className="mt-1 text-sm text-kumo-subtle">{capability.reason}</p>
+          {capability.setupHint && (
+            <p className="mt-3 rounded-lg bg-kumo-recessed px-3 py-2 font-mono text-xs text-kumo-subtle">
+              {capability.setupHint}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SectionShell({
+  title,
+  description,
+  capability,
+  allowSetupRequiredContent = false,
+  children,
+}: {
+  title: string;
+  description: string;
+  capability: CapabilityStatus | undefined;
+  allowSetupRequiredContent?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <div className="mb-5 flex items-start justify-between gap-4 border-b border-kumo-hairline pb-5">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+          <p className="mt-1 text-sm text-kumo-subtle">{description}</p>
+        </div>
+        <SectionStatus capability={capability} />
+      </div>
+      {capability?.state === "setup_required" && !allowSetupRequiredContent ? (
+        <SetupRequired capability={capability} />
+      ) : (
+        children
+      )}
+    </div>
+  );
+}
+
 export function ManagePanel({
   onOpenThread,
+  onStartAgentChat,
+  onUseRole,
+  onUseSolutionPack,
 }: {
   /** Jump to a thread (e.g. one a reminder delivered). */
   onOpenThread: (threadId: string) => void;
+  onStartAgentChat: (agent: AgentView) => void;
+  onUseRole: (role: RoleDefinition) => void;
+  onUseSolutionPack: (pack: SolutionPack) => void;
 }) {
-  const [tab, setTab] = useState("reminders");
-  const [features, setFeatures] = useState<FeatureFlags>(ALL_FEATURES_ON);
+  const [selectedSection, setSelectedSection] = useState<ManageSection | null>(null);
+  const [capabilities, setCapabilities] = useState<CapabilityStatus[] | null>(null);
+  const [capabilityError, setCapabilityError] = useState(false);
   const [update, setUpdate] = useState<UpdateInfo | null>(null);
   const [reminders, setReminders] = useState<ReminderItem[] | null>(null);
   const [webhooks, setWebhooks] = useState<WebhookItem[] | null>(null);
   const [runs, setRuns] = useState<RunItem[]>([]);
   const [memories, setMemories] = useState<MemoryItem[] | null>(null);
   const [expandedRuns, setExpandedRuns] = useState<string | null>(null);
+  const [automationError, setAutomationError] = useState<string | null>(null);
+  const [memoryError, setMemoryError] = useState<string | null>(null);
 
   useEffect(() => {
-    void fetch("/api/features")
+    setSelectedSection(sectionFromPath(window.location.pathname));
+    function onPopState() {
+      setSelectedSection(sectionFromPath(window.location.pathname));
+      document.querySelector("main")?.scrollTo({ top: 0 });
+    }
+    window.addEventListener("popstate", onPopState);
+
+    void fetch("/api/capabilities")
       .then((response) => (response.ok ? response.json() : null))
-      .then((body: Partial<FeatureFlags> | null) => {
-        if (body !== null) setFeatures({ ...ALL_FEATURES_ON, ...body });
+      .then((body: { capabilities?: CapabilityStatus[] } | null) => {
+        if (body?.capabilities === undefined) {
+          setCapabilityError(true);
+          return;
+        }
+        setCapabilities(body.capabilities);
       })
-      .catch(() => undefined);
-    // Builder-deployed agents carry a baked template stamp; ask the builder
-    // whether a newer template exists. The personal app reports "no update".
+      .catch(() => setCapabilityError(true));
+
     void fetch("/api/update-check")
       .then((response) => (response.ok ? response.json() : null))
       .then((body: UpdateInfo | null) => setUpdate(body))
       .catch(() => undefined);
+
+    return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   useEffect(() => {
-    void fetch("/api/automations")
-      .then((response) => (response.ok ? response.json() : null))
-      .then(
-        (
-          body: {
+    if (capabilities === null) return;
+    const byId = new Map(capabilities.map((capability) => [capability.id, capability]));
+    const automationsReady =
+      byId.get("reminders")?.state === "ready" || byId.get("triggers")?.state === "ready";
+    if (automationsReady) {
+      void fetch("/api/automations")
+        .then(async (response) => {
+          if (!response.ok) throw new Error("Automations could not be loaded.");
+          return response.json() as Promise<{
             reminders?: ReminderItem[];
             webhooks?: WebhookItem[];
             runs?: RunItem[];
-          } | null,
-        ) => {
-          setReminders(body?.reminders ?? []);
-          setWebhooks(body?.webhooks ?? []);
-          setRuns(body?.runs ?? []);
-        },
-      )
-      .catch(() => {
-        setReminders([]);
-        setWebhooks([]);
-      });
-    void fetch("/api/memories")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((body: { memories?: MemoryItem[] } | null) => setMemories(body?.memories ?? []))
-      .catch(() => setMemories([]));
-  }, []);
+          }>;
+        })
+        .then((body) => {
+          setReminders(body.reminders ?? []);
+          setWebhooks(body.webhooks ?? []);
+          setRuns(body.runs ?? []);
+        })
+        .catch(() => setAutomationError("Automations could not be loaded. Check the database and retry."));
+    }
+
+    if (byId.get("memory")?.state === "ready") {
+      void fetch("/api/memories")
+        .then(async (response) => {
+          if (!response.ok) throw new Error("Memory could not be loaded.");
+          return response.json() as Promise<{ memories?: MemoryItem[] }>;
+        })
+        .then((body) => setMemories(body.memories ?? []))
+        .catch(() => setMemoryError("Memory could not be loaded. Check Supermemory and retry."));
+    }
+  }, [capabilities]);
 
   function cancelReminder(id: number) {
     setReminders((prev) => prev?.filter((reminder) => reminder.id !== id) ?? null);
@@ -638,31 +721,162 @@ export function ManagePanel({
     return runs.filter((run) => run.kind === kind && run.automationId === id);
   }
 
-  const visibleTabs = [
-    ...(features.proactive
-      ? [
-          { value: "reminders", label: `Reminders${reminders ? ` (${reminders.length})` : ""}` },
-          { value: "webhooks", label: `Triggers${webhooks ? ` (${webhooks.length})` : ""}` },
-        ]
-      : []),
-    ...(features.memory
-      ? [{ value: "memory", label: `Memory${memories ? ` (${memories.length})` : ""}` }]
-      : []),
-    ...(features.integrations ? [{ value: "connections", label: "Connections" }] : []),
-    ...(features.skills ? [{ value: "skills", label: "Skills" }] : []),
-  ];
+  const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
+  const capabilityFor = (id: ManageSection) =>
+    id === "system" || id === "activity" || id === "agents"
+      ? undefined
+      : id === "review-delivery"
+        ? capabilityById.get("goals")
+        : capabilityById.get(id);
+  const isVisible = (id: ManageSection) =>
+    id === "system" || id === "activity" || id === "agents" || capabilityFor(id)?.state !== "excluded";
+  const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
+  const activeSection =
+    selectedSection !== null && isVisible(selectedSection)
+      ? selectedSection
+      : (visibleSections[0]?.id ?? "system");
 
-  // If the active tab's feature turns out to be absent, land on the first
-  // tab that exists instead of an empty pane.
   useEffect(() => {
-    if (visibleTabs.length > 0 && !visibleTabs.some((entry) => entry.value === tab)) {
-      setTab(visibleTabs[0].value);
+    if (capabilities !== null && selectedSection !== null && !isVisible(selectedSection)) {
+      setSelectedSection(null);
+      window.history.replaceState(null, "", "/manage");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the derived list
-  }, [features, tab]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- visibility is derived from capabilities
+  }, [capabilities, selectedSection]);
+
+  function selectSection(section: ManageSection | null) {
+    setSelectedSection(section);
+    const path = section === null ? "/manage" : `/manage/${section}`;
+    if (window.location.pathname !== path) window.history.pushState(null, "", path);
+    requestAnimationFrame(() => document.querySelector("main")?.scrollTo({ top: 0 }));
+  }
+
+  function countFor(section: ManageSection): number | null {
+    if (section === "reminders") return reminders?.length ?? null;
+    if (section === "triggers") return webhooks?.length ?? null;
+    if (section === "memory") return memories?.length ?? null;
+    return null;
+  }
+
+  const activeMeta = ALL_SECTIONS.find((section) => section.id === activeSection)!;
+  const activeCapability = capabilityFor(activeSection);
+  const focusedWorkspace = activeSection === "skills";
+
+  let sectionContent: React.ReactNode;
+  if (activeSection === "system") {
+    sectionContent = <SystemHealthPanel />;
+  } else if (activeSection === "review-delivery") {
+    sectionContent = <ReviewDeliverySettings />;
+  } else if (activeSection === "activity") {
+    sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
+  } else if (activeSection === "appearance") {
+    sectionContent = <AppearancePanel />;
+  } else if (activeSection === "agents") {
+    sectionContent = <AgentsPanel embedded onStartChat={onStartAgentChat} onUseRole={onUseRole} onUseSolutionPack={onUseSolutionPack} />;
+  } else if (activeSection === "reminders") {
+    sectionContent = automationError ? (
+      <ErrorNote>{automationError}</ErrorNote>
+    ) : reminders === null ? (
+      <LoadingRow />
+    ) : reminders.length === 0 ? (
+      <EmptyNote>No reminders. Try &ldquo;remind me to stretch at 6pm&rdquo; in chat.</EmptyNote>
+    ) : (
+      <ul className="flex flex-col">
+        {reminders.map((reminder) => {
+          const history = runsFor("reminder", reminder.id);
+          const expanded = expandedRuns === `reminder:${reminder.id}`;
+          return (
+            <li key={reminder.id} className="border-b border-kumo-hairline py-2 last:border-b-0">
+              <div className="flex items-center gap-2">
+                <ExpandCaret
+                  expanded={expanded}
+                  label={`${expanded ? "Hide" : "Show"} run history`}
+                  onToggle={() => setExpandedRuns(expanded ? null : `reminder:${reminder.id}`)}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm" title={reminder.prompt}>{reminder.prompt}</p>
+                  <p className="mt-0.5 text-xs text-kumo-subtle">
+                    Next: {formatWhen(reminder.nextFireAt)}
+                    {reminder.cron !== null && ` · ${reminder.cron} (${reminder.timezone})`}
+                    {history.length > 0 && ` · ran ${history.length}×`}
+                  </p>
+                </div>
+                <Badge variant="secondary">{reminder.cron === null ? "one-off" : "recurring"}</Badge>
+                <DeleteButton label={`Cancel reminder ${reminder.id}`} onDelete={() => cancelReminder(reminder.id)} />
+              </div>
+              {expanded && <RunHistory runs={history} onOpenThread={onOpenThread} />}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  } else if (activeSection === "triggers") {
+    sectionContent = automationError ? (
+      <ErrorNote>{automationError}</ErrorNote>
+    ) : webhooks === null ? (
+      <LoadingRow />
+    ) : webhooks.length === 0 ? (
+      <EmptyNote>No event triggers. Ask {AGENT_NAME} to &ldquo;create a webhook for deploy alerts&rdquo;.</EmptyNote>
+    ) : (
+      <ul className="flex flex-col">
+        {webhooks.map((hook) => {
+          const history = runsFor("webhook", hook.id);
+          const expanded = expandedRuns === `webhook:${hook.id}`;
+          return (
+            <li key={hook.id} className="border-b border-kumo-hairline py-2 last:border-b-0">
+              <div className="flex items-center gap-2">
+                <ExpandCaret
+                  expanded={expanded}
+                  label={`${expanded ? "Hide" : "Show"} run history`}
+                  onToggle={() => setExpandedRuns(expanded ? null : `webhook:${hook.id}`)}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm">{hook.name}</p>
+                  <p className="mt-0.5 truncate text-xs text-kumo-subtle" title={hook.prompt}>{hook.prompt}</p>
+                  <p className="mt-0.5 text-xs text-kumo-subtle">
+                    Fired {hook.fireCount} {hook.fireCount === 1 ? "time" : "times"} · last {formatWhen(hook.lastFiredAt)}
+                  </p>
+                </div>
+                <CopyUrlButton url={hook.url} />
+                <DeleteButton label={`Delete trigger ${hook.name}`} onDelete={() => deleteWebhook(hook.id)} />
+              </div>
+              {expanded && <RunHistory runs={history} onOpenThread={onOpenThread} />}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  } else if (activeSection === "memory") {
+    sectionContent = memoryError ? (
+      <ErrorNote>{memoryError}</ErrorNote>
+    ) : memories === null ? (
+      <LoadingRow />
+    ) : memories.length === 0 ? (
+      <EmptyNote>No saved memories yet.</EmptyNote>
+    ) : (
+      <ul className="flex flex-col">
+        {memories.map((memory) => (
+          <li key={memory.id} className="flex items-center gap-3 border-b border-kumo-hairline py-2.5 last:border-b-0">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm break-words">{memory.content}</p>
+              <p className="mt-0.5 text-xs text-kumo-subtle">Updated {formatWhen(memory.updatedAt)}</p>
+            </div>
+            {memory.permanent && <Badge variant="secondary">permanent</Badge>}
+            <DeleteButton label="Forget memory" onDelete={() => forgetMemory(memory.id)} />
+          </li>
+        ))}
+      </ul>
+    );
+  } else if (activeSection === "connections") {
+    sectionContent = <ConnectionsTab />;
+  } else if (activeSection === "skills") {
+    sectionContent = <SkillsManager />;
+  } else {
+    sectionContent = <FinancePanel />;
+  }
 
   return (
-    <div>
+    <div className="pb-10">
       {update?.updateAvailable === true && update.updateUrl !== undefined && (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-kumo-hairline bg-kumo-tint px-4 py-3">
           <div className="min-w-0">
@@ -688,139 +902,107 @@ export function ManagePanel({
           </a>
         </div>
       )}
-      <Tabs
-        size="sm"
-        // Hug the tab labels like the Kumo docs demo instead of stretching
-        // the segmented track across the whole page column.
-        className="w-fit max-w-full"
-        value={tab}
-        onValueChange={setTab}
-        tabs={visibleTabs}
-      />
+      {capabilityError && (
+        <div className="mb-4">
+          <ErrorNote>System status could not be loaded. Refresh before changing settings.</ErrorNote>
+        </div>
+      )}
 
-      <div className="mt-3 min-h-40">
-        {tab === "reminders" &&
-          (reminders === null ? (
-            <LoadingRow />
-          ) : reminders.length === 0 ? (
-            <EmptyNote>
-              No reminders. Try &ldquo;remind me to stretch at 6pm&rdquo; in chat.
-            </EmptyNote>
-          ) : (
-            <ul className="flex flex-col">
-              {reminders.map((reminder) => {
-                const history = runsFor("reminder", reminder.id);
-                const expanded = expandedRuns === `reminder:${reminder.id}`;
-                return (
-                  <li
-                    key={reminder.id}
-                    className="border-b border-kumo-hairline py-2 last:border-b-0"
-                  >
-                    <div className="flex items-center gap-2">
-                      <ExpandCaret
-                        expanded={expanded}
-                        label={`${expanded ? "Hide" : "Show"} run history`}
-                        onToggle={() =>
-                          setExpandedRuns(expanded ? null : `reminder:${reminder.id}`)
-                        }
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm" title={reminder.prompt}>
-                          {reminder.prompt}
-                        </p>
-                        <p className="mt-0.5 text-xs text-kumo-subtle">
-                          Next: {formatWhen(reminder.nextFireAt)}
-                          {reminder.cron !== null && ` · ${reminder.cron} (${reminder.timezone})`}
-                          {history.length > 0 && ` · ran ${history.length}×`}
-                        </p>
-                      </div>
-                      <Badge variant="secondary">
-                        {reminder.cron === null ? "one-off" : "recurring"}
-                      </Badge>
-                      <DeleteButton
-                        label={`Cancel reminder ${reminder.id}`}
-                        onDelete={() => cancelReminder(reminder.id)}
-                      />
-                    </div>
-                    {expanded && <RunHistory runs={history} onOpenThread={onOpenThread} />}
-                  </li>
-                );
-              })}
-            </ul>
-          ))}
+      <div
+        className={cn(
+          "grid items-start gap-6",
+          focusedWorkspace ? "lg:grid-cols-1" : "lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-8",
+        )}
+      >
+        <nav
+          aria-label="Manage sections"
+          className={cn(
+            "min-w-0",
+            selectedSection !== null && "hidden lg:block",
+            focusedWorkspace && "lg:hidden",
+          )}
+        >
+          {SECTION_GROUPS.map((group) => {
+            const groupSections = group.sections.filter((section) => isVisible(section.id));
+            if (groupSections.length === 0) return null;
+            return (
+              <div key={group.label} className="mb-5 last:mb-0">
+                <p className="mb-1.5 px-2 text-[11px] font-semibold tracking-wide text-kumo-subtle uppercase">
+                  {group.label}
+                </p>
+                <ul className="flex flex-col gap-1">
+                  {groupSections.map((section) => {
+                    const Icon = section.icon;
+                    const count = countFor(section.id);
+                    const selected = activeSection === section.id;
+                    const capability = capabilityFor(section.id);
+                    return (
+                      <li key={section.id}>
+                        <button
+                          type="button"
+                          aria-current={selected ? "page" : undefined}
+                          className={cn(
+                            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors",
+                            selected ? "bg-kumo-recessed" : "hover:bg-kumo-tint",
+                          )}
+                          onClick={() => selectSection(section.id)}
+                        >
+                          <span className={cn(
+                            "flex size-8 shrink-0 items-center justify-center rounded-lg border border-kumo-hairline",
+                            selected ? "bg-kumo-canvas text-kumo-default" : "text-kumo-subtle",
+                          )}>
+                            <Icon className="size-4" aria-hidden />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-medium">{section.label}</span>
+                            <span className="block truncate text-xs text-kumo-subtle">{section.description}</span>
+                          </span>
+                          {capability?.state === "setup_required" ? (
+                            <span className="size-2 rounded-full bg-kumo-warning" title="Setup required">
+                              <span className="sr-only">Setup required</span>
+                            </span>
+                          ) : count !== null ? (
+                            <span className="text-xs tabular-nums text-kumo-subtle">{count}</span>
+                          ) : (
+                            <CaretRightIcon className="size-3.5 text-kumo-subtle lg:hidden" aria-hidden />
+                          )}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            );
+          })}
+        </nav>
 
-        {tab === "webhooks" &&
-          (webhooks === null ? (
-            <LoadingRow />
-          ) : webhooks.length === 0 ? (
-            <EmptyNote>
-              No event triggers. Ask {AGENT_NAME} to &ldquo;create a webhook for deploy
-              alerts&rdquo;.
-            </EmptyNote>
-          ) : (
-            <ul className="flex flex-col">
-              {webhooks.map((hook) => {
-                const history = runsFor("webhook", hook.id);
-                const expanded = expandedRuns === `webhook:${hook.id}`;
-                return (
-                  <li key={hook.id} className="border-b border-kumo-hairline py-2 last:border-b-0">
-                    <div className="flex items-center gap-2">
-                      <ExpandCaret
-                        expanded={expanded}
-                        label={`${expanded ? "Hide" : "Show"} run history`}
-                        onToggle={() => setExpandedRuns(expanded ? null : `webhook:${hook.id}`)}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm">{hook.name}</p>
-                        <p className="mt-0.5 truncate text-xs text-kumo-subtle" title={hook.prompt}>
-                          {hook.prompt}
-                        </p>
-                        <p className="mt-0.5 text-xs text-kumo-subtle">
-                          Fired {hook.fireCount} {hook.fireCount === 1 ? "time" : "times"} · last{" "}
-                          {formatWhen(hook.lastFiredAt)}
-                        </p>
-                      </div>
-                      <CopyUrlButton url={hook.url} />
-                      <DeleteButton
-                        label={`Delete trigger ${hook.name}`}
-                        onDelete={() => deleteWebhook(hook.id)}
-                      />
-                    </div>
-                    {expanded && <RunHistory runs={history} onOpenThread={onOpenThread} />}
-                  </li>
-                );
-              })}
-            </ul>
-          ))}
-
-        {tab === "memory" &&
-          (memories === null ? (
-            <LoadingRow />
-          ) : memories.length === 0 ? (
-            <EmptyNote>No saved memories yet.</EmptyNote>
-          ) : (
-            <ul className="flex flex-col">
-              {memories.map((memory) => (
-                <li
-                  key={memory.id}
-                  className="flex items-center gap-3 border-b border-kumo-hairline py-2.5 last:border-b-0"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm break-words">{memory.content}</p>
-                    <p className="mt-0.5 text-xs text-kumo-subtle">
-                      Updated {formatWhen(memory.updatedAt)}
-                    </p>
-                  </div>
-                  {memory.permanent && <Badge variant="secondary">permanent</Badge>}
-                  <DeleteButton label="Forget memory" onDelete={() => forgetMemory(memory.id)} />
-                </li>
-              ))}
-            </ul>
-          ))}
-
-        {tab === "connections" && <ConnectionsTab />}
-
-        {tab === "skills" && <SkillsTab />}
+        <section className={cn("min-w-0", selectedSection === null && "hidden lg:block")}>
+          <button
+            type="button"
+            className={cn(
+              "mb-4 items-center gap-1.5 text-sm text-kumo-subtle hover:text-kumo-default",
+              focusedWorkspace ? "flex" : "flex lg:hidden",
+            )}
+            onClick={() => selectSection(null)}
+          >
+            <ArrowLeftIcon className="size-4" aria-hidden />
+            All settings
+          </button>
+          <div className="min-h-64 rounded-2xl border border-kumo-hairline bg-kumo-canvas p-4 sm:p-6">
+            {capabilities === null && !capabilityError ? (
+              <LoadingRow />
+            ) : (
+              <SectionShell
+                title={activeMeta.label}
+                description={activeMeta.description}
+                capability={activeCapability}
+                allowSetupRequiredContent={activeSection === "skills"}
+              >
+                {sectionContent}
+              </SectionShell>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

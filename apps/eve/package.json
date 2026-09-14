@@ -7,10 +7,17 @@
     "#evals/*": "./evals/*"
   },
   "scripts": {
-    "build": "next build",
+    "build": "npm run skills:prepare && next build",
+    "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.ts",
+    "db:migrations:check": "node scripts/migrate-database.ts --check",
     "dev": "next dev",
+    "eval:skills": "eve eval skills/routing --strict --max-concurrency 2",
+    "skills:catalog": "node scripts/generate-skill-catalog.mjs",
+    "skills:prepare": "node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs",
+    "skills:validate": "node scripts/check-imported-skill-routing.mjs",
+    "seed:knowledge-preview": "node --env-file-if-exists=.env.local scripts/seed-knowledge-preview.ts",
     "start": "next start",
-    "typecheck": "tsc"
+    "typecheck": "tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate"
   },
   "dependencies": {
     "@agent-browser/eve": "^0.32.3",
@@ -26,7 +33,7 @@
     "clsx": "^2.1.1",
     "cron-parser": "^5.6.2",
     "eve": "^0.27.0",
-    "next": "^16.2.11",
+    "next": "^16.3.5",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "remark-breaks": "^4.0.0",

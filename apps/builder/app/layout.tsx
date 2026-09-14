@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "eveclaw — Eve Agent Builder",
-  description: "Configure your own Eve agent and deploy it to your Vercel account in one click.",
+  title: "MyEve — Personal Agent Builder",
+  description: "Configure your own persistent personal AI and deploy it to your Vercel account.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

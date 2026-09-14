@@ -13,6 +13,7 @@ import {
   BellIcon,
   BellSlashIcon,
   BrainIcon,
+  CalendarCheckIcon,
   CaretDownIcon,
   CheckIcon,
   CopyIcon,
@@ -23,6 +24,7 @@ import {
   MagnifyingGlassIcon,
   KeyIcon,
   MicrophoneIcon,
+  MonitorIcon,
   PaperclipIcon,
   PencilSimpleIcon,
   PlusIcon,
@@ -32,15 +34,27 @@ import {
   SparkleIcon,
   StarIcon,
   StopIcon,
+  TargetIcon,
   TrashIcon,
   WrenchIcon,
+  UsersThreeIcon,
   XIcon,
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
+import { ComputerSessionsPanel } from "@/components/computer-sessions-panel";
+import {
+  CapabilityNotice,
+  type CapabilityNoticeState,
+} from "@/components/capability-notice";
 import { ManagePanel } from "@/components/manage-panel";
+import { AgentsPanel } from "@/components/agents-panel";
+import { GoalsPanel } from "@/components/goals-panel";
+import { KnowledgePanel } from "@/components/knowledge-panel";
+import { ReviewPanel } from "@/components/review-panel";
 import { Markdown } from "@/components/markdown";
+import { TaskRunCard } from "@/components/task-run-card";
 import { usePushNotifications } from "@/components/use-push";
 import {
   Attachment,
@@ -65,6 +79,10 @@ import {
   MessageScrollerViewport,
 } from "@/components/ui/message-scroller";
 import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
+import { setupRequiredCapabilityLabels } from "@/lib/capability-notice";
+import type { CapabilityStatus } from "@/lib/capabilities";
+import type { SolutionPack } from "@/lib/solution-packs";
+import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 
 const THREADS_KEY = "eve-web-threads";
@@ -165,6 +183,12 @@ interface ThreadMeta {
   renamed?: boolean;
   /** Who started the thread; reminder/webhook threads get a sidebar badge. */
   origin?: "web" | "reminder" | "webhook";
+  /** Persistent Agent used for this conversation; absent means the primary Agent. */
+  agentId?: string;
+  agentName?: string;
+  /** On-demand Role applied to this conversation; never creates a persistent Agent. */
+  roleId?: string;
+  roleName?: string;
 }
 
 interface ThreadIndex {
@@ -173,7 +197,20 @@ interface ThreadIndex {
 }
 
 function newThreadMeta(): ThreadMeta {
-  return { id: crypto.randomUUID(), title: "New chat", updatedAt: Date.now() };
+  return { id: browserRandomId(), title: "New chat", updatedAt: Date.now() };
+}
+
+function browserRandomId(): string {
+  if (typeof globalThis.crypto?.randomUUID === "function") return globalThis.crypto.randomUUID();
+  const bytes = new Uint8Array(16);
+  globalThis.crypto?.getRandomValues(bytes);
+  if (bytes.every((byte) => byte === 0)) {
+    return `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+  }
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 function loadThreadIndex(): ThreadIndex {
@@ -245,6 +282,10 @@ function threadMetaBody(meta: ThreadMeta) {
     pinned: meta.pinned === true,
     renamed: meta.renamed === true,
     origin: meta.origin,
+    agentId: meta.agentId,
+    agentName: meta.agentName,
+    roleId: meta.roleId,
+    roleName: meta.roleName,
   };
 }
 
@@ -578,7 +619,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
 }
 
 /** What the main column shows; the sidebar is shared between both. */
-type MainView = "chat" | "manage";
+type MainView = "chat" | "manage" | "goals" | "review" | "agents" | "computer" | "knowledge";
 
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
@@ -613,17 +654,57 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   // First run on this device (no stored seen map): the first server sync
   // adopts every thread as read so history doesn't arrive covered in dots.
   const needsSeenSeedRef = useRef(Object.keys(seenAt).length === 0);
-  // Whether the main column shows the chat or the manage panel. The sidebar
+  // Whether the main column shows chat, goals, or manage. The sidebar
   // stays mounted either way; the URL is kept in sync via pushState so
   // /manage is linkable and back/forward work without remounting the app.
   const [view, setView] = useState<MainView>(initialView);
   // Web push opt-in for proactive notifications.
   const push = usePushNotifications();
-  // Slash-command palette: built-ins plus skills saved from chat.
+  // Slash-command palette: built-ins plus installed and chat-created skills.
   const [commands, setCommands] = useState<SlashCommand[]>(BUILTIN_COMMANDS);
   // Model picker: catalog from the Vercel AI Gateway, selection persisted.
   const [models, setModels] = useState<ModelOption[]>([]);
   const [model, setModel] = useState<string>(loadSavedModel);
+  const [capabilityNotice, setCapabilityNotice] = useState<CapabilityNoticeState>({
+    kind: "loading",
+  });
+  const [goalsIncluded, setGoalsIncluded] = useState(true);
+  const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/capabilities", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Capability status could not be loaded.");
+        return response.json() as Promise<{ capabilities?: CapabilityStatus[] }>;
+      })
+      .then((body) => {
+        if (body.capabilities === undefined) throw new Error("Capability status is incomplete.");
+        const labels = setupRequiredCapabilityLabels(body.capabilities);
+        const included = body.capabilities.find((capability) => capability.id === "goals")?.state !== "excluded";
+        setGoalsIncluded(included);
+        const hasKnowledge = body.capabilities.find((capability) => capability.id === "knowledge")?.state !== "excluded";
+        setKnowledgeIncluded(hasKnowledge);
+        if (
+          !included &&
+          (window.location.pathname.startsWith("/goals") ||
+            window.location.pathname.startsWith("/review"))
+        ) {
+          setView("chat");
+          window.history.replaceState(null, "", "/");
+        }
+        if (!hasKnowledge && window.location.pathname.startsWith("/knowledge")) {
+          setView("chat");
+          window.history.replaceState(null, "", "/");
+        }
+        setCapabilityNotice(labels.length > 0 ? { kind: "limited", labels } : { kind: "ready" });
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setCapabilityNotice({ kind: "unavailable" });
+      });
+    return () => controller.abort();
+  }, []);
 
   useEffect(() => {
     void fetch("/api/models")
@@ -699,15 +780,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     );
   }, [index]);
 
-  // In production the session routes sit behind HTTP Basic auth. Probing a
-  // protected route on load makes the browser show its login prompt up front
-  // instead of on the first send.
+  // Warm the session route after the signed owner boundary has admitted the
+  // page, so the first message does not pay the backend's cold-start cost.
   useEffect(() => {
     void fetch("/eve/v1/info").catch(() => undefined);
+    // Canonical initialization creates the configured primary Agent exactly
+    // once for new and upgraded deployments; subsequent calls are read-only.
+    void fetch("/api/agents").catch(() => undefined);
   }, []);
 
-  // Extend the slash palette with skills the agent has saved (check_schedule
-  // and friends), so they're one "/" away.
+  // Put every installed and saved skill one "/" away.
   useEffect(() => {
     void fetch("/api/commands")
       .then((response) => (response.ok ? response.json() : null))
@@ -895,11 +977,25 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Back/forward between "/" and "/manage" (we navigate with pushState so the
+  // Back/forward between chat, goals, and any /manage section (we navigate with pushState so the
   // app, and especially the sidebar, never remounts).
   useEffect(() => {
     function onPopState() {
-      setView(window.location.pathname === "/manage" ? "manage" : "chat");
+      setView(
+        window.location.pathname.startsWith("/manage")
+          ? "manage"
+          : window.location.pathname.startsWith("/computer")
+            ? "computer"
+          : window.location.pathname.startsWith("/agents")
+            ? "agents"
+          : window.location.pathname.startsWith("/review")
+            ? "review"
+          : window.location.pathname.startsWith("/goals")
+            ? "goals"
+          : window.location.pathname.startsWith("/knowledge")
+            ? "knowledge"
+            : "chat",
+      );
     }
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
@@ -909,9 +1005,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : "/";
+    const path = next === "manage" ? "/manage" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
+    }
+  }
+
+  function showSystemStatus() {
+    setView("manage");
+    if (window.location.pathname !== "/manage/system") {
+      window.history.pushState(null, "", "/manage/system");
     }
   }
 
@@ -919,6 +1022,39 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     const meta = newThreadMeta();
     // Seed the local chat so the new thread renders without a server probe.
     saveLocalChat(meta.id, {});
+    setPendingDraft(null);
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
+  function startAgentChat(agent: import("@/lib/agents").AgentView) {
+    const meta = { ...newThreadMeta(), title: `Chat with ${agent.name}`, renamed: true, agentId: agent.id, agentName: agent.name };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
+    setPendingDraft(null);
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
+  function useSolutionPack(pack: SolutionPack) {
+    const meta = { ...newThreadMeta(), title: `Use ${pack.name}`, renamed: true };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
+    setPendingDraft({
+      threadId: meta.id,
+      text: `Use the ${pack.name} Solution Pack for this business Goal. Start by asking for the desired outcome, current business state, timeframe, known metrics, and constraints. Diagnose the narrowest current constraint before recommending work. Do not execute consequential actions without explicit owner approval.`,
+    });
+    setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
+    setSidebarOpen(false);
+    showView("chat");
+  }
+
+  function useRole(role: RoleDefinition) {
+    const meta: ThreadMeta = { ...newThreadMeta(), title: `Use ${role.name}`, renamed: true, roleId: role.id, roleName: role.name };
+    saveLocalChat(meta.id, {});
+    putThreadMetaToServer(meta);
     setPendingDraft(null);
     setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
     setSidebarOpen(false);
@@ -940,6 +1076,10 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     const meta: ThreadMeta = {
       ...newThreadMeta(),
       title: source ? `Fork: ${source.title}`.slice(0, 80) : "Forked thread",
+      agentId: source?.agentId,
+      agentName: source?.agentName,
+      roleId: source?.roleId,
+      roleName: source?.roleName,
       // Protect the fork title from the auto-titling backfill.
       renamed: true,
     };
@@ -1061,6 +1201,61 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             {AGENT_NAME}
           </button>
           <div className="flex items-center">
+            {goalsIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={TargetIcon}
+              aria-label="Goals"
+              aria-pressed={view === "goals"}
+              title="Goals and focus"
+              className={cn(view === "goals" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "goals" ? "chat" : "goals")}
+            />}
+            {knowledgeIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={BrainIcon}
+              aria-label="Knowledge"
+              aria-pressed={view === "knowledge"}
+              title="Knowledge and provenance"
+              className={cn(view === "knowledge" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "knowledge" ? "chat" : "knowledge")}
+            />}
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={MonitorIcon}
+              aria-label="Computer"
+              aria-pressed={view === "computer"}
+              title="Agent computer sessions"
+              className={cn(view === "computer" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "computer" ? "chat" : "computer")}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={UsersThreeIcon}
+              aria-label="Agents"
+              aria-pressed={view === "agents"}
+              title="Persistent Agents"
+              className={cn(view === "agents" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "agents" ? "chat" : "agents")}
+            />
+            {goalsIncluded && <Button
+              variant="ghost"
+              size="sm"
+              shape="square"
+              icon={CalendarCheckIcon}
+              aria-label="Review"
+              aria-pressed={view === "review"}
+              title="Daily brief and weekly review"
+              className={cn(view === "review" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "review" ? "chat" : "review")}
+            />}
             {push.status !== "unsupported" && push.status !== "loading" && (
               <Button
                 variant="ghost"
@@ -1142,7 +1337,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
                     key={thread.id}
                     thread={thread}
                     // The active-thread highlight and the gear highlight are
-                    // mutually exclusive: on the manage view the gear owns it.
+                    // Section buttons and active-thread highlighting are mutually exclusive.
                     active={view === "chat" && thread.id === index.activeId}
                     busy={busyIds.has(thread.id)}
                     unread={
@@ -1170,7 +1365,22 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "manage" ? (
+      {view === "computer" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerSessionsPanel /></div>
+        </main>
+      ) : view === "knowledge" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><KnowledgePanel /></div>
+        </main>
+      ) : view === "agents" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} /></div>
+        </main>
+      ) : view === "review" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button
             variant="ghost"
@@ -1181,21 +1391,54 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             aria-label="Open threads"
             onClick={() => setSidebarOpen(true)}
           />
-          <div className="w-full max-w-3xl px-6 py-6">
-            <header className="mb-5">
-              <h1 className="text-lg font-semibold">Manage</h1>
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <ReviewPanel />
+          </div>
+        </main>
+      ) : view === "goals" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="absolute start-2 top-2 z-20 md:hidden"
+            aria-label="Open threads"
+            onClick={() => setSidebarOpen(true)}
+          />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <GoalsPanel />
+          </div>
+        </main>
+      ) : view === "manage" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button
+            variant="ghost"
+            size="sm"
+            shape="square"
+            icon={SidebarSimpleIcon}
+            className="absolute start-2 top-2 z-20 md:hidden"
+            aria-label="Open threads"
+            onClick={() => setSidebarOpen(true)}
+          />
+          <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
+            <header className="mb-5 ps-8 md:ps-0">
+              <h1 className="text-xl font-semibold tracking-tight">Manage</h1>
               <p className="text-sm text-kumo-subtle">
-                What {AGENT_NAME} does and knows on her own. Create reminders, triggers, and
-                skills by asking in chat.
+                Configure what {AGENT_NAME} knows, connects to, and handles for you.
               </p>
             </header>
-            <ManagePanel onOpenThread={selectThread} />
+            <ManagePanel onOpenThread={selectThread} onStartAgentChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} />
           </div>
         </main>
       ) : activeChat && activeChat.threadId === index.activeId ? (
         <ChatThread
           key={`${index.activeId}:${activeChat.revision ?? 0}`}
           threadId={index.activeId}
+          agentId={index.threads.find((thread) => thread.id === index.activeId)?.agentId}
+          agentName={index.threads.find((thread) => thread.id === index.activeId)?.agentName ?? AGENT_NAME}
+          roleId={index.threads.find((thread) => thread.id === index.activeId)?.roleId}
+          roleName={index.threads.find((thread) => thread.id === index.activeId)?.roleName}
           initialChat={activeChat.chat}
           initialDraft={
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
@@ -1212,6 +1455,8 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           onModelChange={selectModel}
           reasoning={reasoning}
           onReasoningChange={selectReasoning}
+          capabilityNotice={capabilityNotice}
+          onReviewSystem={showSystemStatus}
           allowResume={
             resumeAttemptRef.current.get(index.activeId) !==
             (activeChat.chat.events?.length ?? 0)
@@ -1232,6 +1477,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           .map((thread) => ({ id: thread.id, title: thread.title, updatedAt: thread.updatedAt }))}
         onSelectThread={selectThread}
         onNewChat={newThread}
+        onOpenGoals={() => showView("goals")}
+        onOpenReview={() => showView("review")}
+        goalsAvailable={goalsIncluded}
         onOpenManage={() => showView("manage")}
         pushStatus={push.status}
         onTogglePush={push.toggle}
@@ -1401,7 +1649,11 @@ function SidebarThread({
 }
 
 function ChatThread({
-  threadId: _threadId,
+  threadId,
+  agentId,
+  agentName,
+  roleId,
+  roleName,
   initialChat,
   initialDraft,
   onTitle,
@@ -1416,10 +1668,16 @@ function ChatThread({
   onModelChange,
   reasoning,
   onReasoningChange,
+  capabilityNotice,
+  onReviewSystem,
   allowResume,
   onResumed,
 }: {
   threadId: string;
+  agentId?: string;
+  agentName: string;
+  roleId?: string;
+  roleName?: string;
   initialChat: SavedChat;
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
@@ -1436,11 +1694,14 @@ function ChatThread({
   onModelChange: (id: string) => void;
   reasoning: ReasoningId;
   onReasoningChange: (id: ReasoningId) => void;
+  capabilityNotice: CapabilityNoticeState;
+  onReviewSystem: () => void;
   /** Gate on the interrupted-turn stream reattach (one attempt per visit). */
   allowResume: boolean;
   /** A reattached stream settled; remount me with the merged chat. */
   onResumed: (chat: SavedChat) => void;
 }) {
+  const activeLabel = roleName ?? agentName;
   const [draft, setDraft] = useState(initialDraft ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
@@ -1490,6 +1751,11 @@ function ChatThread({
   }
 
   const agent = useEveAgent({
+    headers: {
+      "x-myeve-thread-id": threadId,
+      ...(agentId ? { "x-myeve-agent-id": agentId } : {}),
+      ...(roleId ? { "x-myeve-role-id": roleId } : {}),
+    },
     initialEvents: initialChat.events ?? [],
     initialSession: initialChat.session,
     // Ride the selected gateway model (and reasoning effort, when set) along
@@ -1505,6 +1771,9 @@ function ChatThread({
         ...input,
         clientContext: {
           eveWebModel: model,
+          webThreadId: threadId,
+          ...(agentId ? { myeveAgentId: agentId } : {}),
+          ...(roleId ? { myeveRoleId: roleId } : {}),
           ...(reasoning !== "default" ? { eveWebReasoning: reasoning } : {}),
           clientTime: new Date().toLocaleString("en-CA", {
             year: "numeric",
@@ -1692,7 +1961,7 @@ function ChatThread({
       if (file.size > MAX_ATTACHMENT_BYTES) continue;
       try {
         additions.push({
-          id: crypto.randomUUID(),
+          id: browserRandomId(),
           name: file.name || "pasted-file",
           mediaType: file.type || "application/octet-stream",
           size: file.size,
@@ -1825,7 +2094,7 @@ function ChatThread({
       .map((message) => {
         const text = messageText(message);
         return text.length > 0
-          ? `${message.role === "user" ? OWNER_NAME : AGENT_NAME}: ${text}`
+          ? `${message.role === "user" ? OWNER_NAME : activeLabel}: ${text}`
           : null;
       })
       .filter((line): line is string => line !== null);
@@ -1925,15 +2194,38 @@ function ChatThread({
           onClick={onOpenSidebar}
         />
 
+        {agentId && (
+          <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
+            <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-subtle">Direct Agent conversation</span></span>
+            <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-brand hover:underline">View Agent</a>
+          </div>
+        )}
+
+        {roleId && roleName && (
+          <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
+            <span><span className="font-semibold">{roleName}</span><span className="ms-2 text-xs text-kumo-subtle">Bounded on-demand Role</span></span>
+            <a href="/manage/agents" className="text-xs font-medium text-kumo-brand hover:underline">Role Catalog</a>
+          </div>
+        )}
+
+        <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+
         <MessageScrollerProvider autoScroll>
           <MessageScroller className="flex-1">
             <MessageScrollerViewport className="[scrollbar-width:none]! [&::-webkit-scrollbar]:hidden">
               <MessageScrollerContent className="gap-5 py-6">
                 {!hasMessages && (
                   <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{activeLabel}</p>
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
-                      Ask me anything — I have your memory, a browser, and all your connected apps.
+                      {roleId && roleName
+                        ? `Give ${roleName} one bounded assignment. This uses the primary Agent's runtime and does not create a persistent identity.`
+                        : agentId
+                        ? `${agentName} can use only the capabilities assigned on its Agent record.`
+                        : capabilityNotice.kind === "ready"
+                        ? "Ask me anything — I have your memory, a browser, and all your connected apps."
+                        : "Ask me anything — available capabilities stay active while setup is completed."}
                     </p>
                   </div>
                 )}
@@ -1961,6 +2253,7 @@ function ChatThread({
                     />
                   </MessageScrollerItem>
                 ))}
+                <TaskRunCard threadId={threadId} />
                 {showThinking && (
                   <MessageScrollerItem messageId="thinking">
                     <Marker role="status">
@@ -2060,8 +2353,8 @@ function ChatThread({
             <InputArea
               ref={composerRef}
               value={draft}
-              aria-label={`Message ${AGENT_NAME}`}
-              placeholder={`Message ${AGENT_NAME}... (/ for commands)`}
+              aria-label={`Message ${activeLabel}`}
+              placeholder={`Message ${activeLabel}... (/ for commands)`}
               autoResize
               minRows={1}
               maxRows={7}

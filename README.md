@@ -1,13 +1,15 @@
-# eveclaw
+# MyEve
 
-A personal AI assistant ("Eve") in the spirit of OpenClaw — proactive, always-on, and reachable from the web or Telegram — plus a **builder** that deploys configured copies of her into anyone's Vercel account in one click. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Whop's [Frosted UI](https://github.com/whopio/frosted-ui) design system. Turborepo monorepo: the agent app lives in `apps/eve`, the agent builder in `apps/builder`.
+MyEve is a deployable personal-agent platform. Sofie is the reference agent instance; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Whop's [Frosted UI](https://github.com/whopio/frosted-ui) design system.
+
+Each deployment serves one owner by default for a simple security boundary. Code and data remain owner-scoped and agent-neutral so a future Relay capability plane can authorize a primary agent, specialists, and additional agents without renaming product concepts or rebuilding integrations.
 
 ## What it does
 
 **Chat**
 
 - **Web chat** — threads (rename/pin/delete), streaming responses, file attachments, slash-command prompts, model picker, and HTML artifact previews.
-- **Command palette (⌘K)** — jump to threads, start a new chat, open the manage page, toggle notifications.
+- **Command palette (⌘K)** — jump to threads, start a new chat, open goals or reviews, open the manage page, toggle notifications.
 - **Full-text search** — sidebar search matches message content across all threads, not just titles.
 - **Message actions** — copy a reply, edit & resend, regenerate the last reply, or fork a thread from any message.
 - **Telegram channel** — private-DM-only bot with a user-id allowlist.
@@ -20,6 +22,10 @@ A personal AI assistant ("Eve") in the spirit of OpenClaw — proactive, always-
 
 **Agent capabilities**
 
+- **Persistent Agents** — one protected primary personal Agent plus owner-created specialists with durable identity, instructions, lifecycle, model preferences, explicit Relay capabilities, risk/cost/runtime limits, direct chat, and run attribution. Secondary Agents fail closed instead of borrowing the primary Agent's tools.
+- **Goal OS** — persistent goals, versioned plans, milestones, tasks, dependencies, progress, Focus, and explainable next actions.
+- **Outcome loop** — first-class effectiveness outcomes linked to goals, tasks, runs, and evidence; explicit owner feedback stays separate from execution status.
+- **Daily brief and weekly review** — deterministic priorities, due work, blockers, completion, stalled-work, and dependency/capability risk signals from persisted state. Owner-controlled schedules create durable, deduplicated checkpoints and deliver them in-app or through a configured Web Push or Telegram channel.
 - **Long-term memory** — Supermemory-backed remember/forget/search tools with nightly consolidation and a profile summary injected each turn.
 - **App integrations** — Composio connections (Gmail, GitHub, Notion, Linear, …) with a UI to connect/disconnect apps.
 - **Chat-created skills** — Eve can write, list, and delete her own skills at runtime; manage them from the UI.
@@ -27,11 +33,15 @@ A personal AI assistant ("Eve") in the spirit of OpenClaw — proactive, always-
 - **Receipt tracking** — log/query/summarize spending, backed by Neon.
 - **Browser control** — sandboxed browser extension for web tasks.
 
-**Manage page** — `/manage` shows reminders (with run history), webhooks, memories, connections, and skills in one place.
+**Review page** — `/review` generates the owner’s daily brief or weekly review and exposes recent outcome feedback.
 
-**Agent builder (`apps/builder`)** — create a configured Eve and deploy it into **your** Vercel account, then update it later when the template changes:
+**Agents page** — `/agents` creates, configures, pauses, resumes, duplicates, archives, and opens persistent Agents. Capability assignment and actual deployment availability are shown separately.
 
-- **Create** — wizard for name, personality, capabilities, channels, custom cron jobs, and editable generated instructions; one click deploys into the owner's Vercel account.
+**Manage page** — `/manage` shows review schedules and delivery history, reminders (with run history), webhooks, memories, connections, and skills in one place.
+
+**MyEve Builder (`apps/builder`)** — create a named personal agent and deploy it into **your** Vercel account, then update it later when the template changes:
+
+- **Create** — wizard for name, personality, capabilities, channels, custom cron jobs, and editable generated instructions; one click deploys into the owner's Vercel account. The configured identity and instructions deterministically seed the deployment's protected primary Agent record.
 - **Template** — the live `apps/eve` source, assembled at deploy time with feature pruning, so the personal agent and the product never drift. A manifest completeness check fails CI if a new tool isn't mapped to a feature.
 - **Deploy** — Vercel REST API with the user's token: create project → set env vars → deploy inline files → stream build status → health check. Keys pass through in memory and are never stored; VAPID push keys are generated automatically; models bill to the deployer's own AI Gateway (no provider keys). Telegram webhooks register automatically when a bot token is provided.
 - **Update** — each deployment is stamped with a template version (content hash), a monotonic release from `apps/eve/.eve-template-release` (bump that file when shipping changes agents should pick up), and an `eve-builder.json` manifest. When the builder's release is higher, the agent's `/manage` page shows an update banner that deep-links to the builder's `/update` page (not shown on the create home). The owner pastes their Vercel token and clicks once: the builder reads features, instructions, and custom schedules back from the deployed files, reassembles them on the latest template, and redeploys into the same project. Env vars, VAPID keys, storage, chat history, memories, skills, and the URL are preserved. Agents that predate the manifest need one Create-tab redeploy into the existing project before Update is available.
@@ -71,17 +81,36 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 
 | Variable | Used for |
 | --- | --- |
-| `DATABASE_URL` | Neon Postgres (threads, reminders, webhooks, receipts, push) |
+| `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, `MYEVE_OWNER_ID` | Single-owner production web access |
+| `OWNER_TIMEZONE` | Default IANA timezone for owner-facing review schedules |
+| `DATABASE_URL` | Neon Postgres (threads, goals, outcomes, reviews, reminders, webhooks, receipts, push) |
 | `SUPERMEMORY_API_KEY` | Long-term memory |
 | `COMPOSIO_API_KEY` | App integrations |
 | `BLOB_READ_WRITE_TOKEN` | File sharing + skill store |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Web push notifications |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS` | Telegram channel (optional) |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS`, `TELEGRAM_PROACTIVE_CHAT_ID` | Telegram channel and explicit proactive destination (optional) |
+
+Before starting a deployed app, apply the checked-in database migrations:
+
+```bash
+npm run db:migrate
+```
+
+Migrations are ordered, checksum-protected, and safe to rerun. Apply them to local, preview, and
+production databases before the matching application release. Existing runtime table guards remain
+temporarily for backwards compatibility; new schema changes must be added under
+`apps/eve/migrations/` instead of application startup code.
+
+Preview deployments use the same fail-closed owner authentication as production. Configure
+`MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, and `MYEVE_OWNER_ID` for the Vercel Preview
+environment before qualification; do not weaken the auth boundary to make a preview testable.
 
 ## Scripts
 
 - `npm run dev` — dev servers (agent app on :3000, builder on :3100)
 - `npm run build` — production build
+- `npm run db:migrate` — apply pending database migrations
+- `npm run db:migrations:check` — validate migration order and files without a database
 - `npm run typecheck` — TypeScript checks + builder manifest completeness
 - `VERCEL_TOKEN=… DATABASE_URL=… npx tsx apps/builder/scripts/smoke-deploy.ts` — manual end-to-end deploy test (creates and deletes a real project)
 

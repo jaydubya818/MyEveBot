@@ -10,6 +10,8 @@ export const FEATURE_IDS = [
   "integrations",
   "browser",
   "utilities",
+  "goals",
+  "knowledge",
 ] as const;
 
 export type FeatureId = (typeof FEATURE_IDS)[number];
@@ -39,12 +41,16 @@ export type BlobSource =
   | { mode: "manual"; token: string };
 
 export interface AgentConfig {
-  /** Display name of the agent (e.g. "Eve"). */
+  /** Display name of this deployment's primary personal agent (e.g. "Sofie"). */
   agentName: string;
   /** Vercel project slug, derived from agentName but editable. */
   projectName: string;
-  /** The human the agent works for. */
+  /** The single owner this deployment serves. */
   ownerName: string;
+  /** IANA timezone used for owner-facing schedules and review periods. */
+  ownerTimezone: string;
+  /** Password for the deployment's single-owner production web session. */
+  accessPassword: string;
   /** Default model id ("provider/model"), routed via the AI Gateway. */
   model: string;
   /** Enabled feature set; drives file pruning and required keys. */
@@ -103,6 +109,17 @@ export function validateConfig(config: AgentConfig): string | null {
     return "Project name must be lowercase letters, digits, and dashes";
   }
   if (config.ownerName.trim().length === 0) return "Owner name is required";
+  if (config.ownerTimezone !== "UTC" && !config.ownerTimezone.includes("/")) {
+    return "Owner timezone must be a valid IANA timezone";
+  }
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: config.ownerTimezone }).format(new Date(0));
+  } catch {
+    return "Owner timezone must be a valid IANA timezone";
+  }
+  if (typeof config.accessPassword !== "string" || config.accessPassword.length < 12) {
+    return "Web access password must be at least 12 characters";
+  }
   if (!MODEL_ID_PATTERN.test(config.model)) return "Model must look like provider/model";
   if (config.instructions.trim().length === 0) return "Instructions are required";
   if (config.postgres.mode === "manual" && config.postgres.url.trim().length === 0) {
@@ -129,8 +146,13 @@ export function validateConfig(config: AgentConfig): string | null {
       return "Pick a Blob store to connect";
     }
   }
-  if (config.telegram !== null && config.telegram.botToken.trim().length === 0) {
-    return "Telegram needs a bot token";
+  if (config.telegram !== null) {
+    if (config.telegram.botToken.trim().length === 0) {
+      return "Telegram needs a bot token";
+    }
+    if (config.telegram.allowedUserIds.trim().length === 0) {
+      return "Telegram needs at least one allowed user id";
+    }
   }
   return null;
 }
