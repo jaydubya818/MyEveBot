@@ -10,6 +10,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 
 import type { ResolvedCapability } from "@/lib/capability-registry";
+import type { OperationsReport, OperationsState } from "@/lib/operations";
 import type { ReadinessCheck, ReadinessReport, ReadinessState } from "@/lib/readiness";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,12 @@ const STATE_COPY: Record<ReadinessState, string> = {
   setup_required: "Setup required",
   error: "Needs attention",
   excluded: "Not included",
+};
+
+const OPERATIONS_COPY: Record<OperationsState, string> = {
+  healthy: "Healthy",
+  warning: "Watch",
+  critical: "Act now",
 };
 
 function CheckIcon({ state }: { state: ReadinessState }) {
@@ -120,6 +127,7 @@ function CapabilityRow({ capability }: { capability: ResolvedCapability }) {
 
 export function SystemHealthPanel() {
   const [report, setReport] = useState<ReadinessReport | null>(null);
+  const [operations, setOperations] = useState<OperationsReport | null>(null);
   const [registry, setRegistry] = useState<ResolvedCapability[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -128,11 +136,12 @@ export function SystemHealthPanel() {
     setLoading(true);
     setError(null);
     try {
-      const [readinessResponse, capabilityResponse] = await Promise.all([
+      const [readinessResponse, capabilityResponse, operationsResponse] = await Promise.all([
         fetch(`/api/readiness${fresh ? "?fresh=1" : ""}`),
         fetch("/api/capabilities", { cache: "no-store" }),
+        fetch("/api/operations", { cache: "no-store" }),
       ]);
-      if (!readinessResponse.ok || !capabilityResponse.ok) {
+      if (!readinessResponse.ok || !capabilityResponse.ok || !operationsResponse.ok) {
         throw new Error(`${AGENT_NAME} could not run the readiness checks.`);
       }
       const capabilityBody = (await capabilityResponse.json()) as {
@@ -143,6 +152,7 @@ export function SystemHealthPanel() {
       }
       setReport((await readinessResponse.json()) as ReadinessReport);
       setRegistry(capabilityBody.registry);
+      setOperations((await operationsResponse.json()) as OperationsReport);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Readiness checks failed.");
     } finally {
@@ -228,6 +238,42 @@ export function SystemHealthPanel() {
           <CheckRow key={check.id} check={check} />
         ))}
       </ul>
+
+      {operations !== null && (
+        <section className="rounded-2xl border border-kumo-hairline p-4 sm:p-5" aria-labelledby="operations-health-heading">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-kumo-hairline pb-4">
+            <div>
+              <h3 id="operations-health-heading" className="text-sm font-semibold">Operations</h3>
+              <p className="mt-1 text-xs text-kumo-subtle">Production failures, stale work, cleanup, and delivery health for the last {operations.windowHours} hours.</p>
+            </div>
+            <span className={cn(
+              "text-xs font-medium",
+              operations.overall === "healthy" && "text-kumo-success",
+              operations.overall === "warning" && "text-kumo-warning",
+              operations.overall === "critical" && "text-kumo-danger",
+            )}>{OPERATIONS_COPY[operations.overall]}</span>
+          </div>
+          <ul>
+            {operations.signals.map((signal) => (
+              <li key={signal.id} className="flex items-start gap-3 border-b border-kumo-hairline py-3 last:border-b-0 last:pb-0">
+                <span className="mt-0.5" aria-hidden>
+                  {signal.state === "healthy"
+                    ? <CheckCircleIcon className="size-5 text-kumo-success" />
+                    : <WarningCircleIcon className={cn("size-5", signal.state === "critical" ? "text-kumo-danger" : "text-kumo-warning")} />}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium">{signal.label}</p>
+                    <span className="text-xs tabular-nums text-kumo-subtle">{signal.count}</span>
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-kumo-subtle">{signal.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-4 text-[11px] text-kumo-subtle">Cleanup runs every five minutes. Set MYEVE_ALERT_WEBHOOK_URL to deliver deduplicated alerts.</p>
+        </section>
+      )}
 
       {registry !== null && (
         <details className="rounded-2xl border border-kumo-hairline p-4 sm:p-5">
