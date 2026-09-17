@@ -215,6 +215,31 @@ export async function getComputerSessionForRuntime(ownerId: string, runtimeSessi
   return rows[0] ? sessionView(rows[0]) : null;
 }
 
+export async function updateComputerSessionAllowedDomains(input: {
+  ownerId: string;
+  id: string;
+  allowedDomains: readonly string[];
+}): Promise<ComputerSessionView> {
+  const current = await getComputerSession(input.ownerId, input.id);
+  if (!current) throw new Error("Computer session not found.");
+  if (!["provisioning", "ready", "running"].includes(current.status)) {
+    throw new Error(`Computer network policy cannot change while the session is ${current.status}.`);
+  }
+  const existing = Array.isArray(current.networkPolicy.allowedDomains)
+    ? current.networkPolicy.allowedDomains.filter((value): value is string => typeof value === "string")
+    : [];
+  const allowedDomains = normalizeAllowedDomains([...existing, ...input.allowedDomains]);
+  const networkPolicy = { ...current.networkPolicy, allowedDomains };
+  if (JSON.stringify(existing) === JSON.stringify(allowedDomains)) return current;
+  await db().transaction((tx) => [
+    tx`UPDATE computer_sessions SET network_policy=${JSON.stringify(networkPolicy)}::jsonb,last_activity_at=now()
+       WHERE owner_id=${input.ownerId} AND id=${input.id}`,
+    tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,summary,payload)
+       VALUES (${`event_${randomUUID()}`},${current.ownerId},'COMPUTER_NETWORK_POLICY_UPDATED','computer_session',${current.id},${current.goalId},${current.taskId},${current.runId},'Computer network allowlist updated',${JSON.stringify({ agentId: current.agentId, allowedDomains })}::jsonb)`,
+  ]);
+  return (await getComputerSession(input.ownerId, input.id))!;
+}
+
 export async function activeComputerAgentId(ownerId: string, runtimeSessionId: string): Promise<string | null> {
   const rows = await db().query(
     `SELECT agent_id FROM computer_sessions

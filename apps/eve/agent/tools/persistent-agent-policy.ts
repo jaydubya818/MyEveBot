@@ -3,8 +3,10 @@ import * as browserTools from "@agent-browser/eve/tools";
 import { z } from "zod";
 
 import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
-import { activeComputerAgentId } from "../../lib/computer-sessions.ts";
+import { activeComputerAgentId, recordComputerActionRequested } from "../../lib/computer-sessions.ts";
+import { browserDomainsForUrl } from "../../lib/computer-types.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
+import { provisionComputerSession } from "../lib/computer-context.ts";
 import { resolveSessionAgent } from "../lib/session-settings.ts";
 
 const BUILTIN_CAPABILITIES: Record<string, string> = {
@@ -34,6 +36,14 @@ function policyMap(): Record<string, string> {
 
 const TOOL_POLICY = policyMap();
 
+export function browserDomainsForToolInput(toolName: string, input: Record<string, unknown>): string[] {
+  if (toolName === "browser__navigate" && (input.action ?? "goto") === "goto") {
+    return browserDomainsForUrl(input.url);
+  }
+  if (toolName === "browser__read" && input.url !== undefined) return browserDomainsForUrl(input.url);
+  return [];
+}
+
 async function resolvePolicy(ctx: DynamicResolveContext) {
   const ownerId = ctx.session.auth.current?.principalId;
   const agent = await resolveSessionAgent({
@@ -48,14 +58,42 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
   for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
     const decision = effectiveCapability(agent, capabilityId);
     const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
-    if (decision.allowed && browserName && activeAgentId === agent.id) {
-      resolved[toolName] = browserTools[browserName] as unknown as DynamicToolEntry<any, any>;
+    if (decision.allowed && browserName) {
+      const browserTool = browserTools[browserName] as unknown as DynamicToolEntry<any, any> & {
+        description: string;
+        inputSchema: unknown;
+        execute(input: Record<string, unknown>, ctx: DynamicResolveContext): Promise<unknown> | unknown;
+      };
+      resolved[toolName] = defineTool({
+        ...browserTool,
+        description: `${browserTool.description} An isolated browser session starts automatically on the first URL-based call; do not tell the owner browser access is disabled merely because no session is active yet.`,
+        async execute(input, toolCtx) {
+          const domains = browserDomainsForToolInput(toolName, input);
+          if (activeAgentId !== agent.id && domains.length === 0) {
+            throw new Error("Open a public URL with browser__navigate or browser__read first; the isolated browser will start automatically.");
+          }
+          const { startedOnDemand } = await provisionComputerSession(toolCtx, { allowedDomains: domains });
+          if (startedOnDemand) {
+            const ownerId = toolCtx.session.auth.current?.principalId;
+            if (!ownerId) throw new Error("An authenticated owner is required for browser work.");
+            await recordComputerActionRequested({
+              ownerId,
+              agentId: agent.id,
+              runtimeSessionId: toolCtx.session.id,
+              callId: toolCtx.callId,
+              toolName,
+              toolInput: input,
+            });
+          }
+          return browserTool.execute(input, toolCtx);
+        },
+      }) as unknown as DynamicToolEntry<any, any>;
       continue;
     }
     if (decision.allowed && !browserName) continue;
-    const reason = decision.allowed ? "Start a computer session before using browser tools." : decision.reason;
+    const reason = decision.reason;
     resolved[toolName] = defineTool({
-      description: `${toolName} is unavailable to ${agent.name} under its assigned capability policy.`,
+      description: `${toolName} is not authorized for ${agent.name} under its assigned capability policy.`,
       inputSchema: z.object({ request: z.unknown().optional() }).loose(),
       execute: async () => { throw new Error(reason ?? `Capability unavailable for ${agent.name}.`); },
     }) as unknown as DynamicToolEntry<any, any>;

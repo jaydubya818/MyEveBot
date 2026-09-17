@@ -15,6 +15,7 @@ import {
   resumeComputerSession,
   stopComputerSession,
   transitionComputerSession,
+  updateComputerSessionAllowedDomains,
 } from "../lib/computer-sessions.ts";
 
 const integration = process.env.DATABASE_URL?.trim() ? test : test.skip;
@@ -74,6 +75,17 @@ integration("Agent Run computer sessions enforce links, isolation, capabilities,
     const stoppable = await createComputerSession({ ownerId, agentId: firstAgent.id, runtimeSessionId: `runtime_${crypto.randomUUID()}` });
     await transitionComputerSession({ ownerId, id: stoppable.id, to: "ready", sandboxId: "sandbox_stop_test" });
     assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), firstAgent.id);
+    const networkUpdated = await updateComputerSessionAllowedDomains({
+      ownerId,
+      id: stoppable.id,
+      allowedDomains: ["example.com", "*.example.com"],
+    });
+    assert.deepEqual(networkUpdated.networkPolicy.allowedDomains, ["example.com", "*.example.com"]);
+    const networkEvents = await db().query(
+      `SELECT id FROM eve_events WHERE owner_id=$1 AND source_id=$2 AND type='COMPUTER_NETWORK_POLICY_UPDATED'`,
+      [ownerId, stoppable.id],
+    );
+    assert.equal(networkEvents.length, 1);
     assert.equal((await pauseComputerSession(ownerId, stoppable.id)).status, "paused");
     assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), null);
     assert.equal((await resumeComputerSession(ownerId, stoppable.id)).status, "ready");

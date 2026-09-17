@@ -56,6 +56,30 @@ export function normalizeAllowedDomains(domains: readonly string[] = []): string
   return normalized;
 }
 
+/**
+ * Derive the smallest practical browser allowlist from an explicit public URL.
+ * The apex + wildcard pair handles the common www/CDN redirect path without
+ * opening unrelated third-party egress. Non-URL browser actions add nothing.
+ */
+export function browserDomainsForUrl(value: unknown): string[] {
+  if (typeof value !== "string" || value.trim().length === 0) return [];
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error("Browser navigation requires a valid public http or https URL.");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("Browser navigation supports only public http or https URLs.");
+  }
+  if (url.username || url.password) {
+    throw new Error("Browser URLs must not contain credentials.");
+  }
+  const hostname = url.hostname.toLowerCase().replace(/\.$/, "");
+  const apex = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
+  return normalizeAllowedDomains([apex, `*.${apex}`]);
+}
+
 export interface ComputerArtifactView {
   id: string;
   actionId: string | null;

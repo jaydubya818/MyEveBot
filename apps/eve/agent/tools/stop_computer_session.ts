@@ -6,7 +6,7 @@ import { getComputerSessionForRuntime, stopComputerSession } from "../../lib/com
 import { computerAgent, computerOwnerId } from "../lib/computer-context.ts";
 
 export default defineTool({
-  description: "Stop the current Agent computer session. This revokes further actions and closes ephemeral browser state when available.",
+  description: "Stop the current Agent computer session. Required after browser work and before the final response unless the session is paused for owner takeover or the owner explicitly asked to leave it open. This revokes further actions and closes ephemeral browser state when available.",
   inputSchema: z.object({}),
   async execute(_input, ctx) {
     const ownerId = computerOwnerId(ctx);

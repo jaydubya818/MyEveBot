@@ -11,7 +11,7 @@ import { webAuthConfigStatus, webAuthRequired } from "@/lib/web-auth";
 export type ReadinessState = "ready" | "setup_required" | "error" | "excluded";
 
 export interface ReadinessCheck {
-  id: "auth" | "ai" | "database" | "memory" | "connections" | "storage";
+  id: "auth" | "ai" | "database" | "browser" | "memory" | "connections" | "storage";
   label: string;
   state: ReadinessState;
   detail: string;
@@ -152,6 +152,29 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
         detail: "Database is configured but could not be reached. Check the connection and provider status.",
       });
     }
+  }
+
+  const browserBase = { id: "browser" as const, label: "Browser runtime", required: true };
+  if (capabilities.computer.state === "excluded") {
+    checks.push(excluded(browserBase, "Isolated browser work is not included in this deployment."));
+  } else if (!environmentReady("DATABASE_URL")) {
+    checks.push(setup(browserBase, "Add DATABASE_URL so browser sessions can be isolated and audited."));
+  } else if (
+    process.env.VERCEL !== "1" &&
+    !environmentReady("VERCEL_OIDC_TOKEN")
+  ) {
+    checks.push(setup(browserBase, "Connect Vercel OIDC so the isolated browser sandbox can start."));
+  } else {
+    checks.push(await probe(
+      browserBase,
+      async () => {
+        const browserTools = await import("@agent-browser/eve/tools");
+        if (!browserTools.navigate || !browserTools.read || !browserTools.snapshot) {
+          throw new Error("Browser tools are incomplete.");
+        }
+      },
+      "Isolated browser tools and sandbox authentication are available; sessions start on demand.",
+    ));
   }
 
   const memoryBase = { id: "memory" as const, label: "Memory", required: false };

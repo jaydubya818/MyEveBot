@@ -20,6 +20,7 @@
     "skills:catalog": "node scripts/generate-skill-catalog.mjs",
     "skills:prepare": "node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs",
     "skills:validate": "node scripts/check-imported-skill-routing.mjs",
+    "smoke:browser-production": "node scripts/smoke-browser-production.mjs",
     "seed:knowledge-preview": "node --env-file-if-exists=.env.local scripts/seed-knowledge-preview.ts",
     "start": "next start",
     "test": "vitest run",
