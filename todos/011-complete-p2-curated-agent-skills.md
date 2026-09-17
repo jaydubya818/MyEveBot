@@ -1,12 +1,14 @@
 ---
 status: complete
 priority: p2
-issue_id: "007"
+issue_id: "011"
 tags: [skills, evals, agents, provenance, eve]
 dependencies: ["006"]
 ---
 
 # Import curated production engineering skills
+
+> Historical numbering note: this completed work order was renumbered from 007 to 011 on 2026-09-17 because persistent user-created Agents already owns work order 007.
 
 ## Problem Statement
 

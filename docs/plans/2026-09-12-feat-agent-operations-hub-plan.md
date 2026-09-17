@@ -8,6 +8,8 @@ owners:
   - application
 ---
 
+> Historical implementation plan. Shipped items are reconciled below through work orders 001–010. Use [`docs/roadmap.md`](../roadmap.md) for current priorities and sequencing.
+
 # Agent operations hub and channel workspaces
 
 ## Executive recommendation
@@ -467,17 +469,17 @@ Billing can ship earlier as read-only outbound links and estimated usage. A cons
 
 **Goal:** give one agent a complete and trustworthy management surface.
 
-- [ ] Extract the route-aware app shell and preserve existing chat behavior.
+- [x] Extract the route-aware app shell and preserve existing chat behavior.
 - [x] Implement list/detail Manage navigation with stable URLs and mobile drill-down.
 - [x] Introduce the typed section registry and capability-status endpoint.
-- [ ] Split existing Reminders, Triggers, Memory, Connections, and Skills into focused modules.
-- [ ] Preserve counts and run history while adding loading, setup, error, and retry states.
-- [ ] Add confirmation, rollback, and success feedback to destructive actions.
-- [ ] Add Appearance with name, avatar, theme, timezone, and locale.
+- [x] Split existing Reminders, Triggers, Memory, Connections, and Skills into focused modules.
+- [x] Preserve counts and run history while adding loading, setup, error, and retry states.
+- [x] Add confirmation, rollback, and success feedback to destructive actions.
+- [x] Add Appearance with name, avatar, theme, timezone, and locale.
 - [x] Add Finance as a receipt list/summary using the existing receipt store.
 - [ ] Add receipt query API endpoints with pagination, filters, input validation, and ownership.
 - [ ] Add keyboard focus management and screen-reader announcements for section navigation.
-- [ ] Update builder feature definitions, generated instructions, feature manifest, and template release as required.
+- [x] Update builder feature definitions, generated instructions, feature manifest, and template release as required.
 
 **Acceptance criteria**
 
@@ -512,11 +514,11 @@ Billing can ship earlier as read-only outbound links and estimated usage. A cons
 
 **Goal:** expose agent execution without turning the interface into an unsafe remote shell.
 
-- [ ] Add execution-session records and API contracts.
-- [ ] Build Workspace status, files, command/output history, expiry, and retained-artifact views.
-- [ ] Build Computer live-session view with view/take-over/release/stop controls.
-- [ ] Enforce owner checks, short-lived access tokens, session expiry, and audit events.
-- [ ] Define network and credential policies for sandbox sessions.
+- [x] Add execution-session records and API contracts.
+- [x] Build Workspace status, files, command/output history, expiry, and retained-artifact views.
+- [x] Build Computer live-session view with view/take-over/release/stop controls.
+- [x] Enforce owner checks, short-lived access tokens, session expiry, and audit events.
+- [x] Define network and credential policies for sandbox sessions.
 - [ ] Select Linq or Twilio for the first phone/message scope.
 - [ ] Implement number provisioning/connection, sender allowlist, consent/opt-out, quiet hours, delivery state, and revoke.
 - [ ] Add voice only after a separate latency, consent, interruption, transcription, and failure test plan passes.
@@ -533,15 +535,15 @@ Billing can ship earlier as read-only outbound links and estimated usage. A cons
 
 **Goal:** support multiple durable agents without weakening ownership or policy boundaries.
 
-- [ ] Complete the single- versus multi-deployment architecture spike.
+- [x] Complete the single- versus multi-deployment architecture spike.
 - [ ] Add agent profiles, memberships, channel accounts, and ownership migrations.
-- [ ] Backfill all existing data to one primary agent.
+- [x] Backfill all existing data to one primary agent.
 - [ ] Add agent creation, edit, pause, archive, and safe deletion flows.
 - [ ] Scope instructions, model, tools, memory, schedules, channels, files, and policies per agent.
-- [ ] Add agent-scoped navigation and thread search.
+- [x] Add agent-scoped navigation and thread search.
 - [ ] Add group records, membership, and an explicit routing policy.
 - [ ] Add loop prevention, turn budgets, attribution, and stop controls to group execution.
-- [ ] Show which agent authored each response and which agent currently has control.
+- [x] Show which agent authored each response and which agent currently has control.
 
 **Acceptance criteria**
 

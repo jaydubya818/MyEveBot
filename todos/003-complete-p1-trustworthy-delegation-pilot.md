@@ -1,5 +1,5 @@
 ---
-status: ready
+status: complete
 priority: p1
 issue_id: "003"
 tags: [delegation, qa, evidence, postgres, blob, eve, ui]
@@ -83,8 +83,8 @@ Implement Option 1 as a bounded vertical slice. Keep execution in Eve, add expli
 - [x] Functional & State, UX & Accessibility, and Trust & Resilience specialists are bounded and attributable.
 - [x] The pilot enforces the approved 15-minute, 40-step, one-retry, and $5 guardrails.
 - [x] Chat shows a compact factual task card and a drill-down ledger with stop/retry recovery.
-- [ ] Local and isolated-preview critical-path checks produce one evidence-backed report.
-- [ ] Unit tests, migration checks, typecheck, build, and browser verification pass.
+- [x] Local and isolated-preview critical-path checks produce one evidence-backed report.
+- [x] Unit tests, migration checks, typecheck, build, and browser verification pass.
 
 ## Work Log
 
@@ -131,3 +131,4 @@ Implement Option 1 as a bounded vertical slice. Keep execution in Eve, add expli
 
 - Do not expose chain-of-thought, raw secrets, session cookies, or captured form values.
 - Do not add autonomous external side effects to the self-test pilot.
+- The remaining Preview gates were superseded and satisfied by work order 008's production qualification on 2026-09-14: authenticated multi-turn chat, a bounded evidence-backed Run, real isolated Computer work, Results attribution, full regression gates, and post-deploy health all passed.

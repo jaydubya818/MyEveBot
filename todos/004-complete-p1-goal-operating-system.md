@@ -1,5 +1,5 @@
 ---
-status: ready
+status: complete
 priority: p1
 issue_id: "004"
 tags: [goals, capabilities, events, postgres, eve, ui]
@@ -75,7 +75,7 @@ Implement Option 1. First document and reconcile the architecture, then ship the
 - [x] The persistent goal creation/dependency/Focus golden path is covered end to end through chat and UI.
 - [x] Migration check, clean/upgrade migration tests, unit/integration tests, typecheck, build, and local browser qualification pass.
 - [x] Documentation and builder manifest are updated.
-- [ ] Fresh isolated-Preview qualification passes before promotion.
+- [x] Fresh isolated-Preview qualification passes before promotion.
 
 ## Work Log
 
@@ -139,5 +139,5 @@ Implement Option 1. First document and reconcile the architecture, then ship the
 ## Notes
 
 - Out of scope for this release: Universal Inbox, Slack, SMS, Voice, knowledge-graph visualization, full multi-agent orchestration, and autonomous skill mutation.
-- The code is a locally qualified release candidate. Keep this todo open until a fresh isolated Preview replaces the historical NO-GO evidence.
+- The historical Preview gate was superseded by work order 008's later production qualification and deployment on 2026-09-14. Goal-linked Runs, Results, Agent attribution, chat, and post-deploy health passed against the canonical production release.
 - Do not expose chain-of-thought; explain focus and recommendations using concise stored decision evidence.
