@@ -1506,7 +1506,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
                 Configure what {AGENT_NAME} knows, connects to, and handles for you.
               </p>
             </header>
-            <ManagePanel onOpenThread={selectThread} onStartAgentChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} />
+            <ManagePanel onOpenThread={selectThread} onStartAgentChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} onStartPrompt={startPromptThread} />
           </div>
         </main>
       ) : activeChat && activeChat.threadId === index.activeId ? (

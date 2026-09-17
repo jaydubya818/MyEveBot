@@ -33,6 +33,7 @@ test("historical plans and README point to the canonical roadmap", async () => {
   const roadmap = await readFile(new URL("docs/roadmap.md", root), "utf8");
   assert.match(roadmap, /## Shipped foundation/);
   assert.match(roadmap, /## P1 — Make MyEve genuinely useful/);
-  assert.match(roadmap, /### 1\. First-use activation — next/);
+  assert.match(roadmap, /Guided first-use setup.+work order 013/);
+  assert.match(roadmap, /### 1\. Persistent authenticated web work — next/);
   assert.match(roadmap, /## P3 — Explicitly later/);
 });

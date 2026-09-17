@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 import type { CapabilityId, CapabilityStatus } from "@/lib/capabilities";
 import { AppearancePanel } from "@/components/appearance-panel";
 import { AgentsPanel } from "@/components/agents-panel";
+import { ActivationPanel } from "@/components/activation-panel";
 import { FinancePanel } from "@/components/finance-panel";
 import { SkillsManager } from "@/components/skills-manager";
 import { SystemHealthPanel } from "@/components/system-health-panel";
@@ -428,7 +429,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents" | "getting-started";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -441,6 +442,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
   {
     label: "General",
     sections: [
+      {
+        id: "getting-started" as const,
+        label: "Getting started",
+        description: "Setup and first useful job",
+        icon: CheckIcon,
+      },
       {
         id: "review-delivery" as const,
         label: "Briefs & reviews",
@@ -609,12 +616,14 @@ export function ManagePanel({
   onStartAgentChat,
   onUseRole,
   onUseSolutionPack,
+  onStartPrompt,
 }: {
   /** Jump to a thread (e.g. one a reminder delivered). */
   onOpenThread: (threadId: string) => void;
   onStartAgentChat: (agent: AgentView) => void;
   onUseRole: (role: RoleDefinition) => void;
   onUseSolutionPack: (pack: SolutionPack) => void;
+  onStartPrompt: (title: string, prompt: string) => void;
 }) {
   const [selectedSection, setSelectedSection] = useState<ManageSection | null>(null);
   const [capabilities, setCapabilities] = useState<CapabilityStatus[] | null>(null);
@@ -723,13 +732,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents"
+    id === "system" || id === "activity" || id === "agents" || id === "getting-started"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || capabilityFor(id)?.state !== "excluded";
+    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -763,7 +772,9 @@ export function ManagePanel({
   const focusedWorkspace = activeSection === "skills";
 
   let sectionContent: React.ReactNode;
-  if (activeSection === "system") {
+  if (activeSection === "getting-started") {
+    sectionContent = <ActivationPanel capabilities={capabilities ?? []} onNavigate={selectSection} onStartPrompt={onStartPrompt} />;
+  } else if (activeSection === "system") {
     sectionContent = <SystemHealthPanel />;
   } else if (activeSection === "review-delivery") {
     sectionContent = <ReviewDeliverySettings />;

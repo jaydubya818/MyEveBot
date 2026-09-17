@@ -11,36 +11,30 @@ This is the canonical product roadmap as of 2026-09-17. Completed work is record
 - Colleague-first Runs, Results, routines, bounded delegation, and supervised Computer work — work order 008.
 - Reliable on-demand browser sessions, browser health, and production browser canary — work order 009.
 - Production failure telemetry, cleanup, operator health, alerts, canaries, and incident procedures — work order 010.
+- Guided first-use setup, read-only capability discovery, and five bounded starter jobs — work order 013.
 
 ## P1 — Make MyEve genuinely useful
 
-### 1. First-use activation — next
-
-- Guide identity, integrations, browser, notifications, and risk preferences without exposing Eve/framework vocabulary.
-- Discover connected-account capabilities read-only.
-- Recommend five concrete starter jobs with required access, boundaries, and a clear “Try once” finish line.
-- After verified success, offer Run again, Save as skill, or Make routine.
-
-### 2. Persistent authenticated web work
+### 1. Persistent authenticated web work — next
 
 - Add a secure credential-vault integration and approved persistent browser profiles.
 - Separate profiles by Agent by default; sharing must be explicit and revocable.
 - Support owner takeover for login, MFA, CAPTCHA, and sensitive forms.
 - Handle expiry, reset, reconnect, and credential failure without exposing secrets.
 
-### 3. Communications consolidation
+### 2. Communications consolidation
 
 - Create one Channels surface for Email, Slack, iMessage, push, and later Phone.
 - Unify message/thread search, attachments, delivery state, approval, audit, retention, deletion, and redaction.
 - Add provider-event idempotency and retry handling.
 
-### 4. Phone production qualification
+### 3. Phone production qualification
 
 - Complete live AgentPhone provisioning and a minimal billed test matrix before exposing Phone controls.
 - Verify inbound/outbound text, iMessage, calls, verification inbox, webhook security, consent, opt-out, quiet hours, and failure recovery.
 - Add spending limits and an emergency disable switch.
 
-### 5. Data ownership and recovery
+### 4. Data ownership and recovery
 
 - Export Goals, Knowledge, memories, conversations, Results, routines, and Agents.
 - Verify backup/restore, define retention by data class, show storage usage, and add an audited deployment/account deletion flow.
