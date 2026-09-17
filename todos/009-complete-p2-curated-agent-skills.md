@@ -1,7 +1,7 @@
 ---
 status: complete
 priority: p2
-issue_id: "007"
+issue_id: "009"
 tags: [skills, evals, agents, provenance, eve]
 dependencies: ["006"]
 ---

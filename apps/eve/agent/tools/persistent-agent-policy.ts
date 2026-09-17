@@ -3,7 +3,6 @@ import * as browserTools from "@agent-browser/eve/tools";
 import { z } from "zod";
 
 import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
-import { activeComputerAgentId } from "../../lib/computer-sessions.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
 import { resolveSessionAgent } from "../lib/session-settings.ts";
 
@@ -43,17 +42,16 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
     primaryFallback: ctx.session.auth.current?.attributes.owner === "true",
   });
   if (!agent) return null;
-  const activeAgentId = ownerId ? await activeComputerAgentId(ownerId, ctx.session.id) : null;
   const resolved: Record<string, DynamicToolEntry<any, any>> = {};
   for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
     const decision = effectiveCapability(agent, capabilityId);
     const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
-    if (decision.allowed && browserName && activeAgentId === agent.id) {
+    if (decision.allowed && browserName) {
       resolved[toolName] = browserTools[browserName] as unknown as DynamicToolEntry<any, any>;
       continue;
     }
     if (decision.allowed && !browserName) continue;
-    const reason = decision.allowed ? "Start a computer session before using browser tools." : decision.reason;
+    const reason = decision.reason;
     resolved[toolName] = defineTool({
       description: `${toolName} is unavailable to ${agent.name} under its assigned capability policy.`,
       inputSchema: z.object({ request: z.unknown().optional() }).loose(),

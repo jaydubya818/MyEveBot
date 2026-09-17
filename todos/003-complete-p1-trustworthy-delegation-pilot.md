@@ -1,5 +1,5 @@
 ---
-status: ready
+status: complete
 priority: p1
 issue_id: "003"
 tags: [delegation, qa, evidence, postgres, blob, eve, ui]
@@ -83,8 +83,8 @@ Implement Option 1 as a bounded vertical slice. Keep execution in Eve, add expli
 - [x] Functional & State, UX & Accessibility, and Trust & Resilience specialists are bounded and attributable.
 - [x] The pilot enforces the approved 15-minute, 40-step, one-retry, and $5 guardrails.
 - [x] Chat shows a compact factual task card and a drill-down ledger with stop/retry recovery.
-- [ ] Local and isolated-preview critical-path checks produce one evidence-backed report.
-- [ ] Unit tests, migration checks, typecheck, build, and browser verification pass.
+- [x] Local and isolated-preview critical-path checks produce one evidence-backed report.
+- [x] Unit tests, migration checks, typecheck, build, and browser verification pass.
 
 ## Work Log
 
@@ -131,3 +131,16 @@ Implement Option 1 as a bounded vertical slice. Keep execution in Eve, add expli
 
 - Do not expose chain-of-thought, raw secrets, session cookies, or captured form values.
 - Do not add autonomous external side effects to the self-test pilot.
+
+### 2026-09-17 - Superseded Preview gate reconciled
+
+**By:** Codex
+
+**Actions:**
+
+- Closed the historical Preview-only gate using the stronger production qualification recorded in work order 008.
+- Preserved this work order as implementation history; `docs/roadmap.md` is now the canonical forward-looking roadmap.
+
+**Learnings:**
+
+- A later production qualification supersedes an older Preview gate when it exercises the same critical path and records stronger evidence.

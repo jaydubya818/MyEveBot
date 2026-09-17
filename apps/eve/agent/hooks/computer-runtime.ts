@@ -2,6 +2,7 @@ import { defineHook } from "eve/hooks";
 
 import { recordComputerActionRequested, recordComputerActionResult } from "../../lib/computer-sessions.ts";
 import { agentForSession } from "../lib/session-settings.ts";
+import { ensureComputerForBrowserAction } from "../lib/computer-provisioning.ts";
 
 function ownerId(ctx: { session: { auth: { current: { principalId?: string } | null } } }): string | null {
   return ctx.session.auth.current?.principalId?.trim() || null;
@@ -16,6 +17,15 @@ export default defineHook({
       if (!agent) return;
       for (const action of event.data.actions) {
         if (action.kind !== "tool-call") continue;
+        if (action.toolName.startsWith("browser__")) {
+          await ensureComputerForBrowserAction({
+            ctx,
+            ownerId: owner,
+            agent,
+            toolName: action.toolName,
+            toolInput: action.input,
+          });
+        }
         await recordComputerActionRequested({
           ownerId: owner, agentId: agent.id, runtimeSessionId: ctx.session.id, callId: action.callId,
           toolName: action.toolName, toolInput: action.input,

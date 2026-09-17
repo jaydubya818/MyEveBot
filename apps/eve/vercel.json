@@ -1,4 +1,7 @@
 {
   "framework": "nextjs",
-  "outputDirectory": null
+  "outputDirectory": null,
+  "crons": [
+    { "path": "/api/cron/computer-cleanup", "schedule": "*/10 * * * *" }
+  ]
 }

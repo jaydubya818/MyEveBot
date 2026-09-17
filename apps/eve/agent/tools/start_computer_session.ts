@@ -1,9 +1,9 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 
-import { createComputerSession, transitionComputerSession } from "../../lib/computer-sessions.ts";
+import { createComputerSession } from "../../lib/computer-sessions.ts";
 import { computerAgent, computerOwnerId } from "../lib/computer-context.ts";
-import { PRIVATE_IPV4_CIDRS, normalizeAllowedDomains } from "../../lib/computer-types.ts";
+import { ensureComputerForBrowserAction } from "../lib/computer-provisioning.ts";
 
 export default defineTool({
   description: "Start the current Agent's isolated, ephemeral computer session before browser, file, or terminal work. Reuses the active session when one already exists.",
@@ -32,21 +32,7 @@ export default defineTool({
       allowedDomains: input.allowedDomains,
     });
     if (session.status !== "provisioning") return session;
-    try {
-      const sandbox = await ctx.getSandbox();
-      const allowedDomains = normalizeAllowedDomains(input.allowedDomains);
-      await sandbox.setNetworkPolicy(allowedDomains.length === 0 ? "deny-all" : {
-        allow: allowedDomains,
-        subnets: { deny: [...PRIVATE_IPV4_CIDRS] },
-      });
-      return await transitionComputerSession({ ownerId, id: session.id, to: "ready", sandboxId: sandbox.id });
-    } catch (error) {
-      await transitionComputerSession({
-        ownerId, id: session.id, to: "failed", failureCode: "session_provision_failed",
-        failureSummary: error instanceof Error ? error.message : "Computer session provisioning failed.",
-      });
-      throw error;
-    }
+    return ensureComputerForBrowserAction({ ctx, ownerId, agent, toolName: "start_computer_session", toolInput: {} });
   },
   toModelOutput(output) {
     return { type: "json", value: { id: output.id, status: output.status, expiresAt: output.expiresAt, limits: output.resourceLimits } };

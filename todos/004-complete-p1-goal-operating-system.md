@@ -1,5 +1,5 @@
 ---
-status: ready
+status: complete
 priority: p1
 issue_id: "004"
 tags: [goals, capabilities, events, postgres, eve, ui]
@@ -75,7 +75,7 @@ Implement Option 1. First document and reconcile the architecture, then ship the
 - [x] The persistent goal creation/dependency/Focus golden path is covered end to end through chat and UI.
 - [x] Migration check, clean/upgrade migration tests, unit/integration tests, typecheck, build, and local browser qualification pass.
 - [x] Documentation and builder manifest are updated.
-- [ ] Fresh isolated-Preview qualification passes before promotion.
+- [x] Fresh isolated-Preview qualification passes before promotion.
 
 ## Work Log
 
@@ -141,3 +141,16 @@ Implement Option 1. First document and reconcile the architecture, then ship the
 - Out of scope for this release: Universal Inbox, Slack, SMS, Voice, knowledge-graph visualization, full multi-agent orchestration, and autonomous skill mutation.
 - The code is a locally qualified release candidate. Keep this todo open until a fresh isolated Preview replaces the historical NO-GO evidence.
 - Do not expose chain-of-thought; explain focus and recommendations using concise stored decision evidence.
+
+### 2026-09-17 - Superseded Preview gate reconciled
+
+**By:** Codex
+
+**Actions:**
+
+- Closed the stale Preview gate using work order 008's merged-main production qualification, including authenticated chat, Goal-linked Runs, Results, and Computer evidence.
+- Preserved the work order as history and moved current priorities to `docs/roadmap.md`.
+
+**Learnings:**
+
+- Historical release gates must be reconciled after a later, stronger production gate or they become false backlog signals.

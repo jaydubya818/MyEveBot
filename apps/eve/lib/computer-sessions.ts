@@ -5,6 +5,7 @@ import { effectiveCapability, getAgent, type AgentView } from "./agents.ts";
 import {
   canTransitionComputerSession,
   clampComputerLimits,
+  classifyBrowserFailure,
   normalizeAllowedDomains,
   type ComputerActionStatus,
   type ComputerActionType,
@@ -127,6 +128,39 @@ export async function expireComputerSessions(now = new Date()): Promise<number> 
   return rows.length;
 }
 
+export async function reconcileStaleComputerSessions(now = new Date()): Promise<{
+  expired: number;
+  failedProvisioning: number;
+  failedRunning: number;
+}> {
+  const expired = await expireComputerSessions(now);
+  const rows = await db().query(
+    `UPDATE computer_sessions
+     SET status='failed',completed_at=$1,last_activity_at=$1,
+       failure_code=CASE WHEN status='provisioning' THEN 'provision_timeout' ELSE 'orphaned_runtime' END,
+       failure_summary=CASE WHEN status='provisioning'
+         THEN 'Computer provisioning did not complete within two minutes.'
+         ELSE 'Computer activity stopped without a result and was closed automatically.' END
+     WHERE (status='provisioning' AND started_at < $1::timestamptz - interval '2 minutes')
+        OR (status='running' AND last_activity_at < $1::timestamptz - interval '5 minutes')
+     RETURNING id,owner_id,status,failure_code`,
+    [now.toISOString()],
+  ) as Row[];
+  for (const row of rows) {
+    await db().transaction((tx) => [
+      tx`UPDATE browser_sessions SET status='failed',completed_at=${now.toISOString()},last_activity_at=${now.toISOString()} WHERE computer_session_id=${row.id}`,
+      tx`UPDATE computer_actions SET status='timed_out',completed_at=${now.toISOString()},failure_code='action_timeout',failure_summary='The owning Computer session was closed as stale.' WHERE computer_session_id=${row.id} AND status='running'`,
+      tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,summary,payload)
+         VALUES (${`event_${randomUUID()}`},${row.owner_id},'COMPUTER_SESSION_FAILED','computer_session',${row.id},'Stale Computer session closed',${JSON.stringify({ failureCode: row.failure_code })}::jsonb)`,
+    ]);
+  }
+  return {
+    expired,
+    failedProvisioning: rows.filter((row) => row.failure_code === "provision_timeout").length,
+    failedRunning: rows.filter((row) => row.failure_code === "orphaned_runtime").length,
+  };
+}
+
 async function validateLinks(input: {
   ownerId: string; agentId: string; goalId?: string; taskId?: string; runId?: string;
 }): Promise<AgentView> {
@@ -224,6 +258,28 @@ export async function activeComputerAgentId(ownerId: string, runtimeSessionId: s
     [ownerId, runtimeSessionId],
   ) as Row[];
   return rows[0] ? text(rows[0].agent_id) : null;
+}
+
+export async function updateComputerAllowedDomains(
+  ownerId: string,
+  id: string,
+  domains: readonly string[],
+): Promise<ComputerSessionView> {
+  const session = await getComputerSession(ownerId, id);
+  if (!session) throw new Error("Computer session not found.");
+  if (!["provisioning", "ready", "running"].includes(session.status)) {
+    throw new Error(`Computer session network policy cannot change while ${session.status}.`);
+  }
+  const existing = Array.isArray(session.networkPolicy.allowedDomains)
+    ? session.networkPolicy.allowedDomains.filter((item): item is string => typeof item === "string")
+    : [];
+  const allowedDomains = normalizeAllowedDomains([...existing, ...domains]);
+  const networkPolicy = { ...session.networkPolicy, allowedDomains };
+  await db().query(
+    `UPDATE computer_sessions SET network_policy=$3::jsonb,last_activity_at=now() WHERE owner_id=$1 AND id=$2`,
+    [ownerId, id, JSON.stringify(networkPolicy)],
+  );
+  return (await getComputerSession(ownerId, id))!;
 }
 
 export async function pauseComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
@@ -365,7 +421,10 @@ export async function recordComputerActionResult(input: {
   const timedOut = /timed?\s*out|timeout/i.test(`${input.errorCode ?? ""} ${safeError ?? ""}`);
   const capabilityDenied = /capabilit|not assigned|belongs to another Agent/i.test(safeError ?? "");
   const status: ComputerActionStatus = input.status === "completed" ? "completed" : input.status === "rejected" || capabilityDenied ? "denied" : timedOut ? "timed_out" : "failed";
-  const failureCode = status === "denied" ? "capability_denied" : status === "timed_out" ? "action_timeout" : input.errorCode ?? (status === "failed" ? "action_failed" : null);
+  const browserFailure = input.toolName.startsWith("browser__") && status !== "completed"
+    ? classifyBrowserFailure(input.errorCode, safeError ?? undefined)
+    : null;
+  const failureCode = status === "denied" ? "capability_denied" : browserFailure ?? input.errorCode ?? (status === "failed" ? "action_failed" : null);
   await db().transaction((tx) => [
     tx`UPDATE computer_actions SET status=${status},output_summary=${summarize(input.output)},completed_at=now(),
        failure_code=${failureCode},failure_summary=${safeError}

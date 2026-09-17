@@ -4,6 +4,8 @@
 
 Each deployment serves one owner by default for a simple security boundary. Code and data remain owner-scoped and agent-neutral so a future Relay capability plane can authorize a primary agent, specialists, and additional agents without renaming product concepts or rebuilding integrations.
 
+Current priorities and explicit deferrals live in the [canonical product roadmap](docs/roadmap.md). Production monitoring, canaries, stale-session cleanup, and rollback procedures are documented in the [operations runbook](docs/production-operations.md).
+
 ## What it does
 
 **Chat**
@@ -43,7 +45,7 @@ Each deployment serves one owner by default for a simple security boundary. Code
 
 **Agents page** — `/agents` creates, configures, pauses, resumes, duplicates, archives, and opens persistent Agents. Capability assignment and actual deployment availability are shown separately.
 
-**Manage page** — `/manage` shows review schedules and delivery history, reminders (with run history), webhooks, memories, connections, and skills in one place.
+**Manage page** — `/manage` shows System readiness and production operations, review schedules and delivery history, reminders (with run history), webhooks, memories, connections, and skills in one place.
 
 **MyEve Builder (`apps/builder`)** — create a named personal agent and deploy it into **your** Vercel account, then update it later when the template changes:
 

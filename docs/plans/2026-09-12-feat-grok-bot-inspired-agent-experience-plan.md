@@ -472,11 +472,11 @@ Use checked-in migrations. Every record must be owner scoped. Evidence and appro
 
 - [x] Define the task status model and transition rules: `queued → running → awaiting_approval → running`, with terminal `completed`, `failed`, or `cancelled` states. Retrying a failed run creates an audited transition back to `queued`; completed and cancelled runs remain immutable.
 - [x] Create `task_runs`, milestones, and redacted approval audit records.
-- [ ] Detect/declare multi-step tasks and create a compact task card in chat.
-- [ ] Aggregate Eve session, tool, subagent, and workflow events into factual milestones.
-- [ ] Add stop, retry, resume, and “needs access” recovery flows.
-- [ ] Add completion evidence adapters for files, messages, browser tasks, and database updates.
-- [ ] Keep raw technical activity behind an expandable debug/audit view.
+- [x] Detect/declare multi-step tasks and create a compact task card in chat.
+- [x] Aggregate Eve session, tool, subagent, and workflow events into factual milestones.
+- [x] Add stop, retry, resume, and “needs access” recovery flows.
+- [x] Add completion evidence adapters for files, messages, browser tasks, and database updates.
+- [x] Keep raw technical activity behind an expandable debug/audit view.
 - [x] Add duration and coarse usage visibility without turning the interface into a model cockpit.
 - [x] Add an evidence-rich operations ledger with a stable run/debug ID and drill-down from every active or completed task.
 
@@ -493,8 +493,8 @@ Use checked-in migrations. Every record must be owner scoped. Evidence and appro
 - [ ] Add read-only opportunity discovery after connections are configured.
 - [ ] Add five-job recommendation cards with required access and boundaries.
 - [ ] Add “Try once” with a clear finish line.
-- [ ] Add post-completion Run again, Save as skill, and Make routine actions.
-- [ ] Add routine pause, test, edit, last run, next run, failure, and delete UX.
+- [x] Add post-completion Run again, Save as skill, and Make routine actions.
+- [x] Add routine pause, test, edit, last run, next run, failure, and delete UX.
 - [ ] Add inactivity confirmation before long-unattended routines continue indefinitely.
 - [ ] Treat schedules, provider events, and authenticated webhooks as first-class routine triggers with idempotent dispatch.
 - [ ] Add per-routine notification policy and default to silence when a run produces no meaningful change.
@@ -508,9 +508,9 @@ Use checked-in migrations. Every record must be owner scoped. Evidence and appro
 
 ### Phase 3 — Results and focus digest
 
-- [ ] Add durable artifact metadata and a Results surface.
-- [ ] Connect chat uploads, generated files, shared Blob files, and external destination links.
-- [ ] Add preview, evidence, source task, review state, retention, and revoke/delete.
+- [x] Add durable artifact metadata and a Results surface.
+- [x] Connect chat uploads, generated files, shared Blob files, and external destination links.
+- [x] Add preview, evidence, source task, review state, retention, and revoke/delete.
 - [ ] Add digest source/topic/urgency/quiet-hours policy.
 - [ ] Add scheduled digest generation with citations and deduplication.
 - [ ] Add “useful / not useful / too urgent” feedback to tune the policy.
@@ -544,14 +544,14 @@ Use checked-in migrations. Every record must be owner scoped. Evidence and appro
 
 ### Phase 5 — chief-of-staff coordination
 
-- [ ] Implement typed delegation briefs and specialist matching.
-- [ ] Add delegation approval when crossing tool/data/side-effect boundaries.
-- [ ] Aggregate child milestones and approvals into the parent task.
-- [ ] Add depth, concurrency, turn, wall-time, and cost limits.
-- [ ] Prevent cycles and repeated failed handoffs.
+- [x] Implement typed delegation briefs and specialist matching.
+- [x] Add delegation approval when crossing tool/data/side-effect boundaries.
+- [x] Aggregate child milestones and approvals into the parent task.
+- [x] Add depth, concurrency, turn, wall-time, and cost limits.
+- [x] Prevent cycles and repeated failed handoffs.
 - [ ] Add group conversations only after directed delegation is reliable.
 - [ ] Evaluate fixed moderator, directed mention, and synthesis routing modes.
-- [ ] Preserve inspectable handoff briefs and child conversations while keeping one accountable parent result.
+- [x] Preserve inspectable handoff briefs and child conversations while keeping one accountable parent result.
 - [ ] Add contextual replies/threads so approval and revision messages attach to the exact milestone or artifact.
 
 **Exit criteria**
@@ -565,12 +565,12 @@ Use checked-in migrations. Every record must be owner scoped. Evidence and appro
 ### Phase 6 — persistent computer pilot
 
 - [ ] Decide whether persistent state means disk/profile storage or continuously running compute.
-- [ ] Isolate every user's environment and define per-colleague sharing.
+- [x] Isolate every user's environment and define per-colleague sharing.
 - [ ] Add durable credential vault integration; never store credentials in task memory or logs.
-- [ ] Implement session provisioning, reconnect, expiry, reset, and recovery.
-- [ ] Add supervised takeover for MFA, CAPTCHA, sensitive, and blocked states.
-- [ ] Add network policy, egress audit, retention, patching, and incident response.
-- [ ] Use isolated browser profiles by default; require an explicit, revocable policy to share an account or profile across colleagues.
+- [x] Implement session provisioning, reconnect, expiry, reset, and recovery.
+- [x] Add supervised takeover for MFA, CAPTCHA, sensitive, and blocked states.
+- [x] Add network policy, egress audit, retention, patching, and incident response.
+- [x] Use isolated browser profiles by default; require an explicit, revocable policy to share an account or profile across colleagues.
 - [ ] Measure cold start, task success, orphan rate, cost per completed task, and credential failures.
 
 **Exit criteria**

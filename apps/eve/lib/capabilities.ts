@@ -89,7 +89,7 @@ export function getCapabilityStatuses(
       setupHint: "Add BLOB_READ_WRITE_TOKEN, then reload this page.",
     }),
     status("computer", enabled.has("browser"), databaseReady, {
-      reason: "Computer sessions need a database for isolation, attribution, and evidence records.",
+      reason: "Isolated browser sessions are available on demand after their session ledger is configured; an inactive session is not a disabled browser.",
       setupHint: "Enable the browser feature, add DATABASE_URL, and apply migration 0010.",
     }),
     status("finance", enabled.has("receipts"), databaseReady, {

@@ -11,6 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { ResolvedCapability } from "@/lib/capability-registry";
 import type { ReadinessCheck, ReadinessReport, ReadinessState } from "@/lib/readiness";
+import type { OperatorHealthReport, OperatorState } from "@/lib/operator-health";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,12 @@ const STATE_COPY: Record<ReadinessState, string> = {
   setup_required: "Setup required",
   error: "Needs attention",
   excluded: "Not included",
+};
+
+const OPERATOR_COPY: Record<OperatorState, string> = {
+  healthy: "Healthy",
+  warning: "Watch",
+  critical: "Action required",
 };
 
 function CheckIcon({ state }: { state: ReadinessState }) {
@@ -121,6 +128,7 @@ function CapabilityRow({ capability }: { capability: ResolvedCapability }) {
 export function SystemHealthPanel() {
   const [report, setReport] = useState<ReadinessReport | null>(null);
   const [registry, setRegistry] = useState<ResolvedCapability[] | null>(null);
+  const [operations, setOperations] = useState<OperatorHealthReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -128,11 +136,12 @@ export function SystemHealthPanel() {
     setLoading(true);
     setError(null);
     try {
-      const [readinessResponse, capabilityResponse] = await Promise.all([
+      const [readinessResponse, capabilityResponse, operatorResponse] = await Promise.all([
         fetch(`/api/readiness${fresh ? "?fresh=1" : ""}`),
         fetch("/api/capabilities", { cache: "no-store" }),
+        fetch("/api/operator-health", { cache: "no-store" }),
       ]);
-      if (!readinessResponse.ok || !capabilityResponse.ok) {
+      if (!readinessResponse.ok || !capabilityResponse.ok || !operatorResponse.ok) {
         throw new Error(`${AGENT_NAME} could not run the readiness checks.`);
       }
       const capabilityBody = (await capabilityResponse.json()) as {
@@ -143,6 +152,7 @@ export function SystemHealthPanel() {
       }
       setReport((await readinessResponse.json()) as ReadinessReport);
       setRegistry(capabilityBody.registry);
+      setOperations((await operatorResponse.json()) as OperatorHealthReport);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Readiness checks failed.");
     } finally {
@@ -228,6 +238,50 @@ export function SystemHealthPanel() {
           <CheckRow key={check.id} check={check} />
         ))}
       </ul>
+
+      {operations !== null && (
+        <section className="rounded-2xl border border-kumo-hairline p-4 sm:p-5" aria-labelledby="operator-health-title">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-kumo-hairline pb-4">
+            <div>
+              <h3 id="operator-health-title" className="text-sm font-semibold">Production operations</h3>
+              <p className="mt-1 text-xs text-kumo-subtle">Owner-scoped signals from the last 24 hours. Stale Computer sessions are closed during this check.</p>
+            </div>
+            <span className={cn(
+              "text-xs font-medium",
+              operations.overall === "healthy" && "text-kumo-success",
+              operations.overall === "warning" && "text-kumo-warning",
+              operations.overall === "critical" && "text-kumo-danger",
+            )}>{OPERATOR_COPY[operations.overall]}</span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {operations.signals.map((signal) => (
+              <div key={signal.id} className="rounded-xl bg-kumo-tint p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-xs font-medium">{signal.label}</p>
+                  <span className={cn(
+                    "text-xs font-semibold tabular-nums",
+                    signal.state === "healthy" && "text-kumo-success",
+                    signal.state === "warning" && "text-kumo-warning",
+                    signal.state === "critical" && "text-kumo-danger",
+                  )}>{signal.count}</span>
+                </div>
+                <p className="mt-1 text-[11px] leading-4 text-kumo-subtle">{signal.detail}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-kumo-subtle">Production canaries</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {operations.canaries.map((canary) => (
+                <span key={canary.id} title={canary.detail} className={cn(
+                  "rounded-full border px-2.5 py-1 text-xs",
+                  canary.state === "passing" ? "border-kumo-success/25 text-kumo-success" : "border-kumo-danger/25 text-kumo-danger",
+                )}>{canary.label} · {canary.state === "passing" ? "Passing" : "Failing"}</span>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {registry !== null && (
         <details className="rounded-2xl border border-kumo-hairline p-4 sm:p-5">

@@ -56,6 +56,34 @@ export function normalizeAllowedDomains(domains: readonly string[] = []): string
   return normalized;
 }
 
+export function browserDomainsForUrl(value: unknown): string[] {
+  if (typeof value !== "string" || value.trim().length === 0) return [];
+  let url: URL;
+  try { url = new URL(value); } catch { return []; }
+  if (url.protocol !== "http:" && url.protocol !== "https:") return [];
+  const hostname = url.hostname.toLowerCase();
+  const domains = [hostname];
+  if (hostname.startsWith("www.")) domains.push(hostname.slice(4));
+  else domains.push(`www.${hostname}`);
+  return normalizeAllowedDomains(domains);
+}
+
+export type BrowserFailureCode =
+  | "authentication_required"
+  | "network_policy_blocked"
+  | "browser_timeout"
+  | "browser_unavailable"
+  | "browser_action_failed";
+
+export function classifyBrowserFailure(code?: string, message?: string): BrowserFailureCode {
+  const detail = `${code ?? ""} ${message ?? ""}`;
+  if (/sign[ -]?in|log[ -]?in|authentication|unauthorized|forbidden|mfa|captcha/i.test(detail)) return "authentication_required";
+  if (/network policy|egress|domain.*(?:allow|block|deny)|blocked by.*network|ERR_BLOCKED_BY_CLIENT/i.test(detail)) return "network_policy_blocked";
+  if (/timed?\s*out|timeout|deadline exceeded/i.test(detail)) return "browser_timeout";
+  if (/browser.*(?:unavailable|not installed|failed to (?:start|launch)|disconnected)|executable.*not found/i.test(detail)) return "browser_unavailable";
+  return "browser_action_failed";
+}
+
 export interface ComputerArtifactView {
   id: string;
   actionId: string | null;

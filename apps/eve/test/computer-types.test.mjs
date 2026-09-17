@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { canTransitionComputerSession, clampComputerLimits, isAllowedTerminalCommand, isComputerSessionExpired, normalizeAllowedDomains } from "../lib/computer-types.ts";
+import { browserDomainsForUrl, canTransitionComputerSession, clampComputerLimits, classifyBrowserFailure, isAllowedTerminalCommand, isComputerSessionExpired, normalizeAllowedDomains } from "../lib/computer-types.ts";
 import { computerActionTypeForTool, summarizeComputerActionInput } from "../lib/computer-sessions.ts";
 
 test("computer lifecycle is deterministic and terminal states stay terminal", () => {
@@ -55,4 +55,19 @@ test("computer network domains are explicit, normalized, and public hostnames", 
   for (const domain of ["*", "localhost", "127.0.0.1", "[::1]", "service.local", "https://example.com/path"]) {
     assert.throws(() => normalizeAllowedDomains([domain]), /Invalid public network domain/, domain);
   }
+});
+
+test("browser navigation derives only the target and common redirect hostname", () => {
+  assert.deepEqual(browserDomainsForUrl("https://docs.example.com/guide"), ["docs.example.com", "www.docs.example.com"]);
+  assert.deepEqual(browserDomainsForUrl("https://www.example.com"), ["www.example.com", "example.com"]);
+  assert.deepEqual(browserDomainsForUrl("file:///etc/passwd"), []);
+  assert.deepEqual(browserDomainsForUrl("not a url"), []);
+});
+
+test("browser failures keep actionable production states", () => {
+  assert.equal(classifyBrowserFailure(undefined, "Sign in required"), "authentication_required");
+  assert.equal(classifyBrowserFailure(undefined, "Blocked by network policy"), "network_policy_blocked");
+  assert.equal(classifyBrowserFailure("deadline", "request timed out"), "browser_timeout");
+  assert.equal(classifyBrowserFailure(undefined, "browser failed to launch"), "browser_unavailable");
+  assert.equal(classifyBrowserFailure(undefined, "selector missing"), "browser_action_failed");
 });

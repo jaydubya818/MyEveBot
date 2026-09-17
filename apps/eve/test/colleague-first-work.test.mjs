@@ -29,7 +29,8 @@ test("computer takeover pauses tool access and exposes explicit recovery", async
   ]);
   assert.match(sessions, /status IN \('ready','running'\)/);
   assert.doesNotMatch(sessions, /status IN \('ready','running','paused'\) AND expires_at/);
-  assert.match(policy, /Start a computer session before using browser tools/);
+  assert.match(policy, /decision\.allowed && browserName/);
+  assert.doesNotMatch(policy, /Start a computer session before using browser tools/);
   assert.match(controls, />Take over</);
   assert.match(controls, />Resume</);
   assert.match(sessions, /r\.title AS run_title/);

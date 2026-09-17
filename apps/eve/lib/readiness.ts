@@ -11,7 +11,7 @@ import { webAuthConfigStatus, webAuthRequired } from "@/lib/web-auth";
 export type ReadinessState = "ready" | "setup_required" | "error" | "excluded";
 
 export interface ReadinessCheck {
-  id: "auth" | "ai" | "database" | "memory" | "connections" | "storage";
+  id: "auth" | "ai" | "database" | "browser" | "memory" | "connections" | "storage";
   label: string;
   state: ReadinessState;
   detail: string;
@@ -155,6 +155,19 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
   }
 
   const memoryBase = { id: "memory" as const, label: "Memory", required: false };
+
+  const browserBase = { id: "browser" as const, label: "Isolated browser", required: false };
+  if (capabilities.computer.state === "excluded") {
+    checks.push(excluded(browserBase, "Isolated browser sessions are not included in this deployment."));
+  } else if (!environmentReady("DATABASE_URL")) {
+    checks.push(setup(browserBase, "Add DATABASE_URL and apply migration 0010. The browser runtime will then be available on demand."));
+  } else {
+    const database = checks.find((check) => check.id === "database");
+    checks.push(database?.state === "ready"
+      ? { ...browserBase, state: "ready", detail: "Available on demand. The first browser action provisions an isolated session and verifies its runtime and network policy." }
+      : { ...browserBase, state: "error", detail: "Browser configuration is present, but its session ledger is not ready. Fix the database or migration state first." });
+  }
+
   if (capabilities.memory.state === "excluded") {
     checks.push(excluded(memoryBase, "Memory is not included in this deployment."));
   } else if (!environmentReady("SUPERMEMORY_API_KEY")) {
