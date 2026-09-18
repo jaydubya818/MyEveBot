@@ -1,0 +1,255 @@
+"use client";
+
+import { Badge, Button, Loader } from "@cloudflare/kumo";
+import {
+  ArchiveIcon,
+  CheckCircleIcon,
+  DownloadSimpleIcon,
+  ShieldCheckIcon,
+  UploadSimpleIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
+import { useEffect, useRef, useState } from "react";
+
+interface InventoryItem {
+  id: string;
+  name: string;
+  description: string;
+  recordCount: number;
+  approximateBytes: number;
+}
+
+interface DataOperation {
+  id: string;
+  type: string;
+  status: "running" | "completed" | "failed";
+  archiveVersion: number | null;
+  recordCount: number | null;
+  errorSummary: string | null;
+  createdAt: string;
+}
+
+interface InventoryResponse {
+  generatedAt: string;
+  inventory: InventoryItem[];
+  exclusions: string[];
+  retention: Array<{ dataClass: string; policy: string }>;
+  history: DataOperation[];
+}
+
+interface ArchiveValidation {
+  valid: true;
+  exportedAt: string;
+  version: number;
+  fileCount: number;
+  recordCount: number;
+  uncompressedBytes: number;
+}
+
+function formatBytes(value: number): string {
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+  return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+export function OwnerDataPanel() {
+  const [inventory, setInventory] = useState<InventoryResponse | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
+  const [validating, setValidating] = useState(false);
+  const [validation, setValidation] = useState<ArchiveValidation | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    void fetch("/api/owner-data", { cache: "no-store" })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Your data inventory could not be loaded.");
+        return response.json() as Promise<InventoryResponse>;
+      })
+      .then(setInventory)
+      .catch((error: unknown) => setLoadError(error instanceof Error ? error.message : "Your data inventory could not be loaded."));
+  }, []);
+
+  async function downloadArchive() {
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const response = await fetch("/api/owner-data?download=1", { cache: "no-store" });
+      if (!response.ok) throw new Error("Your archive could not be prepared. Please retry.");
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = response.headers.get("content-disposition")?.match(/filename="([^"]+)"/)?.[1] ?? "myeve-owner-data.zip";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setDownloadError(error instanceof Error ? error.message : "Your archive could not be prepared.");
+    } finally {
+      setDownloading(false);
+    }
+  }
+
+  async function verifyArchive(file: File) {
+    setValidating(true);
+    setValidation(null);
+    setValidationError(null);
+    const form = new FormData();
+    form.set("archive", file);
+    try {
+      const response = await fetch("/api/owner-data", { method: "POST", body: form });
+      const body = (await response.json()) as { validation?: ArchiveValidation; error?: { message?: string } };
+      if (!response.ok || !body.validation) throw new Error(body.error?.message ?? "The archive could not be verified.");
+      setValidation(body.validation);
+    } catch (error) {
+      setValidationError(error instanceof Error ? error.message : "The archive could not be verified.");
+    } finally {
+      setValidating(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  if (loadError) {
+    return (
+      <div className="flex gap-3 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm">
+        <WarningCircleIcon className="mt-0.5 size-4 shrink-0 text-kumo-danger" aria-hidden />
+        <p>{loadError}</p>
+      </div>
+    );
+  }
+  if (!inventory) return <div className="flex justify-center py-8"><Loader size={18} /></div>;
+
+  const totalRecords = inventory.inventory.reduce((total, item) => total + item.recordCount, 0);
+  const totalBytes = inventory.inventory.reduce((total, item) => total + item.approximateBytes, 0);
+
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="rounded-xl border border-kumo-hairline bg-kumo-tint p-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex gap-3">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-kumo-recessed">
+              <ArchiveIcon className="size-5" aria-hidden />
+            </span>
+            <div>
+              <h3 className="text-sm font-semibold">Portable owner archive</h3>
+              <p className="mt-1 max-w-xl text-sm text-kumo-subtle">
+                Download your conversations, goals, knowledge, memories, agents, runs, results, and routines in a documented ZIP archive.
+              </p>
+              <p className="mt-2 text-xs text-kumo-subtle">{totalRecords.toLocaleString()} records · approximately {formatBytes(totalBytes)}</p>
+            </div>
+          </div>
+          <Button size="sm" icon={DownloadSimpleIcon} loading={downloading} onClick={() => void downloadArchive()}>
+            Download archive
+          </Button>
+        </div>
+        {downloadError && <p className="mt-3 flex items-center gap-1.5 text-sm text-kumo-danger"><WarningCircleIcon className="size-4" aria-hidden />{downloadError}</p>}
+      </section>
+
+      <section>
+        <h3 className="text-sm font-semibold">Included data</h3>
+        <ul className="mt-2 divide-y divide-kumo-hairline rounded-xl border border-kumo-hairline px-3">
+          {inventory.inventory.map((item) => (
+            <li key={item.id} className="flex items-center gap-3 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{item.name}</p>
+                <p className="mt-0.5 text-xs text-kumo-subtle">{item.description}</p>
+              </div>
+              <div className="text-right text-xs tabular-nums text-kumo-subtle">
+                <p>{item.recordCount.toLocaleString()} records</p>
+                <p>{formatBytes(item.approximateBytes)}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section>
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-semibold">Verify a backup</h3>
+          <Badge variant="secondary">Read-only</Badge>
+        </div>
+        <p className="mt-1 text-sm text-kumo-subtle">
+          Check the archive format and every file checksum. Verification never changes your current MyEve data.
+        </p>
+        <input
+          ref={inputRef}
+          className="sr-only"
+          type="file"
+          accept=".zip,application/zip"
+          aria-label="Choose a MyEve archive to verify"
+          onChange={(event) => {
+            const file = event.target.files?.[0];
+            if (file) void verifyArchive(file);
+          }}
+        />
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <Button variant="secondary" size="sm" icon={UploadSimpleIcon} loading={validating} onClick={() => inputRef.current?.click()}>
+            Choose archive
+          </Button>
+          {validation && (
+            <span className="flex items-center gap-1.5 text-sm text-kumo-success">
+              <CheckCircleIcon className="size-4" weight="fill" aria-hidden />
+              Verified {validation.recordCount.toLocaleString()} records from {new Date(validation.exportedAt).toLocaleDateString()}
+            </span>
+          )}
+          {validationError && (
+            <span className="flex items-center gap-1.5 text-sm text-kumo-danger">
+              <WarningCircleIcon className="size-4" aria-hidden />
+              {validationError}
+            </span>
+          )}
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-kumo-hairline p-4">
+          <div className="flex items-center gap-2">
+            <ShieldCheckIcon className="size-4 text-kumo-success" aria-hidden />
+            <h3 className="text-sm font-semibold">Sensitive data excluded</h3>
+          </div>
+          <ul className="mt-3 space-y-2 text-sm text-kumo-subtle">
+            {inventory.exclusions.map((item) => <li key={item}>• {item}</li>)}
+          </ul>
+        </div>
+        <div className="rounded-xl border border-kumo-hairline p-4">
+          <h3 className="text-sm font-semibold">Retention</h3>
+          <dl className="mt-3 space-y-3">
+            {inventory.retention.map((item) => (
+              <div key={item.dataClass}>
+                <dt className="text-xs font-medium">{item.dataClass}</dt>
+                <dd className="mt-0.5 text-xs text-kumo-subtle">{item.policy}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="text-sm font-semibold">History</h3>
+        {inventory.history.length === 0 ? (
+          <p className="mt-2 rounded-xl border border-kumo-hairline py-6 text-center text-sm text-kumo-subtle">No Data Center operations yet.</p>
+        ) : (
+          <ol className="mt-2 divide-y divide-kumo-hairline rounded-xl border border-kumo-hairline px-3">
+            {inventory.history.map((operation) => (
+              <li key={operation.id} className="flex items-center gap-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium capitalize">{operation.type.replaceAll("_", " ")}</p>
+                  <p className="mt-0.5 text-xs text-kumo-subtle">{new Date(operation.createdAt).toLocaleString()}</p>
+                </div>
+                {operation.recordCount !== null && <span className="text-xs tabular-nums text-kumo-subtle">{operation.recordCount.toLocaleString()} records</span>}
+                <Badge variant={operation.status === "completed" ? "success" : operation.status === "failed" ? "destructive" : "secondary"}>{operation.status}</Badge>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      <p className="text-xs text-kumo-subtle">
+        Import is intentionally disabled until merge-versus-replace behavior and rollback are approved. The current recovery step proves that a downloaded archive is complete and unmodified.
+      </p>
+    </div>
+  );
+}

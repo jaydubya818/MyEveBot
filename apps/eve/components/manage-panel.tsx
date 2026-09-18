@@ -12,6 +12,7 @@ import {
   CaretRightIcon,
   CheckIcon,
   CopyIcon,
+  DatabaseIcon,
   HashIcon,
   LightningIcon,
   ListChecksIcon,
@@ -36,6 +37,7 @@ import { ActivationPanel } from "@/components/activation-panel";
 import { FinancePanel } from "@/components/finance-panel";
 import { IMessagePanel } from "@/components/imessage-panel";
 import { PhonePanel } from "@/components/phone-panel";
+import { OwnerDataPanel } from "@/components/owner-data-panel";
 import { SkillsManager } from "@/components/skills-manager";
 import { SystemHealthPanel } from "@/components/system-health-panel";
 import { TaskRunsPanel } from "@/components/task-runs-panel";
@@ -86,8 +88,13 @@ interface RunItem {
 interface MemoryItem {
   id: string;
   content: string;
+  scope: { type: "owner" | "agent" | "goal" | "project" | "task"; id: string };
   permanent: boolean;
+  confidence: number;
+  sourceType: string;
+  sourceId: string | null;
   updatedAt: string | null;
+  lastConfirmedAt: string | null;
 }
 
 interface ConnectionItem {
@@ -435,7 +442,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -471,6 +478,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
         label: "Appearance",
         description: "Identity and theme",
         icon: PaletteIcon,
+      },
+      {
+        id: "data" as const,
+        label: "Your data",
+        description: "Export, verify, and retention",
+        icon: DatabaseIcon,
       },
       {
         id: "agents" as const,
@@ -761,13 +774,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage"
+    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || capabilityFor(id)?.state !== "excluded";
+    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -817,6 +830,8 @@ export function ManagePanel({
     sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {
     sectionContent = <AppearancePanel />;
+  } else if (activeSection === "data") {
+    sectionContent = <OwnerDataPanel />;
   } else if (activeSection === "agents") {
     sectionContent = <AgentsPanel embedded onStartChat={onStartAgentChat} onUseRole={onUseRole} onUseSolutionPack={onUseSolutionPack} />;
   } else if (activeSection === "reminders") {
@@ -902,10 +917,19 @@ export function ManagePanel({
     ) : (
       <ul className="flex flex-col">
         {memories.map((memory) => (
-          <li key={memory.id} className="flex items-center gap-3 border-b border-kumo-hairline py-2.5 last:border-b-0">
+          <li key={memory.id} className="flex items-start gap-3 border-b border-kumo-hairline py-3 last:border-b-0">
             <div className="min-w-0 flex-1">
               <p className="text-sm break-words">{memory.content}</p>
-              <p className="mt-0.5 text-xs text-kumo-subtle">Updated {formatWhen(memory.updatedAt)}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-kumo-subtle">
+                <span className="capitalize">{memory.scope.type} scope</span>
+                <span aria-hidden>·</span>
+                <span>Source: {memory.sourceType.replaceAll("_", " ")}</span>
+                <span aria-hidden>·</span>
+                <span>{Math.round(memory.confidence * 100)}% confidence</span>
+                <span aria-hidden>·</span>
+                <span>Updated {formatWhen(memory.updatedAt)}</span>
+                {memory.lastConfirmedAt && <><span aria-hidden>·</span><span>Confirmed {formatWhen(memory.lastConfirmedAt)}</span></>}
+              </div>
             </div>
             {memory.permanent && <Badge variant="secondary">permanent</Badge>}
             <DeleteButton label="Forget memory" onDelete={() => forgetMemory(memory.id)} />
