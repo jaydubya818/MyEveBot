@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0018_owner_knowledge_control.sql";
+export const CURRENT_DATABASE_MIGRATION = "0019_agent_control_center.sql";

@@ -12,6 +12,7 @@ import {
   CaretRightIcon,
   CheckIcon,
   CopyIcon,
+  ControlIcon,
   DatabaseIcon,
   HashIcon,
   LightningIcon,
@@ -32,6 +33,7 @@ import { useEffect, useState } from "react";
 
 import type { CapabilityId, CapabilityStatus } from "@/lib/capabilities";
 import { AppearancePanel } from "@/components/appearance-panel";
+import { ControlCenterPanel } from "@/components/control-center-panel";
 import { AgentsPanel } from "@/components/agents-panel";
 import { ActivationPanel } from "@/components/activation-panel";
 import { FinancePanel } from "@/components/finance-panel";
@@ -442,7 +444,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -559,6 +561,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
   {
     label: "Operations",
     sections: [
+      {
+        id: "control" as const,
+        label: "Control Center",
+        description: "Live work and safe controls",
+        icon: ControlIcon,
+      },
       {
         id: "activity" as const,
         label: "Activity",
@@ -774,13 +782,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
+    id === "system" || id === "activity" || id === "control" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
+    id === "system" || id === "activity" || id === "control" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -826,6 +834,8 @@ export function ManagePanel({
     sectionContent = <IMessagePanel />;
   } else if (activeSection === "phone") {
     sectionContent = <PhonePanel />;
+  } else if (activeSection === "control") {
+    sectionContent = <ControlCenterPanel onOpenThread={onOpenThread} />;
   } else if (activeSection === "activity") {
     sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {

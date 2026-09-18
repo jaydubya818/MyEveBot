@@ -29,12 +29,12 @@ export async function PATCH(request: Request, ctx: RouteContext): Promise<Respon
   const owner = webPrincipal(request)!;
   const { id } = await ctx.params;
   const body = (await request.json().catch(() => null)) as { action?: unknown } | null;
-  if (body?.action !== "cancel" && body?.action !== "retry") {
-    return apiError(request, 400, "invalid_action", "Use cancel or retry.");
+  if (body?.action !== "cancel" && body?.action !== "retry" && body?.action !== "pause" && body?.action !== "resume") {
+    return apiError(request, 400, "invalid_action", "Use pause, resume, cancel, or retry.");
   }
 
   try {
-    if (body.action === "cancel") {
+    if (body.action === "cancel" || body.action === "pause") {
       const sessionId = await taskRootSession(owner.id, id);
       if (sessionId === null) return apiError(request, 404, "task_not_found", "Task not found.");
       const cancelResponse = await fetch(
@@ -50,7 +50,18 @@ export async function PATCH(request: Request, ctx: RouteContext): Promise<Respon
       if (!cancelResponse.ok && cancelResponse.status !== 409) {
         throw new Error(`Eve cancellation returned ${cancelResponse.status}`);
       }
-      const task = await transitionTask(owner.id, id, "cancelled", "owner", "Stopped by owner");
+      const task = await transitionTask(
+        owner.id,
+        id,
+        body.action === "pause" ? "paused" : "cancelled",
+        "owner",
+        body.action === "pause" ? "Paused by owner at a durable checkpoint" : "Stopped by owner",
+      );
+      return Response.json({ task });
+    }
+
+    if (body.action === "resume") {
+      const task = await transitionTask(owner.id, id, "queued", "owner", "Ready to resume from the saved checkpoint in chat");
       return Response.json({ task });
     }
 
