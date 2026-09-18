@@ -13,22 +13,17 @@ This is the canonical product roadmap as of 2026-09-18. Completed work is record
 - Production failure telemetry, cleanup, operator health, alerts, canaries, and incident procedures — work order 010.
 - Guided first-use setup, read-only capability discovery, and five bounded starter jobs — work order 013.
 - Agent-isolated persistent browser profiles, explicit sharing, owner authentication takeover, reconnect, and reset — work order 014.
+- Unified Channels health, privacy-preserving Email/iMessage search, provider data boundaries, and delivery audit — work order 015.
 
 ## P1 — Make MyEve genuinely useful
 
-### 1. Communications consolidation — next
-
-- Create one Channels surface for Email, Slack, iMessage, push, and later Phone.
-- Unify message/thread search, attachments, delivery state, approval, audit, retention, deletion, and redaction.
-- Add provider-event idempotency and retry handling.
-
-### 2. Phone production qualification
+### 1. Phone production qualification — next
 
 - Complete live AgentPhone provisioning and a minimal billed test matrix before exposing Phone controls.
 - Verify inbound/outbound text, iMessage, calls, verification inbox, webhook security, consent, opt-out, quiet hours, and failure recovery.
 - Add spending limits and an emergency disable switch.
 
-### 3. Data ownership and recovery
+### 2. Data ownership and recovery
 
 - Export Goals, Knowledge, memories, conversations, Results, routines, and Agents.
 - Verify backup/restore, define retention by data class, show storage usage, and add an audited deployment/account deletion flow.

@@ -6,11 +6,13 @@ import {
   ArrowSquareOutIcon,
   BellIcon,
   CalendarDotsIcon,
+  ChatCircleDotsIcon,
   BrainIcon,
   CaretDownIcon,
   CaretRightIcon,
   CheckIcon,
   CopyIcon,
+  HashIcon,
   LightningIcon,
   ListChecksIcon,
   MagicWandIcon,
@@ -31,10 +33,12 @@ import { AppearancePanel } from "@/components/appearance-panel";
 import { AgentsPanel } from "@/components/agents-panel";
 import { ActivationPanel } from "@/components/activation-panel";
 import { FinancePanel } from "@/components/finance-panel";
+import { IMessagePanel } from "@/components/imessage-panel";
 import { SkillsManager } from "@/components/skills-manager";
 import { SystemHealthPanel } from "@/components/system-health-panel";
 import { TaskRunsPanel } from "@/components/task-runs-panel";
 import { ReviewDeliverySettings } from "@/components/review-delivery-settings";
+import { SlackPanel } from "@/components/slack-panel";
 import { AGENT_NAME } from "@/lib/identity";
 import { cn } from "@/lib/utils";
 import type { AgentActivityView } from "@/lib/agents";
@@ -429,7 +433,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents" | "getting-started";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -488,6 +492,23 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
         label: "Triggers",
         description: "Event-driven work",
         icon: LightningIcon,
+      },
+    ],
+  },
+  {
+    label: "Channels",
+    sections: [
+      {
+        id: "slack" as const,
+        label: "Slack",
+        description: "Workspace messaging and reactions",
+        icon: HashIcon,
+      },
+      {
+        id: "imessage" as const,
+        label: "iMessage",
+        description: "Pairing and shared-number delivery",
+        icon: ChatCircleDotsIcon,
       },
     ],
   },
@@ -732,13 +753,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || id === "getting-started"
+    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || capabilityFor(id)?.state !== "excluded";
+    id === "system" || id === "activity" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -778,6 +799,10 @@ export function ManagePanel({
     sectionContent = <SystemHealthPanel />;
   } else if (activeSection === "review-delivery") {
     sectionContent = <ReviewDeliverySettings />;
+  } else if (activeSection === "slack") {
+    sectionContent = <SlackPanel />;
+  } else if (activeSection === "imessage") {
+    sectionContent = <IMessagePanel />;
   } else if (activeSection === "activity") {
     sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {

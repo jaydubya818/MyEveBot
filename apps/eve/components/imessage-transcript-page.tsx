@@ -292,7 +292,7 @@ export function IMessageTranscriptPage() {
     <main className="min-h-dvh bg-kumo-canvas">
       <div className="w-full max-w-3xl px-6 py-6">
         <LinkButton
-          href="/manage?tab=imessage"
+          href="/manage/imessage"
           variant="ghost"
           size="sm"
           icon={CaretLeftIcon}

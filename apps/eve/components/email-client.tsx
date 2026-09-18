@@ -924,14 +924,19 @@ function ReplyBox({
   );
 }
 
+function initialEmailQuery(name: string): string {
+  if (typeof window === "undefined") return "";
+  return new URL(window.location.href).searchParams.get(name)?.trim() ?? "";
+}
+
 export function EmailClient({ onOpenSidebar }: { onOpenSidebar: () => void }) {
   const [folder, setFolder] = useState<EmailFolder>("inbox");
-  const [search, setSearch] = useState("");
-  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState(() => initialEmailQuery("q"));
+  const [query, setQuery] = useState(() => initialEmailQuery("q"));
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [list, setList] = useState<ListState | null>(null);
   const [listError, setListError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(() => initialEmailQuery("thread") || null);
   const [thread, setThread] = useState<EmailThreadView | null>(null);
   const [threadError, setThreadError] = useState<string | null>(null);
   // Bumped to re-read the open conversation after a reply lands in it.

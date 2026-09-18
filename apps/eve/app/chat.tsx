@@ -10,14 +10,12 @@ import {
   AlarmIcon,
   ArrowClockwiseIcon,
   ArrowUpIcon,
-  BellIcon,
-  BellSlashIcon,
   BrainIcon,
   CalendarCheckIcon,
+  ChatsCircleIcon,
   CaretDownIcon,
   CheckIcon,
   CopyIcon,
-  EnvelopeIcon,
   FileIcon,
   FilesIcon,
   GearSixIcon,
@@ -46,6 +44,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
+import { ChannelsWorkspace } from "@/components/channels-workspace";
 import { ComputerWorkspace } from "@/components/computer-workspace";
 import { EmailClient } from "@/components/email-client";
 import { FilesPage } from "@/components/files-page";
@@ -634,6 +633,7 @@ type MainView =
   | "agents"
   | "computer"
   | "knowledge"
+  | "channels"
   | "email"
   | "files";
 
@@ -998,7 +998,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   useEffect(() => {
     function onPopState() {
       setView(
-        window.location.pathname.startsWith("/email")
+        window.location.pathname.startsWith("/channels")
+          ? "channels"
+          : window.location.pathname.startsWith("/email")
           ? "email"
           : window.location.pathname.startsWith("/files")
             ? "files"
@@ -1027,7 +1029,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
   function showView(next: MainView) {
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "email" ? "/email" : next === "files" ? "/files" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
+    const path = next === "manage" ? "/manage" : next === "channels" ? "/channels" : next === "email" ? "/email" : next === "files" ? "/files" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1299,36 +1301,16 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               className={cn(view === "review" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "review" ? "chat" : "review")}
             />}
-            {push.status !== "unsupported" && push.status !== "loading" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                shape="square"
-                icon={push.status === "on" ? BellIcon : BellSlashIcon}
-                aria-label={
-                  push.status === "on" ? "Disable notifications" : "Enable notifications"
-                }
-                title={
-                  push.status === "on"
-                    ? "Notifications on - click to disable"
-                    : push.status === "denied"
-                      ? "Notifications blocked in browser settings"
-                      : "Enable notifications"
-                }
-                className={cn(push.status !== "on" && "text-kumo-subtle")}
-                onClick={push.toggle}
-              />
-            )}
             <Button
               variant="ghost"
               size="sm"
               shape="square"
-              icon={EnvelopeIcon}
-              aria-label="Email"
-              aria-pressed={view === "email"}
-              title={`${AGENT_NAME}'s inbox`}
-              className={cn(view === "email" && "bg-kumo-tint text-kumo-strong")}
-              onClick={() => showView(view === "email" ? "chat" : "email")}
+              icon={ChatsCircleIcon}
+              aria-label="Channels"
+              aria-pressed={view === "channels"}
+              title="Email, Slack, iMessage, and push"
+              className={cn(view === "channels" && "bg-kumo-tint text-kumo-strong")}
+              onClick={() => showView(view === "channels" ? "chat" : "channels")}
             />
             <Button
               variant="ghost"
@@ -1430,7 +1412,12 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </nav>
       </aside>
 
-      {view === "email" ? (
+      {view === "channels" ? (
+        <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <div className="w-full px-4 py-6 sm:px-6 lg:px-8"><ChannelsWorkspace pushStatus={push.status} onTogglePush={push.toggle} /></div>
+        </main>
+      ) : view === "email" ? (
         <EmailClient onOpenSidebar={() => setSidebarOpen(true)} />
       ) : view === "files" ? (
         <FilesPage
