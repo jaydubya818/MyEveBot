@@ -34,6 +34,13 @@ export interface MemoryEntry {
   lastConfirmedAt: string | null;
 }
 
+export interface OwnerMemoryDeletionResult {
+  found: boolean;
+  deleted: boolean;
+  remoteDeleted: boolean;
+  remoteDeletionVerified: boolean;
+}
+
 interface SemanticSearchResult {
   id: string;
   content: string;
@@ -107,6 +114,16 @@ const semanticMemory = {
       return result.forgotten ?? true;
     } catch (error) {
       if (error instanceof SupermemoryError && error.status === 404) return false;
+      throw error;
+    }
+  },
+  async deleteVerified(id: string): Promise<{ deleted: boolean; verifiedAbsent: boolean }> {
+    const deleted = await this.delete(id);
+    try {
+      await api(`/v3/memories/${encodeURIComponent(id)}`, "GET");
+      return { deleted, verifiedAbsent: false };
+    } catch (error) {
+      if (error instanceof SupermemoryError && error.status === 404) return { deleted: true, verifiedAbsent: true };
       throw error;
     }
   },
@@ -247,9 +264,9 @@ export const memoryStore = {
     const entry = rowEntry(row);
     if (!scopeIsAllowed(entry.scope, context)) throw new Error("Memory is outside this Agent's authorized scopes.");
     const providerId = nullableText(row.provider_id);
-    const deleted = providerId ? await semanticMemory.delete(providerId) : true;
-    if (deleted) await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [context.ownerId, memoryId]);
-    return deleted;
+    const remote = providerId ? await semanticMemory.deleteVerified(providerId) : { deleted: true, verifiedAbsent: true };
+    if (remote.verifiedAbsent) await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [context.ownerId, memoryId]);
+    return remote.verifiedAbsent;
   },
 
   async listForOwner(ownerId: string): Promise<MemoryEntry[]> {
@@ -262,15 +279,55 @@ export const memoryStore = {
   },
 
   async deleteForOwner(ownerId: string, memoryId: string): Promise<boolean> {
+    const result = await this.deleteForOwnerDetailed(ownerId, memoryId);
+    return result.deleted;
+  },
+
+  async deleteForOwnerDetailed(ownerId: string, memoryId: string): Promise<OwnerMemoryDeletionResult> {
     const rows = await db().query(
       `SELECT provider_id FROM memory_records WHERE owner_id=$1 AND id=$2 AND status='active' LIMIT 1`,
       [ownerId, memoryId],
     ) as Row[];
-    if (!rows[0]) return false;
+    if (!rows[0]) return { found: false, deleted: false, remoteDeleted: false, remoteDeletionVerified: false };
     const providerId = nullableText(rows[0].provider_id);
-    const deleted = providerId ? await semanticMemory.delete(providerId) : true;
-    if (deleted) await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, memoryId]);
-    return deleted;
+    const remote = providerId ? await semanticMemory.deleteVerified(providerId) : { deleted: true, verifiedAbsent: true };
+    if (!remote.verifiedAbsent) return { found: true, deleted: false, remoteDeleted: remote.deleted, remoteDeletionVerified: false };
+    await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, memoryId]);
+    return { found: true, deleted: true, remoteDeleted: remote.deleted, remoteDeletionVerified: true };
+  },
+
+  async correctForOwner(ownerId: string, memoryId: string, content: string): Promise<{ status: "completed"; replacement: MemoryEntry; remoteDeletionVerified: true }> {
+    const rows = await db().query(
+      `SELECT * FROM memory_records WHERE owner_id=$1 AND id=$2 AND status='active' LIMIT 1`,
+      [ownerId, memoryId],
+    ) as Row[];
+    const current = rows[0];
+    if (!current) throw new Error("Memory not found.");
+    const clean = content.replaceAll("\0", "").trim();
+    if (!clean || clean.length > 4000) throw new Error("Memory must be between 1 and 4,000 characters.");
+    const replacementId = `memory_${randomUUID()}`;
+    const replacementProviderId = await semanticMemory.add(clean, current.permanent === true);
+    try {
+      await db().query(
+        `INSERT INTO memory_records
+          (id,owner_id,scope_type,scope_id,content,provider,provider_id,source_type,source_id,confidence,permanent,status,last_confirmed_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,'owner_correction',$8,$9,$10,'active',now())`,
+        [replacementId, ownerId, text(current.scope_type), text(current.scope_id), clean, text(current.provider), replacementProviderId, memoryId, Number(current.confidence), current.permanent === true],
+      );
+    } catch (error) {
+      await semanticMemory.deleteVerified(replacementProviderId).catch(() => undefined);
+      throw error;
+    }
+    const previousProviderId = nullableText(current.provider_id);
+    const previousRemote = previousProviderId ? await semanticMemory.deleteVerified(previousProviderId) : { deleted: true, verifiedAbsent: true };
+    if (!previousRemote.verifiedAbsent) {
+      const rollback = await semanticMemory.deleteVerified(replacementProviderId).catch(() => ({ deleted: false, verifiedAbsent: false }));
+      if (rollback.verifiedAbsent) await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, replacementId]);
+      throw new Error(rollback.verifiedAbsent ? "The previous remote Memory could not be verified as deleted; the correction was rolled back." : "Memory correction partially completed and needs owner review.");
+    }
+    await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, memoryId]);
+    const replacementRows = await db().query(`SELECT * FROM memory_records WHERE owner_id=$1 AND id=$2 LIMIT 1`, [ownerId, replacementId]) as Row[];
+    return { status: "completed", replacement: rowEntry(replacementRows[0]), remoteDeletionVerified: true };
   },
 
   async healthcheck(): Promise<void> {

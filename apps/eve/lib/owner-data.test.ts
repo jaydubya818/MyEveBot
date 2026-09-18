@@ -145,5 +145,6 @@ describe("owner data archives", () => {
     expect(allSql).not.toContain("webhooks.secret");
     expect(allSql).not.toContain("provider_id");
     expect(allSql).not.toContain("storage_key");
+    expect(allSql).toContain("from memory_records where owner_id=$1 and status <> 'deleted'");
   });
 });

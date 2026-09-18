@@ -20,8 +20,8 @@ This is the canonical product roadmap as of 2026-09-18. Completed work is record
 ### 1. Data ownership and recovery — active
 
 - Work order 017: canonical ownership registry, provider-neutral backup contract, human-readable export, SHA-256 verification, deterministic completeness/portability status, file/reference inventory, safe connected-app metadata, retention visibility, and audit history.
-- Work order 018: unified "What MyEve Knows" inspection, provenance, correction, and verified forgetting.
-- Work order 019: dry-run planning followed by confirmed, dependency-aware restore into an empty deployment with post-restore verification.
+- Work order 018 (completed): unified "What MyEve Knows" inspection, provenance, correction, and verified forgetting.
+- Work order 019 (next): dry-run planning followed by confirmed, dependency-aware restore into an empty deployment with post-restore verification.
 - Work order 020: dependency-aware domain deletion, connector disconnect/revocation, verification, and receipts.
 
 ### 2. Phone production qualification — waiting on owner setup

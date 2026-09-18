@@ -36,6 +36,6 @@ test("historical plans and README point to the canonical roadmap", async () => {
   assert.match(roadmap, /Guided first-use setup.+work order 013/);
   assert.match(roadmap, /persistent browser profiles.+work order 014/i);
   assert.match(roadmap, /Unified Channels.+work order 015/);
-  assert.match(roadmap, /### 1\. Phone production qualification — next/);
+  assert.match(roadmap, /### 1\. Data ownership and recovery — active/);
   assert.match(roadmap, /## P3 — Explicitly later/);
 });

@@ -5,13 +5,15 @@ import { db } from "@/agent/lib/receipts-db";
 type OperationType =
   | "export_started" | "export_completed" | "export_failed" | "backup_verified"
   | "restore_planned" | "restore_started" | "restore_completed" | "restore_failed" | "restore_verified"
-  | "memory_corrected" | "memory_deleted" | "connector_disconnected" | "connector_revoked"
+  | "memory_corrected" | "memory_deleted" | "memory_forgotten"
+  | "knowledge_corrected" | "knowledge_deleted" | "preference_corrected" | "contradiction_resolved"
+  | "connector_disconnected" | "connector_revoked"
   | "deletion_started" | "deletion_completed" | "deletion_failed";
 
 export interface OwnerDataOperationView {
   id: string;
   type: OperationType;
-  status: "running" | "completed" | "failed";
+  status: "running" | "completed" | "partially_completed" | "failed";
   archiveVersion: number | null;
   recordCount: number | null;
   checksum: string | null;

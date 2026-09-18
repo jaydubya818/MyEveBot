@@ -10,6 +10,7 @@ import {
   WarningCircleIcon,
 } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
+import { WhatMyEveKnowsPanel } from "@/components/what-myeve-knows-panel";
 
 interface InventoryItem {
   id: string;
@@ -25,7 +26,7 @@ interface InventoryItem {
 interface DataOperation {
   id: string;
   type: string;
-  status: "running" | "completed" | "failed";
+  status: "running" | "completed" | "partially_completed" | "failed";
   archiveVersion: number | null;
   recordCount: number | null;
   errorSummary: string | null;
@@ -60,6 +61,7 @@ function statusLabel(value: string): string {
 }
 
 export function OwnerDataPanel() {
+  const [view, setView] = useState<"knowledge" | "backup">("knowledge");
   const [inventory, setInventory] = useState<InventoryResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
@@ -70,6 +72,7 @@ export function OwnerDataPanel() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (view !== "backup" || inventory !== null) return;
     void fetch("/api/owner-data", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Your data inventory could not be loaded.");
@@ -77,7 +80,7 @@ export function OwnerDataPanel() {
       })
       .then(setInventory)
       .catch((error: unknown) => setLoadError(error instanceof Error ? error.message : "Your data inventory could not be loaded."));
-  }, []);
+  }, [inventory, view]);
 
   async function downloadArchive() {
     setDownloading(true);
@@ -119,6 +122,10 @@ export function OwnerDataPanel() {
     }
   }
 
+  if (view === "knowledge") {
+    return <div className="flex flex-col gap-5"><nav className="flex gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1" aria-label="Owner Data Center"><button type="button" className="rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" onClick={() => setView("knowledge")}>What MyEve Knows</button><button type="button" className="rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default" onClick={() => setView("backup")}>Backup & recovery</button></nav><WhatMyEveKnowsPanel /></div>;
+  }
+
   if (loadError) {
     return (
       <div className="flex gap-3 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm">
@@ -134,6 +141,7 @@ export function OwnerDataPanel() {
 
   return (
     <div className="flex flex-col gap-6">
+      <nav className="flex gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1" aria-label="Owner Data Center"><button type="button" className="rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default" onClick={() => setView("knowledge")}>What MyEve Knows</button><button type="button" className="rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" onClick={() => setView("backup")}>Backup & recovery</button></nav>
       <section className="rounded-xl border border-kumo-hairline bg-kumo-tint p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-3">
