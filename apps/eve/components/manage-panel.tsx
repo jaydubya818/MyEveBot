@@ -17,6 +17,7 @@ import {
   ListChecksIcon,
   MagicWandIcon,
   PaletteIcon,
+  PhoneIcon,
   PlugsIcon,
   PlusIcon,
   PulseIcon,
@@ -34,6 +35,7 @@ import { AgentsPanel } from "@/components/agents-panel";
 import { ActivationPanel } from "@/components/activation-panel";
 import { FinancePanel } from "@/components/finance-panel";
 import { IMessagePanel } from "@/components/imessage-panel";
+import { PhonePanel } from "@/components/phone-panel";
 import { SkillsManager } from "@/components/skills-manager";
 import { SystemHealthPanel } from "@/components/system-health-panel";
 import { TaskRunsPanel } from "@/components/task-runs-panel";
@@ -510,6 +512,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
         description: "Pairing and shared-number delivery",
         icon: ChatCircleDotsIcon,
       },
+      {
+        id: "phone" as const,
+        label: "Phone",
+        description: "Text, calls, consent, and spend controls",
+        icon: PhoneIcon,
+      },
     ],
   },
   {
@@ -803,6 +811,8 @@ export function ManagePanel({
     sectionContent = <SlackPanel />;
   } else if (activeSection === "imessage") {
     sectionContent = <IMessagePanel />;
+  } else if (activeSection === "phone") {
+    sectionContent = <PhonePanel />;
   } else if (activeSection === "activity") {
     sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {

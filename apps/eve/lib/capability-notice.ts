@@ -11,6 +11,7 @@ const CAPABILITY_LABELS: Record<CapabilityId, string> = {
   finance: "Finance",
   goals: "Goals",
   knowledge: "Knowledge",
+  phone: "Phone",
 };
 
 export function capabilityLabel(id: CapabilityId): string {

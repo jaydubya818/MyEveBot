@@ -6,7 +6,12 @@ import {
   verifyWebhookSignature,
 } from "../lib/agentphone-signature";
 import { parseVoice, voiceAuth, voiceResponse } from "../lib/agentphone-voice-stream";
-import { phoneCallCursor, verifiedPhone } from "../lib/effect/agentphone";
+import {
+  listPhoneContacts,
+  normalizeNumber,
+  phoneCallCursor,
+  verifiedPhone,
+} from "../lib/effect/agentphone";
 import { runTool } from "../lib/effect/runtime";
 
 // Live phone calls, over AgentPhone.
@@ -90,6 +95,23 @@ export default defineChannel<
 
       const voice = parseVoice(parsed);
       if (voice === null) return Response.json({ ok: true, ignored: "event" });
+      if (!phone.operationalEnabled) {
+        return new Response(`${JSON.stringify({ text: "Phone service is unavailable.", hangup: true })}\n`, {
+          headers: { "content-type": "application/x-ndjson" },
+        });
+      }
+      if (voice.direction === "inbound") {
+        const caller = normalizeNumber(voice.from);
+        const contacts = await runTool(listPhoneContacts()).catch(() => []);
+        const consented = contacts.some(
+          (contact) => contact.phoneNumber === caller && contact.consentStatus === "allowed",
+        );
+        if (caller === null || (caller !== phone.ownerNumber && !consented)) {
+          return new Response(`${JSON.stringify({ text: "This line is private.", hangup: true })}\n`, {
+            headers: { "content-type": "application/x-ndjson" },
+          });
+        }
+      }
       // A finished call needs no reply: the transcript already lives in that
       // call's session history, because every turn ran against it.
       if (voice.event === "agent.call_ended") return Response.json({ ok: true });

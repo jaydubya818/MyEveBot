@@ -9,6 +9,7 @@ export const CAPABILITY_IDS = [
   "finance",
   "goals",
   "knowledge",
+  "phone",
 ] as const;
 
 export type CapabilityId = (typeof CAPABILITY_IDS)[number];
@@ -104,6 +105,15 @@ export function getCapabilityStatuses(
       reason: "Knowledge needs a database before it can preserve claims, decisions, and provenance.",
       setupHint: "Add DATABASE_URL and apply the Knowledge migration, then reload this page.",
     }),
+    status(
+      "phone",
+      enabled.has("integrations") && env.AGENTPHONE_LIVE_QUALIFIED === "true",
+      databaseReady,
+      {
+        reason: "Phone needs a database for safety controls and usage accounting.",
+        setupHint: "Add DATABASE_URL, apply migrations, and complete the live qualification gate.",
+      },
+    ),
   ];
 }
 

@@ -1,12 +1,17 @@
 import {
+  AgentPhoneError,
   agentPhoneKeyHint,
   agentPhoneKeySource,
   agentPhoneView,
+  describeAgentPhoneError,
+  listPhoneContacts,
   phoneRegistrationStatus,
   provisionPhone,
   releasePhone,
   setAppAgentPhoneKey,
+  setPhoneContact,
   setPhoneOwnerNumber,
+  setPhoneSafety,
 } from "@/agent/lib/effect/agentphone";
 import { runTool } from "@/agent/lib/effect/runtime";
 import { requestOrigin } from "@/lib/app-url";
@@ -70,9 +75,10 @@ async function currentState(
     });
   }
 
-  const [hint, phone] = await Promise.all([
+  const [hint, phone, contacts] = await Promise.all([
     agentPhoneKeyHint(),
     runTool(agentPhoneView()).catch(() => null),
+    runTool(listPhoneContacts()).catch(() => []),
   ]);
 
   // Registration only matters once a number exists, and it is a live API call,
@@ -88,6 +94,7 @@ async function currentState(
     keyHint: hint,
     hasDatabase: hasDatabase(),
     phone,
+    contacts,
     registration,
     ...auth,
     ...extra,
@@ -96,7 +103,14 @@ async function currentState(
 
 function failure(error: unknown, status = 400): Response {
   return Response.json(
-    { error: error instanceof Error ? error.message : "The phone request failed." },
+    {
+      error:
+        error instanceof AgentPhoneError
+          ? describeAgentPhoneError(error)
+          : error instanceof Error
+            ? error.message
+            : "The phone request failed.",
+    },
     { status },
   );
 }
@@ -153,15 +167,33 @@ export async function DELETE(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requirePhoneAdmin(request);
-  if (denied) return denied;
+  const webDenied = requireWebAuth(request);
+  if (webDenied) return webDenied;
 
   const body = (await request.json().catch(() => null)) as {
     action?: unknown;
     areaCode?: unknown;
     ownerNumber?: unknown;
+    operationalEnabled?: unknown;
+    dailyMessageLimit?: unknown;
+    dailyCallLimit?: unknown;
+    quietHoursStart?: unknown;
+    quietHoursEnd?: unknown;
+    timezone?: unknown;
+    phoneNumber?: unknown;
+    consentStatus?: unknown;
+    consentSource?: unknown;
   } | null;
   const action = typeof body?.action === "string" ? body.action : "";
+  // Emergency shutdown never spends money or expands access. Keep it
+  // available to the authenticated owner even if the separate admin token is
+  // unavailable during an incident; every enabling/configuration action still
+  // requires the stronger phone-management gate.
+  const emergencyDisable = action === "safety" && body?.operationalEnabled === false;
+  if (!emergencyDisable) {
+    const adminDenied = requirePhoneAdmin(request);
+    if (adminDenied) return adminDenied;
+  }
 
   try {
     if (action === "provision") {
@@ -199,6 +231,51 @@ export async function POST(request: Request): Promise<Response> {
           ? body.ownerNumber.trim()
           : null;
       await runTool(setPhoneOwnerNumber(ownerNumber));
+      return await currentState(request);
+    }
+
+    if (action === "safety") {
+      if (
+        typeof body?.operationalEnabled !== "boolean" ||
+        typeof body?.dailyMessageLimit !== "number" ||
+        typeof body?.dailyCallLimit !== "number" ||
+        typeof body?.quietHoursStart !== "number" ||
+        typeof body?.quietHoursEnd !== "number" ||
+        typeof body?.timezone !== "string"
+      ) {
+        return Response.json({ error: "Complete phone safety policy is required." }, { status: 400 });
+      }
+      const currentSafety = emergencyDisable
+        ? (await runTool(agentPhoneView())).safety
+        : null;
+      await runTool(
+        setPhoneSafety({
+          operationalEnabled: emergencyDisable ? false : body.operationalEnabled,
+          dailyMessageLimit: currentSafety?.dailyMessageLimit ?? body.dailyMessageLimit,
+          dailyCallLimit: currentSafety?.dailyCallLimit ?? body.dailyCallLimit,
+          quietHoursStart: currentSafety?.quietHoursStart ?? body.quietHoursStart,
+          quietHoursEnd: currentSafety?.quietHoursEnd ?? body.quietHoursEnd,
+          timezone: currentSafety?.timezone ?? body.timezone.trim(),
+        }),
+      );
+      return await currentState(request);
+    }
+
+    if (action === "contact") {
+      if (
+        typeof body?.phoneNumber !== "string" ||
+        (body?.consentStatus !== "allowed" && body?.consentStatus !== "blocked") ||
+        typeof body?.consentSource !== "string"
+      ) {
+        return Response.json({ error: "Phone, consent status, and source are required." }, { status: 400 });
+      }
+      await runTool(
+        setPhoneContact({
+          phoneNumber: body.phoneNumber,
+          consentStatus: body.consentStatus,
+          consentSource: body.consentSource,
+        }),
+      );
       return await currentState(request);
     }
 

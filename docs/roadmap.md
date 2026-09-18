@@ -22,6 +22,7 @@ This is the canonical product roadmap as of 2026-09-18. Completed work is record
 - Complete live AgentPhone provisioning and a minimal billed test matrix before exposing Phone controls.
 - Verify inbound/outbound text, iMessage, calls, verification inbox, webhook security, consent, opt-out, quiet hours, and failure recovery.
 - Add spending limits and an emergency disable switch.
+- Safety controls and the non-billed provider matrix are implemented in work order 016. The release gate remains closed because production has no AgentPhone credentials or designated live test recipient yet.
 
 ### 2. Data ownership and recovery
 

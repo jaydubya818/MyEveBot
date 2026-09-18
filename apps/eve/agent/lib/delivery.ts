@@ -143,7 +143,7 @@ export async function resolveDeliveryRoute(originChatId: string | null): Promise
     // Needs both a provisioned line and a known owner: without the owner's
     // number there is nobody to text.
     const phone = await runTool(verifiedPhone()).catch(() => null);
-    return phone?.ownerNumber != null
+    return phone?.operationalEnabled === true && phone.ownerNumber != null
       ? { kind: "phone", target: phone.ownerNumber }
       : { kind: "web", mirror: true };
   }
@@ -178,6 +178,6 @@ export async function deliveryView(): Promise<DeliveryView> {
     telegramLinked: chatId !== null,
     imessagePaired: pairing !== null,
     slackLinked: slackChannelId !== null,
-    phoneReady: phone?.ownerNumber != null,
+    phoneReady: phone?.operationalEnabled === true && phone.ownerNumber != null,
   };
 }

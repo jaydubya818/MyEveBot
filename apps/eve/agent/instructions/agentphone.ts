@@ -1,6 +1,7 @@
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
-import { agentPhoneConfigured } from "../lib/effect/agentphone";
+import { verifiedPhone } from "../lib/effect/agentphone";
+import { runTool } from "../lib/effect/runtime";
 import { ownerName } from "../lib/owner";
 
 // Injected only when an AgentPhone key exists (environment or app settings),
@@ -10,7 +11,8 @@ import { ownerName } from "../lib/owner";
 export default defineDynamic({
   events: {
     "turn.started": async () => {
-      if (!(await agentPhoneConfigured())) return null;
+      const phone = await runTool(verifiedPhone()).catch(() => null);
+      if (phone?.operationalEnabled !== true) return null;
       const owner = ownerName();
 
       return defineInstructions({

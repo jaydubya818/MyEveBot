@@ -8,15 +8,18 @@ import {
 import { parseVoice, voiceAuth, voiceResponse } from "../lib/agentphone-voice-stream";
 import {
   claimPhoneInbound,
+  listPhoneContacts,
   normalizeNumber,
   phoneCallCursor,
   recordPhoneInboundBatch,
   releasePhoneInboundBatch,
   sendText,
   sendTypingIndicator,
+  setPhoneContact,
   settlePhoneInbound,
   verifiedPhone,
 } from "../lib/effect/agentphone";
+import { phoneConsentCommand } from "../lib/agentphone-policy";
 import { runTool } from "../lib/effect/runtime";
 import agentphoneVoice from "./agentphone-voice";
 
@@ -208,6 +211,23 @@ export default defineChannel<
       // than an acknowledgement.
       const voice = parseVoice(parsed);
       if (voice !== null) {
+        if (!phone.operationalEnabled) {
+          return new Response(`${JSON.stringify({ text: "Phone service is unavailable.", hangup: true })}\n`, {
+            headers: { "content-type": "application/x-ndjson" },
+          });
+        }
+        if (voice.direction === "inbound") {
+          const caller = normalizeNumber(voice.from);
+          const contacts = await runTool(listPhoneContacts()).catch(() => []);
+          const consented = contacts.some(
+            (contact) => contact.phoneNumber === caller && contact.consentStatus === "allowed",
+          );
+          if (caller === null || (caller !== phone.ownerNumber && !consented)) {
+            return new Response(`${JSON.stringify({ text: "This line is private.", hangup: true })}\n`, {
+              headers: { "content-type": "application/x-ndjson" },
+            });
+          }
+        }
         // A finished call needs no reply — the transcript already lives in
         // that call's session history, because every turn ran against it.
         if (voice.event === "agent.call_ended") return Response.json({ ok: true });
@@ -234,6 +254,24 @@ export default defineChannel<
       const sender = normalizeNumber(inbound.senderIdentifier ?? inbound.from);
       const owner = phone.ownerNumber;
       const isOwner = owner !== null && sender !== null && sender === owner;
+
+      const consentCommand = phoneConsentCommand(inbound.text);
+      if (sender !== null && consentCommand !== null) {
+        await runTool(
+          setPhoneContact({
+            phoneNumber: sender,
+            consentStatus: consentCommand === "allow" ? "allowed" : "blocked",
+            consentSource: `Inbound ${inbound.text.trim().toUpperCase()} command`,
+          }),
+        ).catch((error: unknown) => {
+          console.error(`AgentPhone consent update failed for ${sender}.`, error);
+        });
+        return Response.json({ ok: true, consent: consentCommand });
+      }
+
+      if (!phone.operationalEnabled) {
+        return Response.json({ ok: true, ignored: "disabled" });
+      }
 
       // Admission. A stranger's text is answered 200 and dropped: replying
       // would turn a public number into a spam target, and a 2xx stops the

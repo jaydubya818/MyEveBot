@@ -1,6 +1,17 @@
 import { Context, Data, Effect, Layer, Schema } from "effect";
 import type { SchemaError } from "effect/SchemaError";
 
+import {
+  DEFAULT_DAILY_CALL_LIMIT,
+  DEFAULT_DAILY_MESSAGE_LIMIT,
+  DEFAULT_PHONE_TIMEZONE,
+  DEFAULT_QUIET_HOURS_END,
+  DEFAULT_QUIET_HOURS_START,
+  estimatedSmsSegments,
+  firstOutboundDisclosure,
+  isPhoneQuietHour,
+  isValidTimezone,
+} from "../agentphone-policy";
 import { settingsStore } from "../settings-db";
 import { type DatabaseError, Db } from "./db";
 
@@ -44,7 +55,11 @@ export class AgentPhoneError extends Data.TaggedError("AgentPhoneError")<{
     | "validation"
     | "api"
     | "carrier"
-    | "not_registered";
+    | "not_registered"
+    | "disabled"
+    | "consent"
+    | "quiet_hours"
+    | "spend_limit";
   readonly detail?: string;
   /** HTTP status behind an `api` failure; absent when nothing answered. */
   readonly status?: number;
@@ -66,6 +81,14 @@ export function describeAgentPhoneError(error: AgentPhoneError): string {
       return `The carrier refused that message: ${error.detail ?? "unknown error"}`;
     case "not_registered":
       return "Texting US numbers over SMS needs 10DLC registration, which is not approved yet. iMessage and voice work now; check status under Manage -> Phone.";
+    case "disabled":
+      return "Phone is switched off under Manage -> Phone.";
+    case "consent":
+      return `Phone contact is blocked until consent is recorded${error.detail ? `: ${error.detail}` : "."}`;
+    case "quiet_hours":
+      return `Phone quiet hours are active${error.detail ? ` (${error.detail})` : "."}`;
+    case "spend_limit":
+      return `The daily phone safety limit has been reached${error.detail ? `: ${error.detail}` : "."}`;
   }
 }
 
@@ -181,7 +204,19 @@ function providerMessage(body: string): { message: string | null; code: string |
 /** Transport faults and server/throttle statuses are worth repeating; a 4xx is a decision. */
 function isRetryable(error: AgentPhoneError): boolean {
   if (error.status === undefined) return true;
-  return error.status === 408 || error.status === 429 || error.status >= 500;
+  if (error.status === 429) {
+    // These caps clear only after a reply or a daily reset. Retrying them
+    // immediately creates duplicate load without any chance of success.
+    const permanentCaps = [
+      "CONVERSATION_STREAK_LIMIT",
+      "CONVERSATION_AWAITING_REPLY",
+      "CONVERSATION_INACTIVE",
+      "OUTBOUND_LIMIT_REACHED",
+      "NEW_CONVERSATION_LIMIT_REACHED",
+    ];
+    return !permanentCaps.some((code) => error.detail?.startsWith(code));
+  }
+  return error.status === 408 || error.status >= 500;
 }
 
 interface RequestOptions {
@@ -318,7 +353,44 @@ const ConfigRow = Schema.Struct({
   agent_id: Schema.NullOr(Schema.String),
   webhook_secret: Schema.NullOr(Schema.String),
   owner_number: Schema.NullOr(Schema.String),
+  operational_enabled: Schema.Boolean,
+  daily_message_limit: Schema.Number,
+  daily_call_limit: Schema.Number,
+  quiet_hours_start: Schema.Number,
+  quiet_hours_end: Schema.Number,
+  timezone: Schema.String,
+  usage_day: Schema.String,
+  message_segments_used: Schema.Number,
+  calls_used: Schema.Number,
 });
+
+const ContactPolicyRow = Schema.Struct({
+  phone_number: Schema.String,
+  consent_status: Schema.Literals(["allowed", "blocked"]),
+  consent_source: Schema.String,
+  first_outbound_at: Schema.NullOr(Schema.String),
+  updated_at: Schema.String,
+});
+
+export interface PhoneContactPolicy {
+  readonly phoneNumber: string;
+  readonly consentStatus: "allowed" | "blocked";
+  readonly consentSource: string;
+  readonly firstOutboundAt: string | null;
+  readonly updatedAt: string;
+}
+
+export interface PhoneSafetyView {
+  readonly operationalEnabled: boolean;
+  readonly dailyMessageLimit: number;
+  readonly dailyCallLimit: number;
+  readonly quietHoursStart: number;
+  readonly quietHoursEnd: number;
+  readonly timezone: string;
+  readonly usageDay: string;
+  readonly messageSegmentsUsed: number;
+  readonly callsUsed: number;
+}
 
 export interface PhoneView {
   readonly numberId: string | null;
@@ -327,6 +399,7 @@ export interface PhoneView {
   readonly webhookRegistered: boolean;
   /** The owner's own number. Everyone else who calls or texts is a guest. */
   readonly ownerNumber: string | null;
+  readonly safety: PhoneSafetyView;
 }
 
 /** The provisioned line, with the secret, for code that must verify a delivery. */
@@ -336,6 +409,7 @@ export interface VerifiedPhone {
   readonly agentId: string | null;
   readonly webhookSecret: string;
   readonly ownerNumber: string | null;
+  readonly operationalEnabled: boolean;
 }
 
 // --- Small helpers ---------------------------------------------------------
@@ -398,6 +472,20 @@ export class AgentPhone extends Context.Service<AgentPhone, {
   readonly setOwnerNumber: (
     ownerNumber: string | null,
   ) => Effect.Effect<PhoneView, AgentPhoneStoreError>;
+  readonly setSafety: (input: {
+    readonly operationalEnabled: boolean;
+    readonly dailyMessageLimit: number;
+    readonly dailyCallLimit: number;
+    readonly quietHoursStart: number;
+    readonly quietHoursEnd: number;
+    readonly timezone: string;
+  }) => Effect.Effect<PhoneView, AgentPhoneStoreError>;
+  readonly contacts: () => Effect.Effect<readonly PhoneContactPolicy[], AgentPhoneStoreError>;
+  readonly setContact: (input: {
+    readonly phoneNumber: string;
+    readonly consentStatus: "allowed" | "blocked";
+    readonly consentSource: string;
+  }) => Effect.Effect<PhoneContactPolicy, AgentPhoneStoreError>;
   readonly send: (input: {
     readonly to: string;
     readonly text: string;
@@ -473,6 +561,7 @@ export const AgentPhoneLive = Layer.effect(
     const decodeCapabilities = Schema.decodeUnknownEffect(Capabilities);
     const decodeWebhook = Schema.decodeUnknownEffect(WebhookConfig);
     const decodeRegistration = Schema.decodeUnknownEffect(RegistrationStatus);
+    const decodeContacts = Schema.decodeUnknownEffect(Schema.Array(ContactPolicyRow));
 
     let tablesReady = false;
     const ensureTables = Effect.suspend(() =>
@@ -487,12 +576,54 @@ export const AgentPhoneLive = Layer.effect(
                  agent_id text,
                  webhook_secret text,
                  owner_number text,
+                 operational_enabled boolean NOT NULL DEFAULT false,
+                 daily_message_limit integer NOT NULL DEFAULT 25,
+                 daily_call_limit integer NOT NULL DEFAULT 5,
+                 quiet_hours_start smallint NOT NULL DEFAULT 21,
+                 quiet_hours_end smallint NOT NULL DEFAULT 8,
+                 timezone text NOT NULL DEFAULT 'America/Los_Angeles',
+                 usage_day date NOT NULL DEFAULT CURRENT_DATE,
+                 message_segments_used integer NOT NULL DEFAULT 0,
+                 calls_used integer NOT NULL DEFAULT 0,
                  updated_at timestamptz NOT NULL DEFAULT now()
                )`,
             );
-            // Deployments created before guest attribution learn it in place.
+            // Deployments created before guest attribution and safety controls
+            // learn them in place. The versioned migration remains the
+            // production path; these guards keep local/stub development safe.
             yield* database.query(
               `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS owner_number text`,
+            );
+            for (const statement of [
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS operational_enabled boolean NOT NULL DEFAULT false`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS daily_message_limit integer NOT NULL DEFAULT 25`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS daily_call_limit integer NOT NULL DEFAULT 5`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS quiet_hours_start smallint NOT NULL DEFAULT 21`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS quiet_hours_end smallint NOT NULL DEFAULT 8`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS timezone text NOT NULL DEFAULT 'America/Los_Angeles'`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS usage_day date NOT NULL DEFAULT CURRENT_DATE`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS message_segments_used integer NOT NULL DEFAULT 0`,
+              `ALTER TABLE agentphone_config ADD COLUMN IF NOT EXISTS calls_used integer NOT NULL DEFAULT 0`,
+            ]) {
+              yield* database.query(statement);
+            }
+            yield* database.query(
+              `CREATE TABLE IF NOT EXISTS agentphone_contact_policy (
+                 phone_number text PRIMARY KEY,
+                 consent_status text NOT NULL CHECK (consent_status IN ('allowed', 'blocked')),
+                 consent_source text NOT NULL,
+                 first_outbound_at timestamptz,
+                 updated_at timestamptz NOT NULL DEFAULT now()
+               )`,
+            );
+            yield* database.query(
+              `CREATE TABLE IF NOT EXISTS agentphone_usage_event (
+                 id bigserial PRIMARY KEY,
+                 kind text NOT NULL CHECK (kind IN ('message_segment', 'call')),
+                 recipient text NOT NULL,
+                 units integer NOT NULL CHECK (units > 0),
+                 created_at timestamptz NOT NULL DEFAULT now()
+               )`,
             );
             yield* database.query(
               `CREATE TABLE IF NOT EXISTS agentphone_inbound (
@@ -523,7 +654,10 @@ export const AgentPhoneLive = Layer.effect(
     const readConfig = Effect.gen(function* () {
       yield* ensureTables;
       const rows = yield* database.query(
-        `SELECT number_id, phone_number, agent_id, webhook_secret, owner_number
+        `SELECT number_id, phone_number, agent_id, webhook_secret, owner_number,
+                operational_enabled, daily_message_limit, daily_call_limit,
+                quiet_hours_start, quiet_hours_end, timezone,
+                usage_day::text, message_segments_used, calls_used
            FROM agentphone_config WHERE id = 1`,
       );
       const decoded = yield* decodeConfigRows(rows);
@@ -561,13 +695,125 @@ export const AgentPhoneLive = Layer.effect(
         [input.numberId, input.phoneNumber, input.agentId, input.webhookSecret],
       );
 
+    const safetyView = (row: typeof ConfigRow.Type | null): PhoneSafetyView => ({
+      operationalEnabled: row?.operational_enabled ?? false,
+      dailyMessageLimit: row?.daily_message_limit ?? DEFAULT_DAILY_MESSAGE_LIMIT,
+      dailyCallLimit: row?.daily_call_limit ?? DEFAULT_DAILY_CALL_LIMIT,
+      quietHoursStart: row?.quiet_hours_start ?? DEFAULT_QUIET_HOURS_START,
+      quietHoursEnd: row?.quiet_hours_end ?? DEFAULT_QUIET_HOURS_END,
+      timezone: row?.timezone ?? DEFAULT_PHONE_TIMEZONE,
+      usageDay: row?.usage_day ?? new Date().toISOString().slice(0, 10),
+      messageSegmentsUsed: row?.message_segments_used ?? 0,
+      callsUsed: row?.calls_used ?? 0,
+    });
+
     const toView = (row: typeof ConfigRow.Type | null): PhoneView => ({
       numberId: row?.number_id ?? null,
       phoneNumber: row?.phone_number ?? null,
       agentId: row?.agent_id ?? null,
       webhookRegistered: (row?.webhook_secret ?? null) !== null,
       ownerNumber: row?.owner_number ?? null,
+      safety: safetyView(row),
     });
+
+    const contactView = (row: typeof ContactPolicyRow.Type): PhoneContactPolicy => ({
+      phoneNumber: row.phone_number,
+      consentStatus: row.consent_status,
+      consentSource: row.consent_source,
+      firstOutboundAt: row.first_outbound_at,
+      updatedAt: row.updated_at,
+    });
+
+    const readContact = (phoneNumber: string) =>
+      Effect.gen(function* () {
+        const rows = yield* database.query(
+          `SELECT phone_number, consent_status, consent_source,
+                  first_outbound_at::text, updated_at::text
+             FROM agentphone_contact_policy WHERE phone_number = $1`,
+          [phoneNumber],
+        );
+        const decoded = yield* decodeContacts(rows);
+        return decoded[0] ?? null;
+      });
+
+    const authorizeAndReserve = (input: {
+      kind: "message_segment" | "call";
+      recipient: string;
+      units: number;
+    }) =>
+      Effect.gen(function* () {
+        const row = yield* readConfig;
+        if (row === null || !row.operational_enabled) {
+          return yield* Effect.fail(new AgentPhoneError({ reason: "disabled" }));
+        }
+        if (
+          isPhoneQuietHour(
+            new Date(),
+            row.timezone,
+            row.quiet_hours_start,
+            row.quiet_hours_end,
+          )
+        ) {
+          return yield* Effect.fail(
+            new AgentPhoneError({
+              reason: "quiet_hours",
+              detail: `${row.quiet_hours_start}:00–${row.quiet_hours_end}:00 ${row.timezone}`,
+            }),
+          );
+        }
+
+        const contact = yield* readContact(input.recipient);
+        const explicitlyBlocked = contact?.consent_status === "blocked";
+        const ownerAllowed = input.recipient === row.owner_number;
+        if (explicitlyBlocked || (!ownerAllowed && contact?.consent_status !== "allowed")) {
+          return yield* Effect.fail(
+            new AgentPhoneError({ reason: "consent", detail: input.recipient }),
+          );
+        }
+
+        const isMessage = input.kind === "message_segment";
+        const counter = isMessage ? "message_segments_used" : "calls_used";
+        const limit = isMessage ? "daily_message_limit" : "daily_call_limit";
+        const resetOther = isMessage
+          ? "calls_used = CASE WHEN usage_day = CURRENT_DATE THEN calls_used ELSE 0 END,"
+          : "message_segments_used = CASE WHEN usage_day = CURRENT_DATE THEN message_segments_used ELSE 0 END,";
+        const reserved = yield* database.query(
+          `UPDATE agentphone_config
+              SET usage_day = CURRENT_DATE,
+                  ${counter} = (CASE WHEN usage_day = CURRENT_DATE THEN ${counter} ELSE 0 END) + $1,
+                  ${resetOther}
+                  updated_at = now()
+            WHERE id = 1
+              AND operational_enabled = true
+              AND (CASE WHEN usage_day = CURRENT_DATE THEN ${counter} ELSE 0 END) + $1 <= ${limit}
+            RETURNING ${counter}, ${limit}`,
+          [input.units],
+        );
+        if (reserved.length === 0) {
+          return yield* Effect.fail(
+            new AgentPhoneError({
+              reason: "spend_limit",
+              detail: input.kind === "message_segment" ? "message segments" : "calls",
+            }),
+          );
+        }
+        yield* database.query(
+          `INSERT INTO agentphone_usage_event (kind, recipient, units) VALUES ($1, $2, $3)`,
+          [input.kind, input.recipient, input.units],
+        );
+        return { firstOutbound: contact?.first_outbound_at == null };
+      });
+
+    const markFirstOutbound = (recipient: string) =>
+      database.query(
+        `INSERT INTO agentphone_contact_policy
+           (phone_number, consent_status, consent_source, first_outbound_at)
+         VALUES ($1, 'allowed', 'owner', now())
+         ON CONFLICT (phone_number) DO UPDATE
+           SET first_outbound_at = COALESCE(agentphone_contact_policy.first_outbound_at, now()),
+               updated_at = now()`,
+        [recipient],
+      );
 
     return {
       view: () =>
@@ -591,6 +837,7 @@ export const AgentPhoneLive = Layer.effect(
             agentId: row.agent_id,
             webhookSecret: webhook_secret,
             ownerNumber: row.owner_number,
+            operationalEnabled: row.operational_enabled,
           };
         }),
 
@@ -614,6 +861,93 @@ export const AgentPhoneLive = Layer.effect(
             [normalized],
           );
           return toView(yield* readConfig);
+        }),
+
+      setSafety: (input) =>
+        Effect.gen(function* () {
+          yield* requireDatabase;
+          yield* ensureTables;
+          if (
+            !Number.isInteger(input.dailyMessageLimit) ||
+            input.dailyMessageLimit < 1 ||
+            input.dailyMessageLimit > 500 ||
+            !Number.isInteger(input.dailyCallLimit) ||
+            input.dailyCallLimit < 1 ||
+            input.dailyCallLimit > 50 ||
+            !Number.isInteger(input.quietHoursStart) ||
+            input.quietHoursStart < 0 ||
+            input.quietHoursStart > 23 ||
+            !Number.isInteger(input.quietHoursEnd) ||
+            input.quietHoursEnd < 0 ||
+            input.quietHoursEnd > 23 ||
+            !isValidTimezone(input.timezone)
+          ) {
+            return yield* Effect.fail(
+              new AgentPhoneError({ reason: "validation", detail: "invalid phone safety policy" }),
+            );
+          }
+          yield* database.query(
+            `INSERT INTO agentphone_config
+               (id, operational_enabled, daily_message_limit, daily_call_limit,
+                quiet_hours_start, quiet_hours_end, timezone)
+             VALUES (1, $1, $2, $3, $4, $5, $6)
+             ON CONFLICT (id) DO UPDATE
+               SET operational_enabled = EXCLUDED.operational_enabled,
+                   daily_message_limit = EXCLUDED.daily_message_limit,
+                   daily_call_limit = EXCLUDED.daily_call_limit,
+                   quiet_hours_start = EXCLUDED.quiet_hours_start,
+                   quiet_hours_end = EXCLUDED.quiet_hours_end,
+                   timezone = EXCLUDED.timezone,
+                   updated_at = now()`,
+            [
+              input.operationalEnabled,
+              input.dailyMessageLimit,
+              input.dailyCallLimit,
+              input.quietHoursStart,
+              input.quietHoursEnd,
+              input.timezone,
+            ],
+          );
+          return toView(yield* readConfig);
+        }),
+
+      contacts: () =>
+        Effect.gen(function* () {
+          yield* requireDatabase;
+          yield* ensureTables;
+          const rows = yield* database.query(
+            `SELECT phone_number, consent_status, consent_source,
+                    first_outbound_at::text, updated_at::text
+               FROM agentphone_contact_policy ORDER BY updated_at DESC LIMIT 100`,
+          );
+          return (yield* decodeContacts(rows)).map(contactView);
+        }),
+
+      setContact: (input) =>
+        Effect.gen(function* () {
+          yield* requireDatabase;
+          yield* ensureTables;
+          const phoneNumber = normalizeNumber(input.phoneNumber);
+          const source = input.consentSource.trim();
+          if (phoneNumber === null || source.length < 2 || source.length > 200) {
+            return yield* Effect.fail(
+              new AgentPhoneError({ reason: "validation", detail: "phone number and consent source are required" }),
+            );
+          }
+          const rows = yield* database.query(
+            `INSERT INTO agentphone_contact_policy
+               (phone_number, consent_status, consent_source)
+             VALUES ($1, $2, $3)
+             ON CONFLICT (phone_number) DO UPDATE
+               SET consent_status = EXCLUDED.consent_status,
+                   consent_source = EXCLUDED.consent_source,
+                   updated_at = now()
+             RETURNING phone_number, consent_status, consent_source,
+                       first_outbound_at::text, updated_at::text`,
+            [phoneNumber, input.consentStatus, source],
+          );
+          const decoded = yield* decodeContacts(rows);
+          return contactView(decoded[0]!);
         }),
 
       provision: (input) =>
@@ -738,13 +1072,28 @@ export const AgentPhoneLive = Layer.effect(
               }),
             );
           }
-          const chunks = splitMessageText(input.text);
+          const contact = yield* readContact(to);
+          const needsDisclosure = contact?.first_outbound_at == null;
+          const compliantText = needsDisclosure
+            ? firstOutboundDisclosure("Sofie", input.text)
+            : input.text;
+          const chunks = splitMessageText(compliantText);
           const media = input.mediaUrls ?? [];
           if (chunks.length === 0 && media.length === 0) {
             return yield* Effect.fail(
               new AgentPhoneError({ reason: "validation", detail: "nothing to send" }),
             );
           }
+
+          const units = Math.max(
+            1,
+            chunks.reduce((total, chunk) => total + estimatedSmsSegments(chunk), 0),
+          );
+          const authorization = yield* authorizeAndReserve({
+            kind: "message_segment",
+            recipient: to,
+            units,
+          });
 
           const results: SendResult[] = [];
           // Sequential, not concurrent: texts arrive in send order, and a
@@ -769,6 +1118,9 @@ export const AgentPhoneLive = Layer.effect(
               },
             });
             results.push(yield* decodeSend(sent));
+          }
+          if (authorization.firstOutbound || needsDisclosure) {
+            yield* markFirstOutbound(to);
           }
           return results;
         }),
@@ -832,6 +1184,7 @@ export const AgentPhoneLive = Layer.effect(
               new AgentPhoneError({ reason: "validation", detail: `${input.to} is not a phone number` }),
             );
           }
+          yield* authorizeAndReserve({ kind: "call", recipient: to, units: 1 });
           const placed = yield* request({
             path: "/v1/calls",
             method: "POST",
@@ -1018,6 +1371,36 @@ export const setPhoneOwnerNumber = (
 ): Effect.Effect<PhoneView, AgentPhoneStoreError, AgentPhone> =>
   Effect.gen(function* () {
     return yield* (yield* AgentPhone).setOwnerNumber(ownerNumber);
+  });
+
+export const setPhoneSafety = (input: {
+  readonly operationalEnabled: boolean;
+  readonly dailyMessageLimit: number;
+  readonly dailyCallLimit: number;
+  readonly quietHoursStart: number;
+  readonly quietHoursEnd: number;
+  readonly timezone: string;
+}): Effect.Effect<PhoneView, AgentPhoneStoreError, AgentPhone> =>
+  Effect.gen(function* () {
+    return yield* (yield* AgentPhone).setSafety(input);
+  });
+
+export const listPhoneContacts = (): Effect.Effect<
+  readonly PhoneContactPolicy[],
+  AgentPhoneStoreError,
+  AgentPhone
+> =>
+  Effect.gen(function* () {
+    return yield* (yield* AgentPhone).contacts();
+  });
+
+export const setPhoneContact = (input: {
+  readonly phoneNumber: string;
+  readonly consentStatus: "allowed" | "blocked";
+  readonly consentSource: string;
+}): Effect.Effect<PhoneContactPolicy, AgentPhoneStoreError, AgentPhone> =>
+  Effect.gen(function* () {
+    return yield* (yield* AgentPhone).setContact(input);
   });
 
 export const sendText = (input: {

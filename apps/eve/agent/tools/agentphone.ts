@@ -2,11 +2,11 @@ import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
 
 import {
-  agentPhoneConfigured,
   checkIMessageCapability,
   phoneInbox,
   placePhoneCall,
   sendText,
+  verifiedPhone,
 } from "../lib/effect/agentphone";
 import { runTool } from "../lib/effect/runtime";
 import { ownerName } from "../lib/owner";
@@ -37,7 +37,8 @@ export default defineDynamic({
       // Guests never see the phone at all — resolver-level gating, stronger
       // than an approval denial.
       if (isGuestResolve(ctx)) return null;
-      if (!(await agentPhoneConfigured())) return null;
+      const phone = await runTool(verifiedPhone()).catch(() => null);
+      if (phone?.operationalEnabled !== true) return null;
       const owner = ownerName();
 
       return {

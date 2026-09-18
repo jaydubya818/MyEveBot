@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge, Button, Input, Loader } from "@cloudflare/kumo";
+import { Badge, Button, Input, Loader, Switch } from "@cloudflare/kumo";
 import { PhoneIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
@@ -17,6 +17,25 @@ interface PhoneState {
   agentId: string | null;
   webhookRegistered: boolean;
   ownerNumber: string | null;
+  safety: {
+    operationalEnabled: boolean;
+    dailyMessageLimit: number;
+    dailyCallLimit: number;
+    quietHoursStart: number;
+    quietHoursEnd: number;
+    timezone: string;
+    usageDay: string;
+    messageSegmentsUsed: number;
+    callsUsed: number;
+  };
+}
+
+interface PhoneContact {
+  phoneNumber: string;
+  consentStatus: "allowed" | "blocked";
+  consentSource: string;
+  firstOutboundAt: string | null;
+  updatedAt: string;
 }
 
 interface Registration {
@@ -31,6 +50,7 @@ interface PhoneStatus {
   keyHint?: string | null;
   hasDatabase: boolean;
   phone?: PhoneState | null;
+  contacts?: PhoneContact[];
   registration?: Registration | null;
   /** This deployment demands an admin token before it will change anything. */
   authRequired?: boolean;
@@ -59,33 +79,6 @@ function announceFeatureChange(): void {
   window.dispatchEvent(new Event("eve:features-changed"));
 }
 
-/**
- * The phone feature is parked: the tab stays visible so people know it exists,
- * but the controls are withheld until it ships for real. Swap this back to
- * <PhonePanel /> in manage-panel.tsx to reopen the panel — everything behind
- * it (webhook, channels, API) is still live.
- */
-export function PhoneComingSoon() {
-  return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg bg-kumo-recessed">
-        <PhoneIcon className="size-4 text-kumo-subtle" aria-hidden />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="text-sm font-medium">Phone</p>
-          <Badge variant="secondary">coming soon</Badge>
-        </div>
-        <p className="mt-1 text-xs text-kumo-subtle">
-          A number of {AGENT_NAME}&rsquo;s own: she&rsquo;ll text and iMessage people, make and
-          take calls, and read verification codes sent to it. It&rsquo;s not ready yet — check
-          back soon.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function PhonePanel() {
   const [status, setStatus] = useState<PhoneStatus | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
@@ -95,6 +88,24 @@ export function PhonePanel() {
   const [draftToken, setDraftToken] = useState("");
   const [areaCode, setAreaCode] = useState("");
   const [owner, setOwner] = useState("");
+  const [dailyMessages, setDailyMessages] = useState(25);
+  const [dailyCalls, setDailyCalls] = useState(5);
+  const [quietStart, setQuietStart] = useState(21);
+  const [quietEnd, setQuietEnd] = useState(8);
+  const [timezone, setTimezone] = useState("America/Los_Angeles");
+  const [contactNumber, setContactNumber] = useState("");
+  const [contactSource, setContactSource] = useState("");
+
+  function syncDrafts(body: PhoneStatus): void {
+    setOwner(body.phone?.ownerNumber ?? "");
+    const safety = body.phone?.safety;
+    if (safety === undefined) return;
+    setDailyMessages(safety.dailyMessageLimit);
+    setDailyCalls(safety.dailyCallLimit);
+    setQuietStart(safety.quietHoursStart);
+    setQuietEnd(safety.quietHoursEnd);
+    setTimezone(safety.timezone);
+  }
 
   useEffect(() => {
     setToken(storedToken());
@@ -106,7 +117,7 @@ export function PhonePanel() {
       })
       .then((body) => {
         setStatus(body);
-        setOwner(body.phone?.ownerNumber ?? "");
+        syncDrafts(body);
       })
       .catch((error: unknown) => {
         setFailed(error instanceof Error ? error.message : "Couldn't read the phone.");
@@ -115,7 +126,7 @@ export function PhonePanel() {
 
   function apply(body: PhoneStatus): void {
     setStatus(body);
-    setOwner(body.phone?.ownerNumber ?? "");
+    syncDrafts(body);
     announceFeatureChange();
   }
 
@@ -154,6 +165,16 @@ export function PhonePanel() {
       label,
     );
 
+  const safetyPayload = (operationalEnabled: boolean) => ({
+    action: "safety",
+    operationalEnabled,
+    dailyMessageLimit: dailyMessages,
+    dailyCallLimit: dailyCalls,
+    quietHoursStart: quietStart,
+    quietHoursEnd: quietEnd,
+    timezone: timezone.trim(),
+  });
+
   if (status === null && failed === null) {
     return (
       <div className="flex justify-center py-8">
@@ -181,8 +202,12 @@ export function PhonePanel() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="text-sm font-medium">Phone</p>
-            <Badge variant={provisioned ? "success" : "secondary"}>
-              {provisioned ? (phone?.phoneNumber ?? "active") : "no number"}
+            <Badge variant={provisioned && phone?.safety.operationalEnabled ? "success" : "secondary"}>
+              {provisioned
+                ? phone?.safety.operationalEnabled
+                  ? (phone.phoneNumber ?? "active")
+                  : "switched off"
+                : "no number"}
             </Badge>
             {status?.keySource === "env" && <Badge variant="secondary">env key</Badge>}
           </div>
@@ -195,17 +220,35 @@ export function PhonePanel() {
       </div>
 
       {status?.authRequired === true && token.length === 0 ? (
-        <TokenForm
-          configured={status.authConfigured === true}
-          draft={draftToken}
-          onDraft={setDraftToken}
-          onUnlock={() => {
-            window.sessionStorage.setItem(TOKEN_KEY, draftToken.trim());
-            setToken(draftToken.trim());
-            setDraftToken("");
-            setFailed(null);
-          }}
-        />
+        <div className="flex flex-col gap-3">
+          {status.phone?.safety.operationalEnabled === true && (
+            <div className="rounded-lg border border-kumo-hairline bg-kumo-tint p-3">
+              <p className="text-xs text-kumo-subtle">
+                Incident control remains available without the management token.
+              </p>
+              <Button
+                className="mt-2"
+                variant="secondary"
+                size="sm"
+                disabled={busy !== null}
+                onClick={() => post(safetyPayload(false), "emergency-disable")}
+              >
+                {busy === "emergency-disable" ? <Loader size={14} /> : "Switch Phone off now"}
+              </Button>
+            </div>
+          )}
+          <TokenForm
+            configured={status.authConfigured === true}
+            draft={draftToken}
+            onDraft={setDraftToken}
+            onUnlock={() => {
+              window.sessionStorage.setItem(TOKEN_KEY, draftToken.trim());
+              setToken(draftToken.trim());
+              setDraftToken("");
+              setFailed(null);
+            }}
+          />
+        </div>
       ) : status?.enabled !== true ? (
         <KeyForm
           canStore={status?.hasDatabase ?? false}
@@ -282,6 +325,172 @@ export function PhonePanel() {
                     Until this is set, nobody counts as the owner and {AGENT_NAME} will ignore every
                     incoming text.
                   </p>
+                )}
+              </div>
+
+              <div className="rounded-xl border border-kumo-hairline bg-kumo-base p-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="text-sm font-medium">Operational safety</p>
+                    <p className="mt-1 text-xs text-kumo-subtle">
+                      Fail-closed controls apply before every outbound text or call. Switching Phone
+                      off leaves the number parked but stops all agent contact immediately.
+                    </p>
+                  </div>
+                  <Switch
+                    label={<span className="sr-only">Enable Phone operations</span>}
+                    checked={phone?.safety.operationalEnabled === true}
+                    transitioning={busy === "safety-toggle"}
+                    disabled={busy !== null}
+                    onCheckedChange={(enabled) => post(safetyPayload(enabled), "safety-toggle")}
+                  />
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1 text-xs text-kumo-subtle">
+                    Daily SMS segments
+                    <Input
+                      type="number"
+                      min={1}
+                      max={500}
+                      value={dailyMessages}
+                      onChange={(event) => setDailyMessages(Number(event.target.value))}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs text-kumo-subtle">
+                    Daily outbound calls
+                    <Input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={dailyCalls}
+                      onChange={(event) => setDailyCalls(Number(event.target.value))}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs text-kumo-subtle">
+                    Quiet hours start
+                    <Input
+                      type="number"
+                      min={0}
+                      max={23}
+                      value={quietStart}
+                      onChange={(event) => setQuietStart(Number(event.target.value))}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs text-kumo-subtle">
+                    Quiet hours end
+                    <Input
+                      type="number"
+                      min={0}
+                      max={23}
+                      value={quietEnd}
+                      onChange={(event) => setQuietEnd(Number(event.target.value))}
+                    />
+                  </label>
+                  <label className="grid gap-1 text-xs text-kumo-subtle sm:col-span-2">
+                    IANA timezone
+                    <Input
+                      value={timezone}
+                      placeholder="America/Los_Angeles"
+                      onChange={(event) => setTimezone(event.target.value)}
+                    />
+                  </label>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={busy !== null}
+                    onClick={() =>
+                      post(
+                        safetyPayload(phone?.safety.operationalEnabled === true),
+                        "safety-policy",
+                      )
+                    }
+                  >
+                    {busy === "safety-policy" ? <Loader size={14} /> : "Save safety policy"}
+                  </Button>
+                  <Badge variant="secondary">
+                    {phone?.safety.messageSegmentsUsed ?? 0}/{phone?.safety.dailyMessageLimit ?? 25} segments today
+                  </Badge>
+                  <Badge variant="secondary">
+                    {phone?.safety.callsUsed ?? 0}/{phone?.safety.dailyCallLimit ?? 5} calls today
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-kumo-hairline bg-kumo-base p-3">
+                <p className="text-sm font-medium">Consent register</p>
+                <p className="mt-1 text-xs text-kumo-subtle">
+                  Non-owner recipients stay blocked until their consent and its source are recorded.
+                  STOP received by webhook changes the contact to blocked immediately.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                  <Input
+                    value={contactNumber}
+                    placeholder="+1 555 123 4567"
+                    aria-label="Consenting contact phone number"
+                    onChange={(event) => setContactNumber(event.target.value)}
+                  />
+                  <Input
+                    value={contactSource}
+                    placeholder="How and when they consented"
+                    aria-label="Consent source"
+                    onChange={(event) => setContactSource(event.target.value)}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    disabled={busy !== null || contactNumber.trim().length === 0 || contactSource.trim().length < 2}
+                    onClick={() => {
+                      post(
+                        {
+                          action: "contact",
+                          phoneNumber: contactNumber,
+                          consentStatus: "allowed",
+                          consentSource: contactSource,
+                        },
+                        "contact",
+                      );
+                      setContactNumber("");
+                      setContactSource("");
+                    }}
+                  >
+                    {busy === "contact" ? <Loader size={14} /> : "Record consent"}
+                  </Button>
+                </div>
+                {(status?.contacts?.length ?? 0) > 0 && (
+                  <ul className="mt-3 divide-y divide-kumo-hairline">
+                    {status?.contacts?.map((contact) => (
+                      <li key={contact.phoneNumber} className="flex items-center gap-3 py-2 text-xs">
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-medium">{contact.phoneNumber}</span>
+                          <span className="block truncate text-kumo-subtle">{contact.consentSource}</span>
+                        </span>
+                        <Badge variant={contact.consentStatus === "allowed" ? "success" : "secondary"}>
+                          {contact.consentStatus}
+                        </Badge>
+                        <button
+                          type="button"
+                          className="underline"
+                          disabled={busy !== null}
+                          onClick={() =>
+                            post(
+                              {
+                                action: "contact",
+                                phoneNumber: contact.phoneNumber,
+                                consentStatus: contact.consentStatus === "allowed" ? "blocked" : "allowed",
+                                consentSource: `Owner changed status from Manage on ${new Date().toISOString().slice(0, 10)}`,
+                              },
+                              `contact-${contact.phoneNumber}`,
+                            )
+                          }
+                        >
+                          {contact.consentStatus === "allowed" ? "Block" : "Allow"}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
 
