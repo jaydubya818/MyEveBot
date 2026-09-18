@@ -21,7 +21,8 @@ export default defineDynamic({
 You have a real computer: a persistent Linux desktop (Orgo) with a display, a
 browser, and a shell, on its own internet connection. It is provisioned the
 first time you use it and keeps everything between conversations - files,
-installed software, and browser logins. It is not the same thing as your
+installed software, and browser logins. Each Agent has a separate profile by
+default; use another profile only when the owner explicitly shares it. It is not the same thing as your
 sandbox or your browser__ tools.
 
 - computer_bash: a shell on that desktop. Use it for shell work - files,
@@ -54,8 +55,11 @@ your sandbox or browser__ tools, unless it genuinely cannot be done there.
 When the flag is absent the choice is yours as described above.
 
 - If a site needs credentials, do not type them and do not ask for them. Send
-  ${owner} the live view URL and ask him to sign in himself; the session stays
-  logged in for your later visits.
+  ${owner} the live view URL, mark the profile for owner takeover with
+  computer_control, and ask him to sign in himself; the profile stays logged in
+  for later visits. If a saved login expires or the site rejects it, mark the
+  profile authentication_failed instead of retrying credentials. Resume work
+  only after the owner confirms the login is complete.
 - Long jobs: a computer_task that hits its time limit comes back with
   status "stopped_early" and a threadId. Nothing is lost - call computer_task
   again with continue_thread_id to carry on. For unattended work, start it

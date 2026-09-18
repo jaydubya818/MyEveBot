@@ -1,8 +1,10 @@
 import { experimental_upgradeWebSocket } from "@vercel/functions";
 
-import { orgo } from "@/agent/lib/orgo";
+import { orgoForProfile } from "@/agent/lib/orgo";
+import { ensureBrowserProfile } from "@/lib/browser-profiles";
+import { getAgent } from "@/lib/agents";
 import { pipeVncSocket } from "@/lib/vnc-relay";
-import { requireWebAuth } from "@/lib/web-auth";
+import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 // Same-origin relay between the browser's VNC client and Orgo's websockify
 // endpoint. Orgo only admits browser origins it knows about; a WebSocket
@@ -28,7 +30,13 @@ export async function GET(request: Request): Promise<Response> {
   // connect to is an HTTP error instead of a socket that opens and drops.
   let upstreamUrl: string;
   try {
-    const { connection } = await orgo.live();
+    const agentId = new URL(request.url).searchParams.get("agentId");
+    if (!agentId) return new Response("Agent is required.", { status: 400 });
+    const ownerId = webPrincipal(request)!.id;
+    const agent = await getAgent(ownerId, agentId);
+    if (!agent) return new Response("Agent not found.", { status: 404 });
+    const profile = await ensureBrowserProfile(ownerId, agent);
+    const { connection } = await orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation }).live();
     if (connection === null) {
       return new Response("The desktop has nothing to connect to.", { status: 409 });
     }

@@ -4,6 +4,7 @@ import {
   isSupportedTaskModel,
   isTaskModel,
   orgo,
+  orgoForProfile,
   orgoConfigured,
   orgoKeySource,
   orgoTaskModel,
@@ -15,7 +16,9 @@ import {
 import { runtime } from "@/agent/lib/effect/runtime";
 import { requestOrigin } from "@/lib/app-url";
 import { devVncRelayUrl } from "@/lib/dev-vnc-relay";
-import { requireWebAuth } from "@/lib/web-auth";
+import { ensureAllBrowserProfiles, ensureBrowserProfile, type BrowserProfileView } from "@/lib/browser-profiles";
+import { getAgent, listAgents } from "@/lib/agents";
+import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 // Backs the live desktop view: the same Orgo desktop the agent drives, exposed
 // to the browser so the owner can watch it work and take the mouse when needed.
@@ -72,34 +75,38 @@ export const maxDuration = 300;
 async function browserConnection(
   request: Request,
   connection: LiveConnection | null,
+  profile: BrowserProfileView,
 ): Promise<LiveConnection | null> {
   if (connection === null) return null;
   if (process.env.NODE_ENV === "development") {
     // The sidecar's URL carries a per-process admission token; only this
     // same-origin response reveals it, so an attacker page cannot connect.
     // Null means the port isn't ours, so there is nothing safe to hand out.
-    const websocketUrl = await devVncRelayUrl();
+    const websocketUrl = await devVncRelayUrl({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
     return websocketUrl === null ? null : { websocketUrl, password: connection.password };
   }
   // Behind Vercel's proxy request.url carries an internal host, so the
   // public origin comes from the forwarded headers.
   const origin = new URL(requestOrigin(request));
   return {
-    websocketUrl: `${origin.origin.replace(/^http/, "ws")}/api/computer/ws`,
+    websocketUrl: `${origin.origin.replace(/^http/, "ws")}/api/computer/ws?agentId=${encodeURIComponent(profile.agentId)}`,
     password: connection.password,
   };
 }
 
 async function currentState(
   request: Request,
+  profile: BrowserProfileView,
   extra: Record<string, unknown> = {},
 ): Promise<Response> {
   const keySource = await orgoKeySource();
-  if (keySource === null) return Response.json({ enabled: false, keySource: null, ...extra });
+  if (keySource === null) return Response.json({ enabled: false, keySource: null, profile, profiles: await ensureAllBrowserProfiles(profile.ownerId), ...extra });
   const model = await orgoTaskModel();
-  const [models, { computer, connection }] = await Promise.all([
+  const desktop = orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+  const [models, profiles, { computer, connection }] = await Promise.all([
     taskModelOptions(model),
-    orgo.live(),
+    ensureAllBrowserProfiles(profile.ownerId),
+    desktop.live(),
   ]);
 
   if (computer === null) {
@@ -108,6 +115,8 @@ async function currentState(
       keySource,
       model,
       models,
+      profile,
+      profiles,
       provisioned: false,
       ...extra,
     });
@@ -117,11 +126,21 @@ async function currentState(
     keySource,
     model,
     models,
+    profile,
+    profiles,
     provisioned: true,
     computer: view(computer),
-    connection: await browserConnection(request, connection),
+    connection: await browserConnection(request, connection, profile),
     ...extra,
   });
+}
+
+async function requestedProfile(request: Request, agentId?: unknown): Promise<BrowserProfileView> {
+  const ownerId = webPrincipal(request)!.id;
+  const requested = typeof agentId === "string" && agentId.length > 0 ? agentId : new URL(request.url).searchParams.get("agentId");
+  const agent = requested ? await getAgent(ownerId, requested) : (await listAgents(ownerId))[0];
+  if (!agent) throw new Error("Agent not found.");
+  return ensureBrowserProfile(ownerId, agent);
 }
 
 function failure(error: unknown): Response {
@@ -135,7 +154,7 @@ export async function GET(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
   if (denied) return denied;
   try {
-    return await currentState(request);
+    return await currentState(request, await requestedProfile(request));
   } catch (error) {
     return failure(error);
   }
@@ -146,20 +165,23 @@ export async function POST(request: Request): Promise<Response> {
   if (denied) return denied;
   if (!(await orgoConfigured())) return Response.json({ enabled: false, keySource: null });
 
-  const body = (await request.json().catch(() => null)) as { action?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { action?: unknown; agentId?: unknown } | null;
   const action = body?.action;
   if (action !== "start" && action !== "stop" && action !== "restart") {
     return new Response("Invalid action", { status: 400 });
   }
 
   try {
+    const profile = await requestedProfile(request, body?.agentId);
+    const desktop = orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
     // Waking provisions and waits for the VM — and restarts one that claims
     // to be running with nothing to connect to — so the follow-up read finds
     // the instance fields a VNC client needs.
-    if (action === "start") await orgo.wake();
-    if (action === "stop") await orgo.stop();
-    if (action === "restart") await orgo.restart();
-    return await currentState(request);
+    if (profile.status !== "ready") return Response.json({ enabled: true, profile, error: "Finish owner takeover or reconnect this profile before changing its desktop." }, { status: 409 });
+    if (action === "start") await desktop.wake();
+    if (action === "stop") await desktop.stop();
+    if (action === "restart") await desktop.restart();
+    return await currentState(request, profile);
   } catch (error) {
     return failure(error);
   }
@@ -199,7 +221,8 @@ export async function PUT(request: Request): Promise<Response> {
   }
 
   try {
-    return await currentState(request, provisionError === null ? {} : { error: provisionError });
+    const profile = await requestedProfile(request);
+    return await currentState(request, profile, provisionError === null ? {} : { error: provisionError });
   } catch (error) {
     return failure(error);
   }
@@ -253,7 +276,7 @@ export async function DELETE(request: Request): Promise<Response> {
   if (denied) return denied;
   try {
     await setAppOrgoKey(null);
-    return await currentState(request);
+    return await currentState(request, await requestedProfile(request));
   } catch (error) {
     return Response.json(
       { error: error instanceof Error ? error.message : "Could not remove the key." },

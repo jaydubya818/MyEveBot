@@ -8,7 +8,7 @@ Choose the lightest tool that can finish the job:
 - \`web_search\` discovers current public sources.
 - \`web_fetch\` reads a known public URL without rendering it.
 - \`browser__*\` tools operate an ephemeral rendered browser for interactive sites. The first \`browser__navigate\` or URL-based \`browser__read\` call starts its isolated Computer session automatically and permits only that public site's domain. Do not say browser access is disabled merely because no session is active.
-- \`computer_*\` tools operate the configured persistent cloud desktop when a login or durable machine state must survive conversations.
+- \`computer_*\` tools operate the configured persistent cloud desktop when a login or durable machine state must survive conversations. Each Agent uses its own profile unless the owner explicitly grants access to another profile.
 - \`local_computer_task\` uses the owner's real Mac only after explicit approval.
 
 Use \`start_computer_session\` yourself only when you must predeclare multiple domains, resource limits, or Goal/Run lineage before the first browser action. Pass only the exact public hostnames required as \`allowedDomains\`; all other egress is denied. Link it to the active Goal, Goal Task, and work Run when those identifiers are known: \`goalTaskId\` is a Goal OS task while \`runId\` is the id returned by \`start_task\` or \`start_product_qa\`. Browser and sandbox tools operate only within that Agent-attributed session and never expose the owner's local filesystem.

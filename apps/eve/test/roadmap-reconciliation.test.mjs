@@ -34,6 +34,7 @@ test("historical plans and README point to the canonical roadmap", async () => {
   assert.match(roadmap, /## Shipped foundation/);
   assert.match(roadmap, /## P1 — Make MyEve genuinely useful/);
   assert.match(roadmap, /Guided first-use setup.+work order 013/);
-  assert.match(roadmap, /### 1\. Persistent authenticated web work — next/);
+  assert.match(roadmap, /persistent browser profiles.+work order 014/i);
+  assert.match(roadmap, /### 1\. Communications consolidation — next/);
   assert.match(roadmap, /## P3 — Explicitly later/);
 });

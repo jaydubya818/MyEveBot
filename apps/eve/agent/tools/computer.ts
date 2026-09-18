@@ -1,7 +1,9 @@
 import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
 
-import { orgo, orgoConfigured } from "../lib/orgo";
+import { resolveBrowserProfile, setBrowserProfileStatus, touchBrowserProfile, type BrowserProfileView } from "../../lib/browser-profiles.ts";
+import { computerAgent, computerOwnerId } from "../lib/computer-context.ts";
+import { orgoForProfile, orgoConfigured } from "../lib/orgo";
 import { ownerName } from "../lib/owner";
 import { isGuestResolve } from "../lib/owner-gate";
 
@@ -28,6 +30,32 @@ import { isGuestResolve } from "../lib/owner-gate";
 //     cheaper and exact for anything a shell can do.
 
 const MAX_OUTPUT_CHARS = 20_000;
+
+function profileDescriptor(profile: BrowserProfileView) {
+  return { slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation };
+}
+
+async function desktopFor(ctx: Parameters<typeof computerAgent>[0], profileId?: string, allowBlocked = false) {
+  const ownerId = computerOwnerId(ctx);
+  const agent = await computerAgent(ctx);
+  if (!agent) throw new Error("The current runtime is not attributed to an Agent.");
+  const profile = await resolveBrowserProfile(ownerId, agent, profileId);
+  if (!allowBlocked && profile.status !== "ready") {
+    throw new Error(
+      profile.status === "takeover_required"
+        ? "This browser profile is paused for owner takeover. Wait for the owner to finish and resume it."
+        : profile.status === "reconnect_required"
+          ? "This browser profile needs the owner to reconnect its account before more work can run."
+          : "This browser profile is unavailable.",
+    );
+  }
+  await touchBrowserProfile(ownerId, profile.id);
+  return { ownerId, profile, desktop: orgoForProfile(profileDescriptor(profile)) };
+}
+
+const profileIdSchema = z.string().startsWith("browser_profile_").optional().describe(
+  "A profile explicitly shared with this Agent. Omit to use the Agent's own isolated profile.",
+);
 
 function truncate(output: string): { output: string; truncated: boolean } {
   if (output.length <= MAX_OUTPUT_CHARS) return { output, truncated: false };
@@ -73,9 +101,11 @@ export default defineDynamic({
               .max(150)
               .optional()
               .describe("Cap on screenshot-and-act cycles. Raise it for multi-stage work."),
+            persistent_profile_id: profileIdSchema,
           }),
-          async execute({ instruction, continue_thread_id, model, max_steps }, ctx) {
-            const result = await orgo.task({
+          async execute({ instruction, continue_thread_id, model, max_steps, persistent_profile_id }, ctx) {
+            const { desktop } = await desktopFor(ctx, persistent_profile_id);
+            const result = await desktop.task({
               instruction,
               ...(continue_thread_id === undefined ? {} : { threadId: continue_thread_id }),
               ...(model === undefined ? {} : { model }),
@@ -117,9 +147,11 @@ export default defineDynamic({
               .max(600)
               .optional()
               .describe("Kill the command after this long. Use it for anything slow."),
+            persistent_profile_id: profileIdSchema,
           }),
-          async execute({ command, timeout_seconds }, ctx) {
-            const result = await orgo.bash(command, {
+          async execute({ command, timeout_seconds, persistent_profile_id }, ctx) {
+            const { desktop } = await desktopFor(ctx, persistent_profile_id);
+            const result = await desktop.bash(command, {
               ...(timeout_seconds === undefined ? {} : { timeoutSeconds: timeout_seconds }),
               ...(ctx.abortSignal === undefined ? {} : { signal: ctx.abortSignal }),
             });
@@ -134,9 +166,10 @@ export default defineDynamic({
 
         computer_screenshot: defineTool({
           description: `Capture the cloud desktop's screen to show ${owner}. You cannot see the image yourself. When the result has an imageUrl, hand it to ${owner} as a markdown image; when the screenshot was already displayed inline, just refer to it. To have something on screen read or acted on, use computer_task instead.`,
-          inputSchema: z.object({}),
-          async execute(_input, ctx) {
-            const result = await orgo.screenshot(ctx.abortSignal);
+          inputSchema: z.object({ persistent_profile_id: profileIdSchema }),
+          async execute({ persistent_profile_id }, ctx) {
+            const { desktop } = await desktopFor(ctx, persistent_profile_id);
+            const result = await desktop.screenshot(ctx.abortSignal);
             const liveViewUrl = result.computer.liveViewUrl;
             if (result.imageUrl !== null) {
               return {
@@ -177,21 +210,33 @@ export default defineDynamic({
             "Check or change the cloud desktop itself: current status, its live view URL (the owner can watch and take over there), and start / stop / restart. Stopping keeps the disk, so files and logins survive. You do not need this before other computer tools - they start the desktop on their own.",
           inputSchema: z.object({
             action: z
-              .enum(["status", "start", "stop", "restart"])
+              .enum(["status", "start", "stop", "restart", "request_takeover", "authentication_failed"])
               .describe(
                 "status and stop/restart never provision a desktop; start creates one if there is none.",
               ),
+            persistent_profile_id: profileIdSchema,
+            reason: z.string().min(1).max(500).optional().describe("Why owner takeover or reconnection is required."),
           }),
-          async execute({ action }, ctx) {
+          async execute({ action, persistent_profile_id, reason }, ctx) {
+            const { ownerId, profile, desktop } = await desktopFor(ctx, persistent_profile_id, true);
+            if (action === "request_takeover" || action === "authentication_failed") {
+              const status = action === "request_takeover" ? "takeover_required" : "reconnect_required";
+              const updated = await setBrowserProfileStatus({ ownerId, profileId: profile.id, status, failureSummary: reason ?? (status === "reconnect_required" ? "The saved account session is no longer authenticated." : null) });
+              const computer = await desktop.start(ctx.abortSignal);
+              return { provisioned: true as const, profileId: updated.id, profileStatus: updated.status, name: computer.name, status: computer.status, liveViewUrl: computer.liveViewUrl, note: `The profile is paused for ${owner}. Do not continue until the owner confirms takeover is complete.` };
+            }
+            if (profile.status !== "ready" && action !== "status") {
+              throw new Error("The owner must finish reconnecting this browser profile before it can be started, stopped, or restarted.");
+            }
             const signal = ctx.abortSignal;
             const computer =
               action === "start"
-                ? await orgo.start(signal)
+                ? await desktop.start(signal)
                 : action === "stop"
-                  ? await orgo.stop(signal)
+                  ? await desktop.stop(signal)
                   : action === "restart"
-                    ? await orgo.restart(signal)
-                    : await orgo.status(signal);
+                    ? await desktop.restart(signal)
+                    : await desktop.status(signal);
 
             if (computer === null) {
               return {
@@ -202,6 +247,8 @@ export default defineDynamic({
 
             return {
               provisioned: true as const,
+              profileId: profile.id,
+              profileStatus: profile.status,
               name: computer.name,
               // Orgo reports an idle desktop as "frozen"; its disk is intact.
               status: computer.status,

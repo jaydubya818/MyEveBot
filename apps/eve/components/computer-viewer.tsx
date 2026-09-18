@@ -49,6 +49,19 @@ interface ComputerState {
   computer?: ComputerInfo;
   connection?: { websocketUrl: string; password: string } | null;
   error?: string;
+  profile?: BrowserProfileSummary;
+  profiles?: BrowserProfileSummary[];
+}
+
+interface BrowserProfileSummary {
+  id: string;
+  agentId: string;
+  agentName: string;
+  status: "ready" | "takeover_required" | "reconnect_required" | "revoked";
+  generation: number;
+  lastUsedAt: string | null;
+  lastAuthenticatedAt: string | null;
+  sharedWith: { id: string; agentId: string; agentName: string }[];
 }
 
 interface ComputerModelState {
@@ -92,6 +105,10 @@ export function ComputerViewer({ className }: { className?: string }) {
   const [modelBusy, setModelBusy] = useState(false);
   const [modelError, setModelError] = useState<string | null>(null);
   const [interactive, setInteractive] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
+  const [profileBusy, setProfileBusy] = useState(false);
+  const [shareAgentId, setShareAgentId] = useState("");
+  const [confirmReset, setConfirmReset] = useState(false);
   const screenRef = useRef<HTMLDivElement>(null);
   const rfbRef = useRef<Rfb | null>(null);
   // Consecutive "running but nothing to connect to" reads; see MAX_BLIND_POLLS.
@@ -99,17 +116,18 @@ export function ComputerViewer({ className }: { className?: string }) {
   // Consecutive dropped VNC sessions; see MAX_RECONNECTS.
   const reconnectsRef = useRef(0);
 
-  const load = useCallback(async (): Promise<ComputerState | null> => {
+  const load = useCallback(async (agentId = selectedAgentId): Promise<ComputerState | null> => {
     try {
-      const response = await fetch("/api/computer");
+      const response = await fetch(`/api/computer${agentId ? `?agentId=${encodeURIComponent(agentId)}` : ""}`);
       const body = (await response.json()) as ComputerState;
       setState(body);
+      if (body.profile?.agentId) setSelectedAgentId(body.profile.agentId);
       return body;
     } catch {
       setState({ enabled: true, error: "Could not reach the desktop." });
       return null;
     }
-  }, []);
+  }, [selectedAgentId]);
 
   useEffect(() => {
     void load();
@@ -235,7 +253,7 @@ export function ComputerViewer({ className }: { className?: string }) {
       const response = await fetch("/api/computer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, agentId: state?.profile?.agentId }),
       });
       setState((await response.json()) as ComputerState);
     } catch {
@@ -243,6 +261,40 @@ export function ComputerViewer({ className }: { className?: string }) {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function updateProfile(action: "ready" | "takeover_required" | "share" | "revoke_share" | "reset", agentId?: string): Promise<boolean> {
+    const profile = state?.profile;
+    if (!profile || profileBusy) return false;
+    setProfileBusy(true);
+    try {
+      const response = await fetch("/api/computer-profiles", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          profileId: profile.id,
+          ...(agentId ? { agentId } : {}),
+          ...(action === "reset" ? { confirmation: `RESET ${profile.id}` } : {}),
+        }),
+      });
+      const body = await response.json().catch(() => null) as { error?: { message?: string } } | null;
+      if (!response.ok) throw new Error(body?.error?.message ?? "Browser profile could not be updated.");
+      setConfirmReset(false);
+      setShareAgentId("");
+      if (action === "ready" || action === "reset") setInteractive(false);
+      await load(profile.agentId);
+      return true;
+    } catch (error) {
+      setState((current) => current === null ? null : { ...current, error: error instanceof Error ? error.message : "Browser profile could not be updated." });
+      return false;
+    } finally {
+      setProfileBusy(false);
+    }
+  }
+
+  async function beginTakeover(): Promise<void> {
+    if (await updateProfile("takeover_required")) setInteractive(true);
   }
 
   async function changeModel(model: ComputerUseModel): Promise<void> {
@@ -279,9 +331,27 @@ export function ComputerViewer({ className }: { className?: string }) {
   const computer = state?.computer;
   const running = phase === "live" || phase === "connecting";
   const selectedModel = state?.models?.find((option) => option.id === state.model);
+  const profile = state?.profile;
+  const shareCandidates = (state?.profiles ?? []).filter((candidate) => candidate.agentId !== profile?.agentId && !profile?.sharedWith.some((grant) => grant.agentId === candidate.agentId));
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
+      {profile !== undefined && (state?.profiles?.length ?? 0) > 0 && (
+        <div className="grid gap-3 rounded-2xl border border-kumo-hairline bg-kumo-tint p-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <label className="text-xs font-medium text-kumo-subtle">Persistent profile
+            <select className="mt-1 block h-10 w-full rounded-xl border border-kumo-line bg-kumo-base px-3 text-sm text-kumo-default" value={profile.agentId} onChange={(event) => { setInteractive(false); setSelectedAgentId(event.target.value); void load(event.target.value); }}>
+              {state?.profiles?.map((candidate) => <option key={candidate.id} value={candidate.agentId}>{candidate.agentName}</option>)}
+            </select>
+          </label>
+          <div className="text-xs text-kumo-subtle sm:text-end"><p className="font-medium text-kumo-default">{profile.agentName}&rsquo;s private desktop</p><p>Generation {profile.generation} · {profile.sharedWith.length === 0 ? "not shared" : `shared with ${profile.sharedWith.length}`}</p></div>
+        </div>
+      )}
+      {profile !== undefined && profile.status !== "ready" && (
+        <div className="rounded-2xl border border-kumo-warning/30 bg-kumo-warning/5 p-4">
+          <p className="text-sm font-semibold">{profile.status === "reconnect_required" ? "Account reconnection required" : "Owner takeover in progress"}</p>
+          <p className="mt-1 text-xs leading-5 text-kumo-subtle">Use the live desktop to finish login, MFA, CAPTCHA, or the sensitive form. MyEve cannot operate this profile until you mark the login complete.</p>
+        </div>
+      )}
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant={phase === "live" ? "success" : "secondary"}>
           {phase === "live"
@@ -300,12 +370,13 @@ export function ComputerViewer({ className }: { className?: string }) {
         <div className="ms-auto flex items-center gap-2">
           {phase === "live" && (
             <Button
-              variant={interactive ? "primary" : "secondary"}
+              variant={interactive || profile?.status !== "ready" ? "primary" : "secondary"}
               size="sm"
-              onClick={() => setInteractive((value) => !value)}
+              disabled={profileBusy}
+              onClick={() => profile?.status === "ready" ? void beginTakeover() : void updateProfile("ready")}
             >
-              {interactive ? <CursorClickIcon /> : <EyeIcon />}
-              {interactive ? "You have control" : "Take control"}
+              {profile?.status !== "ready" ? <CursorClickIcon /> : <EyeIcon />}
+              {profile?.status !== "ready" ? "Login complete" : "Take control"}
             </Button>
           )}
           {phase === "idle" || phase === "missing" ? (
@@ -408,6 +479,22 @@ export function ComputerViewer({ className }: { className?: string }) {
             <ArrowSquareOutIcon />
           </a>
         </p>
+      )}
+
+      {profile !== undefined && (
+        <div className="grid gap-4 rounded-2xl border border-kumo-hairline p-4 lg:grid-cols-2">
+          <div>
+            <p className="text-sm font-semibold">Share deliberately</p>
+            <p className="mt-1 text-xs leading-5 text-kumo-subtle">Another Agent can use this signed-in profile only after an explicit grant. Revoke access at any time.</p>
+            {profile.sharedWith.length > 0 && <ul className="mt-3 space-y-2">{profile.sharedWith.map((grant) => <li key={grant.id} className="flex items-center justify-between gap-3 rounded-xl bg-kumo-tint px-3 py-2 text-sm"><span>{grant.agentName}</span><button type="button" className="text-xs font-medium text-kumo-danger" disabled={profileBusy} onClick={() => void updateProfile("revoke_share", grant.agentId)}>Revoke</button></li>)}</ul>}
+            {shareCandidates.length > 0 && <div className="mt-3 flex gap-2"><select aria-label="Agent to share with" className="h-9 min-w-0 flex-1 rounded-xl border border-kumo-line bg-kumo-base px-3 text-sm" value={shareAgentId} onChange={(event) => setShareAgentId(event.target.value)}><option value="">Choose an Agent</option>{shareCandidates.map((candidate) => <option key={candidate.id} value={candidate.agentId}>{candidate.agentName}</option>)}</select><Button size="sm" variant="secondary" disabled={!shareAgentId || profileBusy} onClick={() => void updateProfile("share", shareAgentId)}>Share</Button></div>}
+          </div>
+          <div className="lg:border-s lg:border-kumo-hairline lg:ps-4">
+            <p className="text-sm font-semibold">Reset login state</p>
+            <p className="mt-1 text-xs leading-5 text-kumo-subtle">Permanently deletes this desktop, its cookies, files, and account sessions. Sharing is revoked. The next use creates a clean profile.</p>
+            {confirmReset ? <div className="mt-3 flex gap-2"><Button size="sm" variant="secondary" disabled={profileBusy} onClick={() => void updateProfile("reset")}>Permanently reset</Button><Button size="sm" variant="ghost" onClick={() => setConfirmReset(false)}>Cancel</Button></div> : <Button className="mt-3" size="sm" variant="ghost" onClick={() => setConfirmReset(true)}>Reset profile</Button>}
+          </div>
+        </div>
       )}
 
       {state?.enabled === true && state.keySource === "app" && (

@@ -90,7 +90,7 @@ export function getCapabilityStatuses(
     }),
     status("computer", enabled.has("browser"), databaseReady, {
       reason: "Computer sessions need a database for isolation, attribution, and evidence records.",
-      setupHint: "Enable the browser feature, add DATABASE_URL, and apply migration 0010.",
+      setupHint: "Enable the browser feature, add DATABASE_URL, and apply the database migrations.",
     }),
     status("finance", enabled.has("receipts"), databaseReady, {
       reason: "Finance needs a database before the agent can store receipts.",

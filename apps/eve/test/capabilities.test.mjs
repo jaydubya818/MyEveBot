@@ -8,7 +8,7 @@ test("included capabilities report setup requirements instead of disappearing", 
 
   assert.equal(capabilities.appearance.state, "ready");
   assert.equal(capabilities.computer.state, "setup_required");
-  assert.match(capabilities.computer.setupHint, /0010/);
+  assert.match(capabilities.computer.setupHint, /database migrations/);
   assert.equal(capabilities.reminders.state, "setup_required");
   assert.match(capabilities.reminders.setupHint, /DATABASE_URL/);
   assert.equal(capabilities.memory.state, "setup_required");

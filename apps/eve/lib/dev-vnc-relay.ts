@@ -3,7 +3,7 @@ import { createServer, get } from "node:http";
 
 import { WebSocketServer } from "ws";
 
-import { orgo } from "@/agent/lib/orgo";
+import { orgoForProfile, type OrgoProfileDescriptor } from "@/agent/lib/orgo";
 import { pipeVncSocket } from "@/lib/vnc-relay";
 
 // Local-dev stand-in for the deployed VNC relay route. `next dev` cannot
@@ -69,7 +69,7 @@ let readiness: Promise<RelayVerdict> | undefined;
  * awaited before anything is handed out: returning the URL while the port
  * question is still open would hand the token to whatever is squatting there.
  */
-export async function devVncRelayUrl(): Promise<string | null> {
+export async function devVncRelayUrl(profile: OrgoProfileDescriptor): Promise<string | null> {
   readiness ??= start();
   let verdict = await readiness;
   if (verdict !== "own") {
@@ -80,7 +80,7 @@ export async function devVncRelayUrl(): Promise<string | null> {
     verdict = await readiness;
   }
   if (verdict === "dead") return null;
-  return `${RELAY_URL}?token=${relayToken()}`;
+  return `${RELAY_URL}?token=${relayToken()}&profile=${encodeURIComponent(Buffer.from(JSON.stringify(profile)).toString("base64url"))}`;
 }
 
 /** The relay admits only handshakes bearing the current process token. */
@@ -111,7 +111,11 @@ function start(): Promise<RelayVerdict> {
         // handshake instead of opening a socket that instantly drops.
         let upstreamUrl: string;
         try {
-          const { connection } = await orgo.live();
+          const encoded = new URL(request.url ?? "/", RELAY_URL).searchParams.get("profile");
+          if (!encoded) throw new Error("Browser profile is required.");
+          const candidate = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8")) as Partial<OrgoProfileDescriptor>;
+          if (typeof candidate.slug !== "string" || typeof candidate.isPrimary !== "boolean" || !Number.isInteger(candidate.generation) || Number(candidate.generation) < 1) throw new Error("Browser profile is invalid.");
+          const { connection } = await orgoForProfile({ slug: candidate.slug, isPrimary: candidate.isPrimary, generation: Number(candidate.generation) }).live();
           if (connection === null) {
             socket.destroy();
             return;

@@ -1,6 +1,6 @@
 # MyEve roadmap
 
-This is the canonical product roadmap as of 2026-09-17. Completed work is recorded in `todos/`; the dated files under `docs/plans/` are historical implementation plans and are not the current backlog.
+This is the canonical product roadmap as of 2026-09-18. Completed work is recorded in `todos/`; the dated files under `docs/plans/` are historical implementation plans and are not the current backlog.
 
 ## Shipped foundation
 
@@ -12,29 +12,23 @@ This is the canonical product roadmap as of 2026-09-17. Completed work is record
 - Reliable on-demand browser sessions, browser health, and production browser canary — work order 009.
 - Production failure telemetry, cleanup, operator health, alerts, canaries, and incident procedures — work order 010.
 - Guided first-use setup, read-only capability discovery, and five bounded starter jobs — work order 013.
+- Agent-isolated persistent browser profiles, explicit sharing, owner authentication takeover, reconnect, and reset — work order 014.
 
 ## P1 — Make MyEve genuinely useful
 
-### 1. Persistent authenticated web work — next
-
-- Add a secure credential-vault integration and approved persistent browser profiles.
-- Separate profiles by Agent by default; sharing must be explicit and revocable.
-- Support owner takeover for login, MFA, CAPTCHA, and sensitive forms.
-- Handle expiry, reset, reconnect, and credential failure without exposing secrets.
-
-### 2. Communications consolidation
+### 1. Communications consolidation — next
 
 - Create one Channels surface for Email, Slack, iMessage, push, and later Phone.
 - Unify message/thread search, attachments, delivery state, approval, audit, retention, deletion, and redaction.
 - Add provider-event idempotency and retry handling.
 
-### 3. Phone production qualification
+### 2. Phone production qualification
 
 - Complete live AgentPhone provisioning and a minimal billed test matrix before exposing Phone controls.
 - Verify inbound/outbound text, iMessage, calls, verification inbox, webhook security, consent, opt-out, quiet hours, and failure recovery.
 - Add spending limits and an emergency disable switch.
 
-### 4. Data ownership and recovery
+### 3. Data ownership and recovery
 
 - Export Goals, Knowledge, memories, conversations, Results, routines, and Agents.
 - Verify backup/restore, define retention by data class, show storage usage, and add an audited deployment/account deletion flow.

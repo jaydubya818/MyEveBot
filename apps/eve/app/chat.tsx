@@ -46,7 +46,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { CommandPalette } from "@/components/command-palette";
-import { ComputerSessionsPanel } from "@/components/computer-sessions-panel";
+import { ComputerWorkspace } from "@/components/computer-workspace";
 import { EmailClient } from "@/components/email-client";
 import { FilesPage } from "@/components/files-page";
 import {
@@ -1446,7 +1446,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       ) : view === "computer" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
           <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
-          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerSessionsPanel /></div>
+          <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerWorkspace /></div>
         </main>
       ) : view === "knowledge" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">

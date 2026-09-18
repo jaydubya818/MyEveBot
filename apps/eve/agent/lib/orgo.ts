@@ -595,6 +595,21 @@ function computerName(): string {
   return named.length > 0 ? named : "agent";
 }
 
+export interface OrgoProfileDescriptor {
+  slug: string;
+  isPrimary: boolean;
+  generation: number;
+}
+
+/** Preserve the original primary desktop while isolating every other Agent. */
+export function profileComputerName(profile?: OrgoProfileDescriptor): string {
+  const base = computerName();
+  if (!profile || (profile.isPrimary && profile.generation === 1)) return base;
+  const agent = sanitizeName(profile.slug) || "agent";
+  const generation = profile.generation > 1 ? `-${profile.generation}` : "";
+  return `${base}-${agent}${generation}`.slice(0, 80).replace(/-+$/, "");
+}
+
 function positiveInt(value: string | undefined, fallback: number): number {
   const parsed = Number.parseInt(value ?? "", 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -644,7 +659,7 @@ async function resolveWorkspaceId(
  * rides along because reading one computer does not report which workspace it
  * belongs to, and the live view link needs it.
  */
-let identity: { id: string; workspaceId: string } | undefined;
+const identities = new Map<string, { id: string; workspaceId: string }>();
 
 /**
  * Find the agent's desktop, optionally provisioning one. Reads that shouldn't
@@ -652,32 +667,37 @@ let identity: { id: string; workspaceId: string } | undefined;
  */
 async function resolveComputer(
   options: { create: boolean; signal?: AbortSignal },
+  profile?: OrgoProfileDescriptor,
 ): Promise<Computer | null> {
   const pinned = process.env.ORGO_COMPUTER_ID?.trim();
   if (pinned !== undefined && pinned.length > 0) {
+    if (profile && (!profile.isPrimary || profile.generation !== 1)) {
+      throw new Error("ORGO_COMPUTER_ID pins one legacy desktop and cannot isolate additional Agent profiles. Remove it to enable per-Agent persistent profiles.");
+    }
     return toComputer(await api<RawComputer>(`/computers/${pinned}`, { signal: options.signal }));
   }
 
+  const name = profileComputerName(profile);
+  const identity = identities.get(name);
   if (identity !== undefined) {
     try {
       const known = await api<RawComputer>(`/computers/${identity.id}`, { signal: options.signal });
       return toComputer(known, identity.workspaceId);
     } catch (error) {
       if (!(error instanceof OrgoError) || error.status !== 404) throw error;
-      identity = undefined;
+      identities.delete(name);
     }
   }
 
   const workspaceId = await resolveWorkspaceId(options);
   if (workspaceId === null) return null;
 
-  const name = computerName();
   const workspace = await api<RawWorkspace>(`/workspaces/${workspaceId}`, {
     signal: options.signal,
   });
   const match = (workspace.desktops ?? []).find((desktop) => desktop.name === name);
   if (match?.id !== undefined) {
-    identity = { id: match.id, workspaceId };
+    identities.set(name, { id: match.id, workspaceId });
     return toComputer(match, workspaceId);
   }
 
@@ -697,7 +717,7 @@ async function resolveComputer(
     signal: options.signal,
   });
   if (created.id === undefined) throw new Error("Orgo created a computer but returned no id.");
-  identity = { id: created.id, workspaceId };
+  identities.set(name, { id: created.id, workspaceId });
   return toComputer(created, workspaceId);
 }
 
@@ -754,8 +774,8 @@ async function ensureRunning(computer: Computer, signal?: AbortSignal): Promise<
 }
 
 /** The desktop, provisioned and running, ready to be acted on. */
-async function activeComputer(signal?: AbortSignal): Promise<Computer> {
-  const computer = await resolveComputer({ create: true, signal });
+async function activeComputer(signal?: AbortSignal, profile?: OrgoProfileDescriptor): Promise<Computer> {
+  const computer = await resolveComputer({ create: true, signal }, profile);
   if (computer === null) throw new Error("Orgo did not return a computer.");
   return await ensureRunning(computer, signal);
 }
@@ -799,8 +819,9 @@ async function withRetry<T>(
  */
 async function liveState(
   signal?: AbortSignal,
+  profile?: OrgoProfileDescriptor,
 ): Promise<{ computer: Computer | null; connection: LiveConnection | null }> {
-  const computer = await resolveComputer({ create: false, signal });
+  const computer = await resolveComputer({ create: false, signal }, profile);
   if (computer === null || computer.status !== "running") return { computer, connection: null };
 
   // Discovery may have come from the workspace listing, which carries an
@@ -837,20 +858,22 @@ async function liveState(
  */
 async function settledLiveState(
   signal?: AbortSignal,
+  profile?: OrgoProfileDescriptor,
 ): Promise<{ computer: Computer | null; connection: LiveConnection | null }> {
-  let live = await liveState(signal);
+  let live = await liveState(signal, profile);
   for (
     let poll = 0;
     live.connection === null && live.computer?.status === "running" && poll < CONNECT_GRACE_POLLS;
     poll++
   ) {
     await sleep(POLL_INTERVAL_MS, signal);
-    live = await liveState(signal);
+    live = await liveState(signal, profile);
   }
   return live;
 }
 
-export const orgo = {
+function createOrgoClient(profile?: OrgoProfileDescriptor) {
+  return {
   /** Check a candidate key against Orgo before storing it. Throws when bad. */
   async verifyKey(key: string, signal?: AbortSignal): Promise<void> {
     const response = await fetch(`${apiBase()}/workspaces`, {
@@ -869,12 +892,12 @@ export const orgo = {
 
   /** Current desktop, or `null` when none has been provisioned yet. */
   async status(signal?: AbortSignal): Promise<Computer | null> {
-    return await resolveComputer({ create: false, signal });
+    return await resolveComputer({ create: false, signal }, profile);
   },
 
   /** Provision when missing, then make sure it is running. */
   async start(signal?: AbortSignal): Promise<Computer> {
-    return await activeComputer(signal);
+    return await activeComputer(signal, profile);
   },
 
   /**
@@ -885,7 +908,7 @@ export const orgo = {
    * open across the whole boot.
    */
   async provision(signal?: AbortSignal): Promise<Computer> {
-    const computer = await resolveComputer({ create: true, signal });
+    const computer = await resolveComputer({ create: true, signal }, profile);
     if (computer === null) throw new Error("Orgo did not return a computer.");
     const settled =
       computer.status === "running" ||
@@ -908,18 +931,18 @@ export const orgo = {
   async wake(
     signal?: AbortSignal,
   ): Promise<{ computer: Computer; connection: LiveConnection | null }> {
-    const computer = await activeComputer(signal);
-    let live = await settledLiveState(signal);
+    const computer = await activeComputer(signal, profile);
+    let live = await settledLiveState(signal, profile);
     if (live.connection !== null) return { computer: live.computer ?? computer, connection: live.connection };
 
     await api(`/computers/${computer.id}/restart`, { method: "POST", signal });
     const restarted = await ensureRunning({ ...computer, status: "restarting" }, signal);
-    live = await settledLiveState(signal);
+    live = await settledLiveState(signal, profile);
     return { computer: live.computer ?? restarted, connection: live.connection };
   },
 
   async stop(signal?: AbortSignal): Promise<Computer | null> {
-    const computer = await resolveComputer({ create: false, signal });
+    const computer = await resolveComputer({ create: false, signal }, profile);
     if (computer === null) return null;
     // Already idle (Orgo calls that `frozen`) or on its way there.
     const running = computer.status === "running" || computer.status === "starting";
@@ -929,7 +952,7 @@ export const orgo = {
   },
 
   async restart(signal?: AbortSignal): Promise<Computer | null> {
-    const computer = await resolveComputer({ create: false, signal });
+    const computer = await resolveComputer({ create: false, signal }, profile);
     if (computer === null) return null;
     // Restarting something that is already down is just waking it.
     if (computer.status !== "running") return await ensureRunning(computer, signal);
@@ -941,14 +964,14 @@ export const orgo = {
   async live(
     signal?: AbortSignal,
   ): Promise<{ computer: Computer | null; connection: LiveConnection | null }> {
-    return await liveState(signal);
+    return await liveState(signal, profile);
   },
 
   async bash(
     command: string,
     options: { timeoutSeconds?: number; signal?: AbortSignal } = {},
   ): Promise<BashResult & { computer: Computer }> {
-    const computer = await activeComputer(options.signal);
+    const computer = await activeComputer(options.signal, profile);
     const result = await withRetry(
       () =>
         api<{ output?: string; exit_code?: number }>(`/computers/${computer.id}/bash`, {
@@ -978,7 +1001,7 @@ export const orgo = {
     imageDataUrl: string | null;
     inlineBytes: number | null;
   }> {
-    const computer = await activeComputer(signal);
+    const computer = await activeComputer(signal, profile);
     const result = await withRetry(
       () => api<{ image?: string }>(`/computers/${computer.id}/screenshot`, { signal }),
       { signal, retryServerErrors: true },
@@ -1011,7 +1034,7 @@ export const orgo = {
     maxSteps?: number;
     signal?: AbortSignal;
   }): Promise<TaskResult & { computer: Computer }> {
-    const computer = await activeComputer(input.signal);
+    const computer = await activeComputer(input.signal, profile);
     const model = input.model ?? (await orgoTaskModel());
     const gatewayId = gatewayModelId(model);
     if (gatewayId !== null) {
@@ -1106,7 +1129,22 @@ export const orgo = {
       input.signal?.removeEventListener("abort", stopOnCancel);
     }
   },
-};
+
+  /** Permanently remove only this profile's desktop. The caller owns confirmation and audit. */
+  async delete(signal?: AbortSignal): Promise<boolean> {
+    const computer = await resolveComputer({ create: false, signal }, profile);
+    if (computer === null) return false;
+    await api(`/computers/${computer.id}`, { method: "DELETE", signal });
+    identities.delete(profileComputerName(profile));
+    return true;
+  },
+  };
+}
+
+export const orgo = createOrgoClient();
+export function orgoForProfile(profile: OrgoProfileDescriptor) {
+  return createOrgoClient(profile);
+}
 
 /** Yield each SSE `data:` payload from a response body. */
 async function* sseEvents(body: ReadableStream<Uint8Array>): AsyncGenerator<string> {
