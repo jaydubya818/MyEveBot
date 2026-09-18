@@ -17,6 +17,9 @@ interface InventoryItem {
   description: string;
   recordCount: number;
   approximateBytes: number;
+  completeness: "complete" | "partial" | "metadata_only" | "referenced_only" | "unavailable";
+  portability: "fully_restorable" | "restorable_with_reconnection" | "partially_restorable" | "reference_only" | "unavailable";
+  notes: string[];
 }
 
 interface DataOperation {
@@ -52,6 +55,10 @@ function formatBytes(value: number): string {
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function statusLabel(value: string): string {
+  return value.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
+}
+
 export function OwnerDataPanel() {
   const [inventory, setInventory] = useState<InventoryResponse | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -81,7 +88,7 @@ export function OwnerDataPanel() {
       const url = URL.createObjectURL(await response.blob());
       const link = document.createElement("a");
       link.href = url;
-      link.download = response.headers.get("content-disposition")?.match(/filename="([^"]+)"/)?.[1] ?? "myeve-owner-data.zip";
+      link.download = response.headers.get("content-disposition")?.match(/filename="([^"]+)"/)?.[1] ?? "myeve-backup.zip";
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -136,7 +143,7 @@ export function OwnerDataPanel() {
             <div>
               <h3 className="text-sm font-semibold">Portable owner archive</h3>
               <p className="mt-1 max-w-xl text-sm text-kumo-subtle">
-                Download your conversations, goals, knowledge, memories, agents, runs, results, and routines in a documented ZIP archive.
+                Create a verified, provider-neutral backup of your MyEve data with explicit coverage for files and connected apps.
               </p>
               <p className="mt-2 text-xs text-kumo-subtle">{totalRecords.toLocaleString()} records · approximately {formatBytes(totalBytes)}</p>
             </div>
@@ -154,8 +161,15 @@ export function OwnerDataPanel() {
           {inventory.inventory.map((item) => (
             <li key={item.id} className="flex items-center gap-3 py-3">
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{item.name}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium">{item.name}</p>
+                  <Badge variant={item.completeness === "complete" ? "success" : item.completeness === "unavailable" ? "destructive" : "secondary"}>
+                    {statusLabel(item.completeness)}
+                  </Badge>
+                </div>
                 <p className="mt-0.5 text-xs text-kumo-subtle">{item.description}</p>
+                <p className="mt-1 text-xs text-kumo-subtle">{statusLabel(item.portability)}</p>
+                {item.notes.map((note) => <p key={note} className="mt-1 text-xs text-kumo-subtle">{note}</p>)}
               </div>
               <div className="text-right text-xs tabular-nums text-kumo-subtle">
                 <p>{item.recordCount.toLocaleString()} records</p>

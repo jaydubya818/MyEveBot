@@ -20,14 +20,18 @@ This work order establishes the canonical registry, dual-format archive, integri
 
 ## Acceptance Criteria
 
-- [ ] The owner can download one ZIP containing conversations, Goals, Knowledge, memories, Agents, Runs, Results, routines, and review settings.
-- [ ] The export uses an explicit allowlist and excludes credentials, tokens, webhook secrets, internal provider identifiers, and storage keys.
-- [ ] Every exported file has a SHA-256 digest in a versioned manifest.
-- [ ] The owner can validate an archive locally through the UI without changing stored data.
-- [ ] The Data Center reports record counts, approximate portable size, retention behavior, and excluded sensitive data.
+- [x] The owner can download one ZIP containing conversations, Goals, Knowledge, memories, Agents, Runs, Results, routines, and review settings.
+- [x] The export uses an explicit allowlist and excludes credentials, tokens, webhook secrets, internal provider identifiers, and storage keys.
+- [x] Every exported file has a SHA-256 digest in a versioned manifest.
+- [x] The owner can validate an archive locally through the UI without changing stored data.
+- [x] The Data Center reports record counts, approximate portable size, retention behavior, and excluded sensitive data.
+- [x] The manifest and UI report deterministic completeness and portability status for every included domain.
+- [x] Files and artifacts are classified truthfully; v1 exports metadata and checksums without claiming referenced binary content is backed up.
+- [x] Connected apps export safe metadata only and explicitly require reconnection; provider authority is never included.
+- [x] Archive validation bounds compressed size, expanded size, entry count, individual entry size, compression ratio, paths, file types, versions, and duplicate domains.
 - [ ] Memory shows scope, source, confidence, and confirmation metadata alongside existing forget controls.
-- [ ] The archive includes both human-readable Markdown and canonical machine-readable JSON.
-- [ ] Export and verification operations produce secret-free audit receipts.
+- [x] The archive includes both human-readable Markdown and canonical machine-readable JSON.
+- [x] Export and verification operations produce secret-free audit receipts.
 - [ ] Authentication, owner scoping, archive integrity, error, loading, empty, and success states are tested.
 - [ ] Tests, typecheck, production build, and browser qualification pass.
 - [ ] The canonical roadmap records the completed scope and ordered follow-on work.

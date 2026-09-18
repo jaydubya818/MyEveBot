@@ -166,7 +166,7 @@ function apiKey(): string {
   return key;
 }
 
-async function mcpFetch(body: object, sessionId?: string): Promise<Response> {
+async function mcpFetch(body: object, sessionId?: string, signal?: AbortSignal): Promise<Response> {
   return fetch(MCP_URL, {
     method: "POST",
     headers: {
@@ -176,6 +176,7 @@ async function mcpFetch(body: object, sessionId?: string): Promise<Response> {
       ...(sessionId ? { "mcp-session-id": sessionId } : {}),
     },
     body: JSON.stringify(body),
+    signal,
   });
 }
 
@@ -192,6 +193,7 @@ async function parseMcpBody(response: Response): Promise<McpToolResponse> {
 /** Calls COMPOSIO_MANAGE_CONNECTIONS and returns its parsed JSON payload. */
 export async function manageConnections(
   toolkits: { name: string; action: "list" | "add" | "remove"; account_id?: string }[],
+  options: { signal?: AbortSignal } = {},
 ): Promise<Record<string, unknown>> {
   const init = await mcpFetch({
     jsonrpc: "2.0",
@@ -202,7 +204,7 @@ export async function manageConnections(
       capabilities: {},
       clientInfo: { name: "eve-web", version: "1.0" },
     },
-  });
+  }, undefined, options.signal);
   const sessionId = init.headers.get("mcp-session-id");
   if (!init.ok || sessionId === null) {
     throw new Error(`Composio Connect initialize failed (${init.status})`);
@@ -216,6 +218,7 @@ export async function manageConnections(
       params: { name: "COMPOSIO_MANAGE_CONNECTIONS", arguments: { toolkits } },
     },
     sessionId,
+    options.signal,
   );
   const message = await parseMcpBody(call);
   if (message.error) throw new Error(message.error.message ?? "MCP call failed");

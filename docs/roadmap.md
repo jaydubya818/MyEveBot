@@ -17,19 +17,19 @@ This is the canonical product roadmap as of 2026-09-18. Completed work is record
 
 ## P1 — Make MyEve genuinely useful
 
-### 1. Phone production qualification — next
+### 1. Data ownership and recovery — active
+
+- Work order 017: canonical ownership registry, provider-neutral backup contract, human-readable export, SHA-256 verification, deterministic completeness/portability status, file/reference inventory, safe connected-app metadata, retention visibility, and audit history.
+- Work order 018: unified "What MyEve Knows" inspection, provenance, correction, and verified forgetting.
+- Work order 019: dry-run planning followed by confirmed, dependency-aware restore into an empty deployment with post-restore verification.
+- Work order 020: dependency-aware domain deletion, connector disconnect/revocation, verification, and receipts.
+
+### 2. Phone production qualification — waiting on owner setup
 
 - Complete live AgentPhone provisioning and a minimal billed test matrix before exposing Phone controls.
 - Verify inbound/outbound text, iMessage, calls, verification inbox, webhook security, consent, opt-out, quiet hours, and failure recovery.
 - Add spending limits and an emergency disable switch.
-- Safety controls and the non-billed provider matrix are implemented in work order 016. The release gate remains closed because production has no AgentPhone credentials or designated live test recipient yet.
-
-### 2. Data ownership and recovery
-
-- Work order 017: canonical ownership registry, human-readable export, machine-restorable backup, checksum verification, inventory, retention visibility, and audit history.
-- Work order 018: unified "What MyEve Knows" inspection, provenance, correction, and verified forgetting.
-- Work order 019: planned, confirmed, dependency-aware restore into an empty deployment with post-restore verification.
-- Work order 020: dependency-aware domain deletion, connector disconnect/revocation, verification, and receipts.
+- Safety controls and the non-billed provider matrix are implemented in work order 016. The release gate remains closed until the owner adds AgentPhone credentials and designates a live test recipient.
 
 ## P2 — Strengthen differentiation
 

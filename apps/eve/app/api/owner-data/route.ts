@@ -23,24 +23,23 @@ export async function GET(request: Request): Promise<Response> {
   const ownerId = requestOwnerId(request);
   const downloading = new URL(request.url).searchParams.get("download") === "1";
   try {
-    if (downloading) {
-      await recordOwnerDataOperation({ ownerId, type: "export_started", status: "completed", archiveVersion: 1 });
-    }
     const bundle = await collectOwnerData(ownerId);
     if (downloading) {
       const archive = await createOwnerArchive(bundle);
+      const verification = await validateOwnerArchive(archive);
       const inventory = ownerDataInventory(bundle);
       await recordOwnerDataOperation({
         ownerId, type: "export_completed", status: "completed", archiveVersion: 1,
         recordCount: inventory.reduce((total, item) => total + item.recordCount, 0),
         domainCounts: Object.fromEntries(inventory.map((item) => [item.id, item.recordCount])),
         checksum: createHash("sha256").update(archive).digest("hex"),
+        metadata: { destinationType: "owner_download", verificationResult: "verified", verifiedFileCount: verification.fileCount },
       });
       const date = bundle.exportedAt.slice(0, 10);
       return new Response(new Uint8Array(archive), {
         headers: {
           "Cache-Control": "no-store",
-          "Content-Disposition": `attachment; filename="myeve-owner-data-${date}.zip"`,
+          "Content-Disposition": `attachment; filename="myeve-backup-${date}.zip"`,
           "Content-Length": String(archive.byteLength),
           "Content-Type": "application/zip",
         },

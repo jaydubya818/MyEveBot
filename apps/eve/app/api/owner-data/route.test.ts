@@ -43,7 +43,7 @@ describe("/api/owner-data", () => {
     mocks.collectOwnerData.mockResolvedValue({ exportedAt: "2026-09-18T12:00:00.000Z" });
     mocks.ownerDataInventory.mockReturnValue([]);
     mocks.createOwnerArchive.mockResolvedValue(Buffer.from("archive"));
-    mocks.validateOwnerArchive.mockResolvedValue({ valid: true, version: 1 });
+    mocks.validateOwnerArchive.mockResolvedValue({ valid: true, version: 1, fileCount: 4 });
     mocks.listOwnerDataOperations.mockResolvedValue([]);
     mocks.recordOwnerDataOperation.mockResolvedValue({ id: "dataop_1" });
   });
@@ -54,8 +54,14 @@ describe("/api/owner-data", () => {
 
     expect(inventory.status).toBe(200);
     expect(download.headers.get("content-type")).toBe("application/zip");
+    expect(download.headers.get("content-disposition")).toContain("myeve-backup-2026-09-18.zip");
     expect(mocks.collectOwnerData).toHaveBeenNthCalledWith(1, "owner-a");
     expect(mocks.collectOwnerData).toHaveBeenNthCalledWith(2, "owner-a");
+    expect(mocks.validateOwnerArchive).toHaveBeenCalledWith(Buffer.from("archive"));
+    expect(mocks.recordOwnerDataOperation).toHaveBeenCalledWith(expect.objectContaining({
+      type: "export_completed",
+      metadata: expect.objectContaining({ destinationType: "owner_download", verificationResult: "verified" }),
+    }));
   });
 
   it("validates uploads without invoking any restore operation", async () => {
