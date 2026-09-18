@@ -15,8 +15,8 @@ import {
   type ComputerSessionView,
 } from "./computer-types.ts";
 import { redactEvidenceText } from "./task-types.ts";
-import { controlView, expireOwnerControlLeases, heartbeatOwnerControl, safeStateFingerprint, transitionComputerControl } from "./computer-control.ts";
-import { liveSessionCapabilitiesFor, liveSessionProviderFor } from "./live-session-provider.ts";
+import { beginOwnerInput, controlView, disableOwnerInput, enableOwnerInput, expireOwnerControlLeases, finishOwnerInput, heartbeatOwnerControl, safeStateFingerprint, transitionComputerControl } from "./computer-control.ts";
+import { LiveSessionLostError, liveSessionCapabilitiesFor, liveSessionProviderFor, type LiveViewFrame, type OwnerInput } from "./live-session-provider.ts";
 
 type Row = Record<string, unknown>;
 
@@ -82,15 +82,16 @@ async function sessionView(row: Row): Promise<ComputerSessionView> {
     db().query(`SELECT * FROM computer_artifacts WHERE computer_session_id=$1 ORDER BY created_at,id`, [row.id]) as Promise<Row[]>,
   ]);
   const browser = browserRows[0];
-  const liveProvider = liveSessionProviderFor(text(row.environment_type) as ComputerSessionView["environmentType"]);
-  return {
+  const environmentType = text(row.environment_type) as ComputerSessionView["environmentType"];
+  const liveProvider = liveSessionProviderFor(environmentType);
+  const view: ComputerSessionView = {
     id: text(row.id), ownerId: text(row.owner_id), agentId: text(row.agent_id), agentName: text(row.agent_name),
     goalId: nullableText(row.goal_id), goalTitle: nullableText(row.goal_title),
     taskId: nullableText(row.goal_task_id), taskTitle: nullableText(row.task_title),
     runId: nullableText(row.run_id), runTitle: nullableText(row.run_title),
     runtimeSessionId: text(row.runtime_session_id), sandboxId: nullableText(row.sandbox_id),
     status: text(row.status) as ComputerSessionStatus,
-    environmentType: text(row.environment_type) as ComputerSessionView["environmentType"],
+    environmentType,
     startedAt: iso(row.started_at), lastActivityAt: iso(row.last_activity_at),
     completedAt: nullableIso(row.completed_at), expiresAt: iso(row.expires_at),
     resourceLimits: resourceLimits(row.resource_limits), networkPolicy: record(row.network_policy),
@@ -101,14 +102,17 @@ async function sessionView(row: Row): Promise<ComputerSessionView> {
       lastActivityAt: iso(browser.last_activity_at), completedAt: nullableIso(browser.completed_at),
     } : null,
     actionCount: number(row.action_count), artifacts: artifactRows.map(artifactView),
-    control: controlView(row, liveProvider.id, liveSessionCapabilitiesFor(text(row.environment_type) as ComputerSessionView["environmentType"])),
+    control: null as never,
   };
+  view.control = controlView(row, liveProvider.id, liveSessionCapabilitiesFor(view));
+  return view;
 }
 
 const SESSION_SELECT = `
   SELECT s.*, a.name AS agent_name, g.title AS goal_title, t.title AS task_title, r.title AS run_title,
          l.controller AS control_controller,l.version AS control_version,l.claimed_at AS control_claimed_at,
          l.heartbeat_at AS control_heartbeat_at,l.expires_at AS control_expires_at,l.transition_reason AS control_transition_reason,
+         l.owner_input_enabled AS control_owner_input_enabled,
          (SELECT count(*)::int FROM computer_actions ca WHERE ca.computer_session_id=s.id) AS action_count
   FROM computer_sessions s
   JOIN agents a ON a.owner_id=s.owner_id AND a.id=s.agent_id
@@ -127,7 +131,7 @@ export async function expireComputerSessions(now = new Date()): Promise<number> 
   ) as Row[];
   for (const row of rows) {
     await db().transaction((tx) => [
-      tx`WITH previous AS (SELECT * FROM computer_control_leases WHERE computer_session_id=${row.id} AND controller<>'NONE'), changed AS (UPDATE computer_control_leases SET controller='NONE',version=version+1,claimed_by=NULL,claimed_at=NULL,heartbeat_at=NULL,expires_at=NULL,transition_reason='Computer session expired',updated_at=now() WHERE computer_session_id=${row.id} AND controller<>'NONE' RETURNING *) INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason) SELECT ${`control_${randomUUID()}`},c.computer_session_id,c.owner_id,c.agent_id,c.run_id,'control.session_expired',p.controller,'NONE',c.version,'system','Computer session expired' FROM changed c JOIN previous p USING (computer_session_id)`,
+      tx`WITH previous AS (SELECT * FROM computer_control_leases WHERE computer_session_id=${row.id} AND controller<>'NONE'), changed AS (UPDATE computer_control_leases SET controller='NONE',version=version+1,claimed_by=NULL,claimed_at=NULL,heartbeat_at=NULL,expires_at=NULL,owner_input_enabled=false,transition_reason='Computer session expired',updated_at=now() WHERE computer_session_id=${row.id} AND controller<>'NONE' RETURNING *) INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason) SELECT ${`control_${randomUUID()}`},c.computer_session_id,c.owner_id,c.agent_id,c.run_id,'control.session_expired',p.controller,'NONE',c.version,'system','Computer session expired' FROM changed c JOIN previous p USING (computer_session_id)`,
       tx`UPDATE browser_sessions SET status='expired',completed_at=${now.toISOString()},last_activity_at=${now.toISOString()} WHERE computer_session_id=${row.id}`,
       tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,summary,payload)
          VALUES (${`event_${randomUUID()}`},${row.owner_id},'COMPUTER_SESSION_EXPIRED','computer_session',${row.id},${row.goal_id},${row.goal_task_id},${row.run_id},'Computer session expired',${JSON.stringify({ agentId: row.agent_id })}::jsonb)`,
@@ -302,16 +306,18 @@ export async function requestOwnerTakeover(input:{ownerId:string;id:string;agent
 export async function takeOverComputerSession(input:{ownerId:string;id:string;expectedVersion:number;requestedBy:string}):Promise<ComputerSessionView>{
   const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");
   if(session.status==="provisioning")throw new Error("Computer session is still provisioning and cannot be controlled yet.");
-  const provider=liveSessionProviderFor(session.environmentType);if(!provider.capabilities.humanTakeover||!provider.capabilities.ownerInput)throw new Error("Human Takeover is not supported by the current Computer provider.");
+  const provider=liveSessionProviderFor(session.environmentType);const capabilities=provider.getCapabilities(session);if(!capabilities.humanTakeover||!capabilities.ownerInput)throw new Error("Human Takeover is not supported by the current Computer provider.");
   const observation=await provider.observe(session);const fingerprint=safeStateFingerprint(observation);
-  await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:session.control.controller,expectedVersion:input.expectedVersion,operation:"takeOver",requestedBy:input.requestedBy,reason:"Human takeover",stateFingerprint:fingerprint});
+  const acquired=await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:session.control.controller,expectedVersion:input.expectedVersion,operation:"takeOver",requestedBy:input.requestedBy,reason:"Human takeover",stateFingerprint:fingerprint});
+  try{await provider.acquireOwnerControl(session,acquired.version);await enableOwnerInput({ownerId:input.ownerId,sessionId:input.id,version:acquired.version,requestedBy:input.requestedBy});}
+  catch(error){await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:acquired.version,operation:"pause",requestedBy:input.requestedBy,reason:"Owner input transport unavailable"}).catch(()=>undefined);throw error;}
   if(session.status!=="paused")await transitionComputerSession({ownerId:input.ownerId,id:input.id,to:"paused"});
   return (await getComputerSession(input.ownerId,input.id))!;
 }
 
 export async function returnComputerControl(input:{ownerId:string;id:string;expectedVersion:number;requestedBy:string}):Promise<ComputerSessionView>{
   const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");if(session.control.controller!=="OWNER")throw new Error("Owner does not control this Computer session.");
-  const provider=liveSessionProviderFor(session.environmentType);let observation;try{observation=await provider.observe(session);}catch{await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Unable to safely return control"});throw new Error("Unable to safely return control. The Computer is paused.");}
+  const provider=liveSessionProviderFor(session.environmentType);let observation;try{await disableOwnerInput({ownerId:input.ownerId,sessionId:input.id,version:input.expectedVersion,requestedBy:input.requestedBy});await provider.releaseOwnerControl(session,input.expectedVersion);observation=await provider.observe(session);}catch(error){if(error instanceof LiveSessionLostError){await markComputerSessionLost(session,"Provider session was lost during Human Takeover");throw new Error("The live Computer session was lost. The Run requires recovery.");}await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Unable to safely return control"}).catch(()=>undefined);throw new Error("Unable to safely return control. The Computer is paused.");}
   const fingerprint=safeStateFingerprint(observation);const beforeFingerprint=await controlFingerprint(input.ownerId,input.id);const changed=beforeFingerprint!==null&&fingerprint!==beforeFingerprint;
   if(changed&&session.runId){
     const invalidated=await db().query(`UPDATE task_approval_decisions SET status='invalidated',decision_reason='Environment changed during Human Takeover' WHERE owner_id=$1 AND task_id=$2 AND status IN ('pending','approved') RETURNING id`,[input.ownerId,session.runId]) as Row[];
@@ -319,9 +325,32 @@ export async function returnComputerControl(input:{ownerId:string;id:string;expe
   }
   const agent=await getAgent(input.ownerId,session.agentId);if(!agent||agent.status!=="active"){await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Assigned Agent is unavailable"});throw new Error("Unable to resume the assigned Agent. The Computer is paused.");}
   try{await assertRunResumable(input.ownerId,session.runId);}catch{await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Run is not safe to resume"});throw new Error("Unable to safely resume the Run. The Computer is paused.");}
-  await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"returnControl",requestedBy:input.requestedBy,reason:"Environment re-observed; stale assumptions invalidated",stateFingerprint:fingerprint,checkpoint:{runId:session.runId,computerSessionId:session.id,browserSessionId:session.browser?.id??null,currentUrl:observation.currentUrl,browserStatus:observation.browserStatus,sessionStatus:observation.sessionStatus,observedAt:observation.observedAt}});
+  await db().query(`UPDATE browser_sessions SET current_url=$3,last_activity_at=now() WHERE computer_session_id=$1 AND id=$2`,[session.id,session.browser?.id??null,observation.currentUrl]);
+  await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"returnControl",requestedBy:input.requestedBy,reason:"Environment re-observed; stale assumptions invalidated",stateFingerprint:fingerprint,checkpoint:{runId:session.runId,agentId:session.agentId,computerSessionId:session.id,browserSessionId:session.browser?.id??null,providerSessionId:observation.providerSessionId,currentUrl:observation.currentUrl,browserStatus:observation.browserStatus,sessionStatus:observation.sessionStatus,lastVerifiedAction:await lastVerifiedActionId(session.id),artifactIds:session.artifacts.map(artifact=>artifact.id),controlVersion:input.expectedVersion,takeoverTransition:changed?"environment_changed":"environment_unchanged",observedAt:observation.observedAt}});
   if(session.status==="paused")await transitionComputerSession({ownerId:input.ownerId,id:input.id,to:"ready"});
   await resumeWaitingRun(input.ownerId,session.runId,"Owner returned control after safe re-observation");return (await getComputerSession(input.ownerId,input.id))!;
+}
+
+async function lastVerifiedActionId(sessionId:string):Promise<string|null>{const rows=await db().query(`SELECT id FROM computer_actions WHERE computer_session_id=$1 AND status='completed' ORDER BY completed_at DESC,id DESC LIMIT 1`,[sessionId]) as Row[];return rows[0]?text(rows[0].id):null;}
+
+async function markComputerSessionLost(session:ComputerSessionView,reason:string):Promise<void>{
+  await transitionComputerSession({ownerId:session.ownerId,id:session.id,to:"lost",failureCode:"provider_session_lost",failureSummary:reason});
+  if(session.runId)await db().query(`UPDATE task_runs SET status='paused',status_reason='Computer provider session lost; recovery required',updated_at=now() WHERE owner_id=$1 AND id=$2 AND status IN ('running','waiting_for_owner')`,[session.ownerId,session.runId]);
+}
+
+export async function getComputerLiveView(input:{ownerId:string;id:string;runId:string;browserSessionId:string}):Promise<LiveViewFrame>{
+  const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");
+  if(session.runId!==input.runId||session.browser?.id!==input.browserSessionId)throw new Error("Live view binding does not match this Run and Browser session.");
+  const provider=liveSessionProviderFor(session.environmentType);if(!provider.getCapabilities(session).liveView)throw new Error("Live view is not supported by the current Computer provider.");
+  try{return await provider.getLiveView(session);}catch(error){if(error instanceof LiveSessionLostError)await markComputerSessionLost(session,"Provider session disappeared while opening Live Computer");throw error;}
+}
+
+export async function sendComputerOwnerInput(input:{ownerId:string;id:string;runId:string;browserSessionId:string;controlVersion:number;requestedBy:string;ownerInput:OwnerInput}):Promise<void>{
+  const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");
+  if(session.runId!==input.runId||session.browser?.id!==input.browserSessionId)throw new Error("Owner input binding does not match this Run and Browser session.");
+  const provider=liveSessionProviderFor(session.environmentType);if(!provider.getCapabilities(session).ownerInput)throw new Error("Owner input is not supported by the current Computer provider.");
+  await beginOwnerInput({ownerId:input.ownerId,sessionId:input.id,browserSessionId:input.browserSessionId,runId:input.runId,version:input.controlVersion,requestedBy:input.requestedBy});
+  try{await provider.sendOwnerInput(session,input.controlVersion,input.ownerInput);}finally{await finishOwnerInput({ownerId:input.ownerId,sessionId:input.id,version:input.controlVersion});}
 }
 
 async function controlFingerprint(ownerId:string,id:string):Promise<string|null>{const rows=await db().query(`SELECT state_fingerprint FROM computer_control_leases WHERE owner_id=$1 AND computer_session_id=$2`,[ownerId,id]) as Row[];return nullableText(rows[0]?.state_fingerprint);}
@@ -350,17 +379,17 @@ export async function transitionComputerSession(input: {
   if (!canTransitionComputerSession(current.status, input.to)) {
     throw new Error(`Computer session cannot transition from ${current.status} to ${input.to}.`);
   }
-  if (input.to === "failed" && !input.failureCode) throw new Error("A failure code is required for failed sessions.");
-  const terminal = ["completed", "failed", "expired", "stopped"].includes(input.to);
+  if (["failed","lost"].includes(input.to) && !input.failureCode) throw new Error("A failure code is required for failed or lost sessions.");
+  const terminal = ["completed", "failed", "lost", "expired", "stopped"].includes(input.to);
   const failureSummary = input.failureSummary ? redactEvidenceText(input.failureSummary).slice(0, 1000) : null;
   await db().transaction((tx) => [
     tx`UPDATE computer_sessions SET status=${input.to},sandbox_id=coalesce(${input.sandboxId ?? null},sandbox_id),last_activity_at=now(),
        completed_at=CASE WHEN ${terminal} THEN now() ELSE NULL END,
-       failure_code=${input.to === "failed" ? input.failureCode ?? null : null},failure_summary=${input.to === "failed" ? failureSummary : null}
+       failure_code=${["failed","lost"].includes(input.to) ? input.failureCode ?? null : null},failure_summary=${["failed","lost"].includes(input.to) ? failureSummary : null}
        WHERE owner_id=${input.ownerId} AND id=${input.id}`,
     tx`UPDATE browser_sessions SET status=${input.to === "provisioning" ? "ready" : input.to},last_activity_at=now(),
        completed_at=CASE WHEN ${terminal} THEN now() ELSE NULL END WHERE computer_session_id=${input.id}`,
-    ...(terminal ? [tx`WITH previous AS (SELECT * FROM computer_control_leases WHERE computer_session_id=${input.id} AND controller<>'NONE'), changed AS (UPDATE computer_control_leases SET controller='NONE',version=version+1,claimed_by=NULL,claimed_at=NULL,heartbeat_at=NULL,expires_at=NULL,transition_reason=${`Computer session ${input.to}`},updated_at=now() WHERE computer_session_id=${input.id} AND controller<>'NONE' RETURNING *) INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason) SELECT ${`control_${randomUUID()}`},c.computer_session_id,c.owner_id,c.agent_id,c.run_id,${`control.session_${input.to}`},p.controller,'NONE',c.version,'system',${`Computer session ${input.to}`} FROM changed c JOIN previous p USING (computer_session_id)`] : []),
+    ...(terminal ? [tx`WITH previous AS (SELECT * FROM computer_control_leases WHERE computer_session_id=${input.id} AND controller<>'NONE'), changed AS (UPDATE computer_control_leases SET controller='NONE',version=version+1,claimed_by=NULL,claimed_at=NULL,heartbeat_at=NULL,expires_at=NULL,owner_input_enabled=false,transition_reason=${`Computer session ${input.to}`},updated_at=now() WHERE computer_session_id=${input.id} AND controller<>'NONE' RETURNING *) INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason) SELECT ${`control_${randomUUID()}`},c.computer_session_id,c.owner_id,c.agent_id,c.run_id,${`control.session_${input.to}`},p.controller,'NONE',c.version,'system',${`Computer session ${input.to}`} FROM changed c JOIN previous p USING (computer_session_id)`] : []),
     ...(terminal ? [tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,summary,payload)
        VALUES (${`event_${randomUUID()}`},${current.ownerId},${`COMPUTER_SESSION_${input.to.toUpperCase()}`},'computer_session',${current.id},${current.goalId},${current.taskId},${current.runId},${`Computer session ${input.to}`},${JSON.stringify({ agentId: current.agentId, failureCode: input.failureCode ?? null })}::jsonb)`] : []),
   ]);
@@ -370,6 +399,7 @@ export async function transitionComputerSession(input: {
 export async function stopComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
   const session=await getComputerSession(ownerId,id);if(!session)throw new Error("Computer session not found.");
   if(session.control.controller!=="NONE")await transitionComputerControl({ownerId,sessionId:id,expectedController:session.control.controller,expectedVersion:session.control.version,operation:"stop",requestedBy:ownerId,reason:"Computer session stopped by owner"});
+  await liveSessionProviderFor(session.environmentType).stopSession(session).catch(error=>{if(!(error instanceof LiveSessionLostError))throw error;});
   return transitionComputerSession({ ownerId, id, to: "stopped" });
 }
 

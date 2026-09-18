@@ -5,6 +5,7 @@ export const COMPUTER_SESSION_STATUSES = [
   "paused",
   "completed",
   "failed",
+  "lost",
   "expired",
   "stopped",
 ] as const;
@@ -43,7 +44,10 @@ export interface ComputerControlView {
     resume: boolean;
     ownerInput: boolean;
     screenCapture: boolean;
+    browserObservation: boolean;
+    persistentProfile: boolean;
   };
+  ownerInputEnabled: boolean;
 }
 
 export interface ComputerResourceLimits {
@@ -168,12 +172,13 @@ export interface ComputerSessionView {
 }
 
 const LEGAL_TRANSITIONS: Readonly<Record<ComputerSessionStatus, readonly ComputerSessionStatus[]>> = {
-  provisioning: ["ready", "failed", "expired", "stopped"],
-  ready: ["running", "paused", "completed", "failed", "expired", "stopped"],
-  running: ["ready", "paused", "completed", "failed", "expired", "stopped"],
-  paused: ["ready", "running", "completed", "failed", "expired", "stopped"],
+  provisioning: ["ready", "failed", "lost", "expired", "stopped"],
+  ready: ["running", "paused", "completed", "failed", "lost", "expired", "stopped"],
+  running: ["ready", "paused", "completed", "failed", "lost", "expired", "stopped"],
+  paused: ["ready", "running", "completed", "failed", "lost", "expired", "stopped"],
   completed: [],
   failed: [],
+  lost: [],
   expired: [],
   stopped: [],
 };
