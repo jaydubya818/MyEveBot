@@ -1,0 +1,4 @@
+import { apiError, requireDatabase } from "@/lib/api-errors";
+import { listApprovalRequests, type ApprovalStatus } from "@/lib/approvals";
+import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
+export async function GET(request:Request):Promise<Response>{const denied=requireWebAuth(request)??requireDatabase(request);if(denied)return denied;const raw=new URL(request.url).searchParams.get("status");const allowed=["pending","approved","denied","expired","invalidated"];if(raw!==null&&!allowed.includes(raw))return apiError(request,400,"invalid_approval_status","Unknown approval status.");const status=raw as ApprovalStatus|null;try{return Response.json({approvals:await listApprovalRequests(webPrincipal(request)!.id,status??undefined)},{headers:{"Cache-Control":"no-store"}});}catch(error){console.error("Approval Center read failed",error);return apiError(request,503,"approvals_unavailable","Approval Center is temporarily unavailable.");}}

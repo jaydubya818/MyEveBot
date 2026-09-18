@@ -27,12 +27,14 @@ import {
   UsersThreeIcon,
   TrashIcon,
   WarningCircleIcon,
+  ShieldCheckIcon,
 } from "@phosphor-icons/react";
 import type { Icon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 import type { CapabilityId, CapabilityStatus } from "@/lib/capabilities";
 import { AppearancePanel } from "@/components/appearance-panel";
+import { ApprovalCenterPanel } from "@/components/approval-center-panel";
 import { ControlCenterPanel } from "@/components/control-center-panel";
 import { AgentsPanel } from "@/components/agents-panel";
 import { ActivationPanel } from "@/components/activation-panel";
@@ -444,7 +446,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
+type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -566,6 +568,12 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
         label: "Control Center",
         description: "Live work and safe controls",
         icon: ControlIcon,
+      },
+      {
+        id: "approvals" as const,
+        label: "Approvals",
+        description: "Exact-action owner decisions",
+        icon: ShieldCheckIcon,
       },
       {
         id: "activity" as const,
@@ -782,13 +790,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "control" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
+    id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "control" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
+    id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -836,6 +844,8 @@ export function ManagePanel({
     sectionContent = <PhonePanel />;
   } else if (activeSection === "control") {
     sectionContent = <ControlCenterPanel onOpenThread={onOpenThread} />;
+  } else if (activeSection === "approvals") {
+    sectionContent = <ApprovalCenterPanel />;
   } else if (activeSection === "activity") {
     sectionContent = <><AgentActivity /><TaskRunsPanel onOpenThread={onOpenThread} /></>;
   } else if (activeSection === "appearance") {

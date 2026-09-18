@@ -20,19 +20,19 @@ Build the Control Center as an owner-scoped projection and control layer over th
 
 ### Enhancement 1 — Control Center foundation
 
-- [ ] Add one normalized, owner-scoped read model over Task Runs and their linked Agent, Goal, and Computer records.
-- [ ] Add Working, Waiting, Needs Approval, Failed, Completed, and All views with bounded server-side search and filters.
-- [ ] Show objective, executor, current state/action, explicit waiting reason, elapsed time, provider/session, cost, progress, and linked resources without fabricating unavailable values.
-- [ ] Add safe View, Pause, Resume, Cancel, and Retry controls using the canonical Task transition ledger.
-- [ ] Ensure Pause cooperatively cancels active Eve work before recording the paused checkpoint; Resume returns work to a queued checkpoint rather than pretending execution restarted.
-- [ ] Cover loading, empty, error, success, stale-state, and invalid-transition behavior.
+- [x] Add one normalized, owner-scoped read model over Task Runs and their linked Agent, Goal, and Computer records.
+- [x] Add Working, Waiting, Needs Approval, Failed, Completed, and All views with bounded server-side search and filters.
+- [x] Show objective, executor, current state/action, explicit waiting reason, elapsed time, provider/session, cost, progress, and linked resources without fabricating unavailable values.
+- [x] Add safe View, Pause, Resume, Cancel, and Retry controls using the canonical Task transition ledger.
+- [x] Ensure Pause cooperatively cancels active Eve work before recording the paused checkpoint; Resume returns work to a queued checkpoint rather than pretending execution restarted.
+- [x] Cover loading, empty, error, success, stale-state, and invalid-transition behavior.
 
 ### Enhancement 2 — Approval Center
 
-- [ ] Extend the existing task approval ledger into the canonical owner-scoped Approval Request contract.
-- [ ] Bind approval to exact run, resource, action, safe parameters, and expiry; changed actions require fresh approval.
-- [ ] Resolve ALLOW, REQUIRE_APPROVAL, and DENY deterministically from capability and policy data.
-- [ ] Add pending, approved, denied, expired, and invalidated states with auditable owner decisions and no stored secrets.
+- [x] Extend the existing task approval ledger into the canonical owner-scoped Approval Request contract.
+- [x] Bind approval to exact run, resource, action, safe parameters, and expiry; changed actions require fresh approval.
+- [x] Resolve ALLOW, REQUIRE_APPROVAL, and DENY deterministically from capability and policy data.
+- [x] Add pending, approved, denied, expired, and invalidated states with auditable owner decisions and no stored secrets.
 
 ### Enhancement 3 — Human Takeover and execution safety
 
