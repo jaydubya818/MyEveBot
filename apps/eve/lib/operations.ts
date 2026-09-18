@@ -65,7 +65,7 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
   const rows = await db().query(
     `SELECT
       (SELECT count(*) FROM eve_events WHERE owner_id=$1 AND type IN ('TURN_FAILED','SESSION_FAILED') AND occurred_at >= now()-interval '24 hours') AS failed_turns,
-      ((SELECT count(*) FROM task_runs WHERE owner_id=$1 AND ((status='running' AND (deadline_at < now() OR updated_at < now()-interval '30 minutes')) OR (status='awaiting_approval' AND deadline_at < now()))) +
+      ((SELECT count(*) FROM task_runs WHERE owner_id=$1 AND ((status='running' AND (deadline_at < now() OR updated_at < now()-interval '30 minutes')) OR (status IN ('awaiting_approval','waiting_for_owner') AND deadline_at < now()))) +
        (SELECT count(*) FROM agent_runs r JOIN agents a ON a.owner_id=r.owner_id AND a.id=r.agent_id WHERE r.owner_id=$1 AND r.status='running' AND r.started_at+(a.max_runtime_seconds*interval '1 second') < now())) AS stuck_runs,
       ((SELECT count(*) FROM computer_sessions WHERE owner_id=$1 AND status IN ('provisioning','ready','running','paused') AND expires_at <= now()) +
        (SELECT count(*) FROM computer_actions a JOIN computer_sessions s ON s.id=a.computer_session_id WHERE s.owner_id=$1 AND a.status='running' AND a.started_at < now()-interval '10 minutes')) AS orphaned_computers,
@@ -127,7 +127,7 @@ export async function runOperationsCleanup(now = new Date()): Promise<{
     db().query(
       `WITH candidates AS (
          SELECT id,owner_id,status FROM task_runs
-         WHERE status IN ('running','awaiting_approval') AND deadline_at < $1 FOR UPDATE
+         WHERE status IN ('running','awaiting_approval','waiting_for_owner') AND deadline_at < $1 FOR UPDATE
        ), changed AS (
          UPDATE task_runs r SET status='failed',status_reason='Run exceeded its runtime boundary.',completed_at=$1,updated_at=$1
          FROM candidates c WHERE r.id=c.id RETURNING r.id,r.owner_id,c.status AS from_status

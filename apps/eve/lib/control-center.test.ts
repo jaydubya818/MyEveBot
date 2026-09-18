@@ -7,6 +7,7 @@ describe("Control Center state projection", () => {
     ["running", "working"],
     ["queued", "waiting"],
     ["paused", "waiting"],
+    ["waiting_for_owner", "needs_owner"],
     ["awaiting_approval", "approval"],
     ["failed", "failed"],
     ["completed", "completed"],
@@ -19,6 +20,7 @@ describe("Control Center state projection", () => {
     expect(actionsForStatus("running")).toEqual(["view", "pause", "cancel"]);
     expect(actionsForStatus("awaiting_approval")).toEqual(["view", "pause", "cancel"]);
     expect(actionsForStatus("paused")).toEqual(["view", "resume", "cancel"]);
+    expect(actionsForStatus("waiting_for_owner")).toEqual(["view", "cancel"]);
     expect(actionsForStatus("failed")).toEqual(["view", "retry"]);
     expect(actionsForStatus("completed")).toEqual(["view"]);
   });

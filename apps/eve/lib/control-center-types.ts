@@ -1,6 +1,6 @@
 import type { TaskStatus } from "./task-types.ts";
 
-export const CONTROL_VIEWS = ["working", "waiting", "approval", "failed", "completed", "all"] as const;
+export const CONTROL_VIEWS = ["working", "waiting", "needs_owner", "approval", "failed", "completed", "all"] as const;
 export type ControlView = (typeof CONTROL_VIEWS)[number];
 
 export interface ControlRunView {
@@ -19,7 +19,7 @@ export interface ControlRunView {
   threadId: string | null;
   runtimeSessionId: string | null;
   provider: { execution: string; computer: string | null };
-  computer: { id: string; status: string } | null;
+  computer: { id: string; status: string; controller: string; controlVersion: number } | null;
   progress: { completed: number; total: number; label: string } | null;
   cost: { estimatedUsd: number | null; actualUsd: number | null };
   approvalsPending: number;

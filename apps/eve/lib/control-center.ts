@@ -13,6 +13,7 @@ function number(value: unknown): number { const parsed = Number(value); return N
 export function controlViewForStatus(status: TaskStatus): Exclude<ControlView, "all"> {
   if (status === "running") return "working";
   if (status === "awaiting_approval") return "approval";
+  if (status === "waiting_for_owner") return "needs_owner";
   if (status === "failed") return "failed";
   if (status === "completed" || status === "cancelled") return "completed";
   return "waiting";
@@ -21,16 +22,18 @@ export function controlViewForStatus(status: TaskStatus): Exclude<ControlView, "
 export function actionsForStatus(status: TaskStatus): ControlRunView["availableActions"] {
   if (status === "running" || status === "awaiting_approval") return ["view", "pause", "cancel"];
   if (status === "paused") return ["view", "resume", "cancel"];
+  if (status === "waiting_for_owner") return ["view", "cancel"];
   if (status === "failed") return ["view", "retry"];
   return ["view"];
 }
 
 function waitingReason(row: Row, status: TaskStatus): string | null {
   const explicit = nullableText(row.status_reason);
-  if ((status === "queued" || status === "paused" || status === "awaiting_approval") && explicit) return explicit;
+  if ((status === "queued" || status === "paused" || status === "awaiting_approval" || status === "waiting_for_owner") && explicit) return explicit;
   if (status === "queued") return "Queued for execution.";
   if (status === "paused") return "Paused by the owner at a durable checkpoint.";
   if (status === "awaiting_approval") return "Waiting for an owner approval.";
+  if (status === "waiting_for_owner") return "Sofie needs you to take over.";
   return null;
 }
 
@@ -65,7 +68,7 @@ export async function getControlCenter(input: {
   const countWhere = [...where];
   const countParams = [...params];
   const statusByView: Partial<Record<ControlView, string[]>> = {
-    working: ["running"], waiting: ["queued", "paused"], approval: ["awaiting_approval"],
+    working: ["running"], waiting: ["queued", "paused"], needs_owner:["waiting_for_owner"], approval: ["awaiting_approval"],
     failed: ["failed"], completed: ["completed", "cancelled"],
   };
   if (view !== "all") add("r.status = ANY(?::text[])", statusByView[view]);
@@ -75,7 +78,7 @@ export async function getControlCenter(input: {
   const rows = await db().query(
     `SELECT r.*, a.name AS agent_name, a.is_primary, g.title AS goal_title, gt.title AS goal_task_title,
        root.session_id AS runtime_session_id,
-       cs.id AS computer_id, cs.status AS computer_status, cs.environment_type,
+       cs.id AS computer_id, cs.status AS computer_status, cs.environment_type,cs.controller AS computer_controller,cs.control_version,
        milestone.summary AS current_action,
        (SELECT count(*)::int FROM task_approval_decisions ad WHERE ad.task_id=r.id AND ad.decision IS NULL) AS approvals_pending,
        (SELECT count(*)::int FROM task_acceptance_checks tc WHERE tc.task_id=r.id) AS progress_total,
@@ -85,7 +88,7 @@ export async function getControlCenter(input: {
      LEFT JOIN goals g ON g.id=r.goal_id
      LEFT JOIN goal_tasks gt ON gt.id=r.goal_task_id
      LEFT JOIN LATERAL (SELECT session_id FROM task_run_sessions trs WHERE trs.task_id=r.id AND trs.role='orchestrator' LIMIT 1) root ON true
-     LEFT JOIN LATERAL (SELECT id,status,environment_type FROM computer_sessions x WHERE x.owner_id=r.owner_id AND x.run_id=r.id ORDER BY x.last_activity_at DESC LIMIT 1) cs ON true
+     LEFT JOIN LATERAL (SELECT x.id,x.status,x.environment_type,l.controller,l.version AS control_version FROM computer_sessions x JOIN computer_control_leases l ON l.computer_session_id=x.id WHERE x.owner_id=r.owner_id AND x.run_id=r.id ORDER BY x.last_activity_at DESC LIMIT 1) cs ON true
      LEFT JOIN LATERAL (SELECT summary FROM task_milestones tm WHERE tm.task_id=r.id ORDER BY tm.created_at DESC,tm.id DESC LIMIT 1) milestone ON true
      WHERE ${where.join(" AND ")}
      ORDER BY r.updated_at DESC,r.id DESC LIMIT $${params.length}`,
@@ -117,7 +120,7 @@ export async function getControlCenter(input: {
       goalTask: row.goal_task_id == null ? null : { id: text(row.goal_task_id), title: nullableText(row.goal_task_title) ?? "Untitled task" },
       threadId: nullableText(row.thread_id), runtimeSessionId: nullableText(row.runtime_session_id),
       provider: { execution: "eve", computer: nullableText(row.environment_type) },
-      computer: row.computer_id == null ? null : { id: text(row.computer_id), status: text(row.computer_status) },
+      computer: row.computer_id == null ? null : { id: text(row.computer_id), status: text(row.computer_status), controller:text(row.computer_controller),controlVersion:number(row.control_version) },
       progress: progressTotal > 0
         ? { completed: number(row.progress_completed), total: progressTotal, label: "acceptance checks" }
         : number(row.max_model_steps) > 0

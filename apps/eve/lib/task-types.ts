@@ -4,6 +4,7 @@ export const TASK_STATUSES = [
   "queued",
   "running",
   "awaiting_approval",
+  "waiting_for_owner",
   "paused",
   "completed",
   "failed",
@@ -152,8 +153,9 @@ export interface TaskRunView {
 
 const LEGAL_TRANSITIONS: Readonly<Record<TaskStatus, readonly TaskStatus[]>> = {
   queued: ["running", "cancelled"],
-  running: ["awaiting_approval", "paused", "completed", "failed", "cancelled"],
+  running: ["awaiting_approval", "waiting_for_owner", "paused", "completed", "failed", "cancelled"],
   awaiting_approval: ["running", "paused", "failed", "cancelled"],
+  waiting_for_owner: ["running", "paused", "failed", "cancelled"],
   paused: ["queued", "cancelled"],
   completed: [],
   failed: ["queued"],

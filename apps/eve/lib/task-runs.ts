@@ -365,7 +365,7 @@ async function failTaskById(taskId: string, reason: string, actor = "system"): P
   const rows = (await db().query(
     `WITH current AS (
        SELECT id, status FROM task_runs
-       WHERE id = $1 AND status IN ('running', 'awaiting_approval')
+       WHERE id = $1 AND status IN ('running', 'awaiting_approval', 'waiting_for_owner')
        FOR UPDATE
      ), changed AS (
        UPDATE task_runs r

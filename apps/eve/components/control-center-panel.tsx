@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 const VIEW_LABELS: Record<ControlView, string> = {
   working: "Working", waiting: "Waiting", approval: "Needs approval",
-  failed: "Failed", completed: "Completed", all: "All",
+  needs_owner:"Needs You", failed: "Failed", completed: "Completed", all: "All",
 };
 
 function formatWhen(value: string | null): string {
@@ -124,6 +124,7 @@ export function ControlCenterPanel({ onOpenThread }: { onOpenThread: (threadId: 
                 </div>
                 <div className="flex shrink-0 flex-wrap gap-2">
                   {run.threadId && <Button size="sm" variant="secondary" icon={ChatCircleIcon} onClick={() => onOpenThread(run.threadId!)}>View</Button>}
+                  {run.computer && <a className="inline-flex h-8 items-center rounded-lg border border-kumo-line px-3 text-xs font-medium hover:bg-kumo-tint" href={`/computer?session=${encodeURIComponent(run.computer.id)}`}>Watch Computer</a>}
                   {run.availableActions.includes("pause") && <Button size="sm" variant="secondary" icon={PauseIcon} disabled={updatingId === run.id} onClick={() => void act(run, "pause")}>Pause</Button>}
                   {run.availableActions.includes("resume") && <Button size="sm" variant="secondary" icon={ArrowClockwiseIcon} disabled={updatingId === run.id} onClick={() => void act(run, "resume")}>Resume in chat</Button>}
                   {run.availableActions.includes("retry") && <Button size="sm" variant="secondary" icon={ArrowClockwiseIcon} disabled={updatingId === run.id} onClick={() => void act(run, "retry")}>Retry in chat</Button>}
@@ -139,7 +140,7 @@ export function ControlCenterPanel({ onOpenThread }: { onOpenThread: (threadId: 
                 <div><dt className="text-kumo-subtle">Progress</dt><dd className="mt-1 font-medium">{run.progress ? `${run.progress.completed}/${run.progress.total} ${run.progress.label}` : "Unknown"}</dd></div>
                 <div><dt className="text-kumo-subtle">Cost</dt><dd className="mt-1 font-medium">Est. {run.cost.estimatedUsd === null ? "unknown" : `$${run.cost.estimatedUsd.toFixed(2)}`} · actual unknown</dd></div>
               </dl>
-              <p className="mt-3 text-[11px] text-kumo-subtle">Updated {formatWhen(run.updatedAt)}{run.computer ? ` · Computer ${run.computer.status}` : ""}</p>
+              <p className="mt-3 text-[11px] text-kumo-subtle">Updated {formatWhen(run.updatedAt)}{run.computer ? ` · Computer ${run.computer.status} · Control ${run.computer.controller}` : ""}</p>
             </li>
           ))}
         </ul>

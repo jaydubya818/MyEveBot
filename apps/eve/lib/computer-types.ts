@@ -25,6 +25,26 @@ export const COMPUTER_ACTION_TYPES = [
 
 export type ComputerActionType = (typeof COMPUTER_ACTION_TYPES)[number];
 export type ComputerActionStatus = "running" | "completed" | "failed" | "denied" | "timed_out";
+export type ComputerController = "AGENT" | "OWNER" | "PAUSED" | "NONE";
+
+export interface ComputerControlView {
+  controller: ComputerController;
+  version: number;
+  provider: string;
+  claimedAt: string | null;
+  heartbeatAt: string | null;
+  expiresAt: string | null;
+  transitionReason: string | null;
+  viewFreshAt: string;
+  capabilities: {
+    liveView: boolean;
+    humanTakeover: boolean;
+    pause: boolean;
+    resume: boolean;
+    ownerInput: boolean;
+    screenCapture: boolean;
+  };
+}
 
 export interface ComputerResourceLimits {
   maxRuntimeSeconds: number;
@@ -106,6 +126,7 @@ export interface ComputerActionView {
   evidenceRefs: string[];
   failureCode: string | null;
   failureSummary: string | null;
+  controlVersion: number;
 }
 
 export interface BrowserSessionView {
@@ -143,6 +164,7 @@ export interface ComputerSessionView {
   browser: BrowserSessionView | null;
   actionCount: number;
   artifacts: ComputerArtifactView[];
+  control: ComputerControlView;
 }
 
 const LEGAL_TRANSITIONS: Readonly<Record<ComputerSessionStatus, readonly ComputerSessionStatus[]>> = {

@@ -15,6 +15,8 @@ import {
   type ComputerSessionView,
 } from "./computer-types.ts";
 import { redactEvidenceText } from "./task-types.ts";
+import { controlView, expireOwnerControlLeases, heartbeatOwnerControl, safeStateFingerprint, transitionComputerControl } from "./computer-control.ts";
+import { liveSessionCapabilitiesFor, liveSessionProviderFor } from "./live-session-provider.ts";
 
 type Row = Record<string, unknown>;
 
@@ -70,6 +72,7 @@ function actionView(row: Row): ComputerActionView {
     evidenceRefs: stringArray(row.evidence_refs),
     failureCode: nullableText(row.failure_code),
     failureSummary: nullableText(row.failure_summary),
+    controlVersion: number(row.control_version),
   };
 }
 
@@ -79,6 +82,7 @@ async function sessionView(row: Row): Promise<ComputerSessionView> {
     db().query(`SELECT * FROM computer_artifacts WHERE computer_session_id=$1 ORDER BY created_at,id`, [row.id]) as Promise<Row[]>,
   ]);
   const browser = browserRows[0];
+  const liveProvider = liveSessionProviderFor(text(row.environment_type) as ComputerSessionView["environmentType"]);
   return {
     id: text(row.id), ownerId: text(row.owner_id), agentId: text(row.agent_id), agentName: text(row.agent_name),
     goalId: nullableText(row.goal_id), goalTitle: nullableText(row.goal_title),
@@ -97,17 +101,21 @@ async function sessionView(row: Row): Promise<ComputerSessionView> {
       lastActivityAt: iso(browser.last_activity_at), completedAt: nullableIso(browser.completed_at),
     } : null,
     actionCount: number(row.action_count), artifacts: artifactRows.map(artifactView),
+    control: controlView(row, liveProvider.id, liveSessionCapabilitiesFor(text(row.environment_type) as ComputerSessionView["environmentType"])),
   };
 }
 
 const SESSION_SELECT = `
   SELECT s.*, a.name AS agent_name, g.title AS goal_title, t.title AS task_title, r.title AS run_title,
+         l.controller AS control_controller,l.version AS control_version,l.claimed_at AS control_claimed_at,
+         l.heartbeat_at AS control_heartbeat_at,l.expires_at AS control_expires_at,l.transition_reason AS control_transition_reason,
          (SELECT count(*)::int FROM computer_actions ca WHERE ca.computer_session_id=s.id) AS action_count
   FROM computer_sessions s
   JOIN agents a ON a.owner_id=s.owner_id AND a.id=s.agent_id
   LEFT JOIN goals g ON g.id=s.goal_id
   LEFT JOIN goal_tasks t ON t.id=s.goal_task_id
   LEFT JOIN task_runs r ON r.owner_id=s.owner_id AND r.id=s.run_id
+  JOIN computer_control_leases l ON l.computer_session_id=s.id AND l.owner_id=s.owner_id
 `;
 
 export async function expireComputerSessions(now = new Date()): Promise<number> {
@@ -119,6 +127,7 @@ export async function expireComputerSessions(now = new Date()): Promise<number> 
   ) as Row[];
   for (const row of rows) {
     await db().transaction((tx) => [
+      tx`WITH previous AS (SELECT * FROM computer_control_leases WHERE computer_session_id=${row.id} AND controller<>'NONE'), changed AS (UPDATE computer_control_leases SET controller='NONE',version=version+1,claimed_by=NULL,claimed_at=NULL,heartbeat_at=NULL,expires_at=NULL,transition_reason='Computer session expired',updated_at=now() WHERE computer_session_id=${row.id} AND controller<>'NONE' RETURNING *) INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason) SELECT ${`control_${randomUUID()}`},c.computer_session_id,c.owner_id,c.agent_id,c.run_id,'control.session_expired',p.controller,'NONE',c.version,'system','Computer session expired' FROM changed c JOIN previous p USING (computer_session_id)`,
       tx`UPDATE browser_sessions SET status='expired',completed_at=${now.toISOString()},last_activity_at=${now.toISOString()} WHERE computer_session_id=${row.id}`,
       tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,summary,payload)
          VALUES (${`event_${randomUUID()}`},${row.owner_id},'COMPUTER_SESSION_EXPIRED','computer_session',${row.id},${row.goal_id},${row.goal_task_id},${row.run_id},'Computer session expired',${JSON.stringify({ agentId: row.agent_id })}::jsonb)`,
@@ -194,6 +203,8 @@ export async function createComputerSession(input: {
     tx`INSERT INTO computer_sessions (id,owner_id,agent_id,goal_id,goal_task_id,run_id,runtime_session_id,status,environment_type,expires_at,resource_limits,network_policy)
        VALUES (${id},${input.ownerId},${input.agentId},${input.goalId ?? null},${input.taskId ?? null},${input.runId ?? null},${input.runtimeSessionId},'provisioning',${environmentType},${expiresAt},${JSON.stringify(limits)}::jsonb,${JSON.stringify(networkPolicy)}::jsonb)`,
     tx`INSERT INTO browser_sessions (id,computer_session_id,status) VALUES (${browserId},${id},'ready')`,
+    tx`INSERT INTO computer_control_leases (computer_session_id,owner_id,agent_id,run_id,controller,transition_reason)
+       VALUES (${id},${input.ownerId},${input.agentId},${input.runId ?? null},'AGENT','Computer session created')`,
     tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,summary,payload)
          VALUES (${`event_${randomUUID()}`},${input.ownerId},'COMPUTER_SESSION_STARTED','computer_session',${id},${input.goalId ?? null},${input.taskId ?? null},${input.runId ?? null},'Computer session started',${JSON.stringify({ agentId: input.agentId, environmentType, limits, allowedDomains })}::jsonb)`,
   ]);
@@ -202,12 +213,14 @@ export async function createComputerSession(input: {
 
 export async function getComputerSession(ownerId: string, id: string): Promise<ComputerSessionView | null> {
   await expireComputerSessions();
+  await expireOwnerControlLeases(ownerId);
   const rows = await db().query(`${SESSION_SELECT} WHERE s.owner_id=$1 AND s.id=$2 LIMIT 1`, [ownerId, id]) as Row[];
   return rows[0] ? sessionView(rows[0]) : null;
 }
 
 export async function getComputerSessionForRuntime(ownerId: string, runtimeSessionId: string): Promise<ComputerSessionView | null> {
   await expireComputerSessions();
+  await expireOwnerControlLeases(ownerId);
   const rows = await db().query(
     `${SESSION_SELECT} WHERE s.owner_id=$1 AND s.runtime_session_id=$2 ORDER BY s.started_at DESC LIMIT 1`,
     [ownerId, runtimeSessionId],
@@ -254,7 +267,10 @@ export async function activeComputerAgentId(ownerId: string, runtimeSessionId: s
 export async function pauseComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
   const session = await getComputerSession(ownerId, id);
   if (!session) throw new Error("Computer session not found.");
-  if (session.status === "paused") return session;
+  if (session.status === "provisioning") throw new Error("Computer session is still provisioning and cannot be paused yet.");
+  if (session.control.controller === "PAUSED" && session.status === "paused") return session;
+  await transitionComputerControl({ownerId,sessionId:id,expectedController:session.control.controller,expectedVersion:session.control.version,operation:"pause",requestedBy:ownerId,reason:"Paused by owner"});
+  if (session.status === "paused") return (await getComputerSession(ownerId,id))!;
   return transitionComputerSession({ ownerId, id, to: "paused" });
 }
 
@@ -263,11 +279,60 @@ export async function resumeComputerSession(ownerId: string, id: string): Promis
   if (!session) throw new Error("Computer session not found.");
   if (session.status !== "paused") throw new Error(`Computer session cannot resume from ${session.status}.`);
   if (new Date(session.expiresAt).getTime() <= Date.now()) throw new Error("Computer session has expired.");
-  return transitionComputerSession({ ownerId, id, to: "ready" });
+  if (session.control.controller !== "PAUSED") throw new Error(`Computer control cannot resume from ${session.control.controller}.`);
+  const agent=await getAgent(ownerId,session.agentId);if(!agent||agent.status!=="active")throw new Error("The assigned Agent is not active.");
+  await assertRunResumable(ownerId,session.runId);
+  await liveSessionProviderFor(session.environmentType).observe(session);
+  await transitionComputerControl({ownerId,sessionId:id,expectedController:"PAUSED",expectedVersion:session.control.version,operation:"resumeAgent",requestedBy:ownerId,reason:"Agent resumed after owner validation"});
+  const resumed=await transitionComputerSession({ ownerId, id, to: "ready" });await resumeWaitingRun(ownerId,resumed.runId,"Owner resumed Agent after validating the Computer session");return resumed;
 }
+
+export async function requestOwnerTakeover(input:{ownerId:string;id:string;agentId:string;reason:string}):Promise<ComputerSessionView>{
+  const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");if(session.status==="provisioning")throw new Error("Computer session is still provisioning and cannot request takeover yet.");if(session.agentId!==input.agentId)throw new Error("This Computer session belongs to another Agent.");if(session.control.controller!=="AGENT")throw new Error(`Takeover cannot be requested while control is ${session.control.controller}.`);
+  const reason=redactEvidenceText(input.reason).slice(0,500);
+  await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"AGENT",expectedVersion:session.control.version,operation:"requestOwnerTakeover",requestedBy:input.agentId,reason});
+  if(session.status!=="paused")await transitionComputerSession({ownerId:input.ownerId,id:input.id,to:"paused"});
+  if(session.runId)await db().transaction(tx=>[
+    tx`WITH changed AS (UPDATE task_runs SET status='waiting_for_owner',status_reason=${reason},updated_at=now() WHERE owner_id=${input.ownerId} AND id=${session.runId} AND status='running' RETURNING id) INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) SELECT id,'running','waiting_for_owner','agent',${reason} FROM changed`,
+    tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,severity,summary,payload,idempotency_key) VALUES (${`event_${randomUUID()}`},${input.ownerId},'control.takeover_requested','computer_control',${session.id},${session.goalId},${session.taskId},${session.runId},'attention','Sofie needs you to take over',${JSON.stringify({agentId:session.agentId,reason})}::jsonb,${`takeover-request:${session.id}:${session.control.version}`}) ON CONFLICT (owner_id,idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING`,
+  ]);
+  return (await getComputerSession(input.ownerId,input.id))!;
+}
+
+export async function takeOverComputerSession(input:{ownerId:string;id:string;expectedVersion:number;requestedBy:string}):Promise<ComputerSessionView>{
+  const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");
+  if(session.status==="provisioning")throw new Error("Computer session is still provisioning and cannot be controlled yet.");
+  const provider=liveSessionProviderFor(session.environmentType);if(!provider.capabilities.humanTakeover||!provider.capabilities.ownerInput)throw new Error("Human Takeover is not supported by the current Computer provider.");
+  const observation=await provider.observe(session);const fingerprint=safeStateFingerprint(observation);
+  await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:session.control.controller,expectedVersion:input.expectedVersion,operation:"takeOver",requestedBy:input.requestedBy,reason:"Human takeover",stateFingerprint:fingerprint});
+  if(session.status!=="paused")await transitionComputerSession({ownerId:input.ownerId,id:input.id,to:"paused"});
+  return (await getComputerSession(input.ownerId,input.id))!;
+}
+
+export async function returnComputerControl(input:{ownerId:string;id:string;expectedVersion:number;requestedBy:string}):Promise<ComputerSessionView>{
+  const session=await getComputerSession(input.ownerId,input.id);if(!session)throw new Error("Computer session not found.");if(session.control.controller!=="OWNER")throw new Error("Owner does not control this Computer session.");
+  const provider=liveSessionProviderFor(session.environmentType);let observation;try{observation=await provider.observe(session);}catch{await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Unable to safely return control"});throw new Error("Unable to safely return control. The Computer is paused.");}
+  const fingerprint=safeStateFingerprint(observation);const beforeFingerprint=await controlFingerprint(input.ownerId,input.id);const changed=beforeFingerprint!==null&&fingerprint!==beforeFingerprint;
+  if(changed&&session.runId){
+    const invalidated=await db().query(`UPDATE task_approval_decisions SET status='invalidated',decision_reason='Environment changed during Human Takeover' WHERE owner_id=$1 AND task_id=$2 AND status IN ('pending','approved') RETURNING id`,[input.ownerId,session.runId]) as Row[];
+    if(invalidated.length)await db().transaction(tx=>invalidated.map(row=>tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,severity,summary,payload) VALUES (${`event_${randomUUID()}`},${input.ownerId},'APPROVAL_INVALIDATED','approval_request',${text(row.id)},${session.goalId},${session.taskId},${session.runId},'attention','Approval invalidated after Human Takeover',${JSON.stringify({approvalId:text(row.id),computerSessionId:session.id,reason:"environment_changed"})}::jsonb)`));
+  }
+  const agent=await getAgent(input.ownerId,session.agentId);if(!agent||agent.status!=="active"){await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Assigned Agent is unavailable"});throw new Error("Unable to resume the assigned Agent. The Computer is paused.");}
+  try{await assertRunResumable(input.ownerId,session.runId);}catch{await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"pause",requestedBy:input.requestedBy,reason:"Run is not safe to resume"});throw new Error("Unable to safely resume the Run. The Computer is paused.");}
+  await transitionComputerControl({ownerId:input.ownerId,sessionId:input.id,expectedController:"OWNER",expectedVersion:input.expectedVersion,operation:"returnControl",requestedBy:input.requestedBy,reason:"Environment re-observed; stale assumptions invalidated",stateFingerprint:fingerprint,checkpoint:{runId:session.runId,computerSessionId:session.id,browserSessionId:session.browser?.id??null,currentUrl:observation.currentUrl,browserStatus:observation.browserStatus,sessionStatus:observation.sessionStatus,observedAt:observation.observedAt}});
+  if(session.status==="paused")await transitionComputerSession({ownerId:input.ownerId,id:input.id,to:"ready"});
+  await resumeWaitingRun(input.ownerId,session.runId,"Owner returned control after safe re-observation");return (await getComputerSession(input.ownerId,input.id))!;
+}
+
+async function controlFingerprint(ownerId:string,id:string):Promise<string|null>{const rows=await db().query(`SELECT state_fingerprint FROM computer_control_leases WHERE owner_id=$1 AND computer_session_id=$2`,[ownerId,id]) as Row[];return nullableText(rows[0]?.state_fingerprint);}
+async function assertRunResumable(ownerId:string,runId:string|null):Promise<void>{if(!runId)return;const rows=await db().query(`SELECT status,model_steps,max_model_steps,estimated_cost_usd,max_estimated_cost_usd FROM task_runs WHERE owner_id=$1 AND id=$2`,[ownerId,runId]) as Row[];const run=rows[0];if(!run||!["running","waiting_for_owner","paused","awaiting_approval"].includes(text(run.status)))throw new Error("The linked Run is not resumable.");if(number(run.model_steps)>=number(run.max_model_steps))throw new Error("The linked Run exhausted its model-step budget.");if(number(run.estimated_cost_usd)>=number(run.max_estimated_cost_usd))throw new Error("The linked Run exhausted its cost budget.");}
+async function resumeWaitingRun(ownerId:string,runId:string|null,reason:string):Promise<void>{if(!runId)return;await db().query(`WITH changed AS (UPDATE task_runs SET status='running',status_reason=NULL,updated_at=now() WHERE owner_id=$1 AND id=$2 AND status='waiting_for_owner' RETURNING id) INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) SELECT id,'waiting_for_owner','running','owner',$3 FROM changed`,[ownerId,runId,reason]);}
+
+export async function heartbeatComputerControl(input:{ownerId:string;id:string;version:number;requestedBy:string}):Promise<{version:number;expiresAt:string}>{await expireOwnerControlLeases(input.ownerId);return heartbeatOwnerControl({ownerId:input.ownerId,sessionId:input.id,version:input.version,requestedBy:input.requestedBy});}
 
 export async function listComputerSessions(ownerId: string, limit = 30): Promise<ComputerSessionView[]> {
   await expireComputerSessions();
+  await expireOwnerControlLeases(ownerId);
   const rows = await db().query(
     `${SESSION_SELECT} WHERE s.owner_id=$1 ORDER BY s.last_activity_at DESC,s.id DESC LIMIT $2`,
     [ownerId, Math.max(1, Math.min(100, limit))],
@@ -295,6 +360,7 @@ export async function transitionComputerSession(input: {
        WHERE owner_id=${input.ownerId} AND id=${input.id}`,
     tx`UPDATE browser_sessions SET status=${input.to === "provisioning" ? "ready" : input.to},last_activity_at=now(),
        completed_at=CASE WHEN ${terminal} THEN now() ELSE NULL END WHERE computer_session_id=${input.id}`,
+    ...(terminal ? [tx`WITH previous AS (SELECT * FROM computer_control_leases WHERE computer_session_id=${input.id} AND controller<>'NONE'), changed AS (UPDATE computer_control_leases SET controller='NONE',version=version+1,claimed_by=NULL,claimed_at=NULL,heartbeat_at=NULL,expires_at=NULL,transition_reason=${`Computer session ${input.to}`},updated_at=now() WHERE computer_session_id=${input.id} AND controller<>'NONE' RETURNING *) INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason) SELECT ${`control_${randomUUID()}`},c.computer_session_id,c.owner_id,c.agent_id,c.run_id,${`control.session_${input.to}`},p.controller,'NONE',c.version,'system',${`Computer session ${input.to}`} FROM changed c JOIN previous p USING (computer_session_id)`] : []),
     ...(terminal ? [tx`INSERT INTO eve_events (id,owner_id,type,source_type,source_id,goal_id,goal_task_id,run_id,summary,payload)
        VALUES (${`event_${randomUUID()}`},${current.ownerId},${`COMPUTER_SESSION_${input.to.toUpperCase()}`},'computer_session',${current.id},${current.goalId},${current.taskId},${current.runId},${`Computer session ${input.to}`},${JSON.stringify({ agentId: current.agentId, failureCode: input.failureCode ?? null })}::jsonb)`] : []),
   ]);
@@ -302,6 +368,8 @@ export async function transitionComputerSession(input: {
 }
 
 export async function stopComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
+  const session=await getComputerSession(ownerId,id);if(!session)throw new Error("Computer session not found.");
+  if(session.control.controller!=="NONE")await transitionComputerControl({ownerId,sessionId:id,expectedController:session.control.controller,expectedVersion:session.control.version,operation:"stop",requestedBy:ownerId,reason:"Computer session stopped by owner"});
   return transitionComputerSession({ ownerId, id, to: "stopped" });
 }
 
@@ -317,6 +385,7 @@ export async function assertComputerCapability(input: {
   if (!agent) throw new Error("Computer session Agent not found.");
   const decision = effectiveCapability(agent, input.capabilityId);
   if (!decision.allowed) throw new Error(decision.reason ?? `Capability ${input.capabilityId} is not allowed.`);
+  if (session.control.controller !== "AGENT") throw new Error(`Computer control belongs to ${session.control.controller.toLowerCase()}; Agent actions are paused.`);
   return { agent, session };
 }
 
@@ -370,10 +439,24 @@ export async function recordComputerActionRequested(input: {
     throw new Error(`Computer session reached its browser action limit (${session.resourceLimits.maxBrowserActions}).`);
   }
   const id = `computer_action_${randomUUID()}`;
-  await db().transaction((tx) => [
-    tx`INSERT INTO computer_actions (id,computer_session_id,run_id,agent_id,call_id,type,target,input_summary)
-       VALUES (${id},${session.id},${session.runId},${session.agentId},${input.callId},${type},${actionTarget(input.toolInput)},${summarizeComputerActionInput(input.toolName, input.toolInput)})
-       ON CONFLICT (computer_session_id,call_id) DO NOTHING`,
+  const admitted=await db().query(`WITH authority AS (
+    UPDATE computer_control_leases l SET version=l.version+1,updated_at=now()
+    FROM computer_sessions s
+    WHERE l.computer_session_id=$2 AND l.owner_id=$9 AND l.agent_id=$4 AND l.controller='AGENT'
+      AND s.id=l.computer_session_id AND s.owner_id=l.owner_id
+      AND s.status IN ('ready','running') AND s.expires_at>now()
+    RETURNING l.version
+  ), inserted AS (
+    INSERT INTO computer_actions (id,computer_session_id,run_id,agent_id,call_id,type,target,input_summary,control_version)
+    SELECT $1,$2,$3,$4,$5,$6,$7,$8,authority.version FROM authority
+    ON CONFLICT (computer_session_id,call_id) DO NOTHING RETURNING id
+  ) SELECT id FROM inserted`,[id,session.id,session.runId,session.agentId,input.callId,type,actionTarget(input.toolInput),summarizeComputerActionInput(input.toolName,input.toolInput),input.ownerId]) as Row[];
+  if(!admitted[0]){
+    const duplicate=await db().query(`SELECT id FROM computer_actions WHERE computer_session_id=$1 AND call_id=$2 LIMIT 1`,[session.id,input.callId]) as Row[];
+    if(!duplicate[0])throw new Error("Agent action rejected because interactive control changed.");
+    return;
+  }
+  await db().transaction((tx)=>[
     tx`UPDATE computer_sessions SET status='running',last_activity_at=now() WHERE id=${session.id} AND status IN ('ready','running')`,
     tx`UPDATE browser_sessions SET status='running',last_activity_at=now() WHERE computer_session_id=${session.id} AND ${type.startsWith("browser.")}`,
   ]);
@@ -417,6 +500,7 @@ export async function recordComputerArtifact(input: {
 }): Promise<ComputerArtifactView> {
   const session = await getComputerSession(input.ownerId, input.sessionId);
   if (!session) throw new Error("Computer session not found.");
+  if (input.kind === "screenshot" && session.control.controller === "OWNER") throw new Error("Screenshot capture is suppressed during owner control.");
   if (input.sizeBytes > session.resourceLimits.maxFileBytes) throw new Error(`Artifact exceeds the ${session.resourceLimits.maxFileBytes}-byte session limit.`);
   if (input.actionId) {
     const rows = await db().query(`SELECT id FROM computer_actions WHERE computer_session_id=$1 AND id=$2 LIMIT 1`, [session.id, input.actionId]) as Row[];

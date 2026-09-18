@@ -17,5 +17,5 @@ Capture meaningful checkpoints with \`record_computer_artifact\`—final reports
 
 The same durable Eve session reconnects to its existing Computer state across turns and deploys. If that Computer is terminal or expired and work remains, use \`recover_computer_session\` to start a fresh isolated session with the prior task lineage and allowlist; inspect prior artifacts first so completed work is not repeated.
 
-When owner input, MFA, or a sensitive form is required, use \`manage_computer_session\` with \`pause_for_takeover\` and explain the exact blocked step. Paused sessions deny all browser, file, and terminal actions. Resume only after the owner says takeover is complete, then re-check the page state before continuing.
+When owner input, MFA, or a sensitive form is required, use \`manage_computer_session\` with \`pause_for_takeover\` and explain the exact blocked step. Paused sessions deny all browser, file, and terminal actions. Only the owner can return control or resume the session; after that, re-check the page state before continuing.
 ` });

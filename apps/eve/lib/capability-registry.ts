@@ -228,6 +228,23 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     source: { type: "builtin", reference: "lib/computer-sessions.ts" },
     keywords: ["computer", "session", "stop", "cleanup"],
   }),
+  platform("computer.observe", "Observe computer sessions", "computer", "Read safe session, browser, resource, artifact, and control metadata without acquiring authority.", {
+    feature: "browser", configuration: ["DATABASE_URL"], permissions: ["computer.observe"],
+    dependencies: ["computer.session.create"], source: { type: "builtin", reference: "lib/live-session-provider.ts" },
+    keywords: ["computer", "watch", "observe", "live", "status"],
+  }),
+  platform("computer.pause", "Pause computer authority", "computer", "Revoke Agent interactive authority while preserving the execution environment.", {
+    feature: "browser", configuration: ["DATABASE_URL"], permissions: ["computer.pause"],
+    risk: { level: "medium", categories: ["execution-control"] }, approvalPolicy: { mode: "owner_policy" },
+    dependencies: ["computer.session.create"], source: { type: "builtin", reference: "lib/computer-control.ts" },
+    keywords: ["computer", "pause", "authority", "control"],
+  }),
+  platform("computer.takeover", "Human Takeover", "computer", "Transfer exclusive session-bound interactive control to the authenticated owner.", {
+    feature: "browser", configuration: ["DATABASE_URL", "SESSION_BOUND_OWNER_INPUT_PROVIDER"], permissions: ["computer.takeover", "computer.owner_input", "computer.return_control"],
+    risk: { level: "high", categories: ["credential-boundary", "execution-control"] }, approvalPolicy: { mode: "owner_policy" },
+    dependencies: ["computer.session.create"], source: { type: "builtin", reference: "lib/live-session-provider.ts" },
+    keywords: ["computer", "takeover", "owner input", "mfa", "login", "return control"],
+  }),
   platform("browser.navigate", "Browser navigation", "browser", "Navigate the isolated browser to public web pages.", {
     feature: "browser", configuration: ["DATABASE_URL"], permissions: ["browser.navigate"],
     risk: { level: "low", categories: ["external-read"] }, dependencies: ["computer.browser"],
@@ -377,7 +394,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("persistent-agent-policy", { description: "Enforce persistent Agent lifecycle, capability, availability, and risk boundaries at execution time.", permissions: ["agents.enforce"], configuration: ["DATABASE_URL"], dependencies: ["database.neon"], keywords: ["agent", "policy", "capability", "security"] }),
   tool("start_computer_session", { description: "Provision the current Agent's isolated computer session.", permissions: ["computer.session.create"], risk: "medium", riskCategories: ["delegated-execution"], approval: "owner_policy", configuration: ["DATABASE_URL"], dependencies: ["computer.session.create"], keywords: ["computer", "session", "start"] }),
   tool("get_computer_session", { description: "Inspect the current Agent's computer session, actions, and artifacts.", permissions: ["computer.session.read"], configuration: ["DATABASE_URL"], dependencies: ["computer.session.create"], keywords: ["computer", "session", "inspect"] }),
-  tool("manage_computer_session", { description: "Pause an Agent computer for owner takeover or resume it afterward.", permissions: ["computer.session.stop"], risk: "medium", riskCategories: ["delegated-execution"], approval: "owner_policy", configuration: ["DATABASE_URL"], dependencies: ["computer.session.create"], keywords: ["computer", "pause", "resume", "takeover", "mfa"] }),
+  tool("manage_computer_session", { description: "Pause an Agent computer and request owner takeover for sensitive input.", permissions: ["computer.session.stop"], risk: "medium", riskCategories: ["delegated-execution"], approval: "owner_policy", configuration: ["DATABASE_URL"], dependencies: ["computer.session.create"], keywords: ["computer", "pause", "takeover", "mfa"] }),
   tool("recover_computer_session", { description: "Recover failed, expired, or stopped computer work in a fresh isolated session with preserved lineage.", permissions: ["computer.session.create"], risk: "medium", riskCategories: ["delegated-execution"], approval: "owner_policy", configuration: ["DATABASE_URL"], dependencies: ["computer.session.create"], keywords: ["computer", "recover", "retry", "reconnect"] }),
   tool("stop_computer_session", { description: "Stop the current Agent's computer session and revoke further actions.", permissions: ["computer.session.stop"], configuration: ["DATABASE_URL"], dependencies: ["computer.session.stop"], keywords: ["computer", "session", "stop"] }),
   tool("record_computer_artifact", { description: "Persist a meaningful computer-session artifact or evidence checkpoint.", permissions: ["files.write", "evidence.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "BLOB_READ_WRITE_TOKEN"], dependencies: ["files.write", "storage.blob"], evidence: { supported: true, required: false, types: ["screenshot", "download", "report", "file", "log", "json"] }, keywords: ["computer", "artifact", "evidence", "screenshot"] }),

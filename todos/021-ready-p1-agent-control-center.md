@@ -36,10 +36,12 @@ Build the Control Center as an owner-scoped projection and control layer over th
 
 ### Enhancement 3 — Human Takeover and execution safety
 
-- [ ] Add exclusive AGENT, OWNER, PAUSED, and NONE controller ownership for Computer sessions.
+- [x] Add exclusive AGENT, OWNER, PAUSED, and NONE controller ownership for Computer sessions.
 - [ ] Implement Take Over, Return Control, Stop, and disconnect-to-PAUSED behavior without concurrent control.
-- [ ] Require re-observation and replanning before an Agent resumes after owner control.
-- [ ] Add leases, heartbeats, and idempotency enforcement for consequential actions.
+- [x] Require re-observation and stale-approval invalidation before an Agent resumes after owner control.
+- [x] Add versioned leases, bounded heartbeats, and stale-action rejection for consequential actions.
+
+The control boundary and provider-neutral takeover lifecycle are implemented. The current metadata-only Computer provider truthfully reports Human Takeover as unsupported; completing the unchecked item requires a session-bound live-view and owner-input provider rather than connecting the unrelated legacy noVNC surface by Agent identity.
 
 ### Enhancement 4 — Run explorer, recovery, and provider seams
 
