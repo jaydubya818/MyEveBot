@@ -1,6 +1,6 @@
 # Rebased MyEve × Relay qualification — 2026-09-19
 
-**MYEVE FEDERATION REBASED AND QUALIFIED — READY FOR MERGE**
+**MYEVE FEDERATION INTEGRATION INCOMPLETE** — technical qualification passed; PR creation is blocked by the unpublished canonical remote base.
 
 This is local integration qualification. Federation remains disabled by default.
 The original qualification is preserved verbatim below; its results and migration
@@ -21,7 +21,7 @@ number describe the old branch only.
    original/current canonical HEAD `4d3f1eb685422fc77296cef245e84c5b09da6e91`.
    `git fetch origin --prune` completed before authority selection. Canonical
    checkout was clean. No remote `codex/openbot` existed at fetch; the exact
-   canonical commit will be published as a new base ref for the PR, without rewriting it.
+   canonical remote base creation was rejected by automatic approval review; local history is unchanged.
 2. **Original federation.** `feat/relay-federation-adapter` at
    `c92fd204c690c68b067d58dd6380aa23f95130d1`; merge base
    `74fee5b1fdc8ec7c705a9087d9bdf58992b8f27c`.
@@ -122,17 +122,21 @@ number describe the old branch only.
     fixture initially mishandled valid multi-statement DDL; its proxy now returns
     the final PostgreSQL result while executing all statements in the normal
     migration transaction. Historical SQL was not edited to accommodate the fixture.
-22. **PR status.** Local merge-readiness gates passed. Publish the qualified branch
-    and exact canonical base, open a PR targeting `codex/openbot`, and wait for
-    repository checks. No automatic merge, branch-protection bypass, deployment,
-    production migration or default enablement is authorized by this result.
+22. **PR status.** Feature branch published to `origin/feat/relay-federation-adapter`.
+    GitHub confirms the required `origin/codex/openbot` base is absent (HTTP 404).
+    Automatic approval review rejected creating that canonical remote ref because
+    it considered authorization limited to publishing the feature branch. Explicit
+    approval to publish exact canonical commit `4d3f1eb685422fc77296cef245e84c5b09da6e91`
+    was requested and remains pending. No PR was opened against a substitute base,
+    no protected checks were bypassed, and nothing was merged or deployed.
 23. **Production gates.** Independent security review and production/multiple-real-
     platform acceptance remain NOT_RUN. Existing canonical blocked transports and
     routine release restrictions remain separate gates. Historical browser evidence
     is preserved; this rebase reran the complete network golden path and builds,
     not the prior seven browser interactions.
-24. **Verdict.** **MYEVE FEDERATION REBASED AND QUALIFIED — READY FOR MERGE**,
-    subject to the PR's required checks/review. This does not mean merged or production-ready.
+24. **Verdict.** **MYEVE FEDERATION INTEGRATION INCOMPLETE**. Rebase and all local
+    qualification gates passed, but the requested PR and its checks await the missing
+    canonical remote base. This is an approval/publication blocker, not a failing runtime proof.
 
 ## Preserved original qualification
 
