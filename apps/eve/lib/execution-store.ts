@@ -67,10 +67,18 @@ export class ExecutionStore {
     if (!workerId || !Number.isInteger(leaseSeconds) || leaseSeconds < 1 || leaseSeconds > 300) throw new Error("Invalid worker lease.");
     const rows = await this.database.query(`WITH candidate AS MATERIALIZED (
       SELECT o.id FROM execution_occurrences o JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
-      WHERE o.owner_id=$1 AND o.status IN ('pending','retrying') AND o.next_attempt_at<=now()
+      WHERE o.owner_id=$1 AND (o.status IN ('pending','retrying') OR (o.status='waiting' AND o.failure_category='approval_required'
+        AND EXISTS(SELECT 1 FROM routine_pending_sends s
+          JOIN action_requests a ON a.owner_id=s.owner_id AND a.id=s.action_id
+          JOIN task_approval_decisions p ON p.owner_id=a.owner_id AND p.id=a.approval_id
+          JOIN task_runs t ON t.owner_id=s.owner_id AND t.id=s.run_id
+          WHERE s.owner_id=o.owner_id AND s.run_id=o.run_id AND t.thread_id IS NOT NULL
+            AND a.status='awaiting_approval' AND p.status='approved' AND p.expires_at>now()
+            AND p.binding_hash=a.parameter_hash))) AND o.next_attempt_at<=now()
         AND o.scheduled_for<=now() AND r.status='active' AND r.version=o.routine_version
         AND NOT EXISTS(SELECT 1 FROM action_requests a WHERE a.owner_id=o.owner_id AND a.run_id=o.run_id
-          AND a.action_class<>'read' AND a.status IN ('executing','verifying','completed','result_unknown'))
+          AND a.action_class<>'read' AND (a.status IN ('executing','verifying','result_unknown','recovering','needs_you')
+            OR (a.status='completed' AND o.status<>'waiting')))
       ORDER BY o.scheduled_for,o.id FOR UPDATE OF o SKIP LOCKED LIMIT 1
     ), claimed AS (
       UPDATE execution_occurrences o SET status='running',claimed_by=$2,claimed_at=now(),heartbeat_at=now(),

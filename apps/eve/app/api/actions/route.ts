@@ -11,7 +11,7 @@ export async function GET(request:Request):Promise<Response> {
   try {
     const rows=await db().query(`SELECT a.id,a.run_id,a.capability_id,a.action_class,a.target,a.safe_summary,a.status,
       a.decision,a.reason_code,a.authority_source,a.approval_id,a.provider_receipt,a.executor,a.trigger,a.created_at,
-      a.attempt_count,a.recovery_result,a.updated_at,
+      a.attempt_count,a.recovery_result,a.updated_at::text AS updated_at,
       (SELECT coalesce(jsonb_agg(jsonb_build_object('event',h.event,'attempt',h.attempt_number,'details',h.details,'at',h.created_at) ORDER BY h.created_at),'[]'::jsonb) FROM action_receipts h WHERE h.owner_id=a.owner_id AND h.action_id=a.id) AS history,
       r.title AS run_title,r.status AS run_status,g.name AS executor_name,o.routine_id,o.routine_version
       FROM action_requests a JOIN task_runs r ON r.owner_id=a.owner_id AND r.id=a.run_id

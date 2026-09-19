@@ -1,10 +1,10 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 
-import { emailSendAdapter } from "../../lib/action-adapters.ts";
-import { ActionGateway } from "../../lib/action-gateway.ts";
+import { agentMailSendAdapter } from "../lib/email-send-adapter.ts";
+import { RoutinePendingSend } from "../../lib/routine-pending-send.ts";
+import { ActionBlocked,ActionGateway } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "../lib/action-context.ts";
-import { existingEmailAccount,inspectBoundMessage,sendBoundMessage,type SendInput } from "../lib/agentmail";
 import { agentName,ownerName } from "../lib/owner";
 import { ownerOnly } from "../lib/owner-gate";
 
@@ -28,16 +28,13 @@ export default defineTool({
   }),
   async execute({ to, subject, text, cc, bcc, html }, ctx) {
     const action=await toolActionRequest(ctx,{capabilityId:"tool.send_email",actionClass:"send",parameters:{to,subject,text,html,cc,bcc}});
-    return new ActionGateway().execute(action,emailSendAdapter("agentmail",{
-      resolveAccount:existingEmailAccount,
-      async send(parameters,context) {
-        const result=await sendBoundMessage(parameters as unknown as SendInput,context);
-        return {messageId:result.message_id,threadId:result.thread_id};
-      },
-      async inspect(account,messageId) {
-        const message=await inspectBoundMessage(account,messageId);
-        return {messageId:message.message_id,threadId:message.thread_id,account:message.inbox_id};
-      },
-    }),ctx.abortSignal);
+    try {return await new ActionGateway().execute(action,agentMailSendAdapter(),ctx.abortSignal);}
+    catch(error) {
+      if(error instanceof ActionBlocked) {
+        if(error.status==="awaiting_approval" && action.occurrence)await new RoutinePendingSend().save(action,error.actionId);
+        return {status:error.status,actionId:error.actionId,message:error.message,canEscalate:false};
+      }
+      throw error;
+    }
   },
 });

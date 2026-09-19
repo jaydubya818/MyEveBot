@@ -2,7 +2,7 @@
 export const ROUTINE_RELEASE = Object.freeze({
   enabled:false,
   recommendation:"MUST_REMAIN_DISABLED" as const,
-  blockers:["Owner live-input transport remains blocked", "End-to-end runtime/provider acceptance has not been authorized"],
+  blockers:["Representative real-provider qualification has not been authorized or completed"],
 });
 export type ExecutorClassification="ENFORCED"|"BLOCKED"|"READ_ONLY"|"INTERNAL"|"NOT_APPLICABLE";
 export function evaluateRoutineReachability(input:{

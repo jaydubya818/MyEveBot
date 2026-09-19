@@ -17,6 +17,27 @@ export type RecoveryStatus="completed"|"retryable"|"needs_you";
 export class ActionRecovery {
   private database:ExecutionDatabase;
   constructor(database:ExecutionDatabase=db() as ExecutionDatabase){this.database=database;}
+  /** Owner attestation is recorded separately from provider verification. Never transmits. */
+  async resolveByOwner(ownerId:string,actionId:string,decision:"occurred"|"not_occurred"|"cancel",expectedUpdatedAt:string):Promise<string|null> {
+    const status=decision==="occurred"?"completed":decision==="not_occurred"?"retryable":"cancelled";
+    const result=decision==="occurred"?"succeeded":decision==="not_occurred"?"not_executed":"indeterminate";
+    const rows=await this.database.query(`WITH resolved AS (
+      UPDATE action_requests SET status=$4,
+        recovery_result=jsonb_build_object('originalAction',id,'originalAttempt',attempt_count,
+          'strategy','owner_attestation.v1','result',$5::text,'ownerDecision',$3::text,
+          'decidedBy',owner_id,'decidedAt',now(),'anotherExecutionOccurred',false),
+        approval_id=CASE WHEN $4='retryable' THEN NULL ELSE approval_id END,updated_at=now()
+      WHERE owner_id=$1 AND id=$2 AND status='needs_you' AND updated_at=$6::timestamptz RETURNING *
+    ), receipt AS (
+      INSERT INTO action_receipts(owner_id,action_id,attempt_number,event,details)
+      SELECT owner_id,id,attempt_count,'owner_resolution',recovery_result FROM resolved
+    ), released AS (
+      UPDATE computer_control_leases c SET gateway_actions_in_flight=greatest(0,gateway_actions_in_flight-1)
+      FROM resolved a WHERE c.owner_id=a.owner_id AND c.computer_session_id=a.computer_session_id
+        AND c.version=a.control_version AND a.status IN ('completed','retryable')
+    ) SELECT status FROM resolved`,[ownerId,actionId,decision,status,result,expectedUpdatedAt]);
+    return rows[0]?String(rows[0].status):null;
+  }
   async recover(ownerId:string,actionId:string,resolve:(capability:string,provider:string)=>RecoveryStrategy):Promise<RecoveryStatus|null> {
     const token=randomUUID();
     // An executing worker may still be alive. Wait beyond its 30s handle TTL;

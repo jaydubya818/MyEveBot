@@ -36,6 +36,14 @@ export function ActionAuthorityPanel() {
       setNotice(body.status==="completed"?"Provider evidence confirmed completion. Nothing was resent.":body.status==="retryable"?"The provider proved this attempt did not execute. Submit the original request again for fresh authorization.":"Provider state is still uncertain. Review it manually; do not resend.");await load();
     }catch(error){setNotice(error instanceof Error?error.message:"Recovery failed. Nothing was resent.");}finally{setRecovering(null);}
   };
+  const resolve=async(action:ActionRow,decision:"occurred"|"not_occurred"|"cancel")=>{
+    setRecovering(action.id);setNotice(null);
+    try {
+      const response=await fetch(`/api/actions/${encodeURIComponent(action.id)}/resolve`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({decision,expectedUpdatedAt:action.updated_at})});
+      const body=await response.json();if(!response.ok)throw new Error(body.error?.message??"Your decision could not be saved.");
+      setNotice("Your decision was recorded. No action was sent. Any retry still requires current authorization.");await load();
+    }catch(error){setNotice(error instanceof Error?error.message:"Your decision could not be saved.");}finally{setRecovering(null);}
+  };
   useEffect(()=>{const controller=new AbortController();void load(controller.signal);return()=>controller.abort();},[load]);
   return <section className="mb-8" aria-labelledby="action-authority-title">
     <div className="flex items-center justify-between gap-3"><h3 id="action-authority-title" className="text-base font-semibold">Action authority</h3>
@@ -48,9 +56,14 @@ export function ActionAuthorityPanel() {
         <div className="flex flex-wrap justify-between gap-2"><h4 className="font-medium">{action.capability_name??action.capability_id}</h4><span className="text-sm">{statuses[action.status]??action.status}</span></div>
         <p className="mt-1 text-sm">{action.run_title} · {action.executor_name??action.executor.kind} · {triggerNames[action.trigger.kind??""]??action.trigger.kind}{action.routine_version?` · Routine v${action.routine_version}`:""}</p>
         <p className="mt-2 break-words text-sm text-kumo-subtle">{action.target.provider} / {action.target.account} / {action.target.resource}</p>
-        <p className="mt-2 text-sm">{action.status==="completed"?"Provider evidence confirmed this action completed.":action.status==="retryable"?"The provider proved this attempt did not execute.":["result_unknown","needs_you","recovering"].includes(action.status)?"The result needs verification. This action will not be sent again automatically.":reasons[action.reason_code]??"Review the recorded authority and result."}</p>
+        <p className="mt-2 text-sm">{action.status==="cancelled"?"This action was cancelled. Cancellation does not prove whether the earlier provider request completed.":action.status==="completed"?(action.recovery_result?.strategy==="owner_attestation.v1"?"You confirmed this action occurred.":"Provider evidence confirmed this action completed."):action.status==="retryable"?(action.recovery_result?.strategy==="owner_attestation.v1"?"You confirmed this action did not occur.":"The provider proved this attempt did not execute."):["result_unknown","needs_you","recovering"].includes(action.status)?"The provider may have accepted this action, but MyEve cannot prove the result. Check provider state before another send.":reasons[action.reason_code]??"Review the recorded authority and result."}</p>
         {(["result_unknown","needs_you"].includes(action.status) || (["executing","verifying"].includes(action.status)&&Date.now()-Date.parse(action.updated_at)>120_000))&&<div className="mt-3"><Button size="sm" variant="secondary" disabled={recovering!==null} onClick={()=>void recover(action.id)}>{recovering===action.id?"Inspecting provider…":"Recover"}</Button><p className="mt-1 text-xs text-kumo-subtle">Inspect provider state. This does not send the action again.</p></div>}
-        {action.status==="retryable"&&<p className="mt-3 text-sm">The provider confirmed this attempt did not execute. To retry, submit the original request again. Current authority and any required approval will be checked again.</p>}
+        {action.status==="needs_you"&&<div className="mt-3 space-y-2"><p className="text-sm">Check the provider first. Record what you found; these buttons do not send anything.</p><div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="secondary" disabled={recovering!==null} onClick={()=>void resolve(action,"occurred")}>Mark as done</Button>
+          <Button size="sm" variant="secondary" disabled={recovering!==null} onClick={()=>void resolve(action,"not_occurred")}>Mark as not done</Button>
+          <Button size="sm" variant="secondary" disabled={recovering!==null} onClick={()=>void resolve(action,"cancel")}>Cancel action</Button>
+        </div></div>}
+        {action.status==="retryable"&&<p className="mt-3 text-sm">This attempt was resolved as not executed. To retry, submit the original request again. Current authority and any required approval will be checked again.</p>}
         {action.approval_id&&action.status==="awaiting_approval"&&<a className="mt-2 inline-block text-sm underline" href="/manage/approvals">Review in Approval Center</a>}
         {<details className="mt-3 text-xs"><summary className="cursor-pointer">Authority, attempts and evidence</summary><pre className="mt-2 whitespace-pre-wrap break-words">{JSON.stringify({authority:action.authority_source,decision:action.decision,approval:action.approval_id,attempt:action.attempt_count,receipt:action.provider_receipt,recovery:action.recovery_result,history:action.history},null,2)}</pre></details>}
       </li>)}</ul>}
