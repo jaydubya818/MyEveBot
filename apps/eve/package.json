@@ -59,7 +59,7 @@
     "heif2jpeg": "^0.1.6",
     "jszip": "^3.10.1",
     "next": "^16.3.5",
-    "raindrop-ai": "^0.3.0-otelv2",
+    "raindrop-ai": "0.8.0-otelv2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "read-excel-file": "^6.0.3",
