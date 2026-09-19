@@ -107,7 +107,7 @@ export const ChatFilesLive = Layer.effect(
     let ensured = false;
     const decodeFiles = Schema.decodeUnknownEffect(Schema.Array(ChatFile));
 
-    const ensure = Effect.gen(function* () {
+    const ensure = (ownerId: string) => Effect.gen(function* () {
       if (!databaseConfigured()) {
         return yield* Effect.fail(
           new ChatFileError({
@@ -137,12 +137,25 @@ export const ChatFilesLive = Layer.effect(
           size_bytes bigint NOT NULL,
           blob_url text NOT NULL,
           blob_path text NOT NULL,
-          owner_id text NOT NULL DEFAULT 'web:owner',
+          owner_id text,
           created_at timestamptz NOT NULL DEFAULT now()
         )
       `);
       yield* database.query(
-        "ALTER TABLE chat_files ADD COLUMN IF NOT EXISTS owner_id text NOT NULL DEFAULT 'web:owner'",
+        "ALTER TABLE chat_files ADD COLUMN IF NOT EXISTS owner_id text",
+      );
+      yield* database.query(
+        "ALTER TABLE chat_files ALTER COLUMN owner_id DROP DEFAULT",
+      );
+      yield* database.query(
+        "ALTER TABLE chat_files ALTER COLUMN owner_id DROP NOT NULL",
+      );
+      yield* database.query(
+        "UPDATE chat_files SET owner_id = $1 WHERE owner_id IS NULL OR owner_id = 'web:owner'",
+        [ownerId],
+      );
+      yield* database.query(
+        "ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL",
       );
       yield* database.query(
         "CREATE INDEX IF NOT EXISTS chat_files_owner_created_idx ON chat_files (owner_id, created_at DESC)",
@@ -165,7 +178,7 @@ export const ChatFilesLive = Layer.effect(
 
     const find = (ownerId: string, id: string) =>
       Effect.gen(function* () {
-        yield* ensure;
+        yield* ensure(ownerId);
         const rows = yield* database.query(
           `SELECT ${projection}
              FROM chat_files f
@@ -189,7 +202,7 @@ export const ChatFilesLive = Layer.effect(
     return {
       list: (ownerId) =>
         Effect.gen(function* () {
-          yield* ensure;
+          yield* ensure(ownerId);
           const rows = yield* database.query(
             `SELECT ${projection}
                FROM chat_files f
@@ -203,7 +216,7 @@ export const ChatFilesLive = Layer.effect(
 
       register: (ownerId, input) =>
         Effect.gen(function* () {
-          yield* ensure;
+          yield* ensure(ownerId);
           yield* validateUpload(input);
           if (!storageConfigured()) {
             return yield* Effect.fail(

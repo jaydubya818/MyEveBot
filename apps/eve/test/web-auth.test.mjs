@@ -14,6 +14,7 @@ import {
   webAuthConfigStatus,
   webPrincipal,
 } from "../lib/web-auth.ts";
+import { deploymentOwnerId } from "../lib/owner-identity.ts";
 
 const productionEnv = {
   NODE_ENV: "production",
@@ -72,6 +73,12 @@ test("legacy Sofie auth variables and cookie remain compatible", () => {
     headers: { cookie: `${LEGACY_WEB_SESSION_COOKIE}=${token}` },
   });
   assert.deepEqual(webPrincipal(request, legacyEnv), { id: "legacy-owner" });
+});
+
+test("deployment owner identity prefers MyEve configuration and has a stable fallback", () => {
+  assert.equal(deploymentOwnerId({ MYEVE_OWNER_ID: "owner-current", SOFIE_OWNER_ID: "owner-legacy" }), "owner-current");
+  assert.equal(deploymentOwnerId({ SOFIE_OWNER_ID: "owner-legacy" }), "owner-legacy");
+  assert.equal(deploymentOwnerId({}), "owner");
 });
 
 test("production requests need the owner cookie and reject cross-site mutations", () => {

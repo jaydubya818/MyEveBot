@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { neon } from "@neondatabase/serverless";
 
 import { CURRENT_DATABASE_MIGRATION } from "../lib/database-schema.ts";
+import { deploymentOwnerId } from "../lib/owner-identity.ts";
 
 const MIGRATION_NAME = /^\d{4}_[a-z0-9_]+\.sql$/;
 const STATEMENT_BREAKPOINT = /^\s*-- statement-breakpoint\s*$/m;
@@ -95,6 +96,15 @@ async function main(): Promise<void> {
     ]);
     console.log(`Applied ${migration.name}`);
   }
+
+  const ownerId = deploymentOwnerId();
+  await sql.transaction((transaction) => [
+    transaction.query(
+      "UPDATE chat_files SET owner_id = $1 WHERE owner_id IS NULL OR owner_id = 'web:owner'",
+      [ownerId],
+    ),
+    transaction.query("ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL"),
+  ]);
 }
 
 await main();

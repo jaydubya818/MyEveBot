@@ -146,5 +146,11 @@ describe("owner data archives", () => {
     expect(allSql).not.toContain("provider_id");
     expect(allSql).not.toContain("storage_key");
     expect(allSql).toContain("from memory_records where owner_id=$1 and status <> 'deleted'");
+    expect(statements).toContainEqual({
+      sql: expect.stringContaining("UPDATE chat_files SET owner_id=$1"),
+      params: ["owner-a"],
+    });
+    expect(allSql.indexOf("update chat_files set owner_id=$1"))
+      .toBeLessThan(allSql.indexOf("from chat_files where owner_id=$1"));
   });
 });
