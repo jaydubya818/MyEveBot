@@ -1,3 +1,4 @@
+import {evaluateRoutineReachability,ROUTINE_RELEASE} from "./routine-release.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { createHash } from "node:crypto";
 import { canonicalActionValue } from "./approvals.ts";
@@ -9,7 +10,7 @@ import { routineConfigurationSchema, type RoutineConfiguration, type ExecutionDa
 // Review can be recorded now. Activation must wait for checks inside tool
 // executors: actions.requested events alone are not an execution boundary.
 // Deliberately not an environment flag that could bypass qualification.
-export const ROUTINE_EXECUTION_READY = false;
+export const ROUTINE_EXECUTION_READY = ROUTINE_RELEASE.enabled;
 
 // Read capabilities proposed for the first qualified unattended adapters.
 export const ROUTINE_READ_TOOLS: Readonly<Record<string,string>> = {
@@ -26,11 +27,13 @@ export async function validateRoutineAgent(ownerId: string, agentId: string, con
   if(config.authority.allowedTargets.length || config.authority.requiresApprovalFor.length) {
     throw new Error("Target restrictions and per-action approvals are not yet supported by unattended read adapters.");
   }
+  const graph=evaluateRoutineReachability({tools:Object.keys(ROUTINE_READ_TOOLS),classifications:Object.fromEntries(Object.keys(ROUTINE_READ_TOOLS).map(tool=>[tool,"READ_ONLY" as const])),delegation:false,opaqueConnections:false});
+  if(!graph.qualified)throw new Error("Routine tool graph is not qualified.");
   const agent=await getAgent(ownerId,agentId);
   if(!agent || agent.status!=="active") throw new Error("Choose an active Agent owned by you.");
   for(const id of config.authority.allowedCapabilities) {
     if(!ROUTINE_CAPABILITIES.includes(id)) throw new Error("This capability is not yet available for unattended execution.");
-    if(!effectiveCapability(agent,id).allowed || getCapability(id)?.availability.status!=="available") throw new Error("A selected capability is unavailable to this Agent.");
+    if(!effectiveCapability(agent,id).allowed || (getCapability(id)?.availability.status!=="available" || getCapability(id)?.dependencies.some(dependency=>getCapability(dependency)?.availability.status!=="available"))) throw new Error("A selected capability is unavailable to this Agent.");
   }
   if(config.limits.maxSteps>agent.limits.maxSteps || config.limits.maxRuntimeSeconds>agent.limits.maxRuntimeSeconds
     || config.limits.maxCostUsd>agent.limits.maxEstimatedCostUsd) throw new Error("Routine limits cannot exceed the Agent's limits.");

@@ -40,12 +40,9 @@ export function taskOwnerFromAuth(
   auth: { current: { principalId?: string } | null },
   env: NodeJS.ProcessEnv = process.env,
 ): string {
-  return (
-    auth.current?.principalId?.trim() ||
-    env.MYEVE_OWNER_ID?.trim() ||
-    env.SOFIE_OWNER_ID?.trim() ||
-    "owner"
-  );
+  const ownerId=auth.current?.principalId?.trim();
+  if(!ownerId)throw new Error("Authenticated owner scope is required.");
+  return ownerId;
 }
 
 export interface CreateProductQaTaskInput {

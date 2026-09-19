@@ -12,7 +12,7 @@ import { qualifyActionExecutors } from "./action-executor-cases.mjs";
 import { qualifyRecovery } from "./action-recovery-cases.mjs";
 
 // Deliberately never reads DATABASE_URL, .env files, or a caller-supplied host.
-const pool = new Pool({ host:"127.0.0.1",port:55441,database:"postgres",user:process.env.USER,max:8 });
+const pool = new Pool({ host:"127.0.0.1",port:55439,database:"postgres",user:process.env.USER,max:8 });
 const schema = `execution_test_${Date.now()}`;
 const clients = [];
 try {

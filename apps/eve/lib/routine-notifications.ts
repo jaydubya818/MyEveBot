@@ -26,7 +26,7 @@ export const routineNotificationProvider:NotificationProvider={
           return {provider:"telegram",account:delivery.ownerId,resource:chatId};
         },
         async execute(parameters,context) {
-          consumeActionAuthority(context,parameters,"notification.send");
+          await consumeActionAuthority(context,parameters,"notification.send");
           const response=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
             method:"POST",headers:{"content-type":"application/json"},signal:AbortSignal.timeout(15_000),
             body:JSON.stringify({chat_id:context.target.resource,text:MESSAGE}),

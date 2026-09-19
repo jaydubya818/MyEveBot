@@ -492,7 +492,7 @@
     },
     "agent/tools/persistent-agent-policy.ts": {
       "disposition": "gateway",
-      "sha256": "3a41b78379eb89b7c3792cec8b217dadc0d1621fa4edb28bf2a53e54bd3dfc53"
+      "sha256": "a343fc622e21a3e1b55411b4ac2d469108cd887ebd617207c82f8019be4724f7"
     },
     "agent/tools/query_receipts.ts": {
       "disposition": "reviewed-existing",
