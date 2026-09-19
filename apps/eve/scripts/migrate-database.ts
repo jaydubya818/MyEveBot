@@ -7,6 +7,7 @@ import { neon } from "@neondatabase/serverless";
 
 import { CURRENT_DATABASE_MIGRATION } from "../lib/database-schema.ts";
 import { deploymentOwnerId } from "../lib/owner-identity.ts";
+import { splitSqlStatements } from "./migration-sql.ts";
 
 const MIGRATION_NAME = /^\d{4}_[a-z0-9_]+\.sql$/;
 const STATEMENT_BREAKPOINT = /^\s*-- statement-breakpoint\s*$/m;
@@ -37,7 +38,7 @@ async function loadMigrations(): Promise<Migration[]> {
       const source = await readFile(join(migrationsDirectory, name), "utf8");
       const statements = source
         .split(STATEMENT_BREAKPOINT)
-        .map((statement) => statement.trim())
+        .flatMap(splitSqlStatements)
         .filter(Boolean);
       if (statements.length === 0) throw new Error(`Migration '${name}' has no SQL statements.`);
       return {
