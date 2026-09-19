@@ -24,6 +24,9 @@ export interface ReminderRow {
   routine_name: string | null;
   approval_boundary: string | null;
   source_outcome_id: string | null;
+  configuration_version: number;
+  reviewed_version: number | null;
+  execution_routine_id: string | null;
 }
 
 const PROJECTION = `
@@ -36,7 +39,7 @@ const PROJECTION = `
   status,
   created_at::text AS created_at,
   last_fired_at::text AS last_fired_at
-  , routine_name, approval_boundary, source_outcome_id
+  , routine_name, approval_boundary, source_outcome_id, configuration_version, reviewed_version, execution_routine_id
 `;
 
 let ensured = false;
@@ -80,10 +83,10 @@ export async function createReminder(input: {
 }): Promise<ReminderRow> {
   await ensureTable();
   const rows = await db().query(
-    `INSERT INTO reminders (prompt, cron, timezone, next_fire_at, chat_id, routine_name, approval_boundary, source_outcome_id)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    `INSERT INTO reminders (prompt, cron, timezone, next_fire_at, chat_id, routine_name, approval_boundary, source_outcome_id,owner_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9)
      RETURNING ${PROJECTION}`,
-    [input.prompt, input.cron, input.timezone, input.nextFireAt.toISOString(), input.chatId, input.routineName ?? null, input.approvalBoundary ?? null, input.sourceOutcomeId ?? null],
+    [input.prompt, input.cron, input.timezone, input.nextFireAt.toISOString(), input.chatId, input.routineName ?? null, input.approvalBoundary ?? null, input.sourceOutcomeId ?? null,process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim() || "owner"],
   );
   return rows[0] as ReminderRow;
 }
@@ -146,6 +149,7 @@ export async function claimDueReminders(limit = 10, leaseMinutes = 5): Promise<R
      WHERE id IN (
        SELECT id FROM reminders
        WHERE status = 'active'
+         AND reviewed_version=configuration_version AND execution_routine_id IS NOT NULL
          AND next_fire_at <= now()
          AND (claimed_until IS NULL OR claimed_until < now())
        ORDER BY next_fire_at ASC

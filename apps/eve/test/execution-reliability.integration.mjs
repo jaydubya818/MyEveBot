@@ -5,9 +5,12 @@ import { ExecutionStore } from "../lib/execution-store.ts";
 import { routineConfigurationSchema } from "../lib/execution-types.ts";
 import { ExecutionDelivery } from "../lib/execution-delivery.ts";
 import { ActionGateway, ActionBlocked } from "../lib/action-gateway.ts";
+import { RoutineReviewStore } from "../lib/routine-review.ts";
+import { enqueueReviewedReminders } from "../lib/reminder-execution.ts";
+import { resolveExecution } from "../lib/execution-auth.ts";
 
 // Deliberately never reads DATABASE_URL, .env files, or a caller-supplied host.
-const pool = new Pool({ host:"127.0.0.1",port:55439,database:"postgres",user:process.env.USER,max:8 });
+const pool = new Pool({ host:"127.0.0.1",port:55441,database:"postgres",user:process.env.USER,max:8 });
 const schema = `execution_test_${Date.now()}`;
 const clients = [];
 try {
@@ -105,6 +108,35 @@ try {
   await store.resumeRoutine(ownerId,"daily",1);
   assert.equal((await setup.query("SELECT count(*) FROM execution_attempts WHERE failure_category='invalid_input'")).rows[0].count,"3");
   assert.equal((await setup.query("SELECT status FROM execution_routines")).rows[0].status,"active");
+  const reviews=new RoutineReviewStore(database(setup),ownerId);
+  const legacy=(await setup.query(`INSERT INTO reminders(prompt,cron,timezone,next_fire_at)
+    VALUES('Daily Research Brief','0 9 * * *','UTC',now()-interval '2 days') RETURNING id`)).rows[0];
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),0,"legacy reminders cannot execute before review");
+  assert.equal((await reviews.list('another-owner')).length,0);
+  const review={ownerId,reminderId:legacy.id,expectedVersion:1,agentId:'ava',configuration};
+  await assert.rejects(reviews.review({...review,ownerId:'another-owner'}));
+  await reviews.review(review);
+  await assert.rejects(reviews.review(review),/changed/);
+  let reminder=(await setup.query('SELECT * FROM reminders WHERE id=$1',[legacy.id])).rows[0];
+  assert.equal(reminder.reviewed_version,1);
+  assert.ok(reminder.execution_routine_id);
+  assert.ok(new Date(reminder.next_fire_at)>new Date(),"approval does not replay missed recurring runs");
+  await setup.query("UPDATE reminders SET next_fire_at=now()-interval '1 second' WHERE id=$1",[legacy.id]);
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),1);
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),0);
+  const reviewedClaim=await store.claim(ownerId,'reviewed-worker');
+  assert.ok(reviewedClaim);
+  await resolveExecution(reviewedClaim,database(setup));
+  await setup.query("UPDATE reminders SET prompt='Changed instructions' WHERE id=$1",[legacy.id]);
+  reminder=(await setup.query('SELECT * FROM reminders WHERE id=$1',[legacy.id])).rows[0];
+  assert.equal(reminder.configuration_version,2);
+  assert.equal(reminder.reviewed_version,null);
+  await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/);
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),0);
+  await assert.rejects(reviews.review(review),/changed/);
+  await reviews.review({...review,expectedVersion:2,configuration:{...configuration,instructions:'Changed instructions'}});
+  await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/,"re-review cannot authorize an old execution");
+  console.log('PASS: legacy owner review gate; owner isolation; duplicate/stale reviews; atomic linkage; no backlog replay; edit revocation; stale execution stays revoked after re-review');
   console.log("PASS: isolated migrations; duplicate occurrence/run suppression; claim race; heartbeat; stale-worker fence; bounded retry; delivery failure/recovery without rerun; action deduplication; changed parameters; unknown-result replay refusal; worker death; auto-pause, single notice and owner resume");
 } finally {
   if(clients[0]) await clients[0].query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);

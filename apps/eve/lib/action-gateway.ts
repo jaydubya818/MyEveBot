@@ -132,7 +132,7 @@ export class ActionGateway {
             AND p.status='approved' AND p.expires_at>now()))
         AND (a.occurrence_id IS NULL OR EXISTS(SELECT 1 FROM execution_occurrences o JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
           WHERE o.owner_id=a.owner_id AND o.id=a.occurrence_id AND o.status='running' AND o.claim_version=$5 AND o.claimed_by=$6
-            AND o.lease_expires_at>now() AND r.status='active'))
+            AND o.lease_expires_at>now() AND r.status='active' AND r.version=o.routine_version))
         AND (a.computer_session_id IS NULL OR EXISTS(SELECT 1 FROM computer_control_leases c
           WHERE c.owner_id=a.owner_id AND c.computer_session_id=a.computer_session_id AND c.controller='AGENT' AND c.version=a.control_version))
       RETURNING *

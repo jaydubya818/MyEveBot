@@ -4,6 +4,21 @@ import { eveChannel } from "eve/channels/eve";
 import { getAgent } from "../../lib/agents.ts";
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { webPrincipal } from "../../lib/web-auth.ts";
+import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/execution-auth.ts";
+import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
+
+export function routineSession():AuthFn<Request> {
+  return async request=>{
+    const token=request.headers.get(EXECUTION_HEADER);if(!token)return null;
+    try {
+      if(!ROUTINE_EXECUTION_READY)throw new Error("Routine adapters are not qualified.");
+      const claim=await resolveExecution(verifyExecution(token));
+      return {authenticator:"myeve-routine",issuer:"myeve",principalId:claim.ownerId,principalType:"user",subject:claim.ownerId,
+        attributes:{owner:"true",myeveAgentId:claim.agentId,executionOwner:claim.ownerId,executionOccurrence:claim.occurrenceId,
+          executionVersion:String(claim.version),executionWorker:claim.workerId}};
+    } catch {throw new ForbiddenError({code:"invalid_execution_claim",message:"Execution authority is unavailable or expired."});}
+  };
+}
 
 export function ownerSession(): AuthFn<Request> {
   return async (request) => {
@@ -51,6 +66,7 @@ export function ownerSession(): AuthFn<Request> {
 }
 
 export const eveAuth = [
+  routineSession(),
   // The browser session is the personal owner's primary route boundary.
   ownerSession(),
   // Lets the eve TUI and your Vercel deployments reach the deployed agent.
