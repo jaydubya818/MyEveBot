@@ -60,7 +60,7 @@ export async function provisionComputerSession(
   await new ActionGateway().execute(request,{
     resolveTarget:async()=>({provider:"sandbox",account:request.ownerId,resource:ctx.session.id,environment:"isolated"}),
     async execute(parameters,authorized) {
-      consumeActionAuthority(authorized,parameters,"computer.session.create");
+      await consumeActionAuthority(authorized,parameters,"computer.session.create");
       provisioned=await provisionAuthorizedComputerSession(ctx,parameters as typeof input);return provisioned;
     },
     receipt:result=>({computerSessionId:result.session.id,sandboxId:result.session.sandboxId}),

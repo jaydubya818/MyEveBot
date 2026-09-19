@@ -10,6 +10,7 @@ import { enqueueReviewedReminders } from "../lib/reminder-execution.ts";
 import { resolveExecution } from "../lib/execution-auth.ts";
 import { qualifyActionExecutors } from "./action-executor-cases.mjs";
 import { qualifyRecovery } from "./action-recovery-cases.mjs";
+import { qualifyCoverage } from "./action-coverage-cases.mjs";
 
 // Deliberately never reads DATABASE_URL, .env files, or a caller-supplied host.
 const pool = new Pool({ host:"127.0.0.1",port:55439,database:"postgres",user:process.env.USER,max:8 });
@@ -140,6 +141,7 @@ try {
   await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/,"re-review cannot authorize an old execution");
   await qualifyActionExecutors(setup,database(setup),reviewedClaim);
   await qualifyRecovery(setup,database(setup));
+  await qualifyCoverage(setup,database(setup));
   await store.createRoutine({id:"delivery-policy",ownerId,sourceKind:"manual",sourceId:"delivery-policy",name:"Delivery policy fixture",agentId:"ava",
     configuration:{...configuration,deliveryChannel:"telegram"},changedBy:ownerId});
   await store.enqueue({ownerId,routineId:"delivery-policy",key:"once",scheduledFor:"2026-09-18T08:00:00Z"});

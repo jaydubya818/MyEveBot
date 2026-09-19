@@ -198,6 +198,12 @@ export class ActionGateway {
           AND p.expires_at<=now() AND a.status='awaiting_approval' RETURNING a.id`,[action.ownerId,actionId]);
         if(expired.length)row.approval_id=null;
       }
+      if(row.approval_id) {
+        const refused=await this.database.query(`UPDATE action_requests a SET status='denied',reason_code='approval_denied',updated_at=now()
+          FROM task_approval_decisions p WHERE a.owner_id=$1 AND a.id=$2 AND p.id=a.approval_id
+            AND p.status IN ('denied','invalidated') AND a.status='awaiting_approval' RETURNING a.id`,[action.ownerId,actionId]);
+        if(refused.length){await this.recordDenial(action.ownerId,actionId,"approval_denied");throw new ActionBlocked("denied",actionId);}
+      }
       if (!row.approval_id) {
         const approval = await this.approvals({ ownerId:action.ownerId,taskId:action.runId,requestedBy:action.executor.agentId,
           capabilityId:action.capabilityId,resource:JSON.stringify(target),action:action.actionClass,actionClass:action.actionClass,

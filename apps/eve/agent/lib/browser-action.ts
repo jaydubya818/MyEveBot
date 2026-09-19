@@ -44,7 +44,7 @@ export async function executeBrowserAction<T extends keyof typeof browserTools>(
       return {provider:"browser",account:session.id,resource:parsed.href,environment:sandbox.id};
     },
     async execute(parameters,authorized) {
-      consumeActionAuthority(authorized,parameters,capabilityId);
+      await consumeActionAuthority(authorized,parameters,capabilityId);
       await requireComputerCapability(ctx,capabilityId);
       if(!isRead && name!=="navigate" && await currentUrl()!==authorized.target.resource)throw new Error("Browser page changed");
       const {operation:_,...bound}=parameters;

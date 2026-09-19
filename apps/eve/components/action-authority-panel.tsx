@@ -12,6 +12,7 @@ interface ActionRow {
 }
 const reasons:Record<string,string>={
   unqualified_executor:"This write path has not yet been qualified for autonomous execution.",
+  approval_denied:"The owner declined or revoked approval for this action.",
   capability_allowed:"Allowed by capability policy.",approval_required:"This exact action needs owner approval.",
   capability_denied:"The executor or routine does not permit this action.",target_unresolved:"The account or target could not be resolved safely.",
   authority_unavailable:"Authority could not be verified.",execution_precondition_failed:"The run, approval, routine or computer authority changed.",
