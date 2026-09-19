@@ -30,7 +30,7 @@ const root = resolve("scripts/federation-qualification");
 const require = createRequire(`${relayRoot}/package.json`),
   pg = require("pg");
 const temporary = mkdtempSync(join(tmpdir(), "myeve-relay-live-"));
-const output = resolve("docs/federation/evidence/live");
+const output = resolve("docs/federation/evidence/rebased/live");
 mkdirSync(output, { recursive: true });
 const suffix = randomBytes(4).toString("hex"),
   names = {
@@ -54,7 +54,10 @@ let ca, sql, mysql, cookie, avaControl;
 let relayConfig, myConfig;
 const evidence = {
   startedAt: new Date().toISOString(),
-  myeveBase: "74fee5b1fdc8ec7c705a9087d9bdf58992b8f27c",
+  myeveBase: "4d3f1eb685422fc77296cef245e84c5b09da6e91",
+  implementationCommit: execFileSync("git", ["rev-parse", "HEAD"], {
+    encoding: "utf8",
+  }).trim(),
   relayCommit: execFileSync("git", ["rev-parse", "HEAD"], {
     cwd: relayRoot,
     encoding: "utf8",
@@ -63,6 +66,11 @@ const evidence = {
     "Real MyEve repositories, owner API and Task/ActionGateway over qualification HTTPS host and local PostgreSQL/Neon HTTP proxy. Unmodified Relay Agent REST handler; owner hosting shim calls real auth/registry services. No Next production deployment claim.",
   checks,
 };
+assert.equal(
+  evidence.relayCommit,
+  "614c638d6fc4099db8064540326f5de4438e93a1",
+  "Relay protocol revision must stay pinned",
+);
 const save = (path, value) =>
   writeFileSync(path, JSON.stringify(value, null, 2), { mode: 0o600 });
 const docker = (...args) =>

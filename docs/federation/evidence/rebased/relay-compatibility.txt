@@ -1,0 +1,25 @@
+
+ RUN  v3.2.4 /Users/jaywest/Documents/ChatGPT/New project/relay-federation
+
+ ✓ tests/federation/federation.test.ts (17 tests) 12077ms
+   ✓ federation trust boundaries > persists a metadata-only signed denial receipt after authorization rolls back  569ms
+   ✓ federation trust boundaries > qualifies the two-owner golden path from publication through work and artifact sharing  902ms
+   ✓ federation trust boundaries > rejects caller spoofing, forged registration ownership, sibling agents, and unrelated result readers  604ms
+   ✓ federation trust boundaries > rechecks publication changes, blocks, credential rotation, and deletion before delivery  3077ms
+   ✓ federation trust boundaries > rejects unpublished records, hidden reasoning, and mismatched versions  628ms
+   ✓ federation trust boundaries > deduplicates concurrent admission, bounds redelivery, and separates offline delivery from acceptance  642ms
+   ✓ federation trust boundaries > keeps message authority separate and allows local refusal  606ms
+   ✓ federation trust boundaries > bounds work, rejects privilege escalation, and returns evidence  724ms
+   ✓ federation trust boundaries > uses shared approvals, denies default policy even with an approval floor, and resumes exact approved delivery  618ms
+   ✓ federation trust boundaries > shares expiring audience-bound artifacts and rejects forged work context  644ms
+   ✓ federation trust boundaries > enforces public query policy and excludes private metadata from discovery  626ms
+   ✓ federation trust boundaries > rejects expired requests and enforces durable rate limits  600ms
+   ✓ federation trust boundaries > preserves identity through credential rotation and applies owner grants without transferring Agent-specific grants  621ms
+   ✓ federation trust boundaries > keeps MCP semantics identical and completes authenticated messaging  642ms
+   ✓ federation trust boundaries > indexes only explicitly public profiles and view metadata  554ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  10:28:18
+   Duration  12.67s (transform 148ms, setup 0ms, collect 418ms, tests 12.08s, environment 0ms, prepare 43ms)
+
