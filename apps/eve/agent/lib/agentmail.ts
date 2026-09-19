@@ -559,7 +559,7 @@ export async function inspectBoundMessage(account:string,messageId:string):Promi
 
 export async function sendBoundMessage(input:SendInput,context:import("../../lib/action-gateway.ts").AuthorizedAction):Promise<SendResult> {
   const {consumeProviderAuthority}=await import("../../lib/action-gateway.ts");
-  consumeProviderAuthority(context,input as unknown as Record<string,unknown>,"tool.send_email");
+  await consumeProviderAuthority(context,input as unknown as Record<string,unknown>,"tool.send_email");
   return api<SendResult>(`/inboxes/${encodeURIComponent(context.target.account)}/messages/send`,{
     method:"POST",idempotencyKey:context.idempotencyKey,body:input,
   });
