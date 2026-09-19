@@ -9,7 +9,7 @@ import {
   UploadSimpleIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { WhatMyEveKnowsPanel } from "@/components/what-myeve-knows-panel";
 
 interface InventoryItem {
@@ -19,7 +19,8 @@ interface InventoryItem {
   recordCount: number;
   approximateBytes: number;
   completeness: "complete" | "partial" | "metadata_only" | "referenced_only" | "unavailable";
-  portability: "fully_restorable" | "restorable_with_reconnection" | "partially_restorable" | "reference_only" | "unavailable";
+  portability: "fully_restorable" | "restorable_with_reconnection" | "partially_restorable" | "non_restorable" | "reference_only" | "unavailable";
+  ownerScope: "owner_scoped" | "single_owner_legacy";
   notes: string[];
 }
 
@@ -60,9 +61,35 @@ function statusLabel(value: string): string {
   return value.replaceAll("_", " ").replace(/^./, (letter) => letter.toUpperCase());
 }
 
+function OwnerDataNavigation({ view, onChange }: { view: "knowledge" | "backup"; onChange: (view: "knowledge" | "backup") => void }) {
+  return (
+    <nav className="flex gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1" aria-label="Owner Data Center">
+      <button type="button" className={view === "knowledge" ? "rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" : "rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default"} onClick={() => onChange("knowledge")}>What MyEve Knows</button>
+      <button type="button" className={view === "backup" ? "rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" : "rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default"} onClick={() => onChange("backup")}>Backup & recovery</button>
+    </nav>
+  );
+}
+
+export function OwnerDataBackupErrorState({ message, onNavigate, onRetry }: { message: string; onNavigate: (view: "knowledge" | "backup") => void; onRetry: () => void }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <OwnerDataNavigation view="backup" onChange={onNavigate} />
+      <section className="flex items-start gap-3 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm" aria-live="polite">
+        <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-kumo-danger text-[10px] font-bold text-kumo-danger" aria-hidden>!</span>
+        <div className="flex-1">
+          <h3 className="font-medium">Unable to load backup data</h3>
+          <p className="mt-1 text-kumo-subtle">{message}</p>
+          <button type="button" className="mt-3 rounded-lg border border-kumo-hairline bg-kumo-elevated px-3 py-1.5 text-sm font-medium hover:bg-kumo-tint" onClick={onRetry}>Retry</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
 export function OwnerDataPanel() {
   const [view, setView] = useState<"knowledge" | "backup">("knowledge");
   const [inventory, setInventory] = useState<InventoryResponse | null>(null);
+  const [loadingInventory, setLoadingInventory] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -71,16 +98,25 @@ export function OwnerDataPanel() {
   const [validationError, setValidationError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const loadInventory = useCallback(async () => {
+    setLoadingInventory(true);
+    setLoadError(null);
+    try {
+      const response = await fetch("/api/owner-data", { cache: "no-store" });
+      if (!response.ok) throw new Error("Your data inventory could not be loaded.");
+      setInventory((await response.json()) as InventoryResponse);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "Your data inventory could not be loaded.");
+    } finally {
+      setLoadingInventory(false);
+    }
+  }, []);
+
   useEffect(() => {
-    if (view !== "backup" || inventory !== null) return;
-    void fetch("/api/owner-data", { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("Your data inventory could not be loaded.");
-        return response.json() as Promise<InventoryResponse>;
-      })
-      .then(setInventory)
-      .catch((error: unknown) => setLoadError(error instanceof Error ? error.message : "Your data inventory could not be loaded."));
-  }, [inventory, view]);
+    if (view === "backup" && inventory === null && loadError === null && !loadingInventory) {
+      void loadInventory();
+    }
+  }, [inventory, loadError, loadInventory, loadingInventory, view]);
 
   async function downloadArchive() {
     setDownloading(true);
@@ -122,26 +158,21 @@ export function OwnerDataPanel() {
     }
   }
 
-  if (view === "knowledge") {
-    return <div className="flex flex-col gap-5"><nav className="flex gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1" aria-label="Owner Data Center"><button type="button" className="rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" onClick={() => setView("knowledge")}>What MyEve Knows</button><button type="button" className="rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default" onClick={() => setView("backup")}>Backup & recovery</button></nav><WhatMyEveKnowsPanel /></div>;
-  }
+  const navigation = <OwnerDataNavigation view={view} onChange={setView} />;
+
+  if (view === "knowledge") return <div className="flex flex-col gap-5">{navigation}<WhatMyEveKnowsPanel /></div>;
 
   if (loadError) {
-    return (
-      <div className="flex gap-3 rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4 text-sm">
-        <WarningCircleIcon className="mt-0.5 size-4 shrink-0 text-kumo-danger" aria-hidden />
-        <p>{loadError}</p>
-      </div>
-    );
+    return <OwnerDataBackupErrorState message={loadError} onNavigate={setView} onRetry={() => void loadInventory()} />;
   }
-  if (!inventory) return <div className="flex justify-center py-8"><Loader size={18} /></div>;
+  if (!inventory) return <div className="flex flex-col gap-5">{navigation}<div className="flex justify-center py-8"><Loader size={18} /></div></div>;
 
   const totalRecords = inventory.inventory.reduce((total, item) => total + item.recordCount, 0);
   const totalBytes = inventory.inventory.reduce((total, item) => total + item.approximateBytes, 0);
 
   return (
     <div className="flex flex-col gap-6">
-      <nav className="flex gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1" aria-label="Owner Data Center"><button type="button" className="rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default" onClick={() => setView("knowledge")}>What MyEve Knows</button><button type="button" className="rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" onClick={() => setView("backup")}>Backup & recovery</button></nav>
+      {navigation}
       <section className="rounded-xl border border-kumo-hairline bg-kumo-tint p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex gap-3">
@@ -165,7 +196,9 @@ export function OwnerDataPanel() {
 
       <section>
         <h3 className="text-sm font-semibold">Included data</h3>
-        <ul className="mt-2 divide-y divide-kumo-hairline rounded-xl border border-kumo-hairline px-3">
+        {inventory.inventory.length === 0 ? (
+          <p className="mt-2 rounded-xl border border-kumo-hairline py-6 text-center text-sm text-kumo-subtle">No exportable data was found.</p>
+        ) : <ul className="mt-2 divide-y divide-kumo-hairline rounded-xl border border-kumo-hairline px-3">
           {inventory.inventory.map((item) => (
             <li key={item.id} className="flex items-center gap-3 py-3">
               <div className="min-w-0 flex-1">
@@ -174,6 +207,7 @@ export function OwnerDataPanel() {
                   <Badge variant={item.completeness === "complete" ? "success" : item.completeness === "unavailable" ? "destructive" : "secondary"}>
                     {statusLabel(item.completeness)}
                   </Badge>
+                  {item.ownerScope === "single_owner_legacy" && <Badge variant="secondary">Single-owner legacy</Badge>}
                 </div>
                 <p className="mt-0.5 text-xs text-kumo-subtle">{item.description}</p>
                 <p className="mt-1 text-xs text-kumo-subtle">{statusLabel(item.portability)}</p>
@@ -185,7 +219,7 @@ export function OwnerDataPanel() {
               </div>
             </li>
           ))}
-        </ul>
+        </ul>}
       </section>
 
       <section>

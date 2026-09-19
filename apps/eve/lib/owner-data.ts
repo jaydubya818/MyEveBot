@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 
 import JSZip from "jszip";
 
+import { CURRENT_DATABASE_MIGRATION } from "@/lib/database-schema";
 import {
   loadOwnerDataDomains,
   OWNER_DATA_DOMAINS,
@@ -14,7 +15,7 @@ import {
 } from "@/lib/owner-data-domains";
 
 export { OWNER_DATA_DOMAINS } from "@/lib/owner-data-domains";
-export type { OwnerDataCategory, OwnerDataCompleteness, OwnerDataDomain, OwnerDataPortability } from "@/lib/owner-data-domains";
+export type { OwnerDataCategory, OwnerDataCompleteness, OwnerDataDomain, OwnerDataPortability, OwnerDataScope } from "@/lib/owner-data-domains";
 
 export const OWNER_ARCHIVE_FORMAT = "myeve-backup";
 export const OWNER_ARCHIVE_VERSION = 1;
@@ -38,6 +39,7 @@ export interface OwnerDataInventoryItem {
   deletable: boolean;
   sensitivity: "standard" | "sensitive";
   dependencies: string[];
+  ownerScope: "owner_scoped" | "single_owner_legacy";
   completeness: OwnerDataCompleteness;
   portability: OwnerDataPortability;
   notes: string[];
@@ -54,6 +56,7 @@ interface ArchiveDomainManifest {
   portability: OwnerDataPortability;
   recordCount: number;
   dependencies: string[];
+  ownerScope?: "owner_scoped" | "single_owner_legacy";
   notes: string[];
 }
 interface OwnerArchiveManifest {
@@ -83,12 +86,15 @@ const EXCLUSIONS = [
   "Credentials and authentication tokens",
   "Web session and webhook secrets",
   "Provider authorization identifiers",
+  "Browser cookies, passwords, and provider desktop credentials",
+  "Live control leases, execution tokens, and provider sessions as reusable authority",
   "Internal blob and sandbox storage keys",
   "Referenced file contents not explicitly marked embedded",
 ];
 const FORBIDDEN_ARCHIVE_KEYS = /^(access_?token|refresh_?token|api_?key|client_?secret|password|secret|storage_?key|blob_?(url|path)|webhook_?secret)$/i;
 const COMPLETENESS_VALUES = new Set<OwnerDataCompleteness>(["complete", "partial", "metadata_only", "referenced_only", "unavailable"]);
-const PORTABILITY_VALUES = new Set<OwnerDataPortability>(["fully_restorable", "restorable_with_reconnection", "partially_restorable", "reference_only", "unavailable"]);
+const PORTABILITY_VALUES = new Set<OwnerDataPortability>(["fully_restorable", "restorable_with_reconnection", "partially_restorable", "non_restorable", "reference_only", "unavailable"]);
+const OWNER_SCOPE_VALUES = new Set(["owner_scoped", "single_owner_legacy"]);
 
 function portableJson(value: unknown): string {
   return JSON.stringify(value, (_key, item) => {
@@ -159,6 +165,7 @@ export function ownerDataInventory(bundle: OwnerDataBundle): OwnerDataInventoryI
       deletable: domain?.deletable ?? false,
       sensitivity: domain?.sensitivity ?? "standard",
       dependencies: domain?.dependencies ?? [],
+      ownerScope: domain?.ownerScope ?? "owner_scoped",
       completeness: category.completeness,
       portability: category.portability,
       notes: category.notes,
@@ -182,6 +189,7 @@ export async function createOwnerArchive(bundle: OwnerDataBundle): Promise<Buffe
     "It does not contain passwords, API keys, OAuth tokens, webhook secrets, provider authorization identifiers, or internal storage keys.",
     "Files marked referenced or external are metadata only and are not backed up as binary content.",
     "Connected apps require owner reconnection. Restored schedules and webhooks must remain disabled until owner review.", "",
+    "Browser Profiles require provider reconnection and grant reconciliation. Computer, control, and Approval records are non-restorable history and never confer authority.", "",
     "Use MyEve's Owner Data Center to verify checksums and compatibility before restore.",
     "Restore mutation is not enabled in this release.", "",
   ].join("\n");
@@ -191,7 +199,7 @@ export async function createOwnerArchive(bundle: OwnerDataBundle): Promise<Buffe
   for (const [id, category] of Object.entries(bundle.categories)) {
     const domain = OWNER_DATA_DOMAINS.find((candidate) => candidate.id === id);
     const recordCount = countRecords(category);
-    domains.push({ id, name: domain?.name ?? id, required: domain?.required ?? false, completeness: category.completeness, portability: category.portability, recordCount, dependencies: domain?.dependencies ?? [], notes: category.notes });
+    domains.push({ id, name: domain?.name ?? id, required: domain?.required ?? false, completeness: category.completeness, portability: category.portability, recordCount, dependencies: domain?.dependencies ?? [], ownerScope: domain?.ownerScope ?? "owner_scoped", notes: category.notes });
     const path = `data/${id}.json`;
     const content = portableJson({ domain: id, completeness: category.completeness, portability: category.portability, notes: category.notes, records: category.records });
     zip.file(path, content);
@@ -212,7 +220,7 @@ export async function createOwnerArchive(bundle: OwnerDataBundle): Promise<Buffe
     createdAt: bundle.exportedAt,
     verifiedAtCreation: true,
     sourceTemplateVersion: "myeve-v1",
-    schemaVersion: "0017_owner_file_inventory",
+    schemaVersion: CURRENT_DATABASE_MIGRATION.replace(/\.sql$/, ""),
     domains,
     checksums,
     files,
@@ -281,6 +289,7 @@ export async function validateOwnerArchive(input: Uint8Array): Promise<OwnerArch
       typeof domain.required !== "boolean" ||
       !COMPLETENESS_VALUES.has(domain.completeness) ||
       !PORTABILITY_VALUES.has(domain.portability) ||
+      (domain.ownerScope !== undefined && !OWNER_SCOPE_VALUES.has(domain.ownerScope)) ||
       !seen.has(`data/${domain.id}.json`),
     )
   ) throw new Error("The archive domain manifest is invalid.");
@@ -302,6 +311,7 @@ export const OWNER_DATA_RETENTION = [
   { dataClass: "Conversations, Goals, Knowledge, Agents, Results, and routines", policy: "Kept until the owner deletes or archives them." },
   { dataClass: "Active memories", policy: "Kept until the owner uses Forget; forgotten memories are excluded from exports." },
   { dataClass: "Run and approval evidence", policy: "Kept as the durable audit trail for completed or failed work." },
+  { dataClass: "Computer and control history", policy: "Kept as non-restorable operational evidence; provider credentials and live authority are never included." },
 ] as const;
 
 export const OWNER_DATA_EXCLUSIONS = EXCLUSIONS;

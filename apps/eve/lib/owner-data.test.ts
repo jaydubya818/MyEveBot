@@ -152,5 +152,47 @@ describe("owner data archives", () => {
     });
     expect(allSql.indexOf("update chat_files set owner_id=$1"))
       .toBeLessThan(allSql.indexOf("from chat_files where owner_id=$1"));
+
+    const inventory = ownerDataInventory(bundle);
+    expect(inventory).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "routines", ownerScope: "single_owner_legacy" }),
+      expect.objectContaining({ id: "finance", ownerScope: "single_owner_legacy" }),
+      expect.objectContaining({ id: "browser_profiles", ownerScope: "owner_scoped", portability: "restorable_with_reconnection" }),
+      expect.objectContaining({ id: "computer_history", ownerScope: "owner_scoped", portability: "non_restorable" }),
+      expect.objectContaining({ id: "approval_history", ownerScope: "owner_scoped", portability: "non_restorable" }),
+    ]));
+
+    const profileSql = statements.find(({ sql }) => sql.includes("FROM persistent_browser_profiles"))?.sql ?? "";
+    const computerSql = statements.filter(({ sql }) => /computer_sessions|browser_sessions|computer_control_|computer_actions/.test(sql)).map(({ sql }) => sql).join("\n");
+    const approvalSql = statements.find(({ sql }) => sql.includes("FROM task_approval_decisions WHERE owner_id=$1"))?.sql ?? "";
+    expect(profileSql).not.toContain("failure_summary");
+    expect(computerSql).not.toMatch(/runtime_session_id|sandbox_id|checkpoint|state_fingerprint|input_summary|output_summary|call_id/);
+    expect(approvalSql).toMatch(/binding_hash.*risk.*effects.*expires_at.*decision_reason/);
+    expect(approvalSql).not.toMatch(/action_parameters|prompt|resource,/);
+    expect(
+      statements
+        .filter(({ sql }) => /persistent_browser_|computer_sessions|browser_sessions|computer_control_|computer_actions|task_approval_decisions WHERE/.test(sql))
+        .every(({ params }) => params?.[0] === "owner-a"),
+    ).toBe(true);
+  });
+
+  it("exports operational authority only as non-restorable history", async () => {
+    const query = vi.fn(async (sql: string) => {
+      if (sql.includes("FROM computer_control_leases")) return [{ computer_session_id: "computer-1", controller: "OWNER", version: 4 }];
+      if (sql.includes("FROM task_approval_decisions WHERE")) return [{ id: "approval-1", status: "approved", binding_hash: "sha256:binding", risk: "high", effects: ["external_write"] }];
+      if (sql.includes("FROM persistent_browser_profiles")) return [{ id: "profile-1", provider: "orgo", status: "ready" }];
+      return [];
+    });
+
+    const bundle = await collectOwnerData("owner-a", query);
+    expect(bundle.categories.browser_profiles.records.profiles[0]).toMatchObject({ authentication: "requires_reconnection" });
+    expect(bundle.categories.computer_history.records.controlLeases[0]).toMatchObject({ authority: "historical_only", restorableAuthority: false });
+    expect(bundle.categories.approval_history.records.approvals[0]).toMatchObject({ authority: "historical_only", restorableAuthority: false });
+
+    const validation = await validateOwnerArchive(await createOwnerArchive(bundle));
+    expect(validation.domains).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "computer_history", portability: "non_restorable" }),
+      expect.objectContaining({ id: "approval_history", portability: "non_restorable" }),
+    ]));
   });
 });
