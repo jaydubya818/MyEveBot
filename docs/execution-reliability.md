@@ -56,6 +56,37 @@ This is a foundation in progress, not a completed rollout. The new worker and
 gateway are not yet invoked by production schedules or tools. Do not interpret
 passing foundation tests as qualification of end-to-end autonomous execution.
 
+### Owner review gate (migration 0024)
+
+The owner selected mandatory review before the next legacy reminder execution.
+Legacy reminders receive no inferred review or standing authority. Control Center
+now collects the chosen Agent, read capabilities, limits, delivery channel and
+explicit confirmation. Reviews bind to the current reminder version; changed
+instructions, cron, timezone, destination or approval boundary invalidate review
+and pause the linked routine. Reapproval creates a new routine version, so old
+occurrences remain unauthorized. Recurring approval starts at the next future
+schedule and does not replay a historical backlog. Legacy rows without an owner
+are reviewable only by the configured single deployment owner.
+
+**Unattended activation is intentionally blocked in code** at the scheduler,
+runner preflight and signed channel boundary. Eve's `actions.requested` hooks
+observe events; they are not a reliable authorization boundary for all tool
+executors or provider-managed tools. The drafted runtime adapter and hooks must
+not be enabled until per-executor gateway enforcement and fake-provider bypass
+tests are complete. The UI explicitly says that review is saved while execution
+remains blocked. There is no environment switch to bypass this qualification.
+
+Review and linkage are saved in one SQL statement. Isolated tests cover owner
+isolation, duplicate/stale submissions, missed-run handling, instruction edit
+revocation, and continued revocation of old executions after reapproval. The
+fixture now uses local PostgreSQL port 55441 because 55439 was occupied.
+
+Current verification: all 24 migrations apply to an isolated disposable schema;
+130 core tests and 402 Vitest tests pass, including activation-block tests.
+Workspace typecheck and the production Next.js build pass. No shared migration,
+deployment, real model call or notification was sent. Browser/mobile review UI
+qualification and executor integration remain outstanding.
+
 Implemented and exercised against isolated PostgreSQL:
 
 - Additive migration 0023, with owner-scoped routine versions and deterministic
@@ -75,10 +106,10 @@ Implemented and exercised against isolated PostgreSQL:
 
 Outstanding before activation:
 
-1. Decide legacy authority migration: owner review before next run, or a reviewed
-   read-only default with external writes held for approval. No inferred grants.
-2. Wire authenticated occurrence context and session attribution through Eve;
-   enforce routine authority for every tool and connector, including child agents.
+1. Qualify the drafted authenticated occurrence/session adapter against the real
+   tool execution boundary. Owner review before the next run is implemented.
+2. Enforce routine authority inside every tool and connector executor, including
+   framework tools, provider-managed tools and child agents, before activation.
 3. Integrate reminders, webhooks, reviews, browser mutations, a connected-app write
    and notification adapters; preserve existing delivery preferences.
 4. Wire approval continuation and deterministic provider recovery. The gateway's

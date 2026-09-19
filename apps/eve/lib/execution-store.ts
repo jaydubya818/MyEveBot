@@ -68,7 +68,7 @@ export class ExecutionStore {
     const rows = await this.database.query(`WITH candidate AS MATERIALIZED (
       SELECT o.id FROM execution_occurrences o JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
       WHERE o.owner_id=$1 AND o.status IN ('pending','retrying') AND o.next_attempt_at<=now()
-        AND o.scheduled_for<=now() AND r.status='active'
+        AND o.scheduled_for<=now() AND r.status='active' AND r.version=o.routine_version
         AND NOT EXISTS(SELECT 1 FROM action_requests a WHERE a.owner_id=o.owner_id AND a.run_id=o.run_id
           AND a.action_class<>'read' AND a.status IN ('executing','verifying','completed','result_unknown'))
       ORDER BY o.scheduled_for,o.id FOR UPDATE OF o SKIP LOCKED LIMIT 1
