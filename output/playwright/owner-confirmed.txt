@@ -1,0 +1,436 @@
+### Page
+- Page URL: http://127.0.0.1:58544/manage/relay
+- Page Title: Sofie
+- Console: 4 errors, 0 warnings
+### Snapshot
+```yaml
+- generic [ref=f3e1]:
+  - generic [ref=f3e2]:
+    - complementary [ref=f3e3]:
+      - generic [ref=f3e4]:
+        - button "Back to chat" [ref=f3e5]: Sofie
+        - generic [ref=f3e6]:
+          - button "Goals" [ref=f3e7] [cursor=pointer]
+          - button "Knowledge" [ref=f3e10] [cursor=pointer]
+          - button "Results" [ref=f3e13] [cursor=pointer]
+          - button "Computer" [ref=f3e16] [cursor=pointer]
+          - button "Agents" [ref=f3e19] [cursor=pointer]
+          - button "Review" [ref=f3e22] [cursor=pointer]
+          - button "Channels" [ref=f3e25] [cursor=pointer]
+          - button "Files" [ref=f3e28] [cursor=pointer]
+          - button "Manage" [pressed] [ref=f3e31] [cursor=pointer]
+          - button "New thread" [ref=f3e34] [cursor=pointer]
+      - textbox "Search threads" [ref=f3e39]
+      - navigation [ref=f3e40]:
+        - generic [ref=f3e41]:
+          - paragraph [ref=f3e42]: Today
+          - list [ref=f3e43]:
+            - listitem [ref=f3e44]:
+              - button "New chat 9:39 AM" [ref=f3e45]:
+                - generic [ref=f3e46]: New chat
+                - generic [ref=f3e48]: 9:39 AM
+              - generic [ref=f3e49]:
+                - button "Pin New chat" [ref=f3e50] [cursor=pointer]
+                - button "Rename New chat" [ref=f3e53] [cursor=pointer]
+                - button "Delete New chat" [ref=f3e56] [cursor=pointer]
+        - generic [ref=f3e59]:
+          - paragraph [ref=f3e60]: Older
+          - list [ref=f3e61]:
+            - listitem [ref=f3e62]:
+              - button "Private Dec 31" [ref=f3e63]:
+                - generic [ref=f3e64]: Private
+                - generic [ref=f3e66]: Dec 31
+              - generic [ref=f3e67]:
+                - button "Pin Private" [ref=f3e68] [cursor=pointer]
+                - button "Rename Private" [ref=f3e71] [cursor=pointer]
+                - button "Delete Private" [ref=f3e74] [cursor=pointer]
+    - main [ref=f3e77]:
+      - generic [ref=f3e78]:
+        - generic [ref=f3e79]:
+          - heading "Manage" [level=1] [ref=f3e80]
+          - paragraph [ref=f3e81]: Configure what Sofie knows, connects to, and handles for you.
+        - generic [ref=f3e83]:
+          - navigation "Manage sections" [ref=f3e84]:
+            - generic [ref=f3e85]:
+              - paragraph [ref=f3e86]: General
+              - list [ref=f3e87]:
+                - listitem [ref=f3e88]:
+                  - button "Getting started Setup and first useful job" [ref=f3e89]:
+                    - generic [ref=f3e93]:
+                      - generic [ref=f3e94]: Getting started
+                      - generic [ref=f3e95]: Setup and first useful job
+                - listitem [ref=f3e96]:
+                  - button "Briefs & reviews Scheduled proactive delivery" [ref=f3e97]:
+                    - generic [ref=f3e101]:
+                      - generic [ref=f3e102]: Briefs & reviews
+                      - generic [ref=f3e103]: Scheduled proactive delivery
+                - listitem [ref=f3e104]:
+                  - button "System Setup and service health" [ref=f3e105]:
+                    - generic [ref=f3e109]:
+                      - generic [ref=f3e110]: System
+                      - generic [ref=f3e111]: Setup and service health
+                - listitem [ref=f3e112]:
+                  - button "Appearance Identity and theme" [ref=f3e113]:
+                    - generic [ref=f3e117]:
+                      - generic [ref=f3e118]: Appearance
+                      - generic [ref=f3e119]: Identity and theme
+                - listitem [ref=f3e120]:
+                  - button "Your data Export, verify, and retention" [ref=f3e121]:
+                    - generic [ref=f3e125]:
+                      - generic [ref=f3e126]: Your data
+                      - generic [ref=f3e127]: Export, verify, and retention
+                - listitem [ref=f3e128]:
+                  - button "Agents Role catalog and persistent Agents" [ref=f3e129]:
+                    - generic [ref=f3e133]:
+                      - generic [ref=f3e134]: Agents
+                      - generic [ref=f3e135]: Role catalog and persistent Agents
+            - generic [ref=f3e136]:
+              - paragraph [ref=f3e137]: Automations
+              - list [ref=f3e138]:
+                - listitem [ref=f3e139]:
+                  - button "Reminders Scheduled follow-ups 0" [ref=f3e259]:
+                    - generic [ref=f3e144]:
+                      - generic [ref=f3e145]: Reminders
+                      - generic [ref=f3e146]: Scheduled follow-ups
+                    - generic [ref=f3e260]: "0"
+                - listitem [ref=f3e147]:
+                  - button "Triggers Event-driven work 0" [ref=f3e261]:
+                    - generic [ref=f3e152]:
+                      - generic [ref=f3e153]: Triggers
+                      - generic [ref=f3e154]: Event-driven work
+                    - generic [ref=f3e262]: "0"
+            - generic [ref=f3e155]:
+              - paragraph [ref=f3e156]: Channels
+              - list [ref=f3e157]:
+                - listitem [ref=f3e158]:
+                  - button "Slack Workspace messaging and reactions" [ref=f3e159]:
+                    - generic [ref=f3e163]:
+                      - generic [ref=f3e164]: Slack
+                      - generic [ref=f3e165]: Workspace messaging and reactions
+                - listitem [ref=f3e166]:
+                  - button "iMessage Pairing and shared-number delivery" [ref=f3e167]:
+                    - generic [ref=f3e171]:
+                      - generic [ref=f3e172]: iMessage
+                      - generic [ref=f3e173]: Pairing and shared-number delivery
+            - generic [ref=f3e182]:
+              - paragraph [ref=f3e183]: Knowledge & tools
+              - list [ref=f3e184]:
+                - listitem [ref=f3e185]:
+                  - button "Memory What Sofie remembers Setup required" [ref=f3e263]:
+                    - generic [ref=f3e190]:
+                      - generic [ref=f3e191]: Memory
+                      - generic [ref=f3e192]: What Sofie remembers
+                    - generic "Setup required" [ref=f3e264]
+                - listitem [ref=f3e193]:
+                  - button "Connections Apps and accounts Setup required" [ref=f3e266]:
+                    - generic [ref=f3e198]:
+                      - generic [ref=f3e199]: Connections
+                      - generic [ref=f3e200]: Apps and accounts
+                    - generic "Setup required" [ref=f3e267]
+                - listitem [ref=f3e201]:
+                  - button "Skills Reusable procedures Setup required" [ref=f3e269]:
+                    - generic [ref=f3e206]:
+                      - generic [ref=f3e207]: Skills
+                      - generic [ref=f3e208]: Reusable procedures
+                    - generic "Setup required" [ref=f3e270]
+            - generic [ref=f3e209]:
+              - paragraph [ref=f3e210]: Operations
+              - list [ref=f3e211]:
+                - listitem [ref=f3e212]:
+                  - button "Relay Owner-controlled external sharing" [ref=f3e213]:
+                    - generic [ref=f3e217]:
+                      - generic [ref=f3e218]: Relay
+                      - generic [ref=f3e219]: Owner-controlled external sharing
+                - listitem [ref=f3e220]:
+                  - button "Control Center Live work and safe controls" [ref=f3e221]:
+                    - generic [ref=f3e225]:
+                      - generic [ref=f3e226]: Control Center
+                      - generic [ref=f3e227]: Live work and safe controls
+                - listitem [ref=f3e228]:
+                  - button "Approvals Exact-action owner decisions" [ref=f3e229]:
+                    - generic [ref=f3e233]:
+                      - generic [ref=f3e234]: Approvals
+                      - generic [ref=f3e235]: Exact-action owner decisions
+                - listitem [ref=f3e236]:
+                  - button "Activity Audited tasks and evidence" [ref=f3e237]:
+                    - generic [ref=f3e241]:
+                      - generic [ref=f3e242]: Activity
+                      - generic [ref=f3e243]: Audited tasks and evidence
+                - listitem [ref=f3e244]:
+                  - button "Finance Recorded receipts" [ref=f3e245]:
+                    - generic [ref=f3e249]:
+                      - generic [ref=f3e250]: Finance
+                      - generic [ref=f3e251]: Recorded receipts
+          - generic [ref=f3e272]:
+            - generic [ref=f3e274]:
+              - heading "Relay" [level=2] [ref=f3e275]
+              - paragraph [ref=f3e276]: Owner-controlled external sharing
+            - generic [ref=f3e277]:
+              - paragraph [ref=f3e278]: Share selected Knowledge and bounded work with other owners. MyEve retains private data and the final authority to execute.
+              - status [ref=f3e455]: Saved. Current Relay state is shown below.
+              - generic [ref=f3e279]:
+                - heading "Relay connection" [level=2] [ref=f3e280]
+                - paragraph [ref=f3e281]: https://host.docker.internal:58540
+                - paragraph [ref=f3e282]: relay://acct_03e579c3a7b64795a19a0cb42b0f8911/agt_71185fa5805f4605869f6700f1d612be
+                - paragraph [ref=f3e283]: active · pinned signing key qualification-relay
+                - generic [ref=f3e284]:
+                  - button "Rotate Agent credential" [ref=f3e285]
+                  - button "Revoke Agent credential" [ref=f3e286]
+                  - button "Check external inbox" [ref=f3e287]
+                - generic [ref=f3e288]:
+                  - generic [ref=f3e289]:
+                    - text: MyEve Agent
+                    - combobox "MyEve Agent" [ref=f3e290]:
+                      - option "Sofie" [selected]
+                  - textbox "Relay owner email" [ref=f3e291]
+                  - textbox "Relay owner password" [ref=f3e292]
+                  - button "Reconnect owner session" [ref=f3e293]
+              - generic [ref=f3e294]:
+                - heading "Publish selected Knowledge" [level=2] [ref=f3e295]
+                - paragraph [ref=f3e296]: Everything starts PRIVATE. Only the exact records in your confirmed preview can be retrieved.
+                - generic [ref=f3e297]:
+                  - generic [ref=f3e298]:
+                    - checkbox "fact — MYEVE-RELAY-PRIVATE-JAY-ONLY-9a49ef96" [ref=f3e299]
+                    - generic [ref=f3e300]:
+                      - strong [ref=f3e301]: fact
+                      - text: — MYEVE-RELAY-PRIVATE-JAY-ONLY-9a49ef96
+                  - generic [ref=f3e302]:
+                    - checkbox "insight — Atlas verification uses independent acceptance checks." [ref=f3e303]
+                    - generic [ref=f3e304]:
+                      - strong [ref=f3e305]: insight
+                      - text: — Atlas verification uses independent acceptance checks.
+                  - generic [ref=f3e306]:
+                    - checkbox "fact — Project Atlas uses Node 24." [checked] [ref=f3e307]
+                    - generic [ref=f3e308]:
+                      - strong [ref=f3e309]: fact
+                      - text: — Project Atlas uses Node 24.
+                - generic [ref=f3e310]:
+                  - textbox "Publication name" [ref=f3e311]: Browser-confirmed Atlas fact
+                  - generic [ref=f3e312]:
+                    - text: Visibility
+                    - combobox "Visibility" [ref=f3e313]:
+                      - option "PRIVATE"
+                      - option "SHARED"
+                      - option "UNLISTED"
+                      - option "PUBLIC" [selected]
+                  - textbox "Allowed audience" [ref=f3e314]:
+                    - /placeholder: "Allowed audience: relay://owner/agent"
+                  - paragraph [ref=f3e315]: This publication expires in 24 hours.
+                  - button "Preview exact publication" [ref=f3e316]
+                - heading "Publications" [level=3] [ref=f3e317]
+                - generic [ref=f3e448]:
+                  - paragraph [ref=f3e449]: Browser-confirmed Atlas fact · PUBLIC · active · v1
+                  - paragraph [ref=f3e450]: myeve_view_9df5cac3-e73b-498d-bc58-87b306a727d7
+                  - paragraph [ref=f3e451]: "Audience: No restricted audience"
+                  - generic [ref=f3e452]:
+                    - button "Pause" [ref=f3e453]
+                    - button "Revoke publication" [ref=f3e454]
+                - generic [ref=f3e318]:
+                  - paragraph [ref=f3e319]: Atlas owner-selected qualification · SHARED · revoked · v1
+                  - paragraph [ref=f3e320]: myeve_view_0b0cb111-e806-45c5-8dc1-3039ea3a10be
+                  - paragraph [ref=f3e321]: "Audience: acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0"
+                  - generic [ref=f3e322]:
+                    - button "Pause" [ref=f3e323]
+                    - button "Revoke publication" [ref=f3e324]
+                - paragraph [ref=f3e325]: Revocation prevents future retrieval. It cannot guarantee deletion of information already delivered to another trust domain.
+              - generic [ref=f3e326]:
+                - heading "Independent capability grants" [level=2] [ref=f3e327]
+                - generic [ref=f3e328]:
+                  - textbox "Grantee owner ID" [ref=f3e329]
+                  - textbox "Grantee Agent ID" [ref=f3e330]
+                  - combobox "Capability" [ref=f3e331]:
+                    - option "knowledge.query" [selected]
+                    - option "message.send"
+                    - option "artifact.share"
+                    - option "work.request"
+                  - textbox "Resource ID" [ref=f3e332]:
+                    - /placeholder: Publication or resource ID
+                  - textbox "Relay work budget" [ref=f3e333]:
+                    - /placeholder: Receiving-owner Relay budget ID (work only)
+                  - textbox "Work cost ceiling" [ref=f3e334]
+                  - button "Grant for 24 hours" [ref=f3e335]
+                - generic [ref=f3e336]:
+                  - paragraph [ref=f3e337]: work.request → acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0 · active
+                  - button "Revoke grant" [ref=f3e338]
+                - generic [ref=f3e339]:
+                  - paragraph [ref=f3e340]: artifact.share → acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0 · active
+                  - button "Revoke grant" [ref=f3e341]
+                - generic [ref=f3e342]:
+                  - paragraph [ref=f3e343]: message.send → acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0 · active
+                  - button "Revoke grant" [ref=f3e344]
+                - generic [ref=f3e345]:
+                  - paragraph [ref=f3e346]: knowledge.query → acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0 · active
+                  - button "Revoke grant" [ref=f3e347]
+                - generic [ref=f3e348]:
+                  - paragraph [ref=f3e349]: knowledge.query → acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0 · revoked
+                  - button "Revoke grant" [ref=f3e350]
+              - generic [ref=f3e351]:
+                - heading "External work policy" [level=2] [ref=f3e352]
+                - paragraph [ref=f3e353]: Work can use only explicitly shared artifacts, with no private-data or consequential tools. Email, spending, deployment, and account actions are refused.
+                - generic [ref=f3e354]:
+                  - generic [ref=f3e355]:
+                    - text: research
+                    - combobox "research" [ref=f3e356]:
+                      - option "Require owner approval" [selected]
+                      - option "Reject"
+                      - option "Allow bounded work"
+                  - generic [ref=f3e357]:
+                    - text: analysis
+                    - combobox "analysis" [ref=f3e358]:
+                      - option "Require owner approval" [selected]
+                      - option "Reject"
+                      - option "Allow bounded work"
+                  - generic [ref=f3e359]:
+                    - text: summarization
+                    - combobox "summarization" [ref=f3e360]:
+                      - option "Require owner approval" [selected]
+                      - option "Reject"
+                      - option "Allow bounded work"
+                  - generic [ref=f3e361]:
+                    - text: artifact_generation
+                    - combobox "artifact_generation" [ref=f3e362]:
+                      - option "Require owner approval" [selected]
+                      - option "Reject"
+                      - option "Allow bounded work"
+                  - button "Save local policy" [ref=f3e363]
+              - generic [ref=f3e364]:
+                - heading "External inbox" [level=2] [ref=f3e365]
+                - tablist [ref=f3e366]:
+                  - tab "incoming" [ref=f3e367]
+                  - tab "outgoing" [ref=f3e368]
+                  - tab "Waiting / needs approval" [ref=f3e369]
+                  - tab "completed" [active] [selected] [ref=f3e370]
+                  - tab "denied" [ref=f3e371]
+                - article [ref=f3e456]:
+                  - paragraph [ref=f3e457]: message.send · completed · incoming
+                  - paragraph [ref=f3e458]: frq_25026457a3494452b222b69cc56689c8 · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph [ref=f3e459]: Please review the shared Atlas architecture.
+                  - generic [ref=f3e460]: "{ \"status\": \"COMPLETED\", \"result\": { \"acknowledged\": true } }"
+                  - button "Reply" [ref=f3e462]
+                - article [ref=f3e463]:
+                  - paragraph [ref=f3e464]: artifact.share · completed · outgoing
+                  - paragraph [ref=f3e465]: frq_24cb9d3d1a304e62b3d812692d31db6b · Sender acct_03e579c3a7b64795a19a0cb42b0f8911/agt_71185fa5805f4605869f6700f1d612be
+                  - paragraph
+                  - generic [ref=f3e466]: "{ \"acknowledged\": true }"
+                  - button "Refresh result" [ref=f3e468]
+                - article [ref=f3e469]:
+                  - paragraph [ref=f3e470]: work.request · completed · incoming
+                  - paragraph [ref=f3e471]: frq_c449ba9d59714dca90f895634258f84e · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph [ref=f3e472]: Analyze the trust boundaries in the shared Atlas architecture. Cite its requestId.
+                  - 'link "Local MyEve Run: task_e8aef634-d448-4aaf-a522-70534d74c2fa" [ref=f3e473] [cursor=pointer]':
+                    - /url: /manage/control
+                  - generic [ref=f3e474]: "{ \"status\": \"COMPLETED\", \"result\": { \"summary\": \"**Trust boundary analysis of the Atlas architecture** [frq_5468dc0d068c4a7e8c8f01f513672244]\\n\\n- **Storage boundary:** Data is held in \\\"separate stores,\\\" indicating no shared/central data repository — each party maintains isolated custody of its own data, limiting blast radius if one store is compromised [frq_5468dc0d068c4a7e8c8f01f513672244].\\n\\n- **Transport/integrity boundary:** Delivery between components is \\\"signed,\\\" meaning message authenticity and integrity are cryptographically verified at the boundary crossing, but this does not by itself guarantee confidentiality [frq_5468dc0d068c4a7e8c8f01f513672244].\\n\\n- **Authorization boundary:** Authorization is performed \\\"locally\\\" rather than centrally, meaning each store/party independently enforces access decisions — trust is not delegated wholesale to a central authority, but this also means consistency of policy enforcement depends on each local implementation [frq_5468dc0d068c4a7e8c8f01f513672244].\\n\\n- **Relay boundary (least-trusted zo\", \"artifacts\": [ \"relay_artifact_f9939879-4551-49a7-aaf1-f61c31d7afdf\" ], \"evidence\": [ \"frq_5468dc0d068c4a7e8c8f01f513672244\" ], \"cost\": \"0.00676\", \"runtimeSeconds\": 8.097, \"modelSteps\": 1, \"providerReceipts\": [ \"aitxt-UYXuzKzJOD8V9I8GTel9xVxS\" ] } }"
+                - article [ref=f3e475]:
+                  - paragraph [ref=f3e476]: artifact.share · completed · incoming
+                  - paragraph [ref=f3e477]: frq_5468dc0d068c4a7e8c8f01f513672244 · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph
+                  - generic [ref=f3e478]: "{ \"status\": \"COMPLETED\", \"result\": { \"acknowledged\": true } }"
+                - article [ref=f3e479]:
+                  - paragraph [ref=f3e480]: knowledge.query · completed · outgoing
+                  - paragraph [ref=f3e481]: frq_7eb1bab9e5804fecb3dd1333bc7ee627 · Sender acct_03e579c3a7b64795a19a0cb42b0f8911/agt_71185fa5805f4605869f6700f1d612be
+                  - paragraph
+                  - generic [ref=f3e482]: "{ \"kind\": \"OWNER_PUBLISHED_KNOWLEDGE\", \"ownerId\": \"acct_5def61791d0a46bda338fa7edd4401d6\", \"publicationVersion\": 1, \"publisherAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"records\": [ { \"content\": \"Ava shared the Atlas verification plan.\", \"provenance\": \"Sarah explicitly published this fact\", \"recordType\": \"fact\", \"reference\": \"ava-published-fact\", \"revision\": \"1\", \"sourceReferences\": [ \"sarah-selected-source\" ], \"updatedAt\": \"2026-09-19T16:37:31.517Z\" } ], \"usage\": \"Published projection; no authority to access other local data.\", \"visibility\": \"SHARED\" }"
+                  - button "Refresh result" [ref=f3e484]
+                - article [ref=f3e485]:
+                  - paragraph [ref=f3e486]: message.send · completed · outgoing
+                  - paragraph [ref=f3e487]: frq_52ee71b9d80843a3a8267979cd4179b0 · Sender acct_03e579c3a7b64795a19a0cb42b0f8911/agt_71185fa5805f4605869f6700f1d612be
+                  - paragraph [ref=f3e488]: Sofie received your request.
+                  - generic [ref=f3e489]: "{ \"acknowledged\": true }"
+                  - button "Refresh result" [ref=f3e491]
+                - article [ref=f3e492]:
+                  - paragraph [ref=f3e493]: message.send · completed · incoming
+                  - paragraph [ref=f3e494]: frq_10b1f0a4bfd347a1a7c22bd2747dc95f · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph [ref=f3e495]: Please review the shared Atlas architecture.
+                  - generic [ref=f3e496]: "{ \"status\": \"COMPLETED\", \"result\": { \"acknowledged\": true } }"
+                  - button "Reply" [ref=f3e498]
+                - article [ref=f3e499]:
+                  - paragraph [ref=f3e500]: knowledge.query · completed · incoming
+                  - paragraph [ref=f3e501]: frq_846c3131d9094abab0594ce41ad87492 · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph
+                  - generic [ref=f3e502]: "{ \"status\": \"COMPLETED\", \"result\": { \"kind\": \"OWNER_PUBLISHED_KNOWLEDGE\", \"publicationVersion\": 1, \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"revision\": \"fcbdeddb2e5ec84849b802fb39997b6afed8494e72ed1d7b0ecf701fd048ff25\", \"recordType\": \"fact\", \"content\": \"Project Atlas uses Node 24.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.213Z\", \"confidence\": 1 }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"revision\": \"800c641fde0e0c89a66c924a71257ae153b57b2d120813a45a1d03339626eb5a\", \"recordType\": \"insight\", \"content\": \"Atlas verification uses independent acceptance checks.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.227Z\", \"confidence\": 1 } ] } }"
+                - article [ref=f3e503]:
+                  - paragraph [ref=f3e504]: knowledge.query · completed · incoming
+                  - paragraph [ref=f3e505]: frq_c8efab365b944d71b74cfb6bfac8a670 · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph
+                  - generic [ref=f3e506]: "{ \"status\": \"COMPLETED\", \"result\": { \"kind\": \"OWNER_PUBLISHED_KNOWLEDGE\", \"publicationVersion\": 1, \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"revision\": \"fcbdeddb2e5ec84849b802fb39997b6afed8494e72ed1d7b0ecf701fd048ff25\", \"recordType\": \"fact\", \"content\": \"Project Atlas uses Node 24.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.213Z\", \"confidence\": 1 }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"revision\": \"800c641fde0e0c89a66c924a71257ae153b57b2d120813a45a1d03339626eb5a\", \"recordType\": \"insight\", \"content\": \"Atlas verification uses independent acceptance checks.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.227Z\", \"confidence\": 1 } ] } }"
+                - article [ref=f3e507]:
+                  - paragraph [ref=f3e508]: knowledge.query · completed · incoming
+                  - paragraph [ref=f3e509]: frq_ee296b3e02dd4df6b28548984299cab2 · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph
+                  - generic [ref=f3e510]: "{ \"status\": \"COMPLETED\", \"result\": { \"kind\": \"OWNER_PUBLISHED_KNOWLEDGE\", \"publicationVersion\": 1, \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"revision\": \"fcbdeddb2e5ec84849b802fb39997b6afed8494e72ed1d7b0ecf701fd048ff25\", \"recordType\": \"fact\", \"content\": \"Project Atlas uses Node 24.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.213Z\", \"confidence\": 1 }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"revision\": \"800c641fde0e0c89a66c924a71257ae153b57b2d120813a45a1d03339626eb5a\", \"recordType\": \"insight\", \"content\": \"Atlas verification uses independent acceptance checks.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.227Z\", \"confidence\": 1 } ] } }"
+                - article [ref=f3e511]:
+                  - paragraph [ref=f3e512]: knowledge.query · completed · incoming
+                  - paragraph [ref=f3e513]: frq_2128222b0a5f4644b36d4edcbf411335 · Sender acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0
+                  - paragraph
+                  - generic [ref=f3e514]: "{ \"status\": \"COMPLETED\", \"result\": { \"kind\": \"OWNER_PUBLISHED_KNOWLEDGE\", \"publicationVersion\": 1, \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"revision\": \"fcbdeddb2e5ec84849b802fb39997b6afed8494e72ed1d7b0ecf701fd048ff25\", \"recordType\": \"fact\", \"content\": \"Project Atlas uses Node 24.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.213Z\", \"confidence\": 1 }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"revision\": \"800c641fde0e0c89a66c924a71257ae153b57b2d120813a45a1d03339626eb5a\", \"recordType\": \"insight\", \"content\": \"Atlas verification uses independent acceptance checks.\", \"sourceReferences\": [ \"myeve-knowledge:knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\" ], \"provenance\": \"Explicit owner publication of a MyEve Knowledge record\", \"updatedAt\": \"2026-09-19T16:37:29.227Z\", \"confidence\": 1 } ] } }"
+                - heading "Send a message" [level=3] [ref=f3e373]
+                - generic [ref=f3e374]:
+                  - textbox "Recipient Relay address" [ref=f3e375]
+                  - textbox "Messaging resource" [ref=f3e376]:
+                    - /placeholder: Messaging resource granted by recipient
+                  - textbox "Message" [ref=f3e377]
+                  - button "Send message" [ref=f3e378]
+              - generic [ref=f3e379]:
+                - heading "External activity and verified receipts" [level=2] [ref=f3e380]
+                - paragraph [ref=f3e381]: Signed Relay audit exports are verified against the pinned key. Local activity below is not a signed disclosure receipt.
+                - generic [ref=f3e382]:
+                  - text: Import Relay signed audit export
+                  - button "Import Relay signed audit export" [ref=f3e383]
+                - generic [ref=f3e384]:
+                  - paragraph [ref=f3e385]: Verified · federation.disclosure · 2026-09-19 16:37:41.6+00
+                  - generic [ref=f3e386]: "{ \"count\": 0, \"viewId\": null, \"grantId\": \"fgr_7e1eb66cfd384309856fa78a49da1c7d\", \"records\": [], \"requestId\": \"frq_25026457a3494452b222b69cc56689c8\", \"capability\": \"message.send\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_f577b9ff750b4ab98279637e9635e940\", \"publicationVersion\": null }"
+                - generic [ref=f3e387]:
+                  - paragraph [ref=f3e388]: Verified · federation.disclosure · 2026-09-19 16:37:40.553+00
+                  - generic [ref=f3e389]: "{ \"count\": 0, \"viewId\": null, \"grantId\": \"fgr_883afdf7dd724b32a94ea8368ce83287\", \"records\": [], \"requestId\": \"frq_24cb9d3d1a304e62b3d812692d31db6b\", \"capability\": \"artifact.share\", \"callerAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"targetAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"policyDecisionId\": \"dec_4164acdf254c44c0becbe1b73a9fbf79\", \"publicationVersion\": null }"
+                - generic [ref=f3e390]:
+                  - paragraph [ref=f3e391]: Verified · federation.disclosure · 2026-09-19 16:37:40.395+00
+                  - generic [ref=f3e392]: "{ \"count\": 0, \"viewId\": null, \"grantId\": \"fgr_7059b544bb1f4c29bb13b43680d7c3dc\", \"records\": [], \"requestId\": \"frq_c449ba9d59714dca90f895634258f84e\", \"capability\": \"work.request\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_e2e0876730e74338a558c8aa36d9627a\", \"publicationVersion\": null }"
+                - generic [ref=f3e393]:
+                  - paragraph [ref=f3e394]: Verified · federation.disclosure · 2026-09-19 16:37:31.804+00
+                  - generic [ref=f3e395]: "{ \"count\": 0, \"viewId\": null, \"grantId\": \"fgr_87ff37044d3541a291de04185e32b4d0\", \"records\": [], \"requestId\": \"frq_5468dc0d068c4a7e8c8f01f513672244\", \"capability\": \"artifact.share\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_b805467406684c48b899c314f4697b66\", \"publicationVersion\": null }"
+                - generic [ref=f3e396]:
+                  - paragraph [ref=f3e397]: Verified · federation.disclosure · 2026-09-19 16:37:31.622+00
+                  - generic [ref=f3e398]: "{ \"count\": 1, \"viewId\": \"view_65eafae1479e45f9bd81bf2ca41043ab\", \"grantId\": \"fgr_943d9c62316c445c9d8f007f21f5dfa9\", \"records\": [ { \"reference\": \"ava-published-fact\", \"recordType\": \"fact\" } ], \"requestId\": \"frq_7eb1bab9e5804fecb3dd1333bc7ee627\", \"capability\": \"knowledge.query\", \"callerAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"targetAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"policyDecisionId\": \"dec_797b0d3f42b445bf971141ed62b04f5d\", \"publicationVersion\": 1 }"
+                - generic [ref=f3e399]:
+                  - paragraph [ref=f3e400]: Verified · federation.disclosure · 2026-09-19 16:37:31.483+00
+                  - generic [ref=f3e401]: "{ \"count\": 0, \"viewId\": null, \"grantId\": \"fgr_99d09427d6a44f3e9e0546cd4eb7b1fd\", \"records\": [], \"requestId\": \"frq_52ee71b9d80843a3a8267979cd4179b0\", \"capability\": \"message.send\", \"callerAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"targetAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"policyDecisionId\": \"dec_9c1250a298f6431b911f33d15454b5e3\", \"publicationVersion\": null }"
+                - generic [ref=f3e402]:
+                  - paragraph [ref=f3e403]: Verified · federation.disclosure · 2026-09-19 16:37:31.34+00
+                  - generic [ref=f3e404]: "{ \"count\": 0, \"viewId\": null, \"grantId\": \"fgr_7e1eb66cfd384309856fa78a49da1c7d\", \"records\": [], \"requestId\": \"frq_10b1f0a4bfd347a1a7c22bd2747dc95f\", \"capability\": \"message.send\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_d4febb1865b04f96902d01533503575c\", \"publicationVersion\": null }"
+                - generic [ref=f3e405]:
+                  - paragraph [ref=f3e406]: Verified · federation.disclosure · 2026-09-19 16:37:30.6+00
+                  - generic [ref=f3e407]: "{ \"count\": 2, \"viewId\": \"myeve_view_0b0cb111-e806-45c5-8dc1-3039ea3a10be\", \"grantId\": \"fgr_ee2274db26114e7d8da206538682adbc\", \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"recordType\": \"fact\" }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"recordType\": \"insight\" } ], \"requestId\": \"frq_846c3131d9094abab0594ce41ad87492\", \"capability\": \"knowledge.query\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_61031da167234e9a9a1a654fe4c2204f\", \"publicationVersion\": 1 }"
+                - generic [ref=f3e408]:
+                  - paragraph [ref=f3e409]: Verified · federation.disclosure · 2026-09-19 16:37:30.449+00
+                  - generic [ref=f3e410]: "{ \"count\": 2, \"viewId\": \"myeve_view_0b0cb111-e806-45c5-8dc1-3039ea3a10be\", \"grantId\": \"fgr_ee2274db26114e7d8da206538682adbc\", \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"recordType\": \"fact\" }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"recordType\": \"insight\" } ], \"requestId\": \"frq_c8efab365b944d71b74cfb6bfac8a670\", \"capability\": \"knowledge.query\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_2c875c0795e948fba76c6fca6a7ea08e\", \"publicationVersion\": 1 }"
+                - generic [ref=f3e411]:
+                  - paragraph [ref=f3e412]: Verified · federation.disclosure · 2026-09-19 16:37:30.298+00
+                  - generic [ref=f3e413]: "{ \"count\": 2, \"viewId\": \"myeve_view_0b0cb111-e806-45c5-8dc1-3039ea3a10be\", \"grantId\": \"fgr_ee2274db26114e7d8da206538682adbc\", \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"recordType\": \"fact\" }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"recordType\": \"insight\" } ], \"requestId\": \"frq_ee296b3e02dd4df6b28548984299cab2\", \"capability\": \"knowledge.query\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_fe100159e8cb4b44ba22b734a1fe5e49\", \"publicationVersion\": 1 }"
+                - generic [ref=f3e414]:
+                  - paragraph [ref=f3e415]: Verified · federation.disclosure · 2026-09-19 16:37:30.143+00
+                  - generic [ref=f3e416]: "{ \"count\": 2, \"viewId\": \"myeve_view_0b0cb111-e806-45c5-8dc1-3039ea3a10be\", \"grantId\": \"fgr_ee2274db26114e7d8da206538682adbc\", \"records\": [ { \"reference\": \"knowledge_c0f8ae57-b291-4588-ab0c-c4e48bd8fb70\", \"recordType\": \"fact\" }, { \"reference\": \"knowledge_ac3619bf-4ce3-4f48-9d25-9f49320a20a9\", \"recordType\": \"insight\" } ], \"requestId\": \"frq_2128222b0a5f4644b36d4edcbf411335\", \"capability\": \"knowledge.query\", \"callerAgentId\": \"agt_83e4aec3771c472ca3e1b846480d92e0\", \"targetAgentId\": \"agt_71185fa5805f4605869f6700f1d612be\", \"policyDecisionId\": \"dec_32fd6a2472254b018de99300504d9b02\", \"publicationVersion\": 1 }"
+                - group [ref=f3e417]:
+                  - generic "Local activity — pending signed receipt where applicable" [ref=f3e418]
+              - generic [ref=f3e419]:
+                - heading "Source-owned artifacts" [level=2] [ref=f3e420]
+                - paragraph [ref=f3e421]: Retrieval requires both an expiring source signature and the recipient’s pinned key.
+                - generic [ref=f3e422]:
+                  - textbox "Trusted peer address" [ref=f3e423]:
+                    - /placeholder: Trusted peer Relay address
+                  - textbox "Peer artifact origin" [ref=f3e424]:
+                    - /placeholder: Peer HTTPS artifact origin
+                  - textbox "Peer public key" [ref=f3e425]:
+                    - /placeholder: Peer Ed25519 public key
+                  - button "Trust this artifact peer" [ref=f3e426]
+                - generic [ref=f3e427]:
+                  - paragraph [ref=f3e428]: Sofie external work result · 2026-09-19T17:37:31.977Z
+                  - paragraph [ref=f3e429]: sha256:ea93115f759147de581953b27d45045f91f26dcb7cfdd0f1d6d813c5d7d66389
+                  - generic [ref=f3e430]:
+                    - combobox "Artifact recipient" [ref=f3e431]:
+                      - option "relay://acct_5def61791d0a46bda338fa7edd4401d6/agt_83e4aec3771c472ca3e1b846480d92e0" [selected]
+                    - textbox "Artifact resource" [ref=f3e432]:
+                      - /placeholder: Artifact resource granted by recipient
+                    - button "Share with this recipient" [ref=f3e433]
+                  - button "Revoke retrieval" [ref=f3e434]
+  - alert [ref=f3e258]
+```
