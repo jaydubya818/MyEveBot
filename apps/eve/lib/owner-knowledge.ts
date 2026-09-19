@@ -5,7 +5,8 @@ import type { KnowledgeRecordView } from "@/lib/knowledge-types";
 import { recordOwnerDataOperation } from "@/lib/owner-data-operations";
 import type { ExecutionScope, MemoryScopeType } from "@/lib/memory-scopes";
 
-export const OWNER_KNOWLEDGE_TYPES = ["memory", "fact", "observation", "hypothesis", "decision", "commitment", "preference", "insight"] as const;
+import { OWNER_KNOWLEDGE_TYPES } from "./owner-knowledge-types";
+export { OWNER_KNOWLEDGE_TYPES } from "./owner-knowledge-types";
 export type OwnerKnowledgeType = (typeof OWNER_KNOWLEDGE_TYPES)[number];
 export type OwnerKnowledgeRepository = "memory" | "knowledge";
 export type OwnerKnowledgeReview = "needs_review" | "contradictions" | "stale" | "recent" | "corrected";
