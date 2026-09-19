@@ -3,6 +3,7 @@ import { randomUUID, createHash } from "node:crypto";
 import {
   ActionBlocked,
   ActionGateway,
+  consumeActionAuthority,
   localAuthorityProvider,
 } from "../action-gateway.ts";
 import { getAgent } from "../agents.ts";
@@ -182,7 +183,8 @@ export async function executeExternalWork(
           account: store.ownerId,
           resource: envelope.id,
         }),
-        execute: async () => {
+        execute: async (parameters, authorized) => {
+          await consumeActionAuthority(authorized, parameters, "files.read");
           // Fresh Relay authorization is checked immediately before the model call.
           await beforeExecution();
           const remaining = Math.min(

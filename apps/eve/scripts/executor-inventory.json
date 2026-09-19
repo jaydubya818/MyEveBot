@@ -2161,8 +2161,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "6cd80fbba7276f29862d437701aa6f1820894903a1b82da69c4a15594cbe438c"
+      "reason": "Migration marker only; canonical 0025/0026 preserved and additive federation follows as 0027.",
+      "sha256": "223a7a85976a7a5589eeb05d41d5aee201e2158c4eb0deebc702694a1ba9ae88"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2321,8 +2321,8 @@
     },
     "lib/owner-knowledge.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7eb5f0a3a2e820ade84957bc9f115e5ab7536da5878bd477d32d1280576b5ba2"
+      "reason": "Existing owner-scoped Knowledge repository unchanged except re-exporting pure client display constants.",
+      "sha256": "4b17b4a08a08db821f1cd11ef5ce80554bbe5a0c6ced694c292fde42c82cfdd5"
     },
     "lib/phone-auth.ts": {
       "classification": "INTERNAL",
@@ -2503,6 +2503,76 @@
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
       "sha256": "54b95a1d3af3b1f8d10887a85cfbbf0f3b3f725358f97049772ebfcd71536311"
+    },
+    "lib/owner-knowledge-types.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure display constants; no imports, storage, credentials or execution.",
+      "sha256": "31dcb8769d511edfffd94abb1aee9c8bedc4b92afde414891d883acdaa0af6f1"
+    },
+    "lib/relay/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Strict Relay 1.0 transport schemas; no authority or effects.",
+      "sha256": "033270afd62f8e3db36811412371c663d55ac721fb75254ca18eabac81bac355"
+    },
+    "lib/relay/transport.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pinned signature verification and owner-bound encryption; no executor or network.",
+      "sha256": "5c5d0db572dc9ab601b8565d565171fe44484ce26eb3357a893d9ef5f28e5b06"
+    },
+    "lib/relay/store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped adapter persistence, atomic delivery claims and fenced publication reader; no canonical private read capability.",
+      "sha256": "0d6ccf1a9c252a6ef1d8eaf0f07b2191b5d2b3eee7128fa0cd6936e9b6d8f92c"
+    },
+    "lib/relay/projection.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure reader limited to exact published references and revisions; no canonical Knowledge, Memory, SQL or tools.",
+      "sha256": "a766f568c0cb9b71f3fddb86bfb8d0f74dfe37ce4c76a6dddcc0a6fabf474469"
+    },
+    "lib/relay/receipts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped offline audit import verifies pinned signatures and hash chain; stores metadata only.",
+      "sha256": "3d12bc74fb1856355142a35713f377e9fd9f5e5c3be379301bdf7ed875345515"
+    },
+    "lib/relay/client.ts": {
+      "classification": "ENFORCED",
+      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy.",
+      "sha256": "8802fabf5c03bf1feec1961fe3e41b59300ea43a1a58f4b4780e5f3aec30dca8"
+    },
+    "lib/relay/owner.ts": {
+      "classification": "ENFORCED",
+      "reason": "Authenticated owner operations explicitly enroll, preview and confirm publication, grant, revoke and rotate; private default and local-first revocation.",
+      "sha256": "6476131ebf73c4b1f09e70a930db4de6874abb9cf6a6713b7bbf0967923ff969"
+    },
+    "lib/relay/owner-api.ts": {
+      "classification": "ENFORCED",
+      "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
+      "sha256": "ab953d8c15d34464a4eb671d73fe9c0b392add1da8d805afe829e7d689497124"
+    },
+    "lib/relay/inbox.ts": {
+      "classification": "ENFORCED",
+      "reason": "Pinned signed owner/Agent target, durable claim and fresh Relay acceptance; work passes independent local policy plus canonical ActionGateway; no generic runtime access.",
+      "sha256": "10498b061046a89ece2a9b2177e24f903a37b6b2cd11488413ebdc6898869b86"
+    },
+    "lib/relay/work.ts": {
+      "classification": "ENFORCED",
+      "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output.",
+      "sha256": "9971b98833c55139e311880795d0d57e68a7d2a0b4cabeff91921256578689d5"
+    },
+    "lib/relay/artifacts.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-controlled source-owned artifacts; audience proof and key/origin pins, expiry, revocation, checksum, bounded retrieval and no redirects; no canonical private-store access.",
+      "sha256": "6e783fbde616db069260138636053f1427f942cff18dc291ae34580e4a180f94"
+    },
+    "app/api/relay/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Delegates exclusively to signed-owner, exact-origin and disabled-by-default adapter API.",
+      "sha256": "695dc0fef735c4af67701699d6a312e0d1819667f58b1ce56f7469331286a539"
+    },
+    "app/api/relay/artifacts/[id]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Source artifact read requires recipient proof and exact signed audience; bounded content, expiry and revocation.",
+      "sha256": "7bfeea76f313451949509ad5df435bd175c46cc07f02f5f8e49802e02b8e785e"
     }
   }
 }

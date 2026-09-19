@@ -249,10 +249,6 @@ export async function handleOwnerRequest(request: Request) {
       { headers },
     );
   } catch (error) {
-    console.error(
-      "Relay owner operation failed",
-      error instanceof Error ? error.message : "unknown error",
-    );
     const auth =
       error instanceof Error && /Sign in|Same-origin/.test(error.message);
     return Response.json(

@@ -1,0 +1,16 @@
+lib/database-schema.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/owner-knowledge-types.ts: executor has no governance review
+lib/owner-knowledge.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/relay/artifacts.ts: executor has no governance review
+lib/relay/client.ts: executor has no governance review
+lib/relay/contracts.ts: executor has no governance review
+lib/relay/inbox.ts: executor has no governance review
+lib/relay/owner-api.ts: executor has no governance review
+lib/relay/owner.ts: executor has no governance review
+lib/relay/projection.ts: executor has no governance review
+lib/relay/receipts.ts: executor has no governance review
+lib/relay/store.ts: executor has no governance review
+lib/relay/transport.ts: executor has no governance review
+lib/relay/work.ts: executor has no governance review
+app/api/relay/route.ts: executor has no governance review
+app/api/relay/artifacts/[id]/route.ts: executor has no governance review
