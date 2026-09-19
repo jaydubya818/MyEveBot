@@ -26,8 +26,21 @@ function stable(value: unknown): unknown {
   return typeof value === "string" ? redactEvidenceText(value).slice(0,1000) : value;
 }
 export function safeActionParameters(value: Record<string, unknown>): Record<string, unknown> { return stable(value) as Record<string, unknown>; }
+// Binding and display have different purposes. Never redact or truncate before
+// hashing: two distinct credentials or long message bodies are distinct actions.
+export function canonicalActionValue(value: unknown): unknown {
+  if (value === null || typeof value === "string" || typeof value === "boolean") return value;
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (Array.isArray(value)) return value.map(canonicalActionValue);
+  if (value && typeof value === "object" && Object.getPrototypeOf(value) === Object.prototype) {
+    return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined)
+      .sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)
+      .map(([key, item]) => [key, canonicalActionValue(item)]));
+  }
+  throw new Error("Action parameters must be finite JSON values.");
+}
 export function approvalBinding(input: { taskId: string; capabilityId?: string; resource?: string; action: string; parameters: Record<string, unknown> }): string {
-  return createHash("sha256").update(JSON.stringify(stable(input))).digest("hex");
+  return createHash("sha256").update(JSON.stringify(canonicalActionValue(input))).digest("hex");
 }
 export function resolveApprovalPolicy(input: { capabilityId: string; actionClass: ActionClass }): { decision: ApprovalPolicyDecision; risk: CapabilityRisk; reason: string } {
   const capability = getCapability(input.capabilityId);
@@ -38,11 +51,12 @@ export function resolveApprovalPolicy(input: { capabilityId: string; actionClass
   }
   return { decision: "ALLOW", risk: capability.risk.level, reason: "Registered policy allows this bounded action." };
 }
-export async function requestApproval(input:{ownerId:string;taskId:string;requestedBy:string;capabilityId:string;provider?:string;resource?:string;action:string;actionClass:ActionClass;parameters:Record<string,unknown>;effects?:string[];estimatedCostUsd?:number;prompt:string;ttlMinutes?:number}):Promise<{decision:ApprovalPolicyDecision;approval:ApprovalRequestView|null;reason:string}>{
+export async function requestApproval(input:{ownerId:string;taskId:string;requestedBy:string;capabilityId:string;provider?:string;resource?:string;action:string;actionClass:ActionClass;parameters:Record<string,unknown>;effects?:string[];estimatedCostUsd?:number;prompt:string;ttlMinutes?:number;forceApproval?:boolean}):Promise<{decision:ApprovalPolicyDecision;approval:ApprovalRequestView|null;reason:string}>{
   const policy=resolveApprovalPolicy({capabilityId:input.capabilityId,actionClass:input.actionClass});
+  if(input.forceApproval && policy.decision==="ALLOW") policy.decision="REQUIRE_APPROVAL";
   if(policy.decision!=="REQUIRE_APPROVAL")return {decision:policy.decision,approval:null,reason:policy.reason};
   const taskRows=await db().query(`SELECT goal_id,goal_task_id,agent_id,role_id,status FROM task_runs WHERE owner_id=$1 AND id=$2 LIMIT 1`,[input.ownerId,input.taskId]) as Row[];const task=taskRows[0];if(!task)throw new Error("Task not found.");
-  const parameters=safeActionParameters(input.parameters);const bindingHash=approvalBinding({taskId:input.taskId,capabilityId:input.capabilityId,resource:input.resource,action:input.action,parameters});const id=`approval_${randomUUID()}`;const ttl=Math.max(1,Math.min(1440,input.ttlMinutes??60));
+  const parameters=safeActionParameters(input.parameters);const bindingHash=approvalBinding({taskId:input.taskId,capabilityId:input.capabilityId,resource:input.resource,action:input.action,parameters:input.parameters});const id=`approval_${randomUUID()}`;const ttl=Math.max(1,Math.min(1440,input.ttlMinutes??60));
   const rows=await db().query(`INSERT INTO task_approval_decisions (id,task_id,owner_id,goal_id,goal_task_id,agent_id,role_id,capability_id,provider,resource,action,action_class,action_parameters,binding_hash,risk,effects,estimated_cost_usd,expires_at,status,requested_by,prompt) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13::jsonb,$14,$15,$16::jsonb,$17,now()+($18*interval '1 minute'),'pending',$19,$20) RETURNING *`,[id,input.taskId,input.ownerId,task.goal_id,task.goal_task_id,task.agent_id,task.role_id,input.capabilityId,input.provider??null,input.resource??null,input.action,input.actionClass,JSON.stringify(parameters),bindingHash,policy.risk,JSON.stringify((input.effects??[]).map(effect=>redactEvidenceText(effect).slice(0,300))),input.estimatedCostUsd??null,ttl,input.requestedBy,redactEvidenceText(input.prompt).slice(0,1000)]) as Row[];
   if(String(task.status)==="running")await db().transaction(tx=>[tx`UPDATE task_runs SET status='awaiting_approval',status_reason='Waiting for an exact-action owner approval',updated_at=now() WHERE owner_id=${input.ownerId} AND id=${input.taskId} AND status='running'`,tx`INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) VALUES (${input.taskId},'running','awaiting_approval','agent','Exact-action owner approval required')`]);
   return {decision:"REQUIRE_APPROVAL",approval:view(rows[0]!),reason:policy.reason};

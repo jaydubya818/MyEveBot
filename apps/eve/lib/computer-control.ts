@@ -42,6 +42,7 @@ export async function transitionComputerControl(input:{ownerId:string;sessionId:
       AND ($6 NOT IN ('OWNER','PAUSED','NONE') OR NOT EXISTS (SELECT 1 FROM computer_actions a WHERE a.computer_session_id=l.computer_session_id AND a.status='running'))
       AND ($6 NOT IN ('AGENT','PAUSED','NONE') OR l.owner_input_in_flight=0)
       AND ($6<>'OWNER' OR l.owner_input_in_flight=0)
+      AND l.gateway_actions_in_flight=0
     RETURNING l.*
   ), receipt AS (
     INSERT INTO computer_control_receipts (id,computer_session_id,owner_id,agent_id,run_id,event_type,previous_controller,new_controller,control_version,requested_by,reason,metadata)
