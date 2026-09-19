@@ -1,5 +1,6 @@
 "use client";
 
+import { RelayPanel } from "./relay-panel";
 import { Badge, Button, DropdownMenu, Input, Loader } from "@cloudflare/kumo";
 import {
   ArrowLeftIcon,
@@ -446,7 +447,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
+type ManageSection = "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -563,6 +564,7 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
   {
     label: "Operations",
     sections: [
+      { id: "relay", label: "Relay", description: "Owner-controlled external sharing", icon: PlugsIcon },
       {
         id: "control" as const,
         label: "Control Center",
@@ -790,13 +792,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
+    id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
+    id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -844,6 +846,8 @@ export function ManagePanel({
     sectionContent = <PhonePanel />;
   } else if (activeSection === "control") {
     sectionContent = <ControlCenterPanel onOpenThread={onOpenThread} />;
+  } else if (activeSection === "relay") {
+    sectionContent = <RelayPanel />;
   } else if (activeSection === "approvals") {
     sectionContent = <ApprovalCenterPanel />;
   } else if (activeSection === "activity") {
