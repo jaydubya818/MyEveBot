@@ -1,3 +1,5 @@
+import {executionIdentityFromAuth,resolveExecution} from "../../lib/execution-auth.ts";
+import {ROUTINE_READ_TOOLS} from "../../lib/routine-review.ts";
 import * as browserTools from "@agent-browser/eve/tools";
 import { defineDynamic,defineTool,type DynamicResolveContext,type DynamicToolEntry,type DynamicToolSet } from "eve/tools";
 import { z } from "zod";
@@ -55,9 +57,12 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
   });
   if (!agent) return null;
   const activeAgentId = ownerId ? await activeComputerAgentId(ownerId, ctx.session.id) : null;
+  const identity=executionIdentityFromAuth(ctx.session.auth);
+  const routine=identity?await resolveExecution(identity):null;
   const resolved: Record<string, DynamicToolEntry<any, any>> = {};
   for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
-    const decision = effectiveCapability(agent, capabilityId);
+    const decision = routine && (routine.agentId!==agent.id || ROUTINE_READ_TOOLS[toolName]!==capabilityId || !routine.configuration.authority.allowedCapabilities.includes(capabilityId))
+      ?{allowed:false,reason:"This tool is outside the reviewed Routine tool graph."}:effectiveCapability(agent, capabilityId);
     const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
     if (decision.allowed && browserName) {
       const browserTool = browserTools[browserName] as unknown as DynamicToolEntry<any, any> & {

@@ -12,7 +12,7 @@ describe("actual executor entry points fail before providers",()=>{
     expect(mocks.send).not.toHaveBeenCalled();
   });
   it("rejects direct adapter calls even with plausible forged authority",async()=>{
-    const context={idempotencyKey:"forged",capabilityId:"tool.send_email",target:{provider:"mail",account:"owner",resource:"recipient"}};
+    const context={authorityId:"forged",executor:{kind:"primary-agent" as const,agentId:"fake"},expiresAt:Date.now()+30_000,idempotencyKey:"forged",capabilityId:"tool.send_email",target:{provider:"mail",account:"owner",resource:"recipient"}};
     const adapter=emailSendAdapter("mail",{resolveAccount:async()=>"owner",send:mocks.send,inspect:async()=>null});
     await expect(adapter.execute({to:["fixture@example.test"]},context)).rejects.toThrow();
     const file=fileWriteAdapter({id:"sandbox",canonicalPath:async path=>path,write:mocks.write,read:async()=>null});

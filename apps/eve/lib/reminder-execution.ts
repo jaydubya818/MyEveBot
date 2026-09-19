@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { CronExpressionParser } from "cron-parser";
+import {missedOccurrenceTimes} from "./missed-occurrences.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { ExecutionStore } from "./execution-store.ts";
 import { routineConfigurationSchema,type ExecutionDatabase } from "./execution-types.ts";
@@ -19,13 +19,14 @@ export async function enqueueReviewedReminders(ownerId=deploymentOwnerId(),datab
     const due=row.next_fire_at instanceof Date?row.next_fire_at:new Date(String(row.next_fire_at));
     const cron=row.cron?String(row.cron):null;
     const next=cron?nextCronOccurrence(cron,String(row.timezone),now):null;
-    const stale=now.getTime()-due.getTime()>60_000;
-    if(!(cron && stale && configuration.missedPolicy==="skip")) {
-      const period=cron && stale?CronExpressionParser.parse(cron,{tz:String(row.timezone),currentDate:now}).prev().toDate():due;
+    const periods=missedOccurrenceTimes({cron,timezone:String(row.timezone),due,now,policy:configuration.missedPolicy});
+    let complete=true;
+    for(const period of periods) {
       const id=await store.enqueue({ownerId,routineId:String(row.execution_routine_id),key:period.toISOString(),scheduledFor:period.toISOString()});
-      if(!id)continue;
+      if(!id){complete=false;break;}
       enqueued++;
     }
+    if(!complete)continue;
     await database.query(`UPDATE reminders SET next_fire_at=coalesce($4::timestamptz,next_fire_at),
       status=CASE WHEN $4::timestamptz IS NULL THEN 'done' ELSE status END,last_fired_at=$5
       WHERE owner_id=$1 AND id=$2 AND date_trunc('milliseconds',next_fire_at)=$3::timestamptz

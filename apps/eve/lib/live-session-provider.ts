@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "./external-write-policy.ts";
 import { randomUUID } from "node:crypto";
 
 import { defaultSessionName } from "@agent-browser/sandbox";
@@ -211,6 +212,7 @@ const vercelBrowserProvider: LiveSessionProvider = {
   },
   async acquireOwnerControl(session) { await enableOwnerStream(session); },
   async sendOwnerInput(session, _controlVersion, input) {
+    blockExternalWrite("computer.owner_input");
     const sandbox = await exactSandbox(session);
     const path = `/tmp/myeve-owner-input-${randomUUID()}.json`;
     try {
@@ -243,6 +245,7 @@ const vercelBrowserProvider: LiveSessionProvider = {
     }
   },
   async stopSession(session) {
+    blockExternalWrite("computer.provider_stop");
     const sandbox = await exactSandbox(session);
     await agentBrowser(session, ["close"]).catch(() => undefined);
     await sandbox.stop();

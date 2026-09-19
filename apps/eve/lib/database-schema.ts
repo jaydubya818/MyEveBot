@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0025_action_executor_enforcement.sql";
+export const CURRENT_DATABASE_MIGRATION = "0026_action_recovery_qualification.sql";

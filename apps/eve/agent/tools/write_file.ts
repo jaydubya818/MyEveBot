@@ -14,6 +14,7 @@ export default defineTool({
     const size = typeof content === "string" ? Buffer.byteLength(content, "utf8") : 0;
     if (size > session.resourceLimits.maxFileBytes) throw new Error(`File exceeds the ${session.resourceLimits.maxFileBytes}-byte session limit.`);
     const sandbox=await ctx.getSandbox();
+    if(sandbox.id!==session.sandboxId)throw new Error("The sandbox no longer matches the authorized Computer session.");
     const action=await toolActionRequest(ctx,{capabilityId:"files.write",actionClass:"write",parameters:input as Record<string,unknown>,
       computer:{sessionId:session.id,controlVersion:session.control.version}});
     return new ActionGateway().execute(action,fileWriteAdapter({

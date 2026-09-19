@@ -1,3 +1,4 @@
+import type {ExecutionDatabase} from "./execution-types.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
 import type { ComputerController, ComputerControlView } from "./computer-types.ts";
@@ -24,11 +25,11 @@ export async function expireOwnerControlLeases(ownerId?:string):Promise<number>{
   return Number(rows[0]?.count??0);
 }
 
-export async function transitionComputerControl(input:{ownerId:string;sessionId:string;expectedController:ComputerController;expectedVersion:number;operation:"takeOver"|"requestOwnerTakeover"|"pause"|"resumeAgent"|"returnControl"|"stop";requestedBy:string;reason?:string;stateFingerprint?:string;checkpoint?:Record<string,unknown>}):Promise<{controller:ComputerController;version:number}>{
+export async function transitionComputerControl(input:{ownerId:string;sessionId:string;expectedController:ComputerController;expectedVersion:number;operation:"takeOver"|"requestOwnerTakeover"|"pause"|"resumeAgent"|"returnControl"|"stop";requestedBy:string;reason?:string;stateFingerprint?:string;checkpoint?:Record<string,unknown>},database:ExecutionDatabase=db() as ExecutionDatabase):Promise<{controller:ComputerController;version:number}>{
   const target:ComputerController=input.operation==="takeOver"?"OWNER":input.operation==="pause"||input.operation==="requestOwnerTakeover"?"PAUSED":input.operation==="stop"?"NONE":"AGENT";
   if(!canTransitionControl(input.expectedController,target))throw new ControlConflictError(`Cannot transition control from ${input.expectedController} to ${target}.`);
   const safeReason=redactEvidenceText(input.reason??input.operation).slice(0,500);const id=`control_${randomUUID()}`;
-  const rows=await db().query(`WITH changed AS (
+  const rows=await database.query(`WITH changed AS (
     UPDATE computer_control_leases l SET controller=$6,version=l.version+1,
       claimed_by=CASE WHEN $6='OWNER' THEN $7 ELSE NULL END,
       claimed_at=CASE WHEN $6='OWNER' THEN now() ELSE NULL END,

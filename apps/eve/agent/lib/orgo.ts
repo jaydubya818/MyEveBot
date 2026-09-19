@@ -1,3 +1,4 @@
+import {blockExternalWrite,requireReadOnlyTransport} from "../../lib/external-write-policy.ts";
 // A persistent cloud desktop for the agent, backed by Orgo (https://orgo.ai).
 //
 // Orgo rents full Linux VMs with a display, a browser, and a shell, reachable
@@ -331,6 +332,7 @@ async function api<T>(
   path: string,
   init: { method?: string; body?: unknown; signal?: AbortSignal } = {},
 ): Promise<T> {
+  requireReadOnlyTransport("orgo",init.method);
   const response = await fetch(`${apiBase()}${path}`, {
     method: init.method ?? "GET",
     headers: {
@@ -821,6 +823,7 @@ async function liveState(
   signal?: AbortSignal,
   profile?: OrgoProfileDescriptor,
 ): Promise<{ computer: Computer | null; connection: LiveConnection | null }> {
+  blockExternalWrite("orgo.live_credentials");
   const computer = await resolveComputer({ create: false, signal }, profile);
   if (computer === null || computer.status !== "running") return { computer, connection: null };
 
@@ -942,7 +945,8 @@ function createOrgoClient(profile?: OrgoProfileDescriptor) {
   },
 
   async stop(signal?: AbortSignal): Promise<Computer | null> {
-    const computer = await resolveComputer({ create: false, signal }, profile);
+    blockExternalWrite("orgo.live_credentials");
+  const computer = await resolveComputer({ create: false, signal }, profile);
     if (computer === null) return null;
     // Already idle (Orgo calls that `frozen`) or on its way there.
     const running = computer.status === "running" || computer.status === "starting";
@@ -952,7 +956,8 @@ function createOrgoClient(profile?: OrgoProfileDescriptor) {
   },
 
   async restart(signal?: AbortSignal): Promise<Computer | null> {
-    const computer = await resolveComputer({ create: false, signal }, profile);
+    blockExternalWrite("orgo.live_credentials");
+  const computer = await resolveComputer({ create: false, signal }, profile);
     if (computer === null) return null;
     // Restarting something that is already down is just waking it.
     if (computer.status !== "running") return await ensureRunning(computer, signal);
@@ -1063,6 +1068,7 @@ function createOrgoClient(profile?: OrgoProfileDescriptor) {
     let costCents: number | null = null;
 
     try {
+      blockExternalWrite("orgo.task");
       const response = await fetch(`${apiBase()}/v1/chat/completions`, {
         method: "POST",
         headers: {
@@ -1132,7 +1138,8 @@ function createOrgoClient(profile?: OrgoProfileDescriptor) {
 
   /** Permanently remove only this profile's desktop. The caller owns confirmation and audit. */
   async delete(signal?: AbortSignal): Promise<boolean> {
-    const computer = await resolveComputer({ create: false, signal }, profile);
+    blockExternalWrite("orgo.live_credentials");
+  const computer = await resolveComputer({ create: false, signal }, profile);
     if (computer === null) return false;
     await api(`/computers/${computer.id}`, { method: "DELETE", signal });
     identities.delete(profileComputerName(profile));

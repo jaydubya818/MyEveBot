@@ -1,3 +1,4 @@
+import { blockedChannel } from "../lib/blocked-channel.ts";
 import { connectSlackCredentials } from "@vercel/connect/eve";
 import type {
   SlackEvent,
@@ -163,7 +164,7 @@ async function handleReaction(ctx: SlackInboundEventContext, event: SlackEvent):
   });
 }
 
-export default slackChannel({
+const unqualifiedChannel = () => slackChannel({
   credentials: connectSlackCredentials(slackConnectClientId()),
 
   // Repeated mentions inject only what is new, rather than replaying the whole
@@ -241,3 +242,5 @@ export default slackChannel({
     },
   },
 });
+
+export default blockedChannel();

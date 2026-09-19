@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "./external-write-policy.ts";
 import { neon, type NeonQueryFunction } from "@neondatabase/serverless";
 import webpush, { WebPushError, type PushSubscription } from "web-push";
 
@@ -89,6 +90,7 @@ export async function sendPushToOwner(
   ownerId: string,
   payload: { title: string; body: string; url?: string },
 ): Promise<{ delivered: number; failed: number }> {
+  blockExternalWrite("push.send");
   if (!configureVapid()) throw new Error("push_not_configured");
   await ensureTable();
   const rows = await sql()`SELECT endpoint, subscription FROM push_subscriptions WHERE owner_id = ${ownerId}`;

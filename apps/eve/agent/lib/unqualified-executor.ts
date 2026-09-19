@@ -5,8 +5,8 @@ import { toolActionRequest } from "./action-context.ts";
 /** Explicit fail-closed disposition for operations without a concrete adapter. */
 export async function denyUnqualifiedExecutor(ctx:ToolContext,capabilityId:string,parameters:Record<string,unknown>={}):Promise<never> {
   const request=await toolActionRequest(ctx,{capabilityId,actionClass:"execute",parameters});
-  await new ActionGateway().execute(request,{
-    resolveTarget:async()=>{throw new Error("Target adapter is not qualified");},
+  await new ActionGateway(undefined,{evaluate:async()=>({decision:"DENY",source:"executor-qualification",reason:"This write path has not yet been qualified for autonomous execution.",reasonCode:"unqualified_executor"})}).execute(request,{
+    resolveTarget:async()=>({provider:"blocked",account:request.ownerId,resource:capabilityId}),
     execute:async()=>{throw new Error("Unreachable executor");},
     verify:async()=>({verified:false,receipt:{}}),
   });

@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "../../../lib/external-write-policy.ts";
 import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from "node:crypto";
 
 import { Context, Data, Effect, Layer, Schema } from "effect";
@@ -467,6 +468,7 @@ function postJson(options: PostJsonOptions): Effect.Effect<unknown, IMessageErro
         "content-type": "application/json",
       };
       if (options.bearer !== undefined) headers.authorization = `Bearer ${options.bearer}`;
+      blockExternalWrite("imessage.router");
       const response = await fetch(options.url, {
         method: "POST",
         headers,
@@ -578,6 +580,7 @@ interface SpectrumOps {
 let sdkOps: Promise<SpectrumOps> | null = null;
 
 function spectrumSdkOps(): Promise<SpectrumOps> {
+  blockExternalWrite("imessage.sdk");
   sdkOps ??= (async () => {
     const [core, imessagePkg] = await Promise.all([
       import("@spectrum-ts/core"),
@@ -670,6 +673,7 @@ function spectrumSdkOps(): Promise<SpectrumOps> {
 }
 
 function postToStub(baseUrl: string, path: string, json: unknown): Promise<void> {
+  blockExternalWrite("imessage.stub");
   return fetch(`${baseUrl.replace(/\/+$/, "")}${path}`, {
     method: "POST",
     headers: { "content-type": "application/json" },

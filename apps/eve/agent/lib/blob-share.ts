@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "../../lib/external-write-policy.ts";
 import { put } from "@vercel/blob";
 
 // Uploads whose whole point is a URL the owner (or the iMessage router, or a
@@ -35,6 +36,7 @@ export async function uploadForSharing(input: {
   readonly data: Buffer | string;
   readonly contentType?: string;
 }): Promise<SharedUpload> {
+  blockExternalWrite("files.public_share");
   const options = {
     addRandomSuffix: true,
     ...(input.contentType !== undefined ? { contentType: input.contentType } : {}),

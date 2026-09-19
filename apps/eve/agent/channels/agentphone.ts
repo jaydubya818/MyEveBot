@@ -1,3 +1,4 @@
+import { blockedChannel } from "../lib/blocked-channel.ts";
 import { POST, defineChannel } from "eve/channels";
 
 import {
@@ -164,7 +165,7 @@ async function signalTyping(state: PhoneState): Promise<void> {
   });
 }
 
-export default defineChannel<
+const unqualifiedChannel = () => defineChannel<
   PhoneState,
   { state: PhoneState },
   { target?: string; conversationId?: string },
@@ -450,3 +451,5 @@ export default defineChannel<
     },
   },
 });
+
+export default blockedChannel();

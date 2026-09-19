@@ -1,14 +1,23 @@
 import type { ToolContext } from "eve/tools";
 
 import { createKnowledgeSource, type CreateKnowledgeInput } from "../../lib/knowledge.ts";
-import { ensurePrimaryAgent } from "../../lib/agents.ts";
+import { effectiveCapability } from "../../lib/agents.ts";
+import {resolveSessionAgent} from "./session-settings.ts";
+import {executionIdentityFromAuth,resolveExecution} from "../../lib/execution-auth.ts";
 import { taskOwnerFromAuth } from "../../lib/task-runs.ts";
 
 export async function knowledgeActor(ctx: ToolContext): Promise<Pick<CreateKnowledgeInput, "ownerId" | "createdByType" | "createdById">> {
   const ownerId = taskOwnerFromAuth(ctx.session.auth);
-  const rawAgentId = ctx.session.auth.current?.attributes.myeveAgentId;
-  const requestedId = typeof rawAgentId === "string" ? rawAgentId : undefined;
-  const agent = requestedId ? { id: requestedId } : await ensurePrimaryAgent(ownerId);
+  const auth=ctx.session.auth.current;
+  if(!auth || auth.attributes.role==="guest")throw new Error("Knowledge write requires authenticated owner scope.");
+  const agent=await resolveSessionAgent({ownerId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:auth.attributes.owner==="true"});
+  const capability=`tool.${ctx.toolName}`;
+  if(!agent || agent.status!=="active" || !effectiveCapability(agent,capability).allowed)throw new Error("Knowledge write is unavailable to this Agent.");
+  const identity=executionIdentityFromAuth(ctx.session.auth);
+  if(identity) {
+    const occurrence=await resolveExecution(identity);
+    if(occurrence.agentId!==agent.id || !occurrence.configuration.authority.allowedCapabilities.includes(capability))throw new Error("Routine does not grant this Knowledge write.");
+  }
   return { ownerId, createdByType: "agent", createdById: agent.id };
 }
 

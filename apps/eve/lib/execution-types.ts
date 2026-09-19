@@ -30,7 +30,7 @@ export const routineConfigurationSchema = z.object({
     maxRuntimeSeconds: z.number().int().min(30).max(3600).default(600),
     maxCostUsd: z.number().positive().max(100).default(1),
   }).strict().default({ maxSteps: 30, maxRuntimeSeconds: 600, maxCostUsd: 1 }),
-  missedPolicy: z.enum(["skip", "run_latest"]).default("run_latest"),
+  missedPolicy: z.enum(["skip", "run_latest", "catch_up_bounded"]).default("run_latest"),
   deliveryChannel: z.enum(["in_app", "push", "telegram"]).default("in_app"),
 }).strict();
 export type RoutineConfiguration = z.infer<typeof routineConfigurationSchema>;

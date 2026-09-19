@@ -1,3 +1,4 @@
+import { blockedChannel } from "../lib/blocked-channel.ts";
 import { POST, defineChannel } from "eve/channels";
 
 import {
@@ -50,7 +51,7 @@ export interface VoiceState {
   from: string | null;
 }
 
-export default defineChannel<
+const unqualifiedChannel = () => defineChannel<
   VoiceState,
   { state: VoiceState },
   { callId?: string; from?: string },
@@ -147,3 +148,5 @@ export default defineChannel<
   // message.completed handler here would speak every reply twice.
   events: {},
 });
+
+export default blockedChannel();

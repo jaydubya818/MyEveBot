@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "../../lib/external-write-policy.ts";
 import { runAgentBrowser } from "@agent-browser/eve/sandbox";
 import { defineTool, type ToolContext } from "eve/tools";
 import { z } from "zod";
@@ -217,6 +218,7 @@ export function createRunAssignedQaSuiteTool(role: QaSpecialistRole) {
     description: `Run the fixed, read-only ${role} critical-path UI suite in one bounded action and create redacted evidence reports for both assigned checks.`,
     inputSchema: z.object({ taskId: z.string().startsWith("task_") }),
     async execute({ taskId }, ctx) {
+      blockExternalWrite("qa.browser_suite");
       const run = await getTaskRun(taskOwnerFromAuth(ctx.session.auth), taskId);
       if (!run || run.status !== "running") throw new Error("The QA task is not active.");
       const specialist = run.specialists.find((item) => item.role === role);

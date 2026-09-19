@@ -348,3 +348,6 @@ describe("Agentcard card attachment", () => {
     expect(exit._tag).toBe("Failure");
   });
 });
+
+// Protocol tests isolate legacy transport. Real guards are tested in external-write-policy.test.ts.
+vi.mock("../../../lib/external-write-policy.ts",()=>({blockExternalWrite:vi.fn(),requireReadOnlyTransport:vi.fn()}));

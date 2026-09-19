@@ -21,7 +21,7 @@ export function emailSendAdapter(providerName:string,provider:EmailProvider):Act
       return {provider:providerName,account:await provider.resolveAccount(),resource:JSON.stringify(recipients)};
     },
     async execute(parameters,context) {
-      consumeActionAuthority(context,parameters,"tool.send_email");
+      await consumeActionAuthority(context,parameters,"tool.send_email");
       return provider.send(parameters,context);
     },
     receipt:result=>({messageId:result.messageId,threadId:result.threadId}),
@@ -50,7 +50,7 @@ export function fileWriteAdapter(provider:FileProvider):ActionAdapter<{path:stri
       return {provider:"sandbox",account:provider.id,resource:path,environment:"workspace"};
     },
     async execute(parameters,context) {
-      consumeActionAuthority(context,parameters,"files.write");
+      await consumeActionAuthority(context,parameters,"files.write");
       if(context.target.account!==provider.id || await provider.canonicalPath(context.target.resource)!==context.target.resource)throw new Error("File target changed");
       await provider.write({...parameters,filePath:context.target.resource},context);
       return {path:context.target.resource,checksum:createHash("sha256").update(String(parameters.content)).digest("hex")};

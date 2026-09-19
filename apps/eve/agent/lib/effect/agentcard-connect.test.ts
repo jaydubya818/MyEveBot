@@ -545,3 +545,6 @@ describe("rotating refresh tokens", () => {
     expect(calls.filter((call) => call.url.endsWith("/connect/refresh"))).toHaveLength(1);
   });
 });
+
+// Protocol tests isolate legacy transport. Real guards are tested in external-write-policy.test.ts.
+vi.mock("../../../lib/external-write-policy.ts",()=>({blockExternalWrite:vi.fn(),requireReadOnlyTransport:vi.fn()}));

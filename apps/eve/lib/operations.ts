@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "./external-write-policy.ts";
 import { randomUUID } from "node:crypto";
 
 import { db } from "../agent/lib/receipts-db.ts";
@@ -165,6 +166,7 @@ async function sendAlert(ownerId: string, report: OperationsReport): Promise<voi
     [ownerId],
   ) as Row[];
   if (recent.length > 0) return;
+  blockExternalWrite("operations.webhook");
   const response = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },

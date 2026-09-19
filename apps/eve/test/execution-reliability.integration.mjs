@@ -8,6 +8,8 @@ import { ActionGateway, ActionBlocked } from "../lib/action-gateway.ts";
 import { RoutineReviewStore } from "../lib/routine-review.ts";
 import { enqueueReviewedReminders } from "../lib/reminder-execution.ts";
 import { resolveExecution } from "../lib/execution-auth.ts";
+import {qualifyCoverage} from "./action-coverage-cases.mjs";
+import {qualifyRecovery} from "./action-recovery-cases.mjs";
 import { qualifyActionExecutors } from "./action-executor-cases.mjs";
 
 // Deliberately never reads DATABASE_URL, .env files, or a caller-supplied host.
@@ -138,6 +140,8 @@ try {
   await reviews.review({...review,expectedVersion:2,configuration:{...configuration,instructions:'Changed instructions'}});
   await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/,"re-review cannot authorize an old execution");
   await qualifyActionExecutors(setup,database(setup),reviewedClaim);
+  await qualifyRecovery(setup,database(setup));
+  await qualifyCoverage(setup,database(setup));
   await store.createRoutine({id:"delivery-policy",ownerId,sourceKind:"manual",sourceId:"delivery-policy",name:"Delivery policy fixture",agentId:"ava",
     configuration:{...configuration,deliveryChannel:"telegram"},changedBy:ownerId});
   await store.enqueue({ownerId,routineId:"delivery-policy",key:"once",scheduledFor:"2026-09-18T08:00:00Z"});

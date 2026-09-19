@@ -222,3 +222,6 @@ describe("iMessage transcript", () => {
     expect(select?.params).toEqual([200]);
   });
 });
+
+// Protocol tests isolate legacy transport. Real guards are tested in external-write-policy.test.ts.
+vi.mock("../../../lib/external-write-policy.ts",()=>({blockExternalWrite:vi.fn(),requireReadOnlyTransport:vi.fn()}));

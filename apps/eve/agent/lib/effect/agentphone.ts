@@ -1,3 +1,4 @@
+import {requireReadOnlyTransport} from "../../../lib/external-write-policy.ts";
 import { Context, Data, Effect, Layer, Schema } from "effect";
 import type { SchemaError } from "effect/SchemaError";
 
@@ -249,6 +250,7 @@ function request(options: RequestOptions): Effect.Effect<unknown, AgentPhoneErro
         }
         if (options.subAccountId != null) headers["x-sub-account-id"] = options.subAccountId;
 
+        requireReadOnlyTransport("phone",options.method);
         const response = await fetch(url, {
           method: options.method ?? "GET",
           headers,
