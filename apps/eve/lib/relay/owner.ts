@@ -315,10 +315,14 @@ export async function confirmPublication(
   ).owner({ operation: "publish", input: publication.document });
   if (result.viewId !== id || result.version !== 1)
     throw new Error("Unexpected Relay publication version.");
-  await store.database.query(
-    "UPDATE myeve_relay_publications SET status='active',version=$3,updated_at=now() WHERE owner_id=$1 AND id=$2",
+  const activated = await store.database.query(
+    "UPDATE myeve_relay_publications SET status='active',version=$3,updated_at=now() WHERE owner_id=$1 AND id=$2 AND status='sync_required' RETURNING id",
     [store.ownerId, id, result.version],
   );
+  if (!activated.length)
+    throw new Error(
+      "Publication changed while publishing; local access remains disabled.",
+    );
   await store.activity("publication-confirmed", null, {
     viewId: id,
     version: result.version,

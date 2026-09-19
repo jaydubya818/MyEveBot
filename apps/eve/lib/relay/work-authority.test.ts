@@ -4,7 +4,19 @@ import { executeExternalWork } from "./work.ts";
 import type { FederationStore } from "./store.ts";
 import type { Envelope } from "./transport.ts";
 const mocks = vi.hoisted(() => ({ model: vi.fn() }));
-vi.mock("ai", () => ({ generateText: mocks.model, gateway: vi.fn() }));
+vi.mock("ai", () => ({
+  generateText: mocks.model,
+  gateway: Object.assign(vi.fn(), {
+    getAvailableModels: async () => ({
+      models: [
+        {
+          id: "anthropic/claude-sonnet-5",
+          pricing: { input: "0.000003", output: "0.000015" },
+        },
+      ],
+    }),
+  }),
+}));
 vi.mock("../agents.ts", () => ({
   getAgent: async () => ({
     id: "local-sofie",

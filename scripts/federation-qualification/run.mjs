@@ -30,7 +30,10 @@ const root = resolve("scripts/federation-qualification");
 const require = createRequire(`${relayRoot}/package.json`),
   pg = require("pg");
 const temporary = mkdtempSync(join(tmpdir(), "myeve-relay-live-"));
-const output = resolve("docs/federation/evidence/rebased/live");
+const output = resolve(
+  process.env.MYEVE_QUALIFICATION_OUTPUT ??
+    "docs/federation/evidence/rebased/live",
+);
 mkdirSync(output, { recursive: true });
 const suffix = randomBytes(4).toString("hex"),
   names = {
@@ -826,9 +829,8 @@ try {
   // Qualification coordinator decodes only the disposable adapter credential for replay captures.
   process.env.MYEVE_RELAY_ENCRYPTION_KEY =
     myConfig.environment.MYEVE_RELAY_ENCRYPTION_KEY;
-  const { decryptSecret } = await import(
-    "../../apps/eve/lib/relay/transport.ts"
-  );
+  const { decryptSecret } =
+    await import("../../apps/eve/lib/relay/transport.ts");
   const credential = decryptSecret(
     "qualification-jay",
     c.agent_credential_encrypted,
@@ -1142,6 +1144,9 @@ try {
   check(
     "Safe work executes through real MyEve Task, ActionGateway, Agent and model",
     run.status === "completed" &&
+      Number(run.model_steps) === 1 &&
+      Number(run.estimated_cost_usd) ===
+        Number(Number(result.result.cost).toFixed(4)) &&
       result.result.modelSteps === 1 &&
       result.result.providerReceipts.length === 1 &&
       Number(result.result.cost) > 0,
@@ -1150,6 +1155,8 @@ try {
       runId: run.id,
       providerReceipts: result.result.providerReceipts,
       cost: result.result.cost,
+      canonicalModelSteps: Number(run.model_steps),
+      canonicalEstimatedCostUsd: Number(run.estimated_cost_usd),
     },
   );
   await peerOwner("grant", {

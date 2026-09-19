@@ -167,10 +167,50 @@ export async function pollRelay(store: FederationStore) {
       });
     }
   }
+  // A crash after approval reconciliation but before begin() leaves an untouched
+  // accepted claim. Only begin's CAS may execute it; processing stays fenced.
+  const accepted = await store.database.query(
+    "SELECT envelope_encrypted FROM myeve_relay_requests WHERE owner_id=$1 AND direction='incoming' AND state='accepted' AND expires_at>now() LIMIT 10",
+    [store.ownerId],
+  );
+  for (const row of accepted) {
+    try {
+      results.push(
+        await processRequest(
+          store,
+          decryptSecret<Envelope>(store.ownerId, row.envelope_encrypted),
+        ),
+      );
+    } catch {
+      /* Processing failures remain fenced for owner verification. */
+    }
+  }
+  // Reconcile exact decisions made in Approval Center or before a process restart.
+  const decided = await store.database.query(
+    `SELECT r.request_id,p.status FROM myeve_relay_requests r
+      JOIN action_requests a ON a.owner_id=r.owner_id AND a.run_id=r.local_run_id AND a.action_key=r.request_id
+      JOIN task_approval_decisions p ON p.owner_id=a.owner_id AND p.id=a.approval_id AND p.task_id=a.run_id
+      WHERE r.owner_id=$1 AND r.state='needs_approval' AND r.expires_at>now()
+        AND p.status IN ('approved','denied') AND p.expires_at>now() LIMIT 10`,
+    [store.ownerId],
+  );
+  for (const decision of decided) {
+    try {
+      results.push(
+        await decideExternalWork(
+          store,
+          decision.request_id,
+          decision.status === "approved",
+        ),
+      );
+    } catch {
+      /* Preserve durable state for bounded recovery or owner inspection. */
+    }
+  }
   // Completed local work can need an ack retry even when Relay has moved to
   // ACCEPTED/RUNNING and therefore no longer offers it as an inbox delivery.
   const pending = await store.database.query(
-    "SELECT envelope_encrypted,result_encrypted FROM myeve_relay_requests WHERE owner_id=$1 AND direction='incoming' AND state IN ('completed','denied','needs_approval') AND NOT relay_acknowledged AND expires_at>now()",
+    "SELECT envelope_encrypted,result_encrypted FROM myeve_relay_requests WHERE owner_id=$1 AND direction='incoming' AND state IN ('completed','denied','needs_approval') AND NOT relay_acknowledged AND expires_at>now() ORDER BY updated_at LIMIT 10",
     [store.ownerId],
   );
   for (const row of pending) {
@@ -198,17 +238,26 @@ export async function decideExternalWork(
   if (!row?.local_run_id)
     throw new Error("No current local approval for this request.");
   const [approval] = await store.database.query(
-    "SELECT id,binding_hash FROM task_approval_decisions WHERE owner_id=$1 AND task_id=$2 AND status='pending' AND expires_at>now() ORDER BY requested_at DESC LIMIT 1",
-    [store.ownerId, row.local_run_id],
+    `SELECT p.id,p.binding_hash,p.status FROM action_requests a
+      JOIN task_approval_decisions p ON p.id=a.approval_id AND p.owner_id=a.owner_id AND p.task_id=a.run_id
+      WHERE a.owner_id=$1 AND a.run_id=$2 AND a.action_key=$3
+        AND p.status IN ('pending','approved','denied') AND p.expires_at>now()`,
+    [store.ownerId, row.local_run_id, requestId],
   );
   if (!approval) throw new Error("Approval is no longer pending.");
-  await decideApproval({
-    ownerId: store.ownerId,
-    id: approval.id,
-    bindingHash: approval.binding_hash,
-    decision: accept ? "approved" : "denied",
-    decidedBy: store.ownerId,
-  });
+  if (
+    approval.status !== "pending" &&
+    approval.status !== (accept ? "approved" : "denied")
+  )
+    throw new Error("Existing exact-action decision does not match.");
+  if (approval.status === "pending")
+    await decideApproval({
+      ownerId: store.ownerId,
+      id: approval.id,
+      bindingHash: approval.binding_hash,
+      decision: accept ? "approved" : "denied",
+      decidedBy: store.ownerId,
+    });
   const envelope = decryptSecret<Envelope>(
     store.ownerId,
     row.envelope_encrypted,
@@ -224,10 +273,11 @@ export async function decideExternalWork(
     );
     return acknowledge(store, envelope, { status: "REJECTED" });
   }
-  await store.database.query(
-    "UPDATE myeve_relay_requests SET state='accepted',result_encrypted=NULL,relay_acknowledged=false WHERE owner_id=$1 AND request_id=$2 AND state='needs_approval'",
+  const resumed = await store.database.query(
+    "UPDATE myeve_relay_requests SET state='accepted',result_encrypted=NULL,relay_acknowledged=false WHERE owner_id=$1 AND request_id=$2 AND state='needs_approval' RETURNING request_id",
     [store.ownerId, requestId],
   );
+  if (!resumed.length) return { requestId, state: "already_claimed" };
   return processRequest(store, envelope);
 }
 export async function sendExternal(store: FederationStore, value: unknown) {

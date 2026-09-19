@@ -2542,7 +2542,7 @@
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
       "reason": "Authenticated owner operations explicitly enroll, preview and confirm publication, grant, revoke and rotate; private default and local-first revocation.",
-      "sha256": "6476131ebf73c4b1f09e70a930db4de6874abb9cf6a6713b7bbf0967923ff969"
+      "sha256": "1bc99625896de1553e13105a073ab25560ca252c65ba9d99fdeb68197f5ecdb3"
     },
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
@@ -2552,12 +2552,12 @@
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
       "reason": "Pinned signed owner/Agent target, durable claim and fresh Relay acceptance; work passes independent local policy plus canonical ActionGateway; no generic runtime access.",
-      "sha256": "10498b061046a89ece2a9b2177e24f903a37b6b2cd11488413ebdc6898869b86"
+      "sha256": "32bf23a8b59c3db181d95afb8fc9be46f3e84fbb170d12694a6708185306b533"
     },
     "lib/relay/work.ts": {
       "classification": "ENFORCED",
       "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output.",
-      "sha256": "9971b98833c55139e311880795d0d57e68a7d2a0b4cabeff91921256578689d5"
+      "sha256": "6b64570095590178e780b11aaee793534d7a37ef08908bf9ff48ff3959a3f873"
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",

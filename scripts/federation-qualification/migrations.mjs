@@ -9,25 +9,43 @@ import {
   readFileSync,
   rmSync,
   mkdirSync,
+  symlinkSync,
 } from "node:fs";
 import { execFileSync, spawn } from "node:child_process";
 import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
-const root = process.cwd(),
-  canonical = "/Users/jaywest/Myeve";
+const root = process.cwd();
+const canonicalBase = "4d3f1eb685422fc77296cef245e84c5b09da6e91";
 const require = createRequire(resolve("../relay-federation/package.json"));
 const { Pool } = require("pg");
 const temp = mkdtempSync(join(tmpdir(), "myeve-rebase-migrations-"));
+const canonical = join(temp, "canonical-base");
+mkdirSync(canonical);
+execFileSync("tar", ["-x", "-C", canonical], {
+  input: execFileSync(
+    "git",
+    [
+      "archive",
+      canonicalBase,
+      "apps/eve/migrations",
+      "apps/eve/scripts/migrate-database.ts",
+      "apps/eve/lib/database-schema.ts",
+      "apps/eve/package.json",
+      "package.json",
+    ],
+    { cwd: root },
+  ),
+});
+symlinkSync(join(root, "node_modules"), join(canonical, "node_modules"));
 const name = `myeve-rebase-migrations-${randomBytes(4).toString("hex")}`;
 const password = randomBytes(24).toString("hex"),
   user = process.env.USER;
-const output = resolve("docs/federation/evidence/rebased");
+const output = resolve(
+  process.env.MYEVE_QUALIFICATION_OUTPUT ?? "docs/federation/evidence/rebased",
+);
 mkdirSync(output, { recursive: true });
 const report = {
-  canonicalBase: execFileSync("git", ["rev-parse", "HEAD"], {
-    cwd: canonical,
-    encoding: "utf8",
-  }).trim(),
+  canonicalBase,
   checks: [],
 };
 const docker = (...args) =>

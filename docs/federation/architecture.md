@@ -67,7 +67,7 @@ An enabled installation must configure these independently from owner login secr
 - `MYEVE_RELAY_ARTIFACT_ORIGIN`: HTTPS source-owned artifact origin.
 - Existing `MYEVE_OWNER_ID`, signed owner-session configuration and MyEve DATABASE_URL.
 
-Apply migration 0025 through the existing migration runner only to the intended MyEve
+Apply migration 0027 through the existing migration runner only to the intended MyEve
 installation. This mission migrated disposable databases only. Manage → Relay owner actions
 require signed MyEve authentication even in development and exact same-origin POSTs.
 The owner explicitly logs into Relay to register/reconnect, then previews and confirms Knowledge.
