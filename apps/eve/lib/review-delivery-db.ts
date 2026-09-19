@@ -224,7 +224,7 @@ export async function listReviewDeliveries(ownerId: string, limit = 30): Promise
   const bounded = Number.isFinite(limit) ? Math.max(1, Math.min(100, Math.floor(limit))) : 30;
   const rows = await db().query(
     `SELECT ${DELIVERY_PROJECTION} FROM review_deliveries
-     WHERE owner_id = $1 ORDER BY scheduled_for DESC, id DESC LIMIT $2`,
+     WHERE owner_id = $1 AND review_kind IS NOT NULL ORDER BY scheduled_for DESC, id DESC LIMIT $2`,
     [ownerId, bounded],
   ) as Row[];
   return rows.map(mapDelivery);
@@ -319,7 +319,7 @@ export async function claimDueReviewDeliveries(now = new Date(), limit = 20): Pr
   const rows = await db().query(
     `WITH candidates AS (
        SELECT id, status, attempt_count FROM review_deliveries
-       WHERE attempt_count < $1
+       WHERE attempt_count < $1 AND review_kind IS NOT NULL
          AND (
            (status IN ('scheduled', 'deferred') AND COALESCE(next_attempt_at, scheduled_for) <= $2)
            OR (status = 'failed' AND next_attempt_at IS NOT NULL AND next_attempt_at <= $2)
