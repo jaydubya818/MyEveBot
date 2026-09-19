@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "../../../lib/external-write-policy.ts";
 import { randomBytes } from "node:crypto";
 import { mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -101,6 +102,7 @@ registerRoot(Root);
 `;
 
 function renderVideo(input: RenderVideoInput): Effect.Effect<RenderedVideo, VideoRenderError> {
+  blockExternalWrite("video.authored_code");
   const jobId = randomBytes(4).toString("hex");
   const scratch = path.join(REMOTION_DIR(), "jobs", jobId);
   const outputLocation = path.join(scratch, "out.mp4");

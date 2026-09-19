@@ -1,3 +1,4 @@
+import {blockExternalWrite,UnqualifiedExternalWrite} from "./external-write-policy.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { pushAvailability, sendPushToOwner } from "./push-db.ts";
 import {
@@ -86,6 +87,7 @@ async function sendTelegramReview(ownerId: string, review: ProgressReview): Prom
   const chatId = telegramTarget(ownerId);
   if (!token || !chatId) throw new Error("telegram_not_configured");
   const label = review.kind === "daily" ? "Daily Brief" : "Weekly Review";
+  blockExternalWrite("telegram.legacy_review");
   const response = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -112,6 +114,7 @@ function publicReviewUrl(kind: ProgressReview["kind"]): string {
 }
 
 function classifyFailure(error: unknown): DeliveryFailure {
+  if(error instanceof UnqualifiedExternalWrite)return {category:"authorization",code:error.code,summary:error.message};
   const message = error instanceof Error ? error.message : "unknown";
   if (message.includes("not_configured")) {
     return { category: "configuration", code: message, summary: "The selected delivery channel is not configured." };

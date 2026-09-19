@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "../../../lib/external-write-policy.ts";
 import { createMCPClient, type CallToolResult, type MCPClient } from "@ai-sdk/mcp";
 import { Context, Data, Effect, Layer, Schema } from "effect";
 
@@ -176,6 +177,7 @@ async function callTool(
 ): Promise<CallToolResult> {
   let result: CallToolResult;
   try {
+    blockExternalWrite("local_computer.mcp");
     result = await client.callTool({
       name,
       arguments: args,

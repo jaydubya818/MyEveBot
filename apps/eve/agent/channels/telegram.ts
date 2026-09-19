@@ -1,3 +1,4 @@
+import { blockedChannel } from "../lib/blocked-channel.ts";
 import { defaultTelegramAuth, telegramChannel } from "eve/channels/telegram";
 
 // Credentials come from TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET_TOKEN.
@@ -22,7 +23,7 @@ export function telegramUserAllowed(
   return fromId !== undefined && allowlist.includes(String(fromId));
 }
 
-export default telegramChannel({
+const unqualifiedChannel = () => telegramChannel({
   botUsername: process.env.TELEGRAM_BOT_USERNAME ?? "eve_tele_bot",
   async onMessage(ctx, message) {
     if (message.chat.type !== "private") return null;
@@ -47,3 +48,5 @@ export default telegramChannel({
     maxBytes: 10 * 1024 * 1024,
   },
 });
+
+export default blockedChannel();

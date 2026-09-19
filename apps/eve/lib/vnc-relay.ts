@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "./external-write-policy.ts";
 import type { RawData, WebSocket as ClientSocket } from "ws";
 
 // The piping half of the VNC relay, shared by the deployed relay route
@@ -30,6 +31,7 @@ function relayCode(code: number): number {
 
 /** Pipe an accepted client socket to Orgo's websockify endpoint, both ways. */
 export function pipeVncSocket(client: ClientSocket, upstreamUrl: string): void {
+  blockExternalWrite("orgo.vnc_control");
   const upstream = new WebSocket(upstreamUrl);
   upstream.binaryType = "arraybuffer";
 

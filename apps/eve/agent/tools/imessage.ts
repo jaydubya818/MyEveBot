@@ -18,7 +18,7 @@ export default defineDynamic({
     "turn.started": (_event, ctx) => {
       if (!isChannel(ctx.channel, imessage)) return null;
       const { handle, phone, space } = ctx.channel.metadata;
-      if (handle === null || handle.length === 0) return null;
+      if (typeof handle !== "string" || handle.length === 0) return null;
       // DM-only: every op here is handle-addressed (the owner's 1:1 chat),
       // so a group session gets none of them — a tapback or effect aimed at
       // the DM from inside a group would land in the wrong conversation.

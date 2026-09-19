@@ -15,7 +15,7 @@ export default defineDynamic({
     "turn.started": (_event, ctx) => {
       if (!isChannel(ctx.channel, imessage)) return null;
       const { handle, phone, space } = ctx.channel.metadata;
-      if (handle === null || handle.length === 0) return null;
+      if (typeof handle !== "string" || handle.length === 0) return null;
       // DM-only: attachment sends are handle-addressed (the owner's 1:1
       // chat), so group sessions don't advertise this tool.
       if (space !== null) return null;

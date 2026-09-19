@@ -131,6 +131,7 @@ interface RequestOptions {
    */
   idempotencyKey?: string;
   signal?: AbortSignal;
+  authority?: AuthorizedAction;
 }
 
 async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -146,6 +147,11 @@ async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
   }
 
   const method = options.method ?? "GET";
+  if (options.authority) {
+    const context=options.authority;
+    if(method!=="POST" || path!==`/inboxes/${encodeURIComponent(context.target.account)}/messages/send`)blockExternalWrite("email.operation");
+    await consumeProviderAuthority(context,options.body as Record<string,unknown>,"tool.send_email");
+  } else requireReadOnlyTransport("email.legacy",method);
   // AgentMail only accepts [A-Za-z0-9-._~] in Idempotency-Key (an invalid or
   // empty key is a 400, not a silent pass), so map anything else to a dot.
   // Callers pass opaque ids; the mapping is stable, which is all replay
@@ -558,10 +564,8 @@ export async function inspectBoundMessage(account:string,messageId:string):Promi
 }
 
 export async function sendBoundMessage(input:SendInput,context:import("../../lib/action-gateway.ts").AuthorizedAction):Promise<SendResult> {
-  const {consumeProviderAuthority}=await import("../../lib/action-gateway.ts");
-  await consumeProviderAuthority(context,input as unknown as Record<string,unknown>,"tool.send_email");
   return api<SendResult>(`/inboxes/${encodeURIComponent(context.target.account)}/messages/send`,{
-    method:"POST",idempotencyKey:context.idempotencyKey,body:input,
+    method:"POST",idempotencyKey:context.idempotencyKey,body:input,authority:context,
   });
 }
 
@@ -795,3 +799,5 @@ export function clipBody(body: string, maxChars = 4000): string {
     ? `${trimmed.slice(0, maxChars).trimEnd()}\n… (truncated; read the full message for the rest)`
     : trimmed;
 }
+import {consumeProviderAuthority,type AuthorizedAction} from "../../lib/action-gateway.ts";
+import {blockExternalWrite,requireReadOnlyTransport} from "../../lib/external-write-policy.ts";

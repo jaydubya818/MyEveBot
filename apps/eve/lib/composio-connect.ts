@@ -1,3 +1,4 @@
+import {blockExternalWrite} from "./external-write-policy.ts";
 import { unstable_cache } from "next/cache";
 
 // Minimal MCP client for Composio Connect's management surface. The agent
@@ -167,6 +168,7 @@ function apiKey(): string {
 }
 
 async function mcpFetch(body: object, sessionId?: string, signal?: AbortSignal): Promise<Response> {
+  blockExternalWrite("composio.native_rpc");
   return fetch(MCP_URL, {
     method: "POST",
     headers: {

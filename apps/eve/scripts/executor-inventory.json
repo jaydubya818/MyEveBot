@@ -392,7 +392,7 @@
     },
     "agent/tools/imessage.ts": {
       "disposition": "blocked",
-      "sha256": "b71f003037441490d02b280684f1959898bbfc0f57048d9587841c5fd0a064e9"
+      "sha256": "9707c6c0c0f9f2f4249e9c3ae79e6861ebd107f320c8a17559bd62525610cc7c"
     },
     "agent/tools/inspect_owner_knowledge.ts": {
       "disposition": "reviewed-existing",
@@ -539,8 +539,8 @@
       "sha256": "35e60d1498538015e0da028969c1b527e4694703cfec0a1a712a668f1036ae51"
     },
     "agent/tools/recover_computer_session.ts": {
-      "disposition": "reviewed-existing",
-      "sha256": "ebac81b6e23cd6e365c674395ad9321eb6af967aa36ac534737dc663e4cfaace"
+      "disposition": "blocked",
+      "sha256": "4f180cdf06266d00349c97f279d9c393e56cbe9fea923e98a6481366a83d99ab"
     },
     "agent/tools/remember.ts": {
       "disposition": "blocked",
@@ -588,7 +588,7 @@
     },
     "agent/tools/send_attachment.ts": {
       "disposition": "blocked",
-      "sha256": "bb198f4bebc69a9fe4a33ea1d60c9c5af8d7dd70a009cff31d2c7486a0114f54"
+      "sha256": "ff7be731c86f303f1da223e0d7f41abfdb7eea123c8e9fa9c2f85b7c5a35e799"
     },
     "agent/tools/send_email.ts": {
       "disposition": "gateway",
@@ -620,7 +620,7 @@
     },
     "agent/tools/stop_computer_session.ts": {
       "disposition": "reviewed-existing",
-      "sha256": "1d49d44e01315bdbb0494911d9d3b4ed410253a3b8abf498fc63d5ab264451ed"
+      "sha256": "49ad8613d5cbd392037eafafb45d8c838789a645ef3099b9df8cfbe7b30f7704"
     },
     "agent/tools/unassign_skill.ts": {
       "disposition": "blocked",
@@ -656,7 +656,7 @@
     },
     "agent/tools/write_file.ts": {
       "disposition": "gateway",
-      "sha256": "4be5c6566955046badea84c6e74f5723d0c82114f35fda34b26f8329fb1365ee"
+      "sha256": "02de8edb61a948933aebcbd0714dc4928c8e4b84ea777cb6e52876573960ebeb"
     }
   }
 }

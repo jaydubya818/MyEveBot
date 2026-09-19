@@ -1,3 +1,4 @@
+import {requireReadOnlyTransport} from "../../../lib/external-write-policy.ts";
 import {
   createCipheriv,
   createDecipheriv,
@@ -462,6 +463,7 @@ export function requestJson(options: RequestOptions): Effect.Effect<unknown, Age
       }
       Object.assign(headers, options.headers);
 
+      requireReadOnlyTransport("agentcard",options.method);
       const response = await fetch(options.url, {
         method: options.method ?? "GET",
         headers,

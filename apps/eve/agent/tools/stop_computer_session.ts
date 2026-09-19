@@ -1,4 +1,3 @@
-import { close } from "@agent-browser/eve/tools";
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 
@@ -16,8 +15,7 @@ export default defineTool({
     if (!agent || current.agentId !== agent.id) throw new Error("This computer session belongs to another Agent.");
     try { await (await ctx.getSandbox()).setNetworkPolicy("deny-all"); } catch { /* Session state still stops fail-closed. */ }
     const session = await stopComputerSession(ownerId, current.id);
-    let browserClosed = true;
-    try { await close.execute({}, ctx); } catch { browserClosed = false; }
+    const browserClosed = false; // Provider teardown is blocked until its exact target adapter is qualified.
     return { session, browserClosed };
   },
   toModelOutput(output) {
