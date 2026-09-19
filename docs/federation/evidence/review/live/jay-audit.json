@@ -1,0 +1,2385 @@
+{
+  "schemaVersion": "relay.audit-export.v1",
+  "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+  "exportedAt": "2026-09-19T18:29:52.168Z",
+  "finalSequence": 72,
+  "finalHash": "sha256:dd7e68b9cdc0044480e5985f9a497f543cd88400a64e2febd7dea2ec70a43f65",
+  "exportSigningKeyId": "qualification-relay",
+  "exportSignature": "F64OHkm5J6JzuP0Y7TerFGIHwvP3IhQU8_QUqdJ3_5t2vAFvzXi3OF9A4kG7EzZuiPSd2CtGm37omYG3N0ciCg",
+  "signingKeys": [
+    {
+      "keyId": "qualification-relay",
+      "algorithm": "Ed25519",
+      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAvS9enjEC3Eb3v5/LSYXtoU2ydO/RzI4IFEhBfV3iYFs=\n-----END PUBLIC KEY-----\n"
+    }
+  ],
+  "records": [
+    {
+      "id": "aud_385d608e737145158398a15f27ff8664",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 1,
+      "eventType": "federation.agent.registered",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:40.011+00",
+      "details": {
+        "address": "relay://acct_6828864e0a934b8d96ad9525b719c82f/agt_20dc9b483ab749ce83e440715b2c3cda"
+      },
+      "previousHash": null,
+      "recordHash": "sha256:a056103c7608343f7a0eb74f22bacb8c99625b22b3ad6da33173e9870b8b2bf1",
+      "signature": "5DOOR3crqiXB5ipH4x2hOSfC6yTFAZQJsaLwHXWthkDas_5IKBA4NUQGOyvUzdSBZYmI_lqQqt_UOv4sKO-DDQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.011+00"
+    },
+    {
+      "id": "aud_cbf2fb6e4437419ba8ffe163e4c28229",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 2,
+      "eventType": "federation.agent.availability",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ONLINE",
+      "occurredAt": "2026-09-19 18:29:40.024+00",
+      "details": {},
+      "previousHash": "sha256:a056103c7608343f7a0eb74f22bacb8c99625b22b3ad6da33173e9870b8b2bf1",
+      "recordHash": "sha256:76038c16319a01beed8894437148425282392fca474d5b157bed9a38735e69fb",
+      "signature": "1kMWv10fK7J-vDbz6JsDVc-49XxPjrV3wd1lAOSwkeAOKxsAzcxF5m2DvPFifs_djElX4-8NdU0en6jLgrOWBA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.024+00"
+    },
+    {
+      "id": "aud_1aad91843e5043fca3f8b2babc1ccb53",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 3,
+      "eventType": "passport.issued",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:40.036+00",
+      "details": {
+        "version": 1,
+        "trustTier": "REGISTERED",
+        "passportId": "psp_ca3bb511a5bd4aacb4c84da3c90efa61",
+        "payloadHash": "sha256:469829e50530c62bb97ade69d4024a1f9d71a84000efcd2fb60948687d5529b5"
+      },
+      "previousHash": "sha256:76038c16319a01beed8894437148425282392fca474d5b157bed9a38735e69fb",
+      "recordHash": "sha256:39e7c0c61b8ec76ae12b25c29c05a7429463aa6442711b5346dba5ed24524dae",
+      "signature": "UXuGJijIKqupC0cyhdiwlyr5MZSRlvCDR2KdjsvcvixG-duArqq6Lo9txhAeC2w3EicKDDTpwLBZM8TjyZbnCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.036+00"
+    },
+    {
+      "id": "aud_bb3109f3ca6c4925b12419aeb38e0822",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 4,
+      "eventType": "federation.publication.version",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:40.621+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "version": 1,
+        "visibility": "SHARED"
+      },
+      "previousHash": "sha256:39e7c0c61b8ec76ae12b25c29c05a7429463aa6442711b5346dba5ed24524dae",
+      "recordHash": "sha256:d147d53f49fa5e96ba6b97ee8729fa82fda9998a4dad0f22aa8868233de2f6e8",
+      "signature": "xQuSCtaoead3w4KUkt31QQQ2qamc9Sz4O5j7WeOBGpf3sTcBE3gPEnwkPAAsuJ_GF_24B4bEW2uUz2Haa22LDg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.621+00"
+    },
+    {
+      "id": "aud_bdeb87d057dc4f378af7127cb96f61b2",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 5,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:40.831+00",
+      "details": {
+        "grantId": "fgr_6ea520c7b89441ca882dcaa936d4f726",
+        "resource": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "capability": "knowledge.query",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:d147d53f49fa5e96ba6b97ee8729fa82fda9998a4dad0f22aa8868233de2f6e8",
+      "recordHash": "sha256:09b89239e60a9a5ab422fb82d73754f18c3a33173df14ead25572ce1aace42ea",
+      "signature": "QsTo350oQNcbY-p1XCoAjSRXgGXu38VaLr-yRo7MDLcZbugKJDKFtIA6S8INk0m_F3chsu33vTaO1fGkWOgmAA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.831+00"
+    },
+    {
+      "id": "aud_d19b1750c51e4e67ab77062c0303b054",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 6,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1804842f003e46deb794b06ca548983e",
+      "taskId": "tsk_1804842f003e46deb794b06ca548983e",
+      "actionIntentId": "act_1804842f003e46deb794b06ca548983e",
+      "policyDecisionId": "dec_4db075ab1f694b7180021b56b00e697f",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:40.887+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:09b89239e60a9a5ab422fb82d73754f18c3a33173df14ead25572ce1aace42ea",
+      "recordHash": "sha256:dfda107eacc18c47d50ae367bea83fc0e5b86fda67956fe5819ac9a082966dcf",
+      "signature": "Z9NHTXxJy0XvcdbrclxWDafuIzmUp2iNvMnxqlQ516XeytRgsRZ_O3VlLu1vJaHHRANrIx078iDusYrUl1WaCg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.887+00"
+    },
+    {
+      "id": "aud_1024e3c6c6cc4996b093eb33648734d7",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 7,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1804842f003e46deb794b06ca548983e",
+      "taskId": "tsk_1804842f003e46deb794b06ca548983e",
+      "actionIntentId": "act_1804842f003e46deb794b06ca548983e",
+      "policyDecisionId": "dec_caf4d8bf903046529070ba1b0573a6db",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:40.965+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:dfda107eacc18c47d50ae367bea83fc0e5b86fda67956fe5819ac9a082966dcf",
+      "recordHash": "sha256:0baf6a00de190a4cf80fd11a8ea3dbc0ea7a270ee78c82c94077814923867a48",
+      "signature": "tvZlSqzWWrzDW8aKgi-3DyFUD112qiv1xUyEUbQmX6r18CiM731LiY5MJ8Z6Ax0-CMvcSwWP5e_99OhPklxhBQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:40.965+00"
+    },
+    {
+      "id": "aud_eadbba41dbda4b9e8a97fc31341699a8",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 8,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1804842f003e46deb794b06ca548983e",
+      "taskId": "tsk_1804842f003e46deb794b06ca548983e",
+      "actionIntentId": "act_1804842f003e46deb794b06ca548983e",
+      "policyDecisionId": "dec_11b960a0a16a4b919ca5c3b2af935f35",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.095+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:0baf6a00de190a4cf80fd11a8ea3dbc0ea7a270ee78c82c94077814923867a48",
+      "recordHash": "sha256:a2efed80495b668544cb8c4d48db22b280e9cc9ffdae7ffb707a9fd64a7c5aa3",
+      "signature": "x0s5K--tK6YdzT4bliMwEMUEo4Dc6Vu5LkkmwfXaaw9DwbRoFt9qTKZnAPHFMhdy1vs3-b9KW5mVy3tKbP4fBw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.095+00"
+    },
+    {
+      "id": "aud_72b42bf9611743078435571e2d15869f",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 9,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:41.103+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "grantId": "fgr_6ea520c7b89441ca882dcaa936d4f726",
+        "records": [
+          {
+            "reference": "knowledge_8a889f6a-177c-4ae6-9a25-1ef6c44e0889",
+            "recordType": "fact"
+          },
+          {
+            "reference": "knowledge_4cdbab77-0c63-4620-b3c2-bd6062e85c7c",
+            "recordType": "insight"
+          }
+        ],
+        "requestId": "frq_1804842f003e46deb794b06ca548983e",
+        "capability": "knowledge.query",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_4db075ab1f694b7180021b56b00e697f",
+        "publicationVersion": 1
+      },
+      "previousHash": "sha256:a2efed80495b668544cb8c4d48db22b280e9cc9ffdae7ffb707a9fd64a7c5aa3",
+      "recordHash": "sha256:76cfbd1922ad506e283c4c380cccaa65caa390aebc981e4f86af45f34fff92bd",
+      "signature": "srSgKKgg9-rT8c3hf_dzVURXLZ7l8GXNt7sWBAAhDUa9QBhacJg1eCX6b1iMzY1EG_sClgmLjHnIVN7TcgEbCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.103+00"
+    },
+    {
+      "id": "aud_9c42c9af8b08406880bae20648e0c764",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 10,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1804842f003e46deb794b06ca548983e",
+      "taskId": "tsk_1804842f003e46deb794b06ca548983e",
+      "actionIntentId": "act_1804842f003e46deb794b06ca548983e",
+      "policyDecisionId": "dec_2aa8fc9b72e34df7b491e8c58bc1bf64",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.161+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:76cfbd1922ad506e283c4c380cccaa65caa390aebc981e4f86af45f34fff92bd",
+      "recordHash": "sha256:acbf6a4a66a0c75dd3d4bb8f155f000c5cfa7458fe667325975916ad50641276",
+      "signature": "C226YGd_amUt9TrFYNBKPefl5vjrNcRnRigJAwGNtVh6YrkBBSXxwin6hM6RxkZN7rwVN0ngLXt9MzT-rG_uBA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.161+00"
+    },
+    {
+      "id": "aud_c0687e648e274f4b9d545268308f894c",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 11,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_0b0738808cb344d495c0befdb1530316",
+      "taskId": "tsk_0b0738808cb344d495c0befdb1530316",
+      "actionIntentId": "act_0b0738808cb344d495c0befdb1530316",
+      "policyDecisionId": "dec_c09efa681ebf45d8bb3081d512d2d4cd",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.22+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:acbf6a4a66a0c75dd3d4bb8f155f000c5cfa7458fe667325975916ad50641276",
+      "recordHash": "sha256:e03c538bbe8a184ab566158e05290c1cd11d4fc12b9b2a12e27b367b40a3f07c",
+      "signature": "0x6SuyVEXQrPDR_uBaJ4CBkCbA7gUPGlkxxd1a43IfNSEGvhmjTonW2SxES0Wsukz82gmilQySgOtjZFUPgKCQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.22+00"
+    },
+    {
+      "id": "aud_fd9792e6e591488f851c3356ce4d0587",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 12,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_0b0738808cb344d495c0befdb1530316",
+      "taskId": "tsk_0b0738808cb344d495c0befdb1530316",
+      "actionIntentId": "act_0b0738808cb344d495c0befdb1530316",
+      "policyDecisionId": "dec_12416d07216a4a339436b185b9818eeb",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.312+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:e03c538bbe8a184ab566158e05290c1cd11d4fc12b9b2a12e27b367b40a3f07c",
+      "recordHash": "sha256:4e072aa48efb95c8f804784da49d52d87d097cdd298337bd2f0eb238bf598466",
+      "signature": "k9bXI8lVmVL9F0WVEzRjIecNAASrg8wzJImErH6XcZMROiCb0J1Xa-GdehRs7ogzSMrR5P0bNGKxxxe-mjwgDw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.312+00"
+    },
+    {
+      "id": "aud_c20e8efafdd44cb19582c027eb992a33",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 13,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_0b0738808cb344d495c0befdb1530316",
+      "taskId": "tsk_0b0738808cb344d495c0befdb1530316",
+      "actionIntentId": "act_0b0738808cb344d495c0befdb1530316",
+      "policyDecisionId": "dec_2944ce289f314d049f0d45d1e8c391dc",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.442+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:4e072aa48efb95c8f804784da49d52d87d097cdd298337bd2f0eb238bf598466",
+      "recordHash": "sha256:020fbb2546f9148c3e8bd8e9be43492d76ce8a6260f16b1bbf64c9ce7e0299bc",
+      "signature": "sZbIQhOLbKaGejekw7CstmeR5GfNF4-t5byL-7i0us7xfS8_cw0gnl1aGnLWf1CPHEZ4jBoFxbo9FfstFk0qDw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.442+00"
+    },
+    {
+      "id": "aud_1d7e212364e240c59f006a0cf36cf3bb",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 14,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:41.465+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "grantId": "fgr_6ea520c7b89441ca882dcaa936d4f726",
+        "records": [
+          {
+            "reference": "knowledge_8a889f6a-177c-4ae6-9a25-1ef6c44e0889",
+            "recordType": "fact"
+          },
+          {
+            "reference": "knowledge_4cdbab77-0c63-4620-b3c2-bd6062e85c7c",
+            "recordType": "insight"
+          }
+        ],
+        "requestId": "frq_0b0738808cb344d495c0befdb1530316",
+        "capability": "knowledge.query",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_c09efa681ebf45d8bb3081d512d2d4cd",
+        "publicationVersion": 1
+      },
+      "previousHash": "sha256:020fbb2546f9148c3e8bd8e9be43492d76ce8a6260f16b1bbf64c9ce7e0299bc",
+      "recordHash": "sha256:26f5a62f6703b60ea6463c6e6746df92a49333b92318ab6a8d9a82e05bab02dd",
+      "signature": "yH0F27rZNvNfZvoGP971JPb9O9w1i6xmvjjXIkThffwtuzPWoDgLiDnzJP1MMhPg91Bp3EZbUMeCW1USwB9JAA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.465+00"
+    },
+    {
+      "id": "aud_47b79ea410f245f4bd9dab607404002a",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 15,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_0b0738808cb344d495c0befdb1530316",
+      "taskId": "tsk_0b0738808cb344d495c0befdb1530316",
+      "actionIntentId": "act_0b0738808cb344d495c0befdb1530316",
+      "policyDecisionId": "dec_795b584727624d2a9040b679ec811419",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.599+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:26f5a62f6703b60ea6463c6e6746df92a49333b92318ab6a8d9a82e05bab02dd",
+      "recordHash": "sha256:4902966e1bdec440ebb1facec4591959cc00c5a6c1849898125150b13b7b1bb0",
+      "signature": "pw6DZ2-K-9b3M0Hj4S_kzEyOEtY6S5AZnp9n5jLYxiQ7-T7OGNIyvhPhmTvkqkdLYhpw4Z0Yp2RwQkBHnOGWDg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.599+00"
+    },
+    {
+      "id": "aud_c2cd9e2a9af64144870bcddaff09b7ec",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 16,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_68905b5116c2448e86a1153909ea2d5e",
+      "taskId": "tsk_68905b5116c2448e86a1153909ea2d5e",
+      "actionIntentId": "act_68905b5116c2448e86a1153909ea2d5e",
+      "policyDecisionId": "dec_a17e195746d34306983cb2686b5b3611",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.671+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:4902966e1bdec440ebb1facec4591959cc00c5a6c1849898125150b13b7b1bb0",
+      "recordHash": "sha256:e4cce5e2ff4cd9dd77955001ed9e58366ab5cfed272577ae5e750d796d6e4186",
+      "signature": "tEMM6plvz6YAQ4wa6hDiAToHWPMxuJMNsZh8-UWDWCNclh25VAYvwtla1jglwGggyN5yp2OhLBd6rvlyPAz_Cw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.671+00"
+    },
+    {
+      "id": "aud_ff7d8f98205c4e97bd13c0c7f3b61f25",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 17,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_68905b5116c2448e86a1153909ea2d5e",
+      "taskId": "tsk_68905b5116c2448e86a1153909ea2d5e",
+      "actionIntentId": "act_68905b5116c2448e86a1153909ea2d5e",
+      "policyDecisionId": "dec_6f7ae77146de495db7b224cc423f704d",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.744+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:e4cce5e2ff4cd9dd77955001ed9e58366ab5cfed272577ae5e750d796d6e4186",
+      "recordHash": "sha256:5ba6749bee608096e1c43fb1b07f49729e6f3e98a88d6b4817fb9f5e18238ab7",
+      "signature": "nt80AFH3rEVeQ8-8pIYxizhqSPeoBh319ku4-nm597dg1Ys50amisD9LIoeVOmnZNoqt5RTyTkEwoeSogzWzDQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.744+00"
+    },
+    {
+      "id": "aud_5d067cc3c3354e6c82f8cf18f87d8478",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 18,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_68905b5116c2448e86a1153909ea2d5e",
+      "taskId": "tsk_68905b5116c2448e86a1153909ea2d5e",
+      "actionIntentId": "act_68905b5116c2448e86a1153909ea2d5e",
+      "policyDecisionId": "dec_4bce99440a4f4d379e77c82bdee3fe89",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.882+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:5ba6749bee608096e1c43fb1b07f49729e6f3e98a88d6b4817fb9f5e18238ab7",
+      "recordHash": "sha256:dc8e1633efdb62620993efdfe7b63a1363984be0fa564761241efa4ec9b51d46",
+      "signature": "QCMnYf-0hY_CpX3-nDVbodklJiKZrVLl7QLoHZkTGvTfAaWfXwqfesBCvSEg9PGP_LvXha7_52nVYBjNYODwDA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.882+00"
+    },
+    {
+      "id": "aud_6207a3b1b4dd49149fc7ea2615f6f00c",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 19,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:41.894+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "grantId": "fgr_6ea520c7b89441ca882dcaa936d4f726",
+        "records": [
+          {
+            "reference": "knowledge_8a889f6a-177c-4ae6-9a25-1ef6c44e0889",
+            "recordType": "fact"
+          },
+          {
+            "reference": "knowledge_4cdbab77-0c63-4620-b3c2-bd6062e85c7c",
+            "recordType": "insight"
+          }
+        ],
+        "requestId": "frq_68905b5116c2448e86a1153909ea2d5e",
+        "capability": "knowledge.query",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_a17e195746d34306983cb2686b5b3611",
+        "publicationVersion": 1
+      },
+      "previousHash": "sha256:dc8e1633efdb62620993efdfe7b63a1363984be0fa564761241efa4ec9b51d46",
+      "recordHash": "sha256:d6e7e9732c28a4646e668a7f59923e6a3fe7bbdecf3557735c0bd4c21f7ad0d5",
+      "signature": "XpHqyrnL3zUGFb61QObD7KouVSaRlog6m3_ZKcIRoeGcZeh3PrS7hRWm-LVkaqTwXAtsitGoIDSdASUoZKL_CQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.894+00"
+    },
+    {
+      "id": "aud_25427238b80543a8a55faece1f89cf6f",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 20,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_68905b5116c2448e86a1153909ea2d5e",
+      "taskId": "tsk_68905b5116c2448e86a1153909ea2d5e",
+      "actionIntentId": "act_68905b5116c2448e86a1153909ea2d5e",
+      "policyDecisionId": "dec_f0c19499aebd49d8956c5b26e430a488",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:41.958+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:d6e7e9732c28a4646e668a7f59923e6a3fe7bbdecf3557735c0bd4c21f7ad0d5",
+      "recordHash": "sha256:d5fcd6c0ad1f0fc55131179520ca7fc6c4f2eebf68c30c24443a0654e7e1bacd",
+      "signature": "6GiOCkkcbzG7CrotWz4fk5e5Ykp_n9xvaHXKqmJ0l_fC-Wr-jpjm2VL0GFp8aOtgVDr6a7xMmrybd1KG9eadBg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:41.958+00"
+    },
+    {
+      "id": "aud_75bc530d828b42acb6b3ae50bdd703c3",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 21,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_e1bf83154816480ea3ec5840c7693572",
+      "taskId": "tsk_e1bf83154816480ea3ec5840c7693572",
+      "actionIntentId": "act_e1bf83154816480ea3ec5840c7693572",
+      "policyDecisionId": "dec_0822043ea7074a3bac5e0fb1b51e93ff",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.018+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:d5fcd6c0ad1f0fc55131179520ca7fc6c4f2eebf68c30c24443a0654e7e1bacd",
+      "recordHash": "sha256:258d314b2de9d5ff57b8d2976584ec55706b6ba969684fc0278eb08ae922d78d",
+      "signature": "PYh8ywaJC-mE6FDN0dEcBjPQ10QgRxK2hHDSn1stBQ3e9sEL-FrZynqHmxz-UiBWcrQOg9lZxB0NyLHN7XkuAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.018+00"
+    },
+    {
+      "id": "aud_4f3fce6cfe8d4cf9b1d967bce4459427",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 22,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_e1bf83154816480ea3ec5840c7693572",
+      "taskId": "tsk_e1bf83154816480ea3ec5840c7693572",
+      "actionIntentId": "act_e1bf83154816480ea3ec5840c7693572",
+      "policyDecisionId": "dec_142eb52f637741e9bbe40fb5de7b31b0",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.096+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:258d314b2de9d5ff57b8d2976584ec55706b6ba969684fc0278eb08ae922d78d",
+      "recordHash": "sha256:be033534c744710613a90e4eeec1ba883fdde279e26318b807a1251255081f9a",
+      "signature": "ddpC1f9EHCh0Tg8GTDO3o1mRSs7NJqBDDaSXwmyURSbou_DgZ8bcjkhfCqw0AvqiHXxjKX5-5J0NgtDD_vRZAQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.096+00"
+    },
+    {
+      "id": "aud_7b24c39ded8046c1ab08640485a129c2",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 23,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_e1bf83154816480ea3ec5840c7693572",
+      "taskId": "tsk_e1bf83154816480ea3ec5840c7693572",
+      "actionIntentId": "act_e1bf83154816480ea3ec5840c7693572",
+      "policyDecisionId": "dec_f524fb25d8c949d0be6c2f94cea15ff3",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.205+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:be033534c744710613a90e4eeec1ba883fdde279e26318b807a1251255081f9a",
+      "recordHash": "sha256:a91a8b3650bcf0cc5357222483c97f100048ddee010bf8d5dfeb0b5405108832",
+      "signature": "64YZ2Cq3vvEzTtI66KvOmPOInUnreqNYuByWW7q69psaErT4H2-lPgA1iD74nUKEvk0-T0F8QsecufiN6q2UBA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.205+00"
+    },
+    {
+      "id": "aud_74f3c620de9049d08091e272f2db5981",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 24,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:42.214+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "grantId": "fgr_6ea520c7b89441ca882dcaa936d4f726",
+        "records": [
+          {
+            "reference": "knowledge_8a889f6a-177c-4ae6-9a25-1ef6c44e0889",
+            "recordType": "fact"
+          },
+          {
+            "reference": "knowledge_4cdbab77-0c63-4620-b3c2-bd6062e85c7c",
+            "recordType": "insight"
+          }
+        ],
+        "requestId": "frq_e1bf83154816480ea3ec5840c7693572",
+        "capability": "knowledge.query",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_0822043ea7074a3bac5e0fb1b51e93ff",
+        "publicationVersion": 1
+      },
+      "previousHash": "sha256:a91a8b3650bcf0cc5357222483c97f100048ddee010bf8d5dfeb0b5405108832",
+      "recordHash": "sha256:1bdf75c77e05e36bd08aa4f41e88a33c30f1382ae8d18ce53af9b1873a3934fa",
+      "signature": "9UQ5rFyRfVRDExolLeT5FT-SUaypXFMtIiVjgO5PzGog8Zx8EJ8KPF5nDm4L5YHVYil67V6iZwv37SdBNR9GAw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.214+00"
+    },
+    {
+      "id": "aud_3dc27b434c7e4b0e90ecb3bd4c929f3e",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 25,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_e1bf83154816480ea3ec5840c7693572",
+      "taskId": "tsk_e1bf83154816480ea3ec5840c7693572",
+      "actionIntentId": "act_e1bf83154816480ea3ec5840c7693572",
+      "policyDecisionId": "dec_9068c4e2b57c41a2a546ce67d9502dd6",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.293+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:1bdf75c77e05e36bd08aa4f41e88a33c30f1382ae8d18ce53af9b1873a3934fa",
+      "recordHash": "sha256:6659c55e18a4b0e676827da0d0ef34eea55d354f1c96b728ae6b4ae4b97ed536",
+      "signature": "MpW1du2SK6lCF7i4-Z0gngLsWTFsZXo767QnLYVL5gfB33rj177D8YxFAg3NR972M4t6yRELqn93r044jqDoDA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.293+00"
+    },
+    {
+      "id": "aud_250e34b4e9a44b20bc26cddebbc780c7",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 26,
+      "eventType": "federation.publication.version",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.39+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_9450714c-90e7-4ed0-b8b8-cb00c1231575",
+        "version": 1,
+        "visibility": "PRIVATE"
+      },
+      "previousHash": "sha256:6659c55e18a4b0e676827da0d0ef34eea55d354f1c96b728ae6b4ae4b97ed536",
+      "recordHash": "sha256:eadf15379080ff26dc7f60c14f7b3e2d4b73af57b1268cf13bacbbd7a55e08ae",
+      "signature": "CpQ_5Yc3pmqBObU82czyUGYrJXo0uYWoeSrqU7p80pjAaWsVoy_aZSXW-EBxD-5xfblkzn8FCM3KkdGfSGj7Cw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.39+00"
+    },
+    {
+      "id": "aud_22b8d4f94203483c8afe2cd5d4f95320",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 27,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.421+00",
+      "details": {
+        "grantId": "fgr_99f09259577c42519bd002ea29b17758",
+        "resource": "myeve_view_9450714c-90e7-4ed0-b8b8-cb00c1231575",
+        "capability": "knowledge.query",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:eadf15379080ff26dc7f60c14f7b3e2d4b73af57b1268cf13bacbbd7a55e08ae",
+      "recordHash": "sha256:cae8237344489e54c0d2c6f9d2e54b8cae89ccd3182aaa42ec1f1f2cdb828572",
+      "signature": "CcHXVlMZv_5-JcMWXa7SwknrF28-Sspzdz3I1IebAF92JU8uVXWKKZCR4lbW0bJaR9y395VCnlA0YtNVsNglAw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.421+00"
+    },
+    {
+      "id": "aud_d0004ef144c64d8caf608611d6cf7368",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 28,
+      "eventType": "federation.publication.version",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.544+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_382f2bac-a02c-4bd7-8ad1-35eb0ed1cd43",
+        "version": 1,
+        "visibility": "UNLISTED"
+      },
+      "previousHash": "sha256:cae8237344489e54c0d2c6f9d2e54b8cae89ccd3182aaa42ec1f1f2cdb828572",
+      "recordHash": "sha256:8d2aa4038d62645991f466903cb6d8f7679bba7dbb4a2f7ac1218069ad1229ad",
+      "signature": "1JslUHx2XenkHojnxMZ2GWIMpHUNR7-FKGGDrWvrAp4Y2M8gFXZxDJsAbyCwmdZQR5ieJyrAJ6Pfhq20sFsNDw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.544+00"
+    },
+    {
+      "id": "aud_c94b369ad0334df8a481580e4ecfb708",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 29,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.567+00",
+      "details": {
+        "grantId": "fgr_abe1ea11f1db49c597abae1f16cce191",
+        "resource": "myeve_view_382f2bac-a02c-4bd7-8ad1-35eb0ed1cd43",
+        "capability": "knowledge.query",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:8d2aa4038d62645991f466903cb6d8f7679bba7dbb4a2f7ac1218069ad1229ad",
+      "recordHash": "sha256:89a900f119a1f45cc3bb29ff483fabe1084bc93776b7c01103231890374b5d2f",
+      "signature": "4bYAy1AH7Y8eo0xE6hDWG6n0CpRG5JaV_m12j6M6bKSimkaKvahCq1QHw--qBbqTHAPpTa8RlPP3PcXulCZOCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.567+00"
+    },
+    {
+      "id": "aud_a300cbfa440d4c09883777aa97208838",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 30,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_c5b6f8c5930b4b189c455292309a5b15",
+      "taskId": "tsk_c5b6f8c5930b4b189c455292309a5b15",
+      "actionIntentId": "act_c5b6f8c5930b4b189c455292309a5b15",
+      "policyDecisionId": "dec_3072cc4ad3ee495b9aaa357524ff7723",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.62+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:89a900f119a1f45cc3bb29ff483fabe1084bc93776b7c01103231890374b5d2f",
+      "recordHash": "sha256:b894ba55dacdc5fd009f7567c42fd8d65883d635cd3d4daaf0dcff7c0fb8dbf1",
+      "signature": "GpPDul3NzAK9PMonYM85TFx-_-vcdDN6Lc6DCjPXZRgnoA5XxHzhu6AbY_3POGmXafoLsDI5tXaO2TuE1a08DQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.62+00"
+    },
+    {
+      "id": "aud_58207d806c81422092bc4f66323d0552",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 31,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_c5b6f8c5930b4b189c455292309a5b15",
+      "taskId": "tsk_c5b6f8c5930b4b189c455292309a5b15",
+      "actionIntentId": "act_c5b6f8c5930b4b189c455292309a5b15",
+      "policyDecisionId": "dec_152f034594b94b8894d28def0edfff86",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.671+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:b894ba55dacdc5fd009f7567c42fd8d65883d635cd3d4daaf0dcff7c0fb8dbf1",
+      "recordHash": "sha256:1eba51cfb6b730178a97e82a0679f5e9c978e93552e508e64415988b612a7435",
+      "signature": "AULPA2ELDARbCce2DKAPyncv3cd2uJeOHwXTYZa9uhc9cVl0Wrp9160Zme48nj_MEJPG5t3bo81SA7O7g7ehCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.671+00"
+    },
+    {
+      "id": "aud_91018d341f22489aa4003c4d01d631f3",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 32,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_c5b6f8c5930b4b189c455292309a5b15",
+      "taskId": "tsk_c5b6f8c5930b4b189c455292309a5b15",
+      "actionIntentId": "act_c5b6f8c5930b4b189c455292309a5b15",
+      "policyDecisionId": "dec_685282c4da684b8db7ff897f7c33af61",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.734+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:1eba51cfb6b730178a97e82a0679f5e9c978e93552e508e64415988b612a7435",
+      "recordHash": "sha256:3ff6a388cf48542975ba2075acd736c17d3a4efa2eb9101e553b790937f66833",
+      "signature": "TIhgRjPxTeKehx0kDMPcMgViLqQtrvUyoPno7jhBtH3u69wB9ECQTTQsUFpspKvDtfDB9Vr4DjOTaAXjReENDA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.734+00"
+    },
+    {
+      "id": "aud_2f01a3b7d33246ebaca9e5f086773484",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 33,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:42.739+00",
+      "details": {
+        "count": 2,
+        "viewId": "myeve_view_382f2bac-a02c-4bd7-8ad1-35eb0ed1cd43",
+        "grantId": "fgr_abe1ea11f1db49c597abae1f16cce191",
+        "records": [
+          {
+            "reference": "knowledge_8a889f6a-177c-4ae6-9a25-1ef6c44e0889",
+            "recordType": "fact"
+          },
+          {
+            "reference": "knowledge_4cdbab77-0c63-4620-b3c2-bd6062e85c7c",
+            "recordType": "insight"
+          }
+        ],
+        "requestId": "frq_c5b6f8c5930b4b189c455292309a5b15",
+        "capability": "knowledge.query",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_3072cc4ad3ee495b9aaa357524ff7723",
+        "publicationVersion": 1
+      },
+      "previousHash": "sha256:3ff6a388cf48542975ba2075acd736c17d3a4efa2eb9101e553b790937f66833",
+      "recordHash": "sha256:9935517e4203f1df51ee33b2730f84c55ae4e1dc4e86d8f2e850e879554e8efd",
+      "signature": "ip-QSWImnZk9KWae2mpnHwghnGr9zp5GB_GjcZS0zMCcnlcOcoDFm1BIcHKeNU1wMINRCO6fBQRQ2e5Y02M0CA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.739+00"
+    },
+    {
+      "id": "aud_fa8b1d7b0141498d948eff09abacfd67",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 34,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_c5b6f8c5930b4b189c455292309a5b15",
+      "taskId": "tsk_c5b6f8c5930b4b189c455292309a5b15",
+      "actionIntentId": "act_c5b6f8c5930b4b189c455292309a5b15",
+      "policyDecisionId": "dec_568781f086d642878221c8a6382ce281",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.77+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-0"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:24ffb06d04f93ecbf9989701ae554126feb199e144ed54d3c3027e6b73aba1ba"
+      },
+      "previousHash": "sha256:9935517e4203f1df51ee33b2730f84c55ae4e1dc4e86d8f2e850e879554e8efd",
+      "recordHash": "sha256:de8a8f15f0d48de43615292cc27fae4ec95bac570107a257f62ec8c0227cc1e7",
+      "signature": "Adx8DPT2JN97-Dicx8giIdrb8UfrKkpx_yVMLRaU7yxE6Wknvk_jaXHvMMVvhqYLk9BgSox7SQOP8eWVvxDgCQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.77+00"
+    },
+    {
+      "id": "aud_5de55312958d44c9b2ae41f4bf68523e",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 35,
+      "eventType": "federation.publication.status",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "PAUSED",
+      "occurredAt": "2026-09-19 18:29:42.786+00",
+      "details": {
+        "viewId": "myeve_view_382f2bac-a02c-4bd7-8ad1-35eb0ed1cd43",
+        "version": 1
+      },
+      "previousHash": "sha256:de8a8f15f0d48de43615292cc27fae4ec95bac570107a257f62ec8c0227cc1e7",
+      "recordHash": "sha256:2648a20baf43031917be8ef189582bcdd3d8263bdf1457c9ed40049011156a6b",
+      "signature": "moYTpUiJ3Po_R-Z4butbBicETSJ8_NB_RU6bvipM7sUdH3S1As3P67w3RP372lPrpAC2IxxnAt2VDlcloFtoAA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.786+00"
+    },
+    {
+      "id": "aud_aa1f931190c54d57989f34d4fcdda3a6",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 36,
+      "eventType": "federation.grant.revoked",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.821+00",
+      "details": {
+        "grantId": "fgr_6ea520c7b89441ca882dcaa936d4f726"
+      },
+      "previousHash": "sha256:2648a20baf43031917be8ef189582bcdd3d8263bdf1457c9ed40049011156a6b",
+      "recordHash": "sha256:007f94a15e241996c022bcdaa044845e2aa8d11cb21cb6d9e2df5eb183e45f9b",
+      "signature": "dYQjYvT19ZNkSF0BD6mquojHXKuWNg9cWbmiaY5oKQXew8STuuBWI0ihktIQLAZDRaUB1W8WF5Vdncc4SCsUBw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.821+00"
+    },
+    {
+      "id": "aud_3c5631246fc74d67bbb42faecadbebab",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 37,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.853+00",
+      "details": {
+        "grantId": "fgr_12ade2067c1842e6aa366425c19a999a",
+        "resource": "myeve_view_20133ba4-ae07-436d-845f-b1718ba48194",
+        "capability": "knowledge.query",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:007f94a15e241996c022bcdaa044845e2aa8d11cb21cb6d9e2df5eb183e45f9b",
+      "recordHash": "sha256:b18e71038f83e75819fa700a48dea0b0c22412e8e0acf7aee25039e18a803d83",
+      "signature": "qhCeLZHRZdrLreGGxOX5rDIHhsap536pUMFoWPA5xIVTFiO7rgWth9f-RLg4r6U7yfZBONP0tam-Hyxc9AheBA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.853+00"
+    },
+    {
+      "id": "aud_3cfa08a05621482480fa07c11025e606",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 38,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:42.883+00",
+      "details": {
+        "grantId": "fgr_d55695fe2d55441eaadaf844262b8e04",
+        "resource": "inbox",
+        "capability": "message.send",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:b18e71038f83e75819fa700a48dea0b0c22412e8e0acf7aee25039e18a803d83",
+      "recordHash": "sha256:0b1862690aa8e1f9d2424a2a760a36cda5a9ff5e5e6d67ce45f189a37546bf02",
+      "signature": "aBjqFgQPr5Wuw_Nna2y8wX51NKgnLOPSsmwXr0pCDEZXm-wnWLE2fZU-iigv7j54HOj6obsETicW7OX5aSusCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.883+00"
+    },
+    {
+      "id": "aud_2bb1fc763571448fb4554bff103a7be2",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 39,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "taskId": "tsk_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "actionIntentId": "act_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "policyDecisionId": "dec_97d408f0394c4b528bb4623e90b00501",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.904+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:0b1862690aa8e1f9d2424a2a760a36cda5a9ff5e5e6d67ce45f189a37546bf02",
+      "recordHash": "sha256:954b42126bf7108493666a8337cbb5c2c1cf5150761aa7f34a48c47b1056aded",
+      "signature": "H2RJPPeu08hnRa8ljc0ZWH5_fvT62dgnpfHo86Qp6orUR1J3zuWu0yZeRNunsQSV95gfzBqgkihQ8blRBl4yAw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.904+00"
+    },
+    {
+      "id": "aud_6b2af85c2d5041ffa212a3b7ec0bf7a0",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 40,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "taskId": "tsk_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "actionIntentId": "act_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "policyDecisionId": "dec_0cfe3d8a98ee4d4daea7af1a13f4ce92",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:42.954+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:954b42126bf7108493666a8337cbb5c2c1cf5150761aa7f34a48c47b1056aded",
+      "recordHash": "sha256:7bd69693493b6a931bf465c02e01c42f126438831a3ba3b767e64147ad73ac9b",
+      "signature": "ubzS39TPzwsf-0HW9aMN-N5DsY0-gizwZPJLRIzBdAek9gZ99vx-LLVm0McX9Eb4JPHztSb-HkuVa4ctrZDzAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:42.954+00"
+    },
+    {
+      "id": "aud_7e2bab435efa489993624f285c6a1a95",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 41,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "taskId": "tsk_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "actionIntentId": "act_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "policyDecisionId": "dec_407a3db8260a45b59af33c6c2756b62d",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.475+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:7bd69693493b6a931bf465c02e01c42f126438831a3ba3b767e64147ad73ac9b",
+      "recordHash": "sha256:371a0fd9dee4dbf8c793dcb9e9618f4666c66fdc0a9e296e01bbf1e35ee71a9e",
+      "signature": "AujN-ZQq_sWx-1uRFq7_QAX_pxNQLeMU_GES0HJ1Qjs_x4qY5j4dBeol2NJ6Lw8gvuPcOw9CYYX4Gmq6E8BDAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.475+00"
+    },
+    {
+      "id": "aud_050a1375478a4710b837e0f0b8c1cf10",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 42,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:43.479+00",
+      "details": {
+        "count": 0,
+        "viewId": null,
+        "grantId": "fgr_d55695fe2d55441eaadaf844262b8e04",
+        "records": [],
+        "requestId": "frq_24a8a4c5d4874f5e9f871dd7cf24f252",
+        "capability": "message.send",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_97d408f0394c4b528bb4623e90b00501",
+        "publicationVersion": null
+      },
+      "previousHash": "sha256:371a0fd9dee4dbf8c793dcb9e9618f4666c66fdc0a9e296e01bbf1e35ee71a9e",
+      "recordHash": "sha256:95e5ea067b54418295e1eb1bbacab93ea6f3a3b1634f3ecac25f3d97d1a794fd",
+      "signature": "Y0bXrv3QmTsaIH26zOCt_mUaKF7tuzt5RAU-jRgIuuDFrjjrW5d1jQYCTk53sbLlcsJ-Sm-4cTEUOu8-Q89gDw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.479+00"
+    },
+    {
+      "id": "aud_0610741225bb4eaebf7226cb598d6724",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 43,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "taskId": "tsk_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "actionIntentId": "act_24a8a4c5d4874f5e9f871dd7cf24f252",
+      "policyDecisionId": "dec_87c9b1c4ae2049b89b5734212de92484",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.501+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:95e5ea067b54418295e1eb1bbacab93ea6f3a3b1634f3ecac25f3d97d1a794fd",
+      "recordHash": "sha256:eeab7dfbc1a9a0feb11fc703baa277d4de48ef093a04fab4327dcfcb66d498e7",
+      "signature": "eGxHpYvSBEmyP0xBMisqVQrRTQ86Yn1dL_JaJ2t78H1tMIXwm74JEt-IMEA-kZTc5oVaFYJggw86TO2lIiImCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.501+00"
+    },
+    {
+      "id": "aud_2d02ba31086a41d9a24d53fa250bef90",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 44,
+      "eventType": "federation.request.accepted",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "AUTHORIZED",
+      "occurredAt": "2026-09-19 18:29:43.558+00",
+      "details": {
+        "resource": "inbox",
+        "requestId": "frq_156656919f95400aab2376e45d0d5437",
+        "capability": "message.send",
+        "targetAgentId": "agt_e4912db7ee444b66ac15dcf41d896463"
+      },
+      "previousHash": "sha256:eeab7dfbc1a9a0feb11fc703baa277d4de48ef093a04fab4327dcfcb66d498e7",
+      "recordHash": "sha256:a954c649686b250c16dd129160a436535b167d2a6638abc851f2e9ef9fb3e922",
+      "signature": "faa-ME7P7cpbTbtig3MWUqqjHtTMiaYDLZc5iq4pHie7nMt8WJnTvezcegrK6cLV1yseCs2J3WBFhcx9GFDcAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.558+00"
+    },
+    {
+      "id": "aud_dd58582ae1e44a159b0d78dc059df21a",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 45,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:43.614+00",
+      "details": {
+        "count": 0,
+        "viewId": null,
+        "grantId": "fgr_4d46dee24cf846279c53f4c81edbee8a",
+        "records": [],
+        "requestId": "frq_156656919f95400aab2376e45d0d5437",
+        "capability": "message.send",
+        "callerAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "targetAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "policyDecisionId": "dec_9f68f6d8c22640cabc579a238272c327",
+        "publicationVersion": null
+      },
+      "previousHash": "sha256:a954c649686b250c16dd129160a436535b167d2a6638abc851f2e9ef9fb3e922",
+      "recordHash": "sha256:1118e4d79958f245b02e7337cce2d649565d9fb9023b96d04edff133afee5211",
+      "signature": "1uoP-X0pw-WyoleS0xY1ETxIL_nmbIUPn4ePpPNtD__AJWsWMjeDvdvIBE9bCYvcafPJoY7TNbpZI0K_pPAWAA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.614+00"
+    },
+    {
+      "id": "aud_96c32b7d665a4ebfad3fe0cfb15ccc02",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 46,
+      "eventType": "federation.request.accepted",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "AUTHORIZED",
+      "occurredAt": "2026-09-19 18:29:43.683+00",
+      "details": {
+        "resource": "view_bfee4530a1c648fda062556703c93ab9",
+        "requestId": "frq_51bc89b9619b4c2aaba82493c6b9937a",
+        "capability": "knowledge.query",
+        "targetAgentId": "agt_e4912db7ee444b66ac15dcf41d896463"
+      },
+      "previousHash": "sha256:1118e4d79958f245b02e7337cce2d649565d9fb9023b96d04edff133afee5211",
+      "recordHash": "sha256:d41f019ff1ad9fd4ba85c2d5181a23e9720d2dbc16c359d01ca41ec187970436",
+      "signature": "s2NCLyRurL_GI-g8nmTdPBckI2Im4nNMd_Nm-sosX2dzDRYpVlUqsiNf3sHo5rtxap1H_JW0U1gywBLcFSeSAw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.683+00"
+    },
+    {
+      "id": "aud_e24c53723d8c480ab5668f6b382de42a",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 47,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:43.737+00",
+      "details": {
+        "count": 1,
+        "viewId": "view_bfee4530a1c648fda062556703c93ab9",
+        "grantId": "fgr_9c67f9ca4815478896b812dedacfeee1",
+        "records": [
+          {
+            "reference": "ava-published-fact",
+            "recordType": "fact"
+          }
+        ],
+        "requestId": "frq_51bc89b9619b4c2aaba82493c6b9937a",
+        "capability": "knowledge.query",
+        "callerAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "targetAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "policyDecisionId": "dec_4dd8328109c24f4891c9033537b6713d",
+        "publicationVersion": 1
+      },
+      "previousHash": "sha256:d41f019ff1ad9fd4ba85c2d5181a23e9720d2dbc16c359d01ca41ec187970436",
+      "recordHash": "sha256:07ef412299e9239d6f1d7135d36dae6ebe46d105ef255a1d3264259e70fc0c8c",
+      "signature": "i4keZyQTGfbxPIf2fn-vMMjEvaVNtH4qlwsz_OGF0QO2XsQINAzq48IXHTByUtKxcx9ecq4i8xJMB3vonfCfCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.737+00"
+    },
+    {
+      "id": "aud_08107bff062444549cff1dc91d63db07",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 48,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:43.786+00",
+      "details": {
+        "grantId": "fgr_64bdee16f0414b7db090f2017ff86b52",
+        "resource": "architecture",
+        "capability": "artifact.share",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:07ef412299e9239d6f1d7135d36dae6ebe46d105ef255a1d3264259e70fc0c8c",
+      "recordHash": "sha256:20d103b412cb6f2f686c58783aedca03e2f44bc205e32a7195a8ed3819c6409f",
+      "signature": "PHBqSlGgzmnTRpcU6-lvdF_MH294Jh6iK92KTOw5myPzkh1Oi3oT7jkZXzsNaHrja1mdIomuQ2fIuKBHJtFlAA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.786+00"
+    },
+    {
+      "id": "aud_3475752a39f541069336018650f9e15b",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 49,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1d017ff51c00484a8b626050d8f2943d",
+      "taskId": "tsk_1d017ff51c00484a8b626050d8f2943d",
+      "actionIntentId": "act_1d017ff51c00484a8b626050d8f2943d",
+      "policyDecisionId": "dec_c6dc13d0c1994bd5927def200528a18b",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.809+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-4"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:a03eb4e94c132b8dbaf5dd847bc1b78b0a40063afd421d555b9e9066d4a005f1"
+      },
+      "previousHash": "sha256:20d103b412cb6f2f686c58783aedca03e2f44bc205e32a7195a8ed3819c6409f",
+      "recordHash": "sha256:ff910714d48b17d48edb53ddea171b94fefa5c19362446732738d9daca5d0a8e",
+      "signature": "ZbPdImkAwftNWJ6eeGIK586rLWkP1TQ5Y70PVXCYAc-vx0t4zoM5VA2xEAB-53gwDr03UEY0WZwsvvjW1VLrCw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.809+00"
+    },
+    {
+      "id": "aud_ed8c52405771482ca9a155857beb5f26",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 50,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1d017ff51c00484a8b626050d8f2943d",
+      "taskId": "tsk_1d017ff51c00484a8b626050d8f2943d",
+      "actionIntentId": "act_1d017ff51c00484a8b626050d8f2943d",
+      "policyDecisionId": "dec_358b6122e09c49969a3d2db6bcb872c6",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.839+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-4"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:a03eb4e94c132b8dbaf5dd847bc1b78b0a40063afd421d555b9e9066d4a005f1"
+      },
+      "previousHash": "sha256:ff910714d48b17d48edb53ddea171b94fefa5c19362446732738d9daca5d0a8e",
+      "recordHash": "sha256:728242e78fe6ffcc7c0693d760df9ff0cbc32cc3b3105cba8025b3bba6d40e1d",
+      "signature": "OmcLbZVUclFqTFpHFG3pEGKOPfaLv8vZPchs3mxrwEEoolzqUfkYHfPsuKnmsZIYWDgUUUsjQeSz4dQJxrUMBg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.839+00"
+    },
+    {
+      "id": "aud_75b9d1d6834342fb8bbf4b9289c0b37a",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 51,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1d017ff51c00484a8b626050d8f2943d",
+      "taskId": "tsk_1d017ff51c00484a8b626050d8f2943d",
+      "actionIntentId": "act_1d017ff51c00484a8b626050d8f2943d",
+      "policyDecisionId": "dec_9bff82cde94d4a0e8ef143375a737ebb",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.899+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-4"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:a03eb4e94c132b8dbaf5dd847bc1b78b0a40063afd421d555b9e9066d4a005f1"
+      },
+      "previousHash": "sha256:728242e78fe6ffcc7c0693d760df9ff0cbc32cc3b3105cba8025b3bba6d40e1d",
+      "recordHash": "sha256:fb4640191b3040ef7d39f1809ff8a49c185d704421c21e8310de964ed1a808f4",
+      "signature": "KpYAqLoYDxcMnENJEdYr-Yci9Sp3wMN4soIaNKjbe1wJGTtjWnYtaVYn4cL4Xt2LpXgGL7pT-LEyaAZX-SiOAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.899+00"
+    },
+    {
+      "id": "aud_7981a7b79ef643048128864883f1ec97",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 52,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:43.903+00",
+      "details": {
+        "count": 0,
+        "viewId": null,
+        "grantId": "fgr_64bdee16f0414b7db090f2017ff86b52",
+        "records": [],
+        "requestId": "frq_1d017ff51c00484a8b626050d8f2943d",
+        "capability": "artifact.share",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_c6dc13d0c1994bd5927def200528a18b",
+        "publicationVersion": null
+      },
+      "previousHash": "sha256:fb4640191b3040ef7d39f1809ff8a49c185d704421c21e8310de964ed1a808f4",
+      "recordHash": "sha256:d6a6737e7603498d039da231915c904d883738940ac990fe779eebf3f1fe4e1f",
+      "signature": "vLsctQ6nXmXyxHiJT3AAHzc9ISM8N3Ap3cnIJuLnCn1VXZ-qaJGXxuo98WXb6mk3IMLiUCoZnJNt32YWy8IhBg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.903+00"
+    },
+    {
+      "id": "aud_73ad75bacfed4aab9ab43a9140afdf96",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 53,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_1d017ff51c00484a8b626050d8f2943d",
+      "taskId": "tsk_1d017ff51c00484a8b626050d8f2943d",
+      "actionIntentId": "act_1d017ff51c00484a8b626050d8f2943d",
+      "policyDecisionId": "dec_2bb737aee64846ffbee01dbf84d2fb68",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.929+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-4"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:a03eb4e94c132b8dbaf5dd847bc1b78b0a40063afd421d555b9e9066d4a005f1"
+      },
+      "previousHash": "sha256:d6a6737e7603498d039da231915c904d883738940ac990fe779eebf3f1fe4e1f",
+      "recordHash": "sha256:3300591a97750221363940252a6f7d0f9975b5194f2aced44be435a1369075c1",
+      "signature": "A40VI4dxMdkMZ9b6xM0VhiM189PPOuYPCmOXY9vVUxUdZXR7S_ga-6HuK-6PlP5QtZIb1aCqAYNz18Kszmv-Dg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.929+00"
+    },
+    {
+      "id": "aud_5a32732b638a42bd8e6db659c08480af",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 54,
+      "eventType": "budget.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:43.938+00",
+      "details": {
+        "scope": "AGENT",
+        "budgetId": "bdg_a117b491e5954bb7aab317fc61378877",
+        "dimension": "MODEL_SPEND",
+        "hardLimit": "10",
+        "parentBudgetId": null
+      },
+      "previousHash": "sha256:3300591a97750221363940252a6f7d0f9975b5194f2aced44be435a1369075c1",
+      "recordHash": "sha256:20e01b9486063ef548139fc25f3e18687d2e82acd3eaedc47a0222f471384460",
+      "signature": "5wIOnSVcZnCH_K6dXr6Ykb44EvwS8n1E5XPSoX6tWGnZpdxqhtolH4vh1UsCfJRaozrgmH-IG-Bj7KBgK8_uAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.938+00"
+    },
+    {
+      "id": "aud_dfbcf77f9ddd407281158f3636019f73",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 55,
+      "eventType": "federation.grant.created",
+      "actorPrincipalId": "prn_f8c310a1c9eb490c82b6fbf71e435709",
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:43.949+00",
+      "details": {
+        "grantId": "fgr_72d9578f99b344069447160e7d2c301f",
+        "resource": "analysis",
+        "capability": "work.request",
+        "granteeAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "granteeOwnerId": "acct_bea6b70010b94628b12645a33a39e4a2"
+      },
+      "previousHash": "sha256:20e01b9486063ef548139fc25f3e18687d2e82acd3eaedc47a0222f471384460",
+      "recordHash": "sha256:a61422ddc3231e3571327bf130565fe311b490bc0ea6f829bc8e9448765d227d",
+      "signature": "6q74ThbhJ9vt1o60L8wLGlwHnUvjFgGRXt8hFaOueUz61hf_MYWi___b3a2hRNNNdg57FYakR4ioVKfwhq1OBw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.949+00"
+    },
+    {
+      "id": "aud_6cee78c772184e2085f3276146e975f6",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 56,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_5e37cfaf63ac4385a3b06e31216f98cf",
+      "taskId": "tsk_5e37cfaf63ac4385a3b06e31216f98cf",
+      "actionIntentId": "act_5e37cfaf63ac4385a3b06e31216f98cf",
+      "policyDecisionId": "dec_3883498569234fd5b584f301adcacc33",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:43.972+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-5"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:2fddefc0e3462e4cbb3e464bf9bc7646d7a8147b0801d9edef2b025bbbec277d"
+      },
+      "previousHash": "sha256:a61422ddc3231e3571327bf130565fe311b490bc0ea6f829bc8e9448765d227d",
+      "recordHash": "sha256:59ac46d64e24c2a7d5733b8e38327690dee9b2442d375a8b19103240631b3647",
+      "signature": "Yq5_LheS4X1pVgwLgF0LBZotPy6dWvjsKc0FEheHfKv1egRo441-G3XZj1Nl4MlkUnM_hgJVIZ0477ozOc4cDA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.972+00"
+    },
+    {
+      "id": "aud_209b0328e8e345feab6b7c3177a3f4dc",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 57,
+      "eventType": "budget.reserved",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": "tsk_5e37cfaf63ac4385a3b06e31216f98cf",
+      "actionIntentId": "act_5e37cfaf63ac4385a3b06e31216f98cf",
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:43.983+00",
+      "details": {
+        "amount": "1",
+        "dimension": "MODEL_SPEND",
+        "leafBudgetId": "bdg_a117b491e5954bb7aab317fc61378877",
+        "reservationId": "res_cd696e7ebac24b13845ee5ae966b9f3a",
+        "appliedBudgetIds": [
+          "bdg_a117b491e5954bb7aab317fc61378877"
+        ]
+      },
+      "previousHash": "sha256:59ac46d64e24c2a7d5733b8e38327690dee9b2442d375a8b19103240631b3647",
+      "recordHash": "sha256:711986285a0d833de60ed6de46a7ab6a5eb548a34d88500bb7c46921c40aa5f9",
+      "signature": "2jYGURHuOLwYWsGpjRtah2rB7TDVuVpJumI5yzMXxsuEIGbnigQnEScJftiIO5FdB3DgCiTxenJY-lBtQTQYCQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:43.983+00"
+    },
+    {
+      "id": "aud_ce3824f8970a4e579a35c6b3b068c338",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 58,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_5e37cfaf63ac4385a3b06e31216f98cf",
+      "taskId": "tsk_5e37cfaf63ac4385a3b06e31216f98cf",
+      "actionIntentId": "act_5e37cfaf63ac4385a3b06e31216f98cf",
+      "policyDecisionId": "dec_deff67b00e4b488fb142e3d3189f88cd",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:44.009+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-5"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:2fddefc0e3462e4cbb3e464bf9bc7646d7a8147b0801d9edef2b025bbbec277d"
+      },
+      "previousHash": "sha256:711986285a0d833de60ed6de46a7ab6a5eb548a34d88500bb7c46921c40aa5f9",
+      "recordHash": "sha256:14d641c364af3b833410bad36e2a356c6762c1aa18c614ad5c2b6c9ffe078891",
+      "signature": "XYWo-5740NRJJN56nDJJwf-3kFkGasagR5yDjOSh2Vemcp2Ol-dLbrlNFK50nVI2159H5Jx3n_vW2s3FKW83BA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:44.009+00"
+    },
+    {
+      "id": "aud_bb579da588f641dfbe25b0dcabb4600c",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 59,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_4943556612584f9a99d2538757cea72c",
+      "taskId": "tsk_4943556612584f9a99d2538757cea72c",
+      "actionIntentId": "act_4943556612584f9a99d2538757cea72c",
+      "policyDecisionId": "dec_d1356f1c9bb8434ab7aaccc6a08a30ff",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:44.082+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-5"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:2fddefc0e3462e4cbb3e464bf9bc7646d7a8147b0801d9edef2b025bbbec277d"
+      },
+      "previousHash": "sha256:14d641c364af3b833410bad36e2a356c6762c1aa18c614ad5c2b6c9ffe078891",
+      "recordHash": "sha256:457b16808c6e35d88cb771be3a9f53fc75be86a3e73a2fcbe1afe610a91afb95",
+      "signature": "H36nntFW6fFgpRs5KoR0zaEwcLvBtmyNWkgvXvjTlW4kYTFW4WyeFqnvXwzOR4w8BOtlrGYiO3JGoYPa2xm-BA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:44.082+00"
+    },
+    {
+      "id": "aud_b612e436a53841659ae901008faba42b",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 60,
+      "eventType": "budget.reserved",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": "tsk_4943556612584f9a99d2538757cea72c",
+      "actionIntentId": "act_4943556612584f9a99d2538757cea72c",
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "SUCCESS",
+      "occurredAt": "2026-09-19 18:29:44.089+00",
+      "details": {
+        "amount": "1",
+        "dimension": "MODEL_SPEND",
+        "leafBudgetId": "bdg_a117b491e5954bb7aab317fc61378877",
+        "reservationId": "res_484ac687adfc4067a3a6819e516569d4",
+        "appliedBudgetIds": [
+          "bdg_a117b491e5954bb7aab317fc61378877"
+        ]
+      },
+      "previousHash": "sha256:457b16808c6e35d88cb771be3a9f53fc75be86a3e73a2fcbe1afe610a91afb95",
+      "recordHash": "sha256:dfd3a07605ab4c07307cd0c59332e0ce05ee6c5f1760e92308012e2ce2953e04",
+      "signature": "QQMgupTPNSpSXzVv-vXtmwY1gwbQ9HTVrt6byeotkUEBVR9KRGQ22qmmxTl4ltOtWMyOCd9CILXwNF1bRFMyAw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:44.089+00"
+    },
+    {
+      "id": "aud_495634eb6f5947e794e55315929868ec",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 61,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_4943556612584f9a99d2538757cea72c",
+      "taskId": "tsk_4943556612584f9a99d2538757cea72c",
+      "actionIntentId": "act_4943556612584f9a99d2538757cea72c",
+      "policyDecisionId": "dec_53c742ca69d24bfb994e7d688dd85c73",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:44.114+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-5"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:2fddefc0e3462e4cbb3e464bf9bc7646d7a8147b0801d9edef2b025bbbec277d"
+      },
+      "previousHash": "sha256:dfd3a07605ab4c07307cd0c59332e0ce05ee6c5f1760e92308012e2ce2953e04",
+      "recordHash": "sha256:92565b61a7e962345ec5b80e902b525032a6cbf25c39a694bafd715e1dbee400",
+      "signature": "tvvLXLjJf6zs8fcil8P0ggOd_fKbfAk4zCAMywX065fj77FtLToAdWZiG3xrdkxutqvri_ucaDj_q8ThxoU2Cw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:44.114+00"
+    },
+    {
+      "id": "aud_43874eb0d2544d73acce2d7f7e697ff1",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 62,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_4943556612584f9a99d2538757cea72c",
+      "taskId": "tsk_4943556612584f9a99d2538757cea72c",
+      "actionIntentId": "act_4943556612584f9a99d2538757cea72c",
+      "policyDecisionId": "dec_0fcfdf93da8e40adbf6209053ab42fc5",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:50.885+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-5"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:2fddefc0e3462e4cbb3e464bf9bc7646d7a8147b0801d9edef2b025bbbec277d"
+      },
+      "previousHash": "sha256:92565b61a7e962345ec5b80e902b525032a6cbf25c39a694bafd715e1dbee400",
+      "recordHash": "sha256:6edc93c1add71ca5595d0e70d088b11fa75dc16fe54566700e97c57e2e5bbb9d",
+      "signature": "0ZX20cg87QluVcfasuXYE_i4GxHh3rTkU-lq7IYXwsBplEZxCPsbJJ1AaUWlgMwrL7aiGAFTN7LxLDLsDHFcBw",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:50.885+00"
+    },
+    {
+      "id": "aud_4cd68baae83148b0b6ea6491a1b324a2",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 63,
+      "eventType": "budget.reconciled",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": "tsk_4943556612584f9a99d2538757cea72c",
+      "actionIntentId": "act_4943556612584f9a99d2538757cea72c",
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMMITTED",
+      "occurredAt": "2026-09-19 18:29:50.895+00",
+      "details": {
+        "actualAmount": "0.005538",
+        "reservationId": "res_484ac687adfc4067a3a6819e516569d4",
+        "reservedAmount": "1.000000000",
+        "usageIdempotencyKey": "federation-result:frq_4943556612584f9a99d2538757cea72c"
+      },
+      "previousHash": "sha256:6edc93c1add71ca5595d0e70d088b11fa75dc16fe54566700e97c57e2e5bbb9d",
+      "recordHash": "sha256:0a41db5f4860743942b617cfe70bb01504ca0b12f6eceae1c53f1761449572a9",
+      "signature": "Gt36Psvmv-SAVsP3qfL2vF79LLdhSTcSKVbsP6MRhdi0Wuld7C6k1V3EgYrwvkxj8qJIY5puusgumyKYg_kDAQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:50.895+00"
+    },
+    {
+      "id": "aud_6a6138c225e24a2198c43181aae25452",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 64,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:50.898+00",
+      "details": {
+        "count": 0,
+        "viewId": null,
+        "grantId": "fgr_72d9578f99b344069447160e7d2c301f",
+        "records": [],
+        "requestId": "frq_4943556612584f9a99d2538757cea72c",
+        "capability": "work.request",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_d1356f1c9bb8434ab7aaccc6a08a30ff",
+        "publicationVersion": null
+      },
+      "previousHash": "sha256:0a41db5f4860743942b617cfe70bb01504ca0b12f6eceae1c53f1761449572a9",
+      "recordHash": "sha256:c116886a8a85f5672712d2a8729770d664adf6a904ee932372e9f7253e0dc526",
+      "signature": "B59Js0OvJo7jiPAo3ffPHCjgfXzRMaEXZkHPYkOlpY7bxgZk3OhTolhJBeMfItUjImcl8gjV0aTUiKv9Hm36DA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:50.898+00"
+    },
+    {
+      "id": "aud_66f5a5a0c4d148e58478dff3f8b54464",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 65,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_4943556612584f9a99d2538757cea72c",
+      "taskId": "tsk_4943556612584f9a99d2538757cea72c",
+      "actionIntentId": "act_4943556612584f9a99d2538757cea72c",
+      "policyDecisionId": "dec_6750f0068ae04df28d5cd8a22a6c9097",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:50.929+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-5"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:2fddefc0e3462e4cbb3e464bf9bc7646d7a8147b0801d9edef2b025bbbec277d"
+      },
+      "previousHash": "sha256:c116886a8a85f5672712d2a8729770d664adf6a904ee932372e9f7253e0dc526",
+      "recordHash": "sha256:289849d23ad9ee317f1dffd79c985d6093288cfb9801ae882d3748458bf05e88",
+      "signature": "cZTiwiPskVYcFk3SZBXFNhGgVOTsxMarBDDyveN4CEg7zE7BrBfwrtKay7M48cDADioB8Wp825uL76WK9kOHBA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:50.929+00"
+    },
+    {
+      "id": "aud_9112a8e161a044a1a5a581e446f7cbcb",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 66,
+      "eventType": "federation.request.accepted",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "AUTHORIZED",
+      "occurredAt": "2026-09-19 18:29:50.983+00",
+      "details": {
+        "resource": "analysis-result",
+        "requestId": "frq_69c43242bdb848969507f971be7e5c3c",
+        "capability": "artifact.share",
+        "targetAgentId": "agt_e4912db7ee444b66ac15dcf41d896463"
+      },
+      "previousHash": "sha256:289849d23ad9ee317f1dffd79c985d6093288cfb9801ae882d3748458bf05e88",
+      "recordHash": "sha256:ce1207864d172179e6d19930bba97c1db30b0a090369faf8655f9dd4eea3c09d",
+      "signature": "7lbYm-k2VKpv1wNcLpEq1tgeIw2YrjB30rSuK5zJSQFZIxVygYcOF3Ku9jlPMk4GaQQx3naf1LZHcuwfmaEDAQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:50.983+00"
+    },
+    {
+      "id": "aud_e78aa92ceefa448b8413c7cb023ee8b8",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 67,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:51.048+00",
+      "details": {
+        "count": 0,
+        "viewId": null,
+        "grantId": "fgr_e75aaa6790ea41bc8e22a241b699a0de",
+        "records": [],
+        "requestId": "frq_69c43242bdb848969507f971be7e5c3c",
+        "capability": "artifact.share",
+        "callerAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "targetAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "policyDecisionId": "dec_76bb8685449846dd9eae0751390fe57c",
+        "publicationVersion": null
+      },
+      "previousHash": "sha256:ce1207864d172179e6d19930bba97c1db30b0a090369faf8655f9dd4eea3c09d",
+      "recordHash": "sha256:71e1a5c3c75c275c02fe9b5b26a93b72617957e325e4c468b3f36c3966c379bf",
+      "signature": "fqbsmNzQLwLW0OeHwBIeen5ipm1wS-dDzlPRzFB56_W45mgvAgKpMHtJ-HHz5QqLlsaPf_A4SEZOmbnBgpxLBQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:51.048+00"
+    },
+    {
+      "id": "aud_a7c15180d1484d0ebf93a7711c58fff0",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 68,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_3f26dbec6b2a4a99a14fb583e435ba70",
+      "taskId": "tsk_3f26dbec6b2a4a99a14fb583e435ba70",
+      "actionIntentId": "act_3f26dbec6b2a4a99a14fb583e435ba70",
+      "policyDecisionId": "dec_163a5c99afe949dda16b4c038683a810",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:51.105+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:71e1a5c3c75c275c02fe9b5b26a93b72617957e325e4c468b3f36c3966c379bf",
+      "recordHash": "sha256:4ec72f3191be322ece0608ddc5bf76900af0d31ecb7e2273291e23f4c3a5bbad",
+      "signature": "o0pK4m90eWkCvOEkcWb5rU5HfpfUab3RQ-6Pg29oVWeCD3WNpXQb4JWwtV2dBxM8mwxM4gzPiHYXF9_DEtHRCQ",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:51.105+00"
+    },
+    {
+      "id": "aud_c559d90abaa5407188926b2b27c650f8",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 69,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_3f26dbec6b2a4a99a14fb583e435ba70",
+      "taskId": "tsk_3f26dbec6b2a4a99a14fb583e435ba70",
+      "actionIntentId": "act_3f26dbec6b2a4a99a14fb583e435ba70",
+      "policyDecisionId": "dec_cf0051b8382142c5a179b850e24b12be",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:52.011+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:4ec72f3191be322ece0608ddc5bf76900af0d31ecb7e2273291e23f4c3a5bbad",
+      "recordHash": "sha256:e3eba273000ed160462dfd05527a054d3b31bf432dfec1b5de6e8cba4873adf0",
+      "signature": "QLYbwcMO8einn5ZQXwEyD4ptFBf91Gz8mGZtKpumJ2TfENYKaBkad8vPN5SwQqJ98TG1c6rV9_UVxMP-rNOaCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:52.011+00"
+    },
+    {
+      "id": "aud_521d32d289e04986bdbf34c4c38e2f65",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 70,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_3f26dbec6b2a4a99a14fb583e435ba70",
+      "taskId": "tsk_3f26dbec6b2a4a99a14fb583e435ba70",
+      "actionIntentId": "act_3f26dbec6b2a4a99a14fb583e435ba70",
+      "policyDecisionId": "dec_67ab112b513b4d3d99c420ad50de6801",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:52.071+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:e3eba273000ed160462dfd05527a054d3b31bf432dfec1b5de6e8cba4873adf0",
+      "recordHash": "sha256:e178791d71bdeddca2af9784f2f86591ef4adfac5b4f1d0004724d860b80d883",
+      "signature": "dyTNFV0avkuHZnNlzbgaXFA2IMqgHSWZ4pusVnVzxAh5G8IDhnFAUvPluDUmvguPzJV-TPydUutX76IMs0SGCA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:52.071+00"
+    },
+    {
+      "id": "aud_672aa62c93ce44c0bf8980cd3ddd63c7",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 71,
+      "eventType": "federation.disclosure",
+      "actorPrincipalId": null,
+      "agentId": null,
+      "runtimeClientId": null,
+      "taskId": null,
+      "actionIntentId": null,
+      "policyDecisionId": null,
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "COMPLETED",
+      "occurredAt": "2026-09-19 18:29:52.075+00",
+      "details": {
+        "count": 0,
+        "viewId": null,
+        "grantId": "fgr_d55695fe2d55441eaadaf844262b8e04",
+        "records": [],
+        "requestId": "frq_3f26dbec6b2a4a99a14fb583e435ba70",
+        "capability": "message.send",
+        "callerAgentId": "agt_e4912db7ee444b66ac15dcf41d896463",
+        "targetAgentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+        "policyDecisionId": "dec_163a5c99afe949dda16b4c038683a810",
+        "publicationVersion": null
+      },
+      "previousHash": "sha256:e178791d71bdeddca2af9784f2f86591ef4adfac5b4f1d0004724d860b80d883",
+      "recordHash": "sha256:f39c750e03697ec7fa8d2dddab55be7ae92cc65a5a0955dc3db70d0137c134a4",
+      "signature": "UpHeTJmTqHwL5f6WG-Yc5U0mHDOH8bzbc1UqPl1-E19BDzOn-QRpyZqTIdoCHPM5ibCqHVDS4ZWI7LJXaduAAg",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:52.075+00"
+    },
+    {
+      "id": "aud_0677623bbb3448308182d9bcac4eb008",
+      "accountId": "acct_6828864e0a934b8d96ad9525b719c82f",
+      "sequence": 72,
+      "eventType": "policy.evaluated",
+      "actorPrincipalId": null,
+      "agentId": "agt_20dc9b483ab749ce83e440715b2c3cda",
+      "runtimeClientId": "rtc_3f26dbec6b2a4a99a14fb583e435ba70",
+      "taskId": "tsk_3f26dbec6b2a4a99a14fb583e435ba70",
+      "actionIntentId": "act_3f26dbec6b2a4a99a14fb583e435ba70",
+      "policyDecisionId": "dec_1be95785d371466caf23695771eef60c",
+      "approvalDecisionId": null,
+      "leaseId": null,
+      "provider": null,
+      "outcome": "ALLOW",
+      "occurredAt": "2026-09-19 18:29:52.123+00",
+      "details": {
+        "reasonCodes": [
+          "QUALIFICATION_ALLOW"
+        ],
+        "matchedRuleIds": [
+          "allow-2"
+        ],
+        "policyBundleHashes": [
+          "sha256:80610d65b40ae032479f3d3e21bd4f776522932a7775b68b246d2d2c8cf51f21"
+        ],
+        "capabilityDefinitionHash": "sha256:7c12d3a937389cf4b93b110ed8d55da5b0f9d9f3c0c76a0e4e466b9ae67e3820"
+      },
+      "previousHash": "sha256:f39c750e03697ec7fa8d2dddab55be7ae92cc65a5a0955dc3db70d0137c134a4",
+      "recordHash": "sha256:dd7e68b9cdc0044480e5985f9a497f543cd88400a64e2febd7dea2ec70a43f65",
+      "signature": "aEti79kgKBDyi9jmGOkDWOGYTH7x2wUJY98DvxWxvZ05FDJi57cIqSdVh2TJ95EXopBo8mdvpqRevPRWRp8eDA",
+      "signingKeyId": "qualification-relay",
+      "createdAt": "2026-09-19 18:29:52.123+00"
+    }
+  ]
+}
