@@ -2,7 +2,11 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
 import { TEMPLATE_RELEASE_FILE } from "../lib/assemble";
-import { claimedPrunableFiles, PRUNABLE_DIRS } from "../lib/manifest";
+import {
+  allowedPrunableFiles,
+  claimedPrunableFiles,
+  PRUNABLE_DIRS,
+} from "../lib/manifest";
 
 // Guards the "apps/eve is the template" invariant: every file that eve
 // auto-discovers (tools, schedules, connections, extensions, instruction
@@ -53,6 +57,25 @@ if (stale.length > 0) {
   for (const file of stale) console.error(`  - ${file}`);
 }
 if (unclaimed.length > 0 || stale.length > 0) process.exit(1);
+
+const coreFiles = allowedPrunableFiles([]);
+const knowledgeFiles = allowedPrunableFiles(["knowledge"]);
+const ownerKnowledgeTools = [
+  "agent/tools/search_owner_knowledge.ts",
+  "agent/tools/inspect_owner_knowledge.ts",
+];
+
+if (!coreFiles.has("agent/schedules/operations-monitor.ts")) {
+  console.error("The operations monitor must ship as a core schedule.");
+  process.exit(1);
+}
+
+for (const file of ownerKnowledgeTools) {
+  if (!knowledgeFiles.has(file) || coreFiles.has(file)) {
+    console.error(`${file} must ship with knowledge and be pruned without it.`);
+    process.exit(1);
+  }
+}
 
 const releaseRaw = (await readFile(path.join(eveRoot, TEMPLATE_RELEASE_FILE), "utf8").catch(() => "")).trim();
 const release = Number.parseInt(releaseRaw, 10);

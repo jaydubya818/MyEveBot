@@ -75,6 +75,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/update_task.ts",
   "agent/tools/workflow.ts",
   "agent/tools/write_file.ts",
+  "agent/schedules/operations-monitor.ts",
 ] as const;
 
 /** Feature → the prunable files it owns. */
@@ -86,6 +87,8 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/record_decision.ts",
     "agent/tools/record_commitment.ts",
     "agent/tools/search_knowledge.ts",
+    "agent/tools/search_owner_knowledge.ts",
+    "agent/tools/inspect_owner_knowledge.ts",
     "agent/tools/list_decisions.ts",
     "agent/tools/list_commitments.ts",
   ],

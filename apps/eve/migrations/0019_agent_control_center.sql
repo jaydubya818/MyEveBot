@@ -7,4 +7,3 @@ ALTER TABLE task_runs
     'queued', 'running', 'awaiting_approval', 'paused',
     'completed', 'failed', 'cancelled'
   ));
-
