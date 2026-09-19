@@ -1,8 +1,8 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { HANDLED_LABEL, UNREAD_LABEL, replyToMessage, updateThreadLabels } from "../lib/agentmail";
-import { agentName, ownerName } from "../lib/owner";
+import { agentName,ownerName } from "../lib/owner";
 import { ownerOnly } from "../lib/owner-gate";
 
 export default defineTool({
@@ -22,26 +22,6 @@ export default defineTool({
     html: z.string().optional().describe("Optional HTML body. Always send text too."),
   }),
   async execute({ messageId, text, replyAll, cc, html }, ctx) {
-    const result = await replyToMessage(
-      messageId,
-      { text, html, cc, replyAll },
-      { idempotencyKey: `reply-${ctx.callId}` },
-    );
-
-    // Answering a thread settles it; leaving it unread would re-surface it.
-    await updateThreadLabels(result.thread_id, {
-      add: [HANDLED_LABEL],
-      remove: [UNREAD_LABEL],
-    }).catch((error: unknown) => {
-      console.error(`Marking replied thread ${result.thread_id} read failed.`, error);
-    });
-
-    return {
-      sent: true as const,
-      threadId: result.thread_id,
-      messageId: result.message_id,
-      repliedTo: messageId,
-      replyAll,
-    };
+    return denyUnqualifiedExecutor(ctx, "tool.reply_to_email");
   },
 });

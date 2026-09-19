@@ -1,30 +1,29 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 import {
-  HANDLED_LABEL,
-  UNREAD_LABEL,
-  clipBody,
-  getEmailAddress,
-  getThread,
-  messageBody,
-  parseAddress,
-  updateThreadLabels,
+clipBody,
+getEmailAddress,
+getThread,
+messageBody,
+parseAddress,
 } from "../lib/agentmail";
 import { agentName } from "../lib/owner";
 import { ownerOnly } from "../lib/owner-gate";
 
 export default defineTool({
   approval: ownerOnly,
-  description: `Read a full email conversation from ${agentName()}'s inbox: every message in the thread with its sender, recipients, date, and body. Get thread ids from list_emails or search_emails. Reading marks the thread read by default, which is what keeps your inbox from re-surfacing mail you already looked at. Reply with reply_to_email using the messageId of the message you're answering.`,
+  description: `Read a full email conversation from ${agentName()}'s inbox: every message in the thread with its sender, recipients, date, and body. Get thread ids from list_emails or search_emails. Reading does not change labels. Mark-read and replies require a qualified write adapter and are currently unavailable.`,
   inputSchema: z.object({
     threadId: z.string().min(1).describe("Thread id from list_emails or search_emails."),
     markRead: z
       .boolean()
-      .default(true)
-      .describe("Clear the unread flag on this thread. Set false to peek without changing state."),
+      .default(false)
+      .describe("Keep false. Label mutations are unavailable until their write adapter is qualified."),
   }),
-  async execute({ threadId, markRead }) {
+  async execute({ threadId, markRead },ctx) {
+    if(markRead)return denyUnqualifiedExecutor(ctx,"tool.label_email");
     const [thread, ownAddress] = await Promise.all([getThread(threadId), getEmailAddress()]);
 
     const messages = thread.messages.map((message) => {
@@ -46,16 +45,6 @@ export default defineTool({
         })),
       };
     });
-
-    if (markRead && thread.labels.includes(UNREAD_LABEL)) {
-      // Best-effort: a failed label write must not lose the message we just read.
-      await updateThreadLabels(threadId, {
-        add: [HANDLED_LABEL],
-        remove: [UNREAD_LABEL],
-      }).catch((error: unknown) => {
-        console.error(`Marking email thread ${threadId} read failed.`, error);
-      });
-    }
 
     return {
       threadId: thread.thread_id,

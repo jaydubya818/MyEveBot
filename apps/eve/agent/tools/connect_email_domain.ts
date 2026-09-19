@@ -1,8 +1,8 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { connectEmailDomain } from "../lib/email-domain";
-import { agentName, ownerName } from "../lib/owner";
+import { agentName,ownerName } from "../lib/owner";
 import { ownerOnly } from "../lib/owner-gate";
 
 export default defineTool({
@@ -15,19 +15,7 @@ export default defineTool({
       .max(253)
       .describe('The domain to connect, e.g. "example.com" (no scheme, no mailbox name).'),
   }),
-  async execute({ domain }) {
-    const state = await connectEmailDomain(domain);
-    return {
-      domain: state.domain,
-      status: state.status,
-      currentAddress: state.emailAddress,
-      dnsRecords: (state.records ?? []).map((record) => ({
-        type: record.type,
-        name: record.name,
-        value: record.priority !== undefined ? `${record.priority} ${record.value}` : record.value,
-        status: record.status,
-      })),
-      nextStep: `Send ${ownerName()} the DNS records as a clear list (type, name, value) to add at his DNS provider. Verification usually completes within minutes of the records propagating, but can take up to 48 hours. Use check_email_domain later to see progress; the address switches automatically once verified.`,
-    };
+  async execute({ domain }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.connect_email_domain");
   },
 });

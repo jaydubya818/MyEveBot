@@ -1,14 +1,13 @@
-import { defineDynamic, defineTool } from "eve/tools";
 import type { Approval } from "eve/tools";
+import { defineDynamic,defineTool } from "eve/tools";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 import {
-  LocalComputerTaskInput,
-  localComputerConfigured,
-  localComputerTask,
+LocalComputerTaskInput,
+localComputerConfigured
 } from "../lib/effect/local-computer";
-import { runTool } from "../lib/effect/runtime";
-import { isGuestResolve, guestDenial } from "../lib/owner-gate";
 import { toolSchema } from "../lib/effect/tool-schema";
+import { guestDenial,isGuestResolve } from "../lib/owner-gate";
 
 export const localComputerTaskApproval: Approval = (context) =>
   guestDenial(context) ?? "user-approval";
@@ -24,8 +23,8 @@ export default defineDynamic({
           inputSchema: toolSchema(LocalComputerTaskInput),
           approval: localComputerTaskApproval,
           async execute(input, toolContext) {
-            return runTool(localComputerTask(input, toolContext.abortSignal));
-          },
+    return denyUnqualifiedExecutor(toolContext, "tool.local_computer_task");
+  },
         }),
       };
     },

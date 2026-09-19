@@ -1,9 +1,10 @@
-import { defineDynamic, defineTool } from "eve/tools";
+import { defineDynamic,defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { resolveBrowserProfile, setBrowserProfileStatus, touchBrowserProfile, type BrowserProfileView } from "../../lib/browser-profiles.ts";
-import { computerAgent, computerOwnerId } from "../lib/computer-context.ts";
-import { orgoForProfile, orgoConfigured } from "../lib/orgo";
+import { resolveBrowserProfile,touchBrowserProfile,type BrowserProfileView } from "../../lib/browser-profiles.ts";
+import { computerAgent,computerOwnerId } from "../lib/computer-context.ts";
+import { orgoConfigured,orgoForProfile } from "../lib/orgo";
 import { ownerName } from "../lib/owner";
 import { isGuestResolve } from "../lib/owner-gate";
 
@@ -104,35 +105,8 @@ export default defineDynamic({
             persistent_profile_id: profileIdSchema,
           }),
           async execute({ instruction, continue_thread_id, model, max_steps, persistent_profile_id }, ctx) {
-            const { desktop } = await desktopFor(ctx, persistent_profile_id);
-            const result = await desktop.task({
-              instruction,
-              ...(continue_thread_id === undefined ? {} : { threadId: continue_thread_id }),
-              ...(model === undefined ? {} : { model }),
-              ...(max_steps === undefined ? {} : { maxSteps: max_steps }),
-              ...(ctx.abortSignal === undefined ? {} : { signal: ctx.abortSignal }),
-            });
-
-            const note =
-              result.status === "stopped_early"
-                ? result.threadId === null
-                  ? "The task stopped before completion; the desktop is left exactly as it was. Call computer_task again with a fresh instruction describing what remains."
-                  : "The task hit its time limit and was stopped; the desktop is left exactly as it was. Call computer_task again with continue_thread_id to pick up where it left off."
-                : result.text.length === 0
-                  ? "The run ended without reporting anything. Take a screenshot to see where the desktop landed before retrying."
-                  : null;
-
-            // Run metadata only rides along on Orgo's non-streaming responses;
-            // leave it out entirely rather than showing the model empty fields.
-            return {
-              status: result.status,
-              result: result.text,
-              threadId: result.threadId,
-              ...(result.steps === null ? {} : { steps: result.steps }),
-              ...(result.costCents === null ? {} : { costCents: result.costCents }),
-              ...(note === null ? {} : { note }),
-            };
-          },
+    return denyUnqualifiedExecutor(ctx, "tool.computer");
+  },
         }),
 
         computer_bash: defineTool({
@@ -150,45 +124,16 @@ export default defineDynamic({
             persistent_profile_id: profileIdSchema,
           }),
           async execute({ command, timeout_seconds, persistent_profile_id }, ctx) {
-            const { desktop } = await desktopFor(ctx, persistent_profile_id);
-            const result = await desktop.bash(command, {
-              ...(timeout_seconds === undefined ? {} : { timeoutSeconds: timeout_seconds }),
-              ...(ctx.abortSignal === undefined ? {} : { signal: ctx.abortSignal }),
-            });
-            const { output, truncated } = truncate(result.output);
-            return {
-              exitCode: result.exitCode,
-              output,
-              ...(truncated ? { truncated: true } : {}),
-            };
-          },
+    return denyUnqualifiedExecutor(ctx, "tool.computer");
+  },
         }),
 
         computer_screenshot: defineTool({
           description: `Capture the cloud desktop's screen to show ${owner}. You cannot see the image yourself. When the result has an imageUrl, hand it to ${owner} as a markdown image; when the screenshot was already displayed inline, just refer to it. To have something on screen read or acted on, use computer_task instead.`,
           inputSchema: z.object({ persistent_profile_id: profileIdSchema }),
           async execute({ persistent_profile_id }, ctx) {
-            const { desktop } = await desktopFor(ctx, persistent_profile_id);
-            const result = await desktop.screenshot(ctx.abortSignal);
-            const liveViewUrl = result.computer.liveViewUrl;
-            if (result.imageUrl !== null) {
-              return {
-                imageUrl: result.imageUrl,
-                liveViewUrl,
-                note: `Show it to ${owner} as a markdown image: ![desktop](URL). You cannot see it yourself.`,
-              };
-            }
-            // The chat UI renders the data URL inline; the model never sees it
-            // (toModelOutput swaps it for a note), so nothing else to link.
-            if (result.imageDataUrl !== null) {
-              return { imageDataUrl: result.imageDataUrl, liveViewUrl };
-            }
-            return {
-              imageUrl: null,
-              liveViewUrl,
-              note: `The screenshot came back in a shape that cannot be shown${result.inlineBytes === null ? "" : ` (${result.inlineBytes} bytes inline)`}. Send ${owner} the live view URL instead.`,
-            };
-          },
+    return denyUnqualifiedExecutor(ctx, "tool.computer");
+  },
           toModelOutput(output) {
             const { imageDataUrl, ...rest } = output as { imageDataUrl?: string } & Record<
               string,
@@ -218,51 +163,8 @@ export default defineDynamic({
             reason: z.string().min(1).max(500).optional().describe("Why owner takeover or reconnection is required."),
           }),
           async execute({ action, persistent_profile_id, reason }, ctx) {
-            const { ownerId, profile, desktop } = await desktopFor(ctx, persistent_profile_id, true);
-            if (action === "request_takeover" || action === "authentication_failed") {
-              const status = action === "request_takeover" ? "takeover_required" : "reconnect_required";
-              const updated = await setBrowserProfileStatus({ ownerId, profileId: profile.id, status, failureSummary: reason ?? (status === "reconnect_required" ? "The saved account session is no longer authenticated." : null) });
-              const computer = await desktop.start(ctx.abortSignal);
-              return { provisioned: true as const, profileId: updated.id, profileStatus: updated.status, name: computer.name, status: computer.status, liveViewUrl: computer.liveViewUrl, note: `The profile is paused for ${owner}. Do not continue until the owner confirms takeover is complete.` };
-            }
-            if (profile.status !== "ready" && action !== "status") {
-              throw new Error("The owner must finish reconnecting this browser profile before it can be started, stopped, or restarted.");
-            }
-            const signal = ctx.abortSignal;
-            const computer =
-              action === "start"
-                ? await desktop.start(signal)
-                : action === "stop"
-                  ? await desktop.stop(signal)
-                  : action === "restart"
-                    ? await desktop.restart(signal)
-                    : await desktop.status(signal);
-
-            if (computer === null) {
-              return {
-                provisioned: false as const,
-                note: "No desktop exists yet. It is created the first time you use computer_task, computer_bash, or computer_screenshot, or now with action 'start'.",
-              };
-            }
-
-            return {
-              provisioned: true as const,
-              profileId: profile.id,
-              profileStatus: profile.status,
-              name: computer.name,
-              // Orgo reports an idle desktop as "frozen"; its disk is intact.
-              status: computer.status,
-              ...(computer.status === "running"
-                ? {}
-                : { note: "Not running right now. Any computer tool wakes it automatically." }),
-              liveViewUrl: computer.liveViewUrl,
-              specs:
-                computer.ram === null || computer.cpu === null
-                  ? null
-                  : `${computer.ram} GB RAM / ${computer.cpu} CPU`,
-              resolution: computer.resolution,
-            };
-          },
+    return denyUnqualifiedExecutor(ctx, "tool.computer");
+  },
         }),
       };
     },

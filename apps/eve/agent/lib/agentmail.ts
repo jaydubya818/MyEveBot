@@ -379,18 +379,7 @@ async function resolveInbox(): Promise<Inbox> {
   const own = existing.inboxes.find((inbox) => inbox.client_id === clientId);
   if (own !== undefined) return own;
 
-  const username = domain === null
-    ? process.env.AGENTMAIL_INBOX_USERNAME?.trim() || undefined
-    : desiredUsername(existing.inboxes);
-  return await api<Inbox>("/inboxes", {
-    method: "POST",
-    body: {
-      client_id: clientId,
-      ...(username !== undefined && username.length > 0 ? { username } : {}),
-      ...(domain !== null ? { domain } : {}),
-      display_name: process.env.AGENTMAIL_INBOX_DISPLAY_NAME?.trim() || undefined,
-    },
-  });
+  throw new Error("Configure an existing AgentMail inbox before using email. A read cannot provision an account.");
 }
 
 /** The agent's inbox, provisioning it on first use. Cached for the process. */
@@ -552,6 +541,29 @@ export async function getAttachment(
 }
 
 // --- Writes ---------------------------------------------------------------
+
+/** Read-only account resolution: never provision while resolving authority. */
+export async function existingEmailAccount():Promise<string> {
+  const pinned=process.env.AGENTMAIL_INBOX_ID?.trim();
+  if(pinned) return (await api<Inbox>(`/inboxes/${encodeURIComponent(pinned)}`)).inbox_id;
+  const clientId=clientIdFor(await effectiveDomain());
+  const inboxes=await api<{inboxes:Inbox[]}>("/inboxes",{query:{limit:100}});
+  const inbox=inboxes.inboxes.find(value=>value.client_id===clientId);
+  if(!inbox)throw new Error("Configure an existing email inbox before sending.");
+  return inbox.inbox_id;
+}
+
+export async function inspectBoundMessage(account:string,messageId:string):Promise<Message> {
+  return api<Message>(`/inboxes/${encodeURIComponent(account)}/messages/${encodeURIComponent(normalizeMessageId(messageId))}`);
+}
+
+export async function sendBoundMessage(input:SendInput,context:import("../../lib/action-gateway.ts").AuthorizedAction):Promise<SendResult> {
+  const {consumeProviderAuthority}=await import("../../lib/action-gateway.ts");
+  consumeProviderAuthority(context,input as unknown as Record<string,unknown>,"tool.send_email");
+  return api<SendResult>(`/inboxes/${encodeURIComponent(context.target.account)}/messages/send`,{
+    method:"POST",idempotencyKey:context.idempotencyKey,body:input,
+  });
+}
 
 export async function sendMessage(
   input: SendInput,

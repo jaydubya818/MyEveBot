@@ -26,7 +26,7 @@
     "seed:knowledge-preview": "node --env-file-if-exists=.env.local scripts/seed-knowledge-preview.ts",
     "start": "next start",
     "test": "vitest run",
-    "typecheck": "tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate"
+    "typecheck": "tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts"
   },
   "dependencies": {
     "@agent-browser/eve": "^0.35.1",

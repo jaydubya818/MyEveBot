@@ -1,0 +1,662 @@
+{
+  "version": 1,
+  "note": "Every changed executor needs an explicit review. reviewed-existing is NOT gateway coverage; see docs/action-executor-audit.md. Routine activation remains blocked.",
+  "executors": {
+    "agent/connections/agentcard.ts": {
+      "disposition": "blocked",
+      "sha256": "2825979fa38e8a7d943035578d8352a9246777c6cfcb4af98b026c405ee86943"
+    },
+    "agent/connections/composio.ts": {
+      "disposition": "blocked",
+      "sha256": "158f6c6c6bc32bbdafdd37f1688a5ca7162d994879b5f331c19b700b029b8875"
+    },
+    "agent/connections/local-computer.ts": {
+      "disposition": "blocked",
+      "sha256": "fa8caef35297f210b3c59f53b36fea4e29507dab5b177f4e830f58cdf49883d5"
+    },
+    "agent/extensions/browser/tools/click.ts": {
+      "disposition": "gateway",
+      "sha256": "cd2d0cfcbfe7b7ff2eec790586d658a55cfbb9fc94d0e274dde7a11d7419b543"
+    },
+    "agent/extensions/browser/tools/close.ts": {
+      "disposition": "gateway",
+      "sha256": "aa093b6db9c7dd9c536d9733a5c184c912e380edc90e362c2c1239bfdf632ef6"
+    },
+    "agent/extensions/browser/tools/console.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/drag.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/evaluate.ts": {
+      "disposition": "blocked",
+      "sha256": "d4c1952edb4d01a09bd9de54edfbc6c9f814f7eedcfdacf89eecc51091b01f6f"
+    },
+    "agent/extensions/browser/tools/fill.ts": {
+      "disposition": "gateway",
+      "sha256": "9b437cba6f1c187cae74beec2f9f9df709ff5f5a02b58b55ccb0636701f5c769"
+    },
+    "agent/extensions/browser/tools/find.ts": {
+      "disposition": "gateway",
+      "sha256": "501f399d01ce5b37c9299dbcae6bd9b2719f44badff4971eb0b3ee2819b23f7c"
+    },
+    "agent/extensions/browser/tools/get.ts": {
+      "disposition": "gateway",
+      "sha256": "e2b25294f0ec675d5d0a71a29ea9b515d91332bdd816cedb7902ab501d235a1c"
+    },
+    "agent/extensions/browser/tools/hover.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/navigate.ts": {
+      "disposition": "gateway",
+      "sha256": "8090f51e5aea920572ae8c26b7a58fe651241d3b28ff80db07f8e1379420b952"
+    },
+    "agent/extensions/browser/tools/network_requests.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/press_key.ts": {
+      "disposition": "gateway",
+      "sha256": "2e12c564fcd40f1ba9b25d06231e21d1b93441e68f92a8761797901f012f49af"
+    },
+    "agent/extensions/browser/tools/read.ts": {
+      "disposition": "gateway",
+      "sha256": "f9a152ad1be8ad0a53176e2980e14899b3557b066f02c8b01b4563ff5763a791"
+    },
+    "agent/extensions/browser/tools/screenshot.ts": {
+      "disposition": "gateway",
+      "sha256": "a282f2b04cbfb64628963060f6b95d6389125dc39609584081421328be428bc9"
+    },
+    "agent/extensions/browser/tools/scroll.ts": {
+      "disposition": "gateway",
+      "sha256": "5c8e24828175ab47d2906634b57a7bbce9a0065152808181b8f8ec7b022e749a"
+    },
+    "agent/extensions/browser/tools/select_option.ts": {
+      "disposition": "gateway",
+      "sha256": "4810873a068902d16720ef1805653684fe5e1abaadb22f6d492e7ed10087098f"
+    },
+    "agent/extensions/browser/tools/set_checked.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/snapshot.ts": {
+      "disposition": "gateway",
+      "sha256": "10690206bf5cc9df7eb533640df16ad94d5a709e3982db8b127e81b38575f9c6"
+    },
+    "agent/extensions/browser/tools/tabs.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/upload.ts": {
+      "disposition": "blocked",
+      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b"
+    },
+    "agent/extensions/browser/tools/wait_for.ts": {
+      "disposition": "gateway",
+      "sha256": "635f2e59e9e074e573c5b78e4a7c4a24d726a7e1b77666e5674ed7a1bfeac361"
+    },
+    "agent/schedules/email.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "5cfc2e08145446c69f8b3f2ea9a852241633fd9fa17fdc65cd0c50141ac557f9"
+    },
+    "agent/schedules/memory-consolidation.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "dce3b0aca2d1083de4fe04488cf3b7cceb5f8275481ec401370f63b3c6eb069d"
+    },
+    "agent/schedules/operations-monitor.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "7e6d195b2adc97daa7a3a47cf77a65c0f5d47a4ba05f7131d2db2c5d5aa93aa9"
+    },
+    "agent/schedules/reminders.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b9a222433592a94b0d2105d7c47c78e6b0d22a1cce047838c379ca439c94f837"
+    },
+    "agent/schedules/review-delivery.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "0dd45793550de5d2f20b5d249f0d8d6c114c8a03964bf37b3385a8858bc0a0a9"
+    },
+    "agent/subagents/functional-state/tools/bash.ts": {
+      "disposition": "blocked",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1"
+    },
+    "agent/subagents/functional-state/tools/browser_click.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "265b75a1e8dd1ea7dbb5feb9a0695beedece9b19235badc48ad523522a49ad76"
+    },
+    "agent/subagents/functional-state/tools/browser_navigate.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "f4afb2adc3d6e8bea39c1f1fa05a88d2c558dc8d4ea0a30b3a99b2a3a3628f2d"
+    },
+    "agent/subagents/functional-state/tools/browser_press_key.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "2a1a4f428773ebec8026b02ece38b329c335d17567b0d34ed702e0697091fbb1"
+    },
+    "agent/subagents/functional-state/tools/browser_read.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "f764e1f0584396283aff3842bbd864ff1be5ab1c2acb9800bd4a92debec4bb36"
+    },
+    "agent/subagents/functional-state/tools/browser_screenshot.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ac0b8d82b1a37f150ccf422839ab3b501be3c420d527d3953dc7efa1fd098cd4"
+    },
+    "agent/subagents/functional-state/tools/browser_snapshot.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "1a56dfc86f31ea6030f26284d7ede3ce58d17d9663463640d323803ca1c4c8dd"
+    },
+    "agent/subagents/functional-state/tools/browser_wait.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "6c401bd5bafce29721adda40d800fb6650f78ae4f923301fc97f49ea751a9388"
+    },
+    "agent/subagents/functional-state/tools/claim_task_specialist.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b21f47be744fe2e55aa6526511c832813e9658f6473e1541574b268af0d460a2"
+    },
+    "agent/subagents/functional-state/tools/record_task_evidence.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "4272b105644a8db4f66f638f70a68cf5766f82488b5027ee345cbb16d999f72f"
+    },
+    "agent/subagents/functional-state/tools/run_assigned_suite.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "75420c7c3633864c3ead5719a5c66acf5a195da67eb572df651d47ab52b30b19"
+    },
+    "agent/subagents/functional-state/tools/write_file.ts": {
+      "disposition": "blocked",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1"
+    },
+    "agent/subagents/trust-resilience/tools/bash.ts": {
+      "disposition": "blocked",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1"
+    },
+    "agent/subagents/trust-resilience/tools/browser_click.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "f21c3fbdf6425c5ba15e30a7ff7a775fc5d3979587cc9386f6880820096c3541"
+    },
+    "agent/subagents/trust-resilience/tools/browser_navigate.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "572b4a097f10956023e0b9b0c94ef2bb689574a15ee6c228a47c6218756eb29e"
+    },
+    "agent/subagents/trust-resilience/tools/browser_press_key.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "c12a05f04adb37bf2609092af76e55735756dc8ed29d51b3429189a7be223782"
+    },
+    "agent/subagents/trust-resilience/tools/browser_read.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "940033b5b9aa36ab4c86fa891867d1daee912ce60f7320e3b6b6b18bc3a341bf"
+    },
+    "agent/subagents/trust-resilience/tools/browser_screenshot.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "c9eb6cd7ad1bea3b4e5c0676be28552d6ea497730e0bd31dbdbc5bb9de2dcf7b"
+    },
+    "agent/subagents/trust-resilience/tools/browser_snapshot.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "9a2dbffd239e7bb633bfb74c8211e8ceae6d4a80db850d87666b78c748abb530"
+    },
+    "agent/subagents/trust-resilience/tools/browser_wait.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "932d1a7083066103e87c20462da75b487f87187ce3513da090fb24b57333d59e"
+    },
+    "agent/subagents/trust-resilience/tools/claim_task_specialist.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "2d97c3ee0985b055f949c16b8a1420811d02916115eb3652a844c6bd1dae19eb"
+    },
+    "agent/subagents/trust-resilience/tools/probe_preview_auth.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "537fa2e5e5b61a79f8f602da16bacef9aeedb85e9b95ddfd88b87751437066cb"
+    },
+    "agent/subagents/trust-resilience/tools/record_task_evidence.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "4272b105644a8db4f66f638f70a68cf5766f82488b5027ee345cbb16d999f72f"
+    },
+    "agent/subagents/trust-resilience/tools/run_assigned_suite.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "1fde2efec4bf16b4f3c278ca5c3e104bb85d6237e00e5a3dc5a2fdcbc3467ac8"
+    },
+    "agent/subagents/trust-resilience/tools/write_file.ts": {
+      "disposition": "blocked",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1"
+    },
+    "agent/subagents/ux-accessibility/tools/bash.ts": {
+      "disposition": "blocked",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_click.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "737fc504575203b071b63b79dd13cda93330a67a093f0b5fed0434b47222dc1f"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_navigate.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "e28961477e28481a695a5941a0796edc6df37d6693c79f666a975446af530800"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_press_key.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ed61f17b632ea1aafc71057b1a680b947f8ee9407a4967f7fae5562b98536ab2"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_read.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "52a88edbd5924007c1810670b5fe31edf07c0187c6a2fba9d169a6bedb2f7517"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_screenshot.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "1c7ae3f9d9546e41f3e62c7618354540b320333c3fa636fbf8d6689310c085f1"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_snapshot.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "605f137a3c45982cb8d382e083cfeef4bb0cf29e8e7ecfc4905d384513d86a9e"
+    },
+    "agent/subagents/ux-accessibility/tools/browser_wait.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "fee163ab031392e77214ae0e4a334edfe37399788f3b37074576861386ac502a"
+    },
+    "agent/subagents/ux-accessibility/tools/claim_task_specialist.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "05816962d153aa695239ce420ef2c9777340c61d3be93ea79d82bbc0fc0b2b4c"
+    },
+    "agent/subagents/ux-accessibility/tools/record_task_evidence.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "4272b105644a8db4f66f638f70a68cf5766f82488b5027ee345cbb16d999f72f"
+    },
+    "agent/subagents/ux-accessibility/tools/run_assigned_suite.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "51a301d306f06f81a306db713a2f75931c96b164231121dd446e6e31de42bb63"
+    },
+    "agent/subagents/ux-accessibility/tools/write_file.ts": {
+      "disposition": "blocked",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1"
+    },
+    "agent/tools/agentphone.ts": {
+      "disposition": "blocked",
+      "sha256": "25eb64335207a1e4877f0e683fe42fc56dfcf1fad50c42153f82b562af2f2485"
+    },
+    "agent/tools/artifacts.ts": {
+      "disposition": "blocked",
+      "sha256": "4f5418679a077f436a46c11a8d31ec4657371ac2a9a4a488638864585f767673"
+    },
+    "agent/tools/assign_skill.ts": {
+      "disposition": "blocked",
+      "sha256": "7d63d8536bf1b955f0d722658d6b3540efffe2cb802f282933c41ea10059efa7"
+    },
+    "agent/tools/attach_own_card.ts": {
+      "disposition": "blocked",
+      "sha256": "4d31ef1367995bb5366973a2f966c11fb892641f7cf295b4579168ac23c4aea5"
+    },
+    "agent/tools/bash.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "5459ef76d6fd9c91caa3f5fa1c745acad032e66e9eaaf2bf810f3ce752afaee0"
+    },
+    "agent/tools/cancel_reminder.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b89c20d90ac6dc003c1c13a2410405d06392724d8eae63961ea83e8741dffe50"
+    },
+    "agent/tools/check_card_attachment.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "6729dc1683a1d2e74ebd55fd97cb1d4b3396f90c03de86d7cbef3b83867d7605"
+    },
+    "agent/tools/check_email_domain.ts": {
+      "disposition": "blocked",
+      "sha256": "f8616328779ce222f517fb23bbe9583d9fa15d1fb3eb82a28445d12ab8f7f5ab"
+    },
+    "agent/tools/complete_task.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "0d2850508dcf59fee097a90b979992b35f7fd7f7038d1b5b1ede40ac97839e86"
+    },
+    "agent/tools/complete_work.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "86c18de39e3ff9a9ba2316e943748e2467567b59fdc9801e9114e8a9b4e8eaa8"
+    },
+    "agent/tools/computer.ts": {
+      "disposition": "blocked",
+      "sha256": "4824569c45e995a794cee8a370fcd62b386430b6916f2288d2fd80d13347780a"
+    },
+    "agent/tools/connect_card.ts": {
+      "disposition": "blocked",
+      "sha256": "f2c3d005eac045cf584f9a4b2f2fce626cb405fc1391b4c19980ede78ff65295"
+    },
+    "agent/tools/connect_email_domain.ts": {
+      "disposition": "blocked",
+      "sha256": "faa706e6936e63523c8fba1bc20a53d24e85d1813ed1d4d71200d303901df7f0"
+    },
+    "agent/tools/create_goal.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b8095d3b50e23c77bac019ec6a13e7cb76bd653735f318cdde64e8815907d2bd"
+    },
+    "agent/tools/create_reminder.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "cd079a359464a36705c4b83eb3e786c9ade3b576f670850dc52f49a962de2520"
+    },
+    "agent/tools/create_skill.ts": {
+      "disposition": "blocked",
+      "sha256": "d8cef7b3cf1116fbef650460dba366eb8cb9f99e6be84b6ea37f4e13310e7002"
+    },
+    "agent/tools/create_webhook.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "e85503efa3cc021980aeee3204b2d5d91e7579fd9da401c8614ff7e6d8ca1a8b"
+    },
+    "agent/tools/delete_outcome.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ebcf122e9d5eb96e7a9d6a9599ffc8bcb4dc36b11288f93602f238805903beac"
+    },
+    "agent/tools/delete_receipt.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "e8b2ca32f2250f5f6e3ef050fc7c9e33d320d0ce33c58f1c0fb0b5a15f04fd17"
+    },
+    "agent/tools/delete_skill.ts": {
+      "disposition": "blocked",
+      "sha256": "f2778711ed56015ebe13229a1120671197304d2e96373f41c3fa3e2a3b39b92d"
+    },
+    "agent/tools/delete_webhook.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "601c22b191dd4337a91f5420e1cf1f9d34757412e173ce547b1b0582410aa915"
+    },
+    "agent/tools/discover_capabilities.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "8fe9cfda690b80622339cb44eac0ae67d7f11e652adf5f92b3b1ef518a797a7b"
+    },
+    "agent/tools/email_address.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "a7af2b6a5f1983f286231652b3c7ec64b8b393d96d3753221d62c87545004182"
+    },
+    "agent/tools/forget.ts": {
+      "disposition": "blocked",
+      "sha256": "cabf148c75a80135bfc37f210b9631d49385bd78aaf32d874d4a4785d47e260f"
+    },
+    "agent/tools/fund_agentcard_wallet.ts": {
+      "disposition": "blocked",
+      "sha256": "800add8430cf5005e044aa1969dfa592cd005402a3da614aeb78ec6d5ccbf8a5"
+    },
+    "agent/tools/get_agent.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "1666c5291edc82755c2387a410b1bce6dc8f40df108858aa6ab8f3d0d0b9ea83"
+    },
+    "agent/tools/get_computer_session.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ca34c3b197b0895a1de738ac68626e98d934debe980f6ece2620fe261400af90"
+    },
+    "agent/tools/get_goal.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "d6415ee9d1f65d77ea97e4e179182cd82544110240f6be49af28a3eeb65fe036"
+    },
+    "agent/tools/get_review_schedule.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "c8dbf23c53b1330ec8c0705ba4ab9905fb46d233b2ee1e47763240369a73eab5"
+    },
+    "agent/tools/get_weather.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "aeedd23a652b17052ee505d88ddde917ca4a3e4bd9fcf46f2cc1168575d3a8c7"
+    },
+    "agent/tools/goal_focus.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "fdd8fed09886a1907191d57ea844faebd2cbbb81b2e8dd7c4f52704bd43c5104"
+    },
+    "agent/tools/imessage.ts": {
+      "disposition": "blocked",
+      "sha256": "b71f003037441490d02b280684f1959898bbfc0f57048d9587841c5fd0a064e9"
+    },
+    "agent/tools/inspect_owner_knowledge.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "2ec8e76e123aafeaf7f272c3a8e83d40e89a4616d7b53590d928dd5837ac9994"
+    },
+    "agent/tools/inspect_skills.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "a5d89388a43f683e15f0224addddf5393905ecef814616c8d0fbe2fe5afcaa75"
+    },
+    "agent/tools/inspect_tasks.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "89ab79d80529adf38618c09adbff46c5c89ff3517dded6b069f78bb060e526a5"
+    },
+    "agent/tools/label_email.ts": {
+      "disposition": "blocked",
+      "sha256": "722fb4b4f6bb9cda2f2ee4155491d35c145b237105d0157c289f54ba760aae3a"
+    },
+    "agent/tools/list_agents.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "816c588d9914829521b4081b87a96581c0eec1fbcb296f0372f302969d5a9a0c"
+    },
+    "agent/tools/list_commitments.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "482ba59d5df66c72aa037bcd027c8444c71f31632170fd45b6bee460d2199425"
+    },
+    "agent/tools/list_decisions.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ed099525c7df09d3558c7074d3068aa18e338a411c36e2ccb34940e7874604c6"
+    },
+    "agent/tools/list_emails.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "60634a306a5e3e8c8472ec38b68958925e7bc57ceaa16e38cd2101c9cc53e6ab"
+    },
+    "agent/tools/list_goals.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "a3e36cc87b5eaa7449a5d491c3419c0b26c3459d845df6a25edb2c4d3431914f"
+    },
+    "agent/tools/list_memories.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "56df5955dcc7913bf141879a54f2b491e02b0843964e291342b9a1df9da27c07"
+    },
+    "agent/tools/list_outcomes.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "3182adaf73e80921b21a3942598b606a9e5ec6858d8ca7b6a0731caefc570561"
+    },
+    "agent/tools/list_reminders.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ec5960425267f5447e6a46cb9d853fba111da83fa709b69cb754fd4034ebda54"
+    },
+    "agent/tools/list_roles.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b188ea2deaaadd99b1951d40109df8d45ce1f8881880d76192a3a947d00541ff"
+    },
+    "agent/tools/list_routines.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "bad1ac2c11b7e145b7de8f3eb98f745a9cd0ec06cdac3426e2fba7ff30b6ef2e"
+    },
+    "agent/tools/list_solution_packs.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "be990478728f001d7c18ba7fd2efb050cc1d228194c3b59120af32a2f61fa1e6"
+    },
+    "agent/tools/list_webhooks.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "54ab6f374d1dbe8469a4a3d71e8485fdfd58daf1714fcb5a6cb2ed592153b4e5"
+    },
+    "agent/tools/local_computer_task.ts": {
+      "disposition": "blocked",
+      "sha256": "8ed3b24c45a46960170a8fd94ba685e0fadf39d5a4ed8842f8f77f78dbc9d67e"
+    },
+    "agent/tools/log_receipt.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "e93f19d7731a1e7fc98c2288ec2ff1360e8efc495ec21a91ea99e0d7f2f0d5d8"
+    },
+    "agent/tools/make_routine.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b84ce860835e37677c35d68f89ad2b541387926e3e22a803fdb1f532080f8ae2"
+    },
+    "agent/tools/manage_agent.ts": {
+      "disposition": "blocked",
+      "sha256": "f0a812a316bff5388b3c6fca1eb748bef4008f49a3bfebe23c8c97d4d26d8e50"
+    },
+    "agent/tools/manage_computer_session.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "fb318ad6a8d2bae62a0c055e112ca4fdae6be001612de406935c279ceefdf529"
+    },
+    "agent/tools/manage_goal_structure.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "11bc8eccbd3e9d7d95b442da62695779f8afc40779949d654a92c0fe068cfc54"
+    },
+    "agent/tools/manage_goal_task.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "764a77f40302e3ac3266fec1a5aa78b9547c49593cdf3722d193ec4b11e39e85"
+    },
+    "agent/tools/manage_routine.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "17dfa81a14ddfa90f4dbce6fa4dc1eee6567c576afe8edccd7120b2f93151001"
+    },
+    "agent/tools/persistent-agent-policy.ts": {
+      "disposition": "gateway",
+      "sha256": "3a41b78379eb89b7c3792cec8b217dadc0d1621fa4edb28bf2a53e54bd3dfc53"
+    },
+    "agent/tools/query_receipts.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "319ce7f0b647e76c37174313ca1fc50b09043dfc54b6566566efb247f081def2"
+    },
+    "agent/tools/read_email.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "09d727a46c95d434df360a0c5031cdc13957cab8b5ef2268a6867ef064ec6d3a"
+    },
+    "agent/tools/read_file.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "c539b3b1ec21a552d7df6f6972d91918c7e3701a934c4f1fbaa46d92b57992fa"
+    },
+    "agent/tools/record_agentcard_consent.ts": {
+      "disposition": "blocked",
+      "sha256": "db6db67ee47d812ce17cad11d95483cc5605572098e7952f17b292c3a6d725e7"
+    },
+    "agent/tools/record_commitment.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "643812b85f120848bd30cdeb10e8cfdcf9579f8927cce4847969f4bfabe1d2d6"
+    },
+    "agent/tools/record_computer_artifact.ts": {
+      "disposition": "blocked",
+      "sha256": "1db0d223030fddf0895f5fa203d37e6a100ad00936f8c5cf74be5ae9f9f92375"
+    },
+    "agent/tools/record_decision.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b15ee182753bafa4266e810518c6ccf20f8b5aeca6690e42da72b6cc0e98bb1a"
+    },
+    "agent/tools/record_fact.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ed51d97ad2092a579ae88dc03aa0860b369708b3e6594437d0ea8785159b637c"
+    },
+    "agent/tools/record_observation.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "34ca43679c120610de439658a65066a12ff91888d3ae70937d6b7904f4219974"
+    },
+    "agent/tools/record_outcome.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "a9f3ffca52dde89e39e8196db5ec4a949d6fe2c5cbc791e2888ae8d5ce114eac"
+    },
+    "agent/tools/record_task_evidence.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "35e60d1498538015e0da028969c1b527e4694703cfec0a1a712a668f1036ae51"
+    },
+    "agent/tools/recover_computer_session.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ebac81b6e23cd6e365c674395ad9321eb6af967aa36ac534737dc663e4cfaace"
+    },
+    "agent/tools/remember.ts": {
+      "disposition": "blocked",
+      "sha256": "d637d6203f35f665c83cb5619b4b90de81c3a5d6e0758486da96f70dd5ca1261"
+    },
+    "agent/tools/remove_email_domain.ts": {
+      "disposition": "blocked",
+      "sha256": "43da4b18e7193081f19b90ebc2cffacfbb3efada778f7c2575745fe2dd277389"
+    },
+    "agent/tools/render_video.ts": {
+      "disposition": "blocked",
+      "sha256": "b338be54b2067a3cbe47866efcc421f579fa8ae4512fedf8a7bc5d1c744e0b6c"
+    },
+    "agent/tools/reply_to_email.ts": {
+      "disposition": "blocked",
+      "sha256": "fb2cff8db37b13246c34344e6bca2c4ac76d8da38d45be06276b6b17c8db9d48"
+    },
+    "agent/tools/review_progress.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "abf84bc932a7fcf18aad49bb44c5468068ded62e015986f8d2361f33230020fd"
+    },
+    "agent/tools/roll_dice.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "508c9e71a22cd98ea3960ad0bc1223dab6c84a000b8d091273db8b8d517bcd34"
+    },
+    "agent/tools/run_skill_evals.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "6bbec7c8ecf0218dff7baf772cd2bca130c90b9b23595516c24a88057567c99b"
+    },
+    "agent/tools/search_emails.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "f3e4d2b2de496eefeb9e0b1425b03295b54ea0fe8175b8b2cb2d5843a8ca5248"
+    },
+    "agent/tools/search_knowledge.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "6b4a8c17281c6151c77b3d41ff2f2f49f4e591a0ab6e0694dfce1fef55dc63db"
+    },
+    "agent/tools/search_memory.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "3b7c99f1b11e992368e4da6bfc4651df53aba33c35c7b954b4005bd7cf477a94"
+    },
+    "agent/tools/search_owner_knowledge.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "84a0c78e9a810e13bd419bf99651d669e802d8a86deba9c71923e5d80d435210"
+    },
+    "agent/tools/send_attachment.ts": {
+      "disposition": "blocked",
+      "sha256": "bb198f4bebc69a9fe4a33ea1d60c9c5af8d7dd70a009cff31d2c7486a0114f54"
+    },
+    "agent/tools/send_email.ts": {
+      "disposition": "gateway",
+      "sha256": "572b3625b57e064aa40b557ab075fa4af4c9fc81611f5f43a69d04bbcfa37689"
+    },
+    "agent/tools/share_file.ts": {
+      "disposition": "blocked",
+      "sha256": "4a1d24c74a75e7da8196d76781303d1f7f952d17936cb4a04bc329c64d78ab19"
+    },
+    "agent/tools/spending_summary.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "28c6d3b7a4a07df5c5dc65a6dbfedd8dc0f0f6d8bc64cc87c1180277bcfb1d67"
+    },
+    "agent/tools/start_agentcard_phone_verification.ts": {
+      "disposition": "blocked",
+      "sha256": "a98dad538728bfc0c8dbe914eb116a38aba367edaf04fd9cf8e9a95ebb69e631"
+    },
+    "agent/tools/start_computer_session.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "4a15f84db2cca58d75a4e3e341e0133679b07f6dc90097c6d2141c7f02642231"
+    },
+    "agent/tools/start_product_qa.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "cf185c5d1219394dd93b286ec52d3b8527f25b335b5acabdbc0bf7827a3ca4ec"
+    },
+    "agent/tools/start_task.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "ac768b550cda7e51c95c5b3e3216959fa63d20defb960e1ba0b83842b0d4265a"
+    },
+    "agent/tools/stop_computer_session.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "1d49d44e01315bdbb0494911d9d3b4ed410253a3b8abf498fc63d5ab264451ed"
+    },
+    "agent/tools/unassign_skill.ts": {
+      "disposition": "blocked",
+      "sha256": "2007785775f5466d7ec5bbf62933c735e3767c814b0afb1194bb233485c86efa"
+    },
+    "agent/tools/update_goal.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "f7a6f987501660e28739e652757ad2224f4caf315e61809b1599f88cf1c2b510"
+    },
+    "agent/tools/update_outcome_feedback.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "f6820d2c31fa25a0093e9681cabe66d56b2266d22734e9ce56fb1770742241a7"
+    },
+    "agent/tools/update_review_schedule.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "0abc3cb626fbd569716a697da61208f0151338fa93b060eb5f1ba908c16e4f45"
+    },
+    "agent/tools/update_task.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "096c65231ea65d041c06485a1b1fd3b941364f5a1c72828d02b4407e1e773c4e"
+    },
+    "agent/tools/verify_agentcard_phone.ts": {
+      "disposition": "blocked",
+      "sha256": "238cf2de03bf9c8a124bef1588877309622d16d045698182008f7368c91763b1"
+    },
+    "agent/tools/verify_card_code.ts": {
+      "disposition": "blocked",
+      "sha256": "7df6152ffb34c3d677e2ec3a4654f0310101a33bd474438150d91cb47bf60bd8"
+    },
+    "agent/tools/workflow.ts": {
+      "disposition": "reviewed-existing",
+      "sha256": "b04edb8b8cc98963df5bbfcf2433489d225c2d9759ae43f47cc28de86eb2e605"
+    },
+    "agent/tools/write_file.ts": {
+      "disposition": "gateway",
+      "sha256": "4be5c6566955046badea84c6e74f5723d0c82114f35fda34b26f8329fb1365ee"
+    }
+  }
+}

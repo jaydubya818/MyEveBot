@@ -1,6 +1,6 @@
 import { CronExpressionParser } from "cron-parser";
 
-import { db } from "./neon";
+import { db } from "./neon.ts";
 
 // Application-managed reminders/schedules, following eve's dynamic-scheduling
 // pattern: rows live in Neon, CRUD tools manage them, and one authored

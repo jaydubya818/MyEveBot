@@ -1,8 +1,7 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
-import { memoryStore } from "../lib/memory-store";
-import { memoryAccessForTool, requestedMemoryScope } from "../lib/memory-tool-context";
 import { ownerName } from "../lib/owner";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 export default defineTool({
   description: `Save one durable memory in an authorized owner, current Agent, current Goal, or current Task scope. Owner memory is not automatically shared with every Agent. Phrase it plainly, e.g. '${ownerName()} prefers metric units'. Never save secrets, passwords, tokens, payment details, or temporary run output.`,
@@ -17,13 +16,6 @@ export default defineTool({
       .describe("True for stable traits that rarely change (name, city, family, profession); false for recent or evolving context"),
   }),
   async execute({ memory, permanent, scope, scopeId }, ctx) {
-    const context = await memoryAccessForTool(ctx);
-    return await memoryStore.add(memory, {
-      context,
-      scope: requestedMemoryScope(context, scope, scopeId),
-      permanent,
-      sourceType: "explicit_agent_tool",
-      sourceId: ctx.session.id,
-    });
+    return denyUnqualifiedExecutor(ctx, "tool.remember");
   },
 });

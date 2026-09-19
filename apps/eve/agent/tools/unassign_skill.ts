@@ -1,9 +1,8 @@
 import { defineTool } from "eve/tools";
 import { always } from "eve/tools/approval";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { setSkillAssignment, skillOwnerId } from "../lib/skill-manager";
-import { isSkillAgentId } from "../../lib/skill-manager-types";
 
 export default defineTool({
   description:
@@ -14,16 +13,6 @@ export default defineTool({
   }),
   approval: always(),
   async execute({ skillName, agentId }, ctx) {
-    if (!isSkillAgentId(agentId) || agentId === "sofie") {
-      throw new Error("Choose one of the managed QA specialists shown by inspect_skills.");
-    }
-    await setSkillAssignment({
-      ownerId: skillOwnerId(ctx.session.auth),
-      agentId,
-      skillName,
-      enabled: false,
-      assignedBy: "agent",
-    });
-    return { agentId, skillName, assigned: false, appliesTo: "new specialist sessions" };
+    return denyUnqualifiedExecutor(ctx, "tool.unassign_skill");
   },
 });

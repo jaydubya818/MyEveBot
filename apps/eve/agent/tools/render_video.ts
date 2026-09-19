@@ -1,7 +1,7 @@
 import { defineTool } from "eve/tools";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { RenderVideoInput, renderVideoEffect } from "../lib/effect/remotion";
-import { runTool } from "../lib/effect/runtime";
+import { RenderVideoInput } from "../lib/effect/remotion";
 import { toolSchema } from "../lib/effect/tool-schema";
 
 export default defineTool({
@@ -22,7 +22,7 @@ Authoring rules:
 
 Rendering takes roughly 15-90 seconds. The result includes a url - always give it to the user as a markdown link. A "local" storage url is relative to this app's origin (works in web chat). When expires_at is set (private file storage hands out expiring links), tell the user the link works until then.`,
   inputSchema: toolSchema(RenderVideoInput),
-  execute(input) {
-    return runTool(renderVideoEffect(input));
+  execute(input, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.render_video");
   },
 });

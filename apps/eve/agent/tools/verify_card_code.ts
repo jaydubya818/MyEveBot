@@ -1,11 +1,10 @@
 import { Schema } from "effect";
 import { defineTool } from "eve/tools";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 import {
-  AGENTCARD_TERMS_VERSION,
-  verifyAgentcardConnect,
+AGENTCARD_TERMS_VERSION
 } from "../lib/effect/agentcard";
-import { runTool } from "../lib/effect/runtime";
 import { toolSchema } from "../lib/effect/tool-schema";
 import { guestDenial } from "../lib/owner-gate";
 
@@ -22,8 +21,7 @@ export default defineTool({
   description:
     `Finish connecting the owner's Agentcard with the one-time code. Approval explicitly authorizes Sofie to access the account, accepts the applicable Agentcard and issuer terms (${AGENTCARD_TERMS_VERSION}), and acknowledges that Crossmint may process payments under its Privacy Policy: https://www.crossmint.com/legal/privacy-policy`,
   inputSchema: toolSchema(Input),
-  async execute({ code }) {
-    await runTool(verifyAgentcardConnect({ code: code.trim(), consent: true }));
-    return "Agentcard is connected. Cards can be created and purchases made (with the owner's approval on each).";
+  async execute({ code }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.verify_card_code");
   },
 });

@@ -1,7 +1,7 @@
-import { put } from "@vercel/blob";
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 import { ownerName } from "../lib/owner";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 // Bridges the sandbox filesystem to the owner: the sandbox is invisible to them,
 // so files the agent creates there (reports, exports, images, archives) get
@@ -22,29 +22,6 @@ export default defineTool({
       .describe('MIME type for the download, e.g. "application/pdf". Inferred when omitted.'),
   }),
   async execute({ path, contentType }, ctx) {
-    const sandbox = await ctx.getSandbox();
-    const bytes = await sandbox.readBinaryFile({ path });
-    if (bytes === null) {
-      throw new Error(`No file at ${sandbox.resolvePath(path)}. Check the path with glob or bash.`);
-    }
-    if (bytes.byteLength > MAX_BYTES) {
-      throw new Error(
-        `File is ${(bytes.byteLength / 1024 / 1024).toFixed(1)} MB; the sharing limit is 50 MB. Compress or split it first.`,
-      );
-    }
-
-    const name = path.split("/").filter(Boolean).at(-1) ?? "file";
-    const blob = await put(`shared/${name}`, Buffer.from(bytes), {
-      access: "public",
-      addRandomSuffix: true,
-      ...(contentType !== undefined ? { contentType } : {}),
-    });
-
-    return {
-      url: blob.url,
-      filename: name,
-      sizeBytes: bytes.byteLength,
-      note: "Public URL - anyone with the link can download it.",
-    };
+    return denyUnqualifiedExecutor(ctx, "tool.share_file");
   },
 });

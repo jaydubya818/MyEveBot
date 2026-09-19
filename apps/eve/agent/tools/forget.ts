@@ -1,8 +1,7 @@
 import { defineTool } from "eve/tools";
 import { always } from "eve/tools/approval";
 import { z } from "zod";
-import { memoryStore } from "../lib/memory-store";
-import { memoryAccessForTool } from "../lib/memory-tool-context";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 export default defineTool({
   description:
@@ -12,7 +11,6 @@ export default defineTool({
   }),
   approval: always(),
   async execute({ memoryId }, ctx) {
-    const deleted = await memoryStore.delete(memoryId, await memoryAccessForTool(ctx));
-    return { deleted };
+    return denyUnqualifiedExecutor(ctx, "tool.forget");
   },
 });

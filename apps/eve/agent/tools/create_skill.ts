@@ -1,8 +1,8 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 import { ownerName } from "../lib/owner";
-import { skillStore } from "../lib/skill-store";
 import { ownerOnly } from "../lib/owner-gate";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 export default defineTool({
   approval: ownerOnly,
@@ -28,7 +28,7 @@ export default defineTool({
       .max(8000)
       .describe("The full procedure to follow, written as markdown instructions"),
   }),
-  async execute(input) {
-    return await skillStore.put(input);
+  async execute(input, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.create_skill");
   },
 });

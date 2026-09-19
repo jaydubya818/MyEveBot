@@ -1,13 +1,13 @@
 import { defineMcpClientConnection } from "eve/connections";
 import type { Approval } from "eve/tools";
+import { denyUnqualifiedConnection } from "../lib/unqualified-executor.ts";
 
 import {
-  agentcardAccessToken,
-  agentcardMcpUrl,
-  refreshAgentcardAfterMcpUnauthorized,
+agentcardAccessToken,
+agentcardMcpUrl,
+refreshAgentcardAfterMcpUnauthorized,
 } from "../lib/effect/agentcard";
 import { runTool } from "../lib/effect/runtime";
-import { guestDenial } from "../lib/owner-gate";
 
 // Agentcard: the agent's own means of payment. It issues virtual Visa cards
 // with a fixed spend limit, drawn from the owner's cash balance or minted
@@ -55,9 +55,7 @@ export function agentcardNeedsApproval(toolName: string): boolean {
 }
 
 /** Owner/guest policy shared by the connection definition and direct tests. */
-export const agentcardApproval: Approval = (ctx) =>
-  guestDenial(ctx) ??
-  (agentcardNeedsApproval(ctx.toolName) ? "user-approval" : "not-applicable");
+export const agentcardApproval: Approval = denyUnqualifiedConnection("integration.agentcard");
 
 /**
  * Eve resolves this provider once per active turn. Keeping the last bearer in

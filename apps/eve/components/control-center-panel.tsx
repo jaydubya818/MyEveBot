@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CONTROL_VIEWS, type ControlCenterSummary, type ControlRunView, type ControlView } from "@/lib/control-center-types";
 import { cn } from "@/lib/utils";
 import { RoutinesPanel } from "./routines-panel";
+import { ActionAuthorityPanel } from "./action-authority-panel";
 
 const VIEW_LABELS: Record<ControlView, string> = {
   working: "Working", waiting: "Waiting", approval: "Needs approval",
@@ -84,6 +85,7 @@ export function ControlCenterPanel({ onOpenThread }: { onOpenThread: (threadId: 
   return (
     <div>
       <RoutinesPanel />
+      <ActionAuthorityPanel />
       <div className="flex flex-col gap-3 border-b border-kumo-hairline pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h3 className="text-base font-semibold">Execution overview</h3>
