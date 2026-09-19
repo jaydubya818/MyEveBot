@@ -1,11 +1,12 @@
-import { defineDynamic, defineTool, type DynamicResolveContext, type DynamicToolEntry, type DynamicToolSet } from "eve/tools";
 import * as browserTools from "@agent-browser/eve/tools";
+import { defineDynamic,defineTool,type DynamicResolveContext,type DynamicToolEntry,type DynamicToolSet } from "eve/tools";
 import { z } from "zod";
 
-import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
-import { activeComputerAgentId, recordComputerActionRequested } from "../../lib/computer-sessions.ts";
-import { browserDomainsForUrl } from "../../lib/computer-types.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
+import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
+import { activeComputerAgentId } from "../../lib/computer-sessions.ts";
+import { browserDomainsForUrl } from "../../lib/computer-types.ts";
+import { executeBrowserAction } from "../lib/browser-action.ts";
 import { provisionComputerSession } from "../lib/computer-context.ts";
 import { resolveSessionAgent } from "../lib/session-settings.ts";
 
@@ -18,7 +19,7 @@ const BROWSER_CAPABILITIES: Record<string, string> = {
   click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
   press_key: "browser.click", scroll: "browser.click", select_option: "browser.click", set_checked: "browser.click",
   fill: "browser.type", upload: "files.write", navigate: "browser.navigate",
-  console: "browser.read", evaluate: "browser.read", find: "browser.read", get: "browser.read",
+  console: "browser.read", evaluate: "browser.click", find: "browser.read", get: "browser.read",
   network_requests: "browser.read", read: "browser.read", screenshot: "browser.read", snapshot: "browser.read",
   tabs: "browser.read", wait_for: "browser.read",
 };
@@ -68,24 +69,9 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
         ...browserTool,
         description: `${browserTool.description} An isolated browser session starts automatically on the first URL-based call; do not tell the owner browser access is disabled merely because no session is active yet.`,
         async execute(input, toolCtx) {
-          const domains = browserDomainsForToolInput(toolName, input);
-          if (activeAgentId !== agent.id && domains.length === 0) {
-            throw new Error("Open a public URL with browser__navigate or browser__read first; the isolated browser will start automatically.");
-          }
-          const { startedOnDemand } = await provisionComputerSession(toolCtx, { allowedDomains: domains });
-          if (startedOnDemand) {
-            const ownerId = toolCtx.session.auth.current?.principalId;
-            if (!ownerId) throw new Error("An authenticated owner is required for browser work.");
-            await recordComputerActionRequested({
-              ownerId,
-              agentId: agent.id,
-              runtimeSessionId: toolCtx.session.id,
-              callId: toolCtx.callId,
-              toolName,
-              toolInput: input,
-            });
-          }
-          return browserTool.execute(input, toolCtx);
+          const domains=browserDomainsForToolInput(toolName,input);
+          if(domains.length)await provisionComputerSession(toolCtx,{allowedDomains:domains});
+          return executeBrowserAction(browserName!, input, toolCtx);
         },
       }) as unknown as DynamicToolEntry<any, any>;
       continue;

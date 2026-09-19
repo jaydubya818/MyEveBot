@@ -1,16 +1,13 @@
-import { defineDynamic, defineTool } from "eve/tools";
+import { defineDynamic,defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 import {
-  checkIMessageCapability,
-  phoneInbox,
-  placePhoneCall,
-  sendText,
-  verifiedPhone,
+verifiedPhone
 } from "../lib/effect/agentphone";
 import { runTool } from "../lib/effect/runtime";
 import { ownerName } from "../lib/owner";
-import { isGuestResolve, ownerOnly } from "../lib/owner-gate";
+import { isGuestResolve,ownerOnly } from "../lib/owner-gate";
 
 // Sofie's phone as tools: text someone, call someone, and read the verification
 // codes that land on her own number.
@@ -52,14 +49,9 @@ export default defineDynamic({
               .describe('Phone number in any format, or a group id starting with "grp_".'),
             text: z.string().min(1).max(4000).describe("The message. Plain text; no markdown."),
           }),
-          async execute({ to, text }) {
-            const sent = await runTool(sendText({ to, text }));
-            return {
-              sent: sent.length,
-              channel: sent[0]?.channel ?? null,
-              to: sent[0]?.to_number ?? to,
-            };
-          },
+          async execute({ to, text }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.agentphone");
+  },
         }),
 
         can_imessage: defineTool({
@@ -68,9 +60,9 @@ export default defineDynamic({
           inputSchema: z.object({
             phone_number: z.string().min(1).describe("The number to check."),
           }),
-          async execute({ phone_number }) {
-            return await runTool(checkIMessageCapability(phone_number));
-          },
+          async execute({ phone_number }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.agentphone");
+  },
         }),
 
         call_someone: defineTool({
@@ -91,20 +83,9 @@ export default defineDynamic({
                 "What the call is for, written as instructions to whoever runs it. Providing this hands the whole call to a scripted voice agent - cheaper and lower latency than routing every turn back to you, and the right choice for a simple errand. Omit it to take the call yourself.",
               ),
           }),
-          async execute({ to, greeting, purpose }) {
-            const placed = await runTool(
-              placePhoneCall({
-                to,
-                ...(greeting === undefined ? {} : { greeting }),
-                ...(purpose === undefined ? {} : { systemPrompt: purpose }),
-              }),
-            );
-            return {
-              calling: to,
-              callId: placed.callId,
-              mode: purpose === undefined ? "you answer each turn" : "scripted",
-            };
-          },
+          async execute({ to, greeting, purpose }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.agentphone");
+  },
         }),
 
         verification_code: defineTool({
@@ -126,35 +107,9 @@ export default defineDynamic({
               .default(5)
               .describe("How many recent inbound texts to look at."),
           }),
-          async execute({ from, limit }) {
-            const since = new Date(Date.now() - CODE_WINDOW_MS).toISOString();
-            const messages = await runTool(phoneInbox({ limit, since }));
-            const filtered =
-              from === undefined
-                ? messages
-                : messages.filter((message) =>
-                    message.from_.toLowerCase().includes(from.toLowerCase()),
-                  );
-
-            if (filtered.length === 0) {
-              return {
-                found: false as const,
-                note: "No verification text has arrived in the last 15 minutes. Trigger the code, wait a few seconds, then check again.",
-              };
-            }
-
-            return {
-              found: true as const,
-              messages: filtered.map((message) => ({
-                from: message.from_,
-                body: message.body,
-                receivedAt: message.receivedAt,
-                // A best guess only — the model should read `body` and decide,
-                // since a text can carry both a code and an order number.
-                likelyCode: CODE_PATTERN.exec(message.body)?.[1].replace(/[\s-]/g, "") ?? null,
-              })),
-            };
-          },
+          async execute({ from, limit }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.agentphone");
+  },
         }),
       };
     },

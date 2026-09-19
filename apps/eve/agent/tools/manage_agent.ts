@@ -1,8 +1,7 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { createAgent, duplicateAgent, transitionAgent, updateAgent } from "../../lib/agents.ts";
-import { taskOwnerFromAuth } from "../../lib/task-runs.ts";
 
 const reasoning = z.enum(["default", "none", "minimal", "low", "medium", "high", "xhigh"]);
 const risk = z.enum(["low", "medium", "high"]);
@@ -31,18 +30,6 @@ export default defineTool({
     ? "user-approval"
     : { type: "approved", reason: "Bounded owner-scoped Agent management." },
   async execute(input, ctx) {
-    const ownerId = taskOwnerFromAuth(ctx.session.auth);
-    const actor = { type: "agent" as const, id: ctx.session.auth.current?.principalId };
-    if (input.action === "create") {
-      if (!input.configuration) throw new Error("configuration is required to create an Agent.");
-      return { agent: await createAgent(ownerId, input.configuration, actor) };
-    }
-    if (!input.agentId) throw new Error(`agentId is required to ${input.action} an Agent.`);
-    if (input.action === "update") {
-      if (!input.configuration) throw new Error("configuration is required to update an Agent.");
-      return { agent: await updateAgent(ownerId, input.agentId, input.configuration, actor) };
-    }
-    if (input.action === "duplicate") return { agent: await duplicateAgent(ownerId, input.agentId, input.name, actor) };
-    return { agent: await transitionAgent(ownerId, input.agentId, input.action === "pause" ? "paused" : input.action === "resume" ? "active" : "archived", actor) };
+    return denyUnqualifiedExecutor(ctx, "tool.manage_agent");
   },
 });

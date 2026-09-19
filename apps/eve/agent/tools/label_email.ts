@@ -1,7 +1,7 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { HANDLED_LABEL, UNREAD_LABEL, getThread, updateThreadLabels } from "../lib/agentmail";
 import { agentName } from "../lib/owner";
 import { ownerOnly } from "../lib/owner-gate";
 
@@ -25,24 +25,7 @@ export default defineTool({
       .optional()
       .describe('Labels to remove, e.g. ["unread"] to mark read or ["trash"] to restore.'),
   }),
-  async execute({ threadId, add, remove }) {
-    if ((add ?? []).length === 0 && (remove ?? []).length === 0) {
-      throw new Error("Pass at least one label to add or remove.");
-    }
-    // A thread the agent deliberately touched is triaged, so record that
-    // alongside the caller's changes unless they are re-flagging it unread.
-    const alsoHandled = !(add ?? []).includes(UNREAD_LABEL);
-    await updateThreadLabels(threadId, {
-      add: alsoHandled ? [...(add ?? []), HANDLED_LABEL] : add,
-      remove,
-    });
-    const thread = await getThread(threadId);
-    return {
-      threadId,
-      subject: thread.subject ?? "(no subject)",
-      labels: thread.labels,
-      trashed: thread.labels.includes("trash"),
-      unread: thread.labels.includes(UNREAD_LABEL),
-    };
+  async execute({ threadId, add, remove }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.label_email");
   },
 });

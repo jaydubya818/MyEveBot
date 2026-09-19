@@ -1,4 +1,6 @@
 import { db } from "../agent/lib/receipts-db.ts";
+import { createHash } from "node:crypto";
+import { canonicalActionValue } from "./approvals.ts";
 import { nextCronOccurrence } from "../agent/lib/reminders-db.ts";
 import { getAgent, effectiveCapability } from "./agents.ts";
 import { getCapability } from "./capability-registry.ts";
@@ -35,7 +37,9 @@ export async function validateRoutineAgent(ownerId: string, agentId: string, con
 }
 
 export class RoutineReviewStore {
-  constructor(private database:ExecutionDatabase=db() as ExecutionDatabase,private legacyOwner=deploymentOwnerId()) {}
+  private database:ExecutionDatabase;
+  private legacyOwner:string;
+  constructor(database:ExecutionDatabase=db() as ExecutionDatabase,legacyOwner=deploymentOwnerId()) {this.database=database;this.legacyOwner=legacyOwner;}
 
   async list(ownerId:string) {
     return this.database.query(`SELECT m.id,m.routine_name,m.prompt,m.cron,m.timezone,m.status,m.next_fire_at,
@@ -53,6 +57,10 @@ export class RoutineReviewStore {
     if(!reminder || Number(reminder.configuration_version)!==input.expectedVersion || reminder.prompt!==config.instructions) throw new Error("Reminder changed. Review its current instructions again.");
     const next=reminder.cron ? nextCronOccurrence(String(reminder.cron),String(reminder.timezone)) : new Date(Math.max(Date.now(),Date.parse(String(reminder.next_fire_at))));
     const id=`routine_reminder_${input.reminderId}`;
+    const hash=(value:unknown)=>createHash("sha256").update(JSON.stringify(canonicalActionValue(value))).digest("hex");
+    const reviewBinding={ownerId:input.ownerId,reminderVersion:input.expectedVersion,
+      instructionsHash:hash(config.instructions),scheduleHash:hash({cron:reminder.cron,timezone:reminder.timezone,...(!reminder.cron?{nextFireAt:next.toISOString()}: {})}),
+      authorityHash:hash({agentId:input.agentId,authority:config.authority}),budgetHash:hash(config.limits),policyHash:hash({retry:config.retry,missedPolicy:config.missedPolicy,deliveryChannel:config.deliveryChannel})};
     const result=await this.database.query(`WITH reviewed AS (
       UPDATE reminders SET owner_id=$2,reviewed_version=configuration_version,reviewed_at=now(),status='active',
         next_fire_at=$5::timestamptz,claimed_until=NULL,execution_routine_id=$7
@@ -66,9 +74,9 @@ export class RoutineReviewStore {
         agent_id=EXCLUDED.agent_id,version=execution_routines.version+1,status='active',paused_at=NULL,consecutive_failures=0,updated_at=now()
       RETURNING *
     ), revision AS (
-      INSERT INTO execution_routine_versions(owner_id,routine_id,version,configuration,changed_by)
-      SELECT owner_id,id,version,configuration,$2 FROM routine RETURNING routine_id
-    ) SELECT id FROM routine`,[input.reminderId,input.ownerId,this.legacyOwner,input.expectedVersion,next.toISOString(),config.instructions,id,input.agentId,JSON.stringify(config)]);
+      INSERT INTO execution_routine_versions(owner_id,routine_id,version,configuration,changed_by,review_binding)
+      SELECT owner_id,id,version,configuration,$2,$10::jsonb||jsonb_build_object('approvedAt',now()) FROM routine RETURNING routine_id
+    ) SELECT id FROM routine`,[input.reminderId,input.ownerId,this.legacyOwner,input.expectedVersion,next.toISOString(),config.instructions,id,input.agentId,JSON.stringify(config),JSON.stringify(reviewBinding)]);
     if(!result[0]) throw new Error("Reminder changed. Review it again.");
     return result[0];
   }

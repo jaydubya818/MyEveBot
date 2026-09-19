@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe,expect,it,vi } from "vitest";
 
-import connection, {
-  agentcardApproval,
-  agentcardAuthorization,
-  agentcardNeedsApproval,
+import connection,{
+agentcardApproval,
+agentcardAuthorization,
+agentcardNeedsApproval,
 } from "../connections/agentcard";
 
 describe("Agentcard MCP connection", () => {
@@ -52,7 +52,7 @@ describe("Agentcard MCP connection", () => {
     expect(agentcardNeedsApproval("approve_request")).toBe(true);
   });
 
-  it("fails closed for dynamically discovered tools", () => {
+  it("fails closed for dynamically discovered tools", async () => {
     expect(agentcardNeedsApproval("agentcard__transfer_funds")).toBe(true);
     expect(agentcardNeedsApproval("agentcard__future_provider_action")).toBe(true);
     expect(agentcardNeedsApproval("agentcard__buy")).toBe(true);
@@ -64,11 +64,7 @@ describe("Agentcard MCP connection", () => {
         toolName,
         session: { auth: { current: null, initiator: null } },
       }) as Parameters<typeof agentcardApproval>[0];
-    expect(agentcardApproval(context("agentcard__transfer_funds"))).toBe(
-      "user-approval",
-    );
-    expect(agentcardApproval(context("agentcard__get_balance"))).toBe(
-      "not-applicable",
-    );
+    await expect(agentcardApproval(context("agentcard__transfer_funds"))).resolves.toMatchObject({type:"denied"});
+    await expect(agentcardApproval(context("agentcard__get_balance"))).resolves.toMatchObject({type:"denied"});
   });
 });

@@ -1,15 +1,12 @@
 import { isChannel } from "eve/instrumentation";
-import { defineDynamic, defineTool } from "eve/tools";
+import { defineDynamic,defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 import imessage from "../channels/imessage";
 import {
-  IMESSAGE_EFFECTS,
-  sendIMessageEffect,
-  sendIMessageReaction,
-  setIMessageBackground,
+IMESSAGE_EFFECTS
 } from "../lib/effect/imessage";
-import { runTool } from "../lib/effect/runtime";
 
 // iMessage-only conversational tools, resolved per turn so they exist exactly
 // when the session lives on the iMessage channel (see send_attachment.ts for
@@ -42,16 +39,9 @@ export default defineDynamic({
                 inputSchema: z.object({
                   emoji: z.string().min(1).describe('A single emoji, e.g. "👍" or "❤️".'),
                 }),
-                async execute({ emoji }) {
-                  await runTool(
-                    sendIMessageReaction({
-                      handle,
-                      reaction: { emoji, targetMessageId: messageId },
-                      ...pinned,
-                    }),
-                  );
-                  return { reacted: true };
-                },
+                async execute({ emoji }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.imessage");
+  },
               }),
             }
           : {}),
@@ -63,13 +53,9 @@ export default defineDynamic({
             text: z.string().min(1).describe("The message to send with the effect."),
             effect: z.enum(IMESSAGE_EFFECTS).describe("Which effect to send it with."),
           }),
-          async execute({ text, effect }) {
-            await runTool(sendIMessageEffect({ handle, text, effect, ...pinned }));
-            return {
-              sent: true,
-              note: "Delivered with the effect. Don't repeat this text in your reply.",
-            };
-          },
+          async execute({ text, effect }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.imessage");
+  },
         }),
 
         set_chat_background: defineTool({
@@ -79,14 +65,9 @@ export default defineDynamic({
             url: z.string().optional().describe("Public https URL of the background image."),
             clear: z.boolean().optional().describe("Remove the current background instead."),
           }),
-          async execute({ url, clear }) {
-            const background = clear === true ? "clear" : (url ?? "");
-            if (background.length === 0) {
-              throw new Error("Pass an image url, or clear: true.");
-            }
-            await runTool(setIMessageBackground({ handle, background, ...pinned }));
-            return { done: true };
-          },
+          async execute({ url, clear }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.imessage");
+  },
         }),
       };
     },

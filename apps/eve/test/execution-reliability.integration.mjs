@@ -8,6 +8,7 @@ import { ActionGateway, ActionBlocked } from "../lib/action-gateway.ts";
 import { RoutineReviewStore } from "../lib/routine-review.ts";
 import { enqueueReviewedReminders } from "../lib/reminder-execution.ts";
 import { resolveExecution } from "../lib/execution-auth.ts";
+import { qualifyActionExecutors } from "./action-executor-cases.mjs";
 
 // Deliberately never reads DATABASE_URL, .env files, or a caller-supplied host.
 const pool = new Pool({ host:"127.0.0.1",port:55441,database:"postgres",user:process.env.USER,max:8 });
@@ -136,6 +137,27 @@ try {
   await assert.rejects(reviews.review(review),/changed/);
   await reviews.review({...review,expectedVersion:2,configuration:{...configuration,instructions:'Changed instructions'}});
   await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/,"re-review cannot authorize an old execution");
+  await qualifyActionExecutors(setup,database(setup),reviewedClaim);
+  await store.createRoutine({id:"delivery-policy",ownerId,sourceKind:"manual",sourceId:"delivery-policy",name:"Delivery policy fixture",agentId:"ava",
+    configuration:{...configuration,deliveryChannel:"telegram"},changedBy:ownerId});
+  await store.enqueue({ownerId,routineId:"delivery-policy",key:"once",scheduledFor:"2026-09-18T08:00:00Z"});
+  const deliveryClaim=await store.claim(ownerId,"delivery-worker");
+  await store.complete(deliveryClaim,"fixture:completed-work");
+  let deliveryProviderCalls=0;
+  const deniedDeliveryGateway=new ActionGateway(database(setup),{evaluate:async()=>({decision:"DENY",source:"fixture",reason:"Channel authority revoked"})});
+  await notifications.deliverNext(ownerId,{deliver:async delivery=>{
+    try {
+      await deniedDeliveryGateway.execute({ownerId,runId:delivery.runId,actionKey:`delivery:${delivery.id}`,capabilityId:"notification.send",actionClass:"send",
+        executor:{kind:"system",agentId:"ava"},trigger:{kind:"system",id:delivery.id},parameters:{channel:delivery.channel,resultReference:delivery.resultReference},
+        delivery:{id:delivery.id,claimVersion:delivery.version,channel:delivery.channel,resultReference:delivery.resultReference}},
+        {resolveTarget:async()=>({provider:"telegram",account:ownerId,resource:"fixture-chat"}),execute:async()=>{deliveryProviderCalls++;return {};},verify:async()=>({verified:true,receipt:{}})});
+    } catch {return {status:"definitely_failed",retryable:false};}
+    return {status:"delivered"};
+  }});
+  assert.equal(deliveryProviderCalls,0);
+  assert.equal((await setup.query("SELECT status FROM task_runs WHERE id=$1",[deliveryClaim.runId])).rows[0].status,"completed");
+  assert.equal((await setup.query("SELECT count(*) FROM execution_attempts WHERE occurrence_id=$1",[deliveryClaim.occurrenceId])).rows[0].count,"1");
+  console.log('PASS: notification authority denial invokes zero providers and preserves completed work with one execution attempt');
   console.log('PASS: legacy owner review gate; owner isolation; duplicate/stale reviews; atomic linkage; no backlog replay; edit revocation; stale execution stays revoked after re-review');
   console.log("PASS: isolated migrations; duplicate occurrence/run suppression; claim race; heartbeat; stale-worker fence; bounded retry; delivery failure/recovery without rerun; action deduplication; changed parameters; unknown-result replay refusal; worker death; auto-pause, single notice and owner resume");
 } finally {

@@ -13,6 +13,8 @@ import {
   type ComputerResourceLimits,
 } from "../../lib/computer-types.ts";
 import { resolveSessionAgent } from "./session-settings.ts";
+import { ActionGateway,consumeActionAuthority } from "../../lib/action-gateway.ts";
+import { toolActionRequest } from "./action-context.ts";
 
 export function computerOwnerId(ctx: Pick<ToolContext, "session">): string {
   const ownerId = ctx.session.auth.current?.principalId?.trim();
@@ -51,6 +53,32 @@ export async function provisionComputerSession(
     limits?: Partial<ComputerResourceLimits>;
     allowedDomains?: readonly string[];
   } = {},
+) {
+  const request=await toolActionRequest(ctx,{capabilityId:"computer.session.create",actionClass:"create",parameters:input as Record<string,unknown>});
+  request.actionKey += ":provision";
+  let provisioned:Awaited<ReturnType<typeof provisionAuthorizedComputerSession>>|undefined;
+  await new ActionGateway().execute(request,{
+    resolveTarget:async()=>({provider:"sandbox",account:request.ownerId,resource:ctx.session.id,environment:"isolated"}),
+    async execute(parameters,authorized) {
+      consumeActionAuthority(authorized,parameters,"computer.session.create");
+      provisioned=await provisionAuthorizedComputerSession(ctx,parameters as typeof input);return provisioned;
+    },
+    receipt:result=>({computerSessionId:result.session.id,sandboxId:result.session.sandboxId}),
+    async verify(result) {
+      const saved=await getComputerSessionForRuntime(request.ownerId,ctx.session.id);
+      return {verified:!!saved && saved.id===result.session.id && saved.sandboxId===result.session.sandboxId && ["ready","running"].includes(saved.status),
+        receipt:{computerSessionId:result.session.id,sandboxId:result.session.sandboxId}};
+    },
+  },ctx.abortSignal);
+  if(provisioned)return provisioned;
+  const session=await getComputerSessionForRuntime(request.ownerId,ctx.session.id);
+  if(!session || !["ready","running"].includes(session.status))throw new Error("The prior computer action completed, but its session is no longer executable.");
+  return {session,startedOnDemand:false};
+}
+
+async function provisionAuthorizedComputerSession(
+  ctx:ToolContext,
+  input:{goalId?:string;taskId?:string;runId?:string;limits?:Partial<ComputerResourceLimits>;allowedDomains?:readonly string[]}={},
 ) {
   const ownerId = computerOwnerId(ctx);
   const agent = await computerAgent(ctx);

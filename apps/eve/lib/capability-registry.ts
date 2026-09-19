@@ -133,6 +133,11 @@ function platform(
 }
 
 export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
+  platform("notification.send","Result notification","channel","Deliver an owner-approved completed result through a claimed outbox entry.",{
+    permissions:["notification.send"],risk:{level:"medium",categories:["external-communication"]},
+    evidence:{supported:true,required:true,types:["provider-message-id"]},
+    configuration:["DATABASE_URL"],keywords:["notification","delivery","result"],
+  }),
   platform("database.neon", "Neon database", "database", "Durable application records and migrations.", {
     permissions: ["database.read", "database.write"],
     configuration: ["DATABASE_URL"],

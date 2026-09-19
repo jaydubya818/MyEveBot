@@ -1,8 +1,11 @@
 import { defineTool } from "eve/tools";
 import { z } from "zod";
 
-import { getEmailAddress, sendMessage } from "../lib/agentmail";
-import { agentName, ownerName } from "../lib/owner";
+import { emailSendAdapter } from "../../lib/action-adapters.ts";
+import { ActionGateway } from "../../lib/action-gateway.ts";
+import { toolActionRequest } from "../lib/action-context.ts";
+import { existingEmailAccount,inspectBoundMessage,sendBoundMessage,type SendInput } from "../lib/agentmail";
+import { agentName,ownerName } from "../lib/owner";
 import { ownerOnly } from "../lib/owner-gate";
 
 export default defineTool({
@@ -24,19 +27,17 @@ export default defineTool({
       .describe("Optional HTML body. Only when formatting matters; always send text too."),
   }),
   async execute({ to, subject, text, cc, bcc, html }, ctx) {
-    const result = await sendMessage(
-      { to, subject, text, html, cc, bcc },
-      // A step interrupted mid-send re-runs on resume; keying on the tool call
-      // makes AgentMail return the first result instead of mailing a duplicate.
-      { idempotencyKey: `send-${ctx.callId}` },
-    );
-    return {
-      sent: true as const,
-      from: await getEmailAddress(),
-      to,
-      subject,
-      threadId: result.thread_id,
-      messageId: result.message_id,
-    };
+    const action=await toolActionRequest(ctx,{capabilityId:"tool.send_email",actionClass:"send",parameters:{to,subject,text,html,cc,bcc}});
+    return new ActionGateway().execute(action,emailSendAdapter("agentmail",{
+      resolveAccount:existingEmailAccount,
+      async send(parameters,context) {
+        const result=await sendBoundMessage(parameters as unknown as SendInput,context);
+        return {messageId:result.message_id,threadId:result.thread_id};
+      },
+      async inspect(account,messageId) {
+        const message=await inspectBoundMessage(account,messageId);
+        return {messageId:message.message_id,threadId:message.thread_id,account:message.inbox_id};
+      },
+    }),ctx.abortSignal);
   },
 });

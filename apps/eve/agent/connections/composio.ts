@@ -1,7 +1,6 @@
 import { defineMcpClientConnection } from "eve/connections";
+import { denyUnqualifiedConnection } from "../lib/unqualified-executor.ts";
 
-import { effectiveCapability } from "../../lib/agents.ts";
-import { agentForSession } from "../lib/session-settings.ts";
 
 // Composio Connect: one MCP server fronting 1000+ apps (Gmail, Google
 // Calendar, Notion, Slack, GitHub, Linear, ...). It exposes meta-tools to
@@ -15,14 +14,5 @@ export default defineMcpClientConnection({
   headers: {
     "x-consumer-api-key": () => process.env.COMPOSIO_API_KEY!,
   },
-  approval: async (ctx) => {
-    const ownerId = ctx.session.auth.current?.principalId;
-    if (!ownerId) return { type: "denied", reason: "Authenticated owner required." };
-    const agent = await agentForSession(ctx.session.id, ownerId);
-    if (!agent || agent.isPrimary) return { type: "approved", reason: "Primary Agent policy." };
-    const decision = effectiveCapability(agent, "integration.composio");
-    return decision.allowed
-      ? { type: "approved", reason: `Assigned to ${agent.name}.` }
-      : { type: "denied", reason: decision.reason };
-  },
+  approval: denyUnqualifiedConnection("integration.composio"),
 });

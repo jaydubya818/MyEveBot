@@ -1,15 +1,7 @@
-import { defineDynamic, defineTool } from "eve/tools";
-import { Effect, Schema } from "effect";
+import { Effect,Schema } from "effect";
+import { defineDynamic,defineTool } from "eve/tools";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import {
-  createArtifact,
-  createArtifactShare,
-  createArtifactVersion,
-  getArtifactDetail,
-  listArtifacts,
-  readArtifactText,
-} from "../lib/effect/artifacts";
-import { runTool } from "../lib/effect/runtime";
 import { toolSchema } from "../lib/effect/tool-schema";
 import { ownerOnly } from "../lib/owner-gate";
 import { webThreadId } from "../lib/web-client-context";
@@ -101,37 +93,8 @@ export default defineDynamic({
             "Save a sandbox file as a durable artifact in the user's workspace. Use for PDFs, Markdown, HTML, CSV/XLSX spreadsheets, and PPTX presentations you create or materially transform. The first call creates revision 1; use artifact_update for later revisions.",
           inputSchema: toolSchema(CreateArtifactInput),
           async execute({ path, title, mime_type, change_summary }, ctx) {
-            const sandbox = await ctx.getSandbox();
-            const bytes = await sandbox.readBinaryFile({ path });
-            if (bytes === null) {
-              throw new Error(`No file at ${sandbox.resolvePath(path)}.`);
-            }
-            const filename = path.split("/").filter(Boolean).at(-1) ?? "artifact";
-            const artifact = await runTool(
-              createArtifact({
-                title,
-                filename,
-                mimeType: mime_type ?? inferredMime(filename),
-                bytes,
-                ...(threadId === null ? {} : { threadId }),
-                sessionId: ctx.session.id,
-                createdBy: "agent",
-                createdFrom: "agent",
-                ...(change_summary === undefined ? {} : { changeSummary: change_summary }),
-              }),
-            );
-            return {
-              artifactId: artifact.id,
-              versionId: artifact.currentVersionId,
-              revision: artifact.currentVersion.ordinal,
-              title: artifact.title,
-              kind: artifact.kind,
-              sizeBytes: artifact.currentVersion.sizeBytes,
-              openUrl: `/?artifact=${artifact.id}&workspace=artifacts`,
-              downloadUrl: `/api/artifacts/${artifact.id}/content?versionId=${artifact.currentVersionId}&download=1`,
-              note: "Saved to the Artifacts workspace. Link the openUrl in your reply.",
-            };
-          },
+    return denyUnqualifiedExecutor(ctx, "tool.artifacts");
+  },
         }),
 
         artifact_update: defineTool({
@@ -140,33 +103,8 @@ export default defineDynamic({
             "Save a complete sandbox file as a new immutable revision of an existing artifact. Never overwrite an earlier revision.",
           inputSchema: toolSchema(UpdateArtifactInput),
           async execute({ artifact_id, path, change_summary, mime_type }, ctx) {
-            const sandbox = await ctx.getSandbox();
-            const bytes = await sandbox.readBinaryFile({ path });
-            if (bytes === null) {
-              throw new Error(`No file at ${sandbox.resolvePath(path)}.`);
-            }
-            const filename = path.split("/").filter(Boolean).at(-1) ?? "artifact";
-            const artifact = await runTool(
-              createArtifactVersion({
-                artifactId: artifact_id,
-                filename,
-                ...(mime_type === undefined ? {} : { mimeType: mime_type }),
-                bytes,
-                createdBy: "agent",
-                createdFrom: "agent",
-                changeSummary: change_summary,
-              }),
-            );
-            return {
-              artifactId: artifact.id,
-              versionId: artifact.currentVersionId,
-              revision: artifact.currentVersion.ordinal,
-              title: artifact.title,
-              sizeBytes: artifact.currentVersion.sizeBytes,
-              openUrl: `/?artifact=${artifact.id}&workspace=artifacts`,
-              downloadUrl: `/api/artifacts/${artifact.id}/content?versionId=${artifact.currentVersionId}&download=1`,
-            };
-          },
+    return denyUnqualifiedExecutor(ctx, "tool.artifacts");
+  },
         }),
 
         artifact_list: defineTool({
@@ -174,22 +112,9 @@ export default defineDynamic({
           description:
             "List durable artifacts in the workspace, newest first. Use this to find an artifact id before reading or revising it.",
           inputSchema: toolSchema(ListArtifactsInput),
-          execute({ query }) {
-            return runTool(
-              listArtifacts(query === undefined ? undefined : { query }),
-            ).then((artifacts) => ({
-              artifacts: artifacts.slice(0, 50).map((artifact) => ({
-                artifactId: artifact.id,
-                versionId: artifact.currentVersionId,
-                revision: artifact.currentVersion.ordinal,
-                title: artifact.title,
-                kind: artifact.kind,
-                filename: artifact.currentVersion.filename,
-                sizeBytes: artifact.currentVersion.sizeBytes,
-                updatedAt: artifact.updatedAt,
-              })),
-            }));
-          },
+          execute({ query }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.artifacts");
+  },
         }),
 
         artifact_read: defineTool({
@@ -197,11 +122,9 @@ export default defineDynamic({
           description:
             "Read a Markdown, HTML, or other text artifact revision. For binary formats, use the sandbox source you created or ask the user which revision to transform.",
           inputSchema: toolSchema(ReadArtifactInput),
-          execute({ artifact_id, version_id }) {
-            return runTool(
-              readArtifactText(artifact_id, version_id),
-            ).then((content) => ({ content }));
-          },
+          execute({ artifact_id, version_id }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.artifacts");
+  },
         }),
 
         artifact_share: defineTool({
@@ -209,29 +132,9 @@ export default defineDynamic({
           description:
             "Create a revocable public link to one exact immutable artifact revision. The default expiry is seven days. This is externally accessible, so use only when the user asks to share or needs a download link outside the signed-in workspace.",
           inputSchema: toolSchema(ShareArtifactInput),
-          async execute({ artifact_id, version_id, expires_in_days }) {
-            const detail = await runTool(getArtifactDetail(artifact_id));
-            const selectedVersionId = version_id ?? detail.artifact.currentVersionId;
-            const { share, token } = await runTool(
-              createArtifactShare({
-                artifactId: artifact_id,
-                versionId: selectedVersionId,
-                expiresInDays: expires_in_days,
-              }),
-            );
-            const origin =
-              process.env.NEXT_PUBLIC_APP_URL ??
-              (process.env.VERCEL_PROJECT_PRODUCTION_URL
-                ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-                : "");
-            return {
-              artifactId: artifact_id,
-              versionId: selectedVersionId,
-              url: `${origin}/share/${token}`,
-              expiresAt: share.expiresAt,
-              note: "Anyone with this link can access this exact revision until it expires or is revoked.",
-            };
-          },
+          async execute({ artifact_id, version_id, expires_in_days }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.artifacts");
+  },
         }),
       };
     },

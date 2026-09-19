@@ -1,10 +1,9 @@
 import { isChannel } from "eve/instrumentation";
-import { defineDynamic, defineTool } from "eve/tools";
+import { defineDynamic,defineTool } from "eve/tools";
 import { z } from "zod";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
 import imessage from "../channels/imessage";
-import { sendIMessageAttachment } from "../lib/effect/imessage";
-import { runTool } from "../lib/effect/runtime";
 
 // iMessage-only: delivers a file as a native attachment bubble instead of a
 // pasted link. Resolved per turn so it exists exactly when the session lives
@@ -34,23 +33,9 @@ export default defineDynamic({
             .optional()
             .describe('MIME type, e.g. "image/png". Inferred when omitted.'),
         }),
-        async execute({ url, name, contentType }) {
-          await runTool(
-            sendIMessageAttachment({
-              handle,
-              file: {
-                url,
-                ...(name !== undefined ? { name } : {}),
-                ...(contentType !== undefined ? { contentType } : {}),
-              },
-              ...(phone !== null ? { phone } : {}),
-            }),
-          );
-          return {
-            delivered: true,
-            note: "Sent as an iMessage attachment. No need to repeat the URL in your reply.",
-          };
-        },
+        async execute({ url, name, contentType }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.send_attachment");
+  },
       });
     },
   },

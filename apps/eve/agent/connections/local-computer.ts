@@ -1,7 +1,7 @@
 import { defineMcpClientConnection } from "eve/connections";
+import { denyUnqualifiedConnection } from "../lib/unqualified-executor.ts";
 
 import { parseLocalComputerMcpUrl } from "../lib/local-computer-url";
-import { guestDenial } from "../lib/owner-gate";
 
 // Eve derives the connection name from this file: local-computer.
 const LOCAL_DEFAULT_URL = "http://127.0.0.1:4317/mcp";
@@ -83,7 +83,5 @@ export default defineMcpClientConnection({
       "computer_screenshot",
     ],
   },
-  approval: (context) =>
-    guestDenial(context) ??
-    (localComputerNeedsApproval(context.toolName) ? "user-approval" : "not-applicable"),
+  approval: denyUnqualifiedConnection("computer.local"),
 });

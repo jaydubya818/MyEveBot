@@ -1,8 +1,7 @@
-import { Effect, Schema } from "effect";
+import { Effect,Schema } from "effect";
 import { defineTool } from "eve/tools";
+import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
-import { fundAgentcardWallet } from "../lib/effect/agentcard";
-import { runTool } from "../lib/effect/runtime";
 import { toolSchema } from "../lib/effect/tool-schema";
 import { ownerOnly } from "../lib/owner-gate";
 
@@ -20,13 +19,7 @@ export default defineTool({
   description:
     "Create a hosted Agentcard wallet-funding link as the fallback when card attachment is ineligible or unavailable. This does not charge by itself; send the returned URL to the owner, then create_card over Agentcard MCP after funding completes.",
   inputSchema: toolSchema(Input),
-  async execute({ amount_cents, payment_method }) {
-    const result = await runTool(
-      fundAgentcardWallet({
-        amountCents: amount_cents,
-        paymentMethod: payment_method,
-      }),
-    );
-    return `Send the owner this hosted ${result.paymentMethod === "apple_pay" ? "Apple Pay" : "Google Pay"} funding link: ${result.checkoutUrl}\nIt adds $${(result.amountCents / 100).toFixed(2)} and expires at ${result.expiresAt}. After the owner completes it, create the card over Agentcard MCP.`;
+  async execute({ amount_cents, payment_method }, gatewayContext) {
+    return denyUnqualifiedExecutor(gatewayContext, "tool.fund_agentcard_wallet");
   },
 });
