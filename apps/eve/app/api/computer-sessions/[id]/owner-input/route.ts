@@ -1,6 +1,7 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { sendComputerOwnerInput } from "@/lib/computer-sessions";
 import { ControlConflictError } from "@/lib/computer-control";
+import { computerApiFailure } from "@/lib/computer-api-errors";
 import type { OwnerInput } from "@/lib/live-session-provider";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
@@ -52,9 +53,9 @@ export async function POST(request: Request, ctx: RouteContext): Promise<Respons
     return Response.json({ delivered: true }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Owner input could not be delivered.";
-    if (/not found/i.test(message)) return apiError(request, 404, "computer_session_not_found", message);
-    if (error instanceof ControlConflictError || /binding|control|lease/i.test(message)) return apiError(request, 409, "owner_input_rejected", message);
-    if (/not supported/i.test(message)) return apiError(request, 422, "owner_input_unsupported", message);
-    return apiError(request, 503, "owner_input_failed", "Owner input could not be delivered safely.");
+    if (/not found/i.test(message)) return computerApiFailure(request, error, { context: "Owner input Computer session not found", status: 404, code: "computer_session_not_found", message: "Computer session not found." });
+    if (error instanceof ControlConflictError || /binding|control|lease/i.test(message)) return computerApiFailure(request, error, { context: "Owner input control conflict", status: 409, code: "owner_input_rejected", message: "Owner input is not allowed for the current control state." });
+    if (/not supported/i.test(message)) return computerApiFailure(request, error, { context: "Owner input unsupported", status: 422, code: "owner_input_unsupported", message: "Owner input is not supported for this Computer session." });
+    return computerApiFailure(request, error, { context: "Owner input delivery failed", code: "owner_input_failed", message: "Owner input could not be delivered safely." });
   }
 }

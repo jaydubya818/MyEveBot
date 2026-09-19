@@ -1,4 +1,5 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
+import { computerApiFailure } from "@/lib/computer-api-errors";
 import { createComputerSession, listComputerSessions } from "@/lib/computer-sessions";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
@@ -10,8 +11,7 @@ export async function GET(request: Request): Promise<Response> {
   try {
     return Response.json({ sessions: await listComputerSessions(owner.id) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Computer session list failed", error);
-    return apiError(request, 503, "computer_sessions_unavailable", "Computer sessions are temporarily unavailable.");
+    return computerApiFailure(request, error, { context: "Computer session list failed", code: "computer_sessions_unavailable", message: "Computer sessions are temporarily unavailable." });
   }
 }
 
@@ -36,6 +36,11 @@ export async function POST(request: Request): Promise<Response> {
   } catch (error) {
     const message = error instanceof Error ? error.message : "Computer session could not be created.";
     const status = /not found/i.test(message) ? 404 : /another Agent|not allowed|cannot create/i.test(message) ? 403 : 400;
-    return apiError(request, status, "computer_session_create_failed", message);
+    return computerApiFailure(request, error, {
+      context: "Computer session creation failed",
+      status,
+      code: status === 404 ? "computer_session_dependency_not_found" : status === 403 ? "computer_session_forbidden" : "computer_session_create_failed",
+      message: status === 404 ? "A required Computer session dependency was not found." : status === 403 ? "This Computer session is not allowed." : "The Computer session could not be created.",
+    });
   }
 }

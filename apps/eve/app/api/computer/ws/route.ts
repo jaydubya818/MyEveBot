@@ -3,6 +3,8 @@ import { experimental_upgradeWebSocket } from "@vercel/functions";
 import { orgoForProfile } from "@/agent/lib/orgo";
 import { ensureBrowserProfile } from "@/lib/browser-profiles";
 import { getAgent } from "@/lib/agents";
+import { apiError } from "@/lib/api-errors";
+import { computerApiFailure } from "@/lib/computer-api-errors";
 import { pipeVncSocket } from "@/lib/vnc-relay";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
@@ -31,25 +33,23 @@ export async function GET(request: Request): Promise<Response> {
   let upstreamUrl: string;
   try {
     const agentId = new URL(request.url).searchParams.get("agentId");
-    if (!agentId) return new Response("Agent is required.", { status: 400 });
+    if (!agentId) return apiError(request, 400, "computer_agent_required", "Choose an Agent.");
     const ownerId = webPrincipal(request)!.id;
     const agent = await getAgent(ownerId, agentId);
-    if (!agent) return new Response("Agent not found.", { status: 404 });
+    if (!agent) return apiError(request, 404, "computer_agent_not_found", "Agent not found.");
     const profile = await ensureBrowserProfile(ownerId, agent);
     const { connection } = await orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation }).live();
     if (connection === null) {
-      return new Response("The desktop has nothing to connect to.", { status: 409 });
+      return apiError(request, 409, "computer_connection_unavailable", "The desktop is not ready for a live connection.");
     }
     upstreamUrl = connection.websocketUrl;
   } catch (error) {
-    return new Response(error instanceof Error ? error.message : "Orgo request failed.", {
-      status: 502,
-    });
+    return computerApiFailure(request, error, { context: "Computer WebSocket upstream resolution failed", code: "computer_connection_unavailable", message: "The desktop connection is temporarily unavailable." });
   }
 
   try {
     return await experimental_upgradeWebSocket((client) => pipeVncSocket(client, upstreamUrl));
-  } catch {
-    return new Response("WebSocket upgrades are unavailable in this runtime.", { status: 501 });
+  } catch (error) {
+    return computerApiFailure(request, error, { context: "Computer WebSocket upgrade failed", status: 501, code: "computer_websocket_unavailable", message: "Live desktop connections are unavailable in this runtime." });
   }
 }
