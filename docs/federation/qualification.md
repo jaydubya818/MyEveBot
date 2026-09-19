@@ -1,3 +1,148 @@
+# Rebased MyEve × Relay qualification — 2026-09-19
+
+**MYEVE FEDERATION REBASED AND QUALIFIED — READY FOR MERGE**
+
+This is local integration qualification. Federation remains disabled by default.
+The original qualification is preserved verbatim below; its results and migration
+number describe the old branch only.
+
+| Boundary | Current result |
+| --- | --- |
+| Automated MyEve qualification | PASSED — 470 Vitest, 130 Node, current authority/database suites |
+| Real MyEve × independent disposable Ava | PASSED_LIVE — 42 passed, 0 failed, newly executed after rebase |
+| Pinned Relay protocol compatibility | PASSED — 17 tests; Relay unchanged |
+| Historical generic disposable-platform protocol | PASSED_LIVE — earlier separate protocol qualification, not substituted for this run |
+| Production Agent-platform deployment | NOT_RUN |
+| Independent security review | NOT_RUN |
+
+## Final integration report
+
+1. **Canonical authority.** `/Users/jaywest/Myeve`, branch `codex/openbot`,
+   original/current canonical HEAD `4d3f1eb685422fc77296cef245e84c5b09da6e91`.
+   `git fetch origin --prune` completed before authority selection. Canonical
+   checkout was clean. No remote `codex/openbot` existed at fetch; the exact
+   canonical commit will be published as a new base ref for the PR, without rewriting it.
+2. **Original federation.** `feat/relay-federation-adapter` at
+   `c92fd204c690c68b067d58dd6380aa23f95130d1`; merge base
+   `74fee5b1fdc8ec7c705a9087d9bdf58992b8f27c`.
+   Three original commits preserved under `codex/preserve-relay-pre-rebase-c92fd20`.
+   A preexisting untracked `node_modules 2` symlink was moved outside the checkout
+   to `/private/tmp/myeve-relay-preserved-node-modules-link`; its target was untouched.
+3. **New federation base.** `4d3f1eb685422fc77296cef245e84c5b09da6e91`.
+   Canonical history is an ancestor of the rebased integration branch.
+4. **New qualified federation HEAD.** `4c739436ce407f24a4159edfea603e393e08857e`.
+   Live execution tested production implementation `cfb098e` (full SHA in the live
+   report). The qualified HEAD adds formatted test/harness source and evidence only.
+   Subsequent report/PR metadata commits do not change runtime implementation;
+   final branch HEAD is recorded in the completion report and PR.
+5. **Concurrent changes audited.** All 130 changed paths across `81979b6`,
+   `d75b498`, and `4d3f1eb` are indexed with exact diff hashes in
+   [authority-audit.json](evidence/rebased/authority-audit.json).
+   Canonical authenticated identity, Agent status/capability/role binding, exact
+   approvals, pre-transmission Run/Agent/lease checks, one-use expiring handles,
+   read-only uncertain-result recovery, and owner action history are preserved.
+   Unqualified email/card/phone/connected-app/Computer transports and delegated
+   shell mutations remain blocked. Routine activation remains disabled.
+   Canonical private Knowledge/Memory/Goals/Workspace stores and web authentication
+   were not weakened or replaced. There was no architecture contradiction.
+6. **Migration collision.** Reproduced the normal validator's duplicate `0025`
+   failure. Canonical `0025_action_executor_enforcement.sql` and
+   `0026_action_recovery_qualification.sql` remain byte-identical. Only the
+   federation filename and latest-migration marker changed.
+7. **Final migration.** `0027_relay_federation.sql`. Ten new adapter tables and
+   their constraints/indexes remain additive. No canonical columns, enums, tables,
+   or constraints are replaced. The new names do not collide with canonical
+   recovery objects. Agent/Run references retain existing owner-scoped application
+   validation; these single-column foreign keys are not a claim of database RLS.
+8. **Fresh migration.** PASSED: unmodified repository migration runner applied all
+   27 migrations through a local Neon HTTP transport proxy to disposable PostgreSQL.
+9. **Existing schema/idempotency.** PASSED: the same normal runner built current
+   canonical schema through `0026`, populated Agent/Run/action fixtures, then applied
+   exactly `0027`; fixture data was byte-equivalent afterward. Fresh/upgraded schema
+   columns, types, defaults and nullability match. Both reruns accepted all 27
+   checksums and applied nothing. Constraints/indexes/checksums are recorded in
+   [migrations.json](evidence/rebased/migrations.json). Canonical `0025→0026` upgrade
+   and execution/recovery database suites also passed. No hosted data was used.
+10. **Current authority compatibility.** PASSED: signed owner and origin checks,
+    Agent ownership/status, independent local policy, exact approvals, Run budgets,
+    revocation and expired/forged/replayed authority handles. The actual model
+    adapter now consumes canonical authority before model invocation. Owner CRUD
+    and signed federation transport remain separate from generic Agent execution.
+11. **Federation regression.** 36/36 tests passed: original 35 plus a reproduced
+    forged-handle bypass regression. Projection, signatures, target identity,
+    receipts, encryption, context fencing and delivery recovery remained green.
+12. **Live golden path.** 42 PASSED_LIVE / 0 failed. Real MyEve Jay/Sofie APIs,
+    repositories, Task/Run, ActionGateway and model executor communicated over
+    HTTPS with pinned Relay and an independently credentialed disposable Sarah/Ava.
+    MyEve and Relay used separate PostgreSQL containers; Ava had its own private
+    store. This is not production deployment acceptance. See
+    [live report](evidence/rebased/live/report.json).
+13. **Private Knowledge.** Authorized queries read only the local publication
+    projection. Denied requests never reached the publisher. PRIVATE eligibility
+    and three prompt-injection attempts could not escape the publication boundary.
+14. **Local refusal.** Relay granted the work request, while MyEve independently
+    rejected email work before creating a local Run. Safe analysis required MyEve
+    approval, then executed a real model call and returned bounded evidence.
+    Relay authorization plus MyEve local authorization remains mandatory.
+15. **Restart/idempotency.** Crash-before-claim recovery, duplicate delivery, lost
+    completion response, offline pending work and both service restarts passed.
+    The completed model action executed once; uncertain execution is never blindly retried.
+16. **Persistence boundaries.** Reinspected canonical Knowledge, Memory, Goals,
+    conversations and Workspace canaries locally; local Run retained in MyEve.
+    Inspected all 94 Relay tables plus 24 decrypted payloads/results: no canonical
+    private canary or local Run state. Ava's independent private-store monitor
+    reported no unauthorized reads. All three live containers/volumes/credentials
+    were destroyed; migration and compatibility containers were also removed.
+17. **Relay revision.** Exactly `614c638d6fc4099db8064540326f5de4438e93a1`.
+    Harness now asserts this pin. Relay checkout stayed clean and unchanged.
+    All 17 compatibility tests passed against another disposable database.
+18. **Current MyEve regression.** 470 Vitest tests across 72 files and 130 Node
+    contract tests passed using normal `npm test` commands. Current canonical
+    execution/executor/recovery/coverage and migration integration suites passed.
+    The latter report six capability matrices and race/recovery assertions as
+    suites, not an invented individual-test count.
+19. **Build/typecheck/lint.** Both workspace production builds and typechecks
+    passed. Capability registry, skill routing, builder manifest and executor
+    governance passed: 502 classified sources, UNKNOWN=0. Canonical repository
+    defines no dedicated lint command in package scripts or CI; this is explicitly
+    NOT_CONFIGURED. Adapter/new qualification Prettier checks and `git diff --check`
+    passed. Initial sandbox-only tsx IPC denial was resolved by running the same
+    typecheck with local IPC access; no code workaround was introduced.
+20. **Disabled by default.** Owner route exits before authentication/storage when
+    `MYEVE_RELAY_ENABLED` is absent or not exactly `true`; the worker also requires
+    explicit opt-in. Migration creates empty adapter tables only. Connection,
+    registration, publication confirmation and grants require separate owner
+    actions. PRIVATE visibility and hidden discovery remain defaults. No existing
+    owner, Agent or Knowledge is automatically enrolled, published or granted authority.
+21. **Defects/fixes/commits.** `MIGRATION_DEFECT`: `7872004` renumbers only federation.
+    `MYEVE_CONCURRENT_CHANGE_INCOMPATIBILITY`: `cfb098e` consumes canonical authority,
+    adds a failing-before/passing-after regression, classifies adapter governance,
+    and removes raw owner-operation diagnostic logging. Evidence commit `4c73943`
+    records requalification. No Relay protocol defect or change. The migration
+    fixture initially mishandled valid multi-statement DDL; its proxy now returns
+    the final PostgreSQL result while executing all statements in the normal
+    migration transaction. Historical SQL was not edited to accommodate the fixture.
+22. **PR status.** Local merge-readiness gates passed. Publish the qualified branch
+    and exact canonical base, open a PR targeting `codex/openbot`, and wait for
+    repository checks. No automatic merge, branch-protection bypass, deployment,
+    production migration or default enablement is authorized by this result.
+23. **Production gates.** Independent security review and production/multiple-real-
+    platform acceptance remain NOT_RUN. Existing canonical blocked transports and
+    routine release restrictions remain separate gates. Historical browser evidence
+    is preserved; this rebase reran the complete network golden path and builds,
+    not the prior seven browser interactions.
+24. **Verdict.** **MYEVE FEDERATION REBASED AND QUALIFIED — READY FOR MERGE**,
+    subject to the PR's required checks/review. This does not mean merged or production-ready.
+
+## Preserved original qualification
+
+Original base `74fee5b1fdc8ec7c705a9087d9bdf58992b8f27c`; original final HEAD
+`c92fd204c690c68b067d58dd6380aa23f95130d1`; 42 live checks, 437 Vitest,
+130 Node, 17 Relay compatibility checks, and 25 migrations. The following original
+report is historical; its drift warning is resolved by the new report above.
+
+---
+
 # MyEve × Relay qualification
 
 Final result: **MYEVE FEDERATION PASSED_LIVE** — isolated local qualification only.
