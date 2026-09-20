@@ -1,3 +1,5 @@
+> Latest checkpoint: [final hosted engineering report](final-hosted-engineering-report.md). **HOSTED TARGET INCOMPLETE**: KMS custody decision and assembled three-worker validation remain open. Both external gates are NOT_RUN; no paid resources were provisioned. Older status below is historical.
+
 > Current preparation: [KMS and isolated credential report](kms-preparation-report.md). Synthetic Vercel secrets are staged on disabled branches; KMS and hosted controls remain incomplete. Both external gates are NOT_RUN. Earlier status below is historical where superseded.
 
 # MyEve Federation Production Readiness

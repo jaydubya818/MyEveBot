@@ -8,11 +8,11 @@
       "name": "fq-myeve-a",
       "component": "myeve",
       "repository": "jaydubya818/MyEveBot",
-      "sourceSha": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+      "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
       "existingCommand": "node --import tsx scripts/relay-worker.ts",
-      "workingDirectory": "apps/eve",
-      "qualificationCommand": null,
-      "entrypointStatus": "Supervisor implemented and locally process-tested; application/controller wiring and Railway stop verification still incomplete. Do not provision.",
+      "workingDirectory": "packaged application repository root",
+      "qualificationCommand": "node qualification-runtime/worker-entrypoint.mjs",
+      "entrypointStatus": "Prepared executable source and component tests; source-stamped assembly and three-worker golden path NOT_RUN. Do not provision.",
       "maxReplicas": 1,
       "cpuVcpu": 0.25,
       "memoryGB": 0.5,
@@ -22,11 +22,9 @@
       "volumes": 0,
       "serverlessSleep": false,
       "network": [
-        "TLS to own synthetic Neon database only",
-        "HTTPS exact immutable qualification Relay origin through admission controller",
-        "HTTPS exact trusted synthetic peer artifact origin through admission controller",
-        "HTTPS selected model gateway only after verified liability reservation",
-        "HTTPS authenticated shared authority"
+        "HTTPS qualification controller only for federation/model/artifact/provider operations",
+        "TLS/HTTPS own isolated synthetic PostgreSQL transport",
+        "Relay supervisor parent additionally requires bounded model/provider egress; KMS identity custody remains unresolved"
       ],
       "secretReferences": [
         "own synthetic DB application credential",
@@ -44,10 +42,9 @@
         "other-owner DB credential"
       ],
       "health": {
-        "intervalSeconds": 5,
-        "mechanism": "supervisor records session-bound heartbeat; no heartbeat closes admissions",
-        "restartOnUnhealthy": false,
-        "implemented": false
+        "path": "/health",
+        "sourceSha": true,
+        "maximumHeartbeatAgeSeconds": 10
       },
       "emergencyStop": [
         "durable authority admission closure",
@@ -56,17 +53,18 @@
         "revoke synthetic credentials and database role login"
       ],
       "maximumComputeUsd": "0.013896",
-      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime"
+      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
+      "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
     },
     {
       "name": "fq-relay-maintenance-control",
       "component": "relay",
       "repository": "jaydubya818/relay",
-      "sourceSha": "fabe7c010264f89d1397b364583e80b7593f9f59",
+      "sourceSha": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
       "existingCommand": "pnpm worker",
-      "workingDirectory": ".",
-      "qualificationCommand": null,
-      "entrypointStatus": "Supervisor implemented and locally process-tested; application/controller wiring and Railway stop verification still incomplete. Do not provision.",
+      "workingDirectory": "packaged application repository root",
+      "qualificationCommand": "node qualification-runtime/worker-entrypoint.mjs",
+      "entrypointStatus": "Prepared executable source and component tests; source-stamped assembly and three-worker golden path NOT_RUN. Do not provision.",
       "maxReplicas": 1,
       "cpuVcpu": 0.25,
       "memoryGB": 0.5,
@@ -76,9 +74,9 @@
       "volumes": 0,
       "serverlessSleep": false,
       "network": [
-        "TLS to exact synthetic Relay Neon database",
-        "HTTPS Railway stop API via operator-only controller",
-        "TLS authority endpoint ingress for authenticated qualification clients only"
+        "HTTPS qualification controller only for federation/model/artifact/provider operations",
+        "TLS/HTTPS own isolated synthetic PostgreSQL transport",
+        "Relay supervisor parent additionally requires bounded model/provider egress; KMS identity custody remains unresolved"
       ],
       "secretReferences": [
         "own synthetic DB application credential",
@@ -93,10 +91,9 @@
         "other-owner DB credential"
       ],
       "health": {
-        "intervalSeconds": 5,
-        "mechanism": "supervisor records session-bound heartbeat; no heartbeat closes admissions",
-        "restartOnUnhealthy": false,
-        "implemented": false
+        "path": "/health",
+        "sourceSha": true,
+        "maximumHeartbeatAgeSeconds": 10
       },
       "emergencyStop": [
         "durable authority admission closure",
@@ -106,17 +103,18 @@
       ],
       "maximumComputeUsd": "0.013896",
       "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
-      "sourceStatus": "Ported onto canonical 7ea29b2; local regression recorded in evidence/preprovisioning; hosted integrations incomplete"
+      "sourceStatus": "Ported onto canonical 7ea29b2; local regression recorded in evidence/preprovisioning; hosted integrations incomplete",
+      "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
     },
     {
       "name": "fq-myeve-b",
       "component": "peer",
       "repository": "jaydubya818/MyEveBot",
-      "sourceSha": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+      "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
       "existingCommand": "node --import tsx scripts/relay-worker.ts",
-      "workingDirectory": "apps/eve",
-      "qualificationCommand": null,
-      "entrypointStatus": "Supervisor implemented and locally process-tested; application/controller wiring and Railway stop verification still incomplete. Do not provision.",
+      "workingDirectory": "packaged application repository root",
+      "qualificationCommand": "node qualification-runtime/worker-entrypoint.mjs",
+      "entrypointStatus": "Prepared executable source and component tests; source-stamped assembly and three-worker golden path NOT_RUN. Do not provision.",
       "maxReplicas": 1,
       "cpuVcpu": 0.25,
       "memoryGB": 0.5,
@@ -126,11 +124,9 @@
       "volumes": 0,
       "serverlessSleep": false,
       "network": [
-        "TLS to own synthetic Neon database only",
-        "HTTPS exact immutable qualification Relay origin through admission controller",
-        "HTTPS exact trusted synthetic peer artifact origin through admission controller",
-        "HTTPS selected model gateway only after verified liability reservation",
-        "HTTPS authenticated shared authority"
+        "HTTPS qualification controller only for federation/model/artifact/provider operations",
+        "TLS/HTTPS own isolated synthetic PostgreSQL transport",
+        "Relay supervisor parent additionally requires bounded model/provider egress; KMS identity custody remains unresolved"
       ],
       "secretReferences": [
         "own synthetic DB application credential",
@@ -148,10 +144,9 @@
         "other-owner DB credential"
       ],
       "health": {
-        "intervalSeconds": 5,
-        "mechanism": "supervisor records session-bound heartbeat; no heartbeat closes admissions",
-        "restartOnUnhealthy": false,
-        "implemented": false
+        "path": "/health",
+        "sourceSha": true,
+        "maximumHeartbeatAgeSeconds": 10
       },
       "emergencyStop": [
         "durable authority admission closure",
@@ -160,7 +155,8 @@
         "revoke synthetic credentials and database role login"
       ],
       "maximumComputeUsd": "0.013896",
-      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime"
+      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
+      "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
     }
   ],
   "aggregateComputeUsd": "0.041688",
@@ -177,5 +173,6 @@
   ],
   "federationDefault": false,
   "withdrawnHardCeilingUsd": "0.10",
-  "monetaryStatus": "No enforceable all-in ceiling; resource/time conditional estimate excludes builds and unbounded egress."
+  "monetaryStatus": "No enforceable all-in ceiling; resource/time conditional estimate excludes builds and unbounded egress.",
+  "latestEngineeringStatus": "See final-hosted-engineering-report.md and preprovisioning-manifest.json; entrypoints prepared, three-worker topology NOT_RUN"
 }

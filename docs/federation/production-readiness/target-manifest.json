@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "HOSTED_TARGET_INCOMPLETE_PROVIDER_AND_HOSTED_ADAPTERS",
+  "status": "HOSTED_TARGET_INCOMPLETE_CUSTODY_AND_TOPOLOGY_VALIDATION",
   "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
@@ -16,7 +16,7 @@
   },
   "candidatePeer": {
     "product": "MyEve isolated second installation",
-    "version": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+    "version": "2ae91a8095db162188046a5c8fa6d987571e9933",
     "role": "Full existing receiver, separately operated; deployment pending",
     "heterogeneousVendorCertification": false
   },
@@ -61,22 +61,21 @@
     "artifactBytes": 65536,
     "totalArtifactBytes": 524288,
     "requestLifetimeSeconds": 900,
-    "enforcementStatus": "SHARED_POSTGRES_CORE_LOCALLY_TESTED; HOSTED_ADAPTERS_AND_PROVIDER_LIABILITY_UNVERIFIED"
+    "enforcementStatus": "DURABLE_COMPONENT_LIMITS_TESTED; ASSEMBLED_PATH_AND_EXCLUSIVE_PROVIDER_CUSTODY_INCOMPLETE"
   },
   "blockers": [
-    "GCP project/billing not designated; live raw Ed25519 maximum-size acceptance unverified",
-    "Purpose registry/provider core and production fail-closed composition implemented; request-scoped WIF and account-bound KMS wrapper still missing",
-    "Shared PostgreSQL control core locally tested; hosted ingress/model/artifact/worker adapters and verified provider liability bound missing",
-    "Qualification custom environment and explicit iad1 deployment region must be frozen before IAM provisioning",
-    "Worker supervisor, provider stop/revocation adapters and hard infrastructure billing containment incomplete",
-    "Existing oversized knowledge projection join needs disposition without silent federation semantics changes",
-    "No executable hosted qualification apps or workers; assessor, operators, stop contact and window pending",
-    "Existing dashboard latency regression fails on baseline and candidate; successor not fully requalified"
+    "Resolve controller-only KMS custody without bypassing the previously required Vercel identity contract",
+    "Resolve nested MyEve owner HTTP -> Relay -> KMS dependency under aggregate HTTP concurrency 2; current single origin lane is safe against oversubscription but not a validated complete golden path",
+    "Freeze seven principals and exact route/key allowlists; prepare isolated worker-role grants and validate them against actual workers",
+    "Assemble source-stamped packages and run all three actual workers/controller through delivery, model, artifact, restart, stop and cleanup",
+    "Validate full hosted-stop composition including all application/worker roles and deployment replacement races; component adapters alone are insufficient",
+    "GCP project/key authorization and size compatibility; Railway resource authorization; operators/assessor/stop contact/window; provisioning/deployment and both external gates remain pending"
   ],
   "proposedSuccessors": {
-    "myeve": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
-    "relay": "bbfcaa18710556fc689f60990599f4734e99a720",
-    "status": "MyEve migration correction locally requalified and used on isolated hosted schemas; no apps deployed or frozen pins promoted"
+    "myeve": "2ae91a8095db162188046a5c8fa6d987571e9933",
+    "relay": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
+    "controls": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+    "status": "Local component regressions pass; not a qualified hosted successor; release pins unchanged"
   },
   "authorization": {
     "infrastructure": "Explicitly authorized by owner, within existing/free capacity",

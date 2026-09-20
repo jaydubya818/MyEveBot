@@ -97,7 +97,8 @@
       "signatureLength": null,
       "crcVerified": false,
       "pinnedKeyVerified": false
-    }
+    },
+    "custodyStatus": "BLOCKED: Vercel web process retains exchangeable identity outside controller; owner decision requested before revising required Vercel-to-STS design"
   },
   "vercel": {
     "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",
@@ -141,7 +142,14 @@
     ],
     "runtimeInsert": false,
     "applicationLedgerPrivileges": "NONE",
-    "schemaProvisioned": false
+    "schemaProvisioned": false,
+    "workerRoles": [
+      "fq_myeve_6384519e0e01_worker",
+      "fq_peer_6384519e0e01_worker"
+    ],
+    "workerRoleProvisioned": false,
+    "workerArtifactPrivileges": "SELECT and expiry DELETE only; INSERT/UPDATE/TRUNCATE forbidden; membership/ownership restrictions still require complete assembled validation",
+    "evidenceTable": "fq_control.evidence; operator INSERT/SELECT only; retain 30 days then explicit cleanup"
   },
   "railway": {
     "workspaceId": "56a1e903-2507-4cd4-904b-9c57513046b4",
@@ -149,7 +157,7 @@
     "services": [
       {
         "name": "fq-myeve-a",
-        "command": null,
+        "command": "node qualification-runtime/worker-entrypoint.mjs",
         "maxReplicas": 1,
         "cpuVcpuProposed": 0.25,
         "memoryGBProposed": 0.5,
@@ -157,12 +165,24 @@
         "restartPolicy": "NEVER",
         "maxLifetimeSeconds": 3600,
         "heartbeatSeconds": 5,
-        "health": "Session + source SHA + current controller heartbeat; no heartbeat closes admissions",
-        "stop": "TERM then KILL within 5s locally; Railway deployment-stop adapter unimplemented"
+        "health": {
+          "path": "/health",
+          "sourceSha": true,
+          "maximumHeartbeatAgeSeconds": 10
+        },
+        "stop": "TERM/KILL process group; operator-only railway-stop.mjs validates exact project/environment/service/deployment and terminal readback",
+        "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
+        "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+        "environment": {
+          "FQ_COMPONENT": "myeve",
+          "FQ_SOURCE_SHA": "2ae91a8095db162188046a5c8fa6d987571e9933"
+        },
+        "volumes": [],
+        "qualificationStatus": "PREPARED_NOT_ASSEMBLED_OR_VALIDATED"
       },
       {
         "name": "fq-relay-maintenance-control",
-        "command": null,
+        "command": "node qualification-runtime/worker-entrypoint.mjs",
         "maxReplicas": 1,
         "cpuVcpuProposed": 0.25,
         "memoryGBProposed": 0.5,
@@ -170,12 +190,24 @@
         "restartPolicy": "NEVER",
         "maxLifetimeSeconds": 3600,
         "heartbeatSeconds": 5,
-        "health": "Session + source SHA + current controller heartbeat; no heartbeat closes admissions",
-        "stop": "TERM then KILL within 5s locally; Railway deployment-stop adapter unimplemented"
+        "health": {
+          "path": "/health",
+          "sourceSha": true,
+          "maximumHeartbeatAgeSeconds": 10
+        },
+        "stop": "TERM/KILL process group; operator-only railway-stop.mjs validates exact project/environment/service/deployment and terminal readback",
+        "sourceSha": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
+        "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+        "environment": {
+          "FQ_COMPONENT": "relay",
+          "FQ_SOURCE_SHA": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98"
+        },
+        "volumes": [],
+        "qualificationStatus": "PREPARED_NOT_ASSEMBLED_OR_VALIDATED"
       },
       {
         "name": "fq-myeve-b",
-        "command": null,
+        "command": "node qualification-runtime/worker-entrypoint.mjs",
         "maxReplicas": 1,
         "cpuVcpuProposed": 0.25,
         "memoryGBProposed": 0.5,
@@ -183,8 +215,20 @@
         "restartPolicy": "NEVER",
         "maxLifetimeSeconds": 3600,
         "heartbeatSeconds": 5,
-        "health": "Session + source SHA + current controller heartbeat; no heartbeat closes admissions",
-        "stop": "TERM then KILL within 5s locally; Railway deployment-stop adapter unimplemented"
+        "health": {
+          "path": "/health",
+          "sourceSha": true,
+          "maximumHeartbeatAgeSeconds": 10
+        },
+        "stop": "TERM/KILL process group; operator-only railway-stop.mjs validates exact project/environment/service/deployment and terminal readback",
+        "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
+        "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+        "environment": {
+          "FQ_COMPONENT": "peer",
+          "FQ_SOURCE_SHA": "2ae91a8095db162188046a5c8fa6d987571e9933"
+        },
+        "volumes": [],
+        "qualificationStatus": "PREPARED_NOT_ASSEMBLED_OR_VALIDATED"
       }
     ],
     "allInHardCapUsd": null,
@@ -198,16 +242,15 @@
       "base subscription",
       "tax"
     ],
-    "resourceAuthorizationRequested": false
+    "resourceAuthorizationRequested": false,
+    "packageCommand": "node scripts/federation-readiness/controls/package-worker.mjs SOURCE_CHECKOUT NEW_OUTPUT_DIRECTORY EXACT_APPLICATION_SHA"
   },
   "remainingEngineering": [
-    "Authoritative maximum Ed25519 KMS acceptance",
-    "Wire controller into all MyEve/Relay origins and provider calls with bypass rejection",
-    "Bind artifact admission to publication/storage, remove bypass credentials",
-    "Integrate tested direct-Claude model adapter into both MyEve application paths and remove bypass model credentials",
-    "Wire verified Railway/model revoke adapters and evidence persistence",
-    "Complete three service entrypoints with exact source provenance",
-    "Prove provider CPU/memory/time limits and reconcile final performance regression"
+    "Resolve controller-only KMS custody without bypassing the previously required Vercel identity contract",
+    "Resolve nested MyEve owner HTTP -> Relay -> KMS dependency under aggregate HTTP concurrency 2; current single origin lane is safe against oversubscription but not a validated complete golden path",
+    "Freeze seven principals and exact route/key allowlists; prepare isolated worker-role grants and validate them against actual workers",
+    "Assemble source-stamped packages and run all three actual workers/controller through delivery, model, artifact, restart, stop and cleanup",
+    "Validate full hosted-stop composition including all application/worker roles and deployment replacement races; component adapters alone are insufficient"
   ],
   "externalGates": {
     "independentSecurity": "NOT_RUN",
@@ -232,6 +275,13 @@
     "sources": [
       "https://platform.claude.com/docs/en/models/haiku-4-5/overview",
       "https://platform.claude.com/docs/en/about-claude/pricing"
-    ]
+    ],
+    "applicationCodeWired": true,
+    "assembledPathValidated": false
+  },
+  "engineeringCandidates": {
+    "myeve": "2ae91a8095db162188046a5c8fa6d987571e9933",
+    "relay": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
+    "controls": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
   }
 }

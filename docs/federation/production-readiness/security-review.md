@@ -86,3 +86,7 @@ package for the separate assessor context:
 
 Do not treat the implementation tests as an independent assessment. Do not mark
 PASS from this implementation context. No live adversarial traffic was sent.
+
+## Final hosted engineering checkpoint — assessment remains NOT_RUN
+
+The current engineering source and self-audit matrix are frozen in [final-hosted-engineering-report.md](final-hosted-engineering-report.md) and `evidence/final-hosted-engineering/verification.json`. Include the new MyEve qualification client/storage route, Relay middleware/crypto transport, shared controller, source supervisor, stop adapters and worker-role grants in the eventual assessment scope. Exclusive KMS custody and the assembled topology remain unresolved; there is no authorized deployed penetration-test target yet. An independent assessor must receive the completed immutable package from a separate context after those blockers close; component regression and this implementation self-audit cannot pass this gate. No assessor has been contacted.
