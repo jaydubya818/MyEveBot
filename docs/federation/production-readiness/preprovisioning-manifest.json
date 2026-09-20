@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "apply": false,
+  "status": "INCOMPLETE_DO_NOT_PROVISION",
+  "federationDefault": false,
+  "region": {
+    "myeveA": "iad1",
+    "relay": "iad1",
+    "myeveB": "iad1",
+    "kmsCandidate": "us-east4",
+    "reason": "Preserve current canonical Relay iad1 and colocate regional KMS in northern Virginia."
+  },
+  "google": {
+    "projectId": "OWNER_SELECTION_REQUIRED",
+    "projectNumber": "OWNER_SELECTION_REQUIRED",
+    "billingAuthorization": false,
+    "location": "us-east4",
+    "keyRing": "fq-6384519e0e01",
+    "keys": [
+      {
+        "name": "fq-evidence",
+        "purpose": "ASYMMETRIC_SIGN",
+        "algorithm": "EC_SIGN_ED25519",
+        "protectionLevel": "SOFTWARE",
+        "initialVersion": 1
+      },
+      {
+        "name": "fq-delivery",
+        "purpose": "ASYMMETRIC_SIGN",
+        "algorithm": "EC_SIGN_ED25519",
+        "protectionLevel": "SOFTWARE",
+        "initialVersion": 1
+      },
+      {
+        "name": "fq-passport",
+        "purpose": "ASYMMETRIC_SIGN",
+        "algorithm": "EC_SIGN_ED25519",
+        "protectionLevel": "SOFTWARE",
+        "initialVersion": 1
+      },
+      {
+        "name": "fq-envelope",
+        "purpose": "ENCRYPT_DECRYPT",
+        "algorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
+        "protectionLevel": "SOFTWARE",
+        "initialVersion": 1
+      }
+    ],
+    "workloadIdentityPool": "fq-6384519e0e01",
+    "workloadIdentityProvider": "vercel-relay-fq",
+    "iamRenderer": "scripts/federation-readiness/controls/identity-policy.mjs",
+    "customRoles": [
+      {
+        "id": "fqSigner",
+        "permissions": [
+          "cloudkms.cryptoKeyVersions.get",
+          "cloudkms.cryptoKeyVersions.useToSign"
+        ],
+        "keys": [
+          "fq-evidence",
+          "fq-delivery",
+          "fq-passport"
+        ]
+      },
+      {
+        "id": "fqEnvelope",
+        "permissions": [
+          "cloudkms.cryptoKeyVersions.get",
+          "cloudkms.cryptoKeyVersions.useToEncrypt",
+          "cloudkms.cryptoKeyVersions.useToDecrypt"
+        ],
+        "keys": [
+          "fq-envelope"
+        ]
+      }
+    ],
+    "bindingPrincipal": "principalSet://iam.googleapis.com/projects/OWNER_PROJECT_NUMBER/locations/global/workloadIdentityPools/fq-6384519e0e01/attribute.project_id/prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK",
+    "iamCondition": "Exact owner_id, project_id, qualification environment slug, real custom_environment_id, subject; issuer and allowed audience pinned by provider. See renderer.",
+    "logging": {
+      "service": "cloudkms.googleapis.com",
+      "types": [
+        "ADMIN_READ",
+        "DATA_READ",
+        "DATA_WRITE"
+      ],
+      "payloadLogging": false,
+      "retentionDays": 30
+    },
+    "estimatedInitialMonthlyKeyUsd": "0.24",
+    "estimatedAfterTwoRotationsMonthlyKeyUsd": "0.36",
+    "estimatedPer10000SoftwareOperationsUsd": "0.03",
+    "sizeCompatibility": "UNVERIFIED",
+    "sizeProbe": {
+      "rawBytes": 262057,
+      "base64Bytes": 349412,
+      "apiResult": "NOT_RUN",
+      "signatureLength": null,
+      "crcVerified": false,
+      "pinnedKeyVerified": false
+    }
+  },
+  "vercel": {
+    "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",
+    "existingProjects": {
+      "myeve": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "relay": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK"
+    },
+    "relayCustomEnvironment": {
+      "slug": "federation-qualification",
+      "id": null,
+      "mustExistBeforeIAMBinding": true
+    },
+    "qualificationDeployments": {
+      "myeveA": null,
+      "relay": null,
+      "myeveB": null
+    },
+    "oidc": {
+      "issuer": "https://oidc.vercel.com/jaydubya818",
+      "audience": "https://vercel.com/jaydubya818",
+      "subject": "owner:jaydubya818:project:relay:environment:federation-qualification"
+    }
+  },
+  "neon": {
+    "existingDatabases": [
+      "fq_myeve_6384519e0e01",
+      "fq_peer_6384519e0e01",
+      "fq_relay_6384519e0e01"
+    ],
+    "applicationRoles": [
+      "fq_myeve_6384519e0e01_app",
+      "fq_peer_6384519e0e01_app",
+      "fq_relay_6384519e0e01_app"
+    ],
+    "applicationLogin": "KEEP_NOLOGIN_UNTIL_HOSTED_SMOKE_AUTHORIZED",
+    "controllerRole": "fq_control_6384519e0e01",
+    "controllerSchema": "fq_control",
+    "controllerPrivileges": [
+      "USAGE on fq_control",
+      "SELECT, UPDATE on fq_control.sessions"
+    ],
+    "runtimeInsert": false,
+    "applicationLedgerPrivileges": "NONE",
+    "schemaProvisioned": false
+  },
+  "railway": {
+    "workspaceId": "56a1e903-2507-4cd4-904b-9c57513046b4",
+    "newProject": "fq-6384519e0e01",
+    "services": [
+      {
+        "name": "fq-myeve-a",
+        "command": null,
+        "maxReplicas": 1,
+        "cpuVcpuProposed": 0.25,
+        "memoryGBProposed": 0.5,
+        "limitsProviderVerified": false,
+        "restartPolicy": "NEVER",
+        "maxLifetimeSeconds": 3600,
+        "heartbeatSeconds": 5,
+        "health": "Session + source SHA + current controller heartbeat; no heartbeat closes admissions",
+        "stop": "TERM then KILL within 5s locally; Railway deployment-stop adapter unimplemented"
+      },
+      {
+        "name": "fq-relay-maintenance-control",
+        "command": null,
+        "maxReplicas": 1,
+        "cpuVcpuProposed": 0.25,
+        "memoryGBProposed": 0.5,
+        "limitsProviderVerified": false,
+        "restartPolicy": "NEVER",
+        "maxLifetimeSeconds": 3600,
+        "heartbeatSeconds": 5,
+        "health": "Session + source SHA + current controller heartbeat; no heartbeat closes admissions",
+        "stop": "TERM then KILL within 5s locally; Railway deployment-stop adapter unimplemented"
+      },
+      {
+        "name": "fq-myeve-b",
+        "command": null,
+        "maxReplicas": 1,
+        "cpuVcpuProposed": 0.25,
+        "memoryGBProposed": 0.5,
+        "limitsProviderVerified": false,
+        "restartPolicy": "NEVER",
+        "maxLifetimeSeconds": 3600,
+        "heartbeatSeconds": 5,
+        "health": "Session + source SHA + current controller heartbeat; no heartbeat closes admissions",
+        "stop": "TERM then KILL within 5s locally; Railway deployment-stop adapter unimplemented"
+      }
+    ],
+    "allInHardCapUsd": null,
+    "withdrawnClaimUsd": "0.10",
+    "conditionalComputeEstimateUsd": "0.041688",
+    "conditionalEgressEstimateUsd": "0.002500",
+    "conditionalVariableEstimateUsd": "0.044188",
+    "excluded": [
+      "build/deploy spend",
+      "egress above unverified 0.05GB allowance",
+      "base subscription",
+      "tax"
+    ],
+    "resourceAuthorizationRequested": false
+  },
+  "remainingEngineering": [
+    "Authoritative maximum Ed25519 KMS acceptance",
+    "Wire controller into all MyEve/Relay origins and provider calls with bypass rejection",
+    "Bind artifact admission to publication/storage, remove bypass credentials",
+    "Integrate tested direct-Claude model adapter into both MyEve application paths and remove bypass model credentials",
+    "Wire verified Railway/model revoke adapters and evidence persistence",
+    "Complete three service entrypoints with exact source provenance",
+    "Prove provider CPU/memory/time limits and reconcile final performance regression"
+  ],
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "model": {
+    "provider": "Direct Claude API, global standard tier",
+    "model": "claude-haiku-4-5-20251001",
+    "maxInputBytes": 16000,
+    "providerContextTokens": 200000,
+    "maxOutputTokens": 800,
+    "tools": false,
+    "thinking": false,
+    "cacheWrites": false,
+    "retries": 0,
+    "maximumDocumentedTokenLiabilityUsd": "0.204",
+    "reservationUsd": "0.25",
+    "priceReviewRequiredForEachWindow": true,
+    "accountWideBillingCap": false,
+    "liveCallPerformed": false,
+    "applicationIntegrationComplete": false,
+    "sources": [
+      "https://platform.claude.com/docs/en/models/haiku-4-5/overview",
+      "https://platform.claude.com/docs/en/about-claude/pricing"
+    ]
+  }
+}

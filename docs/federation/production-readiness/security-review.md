@@ -66,3 +66,23 @@ Artifact origin pinning and redirect denial exist; production DNS and egress iso
 For each finding record ID, severity, concrete impact, affected boundary/files/lines, target/version, minimal redacted reproduction, expected/actual results, exploit prerequisites, remediation owner, proposed resolution, and independent retest evidence. Include negative tests and exclusions. A scanner-only summary or prior AI PR review is insufficient. Sign the final assessment with date and exact tested candidate. Apply the README closure rules; NOT_RUN is never PASS.
 
 Methodology reference: [OWASP Web Security Testing Guide](https://wstg.owasp.org/) for authentication, authorization, input validation and business-logic testing. The matrix above adds application-specific federation trust boundaries. This does not claim OWASP certification.
+
+## Pre-provisioning candidate additions — not authorized for execution
+
+The current candidate and engineering blockers are recorded in
+`preprovisioning-engineering.md`. The target is not frozen or assessor-ready.
+When application integration is complete, include these cases in the frozen
+package for the separate assessor context:
+
+- Canonical maximum envelope and individually valid oversized knowledge joins;
+  verify rejection happens before the provider signer is invoked.
+- Wrong owner AAD, historical wrapping versions and ciphertext version relabeling.
+- Wrong Vercel issuer/audience/project/subject/custom environment, stale assertion,
+  STS denial and key-specific IAM denial without fallback.
+- Direct origin/model/storage bypass, permit replay or body/method/origin changes,
+  expired permits, stale worker heartbeat, restart and ambiguous response bodies.
+- Aggregate HTTP/retry exhaustion, model liability after uncertain completion,
+  oversized artifact exposure, partial emergency-stop failure and evidence loss.
+
+Do not treat the implementation tests as an independent assessment. Do not mark
+PASS from this implementation context. No live adversarial traffic was sent.

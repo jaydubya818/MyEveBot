@@ -225,5 +225,11 @@
   ],
   "latestDesignReport": "kms-controls-design.md",
   "candidateCryptoRevision": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
-  "candidateQualification": "LOCAL_TESTS_ADVANCED; BROWSER_LATENCY_FAILURE_PREVENTS_FULL_REQUALIFICATION"
+  "candidateQualification": "LOCAL_TESTS_ADVANCED; BROWSER_LATENCY_FAILURE_PREVENTS_FULL_REQUALIFICATION",
+  "candidateRevision": {
+    "relay": "fabe7c010264f89d1397b364583e80b7593f9f59",
+    "canonicalRelayBase": "7ea29b2886d2b8bad7b1a1ca1c3e8df1d39ee9ee",
+    "locallyQualified": false,
+    "frozenPinsPromoted": false
+  }
 }

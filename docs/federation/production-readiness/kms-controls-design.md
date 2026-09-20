@@ -1,3 +1,5 @@
+> Historical checkpoint. Current implementation, canonical base and remaining blockers are in [preprovisioning-engineering.md](preprovisioning-engineering.md). The old `sfo1` and development-browser classification are superseded.
+
 # KMS design and shared qualification controls
 
 **NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE.**

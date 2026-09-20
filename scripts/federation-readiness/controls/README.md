@@ -111,3 +111,34 @@ blocking implementation work. See the current [design report](../../../docs/fede
 The generic wildcard Node test command above now requires FQ_TEST_DATABASE_URL;
 without a local DB run only `database-brake.test.mjs`, `preflight.test.mjs`, and
 `identity-policy.test.mjs`. Do not silently skip distributed-control coverage.
+
+## Pre-provisioning implementation checkpoint
+
+`controller.mjs` now authenticates distinct hashed component credentials and owns
+shared-ledger mutation. It issues 15-second request/operation/body/origin-bound
+one-use permits, requires a worker heartbeat no older than 10 seconds, holds HTTP
+slots until the full bounded body arrives, and fences ambiguous attempts. The
+actual artifact buffer is checked before returning bytes. Missing verified model
+liability configuration denies execution. `server.mjs` exposes bounded JSON RPC;
+its loopback default must sit behind authenticated TLS for hosted use.
+
+`worker.mjs` supervises a real process group with registration, five-second
+heartbeats, bounded lifetime, TERM/KILL, and no restarts. `stop-adapters.mjs`
+revokes exact synthetic Relay credentials/grants and terminalizes nonterminal
+requests, then reads back outcomes. SQL emergency denial is not a signed normal
+protocol receipt; the operator must preserve stop evidence and inspect in-flight
+work before any resumption.
+
+This is **not yet an enforced hosted path**. MyEve and Relay origin handlers must
+consume permits before work; every provider attempt including KMS must use the
+controller allowance; artifact admission must be attached to actual publication
+and storage; the tested pinned Haiku adapter must be wired into both application paths, with fresh price review; worker
+source SHA must be verified from the checkout; Railway stop/model revoke and
+persistent evidence adapters must be connected and tested. Workers must receive
+neither model/storage bypass credentials nor ledger mutation credentials. Do not
+start these modules as a qualification session until those integrations pass.
+
+Local tests: `controller.test.mjs`, `stop-adapters.test.mjs`, `worker.test.mjs`.
+Database tests require `FQ_TEST_DATABASE_URL` pointing to loopback-only disposable
+PostgreSQL. Each creates/drops its own uniquely named synthetic test database.
+No hosted operator credentials are required or accepted by these tests.
