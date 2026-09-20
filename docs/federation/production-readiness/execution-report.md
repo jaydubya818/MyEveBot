@@ -1,3 +1,5 @@
+> Historical initial preparation report. Current implementation/provisioning status is in [deployment-blockers-report.md](deployment-blockers-report.md); source pins below remain frozen. Neither external gate has run.
+
 # Readiness execution report — 2026-09-20
 
 **Result: NO-GO. Preparation and local baseline checks complete; independent security and production platform gates remain NOT_RUN.**

@@ -10,8 +10,8 @@ Use a unique UTC run suffix in these display names. Actual server-generated acco
 | --- | --- |
 | `fq-myeve-owner-<run>` | Fresh single owner of qualification MyEve deployment, separate Relay owner account A; never the personal production owner |
 | `fq-sofie-<run>` | MyEve Agent bound explicitly to account A's Relay Agent/address; files.read-only analysis capability and exact owner approval |
-| `fq-peer-owner-<run>` | Fresh Relay owner B, operated in independent Codex context; no credential or storage shared with A |
-| `fq-codex-<run>` | B's registered Codex Agent; only named federation scopes; new Agent bearer; not existing V1 identity |
+| `fq-peer-owner-<run>` | Fresh Relay owner B, operated in a separate MyEve installation/context; no credential or storage shared with A |
+| `fq-peer-<run>` | B's registered MyEve Agent; only named federation scopes; new Agent bearer; not existing V1 identity |
 | `fq-peer-sibling-<run>` | Second Agent of B, no grants; proves Agent-level binding |
 | `fq-outsider-owner-<run>` / `fq-outsider-<run>` | Third owner C and Agent, denied by default; assessor cross-owner tests only |
 
@@ -56,17 +56,17 @@ If a row cannot be measured in the budget, mark it NOT_RUN and schedule a separa
 | Step | Procedure and evidence | Runbook mapping / dependency |
 | --- | --- | --- |
 | G01 | Inspect immutable deployments, absent default flags, synthetic DB/secret isolation, real ingress, signer fingerprints; freeze operator target record | P01–P02; all deployment blockers resolved first |
-| G02 | Create synthetic owners/Agents and Passports, register hidden addresses through authenticated owner flows, bind CLI bearer to B's Agent, test sibling/C denial | P03; registration is owner work, never CLI self-authorization |
-| G03 | Owner A previews exact benign facts, confirms SHARED snapshot and scoped grant; owner B independently publishes its benign projection | P04; B publication requires existing receiver/projection integration |
-| G04 | Codex invokes `relay_query_knowledge` at `/api/v2/federation/mcp`; hosted MyEve polls actual signed delivery, verifies pin/audience/lifetime and local projection; fetch bounded result | P05; retain request ID/attempt/signature verification and record provenance |
-| G05 | Query private refs and injected instructions in both directions; inspect synthetic private-store access and absence of canaries in Relay/peer | P05/P13; reverse direction blocked until verified peer receiver exists |
+| G02 | Create synthetic owners/Agents and Passports, register hidden addresses through authenticated owner flows, bind peer bearer to B's Agent, test sibling/C denial | P03; registration is owner work, never peer self-authorization |
+| G03 | Owner A previews exact benign facts, confirms SHARED snapshot and scoped grant; owner B independently publishes its benign projection | P04; B uses the same existing MyEve explicit-publication flow in its separate installation |
+| G04 | The independent peer submits knowledge.query through the existing authenticated Relay client; hosted MyEve polls actual signed delivery, verifies pin/audience/lifetime and local projection; fetch bounded result | P05; retain request ID/attempt/signature verification and record provenance |
+| G05 | Query private refs and injected instructions in both directions; inspect synthetic private-store access and absence of canaries in Relay/peer | P05/P13; reverse hosted direction remains untested |
 | G06 | Replay same signed delivery after restart and submit same idempotency key with altered payload; prove durable claim/refusal and no duplicate effects | P08–P09; peer claims must be code-enforced, not model memory |
 | G07 | Revoke query grant, prove denial; explicitly grant again for distinct test then revoke/pause publication and prove denial with stale references | P04/P13; no accidental reuse of revoked state |
-| G08 | Create message-only grant, Codex→Sofie message, Sofie→Codex reply; preserve independent conversation/caller binding and signed peer receipt | P06; receiving reply requires peer receiver; `get` response alone is not bidirectional messaging proof |
+| G08 | Create message-only grant, peer→Sofie message, Sofie→peer reply; preserve independent conversation/caller binding and signed peer receipt | P06; receiving reply uses the independent MyEve receiver; `get` response alone is not bidirectional messaging proof |
 | G09 | Relay admits a locally prohibited work request; MyEve refuses before model/Run effects. Submit benign analysis, exact owner approval, then real gateway execution with measured cost and ≤1 model step | P07/P10; hard model cap required; no unrestricted chat/tool dispatch |
-| G10 | Transfer MyEve generated artifact to peer using exact audience proof; validate SHA-256/size/type. Transfer independently owned peer artifact back; test revocation/expiry | P11; outbound MyEve DB-backed artifact exists; reverse peer HTTPS/proof service remains missing |
+| G10 | Transfer MyEve generated artifact to peer using exact audience proof; validate SHA-256/size/type. Transfer independently owned peer artifact back; test revocation/expiry | P11; outbound MyEve DB-backed artifact exists; reverse peer source uses its own MyEve artifact route; deployment remains missing |
 | G11 | Kill/restart polling process before/after claim; interrupt completion response using operator-controlled network fault; recover durable result; reconcile uncertain state without retry | P08–P09/P15; real supervised process, no disposable hosting shim |
 | G12 | Rotate Agent credential, prove stable address and old-token denial, revoke new credential; execute controlled signer/wrapper recovery/rotation procedure and verify old signed evidence | P12; key-history/version limitations cannot be hidden or fixed by changing semantics |
 | G13 | Export signed owner-filtered Relay audit bundle through existing trusted operator service, import MyEve receipts, correlate local Run separately, measure envelope, retention, alerts, restore and cleanup | P13–P17; no new remote audit API; scan evidence for private/secret data |
 
-**Coverage limitation:** a requester-only Codex integration can exercise G04 and MyEve-side G09, but G03/G05/G06/G08/G10 in the peer-receiver direction remain blocked. G12 additionally depends on deployment crypto wiring and a workable unchanged-contract rotation procedure. This minimum path cannot close the production gate until all P01–P17 evidence requirements are covered.
+**Coverage limitation:** the selected peer reuses a full receiver in a separately operated MyEve installation. Its source supports the required boundaries, but hosted behavior, credentials, recovery and operator independence are not yet demonstrated. This is same-platform federation qualification, not Claude/Codex receiver certification. G12 still requires the unchanged single-active-key maintenance procedure. The hard budget remains missing; this document does not enforce it. All P01–P17 requirements remain mandatory.

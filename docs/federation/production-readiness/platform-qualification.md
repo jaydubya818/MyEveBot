@@ -1,8 +1,8 @@
 # Production Agent-platform qualification runbook
 
-Concrete target preparation is now in [deployment-target.md](deployment-target.md) and [qualification-session.md](qualification-session.md). Hosted project identities are known; synthetic isolation, crypto bindings, ingress and a real receiver remain unresolved. All P01–P17 results remain NOT_RUN.
+Concrete target preparation is now in [deployment-target.md](deployment-target.md) and [qualification-session.md](qualification-session.md). Hosted project identities are known; crypto/ingress candidates are locally qualified and a second MyEve installation supplies the receiver source. Hosted isolation, workers, budgets and smoke remain unresolved. All P01–P17 results remain NOT_RUN.
 
-Status: NOT_RUN. Codex CLI is the recommended real peer candidate; its complete receiver, isolated hosted target, access and operators remain prerequisites. Historical disposable Ava and qualification hosting shims are not production acceptance.
+Status: NOT_RUN. A second isolated MyEve installation is the selected peer; its independently operated hosted target, access, budget controls and operators remain prerequisites. This does not certify a Claude/Codex receiver. Historical disposable Ava and qualification hosting shims are not production acceptance.
 
 ## Required target record
 

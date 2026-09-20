@@ -1,0 +1,1 @@
+PASS: upgrade 0025 -> 0026 preserves action identity, receipt, binding and attempt; new recovery states accepted and unknown status rejected

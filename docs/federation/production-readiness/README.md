@@ -2,7 +2,7 @@
 
 Started 2026-09-20. **NO-GO — EXTERNAL QUALIFICATION PENDING.**
 
-Target-preparation update: authenticated hosting metadata now identifies both existing Vercel projects and an exact-pin MyEve preview. The smallest target reuses those projects with isolated configuration/data and an independent real Codex client. Production crypto bindings, ingress access and a complete peer receiver remain blockers. See [deployment topology and provisioning decisions](deployment-target.md), [budget and golden path](qualification-session.md), [independent assessor target](assessor-target.md), and [non-executable target manifest](target-manifest.json). No infrastructure or external test was executed.
+Deployment-blocker update: two focused source fixes are locally qualified and committed separately. The proposed peer is a second isolated MyEve installation with independent operation. No hosted target was created: database authorization, custody, worker hosting and enforceable budgets remain blockers. See [25-point closure report](deployment-blockers-report.md), [current topology](deployment-target.md) and [target manifest](target-manifest.json). Frozen pins remain unchanged; both external gates remain NOT_RUN.
 
 This plan covers only independent security review/penetration testing and production Agent-platform qualification. No federation features, protocol extensions, rollout, or default enablement are included. MyEve's historical PR review and disposable live qualification remain valid within their recorded scope; neither closes these gates.
 
@@ -23,7 +23,7 @@ This plan covers only independent security review/penetration testing and produc
 | 3. Prepare independent assessment | Readiness coordinator | Source map, adversarial cases, rules of engagement, report requirements | COMPLETE: security-review.md |
 | 4. Assign reviewer and authorize concrete targets | Product owner + independent assessor | Named assessor independent of implementation, target list, test window, limits, credentials via secret store | BLOCKED: identities and targets not supplied |
 | 5. Execute independent review and penetration test | Independent assessor | Review plus deployed black/gray-box evidence, findings and signed conclusion | NOT_RUN |
-| 6. Prepare production qualification | Readiness coordinator + platform operator | Actual deployment/version matrix, scenario checklist, cleanup and rollback | PREPARED: deployment-target.md and qualification-session.md; target not provisioned |
+| 6. Prepare production qualification | Readiness coordinator + platform operator | Actual deployment/version matrix, scenario checklist, cleanup and rollback | PREPARED: deployment-target.md and qualification-session.md; target not provisioned; local source fixes recorded in deployment-blockers-report.md |
 | 7. Execute production qualification | MyEve, Relay and peer operators | All platform scenarios demonstrated on actual deployment stack with synthetic accounts | NOT_RUN |
 | 8. Retest and decide readiness | Assessor + operators + product owner | Findings closure, matching tested SHAs/config, two explicit gate signoffs | NOT_RUN; NO-GO |
 

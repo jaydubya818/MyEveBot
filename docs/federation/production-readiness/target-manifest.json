@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "PREPARED_NOT_PROVISIONED",
-  "verdict": "NO-GO — EXTERNAL QUALIFICATION PENDING",
+  "status": "LOCAL_FIXES_QUALIFIED_HOSTED_TARGET_BLOCKED",
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
   "productionPlatformGate": "NOT_RUN",
@@ -14,7 +14,12 @@
     "myeve": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
     "relay": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK"
   },
-  "candidatePeer": {"product": "Codex CLI", "version": "0.153.3", "role": "requester; receiver prerequisite unresolved"},
+  "candidatePeer": {
+    "product": "MyEve isolated second installation",
+    "version": "767b585e0d910136fef8eb421933e34a5bc8b601",
+    "role": "Full existing receiver, separately operated; deployment pending",
+    "heterogeneousVendorCertification": false
+  },
   "target": {
     "myeveQualificationDeploymentId": null,
     "myeveQualificationOrigin": null,
@@ -22,11 +27,20 @@
     "relayQualificationOrigin": null,
     "peerReceiverVersion": null,
     "peerArtifactOrigin": null,
-    "cryptoBootstrapRevision": null,
+    "cryptoBootstrapRevision": "bbfcaa18710556fc689f60990599f4734e99a720",
     "independentAssessor": null,
     "operator": null,
     "authorizationRecord": null,
-    "secretReferenceRecord": null
+    "secretReferenceRecord": null,
+    "peerQualificationDeploymentId": null,
+    "peerQualificationOrigin": null,
+    "peerOperator": null,
+    "workerIdentity": null,
+    "databaseIdentityRecord": null,
+    "telemetryLocation": null,
+    "stopContact": null,
+    "testWindow": null,
+    "budgetEnforcementReference": null
   },
   "budget": {
     "durationMinutes": 60,
@@ -46,16 +60,21 @@
     "delegatedWorkers": 0,
     "artifactBytes": 65536,
     "totalArtifactBytes": 524288,
-    "requestLifetimeSeconds": 900
+    "requestLifetimeSeconds": 900,
+    "enforcementStatus": "NOT_IMPLEMENTED_OR_PROVEN; all hosted/model execution blocked"
   },
   "blockers": [
-    "Isolated empty databases and branch secrets unverified",
-    "Pinned Relay hosted target unverified",
-    "Relay production cryptographic startup bindings missing in inspected source",
-    "Ingress compatible with unmodified MyEve client unresolved",
-    "Hosted worker supervisor and key custody not identified",
-    "Real peer receiver, durable replay store and artifact source not identified",
-    "Hard request/spend/watchdog controls not provisioned",
-    "Independent assessor and operator authorization pending"
-  ]
+    "Explicit owner authorization for three empty hosted Neon databases and restricted roles (automatic approval review rejected creation)",
+    "Approve exportable runtime-key custody or provide existing compatible KMS/HSM",
+    "Isolated branch environments and three immutable hosted deployments not created",
+    "Existing worker host or approved scope/spend not supplied",
+    "Hard aggregate request/concurrency/model-spend/artifact/time enforcement missing",
+    "Hosted isolation, ingress, recovery and emergency-stop smoke NOT_RUN",
+    "Independent assessor/operator names, stop contact and test window pending"
+  ],
+  "proposedSuccessors": {
+    "myeve": "767b585e0d910136fef8eb421933e34a5bc8b601",
+    "relay": "bbfcaa18710556fc689f60990599f4734e99a720",
+    "status": "Local regression qualified; not deployed, independently reviewed or promoted to frozen pins"
+  }
 }

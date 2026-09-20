@@ -1,0 +1,1 @@
+{"scope":"local production build; not a hosted qualification","cryptoStartup":"PASSED","agentAuthenticationStillRequired":true,"secretLogging":"not observed"}
