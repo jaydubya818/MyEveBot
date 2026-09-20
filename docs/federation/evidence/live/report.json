@@ -1,0 +1,259 @@
+{
+  "startedAt": "2026-09-19T16:51:29.871Z",
+  "myeveBase": "74fee5b1fdc8ec7c705a9087d9bdf58992b8f27c",
+  "relayCommit": "614c638d6fc4099db8064540326f5de4438e93a1",
+  "hosting": "Real MyEve repositories, owner API and Task/ActionGateway over qualification HTTPS host and local PostgreSQL/Neon HTTP proxy. Unmodified Relay Agent REST handler; owner hosting shim calls real auth/registry services. No Next production deployment claim.",
+  "checks": [
+    {
+      "name": "MyEve and Relay persist in separate containers with independent database credentials",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "MyEve owner registers real local Sofie through authenticated Relay connection",
+      "status": "PASSED_LIVE",
+      "address": "relay://acct_9f5936e86d98465190c44d64f8176012/agt_7660351d4567421489410433a74f6b85",
+      "localAgentId": "agent_9069a813-756b-4652-b80f-5889638633ed"
+    },
+    {
+      "name": "Ava is an independent owner, Agent, credential, process, and private store",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Explicit exact-record preview excludes private data and private sources",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Denied knowledge query never reaches MyEve publisher",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Signed network knowledge retrieval uses only published projection with provenance",
+      "status": "PASSED_LIVE",
+      "projectionReadCount": 2
+    },
+    {
+      "name": "Private/prompt-injection attack 1 remains within confirmed records",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Private/prompt-injection attack 2 remains within confirmed records",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Private/prompt-injection attack 3 remains within confirmed records",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Omitted visibility remains PRIVATE despite a Relay grant",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "UNLISTED projection requires explicit audience and grant",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Paused publication prevents future retrieval",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Forged caller identity rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Grant revocation blocks future retrieval",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Messaging requires a separate grant",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Forged Relay signature fails closed",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Signed wrong owner rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Signed wrong Agent rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Signed expired request rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Signed wrong audience rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Durable claim resumes after restart before execution CAS",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Duplicate signed message delivery does not execute twice",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "MyEve authenticated reply preserves conversation",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Received external knowledge stays sourced context, never canonical MyEve Knowledge",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Source-owned artifact retrieved with signature, audience and checksum",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Relay authorizes request; MyEve independently refuses email execution",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "MyEve requires independent exact-action approval",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Lost completion response leaves durable MyEve result for acknowledgement recovery",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Full model output survives bounded ActionGateway receipt without truncation",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Safe work executes through real MyEve Task, ActionGateway, Agent and model",
+      "status": "PASSED_LIVE",
+      "requestId": "frq_635b13c1487f408f8d3a45d93c4db169",
+      "runId": "task_e1c329f3-5071-4e75-add0-56ca12bbab14",
+      "providerReceipts": [
+        "aitxt-QgNZGB8EptjFrET3cHWVIx7B"
+      ],
+      "cost": "0.006468"
+    },
+    {
+      "name": "Real MyEve result artifact returns by authorized expiring source retrieval",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Source artifact refuses absent recipient proof",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "MyEve and Relay restart recover offline delivery and acknowledgement without duplicate model execution",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Credential rotation preserves address and invalidates prior Agent credential",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Signed Relay disclosures and denials are visible in MyEve",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Publication revocation denies all future retrieval",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Oversized network request rejected",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Relay network rate limit enforced",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "All five canonical private MyEve domains inspected and retained locally",
+      "status": "PASSED_LIVE",
+      "domains": {
+        "knowledge": {
+          "present": true,
+          "sha256": "feff5117137853872bce0c9458524bff19da04670dcca664b872fc5687b06027"
+        },
+        "memory": {
+          "present": true,
+          "sha256": "52f6ecfb307bcb1b8dad39088f1028abfad3b38fd2c14f2ba7ab314a5760eb79"
+        },
+        "goal": {
+          "present": true,
+          "sha256": "f3e528352a07f2d2302f5b1345f13d0b99d2ade12fd3b4b903fef20dabdd1147"
+        },
+        "conversation": {
+          "present": true,
+          "sha256": "76cc4d83bf1eeb0e829c299281b450b7a6c0cda8576d13aa358a7bd21a67a99e"
+        },
+        "workspace": {
+          "present": true,
+          "sha256": "262e69f24025a4213eee0be4e91624657dce20649e38c587d67ad94d1b882970"
+        }
+      }
+    },
+    {
+      "name": "Relay persistence and decrypted delivery contain no canonical private MyEve data or local Run state",
+      "status": "PASSED_LIVE",
+      "relayTablesInspected": 94,
+      "decryptedPayloadsAndResults": 24,
+      "privateDomains": [
+        "Knowledge",
+        "Memory",
+        "Goals",
+        "conversations",
+        "Workspace"
+      ],
+      "localRunRetainedInMyEve": true
+    },
+    {
+      "name": "Ava private store remains independent and unread",
+      "status": "PASSED_LIVE"
+    },
+    {
+      "name": "Revoked MyEve Agent credential prevents subsequent operation",
+      "status": "PASSED_LIVE"
+    }
+  ],
+  "persistenceDomains": {
+    "relay": {
+      "container": "myeve-relay-db-a16121dc",
+      "database": "relay"
+    },
+    "myeve": {
+      "container": "myeve-private-db-a16121dc",
+      "database": "myeve"
+    },
+    "ava": {
+      "container": "myeve-relay-ava-a16121dc",
+      "store": "private platform volume"
+    },
+    "sharedPrivateStorage": false,
+    "sharedDatabaseAuthentication": false
+  },
+  "verdict": "MYEVE FEDERATION PASSED_LIVE",
+  "cleanup": {
+    "containersCreated": 3,
+    "containersRemoved": 3,
+    "credentialsAndKeysDestroyed": true
+  },
+  "finishedAt": "2026-09-19T16:51:46.862Z",
+  "implementationCommit": "2f41e52979b1056f339f217e40ae48f884aa1c18",
+  "automatedQualification": {
+    "nodeTests": 130,
+    "vitestTests": 437,
+    "adapterTestsIncludedInVitest": 35,
+    "relayCompatibilityTests": 17,
+    "workspaceBuilds": 2,
+    "workspaceTypechecks": 2,
+    "migrations": 25
+  },
+  "productionMultiPlatform": "NOT_RUN",
+  "independentSecurityReview": "NOT_RUN",
+  "canonicalDrift": {
+    "observedHead": "81979b6d367776366e930278fdad897d63956fc5",
+    "dirty": true,
+    "tested": false,
+    "touchedByThisMission": false,
+    "mergePrerequisite": "Rebase onto settled frontier, renumber colliding 0025 migration, requalify newer authority paths"
+  }
+}

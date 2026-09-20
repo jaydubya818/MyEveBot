@@ -1,0 +1,27 @@
+
+> eveclaw@0.0.0 db:migrations:check
+> npm run db:migrations:check --workspace=eve-agent
+
+
+> eve-agent@0.0.0 db:migrations:check
+> node scripts/migrate-database.ts --check
+
+file:///Users/jaywest/Documents/ChatGPT/New%20project/myeve-relay-federation/apps/eve/scripts/migrate-database.ts:33
+      if (versions.has(version)) throw new Error(`Duplicate migration version '${version}'.`);
+                                       ^
+
+Error: Duplicate migration version '0025'.
+    at file:///Users/jaywest/Documents/ChatGPT/New%20project/myeve-relay-federation/apps/eve/scripts/migrate-database.ts:33:40
+    at Array.map (<anonymous>)
+    at loadMigrations (file:///Users/jaywest/Documents/ChatGPT/New%20project/myeve-relay-federation/apps/eve/scripts/migrate-database.ts:28:11)
+    at async main (file:///Users/jaywest/Documents/ChatGPT/New%20project/myeve-relay-federation/apps/eve/scripts/migrate-database.ts:52:22)
+    at async file:///Users/jaywest/Documents/ChatGPT/New%20project/myeve-relay-federation/apps/eve/scripts/migrate-database.ts:100:1
+
+Node.js v24.18.1
+npm error Lifecycle script `db:migrations:check` failed with error:
+npm error code 1
+npm error path /Users/jaywest/Documents/ChatGPT/New project/myeve-relay-federation/apps/eve
+npm error workspace eve-agent@0.0.0
+npm error location /Users/jaywest/Documents/ChatGPT/New project/myeve-relay-federation/apps/eve
+npm error command failed
+npm error command sh -c node scripts/migrate-database.ts --check
