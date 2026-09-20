@@ -11,6 +11,12 @@ export class Controller {
  constructor(authority,{principals,routes,request=fetch,model,ingressSecrets={}}) {
   this.authority=authority;this.principals=structuredClone(principals);this.routes=structuredClone(routes);this.request=request;this.model=model;this.ingressSecrets={...ingressSecrets};
   if(Object.values(principals).some(p=>!/^[a-f0-9]{64}$/.test(p.credentialHash)||!['worker','origin','operator'].includes(p.role)))throw Error('Invalid principals');
+  if(new Set(Object.values(principals).map(p=>p.credentialHash)).size!==Object.keys(principals).length)throw Error('Distinct principal credentials required');
+  for(const p of Object.values(principals)){
+   if(p.role==='worker'&&(!/^[a-f0-9]{40}$/.test(p.sha??'')||!['myeve','peer','relay'].includes(p.component)))throw Error('Pinned worker required');
+   if(p.role==='origin'&&principals[p.worker]?.role!=='worker')throw Error('Origin worker binding required');
+   if(p.ownerId!==undefined&&!/^fq[-_][A-Za-z0-9_-]+$/.test(p.ownerId))throw Error('Synthetic owner required');
+  }
   for(const route of Object.values(routes)){const u=new URL(route.url);if(u.protocol!=='https:'||u.username||u.password||u.hash||(!route.provider&&(!principals[route.origin]||principals[route.origin].role!=='origin')))throw Error('Invalid origin');}
  }
  authenticate(bearer){
