@@ -88,7 +88,7 @@ try {
   started = true;
   for (let i = 0; i < 80; i++) {
     try {
-      docker("exec", name, "pg_isready", "-U", user);
+      docker("exec", name, "pg_isready", "-h", "127.0.0.1", "-U", user);
       break;
     } catch {
       await new Promise((r) => setTimeout(r, 250));
