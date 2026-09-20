@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "status": "PREPARED_NOT_PROVISIONED",
+  "verdict": "NO-GO — EXTERNAL QUALIFICATION PENDING",
+  "executionAuthorized": false,
+  "independentSecurityGate": "NOT_RUN",
+  "productionPlatformGate": "NOT_RUN",
+  "implementationMayPassSecurityGate": false,
+  "pins": {
+    "myeve": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+    "relay": "614c638d6fc4099db8064540326f5de4438e93a1"
+  },
+  "reusableProjects": {
+    "myeve": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+    "relay": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK"
+  },
+  "candidatePeer": {"product": "Codex CLI", "version": "0.153.3", "role": "requester; receiver prerequisite unresolved"},
+  "target": {
+    "myeveQualificationDeploymentId": null,
+    "myeveQualificationOrigin": null,
+    "relayQualificationDeploymentId": null,
+    "relayQualificationOrigin": null,
+    "peerReceiverVersion": null,
+    "peerArtifactOrigin": null,
+    "cryptoBootstrapRevision": null,
+    "independentAssessor": null,
+    "operator": null,
+    "authorizationRecord": null,
+    "secretReferenceRecord": null
+  },
+  "budget": {
+    "durationMinutes": 60,
+    "activeMinutes": 45,
+    "submissions": 120,
+    "httpRequestsIncludingRetries": 2000,
+    "requestsPerSecond": 2,
+    "httpConcurrency": 2,
+    "modelConcurrency": 1,
+    "totalModelUsd": "5.00",
+    "myeveModelUsd": "2.00",
+    "peerModelUsd": "3.00",
+    "myeveModelCalls": 8,
+    "perWorkUsd": "0.25",
+    "perWorkSeconds": 60,
+    "modelSteps": 1,
+    "delegatedWorkers": 0,
+    "artifactBytes": 65536,
+    "totalArtifactBytes": 524288,
+    "requestLifetimeSeconds": 900
+  },
+  "blockers": [
+    "Isolated empty databases and branch secrets unverified",
+    "Pinned Relay hosted target unverified",
+    "Relay production cryptographic startup bindings missing in inspected source",
+    "Ingress compatible with unmodified MyEve client unresolved",
+    "Hosted worker supervisor and key custody not identified",
+    "Real peer receiver, durable replay store and artifact source not identified",
+    "Hard request/spend/watchdog controls not provisioned",
+    "Independent assessor and operator authorization pending"
+  ]
+}

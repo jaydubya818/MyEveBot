@@ -1,5 +1,7 @@
 # Independent security review and penetration-test package
 
+The frozen target handoff is prepared in [assessor-target.md](assessor-target.md). No assessor has been contacted and no adversarial test executed; implementation cannot mark this gate PASS.
+
 Status: PREPARED, NOT EXECUTED by an independent assessor. See README for immutable pins and closure rules. This package is scoped to federation and its authority dependencies, not a certification of all MyEve or Relay.
 
 ## Reviewer handoff

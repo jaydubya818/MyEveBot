@@ -1,6 +1,8 @@
 # Production Agent-platform qualification runbook
 
-Status: NOT_RUN. Actual production platform, deployment access and operators have not been identified. Historical disposable Ava and qualification hosting shims are not production acceptance.
+Concrete target preparation is now in [deployment-target.md](deployment-target.md) and [qualification-session.md](qualification-session.md). Hosted project identities are known; synthetic isolation, crypto bindings, ingress and a real receiver remain unresolved. All P01–P17 results remain NOT_RUN.
+
+Status: NOT_RUN. Codex CLI is the recommended real peer candidate; its complete receiver, isolated hosted target, access and operators remain prerequisites. Historical disposable Ava and qualification hosting shims are not production acceptance.
 
 ## Required target record
 

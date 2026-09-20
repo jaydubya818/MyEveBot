@@ -38,3 +38,12 @@ The product owner has been asked to identify the independent assessor and actual
 Known review targets include signing-key history/recovery, production egress/DNS isolation, retention during idle/offline operation, actual model cancellation and deployment-scale concurrency. These are unqualified boundaries, not newly proven vulnerabilities. No security fixes or federation features were introduced.
 
 Federation remains disabled by default in the unchanged source. General production enablement remains prohibited pending both gate signoffs and a separate explicit rollout decision.
+
+
+## Target-preparation continuation
+
+Read-only authenticated Vercel metadata inspected both projects, deployments, domains, environment names/scopes and the known Relay Neon resource. Sanitized local client configuration and installed CLI versions were inspected without retrieving credentials into output. No hosted application/private data was read, no database migrated, no infrastructure provisioned, and no golden-path/adversarial requests sent. Source analysis identified deployment-wide flags, single-owner MyEve authentication, Relay's absent production bindings initializer and the difference between real CLI MCP connectivity and a complete receiving platform.
+
+Prepared deployment topology, resource/configuration matrix, synthetic identity plan, strict session budget/envelopes, G01–G13 mapping to all existing P01–P17 requirements, independent assessor handoff, disabled Codex configuration and non-executable target manifest. The read-only inventory collector is the only executable infrastructure scaffold. Earlier 48/25 local test results are historical within this task and were not rerun or relabeled as hosted evidence. Documentation links, JSON/TOML/Python syntax, inventory redaction and unchanged product source are checked for this continuation.
+
+Final status: **NO-GO — EXTERNAL QUALIFICATION PENDING.** Stop pending the numbered owner/operator actions in deployment-target.md; neither gate is passed.
