@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "HOSTED_TARGET_INCOMPLETE_CUSTODY_CONTRACT_STOP",
+  "status": "HOSTED_TARGET_INCOMPLETE_KMS_AND_RUNTIME_CONTROLS",
   "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
@@ -31,7 +31,7 @@
     "independentAssessor": null,
     "operator": null,
     "authorizationRecord": null,
-    "secretReferenceRecord": null,
+    "secretReferenceRecord": "evidence/kms-preparation/secret-status.json",
     "peerQualificationDeploymentId": null,
     "peerQualificationOrigin": null,
     "peerOperator": null,
@@ -40,7 +40,7 @@
     "telemetryLocation": null,
     "stopContact": null,
     "testWindow": null,
-    "budgetEnforcementReference": null
+    "budgetEnforcementReference": "../../../scripts/federation-readiness/controls/README.md"
   },
   "budget": {
     "durationMinutes": 60,
@@ -61,14 +61,14 @@
     "artifactBytes": 65536,
     "totalArtifactBytes": 524288,
     "requestLifetimeSeconds": 900,
-    "enforcementStatus": "NOT_IMPLEMENTED_OR_PROVEN; STOP before hosted construction"
+    "enforcementStatus": "LOCAL_CONTROLLER_TESTED; HOSTED_ADAPTERS_AND_MODEL_HARD_LIABILITY_NOT_VERIFIED"
   },
   "blockers": [
-    "Existing Relay hosted signing/wrapping contract requires KMS/HSM; user instructed STOP rather than weaken it",
-    "Automatic approval review rejected credential upload to exact Vercel project destinations; no upload occurred",
-    "No hosted apps, workers or operational smoke; exact deployment IDs/regions remain unset",
-    "Hard qualification-budget enforcement remains missing",
-    "Independent assessor/operator identities, stop contact and window remain pending"
+    "No compliant hosted KMS resource; GCP candidate requires owner-designated billing/project, size compatibility and isolated workload identity before paid provisioning",
+    "Existing single-signer production binding does not yet satisfy documented purpose separation and historical key lifecycle",
+    "Hosted ingress/model/artifact/worker admission adapters and hard provider liability bound are not verified",
+    "No executable hosted qualification apps, worker services or operational smoke; inert disabled branch slots only",
+    "Independent assessor, operators, stop contact and test window remain pending"
   ],
   "proposedSuccessors": {
     "myeve": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
@@ -77,7 +77,7 @@
   },
   "authorization": {
     "infrastructure": "Explicitly authorized by owner, within existing/free capacity",
-    "managedRuntimeSecrets": "Authorized conditionally; existing KMS/HSM contract triggers STOP",
+    "managedRuntimeSecrets": "Explicitly authorized for synthetic-only exact project/branch scopes; 78 sensitive entries stored; no signing private keys",
     "externalGates": "NOT_AUTHORIZED",
     "generalEnablement": false
   },
@@ -97,8 +97,8 @@
       "existingSecurityDefinerPrivileges": 0,
       "existingSchemaCreatePrivileges": 0,
       "migrations": 27,
-      "runtimeLogin": "REVOKED",
-      "runtimePassword": "CLEARED",
+      "runtimeLogin": "NOLOGIN_VERIFIED",
+      "runtimePassword": "ROTATED_IN_MANAGED_BRANCH_STORE; LOGIN_DISABLED",
       "emptyAtCreation": true
     },
     {
@@ -116,8 +116,8 @@
       "existingSecurityDefinerPrivileges": 0,
       "existingSchemaCreatePrivileges": 0,
       "migrations": 27,
-      "runtimeLogin": "REVOKED",
-      "runtimePassword": "CLEARED",
+      "runtimeLogin": "NOLOGIN_VERIFIED",
+      "runtimePassword": "ROTATED_IN_MANAGED_BRANCH_STORE; LOGIN_DISABLED",
       "emptyAtCreation": true
     },
     {
@@ -135,21 +135,89 @@
       "existingSecurityDefinerPrivileges": 0,
       "existingSchemaCreatePrivileges": 0,
       "migrations": 22,
-      "runtimeLogin": "REVOKED",
-      "runtimePassword": "CLEARED",
+      "runtimeLogin": "NOLOGIN_VERIFIED",
+      "runtimePassword": "ROTATED_IN_MANAGED_BRANCH_STORE; LOGIN_DISABLED",
       "emptyAtCreation": true
     }
   ],
   "custody": {
-    "requested": "MANAGED RUNTIME SECRETS",
-    "state": "BLOCKED_BY_EXISTING_KMS_HSM_CONTRACT",
+    "requested": "KMS/HSM-backed hosted signing; synthetic application credentials in authorized Vercel branch stores",
+    "state": "PROVIDER_RECOMMENDATION_PENDING_COMPATIBILITY_AND_PAID_RESOURCE_AUTHORIZATION",
     "requiredBy": [
       "Relay docs/v2/evidence.md:9",
       "Relay docs/v2/evidence.md:17",
       "Relay docs/v2/security/security-architecture.md:112"
     ],
     "signingKeysGenerated": false,
-    "managedSecretsInstalled": false,
-    "kmsHsmPurchased": false
-  }
+    "managedSecretsInstalled": true,
+    "kmsHsmPurchased": false,
+    "signingSecretsInstalled": false,
+    "candidateProvider": "Google Cloud KMS SOFTWARE EC_SIGN_ED25519; not provisioned or qualified"
+  },
+  "preparationProofs": {
+    "hostedKms": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "purposeSeparatedKeys": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "versionedVerification": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "isolatedWorkloadIdentity": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "ingressAdmission": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "modelHardLiability": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "workerAdmission": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "artifactAdmission": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "outOfBandStop": {
+      "status": "NOT_VERIFIED",
+      "evidence": null
+    },
+    "syntheticEnvironmentIsolation": {
+      "status": "PARTIAL_METADATA_VERIFIED_NO_APP_DEPLOYED",
+      "evidence": "evidence/kms-preparation/hosting-verification.json"
+    }
+  },
+  "preparationReport": "kms-preparation-report.md",
+  "branchSlots": [
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-a-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "MyEveBot",
+      "branch": "codex/fq-b-6384519e0e01",
+      "commit": "d292edca5842530f1ae310e4ac3cf563f8e9d259",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    },
+    {
+      "repository": "relay",
+      "branch": "codex/fq-relay-6384519e0e01",
+      "commit": "73d9104fbe8a2c102258dc593ce61d0f23d9254f",
+      "productCode": false,
+      "gitDeploymentEnabled": false
+    }
+  ]
 }

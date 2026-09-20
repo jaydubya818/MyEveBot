@@ -1,3 +1,5 @@
+> Current preparation: [KMS and isolated credential report](kms-preparation-report.md). Synthetic Vercel secrets are staged on disabled branches; KMS and hosted controls remain incomplete. Both external gates are NOT_RUN. Earlier status below is historical where superseded.
+
 # MyEve Federation Production Readiness
 
 Started 2026-09-20. **NO-GO — EXTERNAL QUALIFICATION PENDING.**

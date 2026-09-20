@@ -1,3 +1,5 @@
+> Current preparation: [KMS and isolated credential report](kms-preparation-report.md). Synthetic Vercel secrets are staged on disabled branches; KMS and hosted controls remain incomplete. Both external gates are NOT_RUN. Earlier status below is historical where superseded.
+
 > Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
 
 # Qualification deployment target — blocker-closure update

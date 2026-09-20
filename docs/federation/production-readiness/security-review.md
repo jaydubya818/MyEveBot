@@ -1,3 +1,5 @@
+> Current preparation: [KMS and isolated credential report](kms-preparation-report.md). Synthetic Vercel secrets are staged on disabled branches; KMS and hosted controls remain incomplete. Both external gates are NOT_RUN. Earlier status below is historical where superseded.
+
 # Independent security review and penetration-test package
 
 The frozen target handoff is prepared in [assessor-target.md](assessor-target.md). No assessor has been contacted and no adversarial test executed; implementation cannot mark this gate PASS.
