@@ -2472,7 +2472,7 @@
     "lib/vnc-relay.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "fa5836428f5563d4892da365eb3074428c3c8d4458b235af48f0efd74cd69857"
+      "sha256": "2b5c2c8ffb641916e3b53a38517fd6853c0bf5535c5f6c45744be6c8be1e549d"
     },
     "lib/voice/attachments.ts": {
       "classification": "INTERNAL",
