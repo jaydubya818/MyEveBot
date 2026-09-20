@@ -1,3 +1,5 @@
+> Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
+
 # Production Agent-platform qualification runbook
 
 Concrete target preparation is now in [deployment-target.md](deployment-target.md) and [qualification-session.md](qualification-session.md). Hosted project identities are known; crypto/ingress candidates are locally qualified and a second MyEve installation supplies the receiver source. Hosted isolation, workers, budgets and smoke remain unresolved. All P01–P17 results remain NOT_RUN.

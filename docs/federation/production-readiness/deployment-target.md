@@ -1,3 +1,5 @@
+> Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
+
 # Qualification deployment target — blocker-closure update
 
 **NO-GO — EXTERNAL QUALIFICATION PENDING. Both gates NOT_RUN.** Local source fixes exist; there is no executable three-party hosted target. No hosted infrastructure, credential, account, domain or flag was changed. The frozen pins remain MyEve `60d341f9909936f03e4d72e1a7f845721ef82c46` and Relay `614c638d6fc4099db8064540326f5de4438e93a1`. Proposed successors and exact regression results are in [the closure report](deployment-blockers-report.md).

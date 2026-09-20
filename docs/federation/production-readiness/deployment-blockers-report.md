@@ -1,3 +1,5 @@
+> Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
+
 # Deployment-blocker closure report — 2026-09-20
 
 **NO-GO — EXTERNAL QUALIFICATION PENDING.** Implementation improved; target creation did not complete. No external infrastructure was created, no target enabled, no independent assessor engaged, and neither external gate executed. Hard budget enforcement is still missing, not merely awaiting a signature.

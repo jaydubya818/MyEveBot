@@ -1,3 +1,5 @@
+> Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
+
 # Synthetic qualification session contract
 
 **PREPARED ONLY. Neither external gate has been executed.** This contract supplements every P01–P17 requirement in [platform-qualification.md](platform-qualification.md), not a reduced gate. Use the [deployment target](deployment-target.md) and [target manifest](target-manifest.json); blank target/authorization fields are stop conditions.

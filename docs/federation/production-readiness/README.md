@@ -2,7 +2,7 @@
 
 Started 2026-09-20. **NO-GO — EXTERNAL QUALIFICATION PENDING.**
 
-Deployment-blocker update: two focused source fixes are locally qualified and committed separately. The proposed peer is a second isolated MyEve installation with independent operation. No hosted target was created: database authorization, custody, worker hosting and enforceable budgets remain blockers. See [25-point closure report](deployment-blockers-report.md), [current topology](deployment-target.md) and [target manifest](target-manifest.json). Frozen pins remain unchanged; both external gates remain NOT_RUN.
+Authorized-target update: three empty Neon databases were created in existing free resources and migrated (MyEve27 each; Relay22). A hosted Neon migration defect was fixed and requalified separately. All temporary database credentials are revoked. Construction stopped because the existing Relay security contract mandates KMS/HSM for hosted signing/wrapping, triggering the owner's explicit stop condition. Vercel secret upload was also rejected by automatic approval review. No app or worker was deployed; hard budgets remain missing. See the [26-point authorized target report](authorized-target-report.md). **HOSTED TARGET INCOMPLETE; both gates NOT_RUN.**
 
 This plan covers only independent security review/penetration testing and production Agent-platform qualification. No federation features, protocol extensions, rollout, or default enablement are included. MyEve's historical PR review and disposable live qualification remain valid within their recorded scope; neither closes these gates.
 

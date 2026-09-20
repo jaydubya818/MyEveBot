@@ -1,3 +1,5 @@
+> Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
+
 # Frozen independent assessment target — prepared, not dispatched
 
 Status: TARGET_NOT_READY. The implementation coordinator cannot set the security gate to PASS. No assessor was launched or contacted, and no adversarial requests were sent.

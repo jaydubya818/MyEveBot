@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "LOCAL_FIXES_QUALIFIED_HOSTED_TARGET_BLOCKED",
+  "status": "HOSTED_TARGET_INCOMPLETE_CUSTODY_CONTRACT_STOP",
   "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
@@ -16,7 +16,7 @@
   },
   "candidatePeer": {
     "product": "MyEve isolated second installation",
-    "version": "767b585e0d910136fef8eb421933e34a5bc8b601",
+    "version": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
     "role": "Full existing receiver, separately operated; deployment pending",
     "heterogeneousVendorCertification": false
   },
@@ -36,7 +36,7 @@
     "peerQualificationOrigin": null,
     "peerOperator": null,
     "workerIdentity": null,
-    "databaseIdentityRecord": null,
+    "databaseIdentityRecord": "evidence/authorized-target/provisioning.json",
     "telemetryLocation": null,
     "stopContact": null,
     "testWindow": null,
@@ -61,20 +61,95 @@
     "artifactBytes": 65536,
     "totalArtifactBytes": 524288,
     "requestLifetimeSeconds": 900,
-    "enforcementStatus": "NOT_IMPLEMENTED_OR_PROVEN; all hosted/model execution blocked"
+    "enforcementStatus": "NOT_IMPLEMENTED_OR_PROVEN; STOP before hosted construction"
   },
   "blockers": [
-    "Explicit owner authorization for three empty hosted Neon databases and restricted roles (automatic approval review rejected creation)",
-    "Approve exportable runtime-key custody or provide existing compatible KMS/HSM",
-    "Isolated branch environments and three immutable hosted deployments not created",
-    "Existing worker host or approved scope/spend not supplied",
-    "Hard aggregate request/concurrency/model-spend/artifact/time enforcement missing",
-    "Hosted isolation, ingress, recovery and emergency-stop smoke NOT_RUN",
-    "Independent assessor/operator names, stop contact and test window pending"
+    "Existing Relay hosted signing/wrapping contract requires KMS/HSM; user instructed STOP rather than weaken it",
+    "Automatic approval review rejected credential upload to exact Vercel project destinations; no upload occurred",
+    "No hosted apps, workers or operational smoke; exact deployment IDs/regions remain unset",
+    "Hard qualification-budget enforcement remains missing",
+    "Independent assessor/operator identities, stop contact and window remain pending"
   ],
   "proposedSuccessors": {
-    "myeve": "767b585e0d910136fef8eb421933e34a5bc8b601",
+    "myeve": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
     "relay": "bbfcaa18710556fc689f60990599f4734e99a720",
-    "status": "Local regression qualified; not deployed, independently reviewed or promoted to frozen pins"
+    "status": "MyEve migration correction locally requalified and used on isolated hosted schemas; no apps deployed or frozen pins promoted"
+  },
+  "authorization": {
+    "infrastructure": "Explicitly authorized by owner, within existing/free capacity",
+    "managedRuntimeSecrets": "Authorized conditionally; existing KMS/HSM contract triggers STOP",
+    "externalGates": "NOT_AUTHORIZED",
+    "generalEnablement": false
+  },
+  "provisionedDatabases": [
+    {
+      "component": "myeve",
+      "database": "fq_myeve_6384519e0e01",
+      "applicationRole": "fq_myeve_6384519e0e01_app",
+      "ownerRole": "fq_myeve_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": 27,
+      "runtimeLogin": "REVOKED",
+      "runtimePassword": "CLEARED",
+      "emptyAtCreation": true
+    },
+    {
+      "component": "peer",
+      "database": "fq_peer_6384519e0e01",
+      "applicationRole": "fq_peer_6384519e0e01_app",
+      "ownerRole": "fq_peer_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": 27,
+      "runtimeLogin": "REVOKED",
+      "runtimePassword": "CLEARED",
+      "emptyAtCreation": true
+    },
+    {
+      "component": "relay",
+      "database": "fq_relay_6384519e0e01",
+      "applicationRole": "fq_relay_6384519e0e01_app",
+      "ownerRole": "fq_relay_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "d06cf587dcbd47c15ae3ff66d4ccd56c79f643ebc05c25919378b4abfe43274d",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": 22,
+      "runtimeLogin": "REVOKED",
+      "runtimePassword": "CLEARED",
+      "emptyAtCreation": true
+    }
+  ],
+  "custody": {
+    "requested": "MANAGED RUNTIME SECRETS",
+    "state": "BLOCKED_BY_EXISTING_KMS_HSM_CONTRACT",
+    "requiredBy": [
+      "Relay docs/v2/evidence.md:9",
+      "Relay docs/v2/evidence.md:17",
+      "Relay docs/v2/security/security-architecture.md:112"
+    ],
+    "signingKeysGenerated": false,
+    "managedSecretsInstalled": false,
+    "kmsHsmPurchased": false
   }
 }

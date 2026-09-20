@@ -1,3 +1,5 @@
+> Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.
+
 > Historical initial preparation report. Current implementation/provisioning status is in [deployment-blockers-report.md](deployment-blockers-report.md); source pins below remain frozen. Neither external gate has run.
 
 # Readiness execution report — 2026-09-20

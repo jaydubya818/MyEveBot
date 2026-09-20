@@ -1,0 +1,6 @@
+PASS: executor bypass=0; exact approval; changed recipient/account; expired approval; one-use handles; provider receipt crash recovery without resend; OWNER/stale controller fence; file checksum; old occurrence version; mid-run agent revocation
+PASS: recovery owner isolation, receipt loss, provider inspection before retry, success without resend, definite failure with fresh approval, indeterminate Needs You, recovery race, live/stale worker fence, concurrent one-use handle, expiration and post-claim revocation
+PASS: six capability contract matrices (deny/pending/approved/expired/changed/replay/authority failure/target failure); local Computer AGENT -> Take Over -> denied under OWNER -> Return Control -> AGENT; stale control rejected
+PASS: notification authority denial invokes zero providers and preserves completed work with one execution attempt
+PASS: legacy owner review gate; owner isolation; duplicate/stale reviews; atomic linkage; no backlog replay; edit revocation; stale execution stays revoked after re-review
+PASS: isolated migrations; duplicate occurrence/run suppression; claim race; heartbeat; stale-worker fence; bounded retry; delivery failure/recovery without rerun; action deduplication; changed parameters; unknown-result replay refusal; worker death; auto-pause, single notice and owner resume
