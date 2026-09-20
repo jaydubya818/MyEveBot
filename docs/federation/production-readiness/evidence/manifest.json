@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-09-20T16:18:54.573270+00:00",
+  "myeveCommit": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+  "relayCommit": "614c638d6fc4099db8064540326f5de4438e93a1",
+  "nodeVersion": "v24.18.1",
+  "dependencyProvenance": "Existing local myeve-relay-federation/node_modules reused by symlink; no clean npm ci or production image attestation performed. Vitest reports 3.2.7.",
+  "sourceSha256": {
+    "apps/eve/app/api/relay/artifacts/[id]/route.ts": "7bfeea76f313451949509ad5df435bd175c46cc07f02f5f8e49802e02b8e785e",
+    "apps/eve/app/api/relay/route.ts": "695dc0fef735c4af67701699d6a312e0d1819667f58b1ce56f7469331286a539",
+    "apps/eve/lib/relay/adapter.test.ts": "ec2e952ade7450fa73fe2b419222080cd4fed38943091702824b4f15ea24db48",
+    "apps/eve/lib/relay/artifacts.ts": "6e783fbde616db069260138636053f1427f942cff18dc291ae34580e4a180f94",
+    "apps/eve/lib/relay/client.ts": "8802fabf5c03bf1feec1961fe3e41b59300ea43a1a58f4b4780e5f3aec30dca8",
+    "apps/eve/lib/relay/contracts.ts": "033270afd62f8e3db36811412371c663d55ac721fb75254ca18eabac81bac355",
+    "apps/eve/lib/relay/inbox.ts": "32bf23a8b59c3db181d95afb8fc9be46f3e84fbb170d12694a6708185306b533",
+    "apps/eve/lib/relay/owner-api.ts": "ab953d8c15d34464a4eb671d73fe9c0b392add1da8d805afe829e7d689497124",
+    "apps/eve/lib/relay/owner.ts": "1bc99625896de1553e13105a073ab25560ca252c65ba9d99fdeb68197f5ecdb3",
+    "apps/eve/lib/relay/projection.ts": "a766f568c0cb9b71f3fddb86bfb8d0f74dfe37ce4c76a6dddcc0a6fabf474469",
+    "apps/eve/lib/relay/receipts.ts": "3d12bc74fb1856355142a35713f377e9fd9f5e5c3be379301bdf7ed875345515",
+    "apps/eve/lib/relay/review-regressions.test.ts": "89aef1fb0155ccc9f29267d9555140583eb6350dec006533b674a4a522ca8455",
+    "apps/eve/lib/relay/store.ts": "0d6ccf1a9c252a6ef1d8eaf0f07b2191b5d2b3eee7128fa0cd6936e9b6d8f92c",
+    "apps/eve/lib/relay/transport.ts": "5c5d0db572dc9ab601b8565d565171fe44484ce26eb3357a893d9ef5f28e5b06",
+    "apps/eve/lib/relay/work-authority.test.ts": "e65a907f54866ba18fe25cb9e360d3e1dae94d4b409ed7f0821391a5c5c61852",
+    "apps/eve/lib/relay/work.ts": "6b64570095590178e780b11aaee793534d7a37ef08908bf9ff48ff3959a3f873",
+    "apps/eve/migrations/0027_relay_federation.sql": "2ea6d67e5e327eeaff02b2ef6ef5d537f27a0d71bee247c361e15b491f114bd7",
+    "apps/eve/scripts/relay-worker.ts": "7ff2e1e2cc55357f0d966a17265d2aa3f2a952248bfbcd2952a678677a2db335",
+    "package-lock.json": "a37dc02f713dc8c5d6ef23d53ab2ac18eb5a3a1ea74b9890af9a50e0e3d56092"
+  },
+  "evidenceSha256": {
+    "evidence/disabled-probes.json": "0eb72de9198acb0bb459626a128aaa8bc75ffd7351b03de3c6a5e19569d77d2a",
+    "evidence/disabled-probes.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evidence/federation-tests.txt": "1d3b3d4f809d4b5c8851d1effaf9cb5e9797a166af252745c72666de481bdadd"
+  },
+  "readiness": "NO_GO",
+  "securityGate": "NOT_RUN",
+  "productionPlatformGate": "NOT_RUN",
+  "probeScriptSha256": "191250747517e05937c2b2ef79a27bf6b44f19de0b6d1e87f0deb369e22b62cb",
+  "evidenceNormalization": "Regression stdout trailing blank line removed; test content unchanged."
+}
