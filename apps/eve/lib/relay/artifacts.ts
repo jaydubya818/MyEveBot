@@ -1,3 +1,4 @@
+import { ingressHeaders } from "./ingress.ts";
 import {
   createHash,
   createPrivateKey,
@@ -101,6 +102,7 @@ export async function receiveArtifact(
     redirect: "error",
     signal: AbortSignal.timeout(15000),
     headers: {
+      ...ingressHeaders(url.origin),
       authorization: `Bearer ${jwt({ iss: connection.address, aud: url.toString(), exp: Math.floor(Date.now() / 1000) + 30 })}`,
     },
   });

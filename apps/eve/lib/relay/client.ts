@@ -1,3 +1,4 @@
+import { ingressHeaders } from "./ingress.ts";
 import { z } from "zod";
 
 export function relayOrigin(): string {
@@ -59,6 +60,7 @@ export class RelayClient {
       signal: AbortSignal.timeout(15000),
       headers: {
         "content-type": "application/json",
+        ...ingressHeaders(this.origin),
         origin: this.origin,
         ...(owner
           ? { cookie: this.ownerSession! }
@@ -84,7 +86,7 @@ export async function connectRelayOwner(email: string, password: string) {
     method: "POST",
     redirect: "error",
     signal: AbortSignal.timeout(15000),
-    headers: { origin, "content-type": "application/json" },
+    headers: { origin, "content-type": "application/json", ...ingressHeaders(origin) },
     body: JSON.stringify({ email, password }),
   });
   if (!response.ok) throw new Error("Relay owner sign-in failed.");

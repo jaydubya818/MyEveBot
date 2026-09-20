@@ -2536,8 +2536,8 @@
     },
     "lib/relay/client.ts": {
       "classification": "ENFORCED",
-      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy.",
-      "sha256": "8802fabf5c03bf1feec1961fe3e41b59300ea43a1a58f4b4780e5f3aec30dca8"
+      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
+      "sha256": "eea12394a58c6a15f8fa8d5b9a7dc073957003c64bbdc5b6ad33076bb1aa7935"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2561,8 +2561,8 @@
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-controlled source-owned artifacts; audience proof and key/origin pins, expiry, revocation, checksum, bounded retrieval and no redirects; no canonical private-store access.",
-      "sha256": "6e783fbde616db069260138636053f1427f942cff18dc291ae34580e4a180f94"
+      "reason": "Owner-controlled source-owned artifacts; audience proof and key/origin pins, expiry, revocation, checksum, bounded retrieval and no redirects; no canonical private-store access. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
+      "sha256": "9e2e455c15617adf3ba3b82d92486e63c988063ee5cfdc64ca33bfec3cdac75c"
     },
     "app/api/relay/route.ts": {
       "classification": "ENFORCED",
@@ -2573,6 +2573,11 @@
       "classification": "ENFORCED",
       "reason": "Source artifact read requires recipient proof and exact signed audience; bounded content, expiry and revocation.",
       "sha256": "7bfeea76f313451949509ad5df435bd175c46cc07f02f5f8e49802e02b8e785e"
+    },
+    "lib/relay/ingress.ts": {
+      "classification": "INTERNAL",
+      "reason": "Server-only deployment ingress-header resolver; exact configured HTTPS origins, bounded secret map, generic errors; grants no federation authority and performs no network or private-store access. ingress.test.ts covers target pinning, invalid config, credential preservation and untrusted artifact denial.",
+      "sha256": "a5200c89cc18de2c52b43836718a4b76eb993dbd21fe705306ba4a6be402ed7e"
     }
   }
 }
