@@ -107,3 +107,9 @@ test("builder requires a Telegram allowlist when the channel is enabled", () => 
   };
   assert.equal(validateConfig(allowlisted), null);
 });
+
+
+test("provider-pruned deployments omit test imports and qualification fixtures", () => {
+  for (const file of ["agent/lib/executor-boundary.test.ts", "lib/routine-admission.test.ts", "components/fixture.test.tsx", "test/admission-fixtures.mjs", "scripts/qualification-routine-admission-ui.mjs"]) assert.equal(isExcluded(file), true, file);
+  for (const file of ["lib/routine-admission.ts", "agent/tools/get_routine_readiness.ts", "scripts/migrate-database.ts"]) assert.equal(isExcluded(file), false, file);
+});

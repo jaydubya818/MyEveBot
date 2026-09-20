@@ -133,6 +133,7 @@ function platform(
 }
 
 export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
+  platform("federation.request", "Federated work request", "integration", "Request bounded work through the existing Federation boundary; never expands local authority.", {permissions:["work.request"],configuration:["MYEVE_RELAY_ENABLED"],keywords:["federation","relay"]}),
   platform("notification.send","Result notification","channel","Deliver an owner-approved completed result through a claimed outbox entry.",{
     permissions:["notification.send"],risk:{level:"medium",categories:["external-communication"]},
     evidence:{supported:true,required:true,types:["provider-message-id"]},
@@ -407,6 +408,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("read_file", { description: "Read a file from the active Agent computer workspace.", permissions: ["files.read"], configuration: ["DATABASE_URL"], dependencies: ["files.read"], keywords: ["file", "read", "workspace"] }),
   tool("write_file", { description: "Write a bounded file in the active Agent computer workspace.", permissions: ["files.write"], risk: "medium", riskCategories: ["sandbox-data"], configuration: ["DATABASE_URL"], dependencies: ["files.write"], keywords: ["file", "write", "workspace"] }),
   tool("create_goal", { description: "Create a durable goal, optionally with its first plan, milestones, and tasks.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "plan", "milestone", "task", "outcome"] }),
+  tool("get_routine_readiness", {description:"Inspect owner-scoped Routine readiness without changing authority or executing work.",permissions:["routines.read"],configuration:["DATABASE_URL"],keywords:["routine","readiness"]}),
   tool("list_goals", { description: "List owner goals and their progress.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "progress", "status"] }),
   tool("get_goal", { description: "Inspect one goal, including plan, tasks, dependencies, events, and next action.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "task", "plan", "activity"] }),
   tool("update_goal", { description: "Edit a goal or apply a legal lifecycle transition.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "edit", "pause", "complete", "archive"] }),

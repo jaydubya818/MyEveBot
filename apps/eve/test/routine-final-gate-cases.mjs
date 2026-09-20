@@ -1,5 +1,7 @@
+import {admissionFixture} from "./admission-fixtures.mjs";
 import assert from 'node:assert/strict';
-import {ActionGateway,ActionBlocked,consumeActionAuthority} from '../lib/action-gateway.ts';
+import {ActionGateway} from "./admission-fixtures.mjs";
+import {ActionBlocked,consumeActionAuthority} from "../lib/action-gateway.ts";
 import {ActionRecovery} from '../lib/action-recovery.ts';
 import {RoutinePendingSend} from '../lib/routine-pending-send.ts';
 import {ExecutionDelivery} from '../lib/execution-delivery.ts';
@@ -8,7 +10,7 @@ import {routineConfigurationSchema} from '../lib/execution-types.ts';
 import {approvalBinding} from '../lib/approvals.ts';
 
 export async function qualifyFinalGate(client,database) {
-  const store=new ExecutionStore(database),pending=new RoutinePendingSend(database);
+  const store=new ExecutionStore(database,admissionFixture(database)),pending=new RoutinePendingSend(database);
   const briefConfig=routineConfigurationSchema.parse({instructions:'Daily Research Brief',authority:{allowedCapabilities:['web.read','tool.record_observation'],maximumRisk:'medium'},deliveryChannel:'in_app'});
   await store.createRoutine({id:'final-brief',ownerId:'sarah',sourceKind:'manual',sourceId:'final-brief',name:'Daily Research Brief',agentId:'ava',configuration:briefConfig,changedBy:'sarah'});
   const occurrence={ownerId:'sarah',routineId:'final-brief',key:'once',scheduledFor:'2026-09-18T08:00:00Z'};

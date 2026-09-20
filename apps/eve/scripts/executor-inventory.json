@@ -554,7 +554,7 @@
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "08ccbcc7d9b508a5ee8be96aabafcf7713a2d593bacdb96a85d6b16095cdf8db"
+      "sha256": "0b9841a1475f316c180624248d3374f90354f210f0d86478c424089c8d071449"
     },
     "agent/lib/run-assigned-qa-suite-tool.ts": {
       "classification": "BLOCKED",
@@ -1306,7 +1306,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "093f471583c4839899fc9fe5945997921ab9af0e551d73a222aedf205284ca9f",
+      "sha256": "b0ede774f40920d77cb7936f1cef1b1dab541c8e702871d62b73f2310574e86d",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -1927,7 +1927,7 @@
     "app/api/routines/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "bb2901dc38eb41f0f31c73c364ff8a1a58a4123d7fd05b5a9a92d553fb5c8cf5"
+      "sha256": "efb0f425f4291468b8d87488b54d3aefc4ad9e09bbe30b7d36ffec74442c7460"
     },
     "app/api/shared/[token]/content/route.ts": {
       "classification": "INTERNAL",
@@ -1997,7 +1997,7 @@
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "43f29736f24107e3103960dfb9b7b42e370a479c40ce1b429e4ea317add1fb4b"
+      "sha256": "95d97422e0edb9b0f5f0e102ef7826eee53e104472d886fd47c14992404aff8e"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2027,7 +2027,7 @@
     "lib/agents.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "54bedb60e09385d7d8f508b615260602b8b4e18287e1040d729715a99d5a0686"
+      "sha256": "8d4bba986df2827f178669d72e3492b351722a2f92c42ff1c7f2f79fd5200d48"
     },
     "lib/api-errors.ts": {
       "classification": "INTERNAL",
@@ -2097,7 +2097,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "477d2f1e73851589f1a30c52f27208ea8091ad388026584375331b76dd814512"
+      "sha256": "c8801db2b87f1991d62be9ee8389de32fcee559e42884a7e9fc93625d60e5b19"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2162,7 +2162,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a30ea914cbaae02ffb6fb94d73d194cebe19171e1700b81b0fa148f878bda2e5"
+      "sha256": "29d65d8ab7cd00e8427847d695f4369e5890cc603fb12549d649ca3114a14298"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2187,22 +2187,22 @@
     "lib/execution-auth.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "42fefaab6924e3b536faeb224e57420ff20e6d5a57a3908265b9a879386007fc"
+      "sha256": "256d88eb268caa54fd5dd18abe9200b25f61a53c67cbd226108046efff4ec861"
     },
     "lib/execution-delivery.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7f0eac513f9c7affe7d8b344159db5d68f87fd54b274adbbc18249d56212f28b"
+      "sha256": "5d9558c732b5ded8c308e8d685958ebb9e9e98d23563830fb79e41bb34c58c76"
     },
     "lib/execution-store.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7dbe6d3427dcbcdb290ac92c9e0dd6e9e0d2e58141aaea54500ba2b2536c5d54"
+      "sha256": "f54b6818043e9a3b3618c4500b1a3a52c78a4a4b466d85598e34f717f5f147d1"
     },
     "lib/execution-types.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Types, schemas and pure validation helpers; no provider operation.",
-      "sha256": "45a5634a0d7acb8793c505c67968af6eb8b2b92b213371f9f70624bab8698966"
+      "sha256": "7fd610ca60ec02445dfe56d417f281b091e93c86e673109ad4b6bd3691625156"
     },
     "lib/execution-worker.ts": {
       "classification": "INTERNAL",
@@ -2292,7 +2292,7 @@
     "lib/operations.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "098054eeff5571a226ed4d42a730a17555b36a4f56b953ddcfeab836453b0dfb"
+      "sha256": "863878115051082cbdcbf47ce7867917a382a1e4d2ba2ead0e3ebcc24a4d5fdc"
     },
     "lib/outcome-types.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2307,7 +2307,7 @@
     "lib/owner-data-domains.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f68be396c5517bd7c27abde693fb26d4483593aa730d36cbaff549f45da2ebad"
+      "sha256": "6ce81471737c4ade355c738f64ac9848cb9261b68c2611325f8d873567fb5cb2"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",
@@ -2347,7 +2347,7 @@
     "lib/reminder-execution.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dacbbf88af8d3b4975f1fc6126c5f3dd89baa5ca66fee62631ae9568a2fdab32"
+      "sha256": "9b6af3429f86f4aa5be0cf191f828e33a3479d5935f68749d14aa52fc921d4ab"
     },
     "lib/review-delivery-db.ts": {
       "classification": "INTERNAL",
@@ -2412,7 +2412,7 @@
     "lib/routine-notifications.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "a12c8966c102c9222bd84da9b2c3806ee365b0616a2eb2eb2a6fcf3ce64d9519"
+      "sha256": "650ff44006b4f9e7426c6044b295c737ebbb7094c1ba85f853d566278736c9ff"
     },
     "lib/routine-release.ts": {
       "classification": "INTERNAL",
@@ -2422,7 +2422,7 @@
     "lib/routine-review.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "3ddaf8529ad5efbd90e65f743523ad6a2882386f5d0b137788bfab902b48780e"
+      "sha256": "8034e6fec098d1573a1d30ed85b96e800487c64e65aae817528638639e6ddff3"
     },
     "lib/skill-content-hash.ts": {
       "classification": "INTERNAL",
@@ -2592,12 +2592,42 @@
     "lib/routine-capabilities.ts": {
       "classification": "INTERNAL",
       "reason": "Finite initial capability graph; no authority may be added by skills, replanning or delegation.",
-      "sha256": "b641836fe9f201f21e4ef17612450f1904d576ce8020d1eb2070fc76245e1a95"
+      "sha256": "c0e750b3386b22bb77925b27d9d1dd35acf775ce92ad47b8598bf6cb594cd670"
     },
     "lib/routine-pending-send.ts": {
       "classification": "ENFORCED",
       "reason": "Private immutable pending email checkpoint; resumes only through Action Gateway with current occurrence authority and exact approval.",
       "sha256": "f7781f979fcd85662919f25f2a6589f2d66e830168bc1e5ef7548141e6a8fc1d"
+    },
+    "agent/tools/get_routine_readiness.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner-scoped readiness inspection; guest denied; no execution or authority mutation.",
+      "sha256": "a6a04cc992c5e580e210824840873d5dea7038419fe31195782f2ec1e57c50fb"
+    },
+    "lib/routine-admission.ts": {
+      "classification": "INTERNAL",
+      "reason": "Deterministic admission from immutable manifest, current Agent and metadata dependencies. No provider execution. Gateway remains authoritative.",
+      "sha256": "7d7bfe353d2c17821e393cf9d6075974a0995bbdbcf885b56fd04ea71a6d11db"
+    },
+    "lib/routine-availability.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-scoped metadata presence and profile grants only; no secrets selected, provider calls or provisioning.",
+      "sha256": "5f8c83d7b7ced7a15590849f434f70cc1e10ddd9e8799a5fbdfa69d292d1a0c6"
+    },
+    "lib/routine-run-now.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner route orchestration; same fresh admission and durable occurrence CAS as scheduled work; kill switch enforced.",
+      "sha256": "423653aa9bf8bef45c665fda334c69937a53ab60d53c0a8a82c56d1700d0682a"
+    },
+    "app/api/routines/[id]/run/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Signed same-origin owner mutation creates admitted occurrence only; never directly executes providers.",
+      "sha256": "750de443723237309413eff2606daba87fc6c3444cdce14e617ffe8feaab33c0"
+    },
+    "app/api/routines/[id]/readiness/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner readiness read; no cross-owner identity or execution access.",
+      "sha256": "9390ad2d8d6e17a87de6c5a736b0bde0f11806d8326ba144e12709af592dcd68"
     }
   }
 }

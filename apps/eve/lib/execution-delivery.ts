@@ -10,6 +10,7 @@ export interface NotificationProvider {
     | { status: "delivered" }
     | { status: "definitely_failed"; retryable: boolean }
     | { status: "unknown" }
+    | { status: "unavailable" }
   >;
 }
 
@@ -44,14 +45,15 @@ export class ExecutionDelivery {
     let result: Awaited<ReturnType<NotificationProvider["deliver"]>>;
     try { result = await provider.deliver(delivery); }
     catch { result = { status:"unknown" }; }
-    const status = result.status === "delivered" ? "delivered" : "failed";
+    const status = result.status === "delivered" ? "delivered" : result.status === "unavailable" ? "skipped" : "failed";
     const retry = result.status === "definitely_failed" && result.retryable && delivery.attempt < 3;
     await this.database.query(`WITH finished AS (
       UPDATE review_deliveries SET status=$4,result_unknown=$5,claimed_until=NULL,updated_at=now(),
         delivered_at=CASE WHEN $4='delivered' THEN now() ELSE NULL END,
         next_attempt_at=CASE WHEN $6 THEN now()+($7*interval '1 second') ELSE NULL END,
-        failure_category=CASE WHEN $4='delivered' THEN NULL WHEN $5 THEN 'unknown' ELSE 'transient' END,
-        failure_summary=CASE WHEN $4='delivered' THEN NULL WHEN $5 THEN 'Notification result needs verification' ELSE 'Notification failed; work completed' END
+        failure_code=CASE WHEN $4='skipped' THEN 'delivery_unavailable' ELSE NULL END,
+        failure_category=CASE WHEN $4 IN ('delivered','skipped') THEN NULL WHEN $5 THEN 'unknown' ELSE 'transient' END,
+        failure_summary=CASE WHEN $4='delivered' THEN NULL WHEN $4='skipped' THEN 'Notification unavailable; result remains in MyEve' WHEN $5 THEN 'Notification result needs verification' ELSE 'Notification failed; work completed' END
       WHERE owner_id=$1 AND id=$2 AND claim_version=$3 AND status='delivering' AND claimed_until>now() RETURNING *
     ) UPDATE review_delivery_attempts a SET status=$4,finished_at=now(),failure_category=f.failure_category,failure_summary=f.failure_summary
       FROM finished f WHERE a.delivery_id=f.id AND a.attempt_number=f.attempt_count`,

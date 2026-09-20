@@ -7,12 +7,13 @@ import { nextCronOccurrence } from "../agent/lib/reminders-db.ts";
 import { deploymentOwnerId } from "./routine-review.ts";
 
 /** A scheduler tick only creates durable occurrences and advances schedules. */
-export async function enqueueReviewedReminders(ownerId=deploymentOwnerId(),database:ExecutionDatabase=db() as ExecutionDatabase,now=new Date()):Promise<number> {
+export async function enqueueReviewedReminders(ownerId=deploymentOwnerId(),database:ExecutionDatabase=db() as ExecutionDatabase,now=new Date(),store=new ExecutionStore(database)):Promise<number> {
+  // Terminal, never-executed preflight history is retained for 90 days. Runs/actions are untouched.
+  await database.query("DELETE FROM execution_occurrences WHERE owner_id=$1 AND status='blocked_precheck' AND run_id IS NULL AND scheduled_for<now()-interval '90 days'",[ownerId]);
   const rows=await database.query(`SELECT m.*,r.configuration FROM reminders m JOIN execution_routines r
     ON r.owner_id=m.owner_id AND r.id=m.execution_routine_id WHERE m.owner_id=$1 AND m.status='active'
     AND m.reviewed_version=m.configuration_version AND r.status='active' AND m.next_fire_at<=$2
     ORDER BY m.next_fire_at,m.id LIMIT 20`,[ownerId,now.toISOString()]);
-  const store=new ExecutionStore(database);
   let enqueued=0;
   for(const row of rows) {
     const configuration=routineConfigurationSchema.parse(row.configuration);

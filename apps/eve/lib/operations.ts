@@ -10,7 +10,7 @@ type Row = Record<string, unknown>;
 export type OperationsState = "healthy" | "warning" | "critical";
 
 export interface OperationsSignal {
-  id: "failed_turns" | "stuck_runs" | "orphaned_computers" | "routine_failures" | "model_limits" | "artifact_failures";
+  id: "routine_preflight_blocked" | "failed_turns" | "stuck_runs" | "orphaned_computers" | "routine_failures" | "model_limits" | "artifact_failures";
   label: string;
   state: OperationsState;
   count: number;
@@ -25,6 +25,7 @@ export interface OperationsReport {
 }
 
 export interface OperationsCounts {
+  routinePreflightBlocks?:number;
   failedTurns: number;
   stuckRuns: number;
   orphanedComputers: number;
@@ -56,6 +57,7 @@ export function operationsReportFromCounts(
     { id: "model_limits", label: "Model limits", state: stateFor(counts.modelLimits, 3), count: counts.modelLimits, detail: "Runtime, step, cost, or provider-limit stops during the last 24 hours." },
     { id: "artifact_failures", label: "Artifact delivery", state: stateFor(counts.artifactFailures, 3), count: counts.artifactFailures, detail: "Artifact creation, upload, or delivery failures during the last 24 hours." },
   ];
+  if(counts.routinePreflightBlocks!==undefined)signals.push({id:"routine_preflight_blocked",label:"Routine preflight",state:stateFor(counts.routinePreflightBlocks,100),count:counts.routinePreflightBlocks,detail:"Scheduled work blocked before execution in the last 24 hours. Review Routine readiness."});
   const overall = signals.some((signal) => signal.state === "critical")
     ? "critical"
     : signals.some((signal) => signal.state === "warning") ? "warning" : "healthy";
@@ -65,6 +67,7 @@ export function operationsReportFromCounts(
 export async function getOperationsReport(ownerId: string): Promise<OperationsReport> {
   const rows = await db().query(
     `SELECT
+      (SELECT count(*) FROM execution_occurrences WHERE owner_id=$1 AND status='blocked_precheck' AND scheduled_for>=now()-interval '24 hours') AS routine_preflight_blocked,
       (SELECT count(*) FROM eve_events WHERE owner_id=$1 AND type IN ('TURN_FAILED','SESSION_FAILED') AND occurred_at >= now()-interval '24 hours') AS failed_turns,
       ((SELECT count(*) FROM task_runs WHERE owner_id=$1 AND ((status='running' AND (deadline_at < now() OR updated_at < now()-interval '30 minutes')) OR (status IN ('awaiting_approval','waiting_for_owner') AND deadline_at < now()))) +
        (SELECT count(*) FROM agent_runs r JOIN agents a ON a.owner_id=r.owner_id AND a.id=r.agent_id WHERE r.owner_id=$1 AND r.status='running' AND r.started_at+(a.max_runtime_seconds*interval '1 second') < now())) AS stuck_runs,
@@ -78,6 +81,7 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
   ) as Row[];
   const row = rows[0] ?? {};
   return operationsReportFromCounts({
+    routinePreflightBlocks:count(row.routine_preflight_blocked),
     failedTurns: count(row.failed_turns),
     stuckRuns: count(row.stuck_runs),
     orphanedComputers: count(row.orphaned_computers),

@@ -61,7 +61,7 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
   const routine=identity?await resolveExecution(identity):null;
   const resolved: Record<string, DynamicToolEntry<any, any>> = {};
   for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
-    const decision = routine && (routine.agentId!==agent.id || !routineToolAllowed(toolName,capabilityId,routine.configuration.authority.allowedCapabilities))
+    const decision = routine && (routine.agentId!==agent.id || (!routine.configuration.manifest?.tools.includes(toolName) || !routineToolAllowed(toolName,capabilityId,routine.configuration.authority.allowedCapabilities)))
       ?{allowed:false,reason:"This tool is outside the reviewed Routine tool graph."}:effectiveCapability(agent, capabilityId);
     const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
     if (decision.allowed && browserName) {

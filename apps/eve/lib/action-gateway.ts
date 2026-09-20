@@ -1,3 +1,4 @@
+import { ROUTINE_RELEASE } from "./routine-release.ts";
 import {ActionRecovery} from "./action-recovery.ts";
 import { randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
@@ -118,13 +119,15 @@ export const localAuthorityProvider: AuthorityProvider = {
 
 export class ActionGateway {
   private database:ExecutionDatabase;
+  private executionEnabled:()=>boolean;
   private authority:AuthorityProvider;
   private approvals:typeof requestApproval;
   constructor(
     database: ExecutionDatabase = db() as ExecutionDatabase,
     authority: AuthorityProvider = localAuthorityProvider,
     approvals: typeof requestApproval = requestApproval,
-  ) {this.database=database;this.authority=authority;this.approvals=approvals;}
+    executionEnabled:()=>boolean=()=>ROUTINE_RELEASE.enabled,
+  ) {this.database=database;this.authority=authority;this.approvals=approvals;this.executionEnabled=executionEnabled;}
 
   async execute<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal?: AbortSignal): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
     action=frozenJson(action);
@@ -141,6 +144,7 @@ export class ActionGateway {
     if (!context[0]) throw new ActionBlocked("denied", "unresolved");
     if((context[0].role_id??null)!==(action.executor.roleId??null))throw new ActionBlocked("denied","unresolved");
     const occurrence = context[0].occurrence_id;
+    if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied","routine_execution_disabled");
     if (occurrence && !action.delivery && (!action.occurrence || occurrence !== action.occurrence.id || action.trigger.kind !== "scheduled_occurrence")) {
       throw new ActionBlocked("denied", "unresolved");
     }
@@ -222,6 +226,7 @@ export class ActionGateway {
     // Re-evaluate after approval lookup and immediately before the durable claim.
     // A provider failure or a newly narrower policy can never become ALLOW.
     try {
+      if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
       const fresh=await this.authority.evaluate(action,target,(context[0].configuration as RoutineConfiguration | undefined)?.authority);
       if(fresh.decision==="DENY" || (fresh.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW")) throw new Error("Authority changed");
     } catch {
@@ -272,6 +277,7 @@ export class ActionGateway {
     const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+30_000,target,capabilityId:action.capabilityId,signal});
     try {
       handles.set(authorized,{binding:JSON.stringify(canonicalActionValue({parameters:action.parameters,target})),revalidate:async()=>{
+        if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
         const fresh=await this.authority.evaluate(action,target,(context[0].configuration as RoutineConfiguration|undefined)?.authority);
         if(fresh.decision==="DENY" || (fresh.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW"))throw new ActionBlocked("denied",actionId);
         const valid=await this.database.query(`SELECT a.id FROM action_requests a

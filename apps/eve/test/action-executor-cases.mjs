@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
-import { ActionGateway,ActionBlocked } from "../lib/action-gateway.ts";
+import {ActionGateway} from "./admission-fixtures.mjs";
+import {ActionBlocked} from "../lib/action-gateway.ts";
 import { approvalBinding } from "../lib/approvals.ts";
 import { emailSendAdapter,fileWriteAdapter } from "../lib/action-adapters.ts";
 

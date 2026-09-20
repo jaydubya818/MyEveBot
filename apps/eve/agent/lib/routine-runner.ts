@@ -1,3 +1,4 @@
+import { RoutineAdmission } from "../../lib/routine-admission.ts";
 import { Client,type HandleMessageStreamEvent } from "eve/client";
 import { ExecutionFailure,type ExecutionRunner } from "../../lib/execution-worker.ts";
 import { EXECUTION_HEADER,signExecution,resolveExecution } from "../../lib/execution-auth.ts";
@@ -11,8 +12,13 @@ import { agentMailSendAdapter } from "./email-send-adapter.ts";
 export const routineRunner:ExecutionRunner={
   async preflight(claim) {
     if(!ROUTINE_EXECUTION_READY)throw new ExecutionFailure("capability_unavailable");
-    const resolved=await resolveExecution(claim);
-    try {await validateRoutineAgent(claim.ownerId,resolved.agentId,claim.configuration);signExecution(claim);}
+    try {
+      const resolved=await resolveExecution(claim);
+      const admission=await new RoutineAdmission().inspect(claim.ownerId,claim.routineId);
+      if(!admission?.canRun)throw new ExecutionFailure("capability_unavailable");
+      await validateRoutineAgent(claim.ownerId,resolved.agentId,claim.configuration);
+      signExecution(claim);
+    }
     catch {throw new ExecutionFailure("capability_unavailable");}
   },
   async run(claim,signal) {

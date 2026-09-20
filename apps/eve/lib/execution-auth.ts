@@ -1,3 +1,4 @@
+import { ROUTINE_RELEASE } from "./routine-release.ts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
 import type { ExecutionClaim, ExecutionDatabase } from "./execution-types.ts";
@@ -25,7 +26,8 @@ export function verifyExecution(token:string,key=secret()):ExecutionIdentity {
     || typeof value.workerId!=="string" || !value.workerId || !Number.isSafeInteger(value.version) || value.version<1) throw new Error("Invalid execution credential.");
   return value;
 }
-export async function resolveExecution(identity:ExecutionIdentity,database:ExecutionDatabase=db() as ExecutionDatabase):Promise<ExecutionClaim & {agentId:string}> {
+export async function resolveExecution(identity:ExecutionIdentity,database:ExecutionDatabase=db() as ExecutionDatabase,executionEnabled:()=>boolean=()=>ROUTINE_RELEASE.enabled):Promise<ExecutionClaim & {agentId:string}> {
+  if(!executionEnabled())throw new Error("Routine execution is disabled.");
   const rows=await database.query(`SELECT o.*,r.agent_id,v.configuration FROM execution_occurrences o
     JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
     JOIN task_runs t ON t.owner_id=o.owner_id AND t.id=o.run_id AND t.status='running'

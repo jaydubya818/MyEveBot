@@ -11,6 +11,10 @@ export type RetryEligibility = "retry" | "stop" | "recovery_required" | "wait";
 export type Cost = { status: "unknown"; usd: null } | { status: "known" | "estimated"; usd: number };
 
 export const routineConfigurationSchema = z.object({
+  manifest: z.object({
+    version:z.literal(1),tools:z.array(z.string()).max(100),required:z.array(z.string()).max(100),
+    optional:z.array(z.object({capabilityId:z.literal("notification.send"),fallback:z.literal("in_app_result")}).strict()).max(1),
+  }).strict().optional(),
   instructions: z.string().min(1).max(4000),
   authority: z.object({
     allowedCapabilities: z.array(z.string().min(1)).max(100),

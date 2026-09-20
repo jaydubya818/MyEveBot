@@ -30,6 +30,8 @@ export const EXCLUDED = [
   "scripts/seed-review-e2e.ts",
   "scripts/seed-knowledge-preview.ts",
   "tsconfig.tsbuildinfo",
+  "test/",
+  "scripts/qualification-",
 ] as const;
 
 /** Directories whose files must all be claimed by some feature (or core). */
@@ -95,6 +97,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
   goals: [
     "agent/tools/create_goal.ts",
     "agent/tools/list_goals.ts",
+    "agent/tools/get_routine_readiness.ts",
     "agent/tools/get_goal.ts",
     "agent/tools/update_goal.ts",
     "agent/tools/manage_goal_task.ts",
@@ -212,7 +215,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
 };
 
 export function isExcluded(relativePath: string): boolean {
-  return EXCLUDED.some(
+  return /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
     (entry) =>
       relativePath === entry ||
       (entry.endsWith("/") ? relativePath.startsWith(entry) : relativePath.startsWith(entry)),

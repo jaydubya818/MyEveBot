@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import {ActionGateway,ActionBlocked,consumeActionAuthority} from '../lib/action-gateway.ts';
+import {ActionGateway} from "./admission-fixtures.mjs";
+import {ActionBlocked,consumeActionAuthority} from "../lib/action-gateway.ts";
 import {ActionRecovery} from '../lib/action-recovery.ts';
 import {approvalBinding} from '../lib/approvals.ts';
 
