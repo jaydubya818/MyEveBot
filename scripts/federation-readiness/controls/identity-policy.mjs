@@ -14,7 +14,7 @@ export function workloadIdentityPolicy({ projectId, projectNumber, customEnviron
     authentication:'Direct STS token exchange; no service-account key or project-wide role',
     bindings:[
       {keys:['fq-evidence','fq-delivery','fq-passport'],principal,permissions:['cloudkms.cryptoKeyVersions.get','cloudkms.cryptoKeyVersions.useToSign']},
-      {keys:['fq-envelope'],principal,permissions:['cloudkms.cryptoKeyVersions.useToEncrypt','cloudkms.cryptoKeyVersions.useToDecrypt']},
+      {keys:['fq-envelope'],principal,permissions:['cloudkms.cryptoKeyVersions.get','cloudkms.cryptoKeyVersions.useToEncrypt','cloudkms.cryptoKeyVersions.useToDecrypt']},
     ],
     denied:['create','update','destroy','setIamPolicy','other-projects','production','preview','development','other-custom-environments','MyEve-A','MyEve-B','Railway-workers'],
     publicKeys:'Pinned public SPKI and version metadata obtained by operator; runtime needs no getPublicKey permission.',
