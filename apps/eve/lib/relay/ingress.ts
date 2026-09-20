@@ -1,6 +1,8 @@
+import { qualificationEnabled } from "../qualification/client.ts";
 // Server-only deployment ingress credentials. These do not confer Relay authority.
 // Call only after selecting a pinned Relay origin or locally trusted artifact peer.
 export function ingressHeaders(origin: string): Record<string, string> {
+  if (qualificationEnabled()) return {};
   const configured = process.env.MYEVE_RELAY_INGRESS_SECRETS;
   if (!configured) return {};
   try {

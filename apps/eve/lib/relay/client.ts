@@ -1,3 +1,4 @@
+import { qualificationFetch } from "../qualification/client.ts";
 import { ingressHeaders } from "./ingress.ts";
 import { z } from "zod";
 
@@ -54,7 +55,7 @@ export class RelayClient {
       throw new Error("Invalid Relay path.");
     if (owner && !this.ownerSession)
       throw new Error("Reconnect the Relay owner session.");
-    const response = await fetch(`${this.origin}${path}`, {
+    const response = await qualificationFetch(`${this.origin}${path}`, {
       method,
       redirect: "error",
       signal: AbortSignal.timeout(15000),
@@ -82,7 +83,7 @@ export class RelayClient {
 }
 export async function connectRelayOwner(email: string, password: string) {
   const origin = relayOrigin();
-  const response = await fetch(`${origin}/api/auth/login`, {
+  const response = await qualificationFetch(`${origin}/api/auth/login`, {
     method: "POST",
     redirect: "error",
     signal: AbortSignal.timeout(15000),
