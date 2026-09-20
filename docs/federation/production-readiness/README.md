@@ -48,3 +48,8 @@ Both signoffs must identify the same release candidate and deployment configurat
 5. Intended production load, retention, availability and recovery targets for measured acceptance.
 
 See [execution report](execution-report.md), [security review package](security-review.md), and [platform qualification runbook](platform-qualification.md).
+
+Latest work: [KMS design and shared controls](kms-controls-design.md). The durable
+PostgreSQL core and purpose-separated signing/lifecycle are locally tested;
+provider size support and hosted adapters remain blockers. No resource approval
+or external-gate PASS is implied. See [worker specification](worker-specification.json).

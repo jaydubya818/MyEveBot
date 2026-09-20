@@ -66,8 +66,9 @@
         "automaticRestart": false
       }
     ],
-    "durableAdmissionAuthority": "UNRESOLVED; local SQLite is not a distributed Vercel ledger",
-    "maximumIdleServices": 0
+    "durableAdmissionAuthority": "PostgreSQL transactional core locally tested; controller service and hosted adapters NOT IMPLEMENTED",
+    "maximumIdleServices": 0,
+    "specification": "worker-specification.json"
   },
   "kms": {
     "providerCandidate": "Google Cloud KMS",
@@ -77,16 +78,18 @@
     "protectionLevel": "SOFTWARE",
     "signingAlgorithm": "EC_SIGN_ED25519",
     "signingKeysByPurpose": [
-      "lease",
-      "passport",
+      "federation-delivery",
       "evidence",
-      "session-delivery"
+      "passport"
     ],
     "wrappingAlgorithm": "GOOGLE_SYMMETRIC_ENCRYPTION",
     "wrappingAAD": "SHA256(ownerId) bytes",
     "createResources": false,
-    "signingMessageSizeSupport": "UNVERIFIED",
-    "identity": "Qualification-specific environment subject required; broad preview subject prohibited"
+    "signingMessageSizeSupport": "API semantics compatible; hosted maximum-size acceptance UNVERIFIED",
+    "identity": "Existing Relay Pro project custom-environment slot, exact stable ID required; no custom environment created",
+    "regionRationale": "Actual MyEve/Relay deployments are iad1. Qualification-only iad1 override required because Relay vercel.json requests sfo1.",
+    "minimumCryptoKeys": 4,
+    "leaseAndSessionSigning": "No active keys; unavailable for this target"
   },
   "telemetry": {
     "allow": [
@@ -119,5 +122,10 @@
     "evidenceRetentionDays": 30,
     "artifactBodyRetentionSeconds": 900
   },
-  "preflight": "node scripts/federation-readiness/controls/preflight.mjs"
+  "preflight": "node scripts/federation-readiness/controls/preflight.mjs",
+  "candidateProductRevisions": {
+    "relay": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
+    "productCodeCommit": "d1c4ed0",
+    "status": "UNPROMOTED; browser latency check fails on candidate and baseline"
+  }
 }

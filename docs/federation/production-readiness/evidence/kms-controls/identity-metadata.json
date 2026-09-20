@@ -1,0 +1,52 @@
+{
+  "observedAt": "2026-09-20T20:45:32.882178+00:00",
+  "mode": "READ_ONLY_METADATA",
+  "projects": {
+    "myeve": {
+      "id": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "oidcTokenConfig": {
+        "enabled": true,
+        "issuerMode": "team"
+      },
+      "serverlessFunctionRegion": "iad1",
+      "resourceConfig": {
+        "functionDefaultRegions": [
+          "iad1"
+        ],
+        "functionDefaultTimeout": null
+      },
+      "productionDeployment": "dpl_Nc1MqJcxUpMQbq9BRyNjza5Xom5N",
+      "productionRegions": [
+        "iad1"
+      ],
+      "customEnvironments": [],
+      "environmentInspectionError": null
+    },
+    "relay": {
+      "id": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK",
+      "oidcTokenConfig": {
+        "enabled": true,
+        "issuerMode": "team"
+      },
+      "serverlessFunctionRegion": "iad1",
+      "resourceConfig": {
+        "functionDefaultRegions": [
+          "iad1"
+        ],
+        "functionDefaultTimeout": null
+      },
+      "productionDeployment": "dpl_4SZwzNJ4jML9ACR2DCdWC7jLTwos",
+      "productionRegions": [
+        "iad1"
+      ],
+      "customEnvironments": [],
+      "environmentInspectionError": null
+    }
+  },
+  "team": {
+    "id": "team_p8z8exJRTGfOPk1GC9vUOpv3",
+    "slug": "jaydubya818",
+    "plan": "pro",
+    "inspectionError": null
+  }
+}

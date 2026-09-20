@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "HOSTED_TARGET_INCOMPLETE_KMS_AND_RUNTIME_CONTROLS",
+  "status": "HOSTED_TARGET_INCOMPLETE_PROVIDER_AND_HOSTED_ADAPTERS",
   "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
@@ -61,14 +61,17 @@
     "artifactBytes": 65536,
     "totalArtifactBytes": 524288,
     "requestLifetimeSeconds": 900,
-    "enforcementStatus": "LOCAL_CONTROLLER_TESTED; HOSTED_ADAPTERS_AND_MODEL_HARD_LIABILITY_NOT_VERIFIED"
+    "enforcementStatus": "SHARED_POSTGRES_CORE_LOCALLY_TESTED; HOSTED_ADAPTERS_AND_PROVIDER_LIABILITY_UNVERIFIED"
   },
   "blockers": [
-    "No compliant hosted KMS resource; GCP candidate requires owner-designated billing/project, size compatibility and isolated workload identity before paid provisioning",
-    "Existing single-signer production binding does not yet satisfy documented purpose separation and historical key lifecycle",
-    "Hosted ingress/model/artifact/worker admission adapters and hard provider liability bound are not verified",
-    "No executable hosted qualification apps, worker services or operational smoke; inert disabled branch slots only",
-    "Independent assessor, operators, stop contact and test window remain pending"
+    "GCP project/billing not designated; live raw Ed25519 maximum-size acceptance unverified",
+    "Purpose registry/provider core and production fail-closed composition implemented; request-scoped WIF and account-bound KMS wrapper still missing",
+    "Shared PostgreSQL control core locally tested; hosted ingress/model/artifact/worker adapters and verified provider liability bound missing",
+    "Qualification custom environment and explicit iad1 deployment region must be frozen before IAM provisioning",
+    "Worker supervisor, provider stop/revocation adapters and hard infrastructure billing containment incomplete",
+    "Existing oversized knowledge projection join needs disposition without silent federation semantics changes",
+    "No executable hosted qualification apps or workers; assessor, operators, stop contact and window pending",
+    "Existing dashboard latency regression fails on baseline and candidate; successor not fully requalified"
   ],
   "proposedSuccessors": {
     "myeve": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
@@ -219,5 +222,8 @@
       "productCode": false,
       "gitDeploymentEnabled": false
     }
-  ]
+  ],
+  "latestDesignReport": "kms-controls-design.md",
+  "candidateCryptoRevision": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
+  "candidateQualification": "LOCAL_TESTS_ADVANCED; BROWSER_LATENCY_FAILURE_PREVENTS_FULL_REQUALIFICATION"
 }

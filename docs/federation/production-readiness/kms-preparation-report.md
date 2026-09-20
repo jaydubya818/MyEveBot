@@ -1,3 +1,5 @@
+> Superseded for current status by [KMS design and shared controls](kms-controls-design.md). This report records the earlier preparation checkpoint.
+
 # KMS and isolated credential preparation
 
 **NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE.**

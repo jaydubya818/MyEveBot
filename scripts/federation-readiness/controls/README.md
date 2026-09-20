@@ -71,3 +71,43 @@ The local controller stores only counts, times, component labels and operation
 IDs. Never pass prompts, headers, bearer tokens, database URLs, canaries, provider
 response bodies, or key material to it. Keep operator ledger files private and
 outside Git; retain redacted evidence for 30 days under the existing runbook.
+
+## Shared PostgreSQL successor (current mission)
+
+`postgres.mjs` now implements the same conservative envelope using one locked
+PostgreSQL session row across independent connections/hosts. It includes bounded
+HTTP/model adapters, actual-byte artifact admission, corruption checks, durable
+operation fencing, and time-bounded emergency orchestration. No shared filesystem
+or process counter is used. Ambiguous completion never frees a slot automatically.
+
+Run its 21 local integration tests separately with an explicit localhost URL:
+
+```sh
+FQ_TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:55439/postgres \
+  node --test scripts/federation-readiness/controls/postgres.test.mjs
+```
+
+The test creates and removes its own disposable database; the user must start a
+local PostgreSQL test server. `FQ_PG_PACKAGE` can point to a package.json whose
+installed dependencies include `pg`. No hosted URL is accepted by the test.
+
+`identity-policy.mjs` is a render-only four-key IAM specification. It cannot run
+with unresolved project/custom-environment IDs and performs no cloud mutations.
+Its two tests prove local constraints, not actual IAM acceptance or denial.
+
+The new authority is **not yet wired into hosted ingress or model execution**.
+Only a trusted controller should receive table-mutation privileges. Application
+instances must use an authenticated, component-scoped interface with one-use
+request-bound permits. A callback that bypasses this interface defeats the cap.
+The SQL DDL has not been applied to any existing hosted database. `create` is an
+operator-only action; never give a runtime permission to create a fresh allowance.
+
+Emergency adapters receive an AbortSignal and must verify resulting state. A
+provider timeout is UNCONFIRMED; all independent brakes still run. Evidence capture
+precedes the final DB-login brake. The real hosted adapters, guarded worker
+entrypoint, dedicated model liability bound and billing/egress containment remain
+blocking implementation work. See the current [design report](../../../docs/federation/production-readiness/kms-controls-design.md).
+
+The generic wildcard Node test command above now requires FQ_TEST_DATABASE_URL;
+without a local DB run only `database-brake.test.mjs`, `preflight.test.mjs`, and
+`identity-policy.test.mjs`. Do not silently skip distributed-control coverage.

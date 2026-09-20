@@ -1,0 +1,179 @@
+{
+  "schemaVersion": 1,
+  "status": "INCOMPLETE_DO_NOT_PROVISION",
+  "createResources": false,
+  "workspaceId": "56a1e903-2507-4cd4-904b-9c57513046b4",
+  "services": [
+    {
+      "name": "fq-myeve-a",
+      "component": "myeve",
+      "repository": "jaydubya818/MyEveBot",
+      "sourceSha": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+      "existingCommand": "node --import tsx scripts/relay-worker.ts",
+      "workingDirectory": "apps/eve",
+      "qualificationCommand": null,
+      "entrypointStatus": "Shared-authority supervisor and guarded admission not implemented; ordinary command must not be deployed alone",
+      "maxReplicas": 1,
+      "cpuVcpu": 0.25,
+      "memoryGB": 0.5,
+      "fractionalCpuLimitVerified": false,
+      "maxTotalRunningSecondsIncludingRestart": 3600,
+      "restartPolicy": "NEVER",
+      "volumes": 0,
+      "serverlessSleep": false,
+      "network": [
+        "TLS to own synthetic Neon database only",
+        "HTTPS exact immutable qualification Relay origin through admission controller",
+        "HTTPS exact trusted synthetic peer artifact origin through admission controller",
+        "HTTPS selected model gateway only after verified liability reservation",
+        "HTTPS authenticated shared authority"
+      ],
+      "secretReferences": [
+        "own synthetic DB application credential",
+        "own MYEVE_OWNER_ID and encrypted synthetic Relay credential",
+        "MYEVE_RELAY_ENCRYPTION_KEY",
+        "own synthetic artifact Ed25519 key and peer public-key pin",
+        "qualification-only model gateway credential with verified spend bound",
+        "component controller authentication",
+        "qualification-only Vercel ingress bypass secret"
+      ],
+      "forbiddenSecrets": [
+        "personal/customer credentials",
+        "Relay signing private key",
+        "GCP service-account private key",
+        "other-owner DB credential"
+      ],
+      "health": {
+        "intervalSeconds": 5,
+        "mechanism": "supervisor records session-bound heartbeat; no heartbeat closes admissions",
+        "restartOnUnhealthy": false,
+        "implemented": false
+      },
+      "emergencyStop": [
+        "durable authority admission closure",
+        "SIGTERM process group then SIGKILL after five seconds",
+        "Railway stop/remove deployment through operator adapter",
+        "revoke synthetic credentials and database role login"
+      ],
+      "maximumComputeUsd": "0.013896",
+      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime"
+    },
+    {
+      "name": "fq-relay-maintenance-control",
+      "component": "relay",
+      "repository": "jaydubya818/relay",
+      "sourceSha": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
+      "existingCommand": "pnpm worker",
+      "workingDirectory": ".",
+      "qualificationCommand": null,
+      "entrypointStatus": "Shared-authority supervisor and guarded admission not implemented; ordinary command must not be deployed alone",
+      "maxReplicas": 1,
+      "cpuVcpu": 0.25,
+      "memoryGB": 0.5,
+      "fractionalCpuLimitVerified": false,
+      "maxTotalRunningSecondsIncludingRestart": 3600,
+      "restartPolicy": "NEVER",
+      "volumes": 0,
+      "serverlessSleep": false,
+      "network": [
+        "TLS to exact synthetic Relay Neon database",
+        "HTTPS Railway stop API via operator-only controller",
+        "TLS authority endpoint ingress for authenticated qualification clients only"
+      ],
+      "secretReferences": [
+        "own synthetic DB application credential",
+        "separate controller-only fq_control DB credential",
+        "component ingress authentication",
+        "operator stop credential in separate controller scope; never application scope"
+      ],
+      "forbiddenSecrets": [
+        "personal/customer credentials",
+        "Relay signing private key",
+        "GCP service-account private key",
+        "other-owner DB credential"
+      ],
+      "health": {
+        "intervalSeconds": 5,
+        "mechanism": "supervisor records session-bound heartbeat; no heartbeat closes admissions",
+        "restartOnUnhealthy": false,
+        "implemented": false
+      },
+      "emergencyStop": [
+        "durable authority admission closure",
+        "SIGTERM process group then SIGKILL after five seconds",
+        "Railway stop/remove deployment through operator adapter",
+        "revoke synthetic credentials and database role login"
+      ],
+      "maximumComputeUsd": "0.013896",
+      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
+      "sourceStatus": "Candidate; browser latency regression unresolved, baseline also fails"
+    },
+    {
+      "name": "fq-myeve-b",
+      "component": "peer",
+      "repository": "jaydubya818/MyEveBot",
+      "sourceSha": "a63b2feb533c45e0afc912e8ccf79c270326e2d2",
+      "existingCommand": "node --import tsx scripts/relay-worker.ts",
+      "workingDirectory": "apps/eve",
+      "qualificationCommand": null,
+      "entrypointStatus": "Shared-authority supervisor and guarded admission not implemented; ordinary command must not be deployed alone",
+      "maxReplicas": 1,
+      "cpuVcpu": 0.25,
+      "memoryGB": 0.5,
+      "fractionalCpuLimitVerified": false,
+      "maxTotalRunningSecondsIncludingRestart": 3600,
+      "restartPolicy": "NEVER",
+      "volumes": 0,
+      "serverlessSleep": false,
+      "network": [
+        "TLS to own synthetic Neon database only",
+        "HTTPS exact immutable qualification Relay origin through admission controller",
+        "HTTPS exact trusted synthetic peer artifact origin through admission controller",
+        "HTTPS selected model gateway only after verified liability reservation",
+        "HTTPS authenticated shared authority"
+      ],
+      "secretReferences": [
+        "own synthetic DB application credential",
+        "own MYEVE_OWNER_ID and encrypted synthetic Relay credential",
+        "MYEVE_RELAY_ENCRYPTION_KEY",
+        "own synthetic artifact Ed25519 key and peer public-key pin",
+        "qualification-only model gateway credential with verified spend bound",
+        "component controller authentication",
+        "qualification-only Vercel ingress bypass secret"
+      ],
+      "forbiddenSecrets": [
+        "personal/customer credentials",
+        "Relay signing private key",
+        "GCP service-account private key",
+        "other-owner DB credential"
+      ],
+      "health": {
+        "intervalSeconds": 5,
+        "mechanism": "supervisor records session-bound heartbeat; no heartbeat closes admissions",
+        "restartOnUnhealthy": false,
+        "implemented": false
+      },
+      "emergencyStop": [
+        "durable authority admission closure",
+        "SIGTERM process group then SIGKILL after five seconds",
+        "Railway stop/remove deployment through operator adapter",
+        "revoke synthetic credentials and database role login"
+      ],
+      "maximumComputeUsd": "0.013896",
+      "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime"
+    }
+  ],
+  "aggregateComputeUsd": "0.041688",
+  "aggregateEgressGB": 0.05,
+  "aggregateEgressUsd": "0.002500",
+  "aggregateVariableEstimateUsd": "0.044188",
+  "proposedSessionCeilingUsd": "0.10",
+  "hardInfrastructureCeilingEnforced": false,
+  "excludedUnboundedCosts": [
+    "builds",
+    "unverified egress enforcement",
+    "base subscription",
+    "tax"
+  ],
+  "federationDefault": false
+}

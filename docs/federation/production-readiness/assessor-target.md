@@ -33,3 +33,10 @@ The independent MyEve peer operator session is also separate from implementation
 ## Handoff prompt (not sent)
 
 Independently review and penetration-test the frozen MyEve federation target described in this package after verifying operator authorization, target digest and controls. You did not implement this target. Use only the approved synthetic identities and S01–S18 scope, remain within the session envelope, and stop on a boundary violation or missing prerequisite. Produce evidence-backed findings, exclusions and NOT_RUN cases, then independently retest any authorized remediation. Do not treat prior implementation tests, PR review, hosted Ready status or successful MCP connection as security approval. Identify your context and independence, sign your conclusion against exact source/deployment/configuration versions, and leave the gate pending wherever mandatory evidence is absent.
+
+Preparation update: include [KMS/shared-control findings](kms-controls-design.md)
+in the eventual frozen package. In particular, assess the pre-existing oversized
+knowledge projection join, wrong-purpose/retired/revoked keys, OIDC ordinary-preview
+isolation, concurrent admission, restart fencing, direct-origin bypass, and partial
+emergency-stop failures. Hosted adversarial execution remains NOT_RUN. These local
+implementation tests are not independent security evidence.

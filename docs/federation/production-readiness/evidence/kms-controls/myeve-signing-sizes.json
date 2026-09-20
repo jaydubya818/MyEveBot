@@ -1,0 +1,11 @@
+{
+  "mode": "actual_MyEve_functions_with_synthetic_store_and_fetch",
+  "artifactBytes": 65536,
+  "sourceAssertionSigningBytes": 243,
+  "sourceAssertionTokenBytes": 330,
+  "sourceVerified": true,
+  "receiverProofSigningBytes": 713,
+  "receiverProofTokenBytes": 800,
+  "receiverVerified": true,
+  "maxVerifierAcceptedSigningBytes": 8105
+}
