@@ -319,7 +319,7 @@
     "agent/lib/action-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "95117663bf7508e1cfcf74ca9613e37da811a9376f7d20551ab8c448002138fa"
+      "sha256": "5c4ab4862ab5b7b1ff1ee84351ab8d04687ab057955a4cff88b52e39a6535e90"
     },
     "agent/lib/agentmail.ts": {
       "classification": "ENFORCED",
