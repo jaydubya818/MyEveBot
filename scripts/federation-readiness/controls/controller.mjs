@@ -59,7 +59,7 @@ export class Controller {
   if(!this.model||!this.model.verifiedLiabilityReference)fail('MODEL_LIABILITY_UNVERIFIED');
   // Model adapter, provider key, price and token bounds are operator-owned; none
   // are caller-supplied. The adapter must report actual provider cost.
-  return boundedModel(this.authority,operation,{component:p.component,maximumMicrousd:250000,reference:this.model.verifiedLiabilityReference},signal=>this.model.invoke(input,signal));
+  return boundedModel(this.authority,operation,{component:p.component,maximumMicrousd:250000,reference:this.model.verifiedLiabilityReference},signal=>this.model.invoke(input,signal,operation));
  }
  async dispatch(bearer,action,input){const p=this.authenticate(bearer);switch(action){case 'heartbeat':return this.heartbeat(p,input.sha);case 'claim':return this.claim(p,input);case 'http':return this.http(p,input);case 'artifact':return this.artifact(p,input);case 'model':return this.modelCall(p,input);case 'stop':if(p.role!=='operator')fail('ROLE_DENIED');await this.authority.stop();return {stopped:true};default:fail('ACTION_DENIED');}}
 }

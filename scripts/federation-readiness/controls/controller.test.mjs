@@ -20,3 +20,10 @@ test('response slot held until body completes and ambiguous bodies remain fenced
 test('fresh retry cannot exceed 2000, same ID never retries',async()=>{let ctx,calls=0;ctx=await setup(async(url,init)=>{calls++;await ctx.c.claim(ctx.origin,{operation:init.headers['x-fq-operation'],permit:init.headers['x-fq-permit'],method:'POST',url,bodyBase64:''});return new Response('ok');});await ctx.a.transaction(s=>{s.http=1999;});await ctx.c.http(ctx.p,{operation:'request_1',route:'test'});await assert.rejects(ctx.c.http(ctx.p,{operation:'request_1',route:'test'}));await assert.rejects(ctx.c.http(ctx.p,{operation:'request_2',route:'test'}));assert.equal(calls,1);});
 test('actual artifact bytes enforce size and total before exposure',async()=>{const {c,p}=await setup();await assert.rejects(c.artifact(p,{operation:'artifact_oversize',bodyBase64:Buffer.alloc(65537).toString('base64')}));for(let i=0;i<8;i++)assert.equal((await c.artifact(p,{operation:`artifact_${i}`,bodyBase64:Buffer.alloc(65536).toString('base64')})).bytes,65536);await assert.rejects(c.artifact(p,{operation:'artifact_9',bodyBase64:'eA=='}));});
 test('unverified model adapter cannot reserve or invoke provider',async()=>{const {c,p,a}=await setup();await assert.rejects(c.modelCall(p,{operation:'model_0001',input:'test'}));assert.equal((await a.status()).charged,0);});
+test('model adapter uses durable reservation and HTTP allowance once per operation',async()=>{
+ const {haikuQualificationModel}=await import('./model.mjs');const {a,c,p}=await setup();let attempts=0;
+ c.model=haikuQualificationModel({authority:a,credential:'synthetic-only',pricingReviewedUntil:Date.now()+60000,request:async()=>{attempts++;return Response.json({model:'claude-haiku-4-5-20251001',usage:{input_tokens:10,output_tokens:10},content:[{type:'text',text:'synthetic'}]});}});
+ assert.equal((await c.modelCall(p,{operation:'model_0001',input:'synthetic'})).actualMicrousd,60);
+ await assert.rejects(c.modelCall(p,{operation:'model_0001',input:'synthetic'}));
+ const state=await a.status();assert.equal(state.http,1);assert.equal(state.charged,250000);assert.equal(attempts,1);
+});
