@@ -312,24 +312,41 @@ export async function completeDelegatedTask(input: {
   taskId: string;
   summary: string;
   evidenceSummary: string;
+  /** Resume completion from an exact completed canonical Action. */
+  actionId?: string;
 }): Promise<TaskRunView> {
   const run = await getTaskRun(input.ownerId, input.taskId);
   if (!run) throw new Error("Task not found.");
   if (run.kind !== "delegated_work") throw new Error("Use the audited QA completion path for product QA.");
-  if (run.status !== "running") throw new Error(`Task cannot complete from ${run.status}.`);
+  if (input.actionId) {
+    const [action] = await db().query(`SELECT id FROM action_requests WHERE owner_id=$1 AND run_id=$2 AND id=$3 AND status='completed'`, [input.ownerId, input.taskId, input.actionId]);
+    if (!action) throw new Error("Completed Action result unavailable.");
+    if (run.status === "completed") return run;
+  }
+  if (run.status !== "running" && !(input.actionId && run.status === "awaiting_approval")) throw new Error(`Task cannot complete from ${run.status}.`);
   const summary = redactEvidenceText(input.summary.trim()).slice(0, 1000);
   const evidenceSummary = redactEvidenceText(input.evidenceSummary.trim()).slice(0, 2000);
   if (!summary || !evidenceSummary) throw new Error("A result summary and verification evidence are required.");
-  const outcomeId = `outcome_${randomUUID()}`;
-  await db().transaction((tx) => [
-    tx`UPDATE task_runs SET status='completed',result_summary=${summary},review_status='ready_for_review',completed_at=now(),updated_at=now() WHERE owner_id=${input.ownerId} AND id=${input.taskId} AND status='running'`,
-    tx`INSERT INTO task_transitions (task_id,from_status,to_status,actor,reason) VALUES (${input.taskId},'running','completed','agent','Evidence-backed result recorded')`,
-    tx`INSERT INTO task_milestones (task_id,kind,summary,metadata) VALUES (${input.taskId},'result_ready',${summary},${JSON.stringify({ evidenceSummary })}::jsonb)`,
-    tx`INSERT INTO outcomes (id,owner_id,goal_id,goal_task_id,run_id,status,summary,rationale,idempotency_key)
-       VALUES (${outcomeId},${input.ownerId},${run.goalId},${run.goalTaskId},${run.id},'successful',${summary},${JSON.stringify([evidenceSummary])}::jsonb,${`task-result:${run.id}`})
-       ON CONFLICT (owner_id,idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING`,
-  ]);
-  return (await getTaskRun(input.ownerId, input.taskId))!;
+  // Completion, transition, milestone and Outcome share one conditional write.
+  // Concurrent status/approval retries cannot manufacture extra result evidence.
+  await db().query(`WITH completed AS (
+    UPDATE task_runs r SET status='completed',result_summary=$3,review_status='ready_for_review',completed_at=now(),updated_at=now()
+    WHERE r.owner_id=$1 AND r.id=$2 AND r.status=$4
+      AND ($5::text IS NULL OR EXISTS(SELECT 1 FROM action_requests a WHERE a.owner_id=r.owner_id AND a.run_id=r.id AND a.id=$5 AND a.status='completed'))
+    RETURNING r.*
+  ), transition AS (
+    INSERT INTO task_transitions(task_id,from_status,to_status,actor,reason)
+    SELECT id,$4,'completed','agent','Evidence-backed result recorded' FROM completed
+  ), milestone AS (
+    INSERT INTO task_milestones(task_id,kind,summary,metadata)
+    SELECT id,'result_ready',$3,$6::jsonb FROM completed
+  ) INSERT INTO outcomes(id,owner_id,goal_id,goal_task_id,run_id,status,summary,rationale,idempotency_key)
+    SELECT $7,owner_id,goal_id,goal_task_id,id,'successful',$3,$8::jsonb,'task-result:'||id FROM completed
+    ON CONFLICT(owner_id,idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING`,
+    [input.ownerId,input.taskId,summary,run.status,input.actionId??null,JSON.stringify({evidenceSummary, ...(input.actionId?{actionId:input.actionId}:{})}),`outcome_${randomUUID()}`,JSON.stringify([evidenceSummary])]);
+  const completed=await getTaskRun(input.ownerId,input.taskId);
+  if(completed?.status!=="completed")throw new Error("Task changed before completion.");
+  return completed;
 }
 
 export async function listTaskRuns(ownerId: string, threadId?: string): Promise<TaskRunView[]> {
