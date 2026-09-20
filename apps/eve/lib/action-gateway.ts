@@ -138,7 +138,10 @@ export class ActionGateway {
     let decision: AuthorityDecision;
     let targetResolved=false;
     const context = await this.database.query(`SELECT r.agent_id,r.role_id,g.updated_at::text AS agent_revision,o.id AS occurrence_id,o.claim_version,o.claimed_by,o.lease_expires_at,
-        o.status AS occurrence_status,v.configuration,owner_channel.run_id AS owner_channel_run
+        o.status AS occurrence_status,v.configuration,owner_channel.run_id AS owner_channel_run,
+        owner_channel.work_hash AS channel_work_hash,owner_channel.request->'budget' AS channel_budget,
+        owner_channel.expires_at::text AS channel_expiry,
+        r.max_duration_seconds AS channel_runtime_limit,r.max_model_steps AS channel_step_limit,r.max_estimated_cost_usd::text AS channel_spend_limit
       FROM task_runs r JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
       LEFT JOIN owner_channel_requests owner_channel ON owner_channel.owner_id=r.owner_id AND owner_channel.run_id=r.id
       LEFT JOIN execution_occurrences o ON o.owner_id=r.owner_id AND o.run_id=r.id
@@ -165,8 +168,13 @@ export class ActionGateway {
       decision = { decision: "DENY",reason: "Authority or target resolution unavailable.",source: "local",reasonCode:targetResolved?"authority_unavailable":"target_unresolved" };
     }
     const deliveryBinding=action.delivery?{id:action.delivery.id,channel:action.delivery.channel,resultReference:action.delivery.resultReference}:null;
+    const channelBinding=context[0].owner_channel_run?{
+      ownerId:action.ownerId,workHash:context[0].channel_work_hash,budget:context[0].channel_budget,
+      expiresAt:context[0].channel_expiry,runtime:context[0].channel_runtime_limit,
+      modelSteps:context[0].channel_step_limit,modelSpend:context[0].channel_spend_limit,
+    }:null;
     const binding = approvalBinding({ taskId:action.runId,capabilityId:action.capabilityId,resource:JSON.stringify(target),
-      action:action.actionClass,parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}) } });
+      action:action.actionClass,parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}),...(channelBinding?{ownerChannel:channelBinding}: {}) } });
     const id = `action_${randomUUID()}`;
     const summary=safeActionParameters(Object.fromEntries(Object.entries(action.parameters).map(([key,value])=>
       [key,/^(text|html|content|body)$/i.test(key)?"[content bound by hash]":value])));
@@ -222,7 +230,7 @@ export class ActionGateway {
       if (!row.approval_id) {
         const approval = await this.approvals({ ownerId:action.ownerId,taskId:action.runId,requestedBy:action.executor.agentId,
           capabilityId:action.capabilityId,resource:JSON.stringify(target),action:action.actionClass,actionClass:action.actionClass,
-          parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}) },
+          parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}),...(channelBinding?{ownerChannel:channelBinding}: {}) },
           prompt:"Review the resolved target and exact action before execution.",forceApproval:true,requestKey:`${actionId}:${row.attempt_count}:${row.approval_generation}` });
         await this.database.query(`UPDATE action_requests SET approval_id=$3,status='awaiting_approval',updated_at=now()
           WHERE owner_id=$1 AND id=$2 AND status='planned' AND approval_id IS NULL`, [action.ownerId,actionId,approval.approval?.id??null]);

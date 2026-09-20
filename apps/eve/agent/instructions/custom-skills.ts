@@ -1,3 +1,4 @@
+import {ownerRuntimeFromAuth} from "../../lib/relay/owner/runtime.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 import { skillStore } from "../lib/skill-store";
 import { withTimeout } from "../lib/with-timeout";
@@ -14,7 +15,8 @@ const SKILLS_TIMEOUT_MS = 2000;
 // created mid-conversation applies from the next session onward.
 export default defineDynamic({
   events: {
-    "session.started": async () => {
+    "session.started": async (_event,ctx) => {
+      if(ownerRuntimeFromAuth(ctx.session.auth))return null;
       let skills;
       try {
         skills = await withTimeout(skillStore.list(), SKILLS_TIMEOUT_MS, "Skill list");

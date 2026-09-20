@@ -21,6 +21,9 @@ function resultText(value: unknown): string {
 
 export default defineHook({
   events: {
+    async "compaction.requested"(_event,ctx){
+      if(ownerRuntimeFromAuth(ctx.session.auth))throw new Error("External request cannot start an unreserved compaction call.");
+    },
     async "step.started"(_event, ctx) {
       const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
       if(ownerRuntime)await resolveOwnerRuntime(ownerRuntime);
@@ -28,12 +31,7 @@ export default defineHook({
     },
     async "step.completed"(event, ctx) {
       const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
-      if(ownerRuntime){
-        const usage=event.data.usage;
-        const known=usage&&[usage.costUsd,usage.inputTokens,usage.outputTokens].every(n=>typeof n==="number"&&Number.isFinite(n)&&n>=0);
-        await db().query(`UPDATE owner_channel_requests SET usage_unknown=usage_unknown OR $3,tokens_used=tokens_used+$4 WHERE owner_id=$1 AND run_id=$2`,[ownerRuntime.ownerId,ownerRuntime.runId,!known,known?usage!.inputTokens!+usage!.outputTokens!:0]);
-        if(!known)throw new Error("Owner channel model usage unavailable; further execution denied.");
-      }
+      if(ownerRuntime)return; // Provider boundary durably settles usage exactly once.
       await recordTaskModelStep(ctx.session.id, event.data.usage?.costUsd ?? 0);
     },
     async "subagent.called"(event, ctx) {

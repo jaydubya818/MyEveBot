@@ -1,3 +1,5 @@
+import {ownerRuntimeFromAuth} from "../lib/relay/owner/runtime.ts";
+import {ownerBudgetedModel,ownerModelStepKey} from "../lib/relay/owner/model.ts";
 import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
@@ -49,6 +51,8 @@ export default defineAgent({
       // allowed from step.started; with no level requested this returns null
       // and the turn-scoped string selection (plain prompt-cache path) wins.
       "step.started": async (_event, ctx) => {
+        const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+        if(ownerRuntime)return ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event));
         const requested = clientTurnSettings(ctx.messages);
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
         const model = agent?.preferredModel ?? requested.model;

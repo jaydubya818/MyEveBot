@@ -19,7 +19,11 @@ export default defineDynamic({
   events: {
     "turn.started": async (event, ctx) => {
       const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
-      if(ownerRuntime)await bindOwnerRuntime(ownerRuntime,ctx.session.id,durableTurnId(event));
+      if(ownerRuntime){
+        await bindOwnerRuntime(ownerRuntime,ctx.session.id,durableTurnId(event));
+        const assembled=await assembleContext({ownerId:ownerRuntime.ownerId,agentId:ownerRuntime.agentId,sessionId:ctx.session.id,ownerChannelRunId:ownerRuntime.runId});
+        return defineInstructions({markdown:assembled.markdown});
+      }
       const principal = ctx.session.auth.current;
       const ownerId = principal?.principalType === "user"
         ? principal.principalId
@@ -27,7 +31,6 @@ export default defineDynamic({
       if (!ownerId) return null;
       await reconcileStaleAgentRuns(ownerId, ctx.session.id);
       const selected = await resolveSessionAgent({ ownerId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: principal?.attributes.owner === "true" });
-      if(ownerRuntime&&(!selected||selected.id!==ownerRuntime.agentId))throw new Error("Exact owner channel Agent unavailable.");
       const agent = selected ?? await ensurePrimaryAgent(ownerId);
       const authenticatedThreadId = ctx.session.auth.initiator?.attributes.webThreadId ?? principal?.attributes.webThreadId;
       const threadId = typeof authenticatedThreadId === "string" ? authenticatedThreadId : null;

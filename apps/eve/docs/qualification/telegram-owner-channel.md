@@ -6,6 +6,8 @@
 
 This is a local MyEve companion draft for Relay's Telegram private-beta branch. It is not a qualified release. `OWNER_CHANNEL_RELEASE_QUALIFIED` remains false. Setting `MYEVE_RELAY_OWNER_ENABLED=true` cannot enable it. The built endpoint was probed locally and returned HTTP 503 with `OWNER_EXECUTOR_NOT_QUALIFIED`.
 
+Sections below through “Security review” preserve the `64c40fe` checkpoint. The execution-boundary addendum records the latest source changes and supersedes earlier publication status and missing-reservation statements.
+
 ## Source and isolation
 
 - Companion branch: `codex/telegram-owner-integration`.
@@ -73,3 +75,64 @@ These are code/qualification gaps, not a request for credentials:
 The security-sentinel review checked strict input parsing, signed request boundaries, parameterized SQL, source/owner/Agent binding, replay protection, transport-operation scope and sensitive-data handling. No secrets or real owner data were introduced; tests generate ephemeral keys and use synthetic values. The endpoint returns generic errors and does not log request payloads or credentials. CSRF cookies are not authority for this signed endpoint. No HTML rendering was added.
 
 **High-priority release blockers:** pre-dispatch model budget proof and actual runtime recovery/revocation qualification remain unresolved as listed above. The immutable false release gate keeps the draft unavailable. No claim of complete OWASP coverage or a fresh MyEve dependency audit is made.
+
+
+## Execution-boundary continuation — 2026-09-20
+
+### Published starting revisions
+
+Relay `29c8a3cd39b982f1ee389ac35d07b43b5cf9f318` was pushed to `jaydubya818/relay`, branch `feat/relay-v2-telegram-private-beta`. MyEve `64c40fe6d14f99205978bcd6c94bb668dff6a163` was pushed to the canonical `jaydubya818/MyEveBot`, branch `codex/telegram-owner-integration`. Both exact local/remote SHAs matched after push. MyEve's same-named local feature branch was first published here. Neither repository was merged or tagged. Committed-path hygiene checks found no credential or temporary artifact.
+
+### Budget and context implementation
+
+Migration **0031_owner_model_reservations** adds durable model-call reservations to the existing owner-channel projection of canonical Runs. It does not alter 0030 or create a separate billing authority.
+
+- A PostgreSQL row update serializes cost/token reservation before provider work. Limits are the stricter canonical Run/current Agent policy, capped at **$0.10 per task**, **12,000 reserved/used tokens**, and **8 model calls**. One admitted Work Request maps to one Eve session. This task/session ceiling is stricter than $5; no aggregate hosted campaign budget is claimed.
+- Every model step binds the Run, model ID and material request hash. Completed retry returns its stored result. In-flight/unknown retry is denied. Restart, approval waiting and cancellation cannot reset counters.
+- Known completion settles cost/tokens once and releases only the proven unused portion. Cancellation, transport failure and ambiguous execution retain the full reservation. Invalid/null/empty cost or invalid usage blocks output and subsequent calls.
+- The provider adapter resolves complete Gateway pricing using the existing API, reserves a conservative UTF-8 input bound plus framing and an output cap, with a 2× price margin. Missing pricing denies before execution. This is an enforced local admission bound; the conservative pricing/token envelope still needs verification against the actual selected model/provider before claiming end-to-end spend qualification.
+- Provider output is buffered until accounting persists. Only bounded function tools are exposed: canonical public-network `web_fetch`, and `send_email` only when explicitly included in the local mapping and allowed by the Agent. Provider-managed paid search, delegated agents, arbitrary tools, private memory, files and connected-account tools are excluded. No model/provider fallback is requested; routing is pinned to the selected model's provider.
+- The existing canonical Context Assembly now has an explicit external-Run branch. It records only admitted work/Run refs and no memory/goal/thread-summary refs. It does not load private Agent instructions or saved skills. The final provider boundary also replaces private system context. Normal owner sessions retain their existing assembly path.
+- Eve's public-network DNS, private-address and manual-redirect protections are reused by `web_fetch`, with fresh Run and local capability checks. Unreserved compaction is denied.
+- Canonical Action approval hashes now additionally bind owner-channel work identity, admitted budget, local Run limits and work expiry. Changing the canonical budget after approval denies the effect.
+
+The shared changes are limited to the existing dynamic model selector, accounting hook, Context Assembly, tool policy and Action Gateway boundaries. The provider adapter is deliberately constructed synchronously without database access: an async resolver failure must not let Eve fall back to an unguarded model.
+
+### Automated evidence
+
+| Check | Result |
+|---|---|
+| Complete MyEve suite | **624 passed / 85 files** |
+| Durable budget database cases | **13 passed**: concurrent reservation, retry/restart, settlement replay, cancellation, approval wait, revocation/expiry, token/step limits and narrower local spend policy |
+| Provider/context boundary unit cases | **16 passed**: pre-call denial, exact replay, private context/tool stripping, unknown cost, output buffering and invalid purpose/step identity |
+| Canonical owner approval/authority/recovery/context database cases | **20 passed**, including the new material-budget mutation and private-canary Context Assembly checks |
+| Runtime transport scope | **5 passed**, automated; not actual model execution |
+| Safe approval presentation | **2 passed** |
+| TypeScript / local production build | PASS |
+| Migration order | **31** ordered migrations |
+| Fresh database and populated 0030→0031 upgrade | PASS; existing work/hash preserved and reservation/spend counters initialized to zero |
+| Executor inventory | **528 classified / UNKNOWN=0** |
+| Built public execution endpoint | HTTP **503 OWNER_EXECUTOR_NOT_QUALIFIED** |
+
+Subsets overlap the full suite and must not be added to its total. PostgreSQL fixtures use a disposable loopback cluster on port 55447. No live model/provider traffic occurred. MyEve defines no lint or performance command in its package scripts; no separate result is invented.
+
+### Actual runtime and external prerequisites
+
+Installed runtime inspected: **Eve 0.27.13**, Node **24.18.1**, canonical `withEve` Next integration and existing `/eve/v1/**` session transport. The installed documentation confirms that dynamic model resolution failures can fall back, hooks can fail a turn, session token limits are post-call, and local workflow state lives under `.eve/.workflow-data`. These framework facts informed implementation; they are not actual-runtime qualification evidence.
+
+**Actual Eve/model execution: NOT RUN. Actual host interruption/recovery: NOT RUN. Actual-model adversarial private-context test: NOT RUN.** The controlled private canary was exercised through canonical database Context Assembly and the provider-boundary unit tests only.
+
+Existing Vercel project links and environment-variable names were inspected without printing secret values. The ordinary local MyEve OIDC token is expired. Separate Federation qualification preview branches contain model credentials; those fixtures were not borrowed or modified. No Telegram bot/webhook variable was found in the inspected local, preview or production settings. This does not establish that no bot exists elsewhere.
+
+Automatic approval review rejected exporting the full development environment because unrelated credentials could be copied. The export did not run and no file was created. A narrower request for model authentication in the intended qualification scope is pending owner approval. No credentials should be pasted into chat.
+
+### Remaining qualification gates
+
+1. Approved narrowly scoped model authentication, explicit isolated Agent/model configuration and actual canonical Eve public-research/private-canary execution. Verify the reservation envelope with that provider.
+2. Actual host/runtime interruption, cancellation and saved-result reconciliation; complete live approval and denial paths with canonical evidence.
+3. Final combined-source integration and documented migration-branch collisions; clean exact revisions before deployment.
+4. An explicitly authorized Telegram bot/identity, intended HTTPS deployments, webhook verification, scoped qualification enablement, emergency-stop proof and real provider traffic. Broad Telegram/Federation enablement remains off.
+
+No deployment was attempted because actual-runtime qualification is not green. Live Telegram scenario count remains **0**. **TELEGRAM PRIVATE-BETA GOLDEN PATH INCOMPLETE.**
+
+Cleanup: task-created local app server 3228 stopped; disposable PostgreSQL 55447 stopped and its cluster removed. No hosted resources, live bot registration, credentials or execution enablement were created. The rejected environment export file does not exist. Both immutable release gates remain false. Hosted emergency-stop behavior remains unqualified.

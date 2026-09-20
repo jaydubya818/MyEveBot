@@ -36,7 +36,7 @@ export async function resolveOwnerRuntime(claim:OwnerRuntimeClaim,database:Execu
  if(!row)throw new Error("Owner runtime binding unavailable.");
  const request=row.request as {ownerPrincipalId:string;agentId:string};
  const mappings=configuration.trust.mappings.filter(m=>m.enabled&&m.ownerId===claim.ownerId&&m.agentId===claim.agentId&&m.sourceIdentity===row.source_identity&&m.relayAccountId===row.relay_account_id&&m.relayOwnerPrincipalId===request.ownerPrincipalId&&m.relayAgentId===request.agentId);
- if(claim.purpose!=="cancel"&&mappings.length!==1)throw new Error("Owner channel mapping revoked.");return row;
+ if(claim.purpose!=="cancel"&&mappings.length!==1)throw new Error("Owner channel mapping revoked.");return {...row,channelCapabilities:mappings[0]?.allowedCapabilities??["web.search","web.read"]} as Record<string,unknown>&{channelCapabilities:string[];session_id?:unknown};
 }
 /** Bind at authenticated turn admission, before Context Assembly or any tool.
  * A second Eve session cannot claim the same canonical Run after a lost response.

@@ -5,7 +5,7 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c09b30e46570a37fbbf4adec5f24dba761059ce4a2bc78671908706b57472dd7"
+      "sha256": "3033e25e685e55519b0d695f32e5c71152b1ada89caf485a3cbf8fd6b30f9a06"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -229,7 +229,7 @@
     "agent/hooks/task-ledger.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "66e6e7f32583391fba330b11542e926b4ea4786082b77be4f9588bfefe2bf637"
+      "sha256": "7d9e21d0dd114c980bb268a4f087b5197d06f7e47c6db6f84a294ec8f872aef6"
     },
     "agent/instructions/agentcard.ts": {
       "classification": "INTERNAL",
@@ -269,7 +269,7 @@
     "agent/instructions/custom-skills.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "22f9e678e4fc81704dd56a172caeb767dbd8598bf00e3056ba8d6a20bc5f789e"
+      "sha256": "1a46728fd9ba056e45a9f9201fbd36cd635253556ecc440bc8b76904ac4c8095"
     },
     "agent/instructions/delegation.ts": {
       "classification": "INTERNAL",
@@ -304,7 +304,7 @@
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "d3815fb3bb2afb043592d26586a419fba0362227439d5153e327cc0d668e86fd"
+      "sha256": "c8c038363642ade73888891d052a1ab0be460b1b1e49397e2a73b7d2d4e69d79"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -374,7 +374,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "683f5205bc06250fef34f1a9d9fc8bd69d44996d92ae176d2ad5b0a7bb9f7529"
+      "sha256": "5ff498dcf777a0f4ecfd99316f4a92e4b45913e17632741ffbdf89ca491ca274"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -1306,7 +1306,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "b0ede774f40920d77cb7936f1cef1b1dab541c8e702871d62b73f2310574e86d",
+      "sha256": "dc1514029306a7ffa5bea44c1af6a6426b26b484c07d8e9820abc1648d346c45",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -1997,7 +1997,7 @@
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "78d6bb2219f98fb6907b5a61289dfb5c8b1e063fa682cec42f67a1ef487015e0"
+      "sha256": "dded92320b74c7961260d56f5f8caa0638d7020ec25ce82a0a60804141d14f4f"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2162,7 +2162,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "aaab85f325623c5302ff67b9eff41edcc5119f0c218dcee8390727bb573b529c"
+      "sha256": "aee3e118302dafa7e0b6e3194b752840cb3bd1b3cf686a8c40fcac3041f1a8e4"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2647,7 +2647,7 @@
     "lib/relay/owner/config.ts": {
       "classification": "BLOCKED",
       "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration.",
-      "sha256": "2bee47fe722298c17e0247333cee2de88c47b6793fadf66259ffdd4bd1bf3bff"
+      "sha256": "29002bc3396445a08ee67080aadf56f8d04425704eb99f696b8a151a7615582d"
     },
     "lib/relay/owner/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2662,12 +2662,12 @@
     "lib/relay/owner/handoff.ts": {
       "classification": "ENFORCED",
       "reason": "Pinned signature and explicit mapping; replay fence; atomic canonical Run/projection/command admission; local source revocation.",
-      "sha256": "2a45541d08e81dc1b0df375acc855c97cc11ae7db07e84e5fbcfaaccc015dbad"
+      "sha256": "fa3c7c93f6ee325e797647fc450a2cdd92bc383de0f8ced7436ddeb7dc4c8676"
     },
     "lib/relay/owner/runtime.ts": {
       "classification": "ENFORCED",
       "reason": "Short-lived HMAC execution/observation/cancellation claims restricted to one recorded session and turn; active mapping and local budget rechecks.",
-      "sha256": "3a8f656b7d899465333b3087aa08bcc5d9ee74d41d85d01ca0aef12ef923bb8e"
+      "sha256": "065066df7a7f052f4150583899d09456735a4d16b9e91207bdb301ae90571daf"
     },
     "lib/relay/owner/signing.ts": {
       "classification": "ENFORCED",
@@ -2688,6 +2688,21 @@
       "classification": "ENFORCED",
       "reason": "One-time restoration of remaining canonical Run active time from the original approval timestamp; approval retries cannot refresh the budget; real PostgreSQL continuation test.",
       "sha256": "0c8f4d2fe330b0a7a7fb8a19d5cad1aa09d8ded38e4efba0832c8dc2e1f42c39"
+    },
+    "lib/relay/owner/model-budget.ts": {
+      "classification": "INTERNAL",
+      "reason": "Canonical Run model reservations and exactly-once usage settlement; unknown calls retain reservations across retries, restart and cancellation.",
+      "sha256": "5b537913f6394a54bc8053e976eec5a49181fc46ae339e80377559e38058b560"
+    },
+    "lib/relay/owner/model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only provider boundary: exact local authority, scoped prompt/tools, conservative durable reservation, one provider invocation and accounting before output. Release gate remains false; actual runtime qualification pending.",
+      "sha256": "dabed07472dbd99473e619bbbdfd15b24f4799e8ad3fe503df89e974d292b621"
+    },
+    "agent/tools/web_fetch.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reuses Eve public-network DNS and redirect guards; rechecks canonical owner Run and local web.read capability immediately before fetch.",
+      "sha256": "0904d9d16da0e4474baac0fa2ca9a10f7e27a7f039fe5320cf5244f523a19dad"
     }
   }
 }

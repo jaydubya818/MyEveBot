@@ -10,7 +10,7 @@ export class OwnerWorkNotAdmitted extends Error {
 }
 export interface OwnerChannelMapping {
  relayAccountId:string;relayOwnerPrincipalId:string;relayAgentId:string;sourceIdentity:string;
- ownerId:string;agentId:string;enabled:boolean;
+ ownerId:string;agentId:string;enabled:boolean;allowedCapabilities?:string[];
 }
 export interface OwnerChannelTrust {environment:Environment;audience:string;keys:Record<string,string>;mappings:OwnerChannelMapping[]}
 /** Authenticates/admit only. It does not execute a model, grant a capability,

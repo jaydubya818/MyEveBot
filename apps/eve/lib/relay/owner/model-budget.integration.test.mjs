@@ -1,0 +1,76 @@
+import {readFile,readdir} from 'node:fs/promises';
+import {Pool} from 'pg';
+import {beforeAll,beforeEach,afterAll,describe,it,expect} from 'vitest';
+import {OwnerModelBudget} from './model-budget.ts';
+const suite=process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'?describe:describe.skip;
+suite('durable owner model budget',()=>{
+ let admin,pool,budget;const schema=`owner_budget_${process.pid}_${Date.now()}`;
+ const query=async(text,params=[])=>(await pool.query(text,params)).rows;
+ const database={query};
+ const input=(stepKey='turn:0')=>({ownerId:'owner',runId:'run',stepKey,requestHash:'sha256:fixture',modelId:'fixture/model',microUsd:60000,tokens:6000});
+ beforeAll(async()=>{
+  admin=new Pool({host:'127.0.0.1',port:55447,database:'postgres',user:process.env.USER});await admin.query(`CREATE SCHEMA ${schema}`);
+  pool=new Pool({host:'127.0.0.1',port:55447,database:'postgres',user:process.env.USER,options:`-c search_path=${schema}`});
+  const dir=new URL('../../../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
+  await query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent','owner','budget','Budget fixture','Qualification','Synthetic',true,'active',8,60,0.1)");
+ });
+ beforeEach(async()=>{
+  await query('TRUNCATE task_runs CASCADE');await query("UPDATE agents SET status='active',is_primary=true,max_estimated_cost_usd=0.1");
+  await query("INSERT INTO task_runs(id,owner_id,agent_id,kind,title,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,deadline_at) VALUES('run','owner','agent','delegated_work','Fixture','running',60,0,8,0,0.1,now()+interval '60 seconds')");
+  await query("INSERT INTO owner_channel_requests(relay_account_id,request_id,owner_id,agent_id,source_identity,relay_thread_id,work_hash,run_id,request,expires_at) VALUES('relay','request','owner','agent','source','thread','hash','run','{}',now()+interval '1 hour')");
+  budget=new OwnerModelBudget(database);
+ });
+ afterAll(async()=>{await pool?.end();if(admin){await admin.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);await admin.end();}});
+ it('serializes concurrent reservations without overspending',async()=>{
+  const results=await Promise.allSettled([0,1,2,3].map(i=>budget.reserve(input(`turn:${i}`))));
+  expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);
+  expect((await query('SELECT model_reserved_microusd,model_calls_started FROM owner_channel_requests'))[0]).toMatchObject({model_reserved_microusd:'60000',model_calls_started:1});
+ });
+ it('restart and retry cannot repeat an ambiguous call',async()=>{
+  await budget.reserve(input());await expect(new OwnerModelBudget(database).reserve(input())).rejects.toThrow('ambiguous');
+  expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(1);
+ });
+ it('replays completed results and settles exactly once',async()=>{
+  await budget.reserve(input());await budget.settle(input(),{microUsd:10000,tokens:1000},{content:'safe result'});
+  expect(await new OwnerModelBudget(database).reserve(input())).toEqual({result:{content:'safe result'}});
+  await expect(budget.settle(input(),{microUsd:10000,tokens:1000},{})).rejects.toThrow();
+  expect((await query('SELECT model_spent_microusd,model_reserved_microusd,tokens_used,tokens_reserved FROM owner_channel_requests'))[0]).toMatchObject({model_spent_microusd:'10000',model_reserved_microusd:'0',tokens_used:1000,tokens_reserved:0});
+  expect((await query('SELECT model_steps,estimated_cost_usd FROM task_runs'))[0].model_steps).toBe(1);
+ });
+ it('cancellation retains ambiguous cost and denies new calls',async()=>{
+  await budget.reserve(input());await query("UPDATE task_runs SET status='cancelled'");await budget.unknown(input());
+  await expect(budget.reserve(input('turn:1'))).rejects.toThrow();
+  expect((await query('SELECT model_reserved_microusd,usage_unknown FROM owner_channel_requests'))[0]).toMatchObject({model_reserved_microusd:'60000',usage_unknown:true});
+ });
+ it('a known completed call settles after cancellation without refunding incurred usage',async()=>{
+  await budget.reserve(input());await query("UPDATE task_runs SET status='cancelled'");await budget.settle(input(),{microUsd:20000,tokens:2000},{});
+  expect((await query('SELECT model_spent_microusd,model_reserved_microusd FROM owner_channel_requests'))[0]).toMatchObject({model_spent_microusd:'20000',model_reserved_microusd:'0'});
+ });
+ it('approval waiting and continuation cannot reset consumed budget',async()=>{
+  await budget.reserve(input());await budget.settle(input(),{microUsd:60000,tokens:6000},{});
+  await query("UPDATE task_runs SET status='awaiting_approval'");await expect(budget.reserve(input('turn:1'))).rejects.toThrow();
+  await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '7 seconds'");await expect(new OwnerModelBudget(database).reserve(input('turn:1'))).rejects.toThrow();
+ });
+ it.each(['revoked','expired','agent-denied','time-expired'])('denies %s before reservation',async reason=>{
+  if(reason==='revoked')await query('UPDATE owner_channel_requests SET revoked_at=now()');
+  if(reason==='expired')await query("UPDATE owner_channel_requests SET expires_at=now()-interval '1 second'");
+  if(reason==='agent-denied')await query("UPDATE agents SET status='paused',is_primary=false");
+  if(reason==='time-expired')await query("UPDATE task_runs SET deadline_at=now()-interval '1 second'");
+  await expect(budget.reserve(input())).rejects.toThrow();expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(0);
+ });
+ it('denies changed material request and missing or excessive usage',async()=>{
+  await budget.reserve(input());await expect(budget.reserve({...input(),requestHash:'changed'})).rejects.toThrow();
+  await expect(budget.settle(input(),{microUsd:NaN,tokens:100},{})).rejects.toThrow();
+  await expect(budget.reserve(input('turn:1'))).rejects.toThrow();
+ });
+ it('reserves token and step limits independently of spend',async()=>{
+  await query('UPDATE owner_channel_requests SET tokens_used=11900');await expect(budget.reserve({...input(),microUsd:1})).rejects.toThrow();
+  await query('UPDATE owner_channel_requests SET tokens_used=0,model_calls_started=8');await expect(budget.reserve({...input(),microUsd:1})).rejects.toThrow();
+ });
+ it('newly narrowed local Agent spend policy overrides the admitted Relay allowance',async()=>{
+  await query('UPDATE agents SET max_estimated_cost_usd=0.05');
+  await expect(budget.reserve(input())).rejects.toThrow();
+  expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(0);
+ });
+
+});
