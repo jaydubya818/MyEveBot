@@ -1,5 +1,5 @@
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
-import { Denied, boundedModel } from './postgres.mjs';
+import { Denied, boundedModel, admitHttp } from './postgres.mjs';
 const hash=x=>createHash('sha256').update(x).digest('hex');
 const fail=code=>{throw new Denied(code);};
 const id=x=>typeof x==='string'&&/^[A-Za-z0-9_-]{8,120}$/.test(x);
@@ -8,10 +8,10 @@ export function requestBinding(method,url,body){return hash(JSON.stringify([meth
  * distinct role credentials, and cannot reserve arbitrary costs/classifications.
  * Control-plane RPC is bounded separately and never performs provider requests. */
 export class Controller {
- constructor(authority,{principals,routes,request=fetch,model}) {
-  this.authority=authority;this.principals=structuredClone(principals);this.routes=structuredClone(routes);this.request=request;this.model=model;
+ constructor(authority,{principals,routes,request=fetch,model,ingressSecrets={}}) {
+  this.authority=authority;this.principals=structuredClone(principals);this.routes=structuredClone(routes);this.request=request;this.model=model;this.ingressSecrets={...ingressSecrets};
   if(Object.values(principals).some(p=>!/^[a-f0-9]{64}$/.test(p.credentialHash)||!['worker','origin','operator'].includes(p.role)))throw Error('Invalid principals');
-  for(const route of Object.values(routes)){const u=new URL(route.url);if(u.protocol!=='https:'||u.username||u.password||u.hash||!principals[route.origin]||principals[route.origin].role!=='origin')throw Error('Invalid origin');}
+  for(const route of Object.values(routes)){const u=new URL(route.url);if(u.protocol!=='https:'||u.username||u.password||u.hash||(!route.provider&&(!principals[route.origin]||principals[route.origin].role!=='origin')))throw Error('Invalid origin');}
  }
  authenticate(bearer){
   if(typeof bearer!=='string'||!/^Bearer [A-Za-z0-9_-]{43,128}$/.test(bearer))fail('AUTHENTICATION');
@@ -19,47 +19,62 @@ export class Controller {
   const match=Object.entries(this.principals).find(([,p])=>timingSafeEqual(digest,Buffer.from(p.credentialHash,'hex')));
   if(!match)fail('AUTHENTICATION');return {name:match[0],...match[1]};
  }
- live(s,now,p){this.authority.check(s,now);const worker=s.workers?.[p.name];if(p.role!=='worker'||!worker||!Number.isFinite(worker.at)||now-worker.at>10||worker.sha!==p.sha)fail('WORKER_UNAVAILABLE');}
+ live(s,now,p){this.authority.check(s,now);const worker=s.workers?.[p.worker??p.name];if(!['worker','origin','operator'].includes(p.role)||!worker||!Number.isFinite(worker.at)||now-worker.at>10||worker.sha!==(this.principals[p.worker??p.name]?.sha??p.sha))fail('WORKER_UNAVAILABLE');}
  async heartbeat(p,sha){
   if(p.role!=='worker'||sha!==p.sha||!/^[a-f0-9]{40}$/.test(sha))fail('WORKER_IDENTITY');
   return this.authority.transaction((s,now)=>{this.authority.check(s,now);s.workers??={};s.workers[p.name]={at:now,sha};return {session:this.authority.id,sha,deadline:s.start+2700};});
  }
  async permit(p,operation,method,url,body,origin){
   const nonce=randomBytes(32).toString('base64url');
-  await this.authority.transaction((s,now)=>{this.live(s,now,p);if(!id(operation))fail('INVALID_OPERATION');s.permits??={};if(s.permits[operation])fail('PERMIT_EXISTS');s.permits[operation]={hash:hash(nonce),binding:requestBinding(method,url,body),origin,worker:p.name,expires:now+15,used:false};});
+  await this.authority.transaction((s,now)=>{this.live(s,now,p);if(!id(operation))fail('INVALID_OPERATION');s.permits??={};if(s.permits[operation])fail('PERMIT_EXISTS');s.permits[operation]={hash:hash(nonce),binding:requestBinding(method,url,body),origin,worker:p.worker??p.name,expires:now+15,used:false};});
   return nonce;
  }
  async claim(p,{operation,permit,method,url,bodyBase64}){
   if(p.role!=='origin'||!id(operation)||typeof permit!=='string'||typeof bodyBase64!=='string'||bodyBase64.length>350000)fail('PERMIT_INVALID');
-  return this.authority.transaction((s,now)=>{this.authority.check(s,now);const v=s.permits?.[operation];if(!v||v.used||v.expires<=now||v.origin!==p.name||v.hash!==hash(permit)||v.binding!==requestBinding(method,url,Buffer.from(bodyBase64,'base64')))fail('PERMIT_INVALID');const worker=s.workers?.[v.worker];if(!worker||!Number.isFinite(worker.at)||now-worker.at>10)fail('WORKER_UNAVAILABLE');v.used=true;return {admitted:true};});
+  return this.authority.transaction((s,now)=>{this.live(s,now,p);const v=s.permits?.[operation];if(!v||v.used||v.expires<=now||v.origin!==p.name||v.hash!==hash(permit)||v.binding!==requestBinding(method,url,Buffer.from(bodyBase64,'base64')))fail('PERMIT_INVALID');const worker=s.workers?.[v.worker];if(!worker||!Number.isFinite(worker.at)||now-worker.at>10)fail('WORKER_UNAVAILABLE');v.used=true;return {admitted:true};});
  }
- async http(p,{operation,route:routeId,bodyBase64=''}){
-  const route=this.routes[routeId];if(!route||!route.callers.includes(p.name)||!id(operation)||typeof bodyBase64!=='string'||bodyBase64.length>175000)fail('ROUTE_DENIED');
-  const body=Buffer.from(bodyBase64,'base64');if(body.length>131072)fail('BODY_SIZE');
+ async http(p,{operation,route:routeId,url:requestedUrl,method:requestedMethod,headers:forwarded={},bodyBase64=''}){
+  const route=this.routes[`${p.name}:${routeId}`]??this.routes[routeId];if(!route||!route.callers.includes(p.name)||!id(operation)||typeof bodyBase64!=='string'||bodyBase64.length>524288)fail('ROUTE_DENIED');
+  const url=new URL(requestedUrl??route.url),base=new URL(route.url),method=requestedMethod??route.method;
+  if(url.origin!==base.origin||url.username||url.password||url.hash||!(route.methods??[route.method]).includes(method)||
+    (route.pathPattern?!new RegExp(route.pathPattern).test(url.pathname):url.href!==base.href))fail('ROUTE_DENIED');
+  const body=Buffer.from(bodyBase64,'base64');if(body.length>(route.provider?393216:131072))fail('BODY_SIZE');
+  if(!forwarded||typeof forwarded!=='object'||Object.keys(forwarded).some(k=>!['authorization','cookie','origin','content-type'].includes(k.toLowerCase()))||Object.values(forwarded).some(v=>typeof v!=='string'||v.length>16384||/[\r\n]/.test(v)))fail('HEADER_DENIED');
   await this.authority.transaction((s,now)=>this.live(s,now,p));
-  // Every attempt, including a caller-requested retry with a fresh operation ID,
-  // consumes the aggregate allowance. Reusing an ID never repeats the request.
-  await this.authority.http(operation,{submission:route.submission===true});
-  const permit=await this.permit(p,operation,route.method,route.url,body,route.origin);
-  const response=await this.request(route.url,{method:route.method,headers:{'content-type':'application/json','x-fq-operation':operation,'x-fq-permit':permit},...(route.method==='GET'?{}:{body}),redirect:'error',signal:AbortSignal.timeout(15000)});
+  await admitHttp(this.authority,operation,{submission:route.submission===true,channel:route.provider?'provider':'origin'},()=>this.active(p));
+  const permit=await this.permit(p,operation,method,url.href,body,route.origin??'provider');
+  if(route.provider)await this.authority.transaction((s,now)=>{this.live(s,now,p);const v=s.permits[operation];if(v.used||v.expires<=now)fail('PERMIT_INVALID');v.used=true;});
+  const response=await this.request(url.href,{method,headers:{...forwarded,'x-fq-operation':operation,'x-fq-permit':permit,...(this.ingressSecrets[url.origin]?{'x-vercel-protection-bypass':this.ingressSecrets[url.origin]}:{})},...(['GET','HEAD'].includes(method)?{}:{body}),redirect:'error',signal:AbortSignal.timeout(15000)});
   const parts=[];let bytes=0;
   for await(const chunk of response.body??[]){bytes+=chunk.byteLength;if(bytes>262144)fail('RESPONSE_SIZE');parts.push(Buffer.from(chunk));}
   await this.authority.transaction((s)=>{if(!s.permits?.[operation]?.used)fail('ORIGIN_NOT_GUARDED');});
   await this.authority.complete(operation);
-  return {status:response.status,bodyBase64:Buffer.concat(parts).toString('base64')};
+  return {status:response.status,headers:Object.fromEntries(['content-type','set-cookie'].flatMap(k=>response.headers.has(k)?[[k,response.headers.get(k)]]:[])),bodyBase64:Buffer.concat(parts).toString('base64')};
  }
- async artifact(p,{operation,bodyBase64}){
-  await this.authority.transaction((s,now)=>this.live(s,now,p));
-  if(!id(operation)||typeof bodyBase64!=='string'||bodyBase64.length>87384)fail('ARTIFACT_SIZE');
-  const bytes=await this.authority.artifact(operation,[Buffer.from(bodyBase64,'base64')]);
-  return {bytes:bytes.length,sha256:hash(bytes),bodyBase64:bytes.toString('base64')};
+ async artifact(p,{operation,bodyBase64,ownerId,artifactId}){
+  if(!['worker','origin'].includes(p.role)||ownerId!==p.ownerId||!ownerId||typeof artifactId!=='string'||artifactId.length>255||!id(operation)||typeof bodyBase64!=='string'||bodyBase64.length>87384)fail('ARTIFACT_DENIED');
+  const bytes=Buffer.from(bodyBase64,'base64');if(bytes.length>65536)fail('ARTIFACT_SIZE');
+  const digest=hash(bytes),key=hash(JSON.stringify([ownerId,artifactId]));
+  return this.authority.transaction((s,now)=>{
+   this.live(s,now,p);this.authority.operation(s,operation);s.artifactRegistry??={};
+   const existing=s.artifactRegistry[key];
+   if(existing&&(existing.digest!==digest||existing.bytes!==bytes.length))fail('ARTIFACT_CHANGED');
+   if(!existing){if(s.artifacts>=8||s.artifactBytes+bytes.length>524288)fail('ARTIFACT_TOTAL');s.artifacts++;s.artifactBytes+=bytes.length;s.artifactRegistry[key]={digest,bytes:bytes.length,ownerId};}
+   // Each storage/publication/exposure authorization is a fresh one-use operation;
+   // replaying the same artifact allocation with a new permit never refunds it.
+   s.operations[operation]={kind:'artifact',status:'COMPLETED',ownerId,binding:key,digest,expires:now+15};
+   s.events.push({kind:'artifact_permit_consumed',operation,ownerId,binding:key,digest,at:now});
+   return {bytes:bytes.length,sha256:digest,ownerId,artifactId,operation,expiresAt:(now+15)*1000};
+  });
  }
+ async active(p){return this.authority.transaction((s,now)=>{this.live(s,now,p);return {active:true,session:this.authority.id};});}
  async modelCall(p,{operation,input}){
+  if(p.role!=='worker'||!['myeve','peer'].includes(p.component))fail('MODEL_ROLE_DENIED');
   await this.authority.transaction((s,now)=>this.live(s,now,p));
   if(!this.model||!this.model.verifiedLiabilityReference)fail('MODEL_LIABILITY_UNVERIFIED');
   // Model adapter, provider key, price and token bounds are operator-owned; none
   // are caller-supplied. The adapter must report actual provider cost.
-  return boundedModel(this.authority,operation,{component:p.component,maximumMicrousd:250000,reference:this.model.verifiedLiabilityReference},signal=>this.model.invoke(input,signal,operation));
+  return boundedModel(this.authority,operation,{component:p.component,maximumMicrousd:250000,reference:this.model.verifiedLiabilityReference,authorize:()=>this.active(p)},signal=>this.model.invoke(input,signal,operation));
  }
- async dispatch(bearer,action,input){const p=this.authenticate(bearer);switch(action){case 'heartbeat':return this.heartbeat(p,input.sha);case 'claim':return this.claim(p,input);case 'http':return this.http(p,input);case 'artifact':return this.artifact(p,input);case 'model':return this.modelCall(p,input);case 'stop':if(p.role!=='operator')fail('ROLE_DENIED');await this.authority.stop();return {stopped:true};default:fail('ACTION_DENIED');}}
+ async dispatch(bearer,action,input){const p=this.authenticate(bearer);switch(action){case 'active':return this.active(p);case 'heartbeat':return this.heartbeat(p,input.sha);case 'claim':return this.claim(p,input);case 'http':return this.http(p,input);case 'artifact':return this.artifact(p,input);case 'model':return this.modelCall(p,input);case 'disable-model':if(p.role!=='operator')fail('ROLE_DENIED');return {disabled:this.model?.disable()===true};case 'stop':if(p.role!=='operator')fail('ROLE_DENIED');await this.authority.stop();return {stopped:true};default:fail('ACTION_DENIED');}}
 }

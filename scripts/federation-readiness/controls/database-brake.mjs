@@ -6,19 +6,24 @@ import {pathToFileURL} from 'node:url';
 
 export function validateTarget(d) {
   if(!['myeve','peer','relay'].includes(d.component) || d.database!==`fq_${d.component}_6384519e0e01` || d.applicationRole!==`${d.database}_app`) throw Error('Non-qualification target refused');
+  if(d.workerRole!==undefined&&(d.component==='relay'||d.workerRole!==`${d.database}_worker`))throw Error('Non-qualification worker role refused');
 }
 export async function freezeDatabase(admin,d) {
   validateTarget(d);
   // No table mutations, deletion, owner-role changes, or production-role changes.
-  await admin.query(`ALTER ROLE ${d.applicationRole} NOLOGIN PASSWORD NULL`);
-  await admin.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename=$1 AND pid<>pg_backend_pid()',[d.applicationRole]);
+  for(const role of [d.applicationRole,...(d.workerRole?[d.workerRole]:[])]){
+   await admin.query(`ALTER ROLE ${role} NOLOGIN PASSWORD NULL`);
+   await admin.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE usename=$1 AND pid<>pg_backend_pid()',[role]);
+  }
   return await verifyDatabaseBrake(admin,d);
 }
 export async function verifyDatabaseBrake(admin,d) {
   validateTarget(d);
-  const {rows:[r]}=await admin.query('SELECT rolcanlogin FROM pg_roles WHERE rolname=$1',[d.applicationRole]);
-  const {rows:[sessions]}=await admin.query('SELECT count(*)::int AS n FROM pg_stat_activity WHERE usename=$1',[d.applicationRole]);
-  return r?.rolcanlogin===false && sessions.n===0;
+  for(const role of [d.applicationRole,...(d.workerRole?[d.workerRole]:[])]){
+  const {rows:[r]}=await admin.query('SELECT rolcanlogin FROM pg_roles WHERE rolname=$1',[role]);
+  const {rows:[sessions]}=await admin.query('SELECT count(*)::int AS n FROM pg_stat_activity WHERE usename=$1',[role]);
+  if(r?.rolcanlogin!==false||sessions.n!==0)return false;
+  }return true;
 }
 async function main() {
  const freeze=process.argv.includes('--freeze-synthetic-only');

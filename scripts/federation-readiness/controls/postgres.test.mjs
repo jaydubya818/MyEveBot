@@ -92,7 +92,7 @@ test('cross-host stop aborts active model and prevents subsequent work',async()=
   const rejection=assert.rejects(work,/UNCONFIRMED/);await ready;await b.stop();await rejection;await assert.rejects(a.http('after_stop'),/SESSION_CLOSED/);assert.equal((await a.status()).charged,250000);
 });
 test('all stop adapters attempted after failed revocation; no false complete',async()=>{
-  const a=await fresh(),names=['revokeCredentials','revokeGrants','denyQueuedWork','stopWorkers','disableModelCredentials','preserveEvidence','freezeDatabaseLogins'],seen=[];
+  const a=await fresh(),names=['revokeCredentials','revokeGrants','denyQueuedWork','disableModelCredentials','stopWorkers','preserveEvidence','freezeDatabaseLogins'],seen=[];
   const result=await emergencyStop(a,Object.fromEntries(names.map(name=>[name,async()=>{seen.push(name);if(name==='revokeCredentials')throw Error('do not expose');return true;}])));
   assert.deepEqual(seen,names);assert.equal(result.complete,false);assert.equal((await a.status()).stopped,true);assert.equal(JSON.stringify(result).includes('do not expose'),false);
 });
@@ -108,7 +108,7 @@ test('clock rollback and corrupt state deny admission',async()=>{
 });
 test('hung stop adapter cannot prevent other emergency brakes',async()=>{
  const a=await fresh(),seen=[];
- const names=['revokeCredentials','revokeGrants','denyQueuedWork','stopWorkers','disableModelCredentials','preserveEvidence','freezeDatabaseLogins'];
+ const names=['revokeCredentials','revokeGrants','denyQueuedWork','disableModelCredentials','stopWorkers','preserveEvidence','freezeDatabaseLogins'];
  const adapters=Object.fromEntries(names.map(name=>[name,async()=>{seen.push(name);if(name==='revokeGrants')return new Promise(()=>{});return true;} ]));
  const result=await emergencyStop(a,adapters,20);assert.equal(result.complete,false);assert.equal(result.revokeGrants,'UNCONFIRMED');assert.deepEqual(seen,names);
 });

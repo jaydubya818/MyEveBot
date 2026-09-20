@@ -1,0 +1,9 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {railwayStopAdapter} from './railway-stop.mjs';
+const id=n=>`${String(n).padStart(8,'0')}-0000-0000-0000-000000000000`;
+const scope={credential:'synthetic-only',projectId:id(1),environmentId:id(2),deployments:[3,4,5].map(n=>({id:id(n),serviceId:id(n+3)}))};
+function mock({wrongScope=false,partial=false,unconfirmed=false}={}){const stopped=new Set();let mutations=0;return {count:()=>mutations,request:async(url,init)=>{assert.equal(url,'https://backboard.railway.com/graphql/v2');const {query,variables}=JSON.parse(init.body);const target=scope.deployments.find(d=>d.id===variables.id);if(query.startsWith('mutation')){mutations++;if(partial&&target.id===id(4))throw Error();stopped.add(target.id);return Response.json({data:{deploymentStop:true}});}return Response.json({data:{deployment:{...target,projectId:wrongScope?id(9):scope.projectId,environmentId:scope.environmentId,status:stopped.has(target.id)&&!unconfirmed?'REMOVED':'SUCCESS'}}});}};}
+test('three frozen deployment scopes are checked before stop and verified after',async()=>{const m=mock();assert.equal(await railwayStopAdapter({...scope,request:m.request})(AbortSignal.timeout(2000)),true);assert.equal(m.count(),3);});
+test('wrong project cannot be stopped',async()=>{const m=mock({wrongScope:true});assert.equal(await railwayStopAdapter({...scope,request:m.request})(AbortSignal.timeout(2000)),false);assert.equal(m.count(),0);});
+test('partial failure and accepted-but-running deployment never report complete',async()=>{for(const options of [{partial:true},{unconfirmed:true}]){const m=mock(options);assert.equal(await railwayStopAdapter({...scope,request:m.request})(AbortSignal.timeout(2000)),false);assert.equal(m.count(),3);}});

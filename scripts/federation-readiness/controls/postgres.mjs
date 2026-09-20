@@ -72,17 +72,18 @@ export class Authority {
     if (!/^[A-Za-z0-9_-]{8,120}$/.test(id)) deny('INVALID_OPERATION');
     if (Object.hasOwn(state.operations, id)) deny('OPERATION_ALREADY_RESERVED');
   }
-  async http(id, { submission = false, cleanup = false } = {}) {
-    if (typeof submission !== 'boolean' || typeof cleanup !== 'boolean' || (submission && cleanup)) deny('CLASSIFICATION');
+  async http(id, { submission = false, cleanup = false, channel } = {}) {
+    if (typeof submission !== 'boolean' || typeof cleanup !== 'boolean' || (submission && cleanup) || (channel!==undefined&&!['origin','provider'].includes(channel))) deny('CLASSIFICATION');
     return this.transaction((s, now) => {
       this.check(s, now, cleanup); this.operation(s, id);
       if (s.http >= 2000 || (submission && s.submissions >= 120)) deny('REQUEST_LIMIT');
+      if(channel==='origin' && Object.values(s.active).some(x=>x.kind==='http'&&x.channel==='origin')) deny('HTTP_DEPENDENCY_SLOT');
       if (Object.values(s.active).filter(x => x.kind === 'http').length >= 2) deny('HTTP_CONCURRENCY');
       s.recentHttp = s.recentHttp.filter(t => now - t < 1);
       if (s.recentHttp.length >= 2) deny('HTTP_RATE');
       s.http++; s.submissions += Number(submission); s.recentHttp.push(now);
       s.operations[id] = { kind: 'http', status: 'RESERVED' };
-      s.active[id] = { kind: 'http', at: now };
+      s.active[id] = { kind: 'http', at: now, ...(channel?{channel}:{}) };
       s.events.push({ kind: 'http', at: now, operation: id, submission });
       return id;
     });
@@ -161,12 +162,12 @@ export async function boundedModel(authority, id, bound, invoke) {
   const abort = new AbortController(); let polling = false;
   const timer = setInterval(async () => {
     if (polling) return; polling = true;
-    try { await authority.assertRunning(); } catch { abort.abort(); } finally { polling = false; }
+    try { await authority.assertRunning(); await bound.authorize?.(); } catch { abort.abort(); } finally { polling = false; }
   }, 250);
   const deadline = setTimeout(() => abort.abort(), 60000);
   try {
     // Close stop race between admission and invoking the provider.
-    await authority.assertRunning();
+    await authority.assertRunning(); await bound.authorize?.();
     const result = await invoke(abort.signal);
     if (!(await authority.complete(id, result.actualMicrousd))) deny('UNCERTAIN_MODEL_LIABILITY');
     return result;
@@ -192,10 +193,22 @@ export async function emergencyStop(authority, adapters, timeoutMs = 2000) {
   await attempt('admission', async () => { await authority.stop(); return true; });
   // Every brake is attempted even when a sibling or KMS is unavailable. Adapters
   // must honor AbortSignal and independently verify state; a timeout is NOT success.
-  await Promise.all(['revokeCredentials','revokeGrants','denyQueuedWork','stopWorkers','disableModelCredentials']
-    .map(name => attempt(name, signal => adapters[name](signal))));
-  await attempt('preserveEvidence', signal => adapters.preserveEvidence(signal));
+  for(const name of ['revokeCredentials','revokeGrants','denyQueuedWork','disableModelCredentials','stopWorkers'])
+    await attempt(name, signal => adapters[name](signal));
+  await attempt('preserveEvidence', signal => adapters.preserveEvidence(signal,{...result}));
   // Last so normal revocations have a chance to emit their existing signed audit.
   await attempt('freezeDatabaseLogins', signal => adapters.freezeDatabaseLogins(signal));
   return { ...result, complete: Object.values(result).every(x => x === 'VERIFIED') };
+}
+
+/** Wait only for admission, never retry a provider attempt or refund its slot. */
+export async function admitHttp(authority,id,classification={},beforeAdmission=async()=>{}) {
+ const deadline=Date.now()+10000;
+ for(;;){
+  await beforeAdmission();
+  try{return await authority.http(id,classification);}catch(error){
+   if(!(error instanceof Denied)||!['HTTP_RATE','HTTP_CONCURRENCY','HTTP_DEPENDENCY_SLOT'].includes(error.message)||Date.now()>=deadline)throw error;
+   await new Promise(resolve=>setTimeout(resolve,100));
+  }
+ }
 }
