@@ -6,6 +6,7 @@ import { nextCronOccurrence } from "../agent/lib/reminders-db.ts";
 import { getAgent, effectiveCapability } from "./agents.ts";
 import { getCapability } from "./capability-registry.ts";
 import { routineConfigurationSchema, type RoutineConfiguration, type ExecutionDatabase } from "./execution-types.ts";
+import { ROUTINE_TOOLS } from "./routine-capabilities.ts";
 
 // Review can be recorded now. Activation must wait for checks inside tool
 // executors: actions.requested events alone are not an execution boundary.
@@ -17,23 +18,34 @@ export const ROUTINE_READ_TOOLS: Readonly<Record<string,string>> = {
   web_fetch:"web.read", web_search:"web.search", list_goals:"tool.list_goals",
   search_knowledge:"tool.search_knowledge", search_owner_knowledge:"tool.search_owner_knowledge",
 };
-export const ROUTINE_CAPABILITIES = [...new Set(Object.values(ROUTINE_READ_TOOLS))];
+export const ROUTINE_CAPABILITIES = [...new Set(Object.values(ROUTINE_TOOLS).filter(t=>t.classification!=="BLOCKED").map(t=>t.capability))];
 
 export function deploymentOwnerId(): string {
   return process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim() || "owner";
 }
 
 export async function validateRoutineAgent(ownerId: string, agentId: string, config: RoutineConfiguration): Promise<void> {
-  if(config.authority.allowedTargets.length || config.authority.requiresApprovalFor.length) {
-    throw new Error("Target restrictions and per-action approvals are not yet supported by unattended read adapters.");
+  // Only gateway executors can enforce a per-target or per-action approval rule.
+  const governed=new Set(["files.write","tool.send_email"]);
+  if(config.authority.allowedTargets.some(t=>!governed.has(t.capabilityId)) || config.authority.requiresApprovalFor.some(id=>!governed.has(id))) {
+    throw new Error("This capability cannot enforce the selected target or approval restriction.");
   }
-  const graph=evaluateRoutineReachability({tools:Object.keys(ROUTINE_READ_TOOLS),classifications:Object.fromEntries(Object.keys(ROUTINE_READ_TOOLS).map(tool=>[tool,"READ_ONLY" as const])),delegation:false,opaqueConnections:false});
+  if(config.deliveryChannel==="push")throw new Error("Push delivery is not qualified.");
+  if(config.deliveryChannel==="telegram" && (!process.env.TELEGRAM_BOT_TOKEN || !process.env.TELEGRAM_PROACTIVE_CHAT_ID
+    || !(process.env.TELEGRAM_ALLOWED_USER_IDS??"").split(",").map(s=>s.trim()).includes(process.env.TELEGRAM_PROACTIVE_CHAT_ID.trim())))throw new Error("Owner Telegram notification is unavailable.");
+  const graph=evaluateRoutineReachability({tools:Object.keys(ROUTINE_TOOLS),classifications:Object.fromEntries(Object.entries(ROUTINE_TOOLS).map(([tool,entry])=>[tool,entry.classification])),delegation:false,opaqueConnections:false});
   if(!graph.qualified)throw new Error("Routine tool graph is not qualified.");
   const agent=await getAgent(ownerId,agentId);
   if(!agent || agent.status!=="active") throw new Error("Choose an active Agent owned by you.");
   for(const id of config.authority.allowedCapabilities) {
     if(!ROUTINE_CAPABILITIES.includes(id)) throw new Error("This capability is not yet available for unattended execution.");
     if(!effectiveCapability(agent,id).allowed || (getCapability(id)?.availability.status!=="available" || getCapability(id)?.dependencies.some(dependency=>getCapability(dependency)?.availability.status!=="available"))) throw new Error("A selected capability is unavailable to this Agent.");
+    const rank={low:0,medium:1,high:2,critical:3};
+    if(rank[getCapability(id)!.risk.level]>rank[config.authority.maximumRisk])throw new Error("A selected capability exceeds the Routine risk limit.");
+  }
+  if(config.authority.allowedCapabilities.some(id=>["tool.list_emails","tool.search_emails","tool.read_email","tool.send_email"].includes(id))) {
+    const {existingEmailAccount}=await import("../agent/lib/agentmail.ts");
+    await existingEmailAccount(); // Read-only provider/account preflight before model execution.
   }
   if(config.limits.maxSteps>agent.limits.maxSteps || config.limits.maxRuntimeSeconds>agent.limits.maxRuntimeSeconds
     || config.limits.maxCostUsd>agent.limits.maxEstimatedCostUsd) throw new Error("Routine limits cannot exceed the Agent's limits.");

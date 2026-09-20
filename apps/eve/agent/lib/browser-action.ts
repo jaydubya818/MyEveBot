@@ -4,6 +4,8 @@ import type { ToolContext } from "eve/tools";
 import { ActionBlocked,ActionGateway,consumeActionAuthority } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "./action-context.ts";
 import { requireComputerCapability } from "./computer-context.ts";
+import { browserEffect } from "../../lib/browser-effect.ts";
+import { denyUnqualifiedExecutor } from "./unqualified-executor.ts";
 
 export const BROWSER_ACTION_CAPABILITIES:Readonly<Record<string,string>>={
   click:"browser.click",fill:"browser.type",press_key:"browser.click",select_option:"browser.click",
@@ -14,6 +16,8 @@ const READS=new Set(["read","get","find","snapshot","screenshot","wait_for"]);
 
 /** Shared by the static extension and dynamic Agent override; neither calls raw executors. */
 export async function executeBrowserAction<T extends keyof typeof browserTools>(name:T,input:Record<string,unknown>,ctx:ToolContext):Promise<Awaited<ReturnType<(typeof browserTools)[T]["execute"]>>> {
+  // A browser.click grant cannot substitute for email.send/publish/deploy/delete.
+  if(browserEffect(name,input)==="unknown")return denyUnqualifiedExecutor(ctx,BROWSER_ACTION_CAPABILITIES[name]??"browser.click",{operation:name,...input,effect:"unknown"});
   const capabilityId=name==="find" && input.action!=="text"?(input.action==="fill"?"browser.type":"browser.click"):BROWSER_ACTION_CAPABILITIES[name];
   const isRead=READS.has(name) && !(name==="find" && input.action!=="text");
   if(!capabilityId)throw new ActionBlocked("denied","unsupported_browser_operation");

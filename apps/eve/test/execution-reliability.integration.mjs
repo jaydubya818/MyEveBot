@@ -1,3 +1,5 @@
+import {qualifyRoutineFederation} from "./routine-federation-cases.mjs";
+import {qualifyFinalGate} from "./routine-final-gate-cases.mjs";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { Pool } from "pg";
@@ -161,6 +163,8 @@ try {
   assert.equal(deliveryProviderCalls,0);
   assert.equal((await setup.query("SELECT status FROM task_runs WHERE id=$1",[deliveryClaim.runId])).rows[0].status,"completed");
   assert.equal((await setup.query("SELECT count(*) FROM execution_attempts WHERE occurrence_id=$1",[deliveryClaim.occurrenceId])).rows[0].count,"1");
+  await qualifyFinalGate(setup,database(setup));
+  await qualifyRoutineFederation(setup,database(setup));
   console.log('PASS: notification authority denial invokes zero providers and preserves completed work with one execution attempt');
   console.log('PASS: legacy owner review gate; owner isolation; duplicate/stale reviews; atomic linkage; no backlog replay; edit revocation; stale execution stays revoked after re-review');
   console.log("PASS: isolated migrations; duplicate occurrence/run suppression; claim race; heartbeat; stale-worker fence; bounded retry; delivery failure/recovery without rerun; action deduplication; changed parameters; unknown-result replay refusal; worker death; auto-pause, single notice and owner resume");

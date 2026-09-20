@@ -354,7 +354,7 @@
     "agent/lib/browser-action.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "9c123b236e496a6a8bfd1e011a31484bc806a92a776e5c87351989a47d5847be"
+      "sha256": "cacfd7dde1c7954f34b149ab5397a2d7e3f14bcb8acd8a5d2c348f0641840ecd"
     },
     "agent/lib/claim-task-specialist-tool.ts": {
       "classification": "INTERNAL",
@@ -494,7 +494,7 @@
     "agent/lib/knowledge-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "63a688bc31d92ea70bbb560cf251e2e38991aac1432bf9e43220b39ec8caf0d5"
+      "sha256": "eec7d099ad4dab0989723bf1a18b1b1a4fe6a744b0e60016fdda5afe0f76c5ba"
     },
     "agent/lib/local-computer-url.ts": {
       "classification": "INTERNAL",
@@ -554,7 +554,7 @@
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "13ea3ed81639d08f98e5aeb682c26e57c0092f22e17a3a3115c48ed32c890e43"
+      "sha256": "08ccbcc7d9b508a5ee8be96aabafcf7713a2d593bacdb96a85d6b16095cdf8db"
     },
     "agent/lib/run-assigned-qa-suite-tool.ts": {
       "classification": "BLOCKED",
@@ -1306,7 +1306,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "a343fc622e21a3e1b55411b4ac2d469108cd887ebd617207c82f8019be4724f7",
+      "sha256": "093f471583c4839899fc9fe5945997921ab9af0e551d73a222aedf205284ca9f",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -1440,7 +1440,7 @@
     "agent/tools/send_email.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "572b3625b57e064aa40b557ab075fa4af4c9fc81611f5f43a69d04bbcfa37689",
+      "sha256": "eab83717bacae8bb25faf718e7d2ca823836983c4a40c4715645ec198ce3cb63",
       "disposition": "gateway"
     },
     "agent/tools/share_file.ts": {
@@ -1537,7 +1537,7 @@
     "app/api/actions/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "2ebab81a1b4fa3b094efb60ecec432a7bd940e15f0a4078575f7c69889f4de09"
+      "sha256": "9f4f95f3bb4942c49aeffee15879ae201b3c8f5e27743d95c8f491a57a84b4f2"
     },
     "app/api/agentcard/connect/start/route.ts": {
       "classification": "INTERNAL",
@@ -1927,7 +1927,7 @@
     "app/api/routines/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "c9ba014dddd73e66defda145c290ce5e3d650bf4bf0e3308293c5ddfcf9454b8"
+      "sha256": "bb2901dc38eb41f0f31c73c364ff8a1a58a4123d7fd05b5a9a92d553fb5c8cf5"
     },
     "app/api/shared/[token]/content/route.ts": {
       "classification": "INTERNAL",
@@ -2002,7 +2002,7 @@
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "bfa875f7a2f378118ca6d73de1b1b9898b51e045f2d53924c0156e906162c7d4"
+      "sha256": "5e003962e1c23637507db1275523f6450ad45af0761c34247fc33a47cf8f2fe7"
     },
     "lib/activation.ts": {
       "classification": "INTERNAL",
@@ -2161,8 +2161,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Migration marker only; canonical 0025/0026 preserved and additive federation follows as 0027.",
-      "sha256": "223a7a85976a7a5589eeb05d41d5aee201e2158c4eb0deebc702694a1ba9ae88"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "a30ea914cbaae02ffb6fb94d73d194cebe19171e1700b81b0fa148f878bda2e5"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2197,7 +2197,7 @@
     "lib/execution-store.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "cc468e66146873938c9cd267e109b6ee0312f63d454daa125b91c655ee49c4ef"
+      "sha256": "7dbe6d3427dcbcdb290ac92c9e0dd6e9e0d2e58141aaea54500ba2b2536c5d54"
     },
     "lib/execution-types.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2417,12 +2417,12 @@
     "lib/routine-release.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "416780349b9c5ae376ee0e7440974f41f07fe7c8a17bdfd1f9a66fd411847361"
+      "sha256": "a769e24a1fe596175ddbc72969376fa3b19d6cd174431bf0bcc01b6a9da07a31"
     },
     "lib/routine-review.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "5fe07d14512b1324ebeff1fe3544ac6fb1a3dce590bbae75113b8703a7cc298d"
+      "sha256": "3ddaf8529ad5efbd90e65f743523ad6a2882386f5d0b137788bfab902b48780e"
     },
     "lib/skill-content-hash.ts": {
       "classification": "INTERNAL",
@@ -2557,7 +2557,7 @@
     "lib/relay/work.ts": {
       "classification": "ENFORCED",
       "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output.",
-      "sha256": "6b64570095590178e780b11aaee793534d7a37ef08908bf9ff48ff3959a3f873"
+      "sha256": "9e188268a6bb74f4dac2948e3ed8558b6ad89fcdb44eae549f14539b42721e9d"
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",
@@ -2573,6 +2573,31 @@
       "classification": "ENFORCED",
       "reason": "Source artifact read requires recipient proof and exact signed audience; bounded content, expiry and revocation.",
       "sha256": "7bfeea76f313451949509ad5df435bd175c46cc07f02f5f8e49802e02b8e785e"
+    },
+    "agent/lib/email-send-adapter.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical email adapter binds account, recipients and complete payload; Action Gateway and one-use transport handle precede send.",
+      "sha256": "84e80af90a262d09dd8cc94c64486b08cd94cfcbbc4f0533c91de884f013f227"
+    },
+    "app/api/actions/[id]/resolve/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Signed same-origin owner decision, stale-state CAS and durable attestation; never invokes a provider.",
+      "sha256": "5f8b82d28c0acbd6a9552f2db2f8c04050a4d483ea33f6c9743595aedc08bfa3"
+    },
+    "lib/browser-effect.ts": {
+      "classification": "INTERNAL",
+      "reason": "Conservative gateway precondition: ambiguous browser effects denied; no provider access.",
+      "sha256": "0ca93d6dd793dffc762a930eb5fb8832d88ab4e1b68b33932654ac16d28945c4"
+    },
+    "lib/routine-capabilities.ts": {
+      "classification": "INTERNAL",
+      "reason": "Finite initial capability graph; no authority may be added by skills, replanning or delegation.",
+      "sha256": "b641836fe9f201f21e4ef17612450f1904d576ce8020d1eb2070fc76245e1a95"
+    },
+    "lib/routine-pending-send.ts": {
+      "classification": "ENFORCED",
+      "reason": "Private immutable pending email checkpoint; resumes only through Action Gateway with current occurrence authority and exact approval.",
+      "sha256": "f7781f979fcd85662919f25f2a6589f2d66e830168bc1e5ef7548141e6a8fc1d"
     }
   }
 }

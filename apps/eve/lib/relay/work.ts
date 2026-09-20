@@ -167,7 +167,7 @@ export async function executeExternalWork(
         capabilityId: "files.read",
         actionClass: "read",
         executor: { kind: "persistent-agent", agentId: agent.id },
-        trigger: { kind: "delegation", id: envelope.id },
+        trigger: { kind: "relay_request", id: envelope.id },
         parameters: {
           task: input.task,
           context: context.map(({ requestId, checksum }) => ({
