@@ -1,0 +1,43 @@
+{
+  "retrievedAt": "2026-09-20T22:50:51.925Z",
+  "source": "https://ai-gateway.vercel.sh/v1/models",
+  "authentication": "none; public catalog only",
+  "model": {
+    "id": "anthropic/claude-sonnet-5",
+    "pricing": {
+      "input": "0.000002",
+      "output": "0.00001",
+      "input_cache_read": "0.0000002",
+      "input_cache_write": "0.0000025",
+      "web_search": "10",
+      "regional": {
+        "eu": {
+          "input": "0.0000022",
+          "output": "0.000011",
+          "input_cache_read": "0.00000022",
+          "input_cache_write": "0.00000275"
+        },
+        "us": {
+          "input": "0.0000022",
+          "output": "0.000011",
+          "input_cache_read": "0.00000022",
+          "input_cache_write": "0.00000275"
+        }
+      }
+    },
+    "context_window": 1000000,
+    "max_tokens": 128000
+  },
+  "qualification": {
+    "inputTokenAllowance": 11200,
+    "maxOutputTokens": 800,
+    "taskTokenCeiling": 12000,
+    "maxModelCalls": 8,
+    "maxToolCalls": 12,
+    "maxRuntimeSeconds": 60,
+    "taskUsdCeiling": 0.1,
+    "campaignUsdCeiling": 5,
+    "actualProviderCalls": 0,
+    "status": "Pricing observation only; actual runtime/token envelope not qualified"
+  }
+}

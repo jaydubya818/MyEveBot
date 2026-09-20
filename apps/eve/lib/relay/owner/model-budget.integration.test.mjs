@@ -16,6 +16,8 @@ suite('durable owner model budget',()=>{
  });
  beforeEach(async()=>{
   await query('TRUNCATE task_runs CASCADE');await query("UPDATE agents SET status='active',is_primary=true,max_estimated_cost_usd=0.1");
+  // Each test is a separate synthetic campaign. Production has no reset path.
+  await query('UPDATE owner_qualification_budget SET reserved_microusd=0,spent_microusd=0');
   await query("INSERT INTO task_runs(id,owner_id,agent_id,kind,title,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,deadline_at) VALUES('run','owner','agent','delegated_work','Fixture','running',60,0,8,0,0.1,now()+interval '60 seconds')");
   await query("INSERT INTO owner_channel_requests(relay_account_id,request_id,owner_id,agent_id,source_identity,relay_thread_id,work_hash,run_id,request,expires_at) VALUES('relay','request','owner','agent','source','thread','hash','run','{}',now()+interval '1 hour')");
   budget=new OwnerModelBudget(database);
@@ -71,6 +73,60 @@ suite('durable owner model budget',()=>{
   await query('UPDATE agents SET max_estimated_cost_usd=0.05');
   await expect(budget.reserve(input())).rejects.toThrow();
   expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(0);
+ });
+
+ const totals=async()=> (await query('SELECT reserved_microusd,spent_microusd FROM owner_qualification_budget'))[0];
+ async function anotherRun(index){
+  const runId=`run-${index}`;
+  await query(`INSERT INTO task_runs(id,owner_id,agent_id,kind,title,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,deadline_at)
+   SELECT $1,owner_id,agent_id,kind,title,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,deadline_at FROM task_runs WHERE id='run'`,[runId]);
+  await query(`INSERT INTO owner_channel_requests(relay_account_id,request_id,owner_id,agent_id,source_identity,relay_thread_id,work_hash,run_id,request,expires_at)
+   SELECT relay_account_id,$1,owner_id,agent_id,source_identity,relay_thread_id,work_hash,$1,request,expires_at FROM owner_channel_requests WHERE run_id='run'`,[runId]);
+  return {...input(),runId,microUsd:100000,tokens:1000};
+ }
+ it('enforces the shared $5 ceiling across concurrent independent Runs',async()=>{
+  const calls=[];for(let i=0;i<60;i++)calls.push(await anotherRun(i));
+  const results=await Promise.allSettled(calls.map(call=>budget.reserve(call)));
+  expect(results.filter(result=>result.status==='fulfilled')).toHaveLength(50);
+  expect(await totals()).toEqual({reserved_microusd:'5000000',spent_microusd:'0'});
+  expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(50);
+  // Failed aggregate admission also rolls back the existing per-Run counters.
+  expect((await query('SELECT sum(model_calls_started)::int n FROM owner_channel_requests'))[0].n).toBe(50);
+  await expect(new OwnerModelBudget(database).reserve({...input(),microUsd:1,tokens:1})).rejects.toThrow('aggregate');
+ });
+ it('retains aggregate uncertainty after cancellation, restart and receipt cleanup',async()=>{
+  await budget.reserve(input());await budget.unknown(input());
+  await query("UPDATE task_runs SET status='cancelled'");
+  await expect(new OwnerModelBudget(database).reserve(input())).rejects.toThrow('ambiguous');
+  await query('DELETE FROM owner_model_calls');
+  expect(await totals()).toEqual({reserved_microusd:'60000',spent_microusd:'0'});
+ });
+ it('releases only proven unused aggregate reservation and never settles twice',async()=>{
+  await budget.reserve(input());await query("UPDATE task_runs SET status='cancelled'");
+  await budget.settle(input(),{microUsd:20000,tokens:1000},{});
+  await expect(new OwnerModelBudget(database).settle(input(),{microUsd:20000,tokens:1000},{})).rejects.toThrow();
+  expect(await totals()).toEqual({reserved_microusd:'0',spent_microusd:'20000'});
+ });
+ it('rolls back duplicate step reservations without charging aggregate twice',async()=>{
+  const call={...input(),microUsd:10000,tokens:100};
+  await Promise.allSettled(Array.from({length:10},()=>budget.reserve(call)));
+  expect(await totals()).toEqual({reserved_microusd:'10000',spent_microusd:'0'});
+  expect((await query('SELECT model_calls_started FROM owner_channel_requests'))[0].model_calls_started).toBe(1);
+ });
+ it('fails closed if the aggregate account is missing',async()=>{
+  await query('DELETE FROM owner_qualification_budget');
+  try{
+   await expect(budget.reserve(input())).rejects.toThrow('aggregate');
+   expect((await query('SELECT model_calls_started FROM owner_channel_requests'))[0].model_calls_started).toBe(0);
+  }finally{await query('INSERT INTO owner_qualification_budget VALUES(true,0,0)');}
+ });
+ it('preserves liability when upgrading populated 0031 receipts',async()=>{
+  await budget.reserve(input());await budget.settle(input(),{microUsd:20000,tokens:1000},{});
+  const other=await anotherRun('upgrade');await budget.reserve(other);await budget.unknown(other);
+  await query('DROP TRIGGER owner_model_qualification_accounting ON owner_model_calls; DROP FUNCTION account_owner_qualification_model_call(); DROP TABLE owner_qualification_budget');
+  await query(await readFile(new URL('../../../migrations/0032_owner_qualification_budget.sql',import.meta.url),'utf8'));
+  expect(await totals()).toEqual({reserved_microusd:'100000',spent_microusd:'20000'});
+  expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(2);
  });
 
 });

@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0031_owner_model_reservations.sql";
+export const CURRENT_DATABASE_MIGRATION = "0032_owner_qualification_budget.sql";

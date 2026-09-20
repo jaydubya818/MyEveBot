@@ -136,3 +136,44 @@ Automatic approval review rejected exporting the full development environment be
 No deployment was attempted because actual-runtime qualification is not green. Live Telegram scenario count remains **0**. **TELEGRAM PRIVATE-BETA GOLDEN PATH INCOMPLETE.**
 
 Cleanup: task-created local app server 3228 stopped; disposable PostgreSQL 55447 stopped and its cluster removed. No hosted resources, live bot registration, credentials or execution enablement were created. The rejected environment export file does not exist. Both immutable release gates remain false. Hosted emergency-stop behavior remains unqualified.
+
+
+## Scoped authentication and aggregate-budget continuation — 2026-09-20
+
+Starting checkpoint: Relay `b8b9d3df7c47b089d6509633dbcf2547058dbf1a`; MyEve `28077ab0215bef16608e4235ca2df594f6c7bb30`. All earlier results above remain historical evidence.
+
+The owner has now approved access to **only existing model authentication for this isolated qualification**, bounded model calls, and publication of genuine fixes. This supersedes the earlier pending-approval note. It does not authorize a complete environment export or unrelated credential access.
+
+### Canonical model and authentication
+
+Canonical `agent/agent.ts` selects `anthropic/claude-sonnet-5` as its default through Vercel AI Gateway. Installed Eve is **0.27.13**, Node **24.18.1**. The external owner-channel guard requires an explicit `Agent.preferredModel`; an isolated Agent must explicitly select this canonical model before qualification. No alternative model has been substituted and no actual provider has been invoked.
+
+Installed self-hosting documentation requires `AI_GATEWAY_API_KEY` for the string-model Gateway route outside Vercel. That exact variable is absent from the current process. The existing local OIDC credential was previously found expired. No credential value was read, copied, logged or committed during this continuation. No complete environment enumeration/export was performed.
+
+Vercel's documented single-variable retrieval requires an environment-variable **ID**; its documented list/filter endpoint does not expose an exact key-name filter. The approved key's ID or single-credential local/keychain reference is currently unavailable. The owner has been asked for that **non-secret reference**, not the credential value. Separate Federation branch credentials have not been borrowed. The broader authentication approval is accepted; the remaining blocker is locating the exact approved key within that scope.
+
+References: [Vercel single-variable request](https://github.com/vercel/sdk/blob/main/docs/models/getprojectenvrequest.md), [list/filter request](https://github.com/vercel/sdk/blob/main/docs/models/filterprojectenvsrequest.md). Installed runtime documentation: `node_modules/eve/docs/agent-config.md` and `node_modules/eve/docs/guides/deployment/self-hosting.md`.
+
+### Liability estimate and durable aggregate fix
+
+The stated historical **$0.25 reservation / $5 aggregate limit did not match this checkout**: it had a tighter **$0.10 task ceiling**, variable per-call reservations, and no shared $5 ledger. The $0.10 ceiling remains unchanged.
+
+The unauthenticated public Gateway catalog snapshot in `telegram-model-pricing.json` records the exact model, timestamp and rates, without authentication material. At the maximum admitted 11,200 input-token allowance plus 800 output tokens, the current adapter's base/cache-write rates and 2× margin produce a maximum **$0.072** reservation. Applying the catalog's higher regional cache-write/output rates with the same margin gives **$0.0792**. Both fit below $0.10 and $0.25. This calculation is **not actual-provider liability qualification**: framework framing/token estimates, billable usage and the real runtime still need validation. No paid call was made based on this estimate alone. Paid provider search is excluded; the existing limits remain 12,000 total tokens, 8 model calls, 12 tool calls and 60 seconds per task.
+
+Migration **0032_owner_qualification_budget.sql** extends existing model-call accounting with one durable **$5** allowance for the entire isolated qualification database, across owners and Runs. A trigger reserves from the singleton ledger in the same transaction as the canonical Run reservation. Exhaustion or a missing ledger aborts admission before provider invocation and rolls back per-Run counters. Known completion releases only proven unused reservation; spent and uncertain work remain charged. No application reset API exists. Receipt deletion does not refund liability. Reusing this same durable database is required across qualification restarts; provisioning another database is not an allowance reset.
+
+Populated migration backfill preserves completed spend and ambiguous reservations; unknown completed costs conservatively retain their full reserved amount. Existing evidence is not overwritten. The migration does not enable execution or alter approval authority.
+
+### Fresh automated results
+
+- **MyEve: 630 passed / 85 files**, including **19** real PostgreSQL budget cases (six additional aggregate cases).
+- Concurrent independent Runs: 60 attempts at $0.10 each admit exactly 50; total reservation is exactly $5; denied attempts leave counters unchanged.
+- Aggregate restart/retry, cancellation/uncertainty, exactly-once settlement, missing-ledger denial, cleanup retention and populated 0031→0032 upgrade: PASS.
+- TypeScript, local production build, **32** ordered migrations and executor governance (**528 classified / UNKNOWN=0**): PASS.
+- These are component/database tests. Actual model/provider budget accounting, actual-model private-canary isolation and actual Eve interruption/recovery remain **NOT RUN**.
+
+Both immutable execution gates remain false. No deployment, merge, tag, bot creation or Telegram credential inspection occurred in this continuation. Telegram prerequisite inspection remains behind actual-runtime readiness. Live Telegram scenarios: **0**. No new dependency audit, UI or performance result is claimed.
+
+Smallest owner action: provide the non-secret ID/reference locating the specific approved `AI_GATEWAY_API_KEY`; do not paste its value. Resume the actual runtime/provider/canary/cancellation qualification after scoped retrieval and liability validation. **TELEGRAM PRIVATE-BETA GOLDEN PATH INCOMPLETE.**
+
+Relay regression against this migration: **246 passed / 5 skipped** (50 passing files, 3 skipped), including the canonical cross-repository component fixture. Local PostgreSQL fixture stopped and removed after verification. No credential or runtime secret file was created.

@@ -2162,7 +2162,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "aee3e118302dafa7e0b6e3194b752840cb3bd1b3cf686a8c40fcac3041f1a8e4"
+      "sha256": "46390ed10c322c0e25dbaee6a036547eec577a1e18d119da3412e8931a7547a8"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
