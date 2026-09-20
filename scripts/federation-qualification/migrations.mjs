@@ -1,6 +1,7 @@
 // Disposable PostgreSQL qualification through the unmodified normal migration runner.
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { connect } from "node:net";
 import { createRequire } from "node:module";
 import { randomBytes, createHash } from "node:crypto";
 import {
@@ -16,8 +17,9 @@ import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 const root = process.cwd();
 const canonicalBase = "4d3f1eb685422fc77296cef245e84c5b09da6e91";
-const require = createRequire(resolve("../relay-federation/package.json"));
+const require = createRequire(resolve(process.env.MYEVE_QUALIFICATION_RELAY_ROOT ?? "../relay-federation", "package.json"));
 const { Pool } = require("pg");
+const { WebSocketServer } = require("ws");
 const temp = mkdtempSync(join(tmpdir(), "myeve-rebase-migrations-"));
 const canonical = join(temp, "canonical-base");
 mkdirSync(canonical);
@@ -51,7 +53,7 @@ const report = {
 const docker = (...args) =>
   execFileSync("docker", args, { stdio: ["ignore", "pipe", "pipe"] });
 const pools = new Map();
-let server,
+let server, websocketServer,
   started = false;
 const connection = (database) =>
   `postgresql://${user}:${password}@127.0.0.1:55441/${database}`;
@@ -145,10 +147,24 @@ try {
   });
   await new Promise((r) => server.listen(0, "127.0.0.1", r));
   const port = server.address().port;
+  // Real Postgres wire protocol for the session-based runner; local bridge only.
+  websocketServer = new WebSocketServer({ host: "127.0.0.1", port: 0 });
+  await new Promise((resolve) => websocketServer.once("listening", resolve));
+  websocketServer.on("connection", (socket) => {
+    const tcp = connect({ host: "127.0.0.1", port: 55441 });
+    socket.on("message", (data) => tcp.write(data));
+    tcp.on("data", (data) => { if (socket.readyState === 1) socket.send(data); });
+    socket.on("close", () => tcp.destroy());
+    socket.on("error", () => tcp.destroy());
+    tcp.on("error", () => socket.close());
+    tcp.on("close", () => socket.close());
+  });
+  const websocketPort = websocketServer.address().port;
+  const neonModule = import.meta.resolve("@neondatabase/serverless");
   const preload = join(temp, "neon-preload.mjs");
   writeFileSync(
     preload,
-    `const original=globalThis.fetch;globalThis.fetch=(input,init)=>{const headers=new Headers(init?.headers);if(headers.get('neon-connection-string')===process.env.DATABASE_URL)return original('http://127.0.0.1:${port}/sql',init);return original(input,init);};`,
+    `import {neonConfig} from ${JSON.stringify(neonModule)};neonConfig.wsProxy=()=>"127.0.0.1:${websocketPort}";neonConfig.useSecureWebSocket=false;neonConfig.pipelineConnect=false;const original=globalThis.fetch;globalThis.fetch=(input,init)=>{const headers=new Headers(init?.headers);if(headers.get('neon-connection-string')===process.env.DATABASE_URL)return original('http://127.0.0.1:${port}/sql',init);return original(input,init);};`,
   );
   const migrate = (cwd, db) =>
     run(["--import", preload, "apps/eve/scripts/migrate-database.ts"], cwd, {
@@ -205,6 +221,27 @@ try {
   report.checks.push(
     "Fresh and upgraded schema columns/defaults/nullability match",
   );
+  // A bad multi-command chunk must roll back DDL and its journal atomically.
+  const failure = join(temp, "failed-migration");
+  mkdirSync(join(failure, "apps/eve/scripts"), { recursive: true });
+  mkdirSync(join(failure, "apps/eve/lib"), { recursive: true });
+  mkdirSync(join(failure, "apps/eve/migrations"), { recursive: true });
+  symlinkSync(join(root, "node_modules"), join(failure, "node_modules"));
+  writeFileSync(join(failure, "package.json"), '{"type":"module"}');
+  writeFileSync(join(failure, "apps/eve/scripts/migrate-database.ts"), readFileSync(join(root, "apps/eve/scripts/migrate-database.ts")));
+  writeFileSync(join(failure, "apps/eve/lib/database-schema.ts"), 'export const CURRENT_DATABASE_MIGRATION="0001_failure.sql";');
+  const failedSql = join(failure, "apps/eve/migrations/0001_failure.sql");
+  writeFileSync(failedSql, "CREATE TABLE rollback_probe(id integer); INSERT INTO absent_rollback_probe VALUES (1);");
+  await assert.rejects(migrate(failure, "fresh"), /absent_rollback_probe/);
+  assert.equal((await pools.get(connection("fresh")).query("SELECT to_regclass('public.rollback_probe') AS relation")).rows[0].relation, null);
+  assert.equal((await pools.get(connection("fresh")).query("SELECT count(*)::int AS count FROM sofie_schema_migrations WHERE name='0001_failure.sql'")).rows[0].count, 0);
+  report.checks.push("Failed multi-command migration: DDL and journal rolled back atomically");
+  writeFileSync(failedSql, "SELECT 1; SELECT 2;");
+  await migrate(failure, "fresh");
+  writeFileSync(failedSql, "SELECT 3;");
+  await assert.rejects(migrate(failure, "fresh"), /was modified/);
+  await pools.get(connection("fresh")).query("DELETE FROM sofie_schema_migrations WHERE name='0001_failure.sql'");
+  report.checks.push("Applied migration checksum drift refused before SQL execution");
   report.migrations = (
     await db.query(
       "SELECT name,checksum FROM sofie_schema_migrations ORDER BY name",
@@ -241,6 +278,7 @@ try {
   console.error(error.message);
 } finally {
   await Promise.all([...pools.values()].map((p) => p.end()));
+  if (websocketServer) await new Promise((r) => websocketServer.close(r));
   if (server) await new Promise((r) => server.close(r));
   if (started) docker("rm", "-f", "-v", name);
   rmSync(temp, { recursive: true, force: true });
