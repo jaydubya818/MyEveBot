@@ -14,6 +14,8 @@ import {
 } from "../../lib/computer-types.ts";
 import { resolveSessionAgent } from "./session-settings.ts";
 import { ActionGateway,consumeActionAuthority } from "../../lib/action-gateway.ts";
+import { prepareComputerRuntime } from "../../lib/computer-runtime.ts";
+import { withPreparedComputer, ComputerSandboxAuthorityRequired } from "../../lib/computer-sandbox-backend.ts";
 import { toolActionRequest } from "./action-context.ts";
 
 export function computerOwnerId(ctx: Pick<ToolContext, "session">): string {
@@ -61,7 +63,10 @@ export async function provisionComputerSession(
     resolveTarget:async()=>({provider:"sandbox",account:request.ownerId,resource:ctx.session.id,environment:"isolated"}),
     async execute(parameters,authorized) {
       await consumeActionAuthority(authorized,parameters,"computer.session.create");
-      provisioned=await provisionAuthorizedComputerSession(ctx,parameters as typeof input);return provisioned;
+      const prepared = await prepareComputerRuntime(request.ownerId, ctx.abortSignal);
+      // Preparation grants no execution authority: recheck revocation, budget,
+      // deadlines and Agent revision immediately before session creation.
+      provisioned=await withPreparedComputer(prepared, authorized, parameters, () => provisionAuthorizedComputerSession(ctx,parameters as typeof input));return provisioned;
     },
     receipt:result=>({computerSessionId:result.session.id,sandboxId:result.session.sandboxId}),
     async verify(result) {
@@ -74,6 +79,17 @@ export async function provisionComputerSession(
   const session=await getComputerSessionForRuntime(request.ownerId,ctx.session.id);
   if(!session || !["ready","running"].includes(session.status))throw new Error("The prior computer action completed, but its session is no longer executable.");
   return {session,startedOnDemand:false};
+}
+
+/** Eve reopens handles across steps. Only the explicit no-authority error may
+ * trigger a new Gateway provisioning action; arbitrary provider errors do not. */
+export async function getComputerSandbox(ctx: ToolContext) {
+  try { return await ctx.getSandbox(); }
+  catch (error) {
+    if (!(error instanceof ComputerSandboxAuthorityRequired)) throw error;
+    await provisionComputerSession(ctx);
+    return ctx.getSandbox();
+  }
 }
 
 async function provisionAuthorizedComputerSession(
@@ -120,7 +136,7 @@ async function provisionAuthorizedComputerSession(
         id: session.id,
         to: "failed",
         failureCode: "session_provision_failed",
-        failureSummary: error instanceof Error ? error.message : "Computer session provisioning failed.",
+        failureSummary: "Computer session provisioning failed. Check runtime status before retrying.",
       });
     }
     throw error;

@@ -169,7 +169,11 @@ export async function templateFiles(features: readonly FeatureId[]): Promise<str
   const files: string[] = [];
   await walk(root, root, files);
   const allowed = allowedPrunableFiles(features);
-  return files.filter((file) => !isPrunable(file) || allowed.has(file)).sort();
+  return files.filter((file) => {
+    if (!features.includes("browser") && (file === "agent/lib/qa-sandbox.ts" || file === "scripts/prewarm-computer.ts" ||
+      /^agent\/subagents\/[^/]+\/sandbox\.ts$/.test(file))) return false;
+    return !isPrunable(file) || allowed.has(file);
+  }).sort();
 }
 
 /** Assembles the complete deployment file set for the Vercel API. */
@@ -186,7 +190,31 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
     } else if (relative === "package.json") {
       const parsed = JSON.parse(data.toString("utf8")) as Record<string, unknown>;
       parsed.name = input.projectName;
+      if (!input.features.includes("browser")) delete (parsed.scripts as Record<string, unknown>)["computer:prewarm"];
       data = Buffer.from(`${JSON.stringify(parsed, null, 2)}\n`, "utf8");
+    } else if (!input.features.includes("browser") && relative === "lib/computer-runtime-config.ts") {
+      data = Buffer.from("export const COMPUTER_RUNTIME_ENABLED = false;\n");
+    } else if (!input.features.includes("browser") && relative === "lib/computer-sandbox-backend.ts") {
+      // Keep an explicit deny backend: deleting the root definition enables Eve's default backend.
+      data = Buffer.from(`import type { SandboxBackend } from "eve/sandbox";
+export class ComputerSandboxAuthorityRequired extends Error {}
+export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new Error("Computer is disabled in this deployment."); }
+export const computerSandboxBackend: SandboxBackend = {
+  name: "myeve-computer-disabled",
+  async prewarm() { return { reused: false }; },
+  async create() { throw new Error("Computer is disabled in this deployment."); },
+};
+`);
+    } else if (!input.features.includes("browser") && relative === "lib/computer-template-vercel.ts") {
+      data = Buffer.from(`import type { ComputerTemplateProvider } from "./computer-template-lifecycle.ts";
+export const vercelTemplateProvider: ComputerTemplateProvider = {
+  id: "disabled",
+  async inspect() { return { state: "MISSING" }; },
+  async prepare() { throw new Error("Computer is disabled in this deployment."); },
+  async cleanup() { return false; },
+  classify() { return "provider_unavailable"; },
+};
+`);
     }
 
     out.push({ file: relative, data: data.toString("base64"), encoding: "base64" });

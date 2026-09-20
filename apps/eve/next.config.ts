@@ -14,4 +14,4 @@ const nextConfig: NextConfig = {
 
 // Mounts the eve agent (./agent) on this app's origin: one dev server, one
 // Vercel deployment. /eve/v1/** routes to the agent service.
-export default withEve(nextConfig);
+export default withEve(nextConfig, { eveBuildCommand: "eve build --skip-sandbox-prewarm" });

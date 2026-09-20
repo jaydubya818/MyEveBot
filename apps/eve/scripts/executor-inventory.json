@@ -353,8 +353,8 @@
     },
     "agent/lib/browser-action.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "cacfd7dde1c7954f34b149ab5397a2d7e3f14bcb8acd8a5d2c348f0641840ecd"
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "6e6e4fe6ef3f24191b0c089af1744cd844f96874ed7c6cb1bba1fd0ffd3cee39"
     },
     "agent/lib/claim-task-specialist-tool.ts": {
       "classification": "INTERNAL",
@@ -363,8 +363,8 @@
     },
     "agent/lib/computer-context.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "370a1acf0e6162dfb7fc4402cea519045c0fb89f0a17e852331721f55e33315c"
+      "reason": "Action Gateway checks capability and budget before preparation; a second consumed provider handle revalidates durable authority before ComputerSession creation. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "71455c0928e7a3e7791f1b1707d9ae1342338036386a76497242a31abee3291f"
     },
     "agent/lib/computer-use-loop.ts": {
       "classification": "INTERNAL",
@@ -543,8 +543,8 @@
     },
     "agent/lib/qa-sandbox.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "4ef4304363b04b716839cc3511c732dc304b1b2ddd8d5b76dbeb5d19052133cc"
+      "reason": "QA uses the same guarded Computer backend; per-session network policy and opt-in brokered authentication remain outside templates.",
+      "sha256": "5a4e24f44041f68672a343de8e7f7841490acc98195f03033969084d69073f08"
     },
     "agent/lib/receipts-db.ts": {
       "classification": "INTERNAL",
@@ -648,8 +648,8 @@
     },
     "agent/sandbox.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a7717591856aa3d5a65d19c33758fa420770b2188ba680bfe393a95086c5cdb2"
+      "reason": "Pure custom backend registration; no bootstrap or external build operation. Runtime creation requires the separately guarded Computer backend.",
+      "sha256": "e0f9cc04f5913221efb1edad4c413080cf1c26bda384db1cf4fb52086ad468c8"
     },
     "agent/schedules/email.ts": {
       "classification": "INTERNAL",
@@ -1038,8 +1038,8 @@
     },
     "agent/tools/bash.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "5459ef76d6fd9c91caa3f5fa1c745acad032e66e9eaaf2bf810f3ce752afaee0"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "5336f423389e65490e3a3eb3e1f3e6efeda19a89f6dbc0c27c5bc49007e838ab"
     },
     "agent/tools/cancel_reminder.ts": {
       "classification": "INTERNAL",
@@ -1331,8 +1331,8 @@
     },
     "agent/tools/read_file.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "c539b3b1ec21a552d7df6f6972d91918c7e3701a934c4f1fbaa46d92b57992fa"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "49ab6e0c12199c4a85b1e5d343ffc299732b2f86162263797976e4e06d90a693"
     },
     "agent/tools/record_agentcard_consent.ts": {
       "classification": "BLOCKED",
@@ -1373,8 +1373,8 @@
     },
     "agent/tools/record_task_evidence.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "35e60d1498538015e0da028969c1b527e4694703cfec0a1a712a668f1036ae51"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "cdb26dd1590819815b782e345b1ed3d0306fc84cc9f8b73c9bccf8b68e327a9a"
     },
     "agent/tools/recover_computer_session.ts": {
       "classification": "BLOCKED",
@@ -1535,8 +1535,8 @@
     },
     "agent/tools/write_file.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "02de8edb61a948933aebcbd0714dc4928c8e4b84ea777cb6e52876573960ebeb",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "ef38c5d46d17d5206d21a21fcc3c139c3c54eb9405409106aa75595375e00b53",
       "disposition": "gateway"
     },
     "app/api/actions/[id]/recover/route.ts": {
@@ -1670,9 +1670,9 @@
       "sha256": "c522734f843f5310e90f00f18cf053709b32eed3b9433c8783cf23fd53eddac9"
     },
     "app/api/capabilities/route.ts": {
-      "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "c8fa4e0624d15a4f84eb160e51fb58e93b774cd44e564e09e45affbcffdb032f"
+      "classification": "READ_ONLY",
+      "reason": "Authenticated capability catalog with separate owner-scoped Computer runtime readiness; authority remains unchanged.",
+      "sha256": "14a9de28a5236c85e8dc1920ce6afd16c106a5b5815df3c8d36c8a91483948ef"
     },
     "app/api/channels/route.ts": {
       "classification": "INTERNAL",
@@ -2031,8 +2031,8 @@
     },
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "95d97422e0edb9b0f5f0e102ef7826eee53e104472d886fd47c14992404aff8e"
+      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks.",
+      "sha256": "7145db8434680872afede7ba2050f143cfb801c9ce77f48f616d51aa21f66a7a"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2205,9 +2205,9 @@
       "sha256": "19cf9bd7e6632fd1422fcc6681d055e30742ff527ba19ee7d201d4af84af7e72"
     },
     "lib/database-schema.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dccc1ed96931d6b47d2763e8a908f389c2dea313b94fa02e8bd373a4d8feb23c"
+      "classification": "NOT_APPLICABLE",
+      "reason": "Current migration identifier, now 0031; no effects.",
+      "sha256": "eb680baedb2315c3d31f9c482e5548879f6d9001b54c60f14d8ade1266312b95"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2335,9 +2335,9 @@
       "sha256": "159efe6b7c381c981d1e509a1274afc1f2f7525700a535edd2773f1ff2dd70d7"
     },
     "lib/operations.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "863878115051082cbdcbf47ce7867917a382a1e4d2ba2ead0e3ebcc24a4d5fdc"
+      "classification": "INTERNAL",
+      "reason": "Existing owner-scoped monitoring plus bounded cleanup of durably identified preparations in the current environment. Only the provider ownership guard deletes resources.",
+      "sha256": "b4e1680da6ca604c2cf2f7d7b571a98d3b0e5af0230374f623191e89b497d553"
     },
     "lib/outcome-types.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2638,6 +2638,41 @@
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
       "sha256": "ca22b41a0a795172eb18676e36dc29c03688698f2c7cf3f336d88a70f7c6d98d"
+    },
+    "lib/computer-runtime-config.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Builder feature-selection constant; no effects.",
+      "sha256": "ceee4e3907fb89e98e1de4d8de72ace6eaffa869eb16e04b49ade07382fe34f6"
+    },
+    "lib/computer-runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Separates non-authoritative readiness from preparation. Runtime caller is the guarded provisioning adapter; the other preparation entry is an explicit operator command. Owner/environment scope and compatible deployment fingerprint.",
+      "sha256": "f749a63a5b527ac597b4e37adc5eb9a7c1d653358c74517c04d5ecd5b1f6ab23"
+    },
+    "lib/computer-sandbox-backend.ts": {
+      "classification": "ENFORCED",
+      "reason": "External session creation requires an AsyncLocalStorage grant minted by consuming a genuine one-use Gateway provider handle. Direct and forged invocations fail closed; prewarm is resource-free. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
+      "sha256": "f17ea57b051d884a82deed36f7f481fef43db8a84317c277cac38b411884d95c"
+    },
+    "lib/computer-template-lifecycle.ts": {
+      "classification": "INTERNAL",
+      "reason": "Provider-neutral durable preparation singleflight, bounded wait/abort, compatible-template validation, fenced cleanup, and bounded recovery. Does not grant Computer authority.",
+      "sha256": "806f2cbae0556a906cbe36dcbb2e8e9da83507eadd122631956d1caaa7f2e2cb"
+    },
+    "lib/computer-template-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Durable preparation/waiter CAS, unique live key, cleanup token fencing, safe aggregate events; no provider calls or authority grants.",
+      "sha256": "16e372453ad36c7ab290d0b54b5d9b5566c2aa6c58fa59334db09871ab5943b0"
+    },
+    "lib/computer-template-vercel.ts": {
+      "classification": "ENFORCED",
+      "reason": "Preparation resources use exclusive UUID creation; cleanup requires exact name and application/preparation/environment-owner scope tags. Compatibility fingerprints are verified separately. Stop and delete are independently bounded; sandbox and known snapshot absence are verified. No arbitrary enumeration.",
+      "sha256": "c3c114ac77980a93cdbe1c7e7ab356bd02433d671129a5e994e6a6069482304d"
+    },
+    "app/api/computer-runtime/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner-scoped runtime readiness; never starts preparation or exposes provider errors/credentials.",
+      "sha256": "7d625b931908e5ce02cd20d6efae4c4d6692b9667250cefeb4ffcacf56fca13a"
     }
   }
 }

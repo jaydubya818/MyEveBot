@@ -4,13 +4,14 @@ import { randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
 import { expireComputerSessions } from "./computer-sessions.ts";
 import { redactEvidenceText } from "./task-types.ts";
+import { computerRuntimeConfigured, computerRuntimeReadiness, computerLifecycle, computerTemplateKey } from "./computer-runtime.ts";
 
 type Row = Record<string, unknown>;
 
 export type OperationsState = "healthy" | "warning" | "critical";
 
 export interface OperationsSignal {
-  id: "routine_preflight_blocked" | "failed_turns" | "stuck_runs" | "orphaned_computers" | "routine_failures" | "model_limits" | "artifact_failures";
+  id: "computer_runtime" | "computer_template_cleanup" | "routine_preflight_blocked" | "failed_turns" | "stuck_runs" | "orphaned_computers" | "routine_failures" | "model_limits" | "artifact_failures";
   label: string;
   state: OperationsState;
   count: number;
@@ -80,7 +81,7 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
     [ownerId],
   ) as Row[];
   const row = rows[0] ?? {};
-  return operationsReportFromCounts({
+  const report = operationsReportFromCounts({
     routinePreflightBlocks:count(row.routine_preflight_blocked),
     failedTurns: count(row.failed_turns),
     stuckRuns: count(row.stuck_runs),
@@ -89,6 +90,14 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
     modelLimits: count(row.model_limits),
     artifactFailures: count(row.artifact_failures),
   });
+  const runtime = await computerRuntimeReadiness(ownerId);
+  const degraded = runtime.state === "UNAVAILABLE";
+  report.signals.push({ id: "computer_runtime", label: "Computer runtime", state: degraded ? "warning" : "healthy",
+    count: degraded ? 1 : 0, detail: `Runtime: ${runtime.state.toLowerCase().replaceAll("_", " ")}. Agent authority and profile access are checked separately.` });
+  report.signals.push({ id: "computer_template_cleanup", label: "Computer preparation cleanup", state: runtime.cleanupFailures ? "warning" : "healthy",
+    count: runtime.cleanupFailures, detail: "Owned preparations awaiting verified cleanup." });
+  if (report.overall === "healthy" && (degraded || runtime.cleanupFailures)) report.overall = "warning";
+  return report;
 }
 
 export async function recordOperationsEvent(input: {
@@ -189,6 +198,7 @@ export async function runOperationsMonitor(): Promise<void> {
   const owners = await db().query(`SELECT DISTINCT owner_id FROM agents`) as Row[];
   for (const row of owners) {
     const ownerId = String(row.owner_id);
+    if (computerRuntimeConfigured()) await computerLifecycle().recover(computerTemplateKey(ownerId).scope).catch(() => {});
     const report = await getOperationsReport(ownerId);
     await sendAlert(ownerId, report).catch((error) => {
       console.error("operations_alert_failed", { ownerId, error: error instanceof Error ? error.message : String(error) });

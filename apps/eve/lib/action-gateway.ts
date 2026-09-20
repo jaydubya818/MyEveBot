@@ -274,7 +274,10 @@ export class ActionGateway {
       }
     }
     let releaseComputer = false;
-    const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+30_000,target,capabilityId:action.capabilityId,signal});
+    // Only Computer provisioning waits for bounded cold preparation. Its provider
+    // boundary still revalidates all durable authority and budget gates.
+    const authorityLifetimeMs = action.capabilityId === "computer.session.create" ? 150_000 : 30_000;
+    const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+authorityLifetimeMs,target,capabilityId:action.capabilityId,signal});
     try {
       handles.set(authorized,{binding:JSON.stringify(canonicalActionValue({parameters:action.parameters,target})),revalidate:async()=>{
         if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);

@@ -3,7 +3,7 @@ import * as browserTools from "@agent-browser/eve/tools";
 import type { ToolContext } from "eve/tools";
 import { ActionBlocked,ActionGateway,consumeActionAuthority } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "./action-context.ts";
-import { requireComputerCapability } from "./computer-context.ts";
+import { getComputerSandbox, requireComputerCapability } from "./computer-context.ts";
 import { browserEffect } from "../../lib/browser-effect.ts";
 import { denyUnqualifiedExecutor } from "./unqualified-executor.ts";
 
@@ -24,7 +24,7 @@ export async function executeBrowserAction<T extends keyof typeof browserTools>(
   if(name==="wait_for" && input.jsCondition)throw new ActionBlocked("denied","unsupported_browser_javascript");
   if(name==="screenshot" && input.path)throw new ActionBlocked("denied","screenshot_file_target_not_qualified");
   const {session}=await requireComputerCapability(ctx,capabilityId);
-  const sandbox=await ctx.getSandbox();
+  const sandbox=await getComputerSandbox(ctx);
   if(session.sandboxId!==sandbox.id)throw new ActionBlocked("denied","browser_session_mismatch");
   const boundCtx={...ctx,getSandbox:async()=>sandbox};
   const tool=browserTools[name as keyof typeof browserTools];
