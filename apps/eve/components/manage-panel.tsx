@@ -1,4 +1,5 @@
 "use client";
+import { DecisionIntelligencePanel } from "@/components/decision-intelligence-panel";
 import { RoutinesPanel } from "@/components/routines-panel";
 
 import { RelayPanel } from "./relay-panel";
@@ -448,7 +449,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = "routines" | "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
+type ManageSection = "decision-intelligence" | "routines" | "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -542,6 +543,7 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
   {
     label: "Knowledge & tools",
     sections: [
+      { id: "decision-intelligence", label: "Decision Intelligence", description: "Experimental decision evidence", icon: PulseIcon },
       {
         id: "memory" as const,
         label: "Memory",
@@ -794,13 +796,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
+    id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
+    id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -967,6 +969,8 @@ export function ManagePanel({
     );
   } else if (activeSection === "connections") {
     sectionContent = <ConnectionsTab />;
+  } else if (activeSection === "decision-intelligence") {
+    sectionContent = <DecisionIntelligencePanel />;
   } else if (activeSection === "skills") {
     sectionContent = <SkillsManager />;
   } else {
