@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /private/tmp/myeve-product-acceptance-fixes/apps/eve
+
+ ✓ lib/owner-data.test.ts (10 tests) 93ms
+ ✓ lib/owner-archive-security.test.ts (32 tests) 409ms
+
+ Test Files  2 passed (2)
+      Tests  42 passed (42)
+   Start at  15:24:34
+   Duration  905ms (transform 73ms, setup 0ms, collect 562ms, tests 502ms, environment 0ms, prepare 82ms)

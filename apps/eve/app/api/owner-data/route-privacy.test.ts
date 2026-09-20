@@ -1,0 +1,20 @@
+import { randomUUID } from "node:crypto";
+import { afterEach, expect, it, vi } from "vitest";
+vi.mock("@/lib/web-auth", () => ({ requireWebAuth: () => null }));
+vi.mock("@/lib/agent-api", () => ({ requestOwnerId: () => "test-owner" }));
+vi.mock("@/lib/api-errors", () => ({ requireDatabase: () => null, apiError: (_: Request, status: number, code: string, message: string) => Response.json({ code, message }, { status }) }));
+vi.mock("@/lib/owner-data-operations", () => ({ recordOwnerDataOperation: vi.fn(), listOwnerDataOperations: vi.fn() }));
+import { POST } from "./route";
+import { recordOwnerDataOperation } from "@/lib/owner-data-operations";
+afterEach(() => vi.restoreAllMocks());
+it("never logs malformed archive values, returns safe errors, and records no successful verification", async () => {
+  const secret = randomUUID();
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  const form = new FormData(); form.set("archive", new File([secret], "backup.zip"));
+  const response = await POST(new Request("http://localhost/api/owner-data", { method: "POST", body: form }));
+  expect(response.status).toBe(400);
+  expect((await response.text()).includes(secret)).toBe(false);
+  expect(JSON.stringify([...warn.mock.calls, ...error.mock.calls]).includes(secret)).toBe(false);
+  expect(recordOwnerDataOperation).not.toHaveBeenCalled();
+});

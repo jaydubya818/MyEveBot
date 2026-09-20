@@ -418,8 +418,8 @@
     },
     "agent/lib/effect/chat-files.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "0e64c659ef7bc247ec103e04cec9fd3ffa80b435e6447992c8491d695370582a"
+      "reason": "Owner-authenticated canonical private-file inventory; list and read filter owner_id, and optional thread labels join on the same owner. No public storage URL is exposed. Cross-owner read/list regression exercises real PostgreSQL.",
+      "sha256": "4e4efa8443c19617c23819670e7a94ff402c965f7b8bd6e05a3705ade97a8e1c"
     },
     "agent/lib/effect/db.ts": {
       "classification": "INTERNAL",
@@ -1906,8 +1906,8 @@
     },
     "app/api/owner-data/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "e9834bc36aa6ba536313ec2e039a7f2cba4325fe432291648f8fbe065233f47a"
+      "reason": "Authenticated owner export and archive verification only. Invalid input fails closed with fixed safe client/log messages; no successful verification audit or restore on failure.",
+      "sha256": "d698a3ac22b12e4be65a4afca6a147efff1ec76d08a9857ea50d2bcc1cabeb05"
     },
     "app/api/owner-knowledge/route.ts": {
       "classification": "INTERNAL",
@@ -2361,8 +2361,8 @@
     },
     "lib/owner-data.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "6e5ae6b01d613a86695c6f4f731b0bebc0fada38ee21e3867d062d3e433fefbc"
+      "reason": "Owner-scoped portable export and verification only; shared secret-key exclusion applies to export and every JSON entry, including shadowed keys. Raw ZIP uniqueness and bounded inflation precede checksum trust. No restore or external execution.",
+      "sha256": "89f6fba3312a934b21e42f67d8e0e0bcc42b2fa9abbfca57d979f3d72fc5fcae"
     },
     "lib/owner-identity.ts": {
       "classification": "INTERNAL",
@@ -2638,6 +2638,11 @@
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
       "sha256": "ca22b41a0a795172eb18676e36dc29c03688698f2c7cf3f336d88a70f7c6d98d"
+    },
+    "lib/owner-archive-zip.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure bounded ZIP preflight. Rejects duplicate and unsafe paths before decompression or integrity evaluation; no filesystem writes, restore authority or external effects.",
+      "sha256": "1b81a6b79e5fe6327084bcf22228327dae4400b9f88dc28a3ef4c89d6e3f14c5"
     }
   }
 }

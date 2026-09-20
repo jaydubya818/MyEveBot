@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import JSZip from "jszip";
+import { assertOwnerArchiveZip } from "./owner-archive-zip";
 
 import { CURRENT_DATABASE_MIGRATION } from "@/lib/database-schema";
 import {
@@ -91,7 +92,9 @@ const EXCLUSIONS = [
   "Internal blob and sandbox storage keys",
   "Referenced file contents not explicitly marked embedded",
 ];
-const FORBIDDEN_ARCHIVE_KEYS = /^(access_?token|refresh_?token|api_?key|client_?secret|password|secret|storage_?key|blob_?(url|path)|webhook_?secret)$/i;
+// Shared by export and verification. Match credential concepts, not usage fields
+// such as input_tokens or explanatory owner prose. No value-pattern scanner.
+const FORBIDDEN_ARCHIVE_KEYS = /^(?:(?:access|refresh|auth|bearer|session|webhook|client|oauth|id|recovery|continuation)?tokens?|(?:client|webhook|session)?secrets?|passwords?|authorization|(?:vnc|provider|storage)?credentials?|(?:set|session)?cookies?|(?:api|access|private|storage)key|blob(?:url|path)|databaseurl|connectionstring)$/i;
 const COMPLETENESS_VALUES = new Set<OwnerDataCompleteness>(["complete", "partial", "metadata_only", "referenced_only", "unavailable"]);
 const PORTABILITY_VALUES = new Set<OwnerDataPortability>(["fully_restorable", "restorable_with_reconnection", "partially_restorable", "non_restorable", "reference_only", "unavailable"]);
 const OWNER_SCOPE_VALUES = new Set(["owner_scoped", "single_owner_legacy"]);
@@ -107,16 +110,36 @@ const bytes = (value: string): number => Buffer.byteLength(value, "utf8");
 const sha256 = (value: string | Uint8Array): string => createHash("sha256").update(value).digest("hex");
 const countRecords = (category: OwnerDataCategory): number => Object.values(category.records).reduce((total, rows) => total + rows.length, 0);
 
-function assertNoSecretFields(value: unknown, path = "data"): void {
-  if (Array.isArray(value)) {
-    value.forEach((item, index) => assertNoSecretFields(item, `${path}[${index}]`));
-    return;
+function assertNoSecretFields(value: unknown): void {
+  const pending: unknown[] = [value];
+  while (pending.length > 0) {
+    const current = pending.pop();
+    if (current === null || typeof current !== "object") continue;
+    for (const [key, item] of Object.entries(current)) {
+      if (FORBIDDEN_ARCHIVE_KEYS.test(key.replace(/[-_\s]/g, ""))) {
+        // Never include untrusted keys, paths, or values in errors/logs.
+        throw new Error("Unsafe secret-bearing field in owner archive.");
+      }
+      if (item !== null && typeof item === "object") pending.push(item);
+    }
   }
-  if (value === null || typeof value !== "object") return;
-  for (const [key, item] of Object.entries(value)) {
-    if (FORBIDDEN_ARCHIVE_KEYS.test(key)) throw new Error(`Unsafe secret-bearing field in owner archive: ${path}.${key}`);
-    assertNoSecretFields(item, `${path}.${key}`);
+}
+
+function parseArchiveJson(raw: string): unknown {
+  let value: unknown;
+  try { value = JSON.parse(raw); }
+  catch { throw new Error("The archive contains invalid JSON."); }
+  // JSON.parse collapses duplicate object keys. Inspect every JSON string
+  // token that is a key as well, so a shadowed object cannot hide credentials.
+  for (const match of raw.matchAll(/"(?:\\.|[^"\\])*"/g)) {
+    let next = match.index + match[0].length;
+    while (/\s/.test(raw[next] ?? "") && next < raw.length) next++;
+    if (raw[next] === ":") {
+      assertNoSecretFields({ [JSON.parse(match[0]) as string]: null });
+    }
   }
+  assertNoSecretFields(value);
+  return value;
 }
 
 function markdownValue(value: unknown): string {
@@ -233,9 +256,11 @@ export async function createOwnerArchive(bundle: OwnerDataBundle): Promise<Buffe
 }
 
 function parseManifest(raw: string): OwnerArchiveManifest {
-  const value = JSON.parse(raw) as Partial<OwnerArchiveManifest>;
+  const parsed = parseArchiveJson(raw);
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("This is not a supported MyEve backup archive.");
+  const value = parsed as Partial<OwnerArchiveManifest>;
   if (value.format !== OWNER_ARCHIVE_FORMAT) throw new Error("This is not a MyEve backup archive.");
-  if (typeof value.version !== "number" || value.version > OWNER_ARCHIVE_VERSION) throw new Error(`This backup uses format version ${String(value.version)}, but this MyEve supports up to version ${OWNER_ARCHIVE_VERSION}.`);
+  if (typeof value.version !== "number" || value.version > OWNER_ARCHIVE_VERSION) throw new Error(`This backup uses an unsupported format version; this MyEve supports up to version ${OWNER_ARCHIVE_VERSION}.`);
   if (value.version !== OWNER_ARCHIVE_VERSION || typeof value.createdAt !== "string" || value.verifiedAtCreation !== true || typeof value.schemaVersion !== "string" || !Array.isArray(value.domains) || value.checksums === null || typeof value.checksums !== "object" || !Array.isArray(value.files)) {
     throw new Error("This is not a supported MyEve backup archive.");
   }
@@ -249,12 +274,15 @@ function archivePathIsUnsafe(name: string): boolean {
 export async function validateOwnerArchive(input: Uint8Array): Promise<OwnerArchiveValidation> {
   if (input.byteLength === 0) throw new Error("The selected archive is empty.");
   if (input.byteLength > OWNER_ARCHIVE_MAX_BYTES) throw new Error("The selected archive is larger than 25 MB.");
-  const zip = await JSZip.loadAsync(input, { checkCRC32: true });
+  assertOwnerArchiveZip(input, { entries: OWNER_ARCHIVE_MAX_ENTRIES, entryBytes: OWNER_ARCHIVE_MAX_ENTRY_BYTES, totalBytes: OWNER_ARCHIVE_MAX_UNCOMPRESSED_BYTES, compressionRatio: OWNER_ARCHIVE_MAX_COMPRESSION_RATIO });
+  let zip: JSZip;
+  try { zip = await JSZip.loadAsync(input, { checkCRC32: true }); }
+  catch { throw new Error("The archive ZIP structure or checksum is invalid."); }
   const entries = Object.values(zip.files);
   if (entries.length > OWNER_ARCHIVE_MAX_ENTRIES) throw new Error("The archive contains too many entries.");
   for (const entry of entries) {
     const original = (entry as JSZip.JSZipObject & { unsafeOriginalName?: string }).unsafeOriginalName ?? entry.name;
-    if (archivePathIsUnsafe(original)) throw new Error(`Archive path is unsafe: ${original}`);
+    if (archivePathIsUnsafe(original)) throw new Error("Archive path is unsafe.");
   }
   const manifestFile = zip.file("manifest.json");
   if (!manifestFile) throw new Error("The archive manifest is missing.");
@@ -266,20 +294,21 @@ export async function validateOwnerArchive(input: Uint8Array): Promise<OwnerArch
   const seen = new Set<string>();
   for (const expected of manifest.files) {
     if (!expected || typeof expected.path !== "string" || archivePathIsUnsafe(expected.path) || typeof expected.sha256 !== "string" || !Number.isSafeInteger(expected.bytes) || expected.bytes < 0 || expected.bytes > OWNER_ARCHIVE_MAX_ENTRY_BYTES || seen.has(expected.path)) throw new Error("The archive manifest contains an invalid file entry.");
-    if (!expected.path.endsWith(".json") && !expected.path.endsWith(".md")) throw new Error(`Archive file type is not allowed: ${expected.path}`);
+    if (!expected.path.endsWith(".json") && !expected.path.endsWith(".md")) throw new Error("Archive file type is not allowed.");
     seen.add(expected.path);
     const file = zip.file(expected.path);
-    if (!file) throw new Error(`Archive file is missing: ${expected.path}`);
+    if (!file) throw new Error("Archive file is missing.");
     const content = await file.async("uint8array");
-    if (content.byteLength > OWNER_ARCHIVE_MAX_ENTRY_BYTES) throw new Error(`Archive file is larger than the safe limit: ${expected.path}`);
+    if (content.byteLength > OWNER_ARCHIVE_MAX_ENTRY_BYTES) throw new Error("Archive file is larger than the safe limit.");
     uncompressedBytes += content.byteLength;
     if (uncompressedBytes > OWNER_ARCHIVE_MAX_UNCOMPRESSED_BYTES) throw new Error("The archive expands beyond the safe validation limit.");
-    if (content.byteLength !== expected.bytes || sha256(content) !== expected.sha256) throw new Error(`Archive integrity check failed: ${expected.path}`);
+    if (content.byteLength !== expected.bytes || sha256(content) !== expected.sha256) throw new Error("Archive integrity check failed.");
+    if (expected.path.endsWith(".json")) parseArchiveJson(Buffer.from(content).toString("utf8"));
     if (typeof expected.recordCount === "number") recordCount += expected.recordCount;
   }
   if (uncompressedBytes / Math.max(1, input.byteLength) > OWNER_ARCHIVE_MAX_COMPRESSION_RATIO) throw new Error("The archive compression ratio exceeds the safe validation limit.");
   const unexpected = entries.find((file) => !file.dir && file.name !== "manifest.json" && !seen.has(file.name));
-  if (unexpected) throw new Error(`Archive contains an unexpected file: ${unexpected.name}`);
+  if (unexpected) throw new Error("Archive contains an unexpected file.");
   if (!seen.has("checksums.json")) throw new Error("The archive is missing checksum metadata.");
   const domainIds = new Set(manifest.domains.map((domain) => domain.id));
   if (
@@ -297,7 +326,7 @@ export async function validateOwnerArchive(input: Uint8Array): Promise<OwnerArch
   if (missingRequired.length > 0) throw new Error(`The archive is missing required domain data: ${missingRequired.map((domain) => domain.name).join(", ")}`);
   const checksumFile = zip.file("checksums.json");
   if (!checksumFile) throw new Error("The archive is missing checksum metadata.");
-  const checksumDocument = JSON.parse(await checksumFile.async("string")) as Record<string, unknown>;
+  const checksumDocument = parseArchiveJson(await checksumFile.async("string")) as Record<string, unknown>;
   const expectedChecksumPaths = manifest.files.filter((file) => file.path !== "checksums.json").map((file) => file.path).sort();
   if (
     Object.keys(checksumDocument).sort().join("\n") !== expectedChecksumPaths.join("\n") ||

@@ -128,6 +128,7 @@ export const ChatFilesLive = Layer.effect(
           chat jsonb NOT NULL DEFAULT '{}'::jsonb
         )
       `);
+      yield* database.query("ALTER TABLE web_chat_threads ADD COLUMN IF NOT EXISTS owner_id text");
       yield* database.query(`
         CREATE TABLE IF NOT EXISTS chat_files (
           id text PRIMARY KEY,
@@ -182,7 +183,7 @@ export const ChatFilesLive = Layer.effect(
         const rows = yield* database.query(
           `SELECT ${projection}
              FROM chat_files f
-             LEFT JOIN web_chat_threads t ON t.id = f.thread_id
+             LEFT JOIN web_chat_threads t ON t.id = f.thread_id AND t.owner_id = f.owner_id
             WHERE f.owner_id = $1
               AND f.id = $2`,
           [ownerId, id],
@@ -206,7 +207,7 @@ export const ChatFilesLive = Layer.effect(
           const rows = yield* database.query(
             `SELECT ${projection}
                FROM chat_files f
-               LEFT JOIN web_chat_threads t ON t.id = f.thread_id
+               LEFT JOIN web_chat_threads t ON t.id = f.thread_id AND t.owner_id = f.owner_id
               WHERE f.owner_id = $1
               ORDER BY f.created_at DESC`,
             [ownerId],
