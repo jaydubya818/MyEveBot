@@ -2,10 +2,8 @@ import { after } from "next/server";
 import { OwnerRunControl } from "../../../../lib/relay/owner/control.ts";
 import { dispatchOwnerRun,reconcileOwnerRun,cancelOwnerRuntime } from "../../../../lib/relay/owner/worker.ts";
 import { agentMailSendAdapter } from "../../../../agent/lib/email-send-adapter.ts";
-import { transitionTask } from "../../../../lib/task-runs.ts";
-import { db } from "../../../../agent/lib/receipts-db.ts";
 import { ownerChannelConfiguration } from "../../../../lib/relay/owner/config.ts";
-import { OwnerChannelHandoff } from "../../../../lib/relay/owner/handoff.ts";
+import { OwnerChannelHandoff,OwnerWorkNotAdmitted } from "../../../../lib/relay/owner/handoff.ts";
 import { ownerRunSnapshot } from "../../../../lib/relay/owner/snapshot.ts";
 export const runtime="nodejs";
 export const maxDuration=90;
@@ -27,10 +25,9 @@ export async function POST(request:Request){
    return agentMailSendAdapter();
   });
   if(accepted.command.operation==="cancel"){
-   const [run]=await db().query(`SELECT status FROM task_runs WHERE owner_id=$1 AND id=$2`,[accepted.mapping.ownerId,accepted.runId]);
-   if(run&&!['cancelled','completed','failed'].includes(String(run.status)))await transitionTask(accepted.mapping.ownerId,accepted.runId,"cancelled","owner","Owner cancelled channel work.");
+   await new OwnerRunControl().cancel(accepted);
    after(()=>cancelOwnerRuntime(accepted.mapping.ownerId,accepted.runId,accepted.mapping.agentId));
   }
   return Response.json(await ownerRunSnapshot(accepted),{headers:{"cache-control":"no-store"}});
- }catch{return Response.json({code:"OWNER_INGRESS_DENIED"},{status:403});}
+ }catch(error){if(error instanceof OwnerWorkNotAdmitted)return Response.json(error.proof,{status:409,headers:{"cache-control":"no-store"}});return Response.json({code:"OWNER_INGRESS_DENIED"},{status:403});}
 }

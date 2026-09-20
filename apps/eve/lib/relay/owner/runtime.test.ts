@@ -1,9 +1,13 @@
+import { ownerCommandHash } from "./signing.ts";
 import { describe,expect,it } from "vitest";
 import { assertOwnerRuntimeRoute,signOwnerRuntime,verifyOwnerRuntime,type OwnerRuntimeClaim } from "./runtime.ts";
 
 const claim:OwnerRuntimeClaim={ownerId:"fixture-owner",agentId:"fixture-agent",runId:"fixture-run",dispatchId:"11111111-1111-4111-8111-111111111111",expiresAt:Date.now()+60000,purpose:"execute"};
 const request=(path:string,method="GET")=>new Request(`https://myeve.invalid/eve/v1/${path}`,{method});
 describe("owner runtime transport scope",()=>{
+ it("matches the Relay canonical hash wire format",()=>{
+  expect(ownerCommandHash({b:2,a:1})).toBe("sha256:43258cff783fe7036d8a43033f830adfc60ec037382473548ac742b888292777");
+ });
  it("allows initial admission but never a second turn",()=>{
   expect(()=>assertOwnerRuntimeRoute(request("session","POST"),claim,{})).not.toThrow();
   expect(()=>assertOwnerRuntimeRoute(request("session","POST"),claim,{session_id:"first"})).toThrow();

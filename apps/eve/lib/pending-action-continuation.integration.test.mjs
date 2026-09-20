@@ -4,7 +4,7 @@ import {ownerRunSnapshot} from './relay/owner/snapshot.ts';
 import {signOwnerRuntime,verifyOwnerRuntime,bindOwnerRuntime,resolveOwnerRuntime} from './relay/owner/runtime.ts';
 import {ownerChannelConfiguration} from './relay/owner/config.ts';
 import {generateKeyPairSync,randomUUID,sign} from 'node:crypto';
-import {OwnerChannelHandoff} from './relay/owner/handoff.ts';
+import {OwnerChannelHandoff,OwnerWorkNotAdmitted} from './relay/owner/handoff.ts';
 import {OwnerRunControl} from './relay/owner/control.ts';
 import {ownerCommandHash} from './relay/owner/signing.ts';
 import {readFile,readdir} from 'node:fs/promises';
@@ -96,6 +96,10 @@ suite('canonical owner pending-action continuation',()=>{
   const completed=await ownerRunSnapshot(accepted,database);expect(completed.state).toBe('COMPLETED');expect(completed.resultId).toMatch(/^outcome_/);
   expect((await query('SELECT count(*)::int n FROM outcomes WHERE run_id=$1',[admitted.runId]))[0].n).toBe(1);
   expect((await query("SELECT count(*)::int n FROM task_transitions WHERE task_id=$1 AND to_status='completed'",[admitted.runId]))[0].n).toBe(1);
+  await query("UPDATE task_runs SET result_summary='private-result-canary' WHERE id=$1",[admitted.runId]);
+  const cancellation=await service.accept(envelope({commandId:'cancel-'+input.requestId,operation:'cancel',work:input}));await controller.cancel(cancellation);
+  const safe=await ownerRunSnapshot(cancellation,database);expect(safe.state).toBe('COMPLETED');expect(safe.text).not.toContain('private-result-canary');
+
  });
  it('binds one Eve session and rechecks expiry, mapping, revocation and unknown usage',async()=>{
   const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database);const accepted=await service.accept(envelope({commandId:'start-'+input.requestId,operation:'start',work:input}));
@@ -145,6 +149,45 @@ suite('canonical owner pending-action continuation',()=>{
   await new OwnerRunControl(database).apply(await service.accept(envelope(approval)),()=>adapter);
   await new OwnerRunControl(database).apply(await service.accept(envelope(approval)),()=>adapter);
   expect([research,draft,effects]).toEqual([1,1,1]);expect((await ownerRunSnapshot(admitted,database)).state).toBe('COMPLETED');
+ });
+
+ it('STATUS proves exact non-admission without creating a canonical Run',async()=>{
+  const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database);
+  let absent;try{await service.accept(envelope({commandId:'status-'+input.requestId,operation:'status',work:input}));}catch(error){absent=error;}
+  expect(absent).toBeInstanceOf(OwnerWorkNotAdmitted);expect(absent.proof).toMatchObject({requestId:input.requestId,workHash:ownerCommandHash(input)});
+  expect((await query("SELECT count(*)::int n FROM task_runs WHERE id LIKE 'owner_run_%'"))[0].n).toBe(0);
+ });
+
+ it('a cancellation arriving before START creates a terminal fence against late admission',async()=>{
+  const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database);const cancel={commandId:'cancel-'+input.requestId,operation:'cancel',work:input};
+  const accepted=await service.accept(envelope(cancel));await new OwnerRunControl(database).cancel(accepted);
+  await new OwnerRunControl(database).cancel(await service.accept(envelope(cancel)));
+  expect((await ownerRunSnapshot(accepted,database)).state).toBe('CANCELLED');
+  await expect(service.accept(envelope({commandId:'start-'+input.requestId,operation:'start',work:input}))).rejects.toThrow('revoked');
+  expect((await query("SELECT count(*)::int n FROM task_runs WHERE id LIKE 'owner_run_%'"))[0].n).toBe(1);
+ });
+ it('cancels an admitted Run after its mapping and Agent authority were removed',async()=>{
+  const input=work();input.taskId=input.requestId;const start=await new OwnerChannelHandoff(trust,database).accept(envelope({commandId:'start-'+input.requestId,operation:'start',work:input}));
+  await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '60 seconds' WHERE id=$1",[start.runId]);await query("UPDATE agents SET is_primary=false,status='paused'");
+  const service=new OwnerChannelHandoff({...trust,mappings:[]},database);
+  const accepted=await service.accept(envelope({commandId:'cancel-'+input.requestId,operation:'cancel',work:input}));await new OwnerRunControl(database).cancel(accepted);
+  expect((await ownerRunSnapshot(accepted,database)).state).toBe('CANCELLED');
+ });
+
+ it('human approval waiting preserves remaining active time and replay cannot reset it',async()=>{
+  const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database);const admitted=await service.accept(envelope({commandId:'start-'+input.requestId,operation:'start',work:input}));
+  await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '60 seconds' WHERE id=$1",[admitted.runId]);
+  let effects=0;const adapter={resolveTarget:async()=>({provider:'fixture',account:mapping.ownerId,resource:'/workspace/fixture.txt'}),execute:async(parameters,context)=>{await consumeActionAuthority(context,parameters,'files.write');await consumeProviderAuthority(context,parameters,'files.write');effects++;return {};},verify:async()=>({verified:true,receipt:{id:'fixture'}})};
+  await expect(new ActionGateway(database).execute({...action(),runId:admitted.runId},adapter)).rejects.toMatchObject({status:'awaiting_approval'});
+  const pending=await new PendingActionContinuation(database).get(mapping.ownerId,admitted.runId);
+  await query("UPDATE task_approval_decisions SET requested_at=now()-interval '2 minutes' WHERE id=$1",[pending.approvalId]);
+  await query("UPDATE task_runs r SET deadline_at=p.requested_at+interval '7 seconds' FROM task_approval_decisions p WHERE p.task_id=r.id AND p.id=$1",[pending.approvalId]);
+  const approval={commandId:'approval-'+input.requestId,operation:'approval',work:input,decision:{reference:pending.approvalId,bindingHash:pending.bindingHash,choice:'approve'}};
+  await new OwnerRunControl(database).apply(await service.accept(envelope(approval)),()=>adapter);
+  const [budget]=await query('SELECT remaining_runtime_ms FROM owner_channel_requests WHERE run_id=$1',[admitted.runId]);expect(budget.remaining_runtime_ms).toBe(7000);
+  const [before]=await query('SELECT deadline_at::text AS deadline FROM task_runs WHERE id=$1',[admitted.runId]);
+  await new OwnerRunControl(database).apply(await service.accept(envelope(approval)),()=>adapter);
+  const [after]=await query('SELECT deadline_at::text AS deadline FROM task_runs WHERE id=$1',[admitted.runId]);expect(after.deadline).toBe(before.deadline);expect(effects).toBe(1);
  });
 
 });

@@ -1,3 +1,4 @@
+import { resumeOwnerApprovalBudget } from "./approval-budget.ts";
 import { completeDelegatedTask,transitionTask } from "../../task-runs.ts";
 import { db } from "../../../agent/lib/receipts-db.ts";
 import { ActionGateway,type ActionAdapter } from "../../action-gateway.ts";
@@ -13,6 +14,13 @@ import { ownerCommandHash } from "./signing.ts";
  */
 export class OwnerRunControl {
  constructor(private readonly database:ExecutionDatabase=db() as ExecutionDatabase){}
+ async cancel(accepted:AcceptedOwnerCommand){
+  const {command,mapping,runId}=accepted;if(command.operation!=="cancel")throw new Error("Cancellation command required.");
+  const [bound]=await this.database.query(`UPDATE owner_channel_requests SET revoked_at=COALESCE(revoked_at,now()) WHERE owner_id=$1 AND run_id=$2 AND agent_id=$3 AND work_hash=$4 RETURNING run_id`,[mapping.ownerId,runId,mapping.agentId,ownerCommandHash(command.work)]);
+  if(!bound)throw new Error("Cancellation binding changed.");
+  const [run]=await this.database.query(`SELECT status FROM task_runs WHERE owner_id=$1 AND id=$2`,[mapping.ownerId,runId]);
+  if(run&&!['cancelled','completed','failed'].includes(String(run.status)))await transitionTask(mapping.ownerId,runId,"cancelled","owner","Owner cancelled channel work.");
+ }
  async apply(accepted:AcceptedOwnerCommand,resolveAdapter:(capability:string)=>ActionAdapter<unknown>){
   const {command,mapping,runId}=accepted;
   const [binding]=await this.database.query(`SELECT r.id FROM owner_channel_requests w
@@ -38,6 +46,7 @@ export class OwnerRunControl {
     if(run?.status!=="cancelled")await transitionTask(mapping.ownerId,runId,"cancelled","owner","Exact Action rejected by owner.");
     return {state:"DENIED" as const,runId,actionId:pending.actionId};
    }
+   await resumeOwnerApprovalBudget(mapping.ownerId,runId,pending.actionId,this.database);
    const result=await continuation.resumeOwner({ownerId:mapping.ownerId,runId,agentId:mapping.agentId},new ActionGateway(this.database),resolveAdapter(pending.action.capabilityId));
    await completeDelegatedTask({ownerId:mapping.ownerId,taskId:runId,actionId:result.actionId,summary:"The approved action has a recorded completion.",evidenceSummary:`Canonical Action ${result.actionId} contains the provider receipt or explicitly labelled recovery evidence.`});
    return {state:"COMPLETED" as const,runId,...result};

@@ -36,17 +36,4 @@ export const executionSnapshotSchema = z.object({
 });
 export type ExecutionSnapshot = z.infer<typeof executionSnapshotSchema>;
 
-/** Runtime owns Runs, Actions, Context Assembly, approvals, receipts and recovery.
- * Each commandId is idempotent, start durably admits once, status never starts work,
- * and decisions resume only the immutable pending action. Never interpret a channel
- * command as capability authority. Implementations must enforce budget/checkpoints.
- */
-export interface CanonicalOwnerExecutor {
-  authorize(command: ExecutionCommand): Promise<void>;
-  handle(command: ExecutionCommand): Promise<ExecutionSnapshot>;
-}
-export interface ExecutionTransport { call(command: ExecutionCommand): Promise<ExecutionSnapshot> }
 export type Environment = "development" | "preview" | "production";
-
-/** Release gate: transport fixtures do not qualify the canonical MyEve adapter. */
-export const OWNER_EXECUTOR_QUALIFIED: boolean = false;

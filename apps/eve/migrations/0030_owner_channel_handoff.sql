@@ -17,6 +17,8 @@ CREATE TABLE owner_channel_requests (
   dispatched_at timestamptz,
   last_observed_at timestamptz,
   cancel_acknowledged_at timestamptz,
+  budget_resumed_at timestamptz,
+  remaining_runtime_ms integer CHECK(remaining_runtime_ms BETWEEN 0 AND 60000),
   session_id text UNIQUE,
   turn_id text,
   tokens_used integer NOT NULL DEFAULT 0 CHECK(tokens_used>=0),

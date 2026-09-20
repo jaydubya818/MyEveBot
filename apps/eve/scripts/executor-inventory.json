@@ -2637,7 +2637,7 @@
     "app/api/relay/owner-execution/route.ts": {
       "classification": "BLOCKED",
       "reason": "Signed owner ingress returns 503 while the release gate is false; strict bounded input and canonical handoff/control only.",
-      "sha256": "c6786a772517c4d3b21257f37b64322f9811fcc6e92a2c0dfb99e7ce0a24590b"
+      "sha256": "9311af128567514dfb4d6d34ab38799fba2c3e42ffa6f5743d34e732b490e077"
     },
     "lib/pending-action-continuation.ts": {
       "classification": "ENFORCED",
@@ -2652,17 +2652,17 @@
     "lib/relay/owner/contracts.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Strict independent owner-channel wire schemas; no execution.",
-      "sha256": "404e1247b3429fb34dc7888bfa2510ea2aa36a94cb7739c5460b00b19afecae8"
+      "sha256": "671e700df092348961fa583f6a1e4361ce009ad08d21aaf3ba594c443a380c24"
     },
     "lib/relay/owner/control.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical exact approval and recovery decisions; owner/Agent/source checks; saved Action resumes through Gateway and canonical Outcome completion.",
-      "sha256": "cfd8c389e408158e3e437c0dc1bdcf2f96f3d731a168c549fe82c7075ca01f84"
+      "sha256": "23d01ccfe8ff1229f11d1d9c42366d3d7e2fc0129283b3918ee993083bb266a8"
     },
     "lib/relay/owner/handoff.ts": {
       "classification": "ENFORCED",
       "reason": "Pinned signature and explicit mapping; replay fence; atomic canonical Run/projection/command admission; local source revocation.",
-      "sha256": "5903df0af13af85245ab5b4c7698da953878bc3ac1728ed886fc8f2221f15b3d"
+      "sha256": "2a45541d08e81dc1b0df375acc855c97cc11ae7db07e84e5fbcfaaccc015dbad"
     },
     "lib/relay/owner/runtime.ts": {
       "classification": "ENFORCED",
@@ -2672,17 +2672,22 @@
     "lib/relay/owner/signing.ts": {
       "classification": "ENFORCED",
       "reason": "Strict Ed25519 domain/environment/audience/key/scope/lifetime/payload verification; no provider execution.",
-      "sha256": "61b09a80fd0e24701544e112d54d7485445f6a1e21bdb558a6e01be3936cb0c5"
+      "sha256": "b2c45d46287fdd515f579af669a3a10be719b0b03bafb4dacbab2287a4c0808d"
     },
     "lib/relay/owner/snapshot.ts": {
       "classification": "READ_ONLY",
       "reason": "Projects canonical Run/Approval/Action/Outcome state and safe resolved target; no independent authority.",
-      "sha256": "b329006746b3f63844cf6249c705f4918ba5217ce5cd0106f73272aa91021463"
+      "sha256": "7a124436351ff90878ff047166c65f6f9e562eb4de7731121bf220a509934edb"
     },
     "lib/relay/owner/worker.ts": {
       "classification": "BLOCKED",
       "reason": "Immutable release gate blocks dispatch/reconciliation/cancellation schedule; at-most-once canonical dispatch and existing Eve client; actual runtime qualification incomplete.",
       "sha256": "311e442863c9d288ff24c75aa602d8135d6aa4250363b751757a9d950961b638"
+    },
+    "lib/relay/owner/approval-budget.ts": {
+      "classification": "ENFORCED",
+      "reason": "One-time restoration of remaining canonical Run active time from the original approval timestamp; approval retries cannot refresh the budget; real PostgreSQL continuation test.",
+      "sha256": "0c8f4d2fe330b0a7a7fb8a19d5cad1aa09d8ded38e4efba0832c8dc2e1f42c39"
     }
   }
 }
