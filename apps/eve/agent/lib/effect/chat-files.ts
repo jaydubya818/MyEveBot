@@ -150,13 +150,7 @@ export const ChatFilesLive = Layer.effect(
       yield* database.query(
         "ALTER TABLE chat_files ALTER COLUMN owner_id DROP NOT NULL",
       );
-      yield* database.query(
-        "UPDATE chat_files SET owner_id = $1 WHERE owner_id IS NULL OR owner_id = 'web:owner'",
-        [ownerId],
-      );
-      yield* database.query(
-        "ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL",
-      );
+      // Never claim legacy rows for the caller; migration 0031 requires thread evidence.
       yield* database.query(
         "CREATE INDEX IF NOT EXISTS chat_files_owner_created_idx ON chat_files (owner_id, created_at DESC)",
       );

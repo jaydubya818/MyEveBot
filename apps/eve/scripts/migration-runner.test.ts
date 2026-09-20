@@ -1,0 +1,24 @@
+import { describe, expect, it } from 'vitest';
+import lineage from './deployed-lineage-396631a.json';
+import { FEATURE_LINEAGE, RECONCILIATION, SATISFIED_MIGRATION, loadMigrations, planMigrations, type LedgerRow, type ReconciliationRecord } from './migration-runner';
+const migrations=await loadMigrations();
+const canonical: LedgerRow[]=migrations.filter(m=>m.name<RECONCILIATION).map(({name,checksum})=>({name,checksum}));
+const feature: LedgerRow[]=Object.entries(lineage).map(([name,checksum])=>({name,checksum}));
+const reconciled=migrations.find(m=>m.name===RECONCILIATION)!;
+const receipt: ReconciliationRecord={origin:FEATURE_LINEAGE,source_ledger:feature,satisfied_migrations:{[SATISFIED_MIGRATION]:migrations.find(m=>m.name===SATISFIED_MIGRATION)!.checksum}};
+describe('migration lineage planning',()=>{
+ it('supports an empty canonical database',()=>expect(planMigrations(migrations,[]).pending).toHaveLength(31));
+ it('supports the exact canonical prefix',()=>expect(planMigrations(migrations,canonical).pending.map(m=>m.name)).toEqual([RECONCILIATION]));
+ it('recognizes only the complete known deployed lineage',()=>expect(planMigrations(migrations,feature).pending.map(m=>m.name)).toEqual([RECONCILIATION]));
+ it('does not mark skipped 0030 as applied',()=>expect(planMigrations(migrations,feature).satisfied).toEqual(receipt.satisfied_migrations));
+ it('rejects one arbitrary checksum',()=>expect(()=>planMigrations(migrations,feature.map((r,i)=>i? r:{...r,checksum:'unknown'}))).toThrow(/Unknown/));
+ it('rejects a mixture of known and canonical hashes',()=>expect(()=>planMigrations(migrations,feature.map(r=>r.name.startsWith('0017')?canonical.find(c=>c.name===r.name)!:r))).toThrow(/Unknown/));
+ it('rejects an incomplete feature lineage',()=>expect(()=>planMigrations(migrations,feature.slice(0,-1))).toThrow(/partial/));
+ it('rejects unknown migration names',()=>expect(()=>planMigrations(migrations,[...canonical,{name:'9999_unknown.sql',checksum:'unknown'}])).toThrow());
+ it('rejects holes in a canonical prefix',()=>expect(()=>planMigrations(migrations,canonical.filter(r=>!r.name.startsWith('0002')))).toThrow(/Noncontiguous/));
+ it('rejects a reconciliation ledger row without evidence',()=>expect(()=>planMigrations(migrations,[...feature,reconciled])).toThrow(/Partial/));
+ it('rejects evidence without a reconciliation ledger row',()=>expect(()=>planMigrations(migrations,feature,receipt)).toThrow(/Partial/));
+ it('accepts a verified rerun',()=>expect(planMigrations(migrations,[...feature,reconciled],receipt).pending).toEqual([]));
+ it('rejects tampered equivalence evidence',()=>expect(()=>planMigrations(migrations,[...feature,reconciled],{...receipt,satisfied_migrations:{[SATISFIED_MIGRATION]:'unknown'}})).toThrow(/evidence/));
+ it('rejects falsified canonical 0030 on the feature lineage',()=>expect(()=>planMigrations(migrations,[...feature,canonical.at(-1)!,reconciled],receipt)).toThrow(/cannot claim/));
+});

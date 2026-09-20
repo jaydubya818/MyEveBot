@@ -16,11 +16,13 @@ const client = await pool.connect(),
   schema = `routine_integration_upgrade_${Date.now()}`;
 const directory = new URL("../migrations/", import.meta.url);
 const apply = async (name) => {
-  for (const statement of splitSqlStatements(
-    await readFile(new URL(name, directory), "utf8"),
-  ))
-    await client.query(statement);
+  await client.query("BEGIN");
+  try {
+    for (const statement of splitSqlStatements(await readFile(new URL(name, directory), "utf8"))) await client.query(statement);
+    await client.query("COMMIT");
+  } catch (error) { await client.query("ROLLBACK"); throw error; }
 };
+
 const database = {
   query: async (sql, params) => (await client.query(sql, params)).rows,
 };

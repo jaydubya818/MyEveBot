@@ -419,7 +419,7 @@
     "agent/lib/effect/chat-files.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "0e64c659ef7bc247ec103e04cec9fd3ffa80b435e6447992c8491d695370582a"
+      "sha256": "7944c9b6a1584c3e1c9eb2831878332353746b467b106dac92b24111cb7e9a68"
     },
     "agent/lib/effect/db.ts": {
       "classification": "INTERNAL",
@@ -2032,7 +2032,7 @@
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "95d97422e0edb9b0f5f0e102ef7826eee53e104472d886fd47c14992404aff8e"
+      "sha256": "e1fde4317549bc4d9bf59d861bbbc5f73fb281ec522e785d9ad54d7e3d2265da"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2082,7 +2082,7 @@
     "lib/approvals.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "03bd4799a08df2c60abb546d01979f0136b6b944af88efec2bdc0c8c07e41320"
+      "sha256": "8c2c747b933a29cb9812ba34b4af920a3cf8ec3cbe46ec2f538ab640a3c719a2"
     },
     "lib/artifact-api.ts": {
       "classification": "INTERNAL",
@@ -2207,7 +2207,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dccc1ed96931d6b47d2763e8a908f389c2dea313b94fa02e8bd373a4d8feb23c"
+      "sha256": "d482d736f216ea3211dc95e4582e8cc1e7713aafbbeee58acb24495842830e95"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2352,7 +2352,7 @@
     "lib/owner-data-domains.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "9a05e1ff41a2385ac0771601a21263ddc1658f3b10e0f3dbc3ef554b08a5a712"
+      "sha256": "de079e2d7fddf427a00e01aea5743ae5c036571adb0e8adf834017fe2f5d1804"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",

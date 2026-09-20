@@ -9,7 +9,7 @@ afterEach(() => {
 });
 
 describe("chat file owner identity", () => {
-  it("claims legacy rows for the authenticated deployment owner before listing", async () => {
+  it("never claims legacy rows on behalf of the listing owner", async () => {
     vi.stubEnv("DATABASE_URL", "postgres://chat-files.test/database");
     const queries: Array<{ sql: string; params: unknown[] }> = [];
     const query = (sql: string, params: unknown[] = []) => {
@@ -35,8 +35,7 @@ describe("chat file owner identity", () => {
     const create = queries.find(({ sql }) => sql.includes("CREATE TABLE IF NOT EXISTS chat_files"));
     const claim = queries.find(({ sql }) => sql.includes("UPDATE chat_files SET owner_id"));
     expect(create?.sql).not.toContain("DEFAULT 'web:owner'");
-    expect(claim).toEqual(expect.objectContaining({ params: ["deployment-owner"] }));
-    expect(queries.findIndex(({ sql }) => sql.includes("UPDATE chat_files SET owner_id")))
-      .toBeLessThan(queries.findIndex(({ sql }) => sql.includes("WHERE f.owner_id = $1")));
+    expect(claim).toBeUndefined();
+    expect(queries.find(({ sql }) => sql.includes("WHERE f.owner_id = $1"))?.params).toContain("deployment-owner");
   });
 });

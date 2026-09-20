@@ -13,13 +13,11 @@ test("owner file migration leaves legacy ownership for runtime attribution", asy
   assert.match(migration, /SET owner_id = NULL WHERE owner_id = 'web:owner'/);
 });
 
-test("database migration completion attributes files to the deployment owner", async () => {
-  const runner = await readFile(
-    new URL("../scripts/migrate-database.ts", import.meta.url),
-    "utf8",
-  );
-
-  assert.match(runner, /deploymentOwnerId\(\)/);
-  assert.match(runner, /UPDATE chat_files SET owner_id = \$1 WHERE owner_id IS NULL OR owner_id = 'web:owner'/);
-  assert.match(runner, /ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL/);
+test("file attribution requires durable thread evidence, never the deploying owner", async () => {
+  const migration = await readFile(new URL("../migrations/0031_deployed_lineage_reconciliation.sql", import.meta.url), "utf8");
+  const runner = await readFile(new URL("../scripts/migrate-database.ts", import.meta.url), "utf8");
+  assert.doesNotMatch(runner, /deploymentOwnerId|UPDATE chat_files/);
+  assert.match(migration, /Ambiguous file ownership/);
+  assert.match(migration, /web_chat_threads t ON t.id=f.thread_id/);
+  assert.match(migration, /sofie_file_owner_reconciliations/);
 });

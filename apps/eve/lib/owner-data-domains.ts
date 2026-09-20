@@ -107,11 +107,7 @@ async function loadSkills(context: DomainContext): Promise<OwnerDataCategory> {
 }
 
 async function loadFiles(context: DomainContext): Promise<OwnerDataCategory> {
-  await context.query(
-    `UPDATE chat_files SET owner_id=$1 WHERE owner_id IS NULL OR owner_id='web:owner'`,
-    [context.ownerId],
-  );
-  await context.query(`ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL`);
+  // Ownership repair belongs to the audited migration, never a data read.
   return category(
     OWNER_DATA_DOMAINS_BY_ID.files,
     {
