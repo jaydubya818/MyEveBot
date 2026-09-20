@@ -89,6 +89,7 @@ import type { CapabilityStatus } from "@/lib/capabilities";
 import type { SolutionPack } from "@/lib/solution-packs";
 import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
+import { reconcileChatSession } from "@/lib/chat-session";
 
 const THREADS_KEY = "eve-web-threads";
 const SEEN_KEY = "eve-web-threads-seen";
@@ -1719,7 +1720,7 @@ function ChatThread({
   agentName,
   roleId,
   roleName,
-  initialChat,
+  initialChat: savedInitialChat,
   initialDraft,
   onTitle,
   onActivity,
@@ -1766,6 +1767,7 @@ function ChatThread({
   /** A reattached stream settled; remount me with the merged chat. */
   onResumed: (chat: SavedChat) => void;
 }) {
+  const [initialChat] = useState(() => reconcileChatSession(savedInitialChat));
   const activeLabel = roleName ?? agentName;
   const [draft, setDraft] = useState(initialDraft ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -1795,7 +1797,7 @@ function ChatThread({
   // the durable session's stream and catch up live. null means no reattach;
   // an array collects the replayed/live events until the turn settles.
   const [resumedEvents, setResumedEvents] = useState<readonly HandleMessageStreamEvent[] | null>(
-    () => (allowResume && isInterruptedChat(initialChat) ? [] : null),
+    () => (allowResume && initialChat.session?.sessionId ? [] : null),
   );
   const resuming = resumedEvents !== null;
 
@@ -1812,7 +1814,7 @@ function ChatThread({
     const live = liveRef.current;
     clearTimeout(live.timer);
     live.timer = undefined;
-    onPersist({ events: [...live.events], session: live.session });
+    onPersist(reconcileChatSession({ events: [...live.events], session: live.session }));
   }
 
   const agent = useEveAgent({
@@ -1875,7 +1877,10 @@ function ChatThread({
       liveRef.current.session = session;
     },
     onFinish(snapshot) {
-      onPersist({ events: snapshot.events, session: snapshot.session });
+      clearTimeout(liveRef.current.timer);
+      const chat = reconcileChatSession({ events: snapshot.events, session: snapshot.session });
+      liveRef.current = { events: [...chat.events], session: chat.session, timer: undefined };
+      onPersist(chat);
       onActivity();
     },
   });
@@ -1908,22 +1913,24 @@ function ChatThread({
       const client = new Client({ host: window.location.origin });
       const session = client.session(initialChat.session);
       try {
-        for await (const event of session.stream({
-          startIndex: base.length,
-          signal: controller.signal,
-        })) {
+        const collect = (event: HandleMessageStreamEvent) => {
           collected.push(event);
           setResumedEvents([...collected]);
           clearTimeout(persistTimer);
           persistTimer = setTimeout(() => {
             onPersist({ events: [...base, ...collected], session: session.state });
           }, 800);
-          if (
-            isCurrentTurnBoundaryEvent(event) ||
-            event.type === "input.requested" ||
-            event.type === "authorization.required"
-          ) {
-            break;
+        };
+        // A clean saved boundary can still be behind the durable session
+        // (another tab or a previous interrupted send advanced it). Catch up
+        // before allowing a new send, rather than replaying it as the new turn.
+        for await (const event of session.stream({ follow: false, signal: controller.signal })) {
+          collect(event);
+        }
+        if (isInterruptedChat({ events: [...base, ...collected], session: session.state })) {
+          for await (const event of session.stream({ signal: controller.signal })) {
+            collect(event);
+            if (isCurrentTurnBoundaryEvent(event) || event.type === "input.requested" || event.type === "authorization.required") break;
           }
         }
       } catch {

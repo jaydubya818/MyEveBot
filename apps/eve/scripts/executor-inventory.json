@@ -319,7 +319,7 @@
     "agent/lib/action-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "95117663bf7508e1cfcf74ca9613e37da811a9376f7d20551ab8c448002138fa"
+      "sha256": "8709669256699314d0aed098769129a2e7f39a13e451a6decb642d31c0aab1de"
     },
     "agent/lib/agentmail.ts": {
       "classification": "ENFORCED",
@@ -1373,10 +1373,10 @@
       "disposition": "blocked"
     },
     "agent/tools/remember.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "d637d6203f35f665c83cb5619b4b90de81c3a5d6e0758486da96f70dd5ca1261",
-      "disposition": "blocked"
+      "classification": "ENFORCED",
+      "reason": "Owner and execution-scoped memory writes use the canonical Action Gateway, one-use authority, scope validation and persisted read-back verification. Denied and uncertain results prohibit blind retries.",
+      "sha256": "9cfc8783e40c01a32c1752354f7245e78b4916a04ac27830e1a02f6893541723",
+      "disposition": "gateway"
     },
     "agent/tools/remove_email_domain.ts": {
       "classification": "BLOCKED",
@@ -2628,6 +2628,11 @@
       "classification": "READ_ONLY",
       "reason": "Authenticated owner readiness read; no cross-owner identity or execution access.",
       "sha256": "9390ad2d8d6e17a87de6c5a736b0bde0f11806d8326ba144e12709af592dcd68"
+    },
+    "lib/chat-session.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure reconciliation of persisted chat events and their stream cursor; no provider calls or side effects.",
+      "sha256": "a925e918c06a212b5b165f1cf8ee55bdc4c689685ae7e62d6ac39d599f93fda5"
     }
   }
 }

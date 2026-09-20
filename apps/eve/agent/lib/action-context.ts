@@ -34,7 +34,7 @@ export async function toolActionRequest(
       await db().query(`WITH run AS (
         INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,max_duration_seconds,max_specialists,
           max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,started_at,deadline_at)
-        VALUES($1,$2,'delegated_work','Owner-requested actions',$3,'running',$4,0,$5,0,$6,now(),now()+($4*interval '1 second'))
+        VALUES($1,$2,'delegated_work','Owner-requested actions',$3,'running',$4::integer,0,$5,0,$6,now(),now()+($4::integer*interval '1 second'))
         ON CONFLICT(id) DO NOTHING RETURNING id
       ) INSERT INTO task_run_sessions(task_id,session_id,role) SELECT id,$7,'orchestrator' FROM run
         ON CONFLICT(session_id) DO NOTHING`,[runId,ownerId,agent.id,agent.limits.maxRuntimeSeconds,agent.limits.maxSteps,agent.limits.maxEstimatedCostUsd,ctx.session.id]);

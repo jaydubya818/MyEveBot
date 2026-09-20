@@ -1,6 +1,6 @@
 # MyEveBot
 
-[MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Whop's [Frosted UI](https://github.com/whopio/frosted-ui) design system.
+[MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Cloudflare's [Kumo](https://github.com/cloudflare/kumo) components.
 
 Each deployment serves one owner by default for a simple security boundary. Code and data remain owner-scoped and agent-neutral so a future Relay capability plane can authorize a primary agent, specialists, and additional agents without renaming product concepts or rebuilding integrations.
 
@@ -30,7 +30,7 @@ Current product priorities and shipped foundations are tracked in the canonical 
 - **Goal OS** — persistent goals, versioned plans, milestones, tasks, dependencies, progress, Focus, and explainable next actions.
 - **Outcome loop** — first-class effectiveness outcomes linked to goals, tasks, runs, and evidence; explicit owner feedback stays separate from execution status.
 - **Daily brief and weekly review** — deterministic priorities, due work, blockers, completion, stalled-work, and dependency/capability risk signals from persisted state. Owner-controlled schedules create durable, deduplicated checkpoints and deliver them in-app or through a configured Web Push or Telegram channel.
-- **Long-term memory** — Supermemory-backed remember/forget/search tools with nightly consolidation and a profile summary injected each turn.
+- **Long-term memory** — Supermemory-backed scoped memory and retrieval. Authorized `remember` calls pass through the action gateway and verify the stored record before reporting success. Some mutation tools, including autonomous `forget`, remain blocked pending executor qualification.
 - **App integrations** — Composio connections (Gmail, GitHub, Notion, Linear, …) with a UI to connect/disconnect apps.
 - **Chat-created skills** — Eve can write, list, and delete her own skills at runtime; manage them from the UI.
 - **Files and controlled sharing** — private Blob-backed uploads, immutable artifact revisions, authenticated content routes, and revocable exact-version share links.
@@ -60,7 +60,7 @@ Current product priorities and shipped foundations are tracked in the canonical 
 apps/eve/         # the agent app (also the builder's deploy template)
   agent/          # eve agent: channels, tools, skills, schedules, instructions
   app/            # Next.js web chat UI + API routes (threads, search, update-check, …)
-  components/     # UI components (Frosted UI design system)
+  components/     # UI components (Kumo design system)
   lib/            # Neon-backed stores (threads, push), Composio connect, web auth
 apps/builder/     # the MyEve agent builder
   app/            # create/update UI + API routes (deploy, update, template-version, …)
@@ -98,8 +98,10 @@ Requires Node 24.
 ```bash
 npm install
 cp apps/eve/.env.example apps/eve/.env.local   # then fill in values
-npm run dev   # turbo runs next dev for apps/eve on localhost:3000
+npm run dev --workspace=eve-agent -- --port 3001
 ```
+
+Open [http://localhost:3001/chat](http://localhost:3001/chat). This command starts only the agent app and leaves port 3000 available for other projects. The root `npm run dev` command still uses the default app port 3000 and builder port 3100.
 
 `next dev` automatically boots the eve agent backend and proxies to it. Wait for `[eve:dev] server listening at ...` before chatting.
 
@@ -127,13 +129,17 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Web push notifications |
 | `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET_TOKEN`, `TELEGRAM_ALLOWED_USER_IDS`, `TELEGRAM_PROACTIVE_CHAT_ID` | Telegram channel and explicit proactive destination (optional) |
 
-Before starting a deployed app, apply the checked-in database migrations:
+Before starting a local or deployed app, apply the checked-in database migrations:
 
 ```bash
 npm run db:migrate
 ```
 
-Migrations are ordered, checksum-protected, and safe to rerun. Apply them to local, preview, and
+Migrations are ordered and checksum-protected; already-recorded migrations are skipped. The current schema includes migrations through `0029_routine_admission.sql`.
+
+**Migration runner limitation:** the Neon HTTP runner rejects migration blocks containing multiple SQL statements with `cannot insert multiple commands into a prepared statement`. If encountered, apply the pending files through a PostgreSQL client, with each file and its migration-ledger entry in the same transaction. Preserve the original files and their SHA-256 checksums; do not mark an unapplied migration as complete.
+
+Apply migrations to local, preview, and
 production databases before the matching application release. Existing runtime table guards remain
 temporarily for backwards compatibility; new schema changes must be added under
 `apps/eve/migrations/` instead of application startup code.
@@ -141,6 +147,30 @@ temporarily for backwards compatibility; new schema changes must be added under
 Preview deployments use the same fail-closed owner authentication as production. Configure
 `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, and `MYEVE_OWNER_ID` for the Vercel Preview
 environment before qualification; do not weaken the auth boundary to make a preview testable.
+
+## Chat and memory reliability
+
+- Submitted prompts render immediately. Restored chats reconcile their saved stream cursor with the transcript and catch up with the durable session before accepting another message.
+- Replayed events are deduplicated, and delayed persistence callbacks cannot overwrite the completed turn with an older cursor.
+- Memory writes require an authenticated execution, an allowed capability, and an authorized owner/Agent/Goal/Task scope. Denied or uncertain results instruct the agent not to retry blindly or promise background saves.
+- A missing `execution_occurrences` table means the configured database is behind the application schema. Apply the pending migrations to that database before retrying; changing the prompt will not repair the schema.
+
+Focused regression checks:
+
+```bash
+cd apps/eve
+npx vitest run lib/chat-session.test.ts lib/thread-sync.test.ts agent/tools/remember.test.ts agent/lib/memory-store.test.ts lib/action-authority.test.ts
+npx tsc --noEmit
+node --import tsx scripts/check-executor-governance.ts
+```
+
+Optional PostgreSQL integration checks use `ACTION_CONTEXT_TEST_DATABASE_URL` pointing to a **local test database** and require the `pg` package to be resolvable. They use temporary tables or an isolated schema that is removed after the test; the gateway test mocks the external memory provider.
+
+```bash
+# From apps/eve, after setting ACTION_CONTEXT_TEST_DATABASE_URL:
+node --test test/action-context-sql.integration.mjs
+npx vitest run agent/lib/remember-gateway.integration.test.mjs
+```
 
 ## Scripts
 
