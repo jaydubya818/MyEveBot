@@ -89,7 +89,7 @@ metadata and signed disclosure evidence remain durable. Revocation cannot erase 
 already delivered to an independent owner.
 
 
-## Concurrent canonical frontier observed at completion
+## Historical concurrent frontier observed at original completion
 
 The canonical checkout advanced independently from the inspected `74fee5b` base to
 `81979b6d367776366e930278fdad897d63956fc5` and accumulated uncommitted action-recovery
@@ -99,3 +99,14 @@ on its recorded base; its local live result does not qualify that later frontier
 future merge, rebase onto the settled canonical work, renumber the federation migration,
 resolve schema-version changes and rerun authority, upgrade and live federation checks.
 The canonical checkout and its concurrent edits were not modified by this mission.
+
+
+## Canonical Routine reconciliation
+
+The historical frontier above is superseded by the reconciliation on `60d341f`.
+Federation retains committed migration **0027 unchanged**; Routine pending-send state
+uses **0028** and depends only on canonical Runs and Actions. Do not renumber 0027.
+Federated Action attribution is now `relay_request` (displayed as Federated request),
+while Routine Actions retain `scheduled_occurrence`. The request's `local_run_id`
+links Run, Action, external caller, grant and decision audit. No Routine is created by Relay.
+See [current qualification](../routine-federation-reconciliation.md).

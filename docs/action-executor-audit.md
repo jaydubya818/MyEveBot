@@ -295,3 +295,36 @@ was introduced. Full real-provider/runtime acceptance remains outstanding and wo
 require separate authorization for billable/external resources.
 
 Final qualification results and rollout limitations: [completion report](action-gateway-qualification-report.md).
+
+## Historical Routine gate after 4d3f1eb
+
+The source-lineage inventory was **493**: ENFORCED **25**, BLOCKED **89**, READ_ONLY **33**,
+INTERNAL **322**, NOT_APPLICABLE **24**, UNKNOWN **0**. Counts describe files, not tools.
+
+The five new reviewed sources are the shared AgentMail adapter (ENFORCED), immutable pending-send
+continuation (ENFORCED), owner recovery-decision API (INTERNAL), finite Routine graph (INTERNAL),
+and conservative browser-effect precondition (INTERNAL). Browser interactions with unknown business
+effect deny through the existing Gateway; reads/navigation retain existing checks. Human input authority
+is unchanged. Owner recovery resolution is a stale-fenced local decision and never sends.
+
+The initial Routine candidate inventory includes fourteen tool entries plus in-app, Telegram and push
+delivery: ENFORCED **2**, BLOCKED **4**, READ_ONLY **9**, INTERNAL **2**, UNKNOWN **0**,
+UNENFORCED CONSEQUENTIAL **0**. File access has no reviewed persistent Routine workspace binding;
+it is intentionally blocked. iMessage and push remain blocked. All other tools, browser interaction,
+delegation and opaque MCP are outside the accepted graph and remain denied by the runtime policy.
+
+See [Routine final gate report](routine-final-gate-report.md) for the exact per-Routine graph,
+operation-level channel audit, local/fake qualification boundaries and proposed real-provider test.
+
+**ROUTINE EXECUTION MUST REMAIN DISABLED** pending authorized live-provider qualification.
+
+
+## Routine + Federation reconciliation on 60d341f
+
+Current inventory: **507** sources — ENFORCED **33**, BLOCKED **89**, READ_ONLY **34**,
+INTERNAL **325**, NOT_APPLICABLE **26**, UNKNOWN **0**. Federation entries and guards
+are preserved; restored Routine entries were merged without replacing the Federation inventory.
+Federated bounded work now records `relay_request`, distinct from `scheduled_occurrence`.
+Federation admission does not authorize email, browser or private Knowledge access.
+The Gateway still applies current local authority and one-use handles before bounded model work.
+See [reconciliation qualification](routine-federation-reconciliation.md) for current checks and limitations.
