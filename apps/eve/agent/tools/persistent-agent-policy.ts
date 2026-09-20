@@ -1,5 +1,5 @@
 import {executionIdentityFromAuth,resolveExecution} from "../../lib/execution-auth.ts";
-import {ROUTINE_READ_TOOLS} from "../../lib/routine-review.ts";
+import {routineToolAllowed} from "../../lib/routine-capabilities.ts";
 import * as browserTools from "@agent-browser/eve/tools";
 import { defineDynamic,defineTool,type DynamicResolveContext,type DynamicToolEntry,type DynamicToolSet } from "eve/tools";
 import { z } from "zod";
@@ -61,7 +61,7 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
   const routine=identity?await resolveExecution(identity):null;
   const resolved: Record<string, DynamicToolEntry<any, any>> = {};
   for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
-    const decision = routine && (routine.agentId!==agent.id || ROUTINE_READ_TOOLS[toolName]!==capabilityId || !routine.configuration.authority.allowedCapabilities.includes(capabilityId))
+    const decision = routine && (routine.agentId!==agent.id || (!routine.configuration.manifest?.tools.includes(toolName) || !routineToolAllowed(toolName,capabilityId,routine.configuration.authority.allowedCapabilities)))
       ?{allowed:false,reason:"This tool is outside the reviewed Routine tool graph."}:effectiveCapability(agent, capabilityId);
     const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
     if (decision.allowed && browserName) {
@@ -86,7 +86,7 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
     resolved[toolName] = defineTool({
       description: `${toolName} is not authorized for ${agent.name} under its assigned capability policy.`,
       inputSchema: z.object({ request: z.unknown().optional() }).loose(),
-      execute: async () => { throw new Error(reason ?? `Capability unavailable for ${agent.name}.`); },
+      execute: async () => ({status:"denied",code:"capability_denied",capabilityId,message:reason ?? `Capability unavailable for ${agent.name}.`,canEscalate:false}),
     }) as unknown as DynamicToolEntry<any, any>;
   }
   return resolved satisfies DynamicToolSet;

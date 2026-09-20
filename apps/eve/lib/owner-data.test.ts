@@ -187,6 +187,7 @@ describe("owner data archives", () => {
       if (sql.includes("FROM task_approval_decisions WHERE")) return [{ id: "approval-1", status: "approved", binding_hash: "sha256:binding", risk: "high", effects: ["external_write"] }];
       if (sql.includes("FROM action_requests WHERE")) return [{ id: "action-1", status: "completed", decision: "ALLOW" }];
       if (sql.includes("FROM execution_routines WHERE")) return [{ id: "routine-1", status: "active", version: 2 }];
+      if (sql.includes("FROM execution_occurrences WHERE")) return [{ id: "blocked-1", status: "blocked_precheck", run_id: null, admission: { state: "NEEDS_CONFIGURATION" }, preflight: null }];
       if (sql.includes("FROM persistent_browser_profiles")) return [{ id: "profile-1", provider: "orgo", status: "ready" }];
       return [];
     });
@@ -197,6 +198,7 @@ describe("owner data archives", () => {
     expect(bundle.categories.approval_history.records.approvals[0]).toMatchObject({ authority: "historical_only", restorableAuthority: false });
     expect(bundle.categories.action_history.records.requests[0]).toMatchObject({ authority: "historical_only", restorableAuthority: false });
     expect(bundle.categories.routines.records.routines[0]).toMatchObject({ restoreStatus: "disabled_needs_owner_review", restorableAuthority: false });
+    expect(bundle.categories.routines.records.occurrences[0]).toMatchObject({ status: "blocked_precheck", run_id: null, admission: { state: "NEEDS_CONFIGURATION" }, authority: "historical_only", restorableAuthority: false });
 
     const validation = await validateOwnerArchive(await createOwnerArchive(bundle));
     expect(validation.domains).toEqual(expect.arrayContaining([

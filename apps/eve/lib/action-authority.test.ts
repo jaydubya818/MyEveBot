@@ -42,3 +42,17 @@ describe("authority is independent of prompt/model/harness claims",()=>{
     expect((await localAuthorityProvider.evaluate({...action,trigger:{kind:"delegation"}},target)).decision).toBe("DENY");
   });
 });
+
+
+describe("federated requests intersect local and Routine authority",()=>{
+  it("preserves exact email approval and cannot widen a Routine manifest",async()=>{
+    const federated={...action,trigger:{kind:"relay_request" as const,id:"relay-request"},parameters:{...action.parameters,relayGrant:"ALLOW",publishedKnowledge:true}};
+    const authority=routineConfigurationSchema.parse({instructions:"Bounded follow-up",authority:{allowedCapabilities:["tool.send_email"],maximumRisk:"high"}}).authority;
+    expect((await localAuthorityProvider.evaluate(federated,target,authority)).decision).toBe("REQUIRE_APPROVAL");
+    expect((await localAuthorityProvider.evaluate(federated,target)).decision).toBe("DENY");
+    expect((await localAuthorityProvider.evaluate(federated,target,{...authority,allowedCapabilities:["web.read"]})).decision).toBe("DENY");
+    mocks.effective.mockReturnValue({allowed:false});
+    expect((await localAuthorityProvider.evaluate(federated,target,authority)).decision).toBe("DENY");
+    expect(authority.allowedCapabilities).toEqual(["tool.send_email"]);
+  });
+});

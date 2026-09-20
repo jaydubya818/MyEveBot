@@ -30,6 +30,8 @@ export const EXCLUDED = [
   "scripts/seed-review-e2e.ts",
   "scripts/seed-knowledge-preview.ts",
   "tsconfig.tsbuildinfo",
+  "test/",
+  "scripts/qualification-",
 ] as const;
 
 /** Directories whose files must all be claimed by some feature (or core). */
@@ -51,6 +53,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/persistent-agent.ts",
   "agent/instructions/on-demand-role.ts",
   "agent/instructions/time.ts",
+  "agent/schedules/operations-monitor.ts",
   "agent/tools/complete_task.ts",
   "agent/tools/complete_work.ts",
   "agent/tools/bash.ts",
@@ -75,7 +78,6 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/update_task.ts",
   "agent/tools/workflow.ts",
   "agent/tools/write_file.ts",
-  "agent/schedules/operations-monitor.ts",
 ] as const;
 
 /** Feature → the prunable files it owns. */
@@ -87,14 +89,15 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
     "agent/tools/record_decision.ts",
     "agent/tools/record_commitment.ts",
     "agent/tools/search_knowledge.ts",
-    "agent/tools/search_owner_knowledge.ts",
     "agent/tools/inspect_owner_knowledge.ts",
+    "agent/tools/search_owner_knowledge.ts",
     "agent/tools/list_decisions.ts",
     "agent/tools/list_commitments.ts",
   ],
   goals: [
     "agent/tools/create_goal.ts",
     "agent/tools/list_goals.ts",
+    "agent/tools/get_routine_readiness.ts",
     "agent/tools/get_goal.ts",
     "agent/tools/update_goal.ts",
     "agent/tools/manage_goal_task.ts",
@@ -212,7 +215,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
 };
 
 export function isExcluded(relativePath: string): boolean {
-  return EXCLUDED.some(
+  return /\.test\.(?:[cm]?[jt]sx?)$/.test(relativePath) || EXCLUDED.some(
     (entry) =>
       relativePath === entry ||
       (entry.endsWith("/") ? relativePath.startsWith(entry) : relativePath.startsWith(entry)),

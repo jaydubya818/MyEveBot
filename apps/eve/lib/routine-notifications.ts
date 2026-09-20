@@ -1,3 +1,5 @@
+import { capabilityAvailability } from "./routine-availability.ts";
+import { getCapability } from "./capability-registry.ts";
 import type { NotificationProvider } from "./execution-delivery.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { deploymentOwnerId } from "./routine-review.ts";
@@ -10,6 +12,8 @@ export const routineNotificationProvider:NotificationProvider={
       WHERE r.owner_id=$1 AND r.id=$2 AND t.id=$3 AND r.status='completed'`,[delivery.ownerId,delivery.runId,delivery.resultReference]);
     if(!rows[0])return {status:"definitely_failed",retryable:false};
     if(delivery.channel==="in_app")return {status:"delivered"};
+    const availability=await capabilityAvailability({ownerId:delivery.ownerId,agentId:String(rows[0].agent_id),capability:getCapability("notification.send")!,targets:[],deliveryChannel:delivery.channel},db());
+    if(availability.status!=="AVAILABLE")return {status:"unavailable"};
     // Push needs an adapter binding the exact subscription snapshot.
     if(delivery.channel==="push")return {status:"definitely_failed",retryable:false};
     const token=process.env.TELEGRAM_BOT_TOKEN?.trim();

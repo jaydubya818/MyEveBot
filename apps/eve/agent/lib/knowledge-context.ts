@@ -5,6 +5,7 @@ import { effectiveCapability } from "../../lib/agents.ts";
 import {resolveSessionAgent} from "./session-settings.ts";
 import {executionIdentityFromAuth,resolveExecution} from "../../lib/execution-auth.ts";
 import { taskOwnerFromAuth } from "../../lib/task-runs.ts";
+import {getCapability} from "../../lib/capability-registry.ts";
 
 export async function knowledgeActor(ctx: ToolContext): Promise<Pick<CreateKnowledgeInput, "ownerId" | "createdByType" | "createdById">> {
   const ownerId = taskOwnerFromAuth(ctx.session.auth);
@@ -17,6 +18,10 @@ export async function knowledgeActor(ctx: ToolContext): Promise<Pick<CreateKnowl
   if(identity) {
     const occurrence=await resolveExecution(identity);
     if(occurrence.agentId!==agent.id || !occurrence.configuration.authority.allowedCapabilities.includes(capability))throw new Error("Routine does not grant this Knowledge write.");
+    const authority=occurrence.configuration.authority;
+    const definition=getCapability(capability),rank={low:0,medium:1,high:2,critical:3};
+    if(!definition || rank[definition.risk.level]>rank[authority.maximumRisk] || authority.requiresApprovalFor.includes(capability)
+      || authority.allowedTargets.some(t=>t.capabilityId===capability))throw new Error("Routine Knowledge authority cannot be satisfied.");
   }
   return { ownerId, createdByType: "agent", createdById: agent.id };
 }

@@ -1,19 +1,24 @@
+import {qualifyAdmission} from "./routine-admission-cases.mjs";
+import {admissionFixture} from "./admission-fixtures.mjs";
+import {qualifyRoutineFederation} from "./routine-federation-cases.mjs";
+import {qualifyFinalGate} from "./routine-final-gate-cases.mjs";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { Pool } from "pg";
 import { ExecutionStore } from "../lib/execution-store.ts";
 import { routineConfigurationSchema } from "../lib/execution-types.ts";
 import { ExecutionDelivery } from "../lib/execution-delivery.ts";
-import { ActionGateway, ActionBlocked } from "../lib/action-gateway.ts";
+import {ActionGateway} from "./admission-fixtures.mjs";
+import {ActionBlocked} from "../lib/action-gateway.ts";
 import { RoutineReviewStore } from "../lib/routine-review.ts";
 import { enqueueReviewedReminders } from "../lib/reminder-execution.ts";
 import { resolveExecution } from "../lib/execution-auth.ts";
+import {qualifyCoverage} from "./action-coverage-cases.mjs";
+import {qualifyRecovery} from "./action-recovery-cases.mjs";
 import { qualifyActionExecutors } from "./action-executor-cases.mjs";
-import { qualifyRecovery } from "./action-recovery-cases.mjs";
-import { qualifyCoverage } from "./action-coverage-cases.mjs";
 
 // Deliberately never reads DATABASE_URL, .env files, or a caller-supplied host.
-const pool = new Pool({ host:"127.0.0.1",port:55439,database:"postgres",user:process.env.USER,max:8 });
+const pool = new Pool({ host:"127.0.0.1",port:55441,database:"postgres",user:process.env.USER,max:8 });
 const schema = `execution_test_${Date.now()}`;
 const clients = [];
 try {
@@ -28,8 +33,8 @@ try {
   const second = await pool.connect(); clients.push(second);
   await second.query(`SET search_path TO ${schema}`);
   const database = client => ({ query:async (sql,params) => (await client.query(sql,params)).rows });
-  const store = new ExecutionStore(database(setup));
-  const other = new ExecutionStore(database(second));
+  const store = new ExecutionStore(database(setup),admissionFixture(database(setup)));
+  const other = new ExecutionStore(database(second),admissionFixture(database(second)));
   const ownerId="sarah";
   await setup.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd)
     VALUES('ava','sarah','ava','Ava','Research assistant','Research',true,'active',30,600,1)`);
@@ -114,7 +119,7 @@ try {
   const reviews=new RoutineReviewStore(database(setup),ownerId);
   const legacy=(await setup.query(`INSERT INTO reminders(prompt,cron,timezone,next_fire_at)
     VALUES('Daily Research Brief','0 9 * * *','UTC',now()-interval '2 days') RETURNING id`)).rows[0];
-  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),0,"legacy reminders cannot execute before review");
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup),new Date(),store),0,"legacy reminders cannot execute before review");
   assert.equal((await reviews.list('another-owner')).length,0);
   const review={ownerId,reminderId:legacy.id,expectedVersion:1,agentId:'ava',configuration};
   await assert.rejects(reviews.review({...review,ownerId:'another-owner'}));
@@ -125,20 +130,24 @@ try {
   assert.ok(reminder.execution_routine_id);
   assert.ok(new Date(reminder.next_fire_at)>new Date(),"approval does not replay missed recurring runs");
   await setup.query("UPDATE reminders SET next_fire_at=now()-interval '1 second' WHERE id=$1",[legacy.id]);
-  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),1);
-  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),0);
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup),new Date(),store),1);
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup),new Date(),store),0);
   const reviewedClaim=await store.claim(ownerId,'reviewed-worker');
   assert.ok(reviewedClaim);
-  await resolveExecution(reviewedClaim,database(setup));
+  await resolveExecution(reviewedClaim,database(setup),()=>true);
   await setup.query("UPDATE reminders SET prompt='Changed instructions' WHERE id=$1",[legacy.id]);
   reminder=(await setup.query('SELECT * FROM reminders WHERE id=$1',[legacy.id])).rows[0];
   assert.equal(reminder.configuration_version,2);
   assert.equal(reminder.reviewed_version,null);
-  await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/);
-  assert.equal(await enqueueReviewedReminders(ownerId,database(setup)),0);
+  await assert.rejects(resolveExecution(reviewedClaim,database(setup),()=>true),/revoked/);
+  assert.equal(await enqueueReviewedReminders(ownerId,database(setup),new Date(),store),0);
   await assert.rejects(reviews.review(review),/changed/);
-  await reviews.review({...review,expectedVersion:2,configuration:{...configuration,instructions:'Changed instructions'}});
-  await assert.rejects(resolveExecution(reviewedClaim,database(setup)),/revoked/,"re-review cannot authorize an old execution");
+  await reviews.review({...review,expectedVersion:2,expectedRoutineVersion:1,configuration:{...configuration,instructions:'Changed instructions'}});
+  await assert.rejects(resolveExecution(reviewedClaim,database(setup),()=>true),/revoked/,"re-review cannot authorize an old execution");
+  const competingReview={...review,expectedVersion:2,expectedRoutineVersion:2,configuration:{...configuration,instructions:'Changed instructions',limits:{...configuration.limits,maxSteps:20}}};
+  const reviewRace=await Promise.allSettled([reviews.review(competingReview),new RoutineReviewStore(database(second),ownerId).review({...competingReview,configuration:{...competingReview.configuration,limits:{...configuration.limits,maxSteps:21}}})]);
+  assert.equal(reviewRace.filter(r=>r.status==='fulfilled').length,1,'stale owner form cannot replace a newer reviewed ceiling');
+  assert.equal((await setup.query('SELECT version FROM execution_routines WHERE id=$1',[reminder.execution_routine_id])).rows[0].version,3);
   await qualifyActionExecutors(setup,database(setup),reviewedClaim);
   await qualifyRecovery(setup,database(setup));
   await qualifyCoverage(setup,database(setup));
@@ -161,6 +170,9 @@ try {
   assert.equal(deliveryProviderCalls,0);
   assert.equal((await setup.query("SELECT status FROM task_runs WHERE id=$1",[deliveryClaim.runId])).rows[0].status,"completed");
   assert.equal((await setup.query("SELECT count(*) FROM execution_attempts WHERE occurrence_id=$1",[deliveryClaim.occurrenceId])).rows[0].count,"1");
+  await qualifyFinalGate(setup,database(setup));
+  await qualifyRoutineFederation(setup,database(setup));
+  await qualifyAdmission(setup,database(setup),database(second));
   console.log('PASS: notification authority denial invokes zero providers and preserves completed work with one execution attempt');
   console.log('PASS: legacy owner review gate; owner isolation; duplicate/stale reviews; atomic linkage; no backlog replay; edit revocation; stale execution stays revoked after re-review');
   console.log("PASS: isolated migrations; duplicate occurrence/run suppression; claim race; heartbeat; stale-worker fence; bounded retry; delivery failure/recovery without rerun; action deduplication; changed parameters; unknown-result replay refusal; worker death; auto-pause, single notice and owner resume");

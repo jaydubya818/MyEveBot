@@ -1,5 +1,6 @@
+import { ROUTINE_RELEASE } from "./routine-release.ts";
+import {ActionRecovery} from "./action-recovery.ts";
 import { randomUUID } from "node:crypto";
-import { ActionRecovery } from "./action-recovery.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { approvalBinding, canonicalActionValue, requestApproval, resolveApprovalPolicy, safeActionParameters, type ActionClass } from "./approvals.ts";
 import { effectiveCapability, getAgent } from "./agents.ts";
@@ -118,13 +119,15 @@ export const localAuthorityProvider: AuthorityProvider = {
 
 export class ActionGateway {
   private database:ExecutionDatabase;
+  private executionEnabled:()=>boolean;
   private authority:AuthorityProvider;
   private approvals:typeof requestApproval;
   constructor(
     database: ExecutionDatabase = db() as ExecutionDatabase,
     authority: AuthorityProvider = localAuthorityProvider,
     approvals: typeof requestApproval = requestApproval,
-  ) {this.database=database;this.authority=authority;this.approvals=approvals;}
+    executionEnabled:()=>boolean=()=>ROUTINE_RELEASE.enabled,
+  ) {this.database=database;this.authority=authority;this.approvals=approvals;this.executionEnabled=executionEnabled;}
 
   async execute<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal?: AbortSignal): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
     action=frozenJson(action);
@@ -141,6 +144,7 @@ export class ActionGateway {
     if (!context[0]) throw new ActionBlocked("denied", "unresolved");
     if((context[0].role_id??null)!==(action.executor.roleId??null))throw new ActionBlocked("denied","unresolved");
     const occurrence = context[0].occurrence_id;
+    if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied","routine_execution_disabled");
     if (occurrence && !action.delivery && (!action.occurrence || occurrence !== action.occurrence.id || action.trigger.kind !== "scheduled_occurrence")) {
       throw new ActionBlocked("denied", "unresolved");
     }
@@ -165,15 +169,19 @@ export class ActionGateway {
     const reasonCode=decision.reasonCode??(decision.decision==="DENY"?"capability_denied":decision.decision==="REQUIRE_APPROVAL"?"approval_required":"capability_allowed");
     // A tool may return while Approval Center waits. A later tool invocation
     // can continue only the identical pending binding, never a completed grant.
-    const pending=await this.database.query(`SELECT * FROM action_requests WHERE owner_id=$1 AND run_id=$2
-      AND parameter_hash=$3 AND status='awaiting_approval' ORDER BY created_at LIMIT 1`,[action.ownerId,action.runId,binding]);
-    const rows = pending.length?pending:await this.database.query(`INSERT INTO action_requests(id,owner_id,run_id,occurrence_id,action_key,executor,trigger,capability_id,
+    const existingAction=()=>this.database.query(`SELECT * FROM action_requests WHERE owner_id=$1 AND run_id=$2
+      AND (action_key=$4 OR (parameter_hash=$3 AND status IN ('planned','awaiting_approval','authorized','executing','verifying','result_unknown','recovering','needs_you','retryable')))
+      ORDER BY (action_key=$4) DESC,created_at LIMIT 1`,[action.ownerId,action.runId,binding,action.actionKey]);
+    const pending=await existingAction();
+    let rows = pending.length?pending:await this.database.query(`INSERT INTO action_requests(id,owner_id,run_id,occurrence_id,action_key,executor,trigger,capability_id,
         action_class,target,parameter_hash,safe_summary,decision,authority_source,status,computer_session_id,control_version,reason_code)
       VALUES($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9,$10::jsonb,$11,$17::jsonb,$12,$13,$14,$15,$16,$18)
-      ON CONFLICT(owner_id,run_id,action_key) DO UPDATE SET action_key=action_requests.action_key RETURNING *`,
+      ON CONFLICT DO NOTHING RETURNING *`,
     [id,action.ownerId,action.runId,action.occurrence?.id??null,action.actionKey,JSON.stringify(action.executor),JSON.stringify(action.trigger),action.capabilityId,
       action.actionClass,JSON.stringify(safeActionParameters(target as unknown as Record<string,unknown>)),binding,decision.decision,decision.source,
       decision.decision === "DENY" ? "denied" : "planned",action.computer?.sessionId??null,action.computer?.controlVersion??null,JSON.stringify(summary),reasonCode]);
+    if(!rows.length)rows=await existingAction();
+    if(!rows.length)throw new ActionBlocked("denied","binding_claim_changed");
     const row = rows[0]!;
     const actionId = String(row.id);
     if (row.parameter_hash !== binding || decision.decision === "DENY") {
@@ -190,13 +198,12 @@ export class ActionGateway {
       row.approval_id=null;
     }
     if(row.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW")decision={...decision,decision:"REQUIRE_APPROVAL"};
-    const approvalGeneration=String(row.approval_id??"initial");
     if (decision.decision === "REQUIRE_APPROVAL") {
       if(row.approval_id) {
-        const expired=await this.database.query(`UPDATE action_requests a SET approval_id=NULL,status='planned',updated_at=now()
+        const expired=await this.database.query(`UPDATE action_requests a SET approval_id=NULL,status='planned',approval_generation=approval_generation+1,updated_at=now()
           FROM task_approval_decisions p WHERE a.owner_id=$1 AND a.id=$2 AND p.id=a.approval_id
-          AND p.expires_at<=now() AND a.status='awaiting_approval' RETURNING a.id`,[action.ownerId,actionId]);
-        if(expired.length)row.approval_id=null;
+          AND p.expires_at<=now() AND a.status='awaiting_approval' RETURNING a.id,a.approval_generation`,[action.ownerId,actionId]);
+        if(expired.length){row.approval_id=null;row.approval_generation=expired[0].approval_generation;}
       }
       if(row.approval_id) {
         const refused=await this.database.query(`UPDATE action_requests a SET status='denied',reason_code='approval_denied',updated_at=now()
@@ -208,7 +215,7 @@ export class ActionGateway {
         const approval = await this.approvals({ ownerId:action.ownerId,taskId:action.runId,requestedBy:action.executor.agentId,
           capabilityId:action.capabilityId,resource:JSON.stringify(target),action:action.actionClass,actionClass:action.actionClass,
           parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}) },
-          prompt:"Review the resolved target and exact action before execution.",forceApproval:true,requestKey:`${actionId}:${row.attempt_count}:${approvalGeneration}` });
+          prompt:"Review the resolved target and exact action before execution.",forceApproval:true,requestKey:`${actionId}:${row.attempt_count}:${row.approval_generation}` });
         await this.database.query(`UPDATE action_requests SET approval_id=$3,status='awaiting_approval',updated_at=now()
           WHERE owner_id=$1 AND id=$2 AND status='planned' AND approval_id IS NULL`, [action.ownerId,actionId,approval.approval?.id??null]);
         throw new ActionBlocked("awaiting_approval",actionId);
@@ -219,6 +226,7 @@ export class ActionGateway {
     // Re-evaluate after approval lookup and immediately before the durable claim.
     // A provider failure or a newly narrower policy can never become ALLOW.
     try {
+      if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
       const fresh=await this.authority.evaluate(action,target,(context[0].configuration as RoutineConfiguration | undefined)?.authority);
       if(fresh.decision==="DENY" || (fresh.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW")) throw new Error("Authority changed");
     } catch {
@@ -269,6 +277,7 @@ export class ActionGateway {
     const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+30_000,target,capabilityId:action.capabilityId,signal});
     try {
       handles.set(authorized,{binding:JSON.stringify(canonicalActionValue({parameters:action.parameters,target})),revalidate:async()=>{
+        if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
         const fresh=await this.authority.evaluate(action,target,(context[0].configuration as RoutineConfiguration|undefined)?.authority);
         if(fresh.decision==="DENY" || (fresh.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW"))throw new ActionBlocked("denied",actionId);
         const valid=await this.database.query(`SELECT a.id FROM action_requests a

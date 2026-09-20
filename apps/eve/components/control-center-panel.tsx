@@ -84,7 +84,7 @@ export function ControlCenterPanel({ onOpenThread }: { onOpenThread: (threadId: 
 
   return (
     <div>
-      <RoutinesPanel />
+      <RoutinesPanel attentionOnly />
       <ActionAuthorityPanel />
       <div className="flex flex-col gap-3 border-b border-kumo-hairline pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>

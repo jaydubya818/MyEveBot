@@ -1,3 +1,5 @@
+import {consumeProviderAuthority,type AuthorizedAction} from "../../lib/action-gateway.ts";
+import {blockExternalWrite,requireReadOnlyTransport} from "../../lib/external-write-policy.ts";
 // The agent's own email account, backed by AgentMail (https://agentmail.to).
 // AgentMail's primitive is the inbox: a real address on the internet that
 // people and services can write to, with persistent storage and automatic
@@ -564,6 +566,7 @@ export async function inspectBoundMessage(account:string,messageId:string):Promi
 }
 
 export async function sendBoundMessage(input:SendInput,context:import("../../lib/action-gateway.ts").AuthorizedAction):Promise<SendResult> {
+
   return api<SendResult>(`/inboxes/${encodeURIComponent(context.target.account)}/messages/send`,{
     method:"POST",idempotencyKey:context.idempotencyKey,body:input,authority:context,
   });
@@ -799,5 +802,3 @@ export function clipBody(body: string, maxChars = 4000): string {
     ? `${trimmed.slice(0, maxChars).trimEnd()}\n… (truncated; read the full message for the rest)`
     : trimmed;
 }
-import {consumeProviderAuthority,type AuthorizedAction} from "../../lib/action-gateway.ts";
-import {blockExternalWrite,requireReadOnlyTransport} from "../../lib/external-write-policy.ts";

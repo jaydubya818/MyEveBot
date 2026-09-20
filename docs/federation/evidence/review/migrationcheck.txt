@@ -1,0 +1,9 @@
+
+> eveclaw@0.0.0 db:migrations:check
+> npm run db:migrations:check --workspace=eve-agent
+
+
+> eve-agent@0.0.0 db:migrations:check
+> node scripts/migrate-database.ts --check
+
+Validated 27 ordered database migration(s).

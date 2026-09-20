@@ -202,10 +202,10 @@ export async function listAgents(ownerId: string, includeArchived = false): Prom
   return rows.map((row) => toAgent(row, capabilities.filter((cap) => cap.agent_id === row.id), process.env));
 }
 
-export async function getAgent(ownerId: string, agentId: string): Promise<AgentView | null> {
-  const rows = await db().query(`SELECT * FROM agents WHERE owner_id = $1 AND id = $2 LIMIT 1`, [ownerId, agentId]) as Row[];
+export async function getAgent(ownerId: string, agentId: string, database: {query:(sql:string,params:unknown[])=>Promise<unknown>} = db()): Promise<AgentView | null> {
+  const rows = await database.query(`SELECT * FROM agents WHERE owner_id = $1 AND id = $2 LIMIT 1`, [ownerId, agentId]) as Row[];
   if (!rows[0]) return null;
-  const capabilities = await db().query(`SELECT * FROM agent_capabilities WHERE owner_id = $1 AND agent_id = $2 AND enabled ORDER BY capability_id`, [ownerId, agentId]) as Row[];
+  const capabilities = await database.query(`SELECT * FROM agent_capabilities WHERE owner_id = $1 AND agent_id = $2 AND enabled ORDER BY capability_id`, [ownerId, agentId]) as Row[];
   return toAgent(rows[0], capabilities, process.env);
 }
 
@@ -264,7 +264,7 @@ export async function duplicateAgent(ownerId: string, agentId: string, name: str
   return copy;
 }
 
-export function effectiveCapability(agent: AgentView, capabilityId: string): { allowed: boolean; reason?: string } {
+export function effectiveCapability(agent: AgentView, capabilityId: string, options: {checkAvailability?:boolean} = {}): { allowed: boolean; reason?: string } {
   if (agent.status !== "active") return { allowed: false, reason: `${agent.name} is ${agent.status} and cannot execute work.` };
   if (agent.isPrimary) return { allowed: true };
   const definition = getCapability(capabilityId);
@@ -273,6 +273,7 @@ export function effectiveCapability(agent: AgentView, capabilityId: string): { a
   ));
   if (!assignment) return { allowed: false, reason: `Capability unavailable for ${agent.name}. It is not assigned.` };
   if (definition && RISK_ORDER[definition.risk.level] > RISK_ORDER[agent.riskCeiling]) return { allowed: false, reason: `Capability unavailable for ${agent.name}. It exceeds the Agent's ${agent.riskCeiling} risk ceiling.` };
+  if (options.checkAvailability===false) return {allowed:true};
   if (assignment.availability !== "available") return { allowed: false, reason: `Capability unavailable for ${agent.name}. ${assignment.availabilityReason ?? "Required configuration is unavailable."}` };
   if (definition && definition.availability.status !== "available") return { allowed: false, reason: `Capability unavailable for ${agent.name}. ${definition.availability.reason ?? "Required configuration is unavailable."}` };
   return { allowed: true };

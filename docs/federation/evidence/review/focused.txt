@@ -1,0 +1,15 @@
+
+> eve-agent@0.0.0 test
+> vitest run lib/relay/
+
+
+ RUN  v3.2.7 /Users/jaywest/Documents/ChatGPT/New project/myeve-relay-federation/apps/eve
+
+ ✓ lib/relay/review-regressions.test.ts (12 tests) 8ms
+ ✓ lib/relay/work-authority.test.ts (1 test) 4ms
+ ✓ lib/relay/adapter.test.ts (35 tests) 22ms
+
+ Test Files  3 passed (3)
+      Tests  48 passed (48)
+   Start at  11:28:52
+   Duration  406ms (transform 158ms, setup 0ms, collect 406ms, tests 35ms, environment 0ms, prepare 98ms)

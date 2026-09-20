@@ -1,0 +1,83 @@
+import {admissionFixture} from "./admission-fixtures.mjs";
+import assert from 'node:assert/strict';
+import {ActionGateway} from "./admission-fixtures.mjs";
+import {ActionBlocked,consumeActionAuthority} from "../lib/action-gateway.ts";
+import {ActionRecovery} from '../lib/action-recovery.ts';
+import {RoutinePendingSend} from '../lib/routine-pending-send.ts';
+import {ExecutionDelivery} from '../lib/execution-delivery.ts';
+import {ExecutionStore} from '../lib/execution-store.ts';
+import {routineConfigurationSchema} from '../lib/execution-types.ts';
+import {approvalBinding} from '../lib/approvals.ts';
+
+export async function qualifyFinalGate(client,database) {
+  const store=new ExecutionStore(database,admissionFixture(database)),pending=new RoutinePendingSend(database);
+  const briefConfig=routineConfigurationSchema.parse({instructions:'Daily Research Brief',authority:{allowedCapabilities:['web.read','tool.record_observation'],maximumRisk:'medium'},deliveryChannel:'in_app'});
+  await store.createRoutine({id:'final-brief',ownerId:'sarah',sourceKind:'manual',sourceId:'final-brief',name:'Daily Research Brief',agentId:'ava',configuration:briefConfig,changedBy:'sarah'});
+  const occurrence={ownerId:'sarah',routineId:'final-brief',key:'once',scheduledFor:'2026-09-18T08:00:00Z'};
+  await Promise.all([store.enqueue(occurrence),store.enqueue(occurrence)]);
+  const briefClaims=await Promise.all([store.claim('sarah','brief-a'),store.claim('sarah','brief-b')]);
+  assert.equal(briefClaims.filter(Boolean).length,1);const brief=briefClaims.find(Boolean);
+  // Simulated model/web output; real owner-scoped persistence and worker SQL.
+  await client.query(`INSERT INTO knowledge_records(id,owner_id,kind,statement,status,occurrence_count,created_by_type,created_by_id) VALUES('brief-observation','sarah','observation','Qualification research result','active',1,'agent','ava')`);
+  await client.query(`INSERT INTO web_chat_threads(id,owner_id,title,updated_at,chat) VALUES('brief-result','sarah','Daily Research Brief',1,'{"result":"Qualification research result"}')`);
+  await store.complete(brief,'brief-result');
+  let deliveries=0;
+  const delivery=new ExecutionDelivery(database);
+  // Earlier qualification fixtures have completed outboxes. Select only this one.
+  await client.query("UPDATE review_deliveries SET status='delivered' WHERE run_id<>$1 AND status='scheduled'",[brief.runId]);
+  await delivery.deliverNext('sarah',{deliver:async item=>{assert.equal(item.runId,brief.runId);assert.equal(item.channel,'in_app');deliveries++;return {status:'delivered'};}});
+  assert.equal(deliveries,1);
+  assert.equal((await client.query('SELECT count(*) FROM execution_attempts WHERE occurrence_id=$1',[brief.occurrenceId])).rows[0].count,'1');
+  assert.equal((await client.query('SELECT count(*) FROM task_runs WHERE id=$1',[brief.runId])).rows[0].count,'1');
+  assert.equal((await client.query('SELECT status FROM review_deliveries WHERE run_id=$1',[brief.runId])).rows[0].status,'delivered');
+  console.log('PASS: Sarah/Ava Daily Research Brief: one occurrence, one Run, one winning claim, durable observation/result, one delivery (simulated model/provider)');
+  const config=routineConfigurationSchema.parse({instructions:'Draft and send test follow-up',authority:{allowedCapabilities:['tool.read_email','tool.send_email'],maximumRisk:'high',requiresApprovalFor:['tool.send_email']}});
+  await store.createRoutine({id:'followup',ownerId:'sarah',sourceKind:'manual',sourceId:'followup',name:'Follow-up',agentId:'ava',configuration:config,changedBy:'sarah'});
+  await store.enqueue({ownerId:'sarah',routineId:'followup',key:'once',scheduledFor:'2026-09-18T08:00:00Z'});
+  const claim=await store.claim('sarah','draft-worker');assert.equal(claim.routineId,'followup');
+  let sends=0,drafts=1,approvals=0;
+  const approvalStore=async input=>{
+    const id=`followup_approval_${++approvals}`;
+    const hash=approvalBinding({taskId:input.taskId,capabilityId:input.capabilityId,resource:input.resource,action:input.action,parameters:input.parameters});
+    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status) VALUES($1,$2,$3,$4,'Approve follow-up',$5,$6,$7,'high',now()+interval '1 hour','pending')`,[id,input.taskId,input.ownerId,input.requestedBy,input.action,input.actionClass,hash]);
+    return {decision:'REQUIRE_APPROVAL',approval:{id},reason:'fixture'};
+  };
+  const gateway=new ActionGateway(database,{evaluate:async()=>({decision:'REQUIRE_APPROVAL',source:'fixture',reason:'exact send'})},approvalStore);
+  const action={ownerId:'sarah',runId:claim.runId,actionKey:'terminal-send',capabilityId:'tool.send_email',actionClass:'send',parameters:{to:['owner@example.test'],subject:'TEST',text:'Draft completed once'},executor:{kind:'routine',agentId:'ava'},trigger:{kind:'scheduled_occurrence',id:claim.occurrenceId},occurrence:{id:claim.occurrenceId,claimVersion:claim.version,workerId:claim.workerId}};
+  const adapter={resolveTarget:async()=>({provider:'fake',account:'sarah',resource:'owner@example.test'}),execute:async(p,h)=>{await consumeActionAuthority(h,p,'tool.send_email');sends++;return {messageId:'one'};},verify:async()=>({verified:true,receipt:{messageId:'one'}})};
+  let id;
+  try{await gateway.execute(action,adapter);}catch(error){assert.ok(error instanceof ActionBlocked);assert.equal(error.status,'awaiting_approval');id=error.actionId;}
+  assert.equal(sends,0);await pending.save(action,id);
+  await assert.rejects(pending.save({...action,parameters:{...action.parameters,text:'Changed'}},id));
+  await client.query('UPDATE task_runs SET thread_id=$2 WHERE id=$1',[claim.runId,'saved-research-and-draft']);
+  await store.fail(claim,'approval_required');assert.equal(await store.claim('sarah','too-early'),null);
+  await client.query("UPDATE task_approval_decisions SET status='approved' WHERE id='followup_approval_1'");
+  const race=await Promise.all([store.claim('sarah','resume-a'),store.claim('sarah','resume-b')]);
+  assert.equal(race.filter(Boolean).length,1);const resumed=race.find(Boolean);
+  assert.equal(resumed.runId,claim.runId);assert.equal(resumed.occurrenceId,claim.occurrenceId);
+  assert.equal(await pending.resume(resumed,gateway,adapter),'saved-research-and-draft');
+  assert.equal(sends,1);assert.equal(drafts,1);
+  await pending.resume(resumed,gateway,adapter);assert.equal(sends,1);
+  await store.complete(resumed,'saved-research-and-draft');
+  assert.equal((await client.query('SELECT count(*) FROM review_deliveries WHERE run_id=$1',[claim.runId])).rows[0].count,'1');
+  const recovery=new ActionRecovery(database);
+  await client.query("UPDATE action_requests SET status='needs_you' WHERE id=$1",[id]);
+  const stamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
+  assert.equal(await recovery.resolveByOwner('other',id,'not_occurred',stamp),null);
+  assert.equal(await recovery.resolveByOwner('sarah',id,'not_occurred','2000-01-01T00:00:00Z'),null);
+  const decisions=await Promise.all([recovery.resolveByOwner('sarah',id,'occurred',stamp),recovery.resolveByOwner('sarah',id,'not_occurred',stamp)]);
+  assert.equal(decisions.filter(Boolean).length,1);assert.equal(sends,1);
+  const receipt=(await client.query('SELECT recovery_result FROM action_requests WHERE id=$1',[id])).rows[0].recovery_result;
+  assert.equal(receipt.strategy,'owner_attestation.v1');assert.equal(receipt.decidedBy,'sarah');assert.equal(receipt.anotherExecutionOccurred,false);
+  await client.query("UPDATE action_requests SET status='needs_you',updated_at=now() WHERE id=$1",[id]);
+  const nextStamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
+  assert.equal(await recovery.resolveByOwner('sarah',id,'not_occurred',nextStamp),'retryable');
+  assert.equal((await client.query('SELECT approval_id FROM action_requests WHERE id=$1',[id])).rows[0].approval_id,null);
+  await assert.rejects(pending.resume(resumed,gateway,adapter),error=>error.status==='awaiting_approval');
+  assert.equal(approvals,2);assert.equal(sends,1,'owner non-execution attestation still needs fresh approval');
+  await client.query("UPDATE action_requests SET status='needs_you',updated_at=now() WHERE id=$1",[id]);
+  const cancelStamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
+  assert.equal(await recovery.resolveByOwner('sarah',id,'cancel',cancelStamp),'cancelled');
+  assert.equal(sends,1);
+  console.log('PASS: draft once; exact approval; same occurrence/run; one resume claim; send once; one delivery; stale/cross-owner/concurrent recovery decisions fenced');
+}

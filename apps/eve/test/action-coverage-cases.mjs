@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import {ActionGateway,consumeActionAuthority} from '../lib/action-gateway.ts';
+import {ActionGateway} from "./admission-fixtures.mjs";
+import {consumeActionAuthority} from "../lib/action-gateway.ts";
 import {approvalBinding} from '../lib/approvals.ts';
 import {transitionComputerControl} from '../lib/computer-control.ts';
 
@@ -45,4 +46,3 @@ export async function qualifyCoverage(client,database) {
   await gateway.execute({...browser,actionKey:'control-returned',computer:{sessionId:'computer-fixture',controlVersion:agent.version}},adapter);assert.equal(calls,2);
   console.log('PASS: six capability contract matrices (deny/pending/approved/expired/changed/replay/authority failure/target failure); local Computer AGENT -> Take Over -> denied under OWNER -> Return Control -> AGENT; stale control rejected');
 }
-
