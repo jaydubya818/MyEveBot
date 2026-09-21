@@ -1,0 +1,134 @@
+{
+  "observedAt": "2026-09-21T04:57:45.569Z",
+  "relaySha": "d817c848a7f6797fe04787e28ac96081b69359ae",
+  "keyVersion": "projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1",
+  "status": "FAILED",
+  "federationEnabled": false,
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "cases": [
+    {
+      "name": "representative",
+      "rawBytes": 1091,
+      "base64Bytes": 1456,
+      "localCanonicalVerification": true,
+      "kms": "SUCCESS",
+      "relayVerification": "PASS",
+      "signatureBytes": 64,
+      "crcVerified": true,
+      "publicKeyVerified": true,
+      "signedInputSha256": "2bd6742dd1c8d0b21a527f67f7cee401f6912fe5c48dedb69394a7a61ebae47b",
+      "tokenBytes": 1178
+    },
+    {
+      "name": "intermediate",
+      "rawBytes": 22993,
+      "base64Bytes": 30660,
+      "localCanonicalVerification": true,
+      "kms": "SUCCESS",
+      "relayVerification": "PASS",
+      "signatureBytes": 64,
+      "crcVerified": true,
+      "publicKeyVerified": true,
+      "signedInputSha256": "fbd39fccbbf54401e152d665ddbdbe5205def2ace36e454abd9124de07e4cb46",
+      "tokenBytes": 23080
+    },
+    {
+      "name": "work_intermediate",
+      "rawBytes": 61725,
+      "base64Bytes": 82300,
+      "localCanonicalVerification": true,
+      "kms": "SUCCESS",
+      "relayVerification": "PASS",
+      "signatureBytes": 64,
+      "crcVerified": true,
+      "publicKeyVerified": true,
+      "signedInputSha256": "3a1b7da4a1e8daab29978924190873774a23f0044374575a2ce6684963904a41",
+      "tokenBytes": 61812
+    },
+    {
+      "name": "escaped_intermediate",
+      "rawBytes": 132693,
+      "base64Bytes": 176924,
+      "localCanonicalVerification": true,
+      "kms": "FAILED",
+      "relayVerification": "NOT_RUN"
+    },
+    {
+      "name": "near_limit",
+      "rawBytes": 260000,
+      "base64Bytes": 346668,
+      "localCanonicalVerification": true,
+      "kms": "NOT_RUN",
+      "relayVerification": "NOT_RUN"
+    },
+    {
+      "name": "canonical_limit",
+      "rawBytes": 262057,
+      "base64Bytes": 349412,
+      "localCanonicalVerification": true,
+      "kms": "NOT_RUN",
+      "relayVerification": "NOT_RUN"
+    }
+  ],
+  "requests": [
+    {
+      "method": "GET",
+      "operation": "/publicKey",
+      "httpStatus": 200
+    },
+    {
+      "method": "GET",
+      "operation": "metadata",
+      "httpStatus": 200
+    },
+    {
+      "method": "POST",
+      "operation": ":asymmetricSign",
+      "httpStatus": 200
+    },
+    {
+      "method": "GET",
+      "operation": "metadata",
+      "httpStatus": 200
+    },
+    {
+      "method": "POST",
+      "operation": ":asymmetricSign",
+      "httpStatus": 200
+    },
+    {
+      "method": "GET",
+      "operation": "metadata",
+      "httpStatus": 200
+    },
+    {
+      "method": "POST",
+      "operation": ":asymmetricSign",
+      "httpStatus": 200
+    },
+    {
+      "method": "GET",
+      "operation": "metadata",
+      "httpStatus": 200
+    },
+    {
+      "method": "POST",
+      "operation": ":asymmetricSign",
+      "httpStatus": 400,
+      "code": 400,
+      "status": "INVALID_ARGUMENT",
+      "message": "Request field data must have length of at least 0, but not more than 65536. Provided value had length 132693."
+    }
+  ],
+  "publicKey": {
+    "algorithm": "EC_SIGN_ED25519",
+    "protectionLevel": "SOFTWARE",
+    "pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAB+iF4UrQrG5dX+HmRJbIe5e9MGTWuEJnBJIAYD+l33s=\n-----END PUBLIC KEY-----\n",
+    "sha256": "00daeee3bee0076681d1cd1927fa2a2d30786320e8e344341b0c981b976517e4",
+    "crcVerified": true
+  },
+  "stopReason": "First KMS or canonical verification failure; no smaller payload substitution or retry."
+}

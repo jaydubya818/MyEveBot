@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "apply": false,
-  "status": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING",
+  "status": "BLOCKED_KMS_COMPATIBILITY_FAILED",
   "federationDefault": false,
   "region": {
     "myeveA": "iad1",
@@ -11,8 +11,8 @@
     "reason": "Preserve current canonical Relay iad1 and colocate regional KMS in northern Virginia."
   },
   "google": {
-    "projectId": "OWNER_SELECTION_REQUIRED",
-    "projectNumber": "OWNER_SELECTION_REQUIRED",
+    "projectId": "relay-local-qualification",
+    "projectNumber": "1079783030880",
     "billingAuthorization": false,
     "location": "us-east4",
     "keyRing": "fq-6384519e0e01",
@@ -89,7 +89,7 @@
     "estimatedInitialMonthlyKeyUsd": "0.24",
     "estimatedAfterTwoRotationsMonthlyKeyUsd": "0.36",
     "estimatedPer10000SoftwareOperationsUsd": "0.03",
-    "sizeCompatibility": "UNVERIFIED",
+    "sizeCompatibility": "FAILED",
     "sizeProbe": {
       "rawBytes": 262057,
       "base64Bytes": 349412,
@@ -98,7 +98,9 @@
       "crcVerified": false,
       "pinnedKeyVerified": false
     },
-    "custodyStatus": "APPROVED: Relay Vercel workload retains direct OIDC/STS KMS authority; controller enforces application admission only. IAM is the direct Google API boundary."
+    "custodyStatus": "APPROVED: Relay Vercel workload retains direct OIDC/STS KMS authority; controller enforces application admission only. IAM is the direct Google API boundary.",
+    "compatibilityEvidence": "evidence/kms-live-probe/results.json",
+    "probeKeyVersion": "projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1"
   },
   "vercel": {
     "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",

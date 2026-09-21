@@ -1,3 +1,5 @@
+> Latest: [live KMS compatibility probe](kms-live-probe-report.md): **FAILED**. Google explicitly rejects signing data above 65,536 bytes; the unchanged Relay canonical maximum is 262,057 bytes. No further signing or provisioning. Both external gates remain NOT_RUN. Earlier readiness status below predates this provider result.
+
 # Final engineering closure
 
 **NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET READY FOR RESOURCE PROVISIONING.** This report supersedes the controller-custody proposal in earlier checkpoints. The owner explicitly approved direct Relay workload KMS authority. No general federation enablement, paid provisioning or external assessment is authorized by this document.

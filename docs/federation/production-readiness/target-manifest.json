@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING",
-  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / HOSTED TARGET READY FOR RESOURCE PROVISIONING",
+  "status": "BLOCKED_KMS_COMPATIBILITY_FAILED",
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / KMS COMPATIBILITY FAILED",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
   "productionPlatformGate": "NOT_RUN",
@@ -64,6 +64,7 @@
     "enforcementStatus": "DURABLE_COMPONENT_LIMITS_TESTED; ASSEMBLED_PATH_AND_EXCLUSIVE_PROVIDER_CUSTODY_INCOMPLETE"
   },
   "blockers": [
+    "Google KMS 65,536-byte signing-data limit rejects valid Relay delivery; no protocol change authorized",
     "Owner-selected GCP project and authorized existing-key size compatibility probe",
     "Authorize exact paid KMS/WIF/IAM and three Railway services; install approved isolated roles/configuration/secrets and candidate deployments",
     "Read back hosted resource limits, exact workload IAM, TLS/ingress and smoke evidence",
@@ -220,7 +221,7 @@
       "gitDeploymentEnabled": false
     }
   ],
-  "latestDesignReport": "final-engineering-closure.md",
+  "latestDesignReport": "kms-live-probe-report.md",
   "candidateCryptoRevision": "d817c848a7f6797fe04787e28ac96081b69359ae",
   "candidateQualification": "LOCAL_ENGINEERING_PASS; EXTERNAL_GATES_NOT_RUN",
   "candidateRevision": {
