@@ -1,4 +1,19 @@
-import { OUTCOMES, type Evidence, type Outcome } from "./contract.ts";
+import { OUTCOMES, type DecisionResult, type Failure } from "./contract.ts";
+import type { KnowledgeKind } from "../knowledge-types.ts";
+export interface MetricEvidence {
+  id: string;
+  expected: KnowledgeKind | null;
+  canonical: KnowledgeKind | null;
+  result: DecisionResult<KnowledgeKind> | null;
+  failure: Failure | null;
+  cohort?: string;
+}
+function primaryOnly(rows: readonly MetricEvidence[]) {
+  if (rows.some((r) => r.cohort === "TAXONOMY_STRESS"))
+    throw new Error(
+      "Taxonomy Stress has no primary accuracy or threshold simulation",
+    );
+}
 
 const ratio = (numerator: number, denominator: number) =>
   denominator ? numerator / denominator : null;
@@ -17,9 +32,10 @@ const bands = [
 ] as const;
 
 export function simulateThreshold(
-  rows: readonly Evidence[],
+  rows: readonly MetricEvidence[],
   threshold: number,
 ) {
+  primaryOnly(rows);
   if (!Number.isFinite(threshold) || threshold < 0 || threshold > 1)
     throw new Error("Invalid simulation threshold");
   const labeled = rows.filter((row) => row.expected !== null);
@@ -38,10 +54,18 @@ export function simulateThreshold(
     coverage: ratio(selected.length, labeled.length),
     accuracy: ratio(selected.length - errors, selected.length),
     fallback: ratio(labeled.length - selected.length, labeled.length),
+    estimatedErrorsPer1000: labeled.length
+      ? (errors / labeled.length) * 1000
+      : null,
+    hypotheticalCallsAvoided: selected.length,
   };
 }
 
-export function calculateMetrics(rows: readonly Evidence[]) {
+export function calculateMetrics(
+  rows: readonly MetricEvidence[],
+  outcomes: readonly KnowledgeKind[] = OUTCOMES,
+) {
+  primaryOnly(rows);
   const valid = rows.filter((row) => row.result !== null);
   const labeled = valid.filter((row) => row.expected !== null);
   const paired = valid.filter((row) => row.canonical !== null);
@@ -53,13 +77,20 @@ export function calculateMetrics(rows: readonly Evidence[]) {
     (row) => row.result!.outcome === row.expected,
   ).length;
   const matrix = Object.fromEntries(
-    OUTCOMES.map((expected) => [
+    outcomes.map((expected) => [
       expected,
-      Object.fromEntries(OUTCOMES.map((predicted) => [predicted, 0])),
+      Object.fromEntries(outcomes.map((predicted) => [predicted, 0])),
     ]),
-  ) as Record<Outcome, Record<Outcome, number>>;
-  for (const row of labeled) matrix[row.expected!][row.result!.outcome]++;
-  const perClass = OUTCOMES.map((outcome) => {
+  ) as Record<KnowledgeKind, Record<KnowledgeKind, number>>;
+  for (const row of labeled) {
+    if (
+      !outcomes.includes(row.expected!) ||
+      !outcomes.includes(row.result!.outcome)
+    )
+      throw new Error("Outcome outside metric contract");
+    matrix[row.expected!][row.result!.outcome]++;
+  }
+  const perClass = outcomes.map((outcome) => {
     const truePositive = matrix[outcome][outcome];
     const examples = labeled.filter((row) => row.expected === outcome).length;
     const predictions = labeled.filter(
@@ -155,6 +186,21 @@ export function calculateMetrics(rows: readonly Evidence[]) {
       .length,
     confidenceBands,
     perClass,
+    macroPrecision: perClass.length
+      ? perClass.reduce((s, r) => s + (r.precision ?? 0), 0) / perClass.length
+      : null,
+    macroRecall: perClass.length
+      ? perClass.reduce((s, r) => s + (r.recall ?? 0), 0) / perClass.length
+      : null,
+    macroF1: perClass.length
+      ? perClass.reduce((s, r) => s + (r.f1 ?? 0), 0) / perClass.length
+      : null,
+    medianConfidence: percentile(
+      labeled.flatMap((r) =>
+        r.result!.confidence === null ? [] : [r.result!.confidence],
+      ),
+      0.5,
+    ),
     matrix,
     latencyP50: percentile(
       valid.map((row) => row.result!.latencyMs),

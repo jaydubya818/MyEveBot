@@ -11,6 +11,14 @@ import {
   datasetHash,
   validateDataset,
 } from "./dataset.ts";
+import {
+  experimentDefinition,
+  experimentRunSchema,
+  evaluateExperimentCase,
+  type Experiment,
+  type ExperimentRun,
+  type ExperimentEvidence,
+} from "./experiment.ts";
 import { ShadowEvaluator } from "./shadow.ts";
 
 export const contractHash = createHash("sha256")
@@ -61,28 +69,63 @@ export const runSchema = z
   });
 export type EvaluationRun = z.infer<typeof runSchema>;
 
+type EvaluationOptions = {
+  environment: EvaluationRun["environment"];
+  maxExamples?: number;
+  concurrency?: number;
+  timeoutMs?: number;
+  stopFailureRate?: number;
+  sourceCommit?: string;
+};
+export function evaluateDataset(
+  provider: DecisionProvider,
+  options: EvaluationOptions & { experiment: Experiment },
+): Promise<ExperimentRun>;
+export function evaluateDataset(
+  provider: DecisionProvider,
+  options: EvaluationOptions & { experiment?: undefined },
+): Promise<EvaluationRun>;
 export async function evaluateDataset(
   provider: DecisionProvider,
-  options: {
-    environment: EvaluationRun["environment"];
-    maxExamples?: number;
-    concurrency?: number;
-    timeoutMs?: number;
-    stopFailureRate?: number;
-  },
-) {
-  const all = validateDataset(dataset);
+  options: EvaluationOptions & { experiment?: Experiment },
+): Promise<EvaluationRun | ExperimentRun> {
+  const experiment = options.experiment
+    ? experimentDefinition(options.experiment)
+    : null;
+  const all = experiment
+    ? experiment.rows.map((row) => ({
+        id: row.id,
+        text: row.state,
+        expected: row.expected,
+      }))
+    : validateDataset(dataset);
   const limit = options.maxExamples ?? all.length;
   if (!Number.isInteger(limit) || limit < 1 || limit > all.length)
     throw new Error("Invalid example limit");
   // Interleave categories so qualification/canary runs cover all six outcomes.
-  const rows = [...all]
+  let rows = [...all]
     .sort(
       (a, b) =>
         a.id.slice(-3).localeCompare(b.id.slice(-3)) ||
-        a.expected.localeCompare(b.expected),
+        (a.expected ?? "").localeCompare(b.expected ?? ""),
     )
     .slice(0, limit);
+  if (
+    experiment &&
+    experiment.cohort !== "V0_REPRODUCTION" &&
+    experiment.cohort !== "TAXONOMY_STRESS"
+  ) {
+    const pools = experiment.outcomes.map((label) =>
+      all.filter((r) => r.expected === label),
+    );
+    const interleaved: typeof all = [];
+    while (pools.some((p) => p.length))
+      for (const pool of pools) {
+        const row = pool.shift();
+        if (row) interleaved.push(row);
+      }
+    rows = interleaved.slice(0, limit);
+  }
   const concurrency = options.concurrency ?? 1;
   if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4)
     throw new Error("Invalid concurrency");
@@ -93,24 +136,39 @@ export async function evaluateDataset(
     timeoutMs: options.timeoutMs ?? 3000,
     concurrency,
   });
-  const evidence: EvaluationRun["rows"] = [];
+  const evidence: (EvaluationRun["rows"][number] | ExperimentEvidence)[] = [];
   for (let offset = 0; offset < rows.length; offset += concurrency) {
     const batch = rows.slice(offset, offset + concurrency);
     evidence.push(
       ...(await Promise.all(
         batch.map((row) =>
-          evaluator.evaluate(
-            {
-              id: row.id,
-              kind: row.expected,
-              statement: row.text,
-              source: "synthetic",
-            },
-            row.expected,
-          ),
+          experiment
+            ? evaluateExperimentCase(
+                provider,
+                experiment.experiment,
+                row.id,
+                options.timeoutMs ?? 3000,
+              )
+            : evaluator.evaluate(
+                {
+                  id: row.id,
+                  kind: row.expected as (typeof dataset)[number]["expected"],
+                  statement: row.text,
+                  source: "synthetic",
+                },
+                row.expected as (typeof dataset)[number]["expected"],
+              ),
         ),
       )),
     );
+    if (
+      experiment &&
+      evidence.some(
+        (r) =>
+          r.failure === "INVALID_RESPONSE" || r.failure === "PRIVACY_EXCLUDED",
+      )
+    )
+      break;
     if (
       evidence.length >= 12 &&
       evidence.filter((row) => row.failure !== null).length / evidence.length >
@@ -118,6 +176,36 @@ export async function evaluateDataset(
     )
       break;
   }
+  if (experiment)
+    return experimentRunSchema.parse({
+      id: randomUUID(),
+      createdAt: new Date().toISOString(),
+      source: "synthetic-benchmark",
+      environment: options.environment,
+      execution: {
+        provider:
+          options.environment === "live-experiment" ? "Jev" : "Local fixture",
+        model:
+          options.environment === "live-experiment"
+            ? "typesafe-ai/jev"
+            : "deterministic-fixture-v1",
+        sourceCommit: options.sourceCommit ?? null,
+      },
+      experiment: experiment.experiment,
+      cohort: experiment.cohort,
+      decisionId: knowledgeContract.id,
+      decisionVersion: experiment.decisionVersion,
+      contractHash: experiment.contractHash,
+      datasetVersion: experiment.datasetVersion,
+      datasetHash: experiment.datasetHash,
+      rubricId: experiment.rubricId,
+      rubricHash: experiment.rubricHash,
+      mode: "SHADOW",
+      influence: "NONE",
+      canonicalSource: "not-measured",
+      concurrency,
+      rows: evidence,
+    });
   return runSchema.parse({
     id: randomUUID(),
     createdAt: new Date().toISOString(),
@@ -135,3 +223,9 @@ export async function evaluateDataset(
     rows: evidence,
   });
 }
+
+export const evaluationArtifactSchema = z.union([
+  runSchema,
+  experimentRunSchema,
+]);
+export type EvaluationArtifact = z.infer<typeof evaluationArtifactSchema>;

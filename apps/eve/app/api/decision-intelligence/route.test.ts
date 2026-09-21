@@ -91,6 +91,41 @@ describe("read-only synthetic evidence API", () => {
       ),
     ).toBe(true);
   });
+  it("serves challenge and stress as separate read-only metric paths", async () => {
+    const challenge = await evaluateDataset(new FakeDecisionProvider(), {
+      environment: "local-fixture",
+      experiment: "CHALLENGE_SEVEN",
+    });
+    const stress = await evaluateDataset(new FakeDecisionProvider(), {
+      environment: "local-fixture",
+      experiment: "TAXONOMY_STRESS",
+    });
+    for (const run of [challenge, stress])
+      await writeFile(join(directory, `${run.id}.json`), JSON.stringify(run));
+    const token = createWebSessionToken();
+    const primary = await (
+      await GET(request(`?run=${challenge.id}&difficulty=ADVERSARIAL`, token))
+    ).json();
+    expect(primary.total).toBe(83);
+    expect(primary.rows.length).toBe(20);
+    expect(primary.metrics.perClass).toHaveLength(7);
+    expect(primary.quality.revision.adversarialChallenge).toBe(83);
+    const unscored = await (
+      await GET(request(`?run=${stress.id}`, token))
+    ).json();
+    expect(unscored.metrics).toBeNull();
+    expect(unscored.simulation).toEqual([]);
+    expect(unscored.analysis.kind).toBe("stress");
+    expect(unscored.analysis.stress).not.toHaveProperty("accuracy");
+    const detail = await (
+      await GET(
+        request(`?run=${stress.id}&decision=${stress.rows[0]!.id}`, token),
+      )
+    ).json();
+    expect(detail.detail.metadata.expected).toBeNull();
+    expect(detail.detail.context.length).toBeGreaterThan(0);
+    expect(unscored.rows).toHaveLength(20);
+  });
   it("returns stable errors for malformed artifacts without leaking diagnostics", async () => {
     await writeFile(
       join(directory, "malformed.json"),

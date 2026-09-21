@@ -1747,7 +1747,7 @@
     "app/api/decision-intelligence/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "24798da7414f11f92421a0e8cd8b911820fb5614ec74e82cd0df18e2310f3c0a"
+      "sha256": "40405ab62f7c4a2fba04f913df4ca21feba3d5ac2a01921634d457d4b29837a9"
     },
     "app/api/email/attachments/[messageId]/[attachmentId]/route.ts": {
       "classification": "INTERNAL",
@@ -2227,22 +2227,22 @@
     "lib/decision-intelligence/evaluation.ts": {
       "classification": "INTERNAL",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "b03706048fc21fb5c1308488f14ca4193386ef7ca0846c730206b29dcbe9987d"
+      "sha256": "d0d5994307fc5cdd912b732556ebbc3bc97109fbb7e85e712f96fa6666d0ca93"
     },
     "lib/decision-intelligence/evidence-store.ts": {
       "classification": "READ_ONLY",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "f5d29ddb78cba892b0ac1305ab031970074784c7d6706711c53634ea10079b9e"
+      "sha256": "13ebe32ab31db6f02c321639ca27de6aa9a6e265f1a8d5dbf4ea59a5f6da175f"
     },
     "lib/decision-intelligence/fixtures.ts": {
       "classification": "INTERNAL",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "fddfd49f16557aa4e796666f1ba5bee67b0c01ca2711088ab9a1c5b9219e8c2b"
+      "sha256": "18ae86dea773182e5372ba6b6b450ec399950ee9765186ca22e12f9e39c7aeb0"
     },
     "lib/decision-intelligence/metrics.ts": {
       "classification": "INTERNAL",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "8d81c45a9a4dd6d5932eb947b07851dafd6c20f3f70c537b64f13cd7b9766fc6"
+      "sha256": "068329c9d96be868b1a1c6c1b416b68c521b9290c2bcb19352ba64416add6454"
     },
     "lib/decision-intelligence/shadow.ts": {
       "classification": "INTERNAL",
@@ -2252,7 +2252,7 @@
     "lib/decision-intelligence/view.ts": {
       "classification": "INTERNAL",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "c42d0ee318a0b003adc0f24816066a8c2d2b4a59ed0641ab844923eabbd60c17"
+      "sha256": "cec68b094919d1d0ebc14d30be6342f0dfef22d155fd9a8df06200f7859a6656"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2688,6 +2688,26 @@
       "classification": "INTERNAL",
       "reason": "Optional synthetic-only advisory evaluator through the existing Vercel AI Gateway; disabled without explicit enablement, bounded timeout, no retries, normalized diagnostics; no Action executor, policy, canonical write, or runtime Agent registration.",
       "sha256": "63108ab54d7c6d4026cff27c5c9eb3555ed7d707655fc5b4c07d895c8ce73738"
+    },
+    "lib/decision-intelligence/challenge-review.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure synthetic evaluation review validation and serialization; no provider calls, owner data access, canonical writes, or authority effects.",
+      "sha256": "3b400eb1371c2997f5b3743da0161b37dfb2d5f477a88eeacf2ace652dad597f"
+    },
+    "lib/decision-intelligence/challenge-cohorts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic-only Decision Intelligence dataset/contract/evidence evaluation support. Frozen cohort IDs only; no owner sampling, canonical writes, capability registration, or Action/Routine/Computer authority.",
+      "sha256": "7deadb2d3aa00c7e87610803f9aac8d3e3c7b43bee4fe2ee313243ded4d1a763"
+    },
+    "lib/decision-intelligence/experiment.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic-only Decision Intelligence dataset/contract/evidence evaluation support. Frozen cohort IDs only; no owner sampling, canonical writes, capability registration, or Action/Routine/Computer authority.",
+      "sha256": "f2fe789f40fd41e1804b5565e3d2bd3b73d96a2a62d52d0fe38069e39db7b273"
+    },
+    "lib/decision-intelligence/experiment-metrics.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic-only Decision Intelligence dataset/contract/evidence evaluation support. Frozen cohort IDs only; no owner sampling, canonical writes, capability registration, or Action/Routine/Computer authority.",
+      "sha256": "04a9f22f80554ebf937be64385566b1f994716c039656bc27b91842c9593c183"
     }
   }
 }

@@ -56,7 +56,13 @@ try {
     },
     { threadId, updatedAt },
   );
-  await page.goto(`${origin}/manage/decision-intelligence`);
+  const available = await (
+    await context.request.get(`${origin}/api/decision-intelligence`)
+  ).json();
+  const baseline = available.runs.find(
+    (r) => r.environment === "local-fixture" && r.experiment === "V0_ORIGINAL",
+  );
+  await page.goto(`${origin}/manage/decision-intelligence?run=${baseline.id}`);
   await page
     .getByRole("heading", { name: "Synthetic benchmark", exact: true })
     .waitFor();
@@ -67,7 +73,9 @@ try {
       .getByText("6 of 7 Knowledge types evaluated.", { exact: false })
       .isVisible(),
   });
-  const api = await page.request.get(`${origin}/api/decision-intelligence`);
+  const api = await page.request.get(
+    `${origin}/api/decision-intelligence?run=${baseline.id}`,
+  );
   const data = await api.json();
   if (
     api.status() !== 200 ||

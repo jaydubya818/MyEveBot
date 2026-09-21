@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { DecisionFailure } from "./contract.ts";
 import type {
   DecisionProvider,
   DecisionRequest,
@@ -33,5 +34,17 @@ export class FakeDecisionProvider implements DecisionProvider {
       costUsd: null,
       evaluatedAt: new Date().toISOString(),
     };
+  }
+}
+
+/** V0.5 fixture adds deterministic provider failures; never consults expected labels. */
+export class ChallengeFixtureProvider extends FakeDecisionProvider {
+  override async evaluate<T extends string>(
+    request: DecisionRequest<T>,
+    signal: AbortSignal,
+  ): Promise<DecisionResult<T>> {
+    if (createHash("sha256").update(request.state).digest()[2]! % 37 === 0)
+      throw new DecisionFailure("TIMEOUT");
+    return super.evaluate(request, signal);
   }
 }

@@ -10,3 +10,9 @@ These helpers are developer tests, outside the deployed Eve template. They must 
 6. Run `knowledge.mts` from repository root with `node --import tsx`, `TSX_TSCONFIG_PATH=apps/eve/tsconfig.json`, the fake database URL and preload. It tests actual PostgreSQL persistence, owner isolation and canonical Forget for all seven types.
 7. `assemble.mts` writes a Sarah/Ava template to `JEV_QA_GENERATED` under `/private/tmp`. Build with no provider configuration. Reuse the qualified dependency installation **with its original root/app nesting**; flattening different OpenTelemetry versions is invalid. All three builds use the preload and no credentials.
 8. Stop application/proxy/PostgreSQL processes afterward. Keep logs, screenshots, generated source, database files and run artifacts outside Git. No live benchmark command is exposed by these helpers.
+
+## V0.5 cohorts
+
+Use the same CLI with `--fixture --experiment CHALLENGE_SEVEN` (or `V0_REPRODUCTION`, `STANDARD_SIX`, `STANDARD_SEVEN`, `CHALLENGE_SIX`, `TAXONOMY_STRESS`). Use `node --import tsx apps/eve/scripts/decision-evaluate.ts` from the repository root when invoking directly. `--dry-run` prints bounded estimates without calling a provider. Store all artifact JSON outside Git, in the explicit `--output` directory.
+
+Run `challenge-browser.mjs` after generating six/seven Challenge and Stress fixtures; it checks cohort selection, matched comparison, keyboard/filter/detail/history, primary/stress desktop/mobile and axe. The original `browser.mjs` selects the V0 fixture explicitly and checks the preserved view and Chat. See `docs/experiments/jev-v05/revision-02/stage1-report.md` for methodology and qualification. No helper grants live evaluation authorization.
