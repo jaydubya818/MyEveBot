@@ -1,0 +1,63 @@
+{
+  "requestId": "frq_a5552fd70e1d4cc5a92bf83f187537a2",
+  "local": {
+    "myeve": {
+      "request_id": "frq_a5552fd70e1d4cc5a92bf83f187537a2",
+      "direction": "outgoing",
+      "capability": "knowledge.query",
+      "sender_owner_id": "acct_0ddc05f9d24444dba565d34f00b3c907",
+      "sender_agent_id": "agt_2b7c9c0f58f240d6afb51986449565ff",
+      "state": "completed",
+      "relay_acknowledged": false
+    },
+    "peer": {
+      "request_id": "frq_a5552fd70e1d4cc5a92bf83f187537a2",
+      "direction": "incoming",
+      "capability": "knowledge.query",
+      "sender_owner_id": "acct_0ddc05f9d24444dba565d34f00b3c907",
+      "sender_agent_id": "agt_2b7c9c0f58f240d6afb51986449565ff",
+      "state": "completed",
+      "relay_acknowledged": true
+    }
+  },
+  "relay": {
+    "id": "frq_a5552fd70e1d4cc5a92bf83f187537a2",
+    "caller_agent_id": "agt_2b7c9c0f58f240d6afb51986449565ff",
+    "target_agent_id": "agt_c30b1933dcd943ba9e61350f071beb0f",
+    "capability": "knowledge.query",
+    "status": "COMPLETED",
+    "grant_id": "fgr_f34893947cba425997fe18f90a0700e2",
+    "publication_version": 1,
+    "submission_hash": "sha256:d7f822117473391c31a40948d6893611d09c796ae6e593e477b2d0b732206df3",
+    "attempts": 1
+  },
+  "audit": [
+    {
+      "id": "aud_89ea0c5628094b158ecad27fa17c1dfb",
+      "account_id": "acct_0ddc05f9d24444dba565d34f00b3c907",
+      "sequence": "29",
+      "event_type": "federation.request.accepted",
+      "outcome": "AUTHORIZED",
+      "record_hash": "sha256:c8182e718afa46eea27ad09c4f20b41300d389b295eaccd582c512028d2baecf",
+      "signing_key_id": "fq-owner-local-v2"
+    },
+    {
+      "id": "aud_509f3722aa1a430fa1e788c61cb0fb92",
+      "account_id": "acct_0ddc05f9d24444dba565d34f00b3c907",
+      "sequence": "30",
+      "event_type": "federation.disclosure",
+      "outcome": "COMPLETED",
+      "record_hash": "sha256:ead4d00724600ca19bd3d684256f2cf4be2c36e4ebd7a83d21f58304bfcb4c75",
+      "signing_key_id": "fq-owner-local-v2"
+    },
+    {
+      "id": "aud_ced5fa6bd99f4e09b3bcb2f5970fab14",
+      "account_id": "acct_323d8b774fc948dda89ee1eb8eb644b2",
+      "sequence": "42",
+      "event_type": "federation.disclosure",
+      "outcome": "COMPLETED",
+      "record_hash": "sha256:cf799f02c9b6f0cd5b20e500052f199f7a9a583893185f42bce2844f2eecfbb1",
+      "signing_key_id": "fq-owner-local-v2"
+    }
+  ]
+}

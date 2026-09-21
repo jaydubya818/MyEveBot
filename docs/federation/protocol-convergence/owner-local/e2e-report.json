@@ -1,0 +1,149 @@
+{
+  "status": "DETERMINISTIC_HTTP_QUALIFIED",
+  "checks": [
+    {
+      "name": "Sofie and Atlas identities connected through real MyEve and Relay HTTP",
+      "status": "PASS"
+    },
+    {
+      "name": "Published Atlas information retrieved through Relay",
+      "status": "PASS",
+      "requestId": "frq_3a47eaf529374d27aee76c75a6419cf3",
+      "elapsedMs": 6247.505375
+    },
+    {
+      "name": "Private Indigo marker remains unavailable",
+      "status": "PASS"
+    },
+    {
+      "name": "Direct unpublished reference denied",
+      "status": "PASS"
+    },
+    {
+      "name": "MyEve status inbox and audit correlation truthful",
+      "status": "PASS",
+      "requestId": "frq_3a47eaf529374d27aee76c75a6419cf3"
+    },
+    {
+      "name": "Revoked grant denies new request",
+      "status": "PASS"
+    },
+    {
+      "name": "Synthetic local grant restored for owner testing",
+      "status": "PASS"
+    },
+    {
+      "name": "Relay outage leaves MyEve operational and federation truthfully unavailable",
+      "status": "PASS"
+    },
+    {
+      "name": "Relay restart retains identity grant and terminal request result",
+      "status": "PASS"
+    },
+    {
+      "name": "Restart and poll do not replay terminal completed work",
+      "status": "PASS"
+    },
+    {
+      "name": "MyEve restart restores durable Relay connection without re-registration",
+      "status": "PASS"
+    },
+    {
+      "name": "Canonical Agent-to-Agent messaging completes through Relay",
+      "status": "PASS"
+    },
+    {
+      "name": "Relay grant YES, MyEve local authority NO: safe work denied",
+      "status": "PASS",
+      "requestId": "frq_c9204fb76c4f43e9a08bff5f2bbc5f2e",
+      "reason": "MYEVE_LOCAL_POLICY_DENIED",
+      "modelCalls": 0
+    },
+    {
+      "name": "Sofie local UI /api/threads",
+      "status": "PASS"
+    },
+    {
+      "name": "Sofie local UI /api/automations",
+      "status": "PASS"
+    },
+    {
+      "name": "Canonical authenticated discovery returns contact-scoped Atlas capabilities, no private or shared view contents",
+      "status": "PASS"
+    },
+    {
+      "name": "Sofie outgoing -> Relay request/audit -> Atlas incoming -> Sofie completed receipt correlated",
+      "status": "PASS",
+      "requestId": "frq_ff47201935d84323bf3c59fff4a07fc2"
+    },
+    {
+      "name": "Canonical Sofie engine info/health and UI persistence available",
+      "status": "PASS"
+    },
+    {
+      "name": "Relay outage leaves MyEve operational and federation truthfully unavailable",
+      "status": "PASS"
+    },
+    {
+      "name": "Relay restart retains identity grant and terminal request result",
+      "status": "PASS"
+    },
+    {
+      "name": "Restart and poll do not replay terminal completed work",
+      "status": "PASS"
+    },
+    {
+      "name": "MyEve restart restores durable Relay connection without re-registration",
+      "status": "PASS"
+    },
+    {
+      "name": "Canonical Agent-to-Agent messaging completes through Relay",
+      "status": "PASS"
+    },
+    {
+      "name": "Relay grant YES, MyEve local authority NO: safe work denied",
+      "status": "PASS",
+      "requestId": "frq_14970c918ce24310b5e3b96e307dfe56",
+      "reason": "MYEVE_LOCAL_POLICY_DENIED",
+      "modelCalls": 0
+    },
+    {
+      "name": "Sofie local UI /api/threads",
+      "status": "PASS"
+    },
+    {
+      "name": "Sofie local UI /api/automations",
+      "status": "PASS"
+    },
+    {
+      "name": "Canonical authenticated discovery returns contact-scoped Atlas capabilities, no private or shared view contents",
+      "status": "PASS"
+    },
+    {
+      "name": "Sofie outgoing -> Relay request/audit -> Atlas incoming -> Sofie completed receipt correlated",
+      "status": "PASS",
+      "requestId": "frq_a5552fd70e1d4cc5a92bf83f187537a2"
+    },
+    {
+      "name": "Canonical Sofie engine info/health and UI persistence available",
+      "status": "PASS"
+    },
+    {
+      "name": "Current canonical published Atlas retrieval, private-marker/direct-reference denial, grant revocation and restoration",
+      "status": "PASS",
+      "requestId": "frq_6deef841427541b5b9dea6a847859a2f",
+      "elapsedMs": 5410.946292
+    }
+  ],
+  "modelBackedSofie": "PENDING_AUTHENTICATION",
+  "urls": {
+    "myeve": "http://localhost:3001",
+    "peer": "http://localhost:3002",
+    "relay": "http://localhost:3000"
+  },
+  "sourceDefault": "DISABLED",
+  "localOverride": "ENABLED",
+  "production": "UNCHANGED",
+  "myEveSource": "380d6a30753e5983b51fd51b5d4c7758cd86177a",
+  "relaySource": "e2eb350f5655427d55cc204264020a9295173f96"
+}

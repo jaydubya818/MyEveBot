@@ -1,0 +1,29 @@
+{
+  "myEveCanonical": "380d6a30753e5983b51fd51b5d4c7758cd86177a",
+  "relayCanonical": "e2eb350f5655427d55cc204264020a9295173f96",
+  "vitest": 853,
+  "node": 135,
+  "executorClassifications": 545,
+  "executorUnknown": 0,
+  "builds": 2,
+  "typechecks": "PASS",
+  "crossRepositoryContract": "PASS",
+  "localMigrations": 33,
+  "migrationEvidence": "Canonical real PostgreSQL lineage suite retained; this run upgraded both isolated existing local databases from 30 to 33 using the canonical runner.",
+  "modelCalls": 0,
+  "kmsCalls": 0,
+  "runtimeProviderAttempts": 0,
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "logSha256": {
+    "convergence-latest-vitest.log": "913871f932003580325d5c602e41f06e9b374bcc391337760e2033d7cbb29da0",
+    "convergence-latest-node.log": "a6e734cc2921223cd32c7357e9e77b2f3ab5f865a6fb970c86eab30017486c05",
+    "convergence-latest-typecheck.log": "be9f39af589686a81c4ffedb8e233965bfe174c0bd3a67956d3df438f2bdea29",
+    "convergence-latest-build.log": "3f5c9eef1ebb50730ce4b04047a63de403be7b94c4078513eab1dc56da8a98dd",
+    "convergence-latest-protocol.log": "b794a33453d2b78953b9f482e76aea332f9029c36c9db2cbcaae94d35f3a5735",
+    "convergence-latest-contract.log": "0f41e6f6e7cc647de6d108c2a533402d3e98ebaee18c7209e9e1c390c4722620",
+    "convergence-latest-startup.log": "cafd492ce2b87ade6ee4395a2780efb0ef8721105a69cd309153e93f7dd2a760"
+  }
+}

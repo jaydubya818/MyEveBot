@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "protocol": "relay-federation-v2",
+  "purpose": "federation-delivery",
+  "keyId": "fq-owner-local-v2",
+  "keyVersion": "fq-owner-local-v2",
+  "requestId": "frq_6deef841427541b5b9dea6a847859a2f",
+  "payloadDigest": "01ccfd814bcfb5760e29b507427be35676b3d8ffb26ffcdc6575daac60670a4e",
+  "capturedAt": "2026-09-21T15:50:40.632Z",
+  "relayVerifier": "PASS",
+  "myEveVerifier": "PASS",
+  "tamperedCopy": "DENY",
+  "source": "Actual canonical Relay HTTP poll response consumed by MyEve; verified at recorded receipt time",
+  "kmsCalls": 0
+}

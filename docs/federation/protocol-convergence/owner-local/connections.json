@@ -1,0 +1,12 @@
+{
+  "myeve": {
+    "address": "relay://acct_0ddc05f9d24444dba565d34f00b3c907/agt_2b7c9c0f58f240d6afb51986449565ff",
+    "agentId": "agt_2b7c9c0f58f240d6afb51986449565ff",
+    "localAgentId": "agent_6c7aee0b-f2c5-45ac-8f4c-af9919f4a6b2"
+  },
+  "peer": {
+    "address": "relay://acct_323d8b774fc948dda89ee1eb8eb644b2/agt_c30b1933dcd943ba9e61350f071beb0f",
+    "agentId": "agt_c30b1933dcd943ba9e61350f071beb0f",
+    "localAgentId": "agent_db7d0ab1-695b-49cb-b31f-7c649c2b64df"
+  }
+}
