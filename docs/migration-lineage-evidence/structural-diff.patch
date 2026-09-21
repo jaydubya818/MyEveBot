@@ -1,0 +1,11 @@
+--- canonical-88370d0-through-0030
++++ deployed-396631a-through-0029
+@@ -413,7 +413,7 @@
+     size_bytes bigint NOT NULL,
+     blob_url text NOT NULL,
+     blob_path text NOT NULL,
+-    owner_id text,
++    owner_id text DEFAULT 'web:owner'::text NOT NULL,
+     created_at timestamp with time zone DEFAULT now() NOT NULL,
+     CONSTRAINT chat_files_size_bytes_check CHECK ((size_bytes >= 0))
+ );

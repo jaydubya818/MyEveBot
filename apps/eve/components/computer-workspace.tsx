@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import { ComputerSessionsPanel } from "@/components/computer-sessions-panel";
 import { ComputerViewer } from "@/components/computer-viewer";
+import { ComputerRuntimeStatus } from "@/components/computer-runtime-status";
 import { cn } from "@/lib/utils";
 
 type ComputerTab = "profiles" | "activity";
@@ -26,6 +27,7 @@ export function ComputerWorkspace() {
         </div>
       </header>
 
+      <ComputerRuntimeStatus />
       <section className={cn(tab !== "profiles" && "hidden")} role="tabpanel">
         <div className="mb-4 rounded-2xl border border-kumo-hairline bg-kumo-tint px-4 py-3 text-xs leading-5 text-kumo-subtle"><strong className="text-kumo-default">Passwords stay with you.</strong> Sign in through owner takeover. MyEve stores profile ownership, state, and sharing grants; Orgo retains the encrypted desktop and browser session.</div>
         <ComputerViewer />

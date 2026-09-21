@@ -4,13 +4,14 @@ import { randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
 import { expireComputerSessions } from "./computer-sessions.ts";
 import { redactEvidenceText } from "./task-types.ts";
+import { computerRuntimeConfigured, computerRuntimeReadiness, computerLifecycle, computerTemplateKey } from "./computer-runtime.ts";
 
 type Row = Record<string, unknown>;
 
 export type OperationsState = "healthy" | "warning" | "critical";
 
 export interface OperationsSignal {
-  id: "routine_preflight_blocked" | "failed_turns" | "stuck_runs" | "orphaned_computers" | "routine_failures" | "model_limits" | "artifact_failures";
+  id: "computer_runtime" | "computer_template_cleanup" | "routine_preflight_blocked" | "failed_turns" | "stuck_runs" | "orphaned_computers" | "routine_failures" | "model_limits" | "artifact_failures";
   label: string;
   state: OperationsState;
   count: number;
@@ -71,7 +72,8 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
       (SELECT count(*) FROM eve_events WHERE owner_id=$1 AND type IN ('TURN_FAILED','SESSION_FAILED') AND occurred_at >= now()-interval '24 hours') AS failed_turns,
       ((SELECT count(*) FROM task_runs WHERE owner_id=$1 AND ((status='running' AND (deadline_at < now() OR updated_at < now()-interval '30 minutes')) OR (status IN ('awaiting_approval','waiting_for_owner') AND deadline_at < now()))) +
        (SELECT count(*) FROM agent_runs r JOIN agents a ON a.owner_id=r.owner_id AND a.id=r.agent_id WHERE r.owner_id=$1 AND r.status='running' AND r.started_at+(a.max_runtime_seconds*interval '1 second') < now())) AS stuck_runs,
-      ((SELECT count(*) FROM computer_sessions WHERE owner_id=$1 AND status IN ('provisioning','ready','running','paused') AND expires_at <= now()) +
+      ((SELECT count(*) FROM computer_resource_lifecycles WHERE owner_id=$1 AND state='cleanup_pending' AND failure_code IS NOT NULL) +
+       (SELECT count(*) FROM computer_sessions WHERE owner_id=$1 AND status IN ('provisioning','ready','running','paused') AND expires_at <= now()) +
        (SELECT count(*) FROM computer_actions a JOIN computer_sessions s ON s.id=a.computer_session_id WHERE s.owner_id=$1 AND a.status='running' AND a.started_at < now()-interval '10 minutes')) AS orphaned_computers,
       ((SELECT count(*) FROM automation_runs WHERE status='error' AND fired_at >= now()-interval '24 hours') +
        (SELECT count(*) FROM review_deliveries WHERE owner_id=$1 AND status='failed' AND updated_at >= now()-interval '24 hours')) AS routine_failures,
@@ -80,7 +82,7 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
     [ownerId],
   ) as Row[];
   const row = rows[0] ?? {};
-  return operationsReportFromCounts({
+  const report = operationsReportFromCounts({
     routinePreflightBlocks:count(row.routine_preflight_blocked),
     failedTurns: count(row.failed_turns),
     stuckRuns: count(row.stuck_runs),
@@ -89,6 +91,14 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
     modelLimits: count(row.model_limits),
     artifactFailures: count(row.artifact_failures),
   });
+  const runtime = await computerRuntimeReadiness(ownerId);
+  const degraded = runtime.state === "UNAVAILABLE";
+  report.signals.push({ id: "computer_runtime", label: "Computer runtime", state: degraded ? "warning" : "healthy",
+    count: degraded ? 1 : 0, detail: `Runtime: ${runtime.state.toLowerCase().replaceAll("_", " ")}. Agent authority and profile access are checked separately.` });
+  report.signals.push({ id: "computer_template_cleanup", label: "Computer preparation cleanup", state: runtime.cleanupFailures ? "warning" : "healthy",
+    count: runtime.cleanupFailures, detail: "Owned preparations awaiting verified cleanup." });
+  if (report.overall === "healthy" && (degraded || runtime.cleanupFailures)) report.overall = "warning";
+  return report;
 }
 
 export async function recordOperationsEvent(input: {
@@ -186,9 +196,14 @@ async function sendAlert(ownerId: string, report: OperationsReport): Promise<voi
 
 export async function runOperationsMonitor(): Promise<void> {
   await runOperationsCleanup();
+  if (computerRuntimeConfigured()) {
+    const {recoverComputerResources}=await import("./computer-resource-recovery.ts");
+    await recoverComputerResources();
+  }
   const owners = await db().query(`SELECT DISTINCT owner_id FROM agents`) as Row[];
   for (const row of owners) {
     const ownerId = String(row.owner_id);
+    if (computerRuntimeConfigured()) await computerLifecycle().recover(computerTemplateKey(ownerId).scope).catch(() => {});
     const report = await getOperationsReport(ownerId);
     await sendAlert(ownerId, report).catch((error) => {
       console.error("operations_alert_failed", { ownerId, error: error instanceof Error ? error.message : String(error) });

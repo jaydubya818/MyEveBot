@@ -397,10 +397,16 @@ export async function transitionComputerSession(input: {
 }
 
 export async function stopComputerSession(ownerId: string, id: string): Promise<ComputerSessionView> {
-  const session=await getComputerSession(ownerId,id);if(!session)throw new Error("Computer session not found.");
-  if(session.control.controller!=="NONE")await transitionComputerControl({ownerId,sessionId:id,expectedController:session.control.controller,expectedVersion:session.control.version,operation:"stop",requestedBy:ownerId,reason:"Computer session stopped by owner"});
-  await liveSessionProviderFor(session.environmentType).stopSession(session).catch(error=>{if(!(error instanceof LiveSessionLostError))throw error;});
-  return transitionComputerSession({ ownerId, id, to: "stopped" });
+  const session=await getComputerSession(ownerId,id);
+  if (!session) throw new Error("Computer session not found.");
+  const {ComputerResourceStore,computerResourceEnvironment,resourceBinding}=await import("./computer-resource-store.ts");
+  const {ActionGateway}=await import("./action-gateway.ts");
+  const row=await new ComputerResourceStore().current(ownerId,id,computerResourceEnvironment());
+  if (!row) throw new Error("Exact Computer resource ownership is unavailable.");
+  await new ActionGateway().terminateOwnedComputer({binding:resourceBinding(row),initiator:"owner",controlVersion:session.control.version});
+  const {retireUnusedComputerTemplate}=await import("./computer-resource-recovery.ts");
+  await retireUnusedComputerTemplate(ownerId);
+  return (await getComputerSession(ownerId,id))!;
 }
 
 export async function assertComputerCapability(input: {
