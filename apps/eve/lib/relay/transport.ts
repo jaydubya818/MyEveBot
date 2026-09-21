@@ -2,6 +2,7 @@ import {
   createCipheriv,
   createDecipheriv,
   createHash,
+  createPublicKey,
   randomBytes,
   verify,
 } from "node:crypto";
@@ -66,6 +67,8 @@ export interface RelayIdentity {
   agentId: string;
   keyId: string;
   publicKey: string;
+  /** Optional exact version pin; key IDs must otherwise identify immutable keys. */
+  keyVersion?: string;
 }
 
 // Verification never claims or executes. The inbox store performs the atomic,
@@ -78,19 +81,30 @@ export function verifyEnvelope(
   if (token.length > 256 * 1024) throw new Error("Delivery too large.");
   const parts = token.split(".");
   if (parts.length !== 3) throw new Error("Invalid Relay assertion.");
-  const header = z
-    .object({
-      alg: z.literal("EdDSA"),
-      typ: z.literal("relay-federation+jwt"),
-      kid: z.string(),
-    })
-    .strict()
-    .parse(JSON.parse(Buffer.from(parts[0]!, "base64url").toString()));
+  const header = z.union([
+    z.object({ alg: z.literal("EdDSA"), typ: z.literal("relay-federation+jwt"), kid: z.string() }).strict(),
+    z.object({ alg: z.literal("Ed25519"), typ: z.literal("relay-federation-v2"), kid: z.string().min(1).max(255), keyVersion: z.string().min(1).max(512) }).strict(),
+  ]).parse(JSON.parse(Buffer.from(parts[0]!, "base64url").toString()));
+  const material = `${parts[0]}.${parts[1]}`;
+  const isV2 = header.typ === "relay-federation-v2";
+  if (isV2) {
+    if (createPublicKey(identity.publicKey).asymmetricKeyType !== "ed25519") throw new Error("Invalid signing key algorithm.");
+    if (identity.keyVersion && header.keyVersion !== identity.keyVersion) throw new Error("Wrong Relay key version.");
+    for (const segment of parts.slice(0, 2)) {
+      if (!/^[A-Za-z0-9_-]+$/.test(segment!)) throw new Error("Invalid canonical encoding.");
+      const bytes = Buffer.from(segment!, "base64url");
+      const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      if (bytes.toString("base64url") !== segment || canonical(JSON.parse(text)) !== text) throw new Error("Noncanonical Relay assertion.");
+    }
+    if (!/^[A-Za-z0-9_-]{86}$/.test(parts[2]!) || Buffer.from(parts[2]!, "base64url").toString("base64url") !== parts[2]) throw new Error("Invalid signature encoding.");
+  }
+  // Version is selected exactly once. Never retry another signature contract.
+  const signingInput = isV2 ? canonical({ protocol: "relay.federation", version: 2, purpose: "federation-delivery", payloadDigestAlgorithm: "SHA-256", payloadDigest: createHash("sha256").update(material, "utf8").digest("hex"), signingAlgorithm: "Ed25519", keyIdentity: { id: header.kid, version: header.keyVersion } }) : material;
   if (
     header.kid !== identity.keyId ||
     !verify(
       null,
-      Buffer.from(`${parts[0]}.${parts[1]}`),
+      Buffer.from(signingInput),
       identity.publicKey,
       Buffer.from(parts[2]!, "base64url"),
     )

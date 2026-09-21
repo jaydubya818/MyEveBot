@@ -1,0 +1,99 @@
+> Latest: [signature v2 qualification](signature-v2-qualification.md) passed the bounded live KMS probe and local regressions. **NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE**: restore/publish the complete MyEve candidate and refresh frozen source packages. Both external gates remain NOT_RUN; federation remains disabled. Earlier reports below are historical where superseded.
+
+> Latest: [live KMS compatibility probe](kms-live-probe-report.md): **FAILED**. Google explicitly rejects signing data above 65,536 bytes; the unchanged Relay canonical maximum is 262,057 bytes. No further signing or provisioning. Both external gates remain NOT_RUN. Earlier readiness status below predates this provider result.
+
+# Final engineering closure
+
+**NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET READY FOR RESOURCE PROVISIONING.** This report supersedes the controller-custody proposal in earlier checkpoints. The owner explicitly approved direct Relay workload KMS authority. No general federation enablement, paid provisioning or external assessment is authorized by this document.
+
+## Authority and transport
+
+Relay's Vercel qualification workload acquires its own request OIDC assertion and exchanges it directly with Google STS/WIF. Only that workload holds the resulting short-lived KMS token. The controller receives operation bindings and hashes, never Google assertions, access tokens, signing material or private keys. Railway's Relay maintenance child has no KMS identity. The logical Relay party consists of the Vercel crypto/API workload plus its supervised maintenance worker and controller parent.
+
+Application signing first requires native Relay authentication and normal policy/grant/budget evaluation where applicable. A controller permit binds root transport operation, request ID (root operation for commands without a request ID), account, Agent or operator context, signing purpose, exact key version, canonical material hash, 15-second expiry and one-use claim. The provider consumes the matching in-process admission before obtaining a workload token. Retries require new admission. A changed purpose, payload, request or key binding, reused/expired permit, stale worker or stopped session fails closed.
+
+This is an application enforcement boundary. A compromised Relay workload can attempt Google API calls directly with its own identity. Google IAM is the cryptographic boundary; the controller does not cryptographically constrain a compromised workload. Actual IAM denials remain hosted evidence to collect. The existing renderer permits only metadata/signing on three exact qualification keys and metadata/encrypt/decrypt on the envelope key. It grants no key lifecycle, IAM, project administration, unrelated-key or MyEve access. Exact Vercel team/project/environment/custom-environment/subject and issuer/audience binding remains mandatory.
+
+Each actual federation or provider network attempt consumes one durable HTTP allowance. Internal wrappers share a cached attempt promise; duplicate callbacks cannot repeat its transport. Distinct STS, metadata, signing, wrapping and retry requests each receive separate allowances. Redirect following is disabled. Body completion releases the slot; abort or ambiguous completion retains it. One federation origin lane reserves the second slot for nested Google transport. Standalone model requests wait for the origin lane to clear. Operator commands enter a bounded authenticated queue and execute the existing owner library in a worker, avoiding an otherwise unnecessary owner-web → Relay → Google three-request dependency. Control RPC, heartbeats, local health and database transport are separately bounded control traffic, not federation/provider attempts. Only native `submit` commands consume the 120-submission allowance; all actual federation/provider attempts consume the 2,000 HTTP allowance.
+
+## Executable workers
+
+All three use `node qualification-runtime/worker-entrypoint.mjs` from a source-stamped application repository export. `package-worker.mjs` exports the exact clean application commit and exact clean controls commit, hashes every packaged source and refuses dirty tracked source. No placeholder configuration may run: `configuration.mjs` requires real HTTPS origins, source SHAs, seven distinct credential hashes, actual synthetic account IDs and four exact Google key versions. It renders role-specific routes and signing bindings. `workerGrants(component)` emits scoped SQL for the three existing isolated database names; it performs no provisioning.
+
+Common environment names: `FQ_COMPONENT`, `FQ_SOURCE_SHA`, `FQ_SESSION_ID`, `FQ_CONTROLLER_URL`, `FQ_WORKER_TOKEN`, `FQ_OWNER_ID`, `NODE_ENV`, `PORT`, `PATH`. Credentials are secret-store inputs, not literal documentation values.
+
+| Worker | Child and credentials | Permissions and health |
+|---|---|---|
+| MyEve A / `myeve` | `node --import tsx scripts/qualification/myeve-worker.ts` in `apps/eve`; own `DATABASE_URL`, `MYEVE_OWNER_ID`, `MYEVE_RELAY_ENABLED`, `MYEVE_QUALIFICATION_MODE`, `MYEVE_RELAY_ORIGIN`, `MYEVE_RELAY_KEY_ID`, `MYEVE_RELAY_PUBLIC_KEY`, `MYEVE_RELAY_ENCRYPTION_KEY`, `MYEVE_RELAY_ARTIFACT_PRIVATE_KEY`, `MYEVE_RELAY_ARTIFACT_ORIGIN`, `FQ_RELAY_OWNER_EMAIL`, `FQ_RELAY_OWNER_PASSWORD` | Own isolated worker DB role; no artifact INSERT/UPDATE/TRUNCATE, CREATE, ownership or membership; own controller routes only; `/health` exposes SHA and heartbeat freshness. |
+| Relay / `relay` | `node --import tsx scripts/qualification/relay-maintenance.ts`; `RELAY_DATABASE_URL`, `RELAY_QUALIFICATION_MODE`; child receives only worker token. Parent additionally receives `FQ_CONTROL_DATABASE_URL`, `FQ_CONTROLLER_CONFIG`, `FQ_INGRESS_SECRETS`, `FQ_PRICING_REVIEWED_UNTIL`, qualification `ANTHROPIC_API_KEY`. | Child SELECT/UPDATE on `federation_requests`, SELECT/DELETE on `federation_rate_windows`; no control-ledger write or provider credentials. Parent alone updates existing control-session row; cannot create a fresh allowance. Controller `/health` checks Relay heartbeat/source. |
+| MyEve B / `peer` | Same real MyEve child as A, independent synthetic owner, DB, Relay login/Agent, token, encryption and artifact identity. | Same narrow own-DB worker role; no A DB credential, model key or Relay KMS authority. Separate peer operator remains an external prerequisite. |
+
+Vercel Relay separately requires `RELAY_QUALIFICATION_MODE`, `RELAY_QUALIFICATION_IDENTITY_JSON`, `RELAY_QUALIFICATION_SIGNING_KEYS_JSON`, `RELAY_QUALIFICATION_WRAPPING_VERSIONS_JSON`, its origin controller token and request-scoped Vercel OIDC. It must run in the exact `federation-qualification` custom environment. MyEve web origins retain separate artifact-writer DB credentials; workers cannot obtain them. Operator stop credentials remain outside all worker/controller processes being stopped.
+
+Each Railway service: one replica, no volume, NEVER restart, proposed 0.25 vCPU/0.5 GB, heartbeat every five seconds and fail closed after ten seconds stale, 45-minute admission window, at most 60-minute aggregate lifetime including operator restarts. TERM applies to the process group, followed by KILL within five seconds. Actual provider resource-limit readback is required after authorized provisioning. The prior $0.10 infrastructure hard-cap claim remains withdrawn: conditional compute/egress estimates exclude builds, subscriptions and unbounded egress.
+
+## Local evidence boundary
+
+`scripts/federation-readiness/simulation/run.mjs` uses real supervised worker entrypoints, actual native Relay/MyEve libraries, three disposable PostgreSQL databases and real role grants. Loopback HTTPS hosts replace the hosting platform, and a loopback Neon transport proxy executes actual SQL under each configured role. Local purpose-specific Ed25519 keys replace KMS. The real pinned Haiku adapter receives a bounded substituted provider response; no paid model call occurs. Synthetic source artifact seeding goes through the guarded storage handler and byte admission. Initial accounts/passports/budget are fixture bootstrap, not evidence of hosted operator onboarding.
+
+The local-test preload is an explicit API-only dependency injection restricted to `NODE_ENV=test` and loopback controller URLs; the hosted worker CLI has no switch selecting it. These local checks are not independent security review, real Google IAM/KMS evidence, Railway/Vercel smoke or the external production-platform gate.
+
+## External prerequisites and owner actions
+
+1. Select the Google project and project number, confirm billing authorization and authorize the existing-key compatibility probe. If no authorized Ed25519 key exists, compatibility stays UNVERIFIED; do not create paid keys in this task. Preserve the 262,057-byte raw / 349,412-byte base64 probe, CRC, exact-version/public-pin and signature checks.
+2. After compatibility and engineering closure, authorize only the four qualification keys, exact WIF/provider/key IAM resources, audit logs and the dedicated Vercel custom environment. Capture real environment ID and exact key versions; render configuration with those bindings. Read back effective IAM and test wrong project/environment/MyEve identities in the separately authorized hosted phase.
+3. Reuse the existing MyEve/Relay Vercel projects and three previously prepared isolated Neon databases. Authorize runtime worker roles, controller/evidence schema and scoped grants in those databases, qualification-only secret placement, exact candidate deployments and three Railway services. Do not clone production rows. Keep generic federation flags false; only synthetic qualification deployments opt in.
+4. Assign independent peer operator, stop operator/contact and qualification window. Provide a dedicated model credential, fresh exact-model pricing review and accepted infrastructure budget/resource limits. Read back restart policy, replica/CPU/memory limits, deployments, TLS, ingress bypass scopes and all secret separation. Freeze package hashes, deployment IDs and synthetic account/Agent IDs.
+5. Authorize hosted smoke and then each external gate explicitly. Deliver the frozen target/package to a security assessor in a separate context; the implementation agent cannot mark that gate PASS. Follow every P01–P17 production-runbook item, including messaging, replay rejection, publication/grant/credential revocation and rotation, recovery and provenance. Local simulation does not waive them.
+
+No existing private owner/customer data is a test fixture. Hosted retention and cleanup acceptance remain in the production runbook: synthetic content expires, credentials/grants are revoked, evidence is redacted and retained under the approved policy, and operator verifies deletion. Local fixture secrets are private temporary files and destroyed after verification.
+
+## Direct-bypass matrix
+
+| Case | Local application evidence | Google/provider evidence |
+|---|---|---|
+| KMS application signer without controller permit | Denied before token acquisition/provider invocation | Not a claim about direct API access |
+| Wrong purpose or exact key version | Denied at bound claim/local consumption | Exact-key IAM renderer only; live denial NOT_RUN |
+| Reused permit | Durable controller claim and local provider consumption reject reuse | NOT_RUN |
+| Expired permit | Controller rejects 15-second expiry | NOT_RUN |
+| Wrong payload/request/account/Agent/operation | Immutable binding mismatch denied | NOT_RUN |
+| MyEve worker requests Relay signing | Controller role denied; no KMS credentials in worker allowlist | MyEve excluded from WIF conditions by design; live IAM denial NOT_RUN |
+| Stopped session | Signing/provider admission denied; persisted stopped state survives restart | Direct compromised-workload Google access remains an IAM boundary |
+
+Signing tests and the PostgreSQL controller suite are implementation regression evidence. They do not constitute the independent-security gate.
+
+## Budget and acceptance envelope
+
+The prepared hosted target retains 120 native submission attempts, 2,000 actual federation/provider HTTP attempts including retries, aggregate two attempts/second and two in flight, one model call, $0.25 durable reservation per call, $2 A/$3 B, no new model admission at $4 reserved and $5 absolute admitted liability. No uncertain reservation is refunded. Haiku is pinned to `claude-haiku-4-5-20251001`, 16,000 input bytes, full 200K-context worst-case liability bound, 800 output tokens, no tools/cache/thinking and no retries. Model pricing must be reviewed for each at-most-one-hour authorization window. This is application liability accounting, not an account-wide billing cap.
+
+Actual artifact buffers are limited to 65,536 bytes, eight owner-scoped allocations and 524,288 aggregate stored bytes; retries cannot replenish allowance. Application artifact responses expose only admitted buffers. Operator commands cap at 120 and 16,000 bytes each; control server caps 32 sockets and 600,000-byte RPC bodies to accommodate the three workers, origin claims and heartbeats without consuming the two provider slots. Health/control/database traffic is explicitly separate from provider-attempt accounting; no claim of a global infrastructure network-byte billing cap is made.
+
+Hosted acceptance remains: non-model API p95 ≤2 seconds and maximum 15 seconds, healthy accept p95 ≤10 seconds, knowledge/message p95 ≤15 seconds, safe work ≤75 seconds including model ≤60 seconds; ≥99% benign-call success in the declared interval with fault-window and raw rates both reported. Preserve Relay's existing three-attempt/30–60–120-second retry policy. Explicit operator restart ≤60 seconds and known-result recovery ≤120 seconds; uncertain work stays fenced. Synthetic bodies expire ≤15 minutes and purge ≤60 seconds after expiry or worker restoration. Stop new admission by minute 45, finish cleanup by minute 60, remove secrets within 24 hours and retain redacted evidence at most 30 days. These are external acceptance targets, not claimed hosted measurements or SLAs. Both MyEve workers use their existing five-second polling loops; no extra replica is authorized.
+
+## Current regression results
+
+- Relay: 285 passed, five explicit live-provider skips across 55 files. TypeScript, ESLint, production build, Drizzle schema and V2 frontier checks pass.
+- MyEve: 508 Vitest and 130 Node tests pass. Type/capability/skill checks, all 506 executor-governance classifications and production build pass. The owner-session test now freezes its clock; production authentication was not changed.
+- Controls: 61 Node and 15 Python tests pass; no skips. Twenty-five disabled-default probes pass. Fresh and populated-upgrade migration qualification passes all eight checks with 27 MyEve migrations and verified container cleanup.
+- Relay performance: two local suites, two functional browser tests, one production browser test covering nine routes. Maximum measured route p95 161.900042 ms, below the unchanged <200 ms threshold.
+- The five Relay skips are Playwright context isolation/contract, private-network denial and TTL closure; Docker sandbox execution/file isolation/timeout/destruction; and combined Relay-managed browser/shell/file lifecycle. Their opt-in live-provider switches were not enabled. Separate dashboard browser tests did execute. No skipped case is counted as provider qualification.
+
+KMS COMPATIBILITY = **UNVERIFIED — REQUIRES OWNER-AUTHORIZED PROVIDER PROBE**. Independent security = **NOT_RUN**. Production-platform qualification = **NOT_RUN**. General federation remains disabled by default.
+
+## Assembled simulation and final decision
+
+The [frozen local report](evidence/final-engineering-closure/three-worker-simulation.json) passes all 13 checks against Relay `d817c848a7f6797fe04787e28ac96081b69359ae`, MyEve A/B `a1aa73ba75cd400c3046bae3d452de35377431f2` and controls `817a8525059d436dc0978970d3e80e7371e009d6`. Both actual MyEve workers register through native Relay authentication; private knowledge stays isolated; signed delivery, durable idempotency and fresh-heartbeat restart pass. A real signed peer artifact supplies the existing required work context. Local authority refuses email execution, the actual MyEve work path invokes the pinned Haiku adapter with a mocked response, and the generated artifact transfers back through audience proof, checksum and guarded storage.
+
+HTTP counts match observed attempts: 89 at the golden-path checkpoint, 94 after preparing and starting the stop-drill work. Two model attempts were substituted, one completed and one held active for stop; no paid inference occurred. Four owner-scoped artifact allocations contain 364 bytes total. No new attempt begins after stop. All eight stop outcomes are VERIFIED in order: admission, credential revocation, grant revocation, queued/in-flight work denial, model-authority closure, all three supervised workers terminated, evidence preserved, and app/worker database login brakes last. A pending operator command is denied. Restart cannot reopen the stopped session. All three disposable databases, their roles, host/worker processes and final-run fixture secrets are removed.
+
+**Remaining source/configuration/simulation engineering blockers: none.** Hosted resource bindings and provider readbacks are external provisioning prerequisites, not fabricated configuration values. Local Railway contract tests also reject a replacement deployment; actual Railway stop is NOT_RUN. KMS size/IAM checks remain UNVERIFIED, paid provisioning has not occurred, and both external gates remain NOT_RUN. The implementation agent has not issued an independent-security PASS.
+
+Evidence: [regressions](evidence/final-engineering-closure/regressions.json), [nine-route performance](evidence/final-engineering-closure/browser-performance.json), [disabled-default probes](evidence/final-engineering-closure/disabled-default.json), [migration qualification](evidence/final-engineering-closure/migrations.json), and [deliberately blocked hosted launch preflight](evidence/final-engineering-closure/launch-preflight.json). Provisioning readiness does not authorize launch or mark hosted proofs verified.
+
+## Frozen handoff
+
+[Package fingerprints](evidence/final-engineering-closure/packages.json) cover credential-free source exports in the workspace `federation-qualification-packages/relay-d817c848` and `federation-qualification-packages/myeve-a1aa73ba`. A and B reuse the same verified MyEve source export with different component/identity/DB credentials; no third Agent platform is built. These exports still require operator builds from their pinned lockfiles. Every packaged runtime module is byte-identical to the tested controls commit; the packaged readiness commit additionally contains the closure documents. Nothing was deployed or sent to an assessor.
+
+Existing MyEve Git history has a pre-existing missing ancestor object (`767b585e0d910136fef8eb421933e34a5bc8b601` references unavailable `7852287e1c5f8eb14119d9e8accdf174d27eeb69`), also absent in the canonical checkout; fetching that object from the documented origin did not recover it. Full-history `git fsck` therefore does not pass. The frozen release commit, candidate commit, complete candidate tree/export and per-file package hashes are present and verified; no history was rewritten. This is a historical repository-integrity limitation, not a runtime qualification PASS claim. Preserve the source exports for handoff rather than relying on a complete ancestral bundle.
+
+All task-created local fixture directories, including failed diagnostic runs, were destroyed after evidence capture. The task-created PostgreSQL container was removed. Canonical MyEve and Relay branches were not modified; durable qualification clones were fast-forwarded only to the tested candidates.

@@ -1,0 +1,287 @@
+{
+  "canonicalBase": "4d3f1eb685422fc77296cef245e84c5b09da6e91",
+  "checks": [
+    "Fresh: normal runner applied 27 migrations",
+    "Populated canonical 0026 -> federation 0027: exactly one additive migration; Agent/Run/action data byte-equivalent",
+    "Normal migration runner rerun: 27 checksums accepted, zero reapplied on both databases",
+    "Fresh and upgraded schema columns/defaults/nullability match",
+    "execution-reliability.integration.mjs: passed against isolated PostgreSQL",
+    "action-upgrade.integration.mjs: passed against isolated PostgreSQL"
+  ],
+  "migrations": [
+    {
+      "name": "0001_runtime_core.sql",
+      "checksum": "c073affaeeee6ed3f9076d0b8befe79f7d0b8373685ee4e4b0ffc50158c1a591"
+    },
+    {
+      "name": "0002_trustworthy_delegation.sql",
+      "checksum": "ff54635f7be5ddb786d61ea6918554089710cd46a5fe2ff32a0f1f29ca6be22d"
+    },
+    {
+      "name": "0003_goal_operating_system.sql",
+      "checksum": "f893b5849eed817727823c8749414b93212727334470c6d7c9fa7ff63ea9a9a3"
+    },
+    {
+      "name": "0004_skill_control_plane.sql",
+      "checksum": "5aaa7abda2b51bd01ef3d1b3c7fbddc722823cd0c86491ffb6f3bc17d2db70d1"
+    },
+    {
+      "name": "0005_skill_evals_and_outcomes.sql",
+      "checksum": "3e121a5ddbc8d96fe874c48c0bd771e810061881fadfae2206cf75a92aa28ca4"
+    },
+    {
+      "name": "0006_outcomes_and_review_loop.sql",
+      "checksum": "e2f38f5c4c00714967e559162d5077ff1e95f2afaf1941dc9b5c1eccd5f41957"
+    },
+    {
+      "name": "0007_proactive_review_delivery.sql",
+      "checksum": "f58e7b307fa48617bd25d4ee27b47f53c91d2737ba228a2d1ec110b41172e02e"
+    },
+    {
+      "name": "0008_persistent_agents.sql",
+      "checksum": "12a11b5d6b7d17ca63f69a88c1b1402fea715df5608dc8c185723f04c40b18e1"
+    },
+    {
+      "name": "0009_scoped_memory_context.sql",
+      "checksum": "f5a7a72b2b2740939c5026cee63fe0630d9548b46bddb08579f05d75dbbb73ef"
+    },
+    {
+      "name": "0010_agent_computer_runtime.sql",
+      "checksum": "793fe423d9b6d149ab95293e5f9a3ad03316f37ca444abdacd2e7a968a566550"
+    },
+    {
+      "name": "0011_knowledge_provenance_core.sql",
+      "checksum": "6814a006398afc3116ec7dd66ea541095d0a8aa7dd52ff9f006a5b8f9123db0b"
+    },
+    {
+      "name": "0012_role_run_attribution.sql",
+      "checksum": "b01414f2cf519e5041af79f02b0a18ea636d26994e21b60e4b723ed44a200213"
+    },
+    {
+      "name": "0013_colleague_first_execution.sql",
+      "checksum": "5e60a2f830734975c5585f7df3d49267b10a541cb751b4f284e0122b24133f36"
+    },
+    {
+      "name": "0014_persistent_browser_profiles.sql",
+      "checksum": "16d97a4cc4bcc88680c8af5a1860e7f79cf1d762523db78dba66a1e350731716"
+    },
+    {
+      "name": "0015_phone_safety_controls.sql",
+      "checksum": "71eac1e130da97386f069df18f8cd960c1c84d9d3564d2dacc65f31f80beb399"
+    },
+    {
+      "name": "0016_owner_data_operations.sql",
+      "checksum": "7106ee769bc1d6ec2c683e2fb5f7a55babf9157c12c89671258d135885ec1b49"
+    },
+    {
+      "name": "0017_owner_file_inventory.sql",
+      "checksum": "a73bc6d7a9d8fd7c884262bd2a753ca100bece8101c3800b1e4427e554a5df43"
+    },
+    {
+      "name": "0018_owner_knowledge_control.sql",
+      "checksum": "775ff88476a964c4f4a6e1d0c1d0091e067380a426813e5eb8bc9a30351a9e40"
+    },
+    {
+      "name": "0019_agent_control_center.sql",
+      "checksum": "e056373e3666885234b0d8122e56fb0ecf102535325f62160d2f1747420fe51e"
+    },
+    {
+      "name": "0020_canonical_approval_requests.sql",
+      "checksum": "250ecf12643b8970207f27f860d925a131da2a94eb738a866c3f959f48f0c555"
+    },
+    {
+      "name": "0021_computer_control_leases.sql",
+      "checksum": "3b587c8eb5294c2815ff6d7126adff290a9f4238afb5e83a15d4bd5e21ee8ab8"
+    },
+    {
+      "name": "0022_live_computer_provider.sql",
+      "checksum": "34b92ecbda5c4359517ba0895f3beedb9af6dc44ff2bd3bcfe4e38e1b3400237"
+    },
+    {
+      "name": "0023_execution_reliability.sql",
+      "checksum": "d305f1746a01828eb1816800eb68e10037f9f894128a286dc8e4ed41d14fc8b5"
+    },
+    {
+      "name": "0024_routine_owner_review.sql",
+      "checksum": "318424d227a0de64114e892d035baf6d967c8b084e140c5fc0786b4288fd128b"
+    },
+    {
+      "name": "0025_action_executor_enforcement.sql",
+      "checksum": "d63540cdb2cb652bff747bab8b41cc20def079052f405484370d2d0cd9183cf6"
+    },
+    {
+      "name": "0026_action_recovery_qualification.sql",
+      "checksum": "52dac6edbaf95873f76fa04cb5723e8a354580a34cc20889d21d2c669e95aca4"
+    },
+    {
+      "name": "0027_relay_federation.sql",
+      "checksum": "2ea6d67e5e327eeaff02b2ef6ef5d537f27a0d71bee247c361e15b491f114bd7"
+    }
+  ],
+  "federationConstraints": [
+    {
+      "conname": "myeve_relay_activity_pkey",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "myeve_relay_artifacts_pkey",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "myeve_relay_connections_address_key",
+      "definition": "UNIQUE (address)"
+    },
+    {
+      "conname": "myeve_relay_connections_local_agent_id_fkey",
+      "definition": "FOREIGN KEY (local_agent_id) REFERENCES agents(id)"
+    },
+    {
+      "conname": "myeve_relay_connections_pkey",
+      "definition": "PRIMARY KEY (owner_id)"
+    },
+    {
+      "conname": "myeve_relay_connections_status_check",
+      "definition": "CHECK ((status = ANY (ARRAY['active'::text, 'paused'::text, 'revoked'::text])))"
+    },
+    {
+      "conname": "myeve_relay_external_context_pkey",
+      "definition": "PRIMARY KEY (owner_id, request_id)"
+    },
+    {
+      "conname": "myeve_relay_grants_pkey",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "myeve_relay_grants_status_check",
+      "definition": "CHECK ((status = ANY (ARRAY['active'::text, 'revoked'::text])))"
+    },
+    {
+      "conname": "myeve_relay_peers_pkey",
+      "definition": "PRIMARY KEY (owner_id, address)"
+    },
+    {
+      "conname": "myeve_relay_projection_pkey",
+      "definition": "PRIMARY KEY (publication_id, reference)"
+    },
+    {
+      "conname": "myeve_relay_projection_publication_id_fkey",
+      "definition": "FOREIGN KEY (publication_id) REFERENCES myeve_relay_publications(id)"
+    },
+    {
+      "conname": "myeve_relay_publications_owner_id_fkey",
+      "definition": "FOREIGN KEY (owner_id) REFERENCES myeve_relay_connections(owner_id)"
+    },
+    {
+      "conname": "myeve_relay_publications_owner_id_relay_view_id_key",
+      "definition": "UNIQUE (owner_id, relay_view_id)"
+    },
+    {
+      "conname": "myeve_relay_publications_pkey",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "myeve_relay_publications_status_check",
+      "definition": "CHECK ((status = ANY (ARRAY['draft'::text, 'active'::text, 'paused'::text, 'revoked'::text, 'sync_required'::text])))"
+    },
+    {
+      "conname": "myeve_relay_publications_visibility_check",
+      "definition": "CHECK ((visibility = ANY (ARRAY['PRIVATE'::text, 'SHARED'::text, 'UNLISTED'::text, 'PUBLIC'::text])))"
+    },
+    {
+      "conname": "myeve_relay_receipts_pkey",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "conname": "myeve_relay_receipts_relay_account_id_sequence_key",
+      "definition": "UNIQUE (relay_account_id, sequence)"
+    },
+    {
+      "conname": "myeve_relay_requests_direction_check",
+      "definition": "CHECK ((direction = ANY (ARRAY['incoming'::text, 'outgoing'::text])))"
+    },
+    {
+      "conname": "myeve_relay_requests_local_run_id_fkey",
+      "definition": "FOREIGN KEY (local_run_id) REFERENCES task_runs(id)"
+    },
+    {
+      "conname": "myeve_relay_requests_owner_id_fkey",
+      "definition": "FOREIGN KEY (owner_id) REFERENCES myeve_relay_connections(owner_id)"
+    },
+    {
+      "conname": "myeve_relay_requests_pkey",
+      "definition": "PRIMARY KEY (owner_id, request_id)"
+    },
+    {
+      "conname": "myeve_relay_requests_state_check",
+      "definition": "CHECK ((state = ANY (ARRAY['incoming'::text, 'processing'::text, 'needs_approval'::text, 'accepted'::text, 'completed'::text, 'denied'::text, 'expired'::text, 'recovery_required'::text])))"
+    }
+  ],
+  "federationIndexes": [
+    {
+      "indexname": "myeve_relay_activity_owner",
+      "indexdef": "CREATE INDEX myeve_relay_activity_owner ON public.myeve_relay_activity USING btree (owner_id, created_at)"
+    },
+    {
+      "indexname": "myeve_relay_activity_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_activity_pkey ON public.myeve_relay_activity USING btree (id)"
+    },
+    {
+      "indexname": "myeve_relay_artifacts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_artifacts_pkey ON public.myeve_relay_artifacts USING btree (id)"
+    },
+    {
+      "indexname": "myeve_relay_connections_address_key",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_connections_address_key ON public.myeve_relay_connections USING btree (address)"
+    },
+    {
+      "indexname": "myeve_relay_connections_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_connections_pkey ON public.myeve_relay_connections USING btree (owner_id)"
+    },
+    {
+      "indexname": "myeve_relay_external_context_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_external_context_pkey ON public.myeve_relay_external_context USING btree (owner_id, request_id)"
+    },
+    {
+      "indexname": "myeve_relay_grants_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_grants_pkey ON public.myeve_relay_grants USING btree (id)"
+    },
+    {
+      "indexname": "myeve_relay_inbox",
+      "indexdef": "CREATE INDEX myeve_relay_inbox ON public.myeve_relay_requests USING btree (owner_id, state, created_at)"
+    },
+    {
+      "indexname": "myeve_relay_peers_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_peers_pkey ON public.myeve_relay_peers USING btree (owner_id, address)"
+    },
+    {
+      "indexname": "myeve_relay_projection_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_projection_pkey ON public.myeve_relay_projection USING btree (publication_id, reference)"
+    },
+    {
+      "indexname": "myeve_relay_publications_owner_id_relay_view_id_key",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_publications_owner_id_relay_view_id_key ON public.myeve_relay_publications USING btree (owner_id, relay_view_id)"
+    },
+    {
+      "indexname": "myeve_relay_publications_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_publications_pkey ON public.myeve_relay_publications USING btree (id)"
+    },
+    {
+      "indexname": "myeve_relay_receipts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_receipts_pkey ON public.myeve_relay_receipts USING btree (id)"
+    },
+    {
+      "indexname": "myeve_relay_receipts_relay_account_id_sequence_key",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_receipts_relay_account_id_sequence_key ON public.myeve_relay_receipts USING btree (relay_account_id, sequence)"
+    },
+    {
+      "indexname": "myeve_relay_requests_pkey",
+      "indexdef": "CREATE UNIQUE INDEX myeve_relay_requests_pkey ON public.myeve_relay_requests USING btree (owner_id, request_id)"
+    }
+  ],
+  "preservedDataHash": "89211c2cb9f7d59a2099d8039d94405ab76cc09d17675da83aedecd769b06e5c",
+  "status": "PASSED",
+  "cleanup": {
+    "containerRemoved": true,
+    "credentialsDestroyed": true
+  }
+}

@@ -2401,13 +2401,13 @@
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-controlled source-owned artifacts; audience proof and key/origin pins, expiry, revocation, checksum, bounded retrieval and no redirects; no canonical private-store access.",
-      "sha256": "6e783fbde616db069260138636053f1427f942cff18dc291ae34580e4a180f94"
+      "reason": "Owner-controlled source-owned artifacts; audience proof and key/origin pins, expiry, revocation, checksum, bounded retrieval and no redirects; no canonical private-store access. Qualification delta: Owner-controlled source-owned artifacts; audience proof and key/origin pins, expiry, revocation, checksum, bounded retrieval and no redirects; no canonical private-store access. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
+      "sha256": "0673e096f114cd88daa277bce3e391c48a8b39f3c9983252bf3097b56c477c39"
     },
     "lib/relay/client.ts": {
       "classification": "ENFORCED",
-      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy.",
-      "sha256": "8802fabf5c03bf1feec1961fe3e41b59300ea43a1a58f4b4780e5f3aec30dca8"
+      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Qualification delta: Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
+      "sha256": "a19c4d06844379c521c93954cc4f206d50d9808b19da00ad8fb3beaf2de2d3e9"
     },
     "lib/relay/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2422,7 +2422,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "ab953d8c15d34464a4eb671d73fe9c0b392add1da8d805afe829e7d689497124"
+      "sha256": "8b5c0913b6317c4095e93729c75a850c07a66c082d0f1b1a453b277cc026e8f7"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2446,13 +2446,13 @@
     },
     "lib/relay/transport.ts": {
       "classification": "INTERNAL",
-      "reason": "Pinned signature verification and owner-bound encryption; no executor or network.",
-      "sha256": "5c5d0db572dc9ab601b8565d565171fe44484ce26eb3357a893d9ef5f28e5b06"
+      "reason": "Pinned signature verification and owner-bound encryption; no executor or network. Canonical Relay v2 verifier convergence: strict key/version-bound Ed25519 commitment; no execution or authority grant.",
+      "sha256": "c8bc8f22280b113e921ce296273a1b2574f84412a6f20b7d36f52e75741eb5f3"
     },
     "lib/relay/work.ts": {
       "classification": "ENFORCED",
       "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output.",
-      "sha256": "9e188268a6bb74f4dac2948e3ed8558b6ad89fcdb44eae549f14539b42721e9d"
+      "sha256": "0d3cadf0b01306cdd7d25728bedc75a616949dd317ec3551d94f8d5000397376"
     },
     "lib/reminder-execution.ts": {
       "classification": "INTERNAL",
@@ -2607,7 +2607,7 @@
     "lib/vnc-relay.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "fa5836428f5563d4892da365eb3074428c3c8d4458b235af48f0efd74cd69857"
+      "sha256": "2b5c2c8ffb641916e3b53a38517fd6853c0bf5535c5f6c45744be6c8be1e549d"
     },
     "lib/voice/attachments.ts": {
       "classification": "INTERNAL",
@@ -2718,6 +2718,26 @@
       "classification": "INTERNAL",
       "reason": "Read-only validated public synthetic experiment evidence. No provider calls, owner data, canonical writes or execution authority.",
       "sha256": "4b9f47ca0fb4d32a95a5b1874cf235310d7d6931fdff2cd336c1b9de180ba6a6"
+    },
+    "app/api/relay/qualification-artifacts/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Qualification-only storage handler claims one-use request permit at entry, checks synthetic owner and decrypted actual bytes before mutation, and verifies immutable retry content. Direct ingress and owner/allowance denial covered by artifact-route.test.ts. Returns 404 outside explicit qualification.",
+      "sha256": "875f33b3b4a05c5686afd5b031cc5253b7d113477a2ed55f3078a510a5acffa5"
+    },
+    "lib/qualification/artifact-storage.ts": {
+      "classification": "INTERNAL",
+      "reason": "Qualification workers send storage mutations through the guarded owner-bound web endpoint; normal federation callers retain existing local authority. Worker startup rejects INSERT/UPDATE/TRUNCATE artifact privileges. Hosted role provisioning remains blocked.",
+      "sha256": "bf86f2fbceb639f9d3b678b49d37818c6daf7d269d4d2e5512bb901a7ec0e545"
+    },
+    "lib/qualification/client.ts": {
+      "classification": "INTERNAL",
+      "reason": "Qualification-only transport and byte/model admission helpers. Exact HTTPS controller, owner binding, bounded bodies, no provider fallback or worker model/storage credentials. Covered by client.test.ts; hosted custody is explicitly unresolved and disabled.",
+      "sha256": "4e942e2567ec5baacba88596b5279a9aeffa3c8bbca489089bc1e3eeb5d25b83"
+    },
+    "lib/relay/ingress.ts": {
+      "classification": "INTERNAL",
+      "reason": "Server-only deployment ingress-header resolver; exact configured HTTPS origins, bounded secret map, generic errors; grants no federation authority and performs no network or private-store access. ingress.test.ts covers target pinning, invalid config, credential preservation and untrusted artifact denial.",
+      "sha256": "a70d8bb31deb3901224cd66730d6309395966e7b70155258ca8dda80c0ea7ec8"
     }
   }
 }

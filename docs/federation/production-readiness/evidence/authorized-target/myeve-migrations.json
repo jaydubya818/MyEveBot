@@ -1,0 +1,25 @@
+{
+  "scope": "Normal pinned migration runners on newly created synthetic databases only",
+  "results": [
+    {
+      "component": "myeve",
+      "status": "PASSED",
+      "phase": "idempotent_runner",
+      "migrations": 27,
+      "idempotentRerun": true,
+      "runtimeDdl": false,
+      "migrationJournalRuntimeWrite": false,
+      "migrationLoginRevoked": true
+    },
+    {
+      "component": "peer",
+      "status": "PASSED",
+      "phase": "idempotent_runner",
+      "migrations": 27,
+      "idempotentRerun": true,
+      "runtimeDdl": false,
+      "migrationJournalRuntimeWrite": false,
+      "migrationLoginRevoked": true
+    }
+  ]
+}

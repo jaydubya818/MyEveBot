@@ -1,0 +1,34 @@
+{
+  "myeveSource": "6e691e29decc62176fe5045ed507e7908c47de62",
+  "relaySource": "e2eb350f5655427d55cc204264020a9295173f96",
+  "myeveVitest": 782,
+  "myeveNode": 135,
+  "executorUnknown": 0,
+  "executorClassifications": 535,
+  "relayPassed": 314,
+  "relaySkipped": 5,
+  "relayPerformance": 2,
+  "resourceFreeBuildAndStartup": "PASS",
+  "localThreeWorkerChecks": 13,
+  "newKmsCalls": 0,
+  "externalGates": {
+    "independentSecurity": "NOT_RUN",
+    "productionPlatform": "NOT_RUN"
+  },
+  "logs": {
+    "convergence-adapter.log": "f1d010d68a266cdea08c55c07153cf038543d1eb6fd99762ce04d07c8ca92470",
+    "convergence-canonical-vitest.log": "af206f454e70c4a9657a4b1cbd666d06c47b84130b63033b5db9176eaa631150",
+    "convergence-relay-qualify.log": "45d6c3793b393f9f73bbc6dc761cdd50c9e27e731aca5d9e7d3dc3f812c7aeb4",
+    "convergence-protocol.log": "b794a33453d2b78953b9f482e76aea332f9029c36c9db2cbcaae94d35f3a5735",
+    "convergence-canonical-build.log": "fbfdd7f765ee20c00630b903a3289ca7e26d8239df8fa034ace1b94de9f7987b",
+    "convergence-canonical-type.log": "7c0c785434fe7416c967d126a4ad989c5f8893346382156ad21f257aa03c299a",
+    "convergence-myeve-node.log": "686d2859acd199811877f2d932e8ce6c719859bb87f82366e993da647cda8863",
+    "convergence-myeve-build.log": "52f30b35179f8bec5d6275e256324a4454ddf01ca08361fb436c1cb1827771c0",
+    "convergence-resource-free.log": "cafd492ce2b87ade6ee4395a2780efb0ef8721105a69cd309153e93f7dd2a760",
+    "convergence-myeve-vitest.log": "0aa0eddf263c17cfa3243b5d59fab4c18ed2630c1c22ea5b46860025912b9178",
+    "convergence-migrations.log": "8c70199a26e1ba4821a98b80b62752e27fbca2f81c6f5daa7d888052da7baba6",
+    "convergence-final-node.log": "5191a7452980ebf3e14b4241b8806b93fd436c1acdf270c462d1b1278f585672",
+    "convergence-myeve-type.log": "bce4365f650c9921849778981fb4ee61d26cba35f1db4889d7ec19b282c3e1ba",
+    "convergence-canonical-node.log": "3df9977fd1a526c387367341c31121c95fac2f6197fdbcb7a418fcba5cd7f1b7"
+  }
+}

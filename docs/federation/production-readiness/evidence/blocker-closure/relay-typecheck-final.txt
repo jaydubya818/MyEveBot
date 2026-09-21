@@ -1,0 +1,4 @@
+
+> relay@0.1.0 typecheck /Users/jaywest/Documents/ChatGPT/New project/relay-production-readiness
+> tsc --noEmit
+

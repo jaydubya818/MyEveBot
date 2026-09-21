@@ -3,7 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { neon } from "@neondatabase/serverless";
+import { Client } from "@neondatabase/serverless";
 
 import { CURRENT_DATABASE_MIGRATION } from "../lib/database-schema.ts";
 import { deploymentOwnerId } from "../lib/owner-identity.ts";
@@ -64,48 +64,64 @@ async function main(): Promise<void> {
 
   const databaseUrl = process.env.DATABASE_URL?.trim();
   if (!databaseUrl) throw new Error("DATABASE_URL is required to apply database migrations.");
-  const sql = neon(databaseUrl);
-  await sql.query(`
-    CREATE TABLE IF NOT EXISTS sofie_schema_migrations (
-      name text PRIMARY KEY,
-      checksum text NOT NULL,
-      applied_at timestamptz NOT NULL DEFAULT now()
-    )
-  `);
+  // Neon HTTP prepares each query and rejects multi-command migration chunks.
+  // A session uses PostgreSQL's simple-query path without rewriting SQL/checksums.
+  const client = new Client({ connectionString: databaseUrl, connectionTimeoutMillis: 10000 });
+  try {
+    await client.connect();
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS sofie_schema_migrations (
+        name text PRIMARY KEY,
+        checksum text NOT NULL,
+        applied_at timestamptz NOT NULL DEFAULT now()
+      )
+    `);
+    const { rows: applied } = await client.query("SELECT name, checksum FROM sofie_schema_migrations");
+    const appliedByName = new Map(
+      applied.map((row) => [String(row.name), String(row.checksum)]),
+    );
 
-  const applied = await sql.query("SELECT name, checksum FROM sofie_schema_migrations");
-  const appliedByName = new Map(
-    applied.map((row) => [String(row.name), String(row.checksum)]),
-  );
-
-  for (const migration of migrations) {
-    const previousChecksum = appliedByName.get(migration.name);
-    if (previousChecksum !== undefined) {
-      if (previousChecksum !== migration.checksum) {
-        throw new Error(`Applied migration '${migration.name}' was modified. Add a new migration instead.`);
+    for (const migration of migrations) {
+      const previousChecksum = appliedByName.get(migration.name);
+      if (previousChecksum !== undefined) {
+        if (previousChecksum !== migration.checksum) {
+          throw new Error(`Applied migration '${migration.name}' was modified. Add a new migration instead.`);
+        }
+        console.log(`Already applied ${migration.name}`);
+        continue;
       }
-      console.log(`Already applied ${migration.name}`);
-      continue;
+      await client.query("BEGIN");
+      try {
+        for (const statement of migration.statements) await client.query(statement);
+        await client.query(
+          "INSERT INTO sofie_schema_migrations (name, checksum) VALUES ($1, $2)",
+          [migration.name, migration.checksum],
+        );
+        await client.query("COMMIT");
+      } catch (error) {
+        await client.query("ROLLBACK");
+        throw error;
+      }
+      console.log(`Applied ${migration.name}`);
     }
-
-    await sql.transaction((transaction) => [
-      ...migration.statements.map((statement) => transaction.query(statement)),
-      transaction.query(
-        "INSERT INTO sofie_schema_migrations (name, checksum) VALUES ($1, $2)",
-        [migration.name, migration.checksum],
-      ),
-    ]);
-    console.log(`Applied ${migration.name}`);
+    // Preserve canonical owner-file reconciliation on the same transactional
+    // Neon session used for migrations; never fall back to a separate HTTP call.
+    const ownerId = deploymentOwnerId();
+    await client.query("BEGIN");
+    try {
+      await client.query(
+        "UPDATE chat_files SET owner_id = $1 WHERE owner_id IS NULL OR owner_id = 'web:owner'",
+        [ownerId],
+      );
+      await client.query("ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL");
+      await client.query("COMMIT");
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    }
+  } finally {
+    await client.end();
   }
-
-  const ownerId = deploymentOwnerId();
-  await sql.transaction((transaction) => [
-    transaction.query(
-      "UPDATE chat_files SET owner_id = $1 WHERE owner_id IS NULL OR owner_id = 'web:owner'",
-      [ownerId],
-    ),
-    transaction.query("ALTER TABLE chat_files ALTER COLUMN owner_id SET NOT NULL"),
-  ]);
 }
 
 await main();

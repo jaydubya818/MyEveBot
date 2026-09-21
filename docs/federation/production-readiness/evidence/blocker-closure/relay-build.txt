@@ -1,0 +1,87 @@
+
+> relay@0.1.0 build /Users/jaywest/Documents/ChatGPT/New project/relay-production-readiness
+> next build
+
+   ▲ Next.js 15.5.22
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 1987ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/29) ...
+   Generating static pages (7/29) 
+   Generating static pages (14/29) 
+   Generating static pages (21/29) 
+ ✓ Generating static pages (29/29)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                        Size  First Load JS
+┌ ƒ /                                             169 B         106 kB
+├ ○ /_not-found                                   999 B         103 kB
+├ ƒ /.well-known/oauth-protected-resource         236 B         102 kB
+├ ƒ /activity                                     236 B         102 kB
+├ ƒ /agents                                       176 B         109 kB
+├ ƒ /agents/[id]                                  163 B         106 kB
+├ ƒ /api/activity                                 236 B         102 kB
+├ ƒ /api/agents                                   236 B         102 kB
+├ ƒ /api/agents/[id]                              236 B         102 kB
+├ ƒ /api/agents/[id]/capabilities/[capability]    236 B         102 kB
+├ ƒ /api/agents/[id]/credentials                  236 B         102 kB
+├ ƒ /api/auth/login                               236 B         102 kB
+├ ƒ /api/auth/logout                              236 B         102 kB
+├ ƒ /api/auth/signup                              236 B         102 kB
+├ ƒ /api/browsers                                 236 B         102 kB
+├ ƒ /api/browsers/screenshot                      236 B         102 kB
+├ ƒ /api/connections/github                       236 B         102 kB
+├ ƒ /api/connections/github/oauth/callback        236 B         102 kB
+├ ƒ /api/connections/github/oauth/start           236 B         102 kB
+├ ƒ /api/connections/google                       236 B         102 kB
+├ ƒ /api/connections/google/oauth/callback        236 B         102 kB
+├ ƒ /api/connections/google/oauth/start           236 B         102 kB
+├ ƒ /api/events/inbox/ack                         236 B         102 kB
+├ ƒ /api/health                                   236 B         102 kB
+├ ƒ /api/health/providers                         236 B         102 kB
+├ ƒ /api/health/ready                             236 B         102 kB
+├ ƒ /api/memories                                 236 B         102 kB
+├ ƒ /api/memories/[id]                            236 B         102 kB
+├ ƒ /api/sandboxes                                236 B         102 kB
+├ ƒ /api/v2/federation                            236 B         102 kB
+├ ƒ /api/v2/federation/mcp                        236 B         102 kB
+├ ƒ /api/v2/mcp                                   236 B         102 kB
+├ ƒ /api/v2/operator/approvals                    236 B         102 kB
+├ ƒ /api/v2/operator/computers                    236 B         102 kB
+├ ƒ /api/v2/operator/federation                   236 B         102 kB
+├ ƒ /api/v2/operator/runners                      236 B         102 kB
+├ ƒ /api/v2/operator/tasks                        236 B         102 kB
+├ ƒ /api/v2/runtime/actions                       236 B         102 kB
+├ ƒ /api/v2/runtime/actions/[commandId]           236 B         102 kB
+├ ƒ /browsers                                     162 B         106 kB
+├ ƒ /connections                                  162 B         106 kB
+├ ƒ /developer                                    163 B         106 kB
+├ ƒ /events                                       163 B         106 kB
+├ ƒ /login                                        177 B         109 kB
+├ ƒ /mcp                                          236 B         102 kB
+├ ƒ /memory                                       163 B         106 kB
+├ ƒ /sandboxes                                    162 B         106 kB
+├ ƒ /settings                                     236 B         102 kB
+├ ƒ /signup                                       177 B         109 kB
+├ ƒ /v2                                           169 B         106 kB
+├ ƒ /v2/activity                                  236 B         102 kB
+├ ƒ /v2/agents                                    236 B         102 kB
+├ ƒ /v2/approvals                               1.28 kB         103 kB
+├ ƒ /v2/computers                               1.28 kB         103 kB
+├ ƒ /v2/connections                               236 B         102 kB
+├ ƒ /v2/governance                                236 B         102 kB
+├ ƒ /v2/infrastructure                          1.28 kB         103 kB
+├ ƒ /v2/settings                                  236 B         102 kB
+└ ƒ /v2/tasks                                   1.28 kB         103 kB
++ First Load JS shared by all                    102 kB
+  ├ chunks/8335-3faf16d24c155f21.js             45.9 kB
+  ├ chunks/833d18a8-58733c395242295e.js         54.2 kB
+  └ other shared chunks (total)                 1.93 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

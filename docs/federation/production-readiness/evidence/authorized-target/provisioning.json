@@ -1,0 +1,61 @@
+{
+  "status": "EMPTY_DATABASES_CREATED",
+  "secretReferenceDirectory": null,
+  "databases": [
+    {
+      "component": "myeve",
+      "database": "fq_myeve_6384519e0e01",
+      "applicationRole": "fq_myeve_6384519e0e01_app",
+      "ownerRole": "fq_myeve_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "empty": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": "NOT_RUN"
+    },
+    {
+      "component": "peer",
+      "database": "fq_peer_6384519e0e01",
+      "applicationRole": "fq_peer_6384519e0e01_app",
+      "ownerRole": "fq_peer_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "empty": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": "NOT_RUN"
+    },
+    {
+      "component": "relay",
+      "database": "fq_relay_6384519e0e01",
+      "applicationRole": "fq_relay_6384519e0e01_app",
+      "ownerRole": "fq_relay_6384519e0e01_owner",
+      "ownerLogin": false,
+      "runtimeRoleOwnsDatabase": false,
+      "connectionLimit": 4,
+      "endpointFingerprint": "d06cf587dcbd47c15ae3ff66d4ccd56c79f643ebc05c25919378b4abfe43274d",
+      "publicConnectRevoked": true,
+      "tls": true,
+      "empty": true,
+      "existingObjectPrivileges": 0,
+      "existingSecurityDefinerPrivileges": 0,
+      "existingSchemaCreatePrivileges": 0,
+      "migrations": "NOT_RUN"
+    }
+  ],
+  "productionDataCopied": false,
+  "stage": "verify_empty_and_transport_tls",
+  "crossMyEveConnection": "DENIED_BOTH_DIRECTIONS",
+  "credentialDisposition": "REVOKED_AND_TEMPORARY_FILES_REMOVED"
+}

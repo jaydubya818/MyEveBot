@@ -1,0 +1,33 @@
+[2m[WebServer] [22m(node:40688) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:40731) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:40740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:40740) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:40749) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:40761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 3 tests using 1 worker
+
+(node:40783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40783) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/dashboard.spec.ts:12:5 › operator can sign in, inspect core pages, and create an agent credential (13.0s)
+  ✓  2 tests/e2e/dashboard.spec.ts:44:5 › a new account owner can register and revoke the browser session on logout (3.7s)
+{"benchmark":"/","p50Ms":156.04766700000255,"p95Ms":199.7935839999991,"p99Ms":217.9500420000004,"samples":20}
+{"benchmark":"/agents","p50Ms":42.8137080000015,"p95Ms":46.99254199999996,"p99Ms":47.41620799999873,"samples":20}
+{"benchmark":"/memory","p50Ms":37.81291699999929,"p95Ms":43.78645800000231,"p99Ms":50.716458999999304,"samples":20}
+{"benchmark":"/connections","p50Ms":38.600415999997495,"p95Ms":43.935999999997875,"p99Ms":43.937417000001005,"samples":20}
+{"benchmark":"/sandboxes","p50Ms":36.65879099999802,"p95Ms":43.343166999999085,"p99Ms":44.457540999999765,"samples":20}
+{"benchmark":"/browsers","p50Ms":33.66962499999863,"p95Ms":48.239708000000974,"p99Ms":247.15899999999965,"samples":20}
+{"benchmark":"/events","p50Ms":34.57733400000143,"p95Ms":39.94654199999786,"p99Ms":41.06100000000151,"samples":20}
+{"benchmark":"/activity","p50Ms":34.92987499999799,"p95Ms":40.84937499999796,"p99Ms":42.42537500000253,"samples":20}
+{"benchmark":"/developer","p50Ms":33.473165999999765,"p95Ms":38.011750000001484,"p99Ms":38.49095899999884,"samples":20}
+  ✓  3 tests/e2e/dashboard.spec.ts:63:5 › critical dashboard routes meet the warm local response target (13.9s)
+
+  3 passed (35.0s)

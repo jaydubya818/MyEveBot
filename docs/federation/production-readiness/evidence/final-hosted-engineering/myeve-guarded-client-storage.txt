@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /private/tmp/fq-authorized-work/myeve/apps/eve
+
+ ✓ lib/qualification/client.test.ts (7 tests) 10ms
+ ✓ lib/qualification/artifact-route.test.ts (5 tests) 9ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  16:11:11
+   Duration  264ms (transform 30ms, setup 0ms, collect 54ms, tests 18ms, environment 0ms, prepare 59ms)
+
