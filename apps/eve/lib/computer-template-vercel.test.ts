@@ -48,6 +48,7 @@ describe("Vercel preparation adapter with no provider calls", () => {
   it("persists a snapshot identity and keeps cleanup pending until snapshot deletion is verified", async () => {
     const sandbox = resource(), identify = vi.fn().mockResolvedValue(undefined);
     sdk.get.mockResolvedValueOnce(sandbox).mockRejectedValue({ status: 404 });
+    sdk.snapshot.mockResolvedValue({ status: "created", delete: vi.fn().mockRejectedValue(new Error("delete failed")) });
     expect(await provider.cleanup(row, signal(), identify)).toBe(false);
     expect(identify).toHaveBeenCalledWith("snap");
     expect(sandbox.delete).toHaveBeenCalledWith(expect.objectContaining({ deleteOrphanSnapshots: true }));
@@ -62,6 +63,26 @@ describe("Vercel preparation adapter with no provider calls", () => {
     expect(sdk.create).toHaveBeenCalledWith(expect.objectContaining({ name: preparationResourceName(row), persistent: false, signal: expect.any(AbortSignal) }));
     expect(sandbox.runCommand).toHaveBeenCalledWith(expect.objectContaining({ signal: expect.any(AbortSignal) }));
     expect(sandbox.update).toHaveBeenCalledWith({ networkPolicy: "deny-all" }, expect.anything());
+  });
+  it("explicitly deletes the persisted snapshot after named deletion leaves it behind", async () => {
+    const sandbox = resource(), remove = vi.fn().mockResolvedValue(undefined);
+    sdk.get.mockResolvedValueOnce(sandbox).mockRejectedValue({ status: 404 });
+    sdk.snapshot.mockResolvedValueOnce({ status: "created", delete: remove }).mockResolvedValue({ status: "deleted" });
+    expect(await provider.cleanup({ ...row, templateId: "snap" }, signal())).toBe(true);
+    expect(remove).toHaveBeenCalledOnce();
+    expect(sdk.snapshot.mock.calls.every(([options]) => options.snapshotId === "snap")).toBe(true);
+  });
+  it("does not replace a persisted snapshot identity or delete after persistence fails", async () => {
+    const sandbox = resource(); sdk.get.mockResolvedValue(sandbox);
+    expect(await provider.cleanup({ ...row, templateId: "different" }, signal())).toBe(false);
+    expect(sandbox.delete).not.toHaveBeenCalled();
+    await expect(provider.cleanup(row, signal(), async () => { throw Error("store unavailable"); })).rejects.toThrow("store unavailable");
+    expect(sandbox.delete).not.toHaveBeenCalled();
+  });
+  it("does not remove a snapshot while the preparation Sandbox is still visible", async () => {
+    const sandbox = resource(); sdk.get.mockResolvedValue(sandbox);
+    expect(await provider.cleanup({ ...row, templateId: "snap" }, signal())).toBe(false);
+    expect(sdk.snapshot).not.toHaveBeenCalled();
   });
   it("classifies provider errors without exposing provider bodies", () => {
     expect([401, 402, 429, 503].map(status => provider.classify({ status, text: "secret" }))).toEqual(["authentication", "quota", "rate_limit", "provider_unavailable"]);

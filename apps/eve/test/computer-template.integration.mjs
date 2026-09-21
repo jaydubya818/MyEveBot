@@ -37,11 +37,24 @@ try {
     classify() { return "bootstrap"; },
   };
   const options = { prepareMs: 1000, waitMs: 2000, cleanupMs: 100, pollMs: 10, retryMs: 10 };
+  const raceKey = { ...key, fingerprint: "cleanup-wins-new-request" };
+  const raceLifecycle = new ComputerTemplateLifecycle(stores[0], provider, options);
+  const oldRace = await raceLifecycle.ensure(raceKey);
+  const raceToken = await stores[1].cleaning(oldRace.id,"invalid_template"); assert.ok(raceToken);
+  const newRequest = raceLifecycle.ensure(raceKey);
+  await provider.cleanup(oldRace);
+  await stores[1].cleaned(oldRace.id,raceToken,true,Date.now());
+  const newRace = await newRequest;
+  assert.notEqual(newRace.id,oldRace.id,"cleanup winner forces fresh preparation for the arriving request");
+  assert.equal(newRace.state,"READY");
+  creates = 0;
   const rows = await Promise.all(stores.map(store => new ComputerTemplateLifecycle(store, provider, options).ensure(key)));
   assert.equal(creates, 1); assert.equal(new Set(rows.map(row => row.id)).size, 1);
   assert.equal((await client.query("SELECT count(*) FROM computer_template_waiters")).rows[0].count, "0");
   const store = stores[0]; const row = rows[0];
-  const token = await store.cleaning(row.id, "invalid_template"); assert.ok(token);
+  const claims = await Promise.all(stores.slice(0,2).map(worker => worker.cleaning(row.id, "invalid_template")));
+  assert.equal(claims.filter(Boolean).length,1,"two independent cleanup workers have one winner");
+  const token = claims.find(Boolean); assert.ok(token);
   await client.query("UPDATE computer_template_preparations SET deadline=now()-interval '1 second' WHERE id=$1", [row.id]);
   const newer = await store.cleaning(row.id, "invalid_template"); assert.ok(newer);
   await store.cleaned(row.id, token, true, Date.now());

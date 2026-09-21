@@ -133,6 +133,20 @@ describe("Computer template lifecycle without external resources", () => {
     expect(templateFingerprint({ a: "1", b: "2" })).toBe(templateFingerprint({ b: "2", a: "1" }));
     expect(templateFingerprint({ browser: "1" })).not.toBe(templateFingerprint({ browser: "2" }));
   });
+  it("bounds a hung cleanup and retains recoverable state until absence is verified", async () => {
+    const { lifecycle, provider, store } = fixture();
+    const row = await lifecycle.ensure(key), cleanup = provider.cleanup.bind(provider);
+    provider.cleanup = async () => new Promise<boolean>(() => {});
+    expect(await lifecycle.cleanup(row,"invalid_template")).toBe(false);
+    expect((await store.current(key))?.state).toBe("CLEANING");
+    expect(await lifecycle.resolve(key)).toBe("UNAVAILABLE");
+    expect(provider.resources.has(row.id)).toBe(true);
+    provider.cleanup = cleanup; await delay(25);
+    const restarted = new ComputerTemplateLifecycle(store,provider,lifecycle.options);
+    await restarted.recover(key.scope);
+    expect(await restarted.resolve(key)).toBe("COLD");
+    expect(provider.resources.size).toBe(0);
+  });
   it("telemetry failure cannot delete a published template", async () => {
     const { lifecycle, provider, store } = fixture(); store.event = async () => { throw new Error("db telemetry unavailable"); };
     expect((await lifecycle.ensure(key)).state).toBe("READY"); expect(provider.cleanups).toBe(0);

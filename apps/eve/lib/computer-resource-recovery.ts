@@ -14,7 +14,22 @@ export async function recoverComputerResources(ownerId?: string) {
     if(result?.verified) retiredOwners.add(row.owner_id);
   }
   for(const owner of retiredOwners) await retireUnusedComputerTemplate(owner);
-  await store.database.query(`DELETE FROM computer_resource_lifecycles WHERE environment=$1 AND state='cleaned' AND verified_at<now()-interval '30 days' AND provision_until<now()-interval '30 days'`,[computerResourceEnvironment()]);
+  // A committed session tombstone is the durable retirement trigger, even if
+  // the process exited before calling retirement or a waiter delayed it.
+  // This is independent of the 24-hour late-create inspection window.
+  const pending = await store.database.query(`SELECT DISTINCT l.owner_id FROM computer_resource_lifecycles l
+    JOIN computer_template_preparations p ON p.id=l.preparation_id
+    WHERE l.environment=$1 AND l.state='cleaned' AND p.state IN ('READY','CLEANING')
+      AND ($2::text IS NULL OR l.owner_id=$2)
+      AND NOT EXISTS(SELECT 1 FROM computer_resource_lifecycles dependency WHERE dependency.preparation_id=p.id AND dependency.state<>'cleaned')
+    ORDER BY l.owner_id LIMIT 10`, [computerResourceEnvironment(),ownerId ?? null]);
+  for (const row of pending) {
+    const owner = String(row.owner_id);
+    await retireUnusedComputerTemplate(owner);
+    await computerLifecycle().recover(computerTemplateKey(owner).scope);
+  }
+  await store.database.query(`DELETE FROM computer_resource_lifecycles l WHERE environment=$1 AND state='cleaned' AND verified_at<now()-interval '30 days' AND provision_until<now()-interval '30 days'
+    AND NOT EXISTS(SELECT 1 FROM computer_template_preparations p WHERE p.id=l.preparation_id AND p.state<>'CLEANED')`,[computerResourceEnvironment()]);
 }
 export async function retireUnusedComputerTemplate(ownerId: string) {
   const store = new ComputerResourceStore();

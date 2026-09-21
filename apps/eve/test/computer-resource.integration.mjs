@@ -216,14 +216,108 @@ try {
     const row=await fixture({owner:'coldowner',controller:'OWNER',preparationId:'coldprep',snapshotId:'cold_snapshot'});
     const originalGet=Sandbox.get,originalSnapshotGet=Snapshot.get;let parent=true,snapshot=true;
     Sandbox.get=async({name})=>{
-      if(name==='myeve-preparation-coldprep'&&parent)return {name,status:'stopped',tags:{application:'myeve-template-v1',preparation:'coldprep',scope:key.scope,fingerprint:key.fingerprint},currentSnapshotId:'cold_snapshot',async stop(){},async delete(){parent=false;snapshot=false;}};
+      if(name==='myeve-preparation-coldprep'&&parent)return {name,status:'stopped',tags:{application:'myeve-template-v1',preparation:'coldprep',scope:key.scope,fingerprint:key.fingerprint},currentSnapshotId:'cold_snapshot',async stop(){},async delete(){parent=false;}};
       if(name!==row.resource_name||!resources.has(name))throw Object.assign(Error('missing'),{response:{status:404}});
       return {name,tags:resourceTags(row),currentSnapshotId:'cold_snapshot',currentSession:()=>({sessionId:row.provider_session_id,status:resources.get(name)}),async stop(){resources.set(name,'stopped');},async delete(){resources.delete(name);}};
     };
-    Snapshot.get=async()=>({status:snapshot?'created':'deleted'});
+    Snapshot.get=async({snapshotId})=>{assert.equal(snapshotId,'cold_snapshot');return {status:snapshot?'created':'deleted',async delete(){snapshot=false;}};};
     try{assert.equal((await computerRuntimeReadiness('coldowner')).state,'READY');
       const stopped=await stopComputerSession('coldowner',row.computer_session_id);assert.equal(stopped.control.controller,'NONE');assert.equal((await computerRuntimeReadiness('coldowner')).state,'COLD');assert.equal(parent,false);assert.equal(snapshot,false);
     }finally{Sandbox.get=originalGet;Snapshot.get=originalSnapshotGet;}
+  });
+  // Each scenario exercises the actual Stop/Gateway and preparation provider adapter.
+  // Named Sandbox deletion deliberately leaves the snapshot, matching Vercel.
+  for (const mode of ['single','multiple','waiter','process-loss','delete-failure','already-absent','stop-failure','visibility-delay','cleanup-wins','reuse-wins']) {
+    await check(`automatic post-stop template cleanup: ${mode}`, async()=>{
+      const {computerTemplateKey,computerRuntimeReadiness}=await import('../lib/computer-runtime.ts');
+      const {recoverComputerResources,retireUnusedComputerTemplate}=await import('../lib/computer-resource-recovery.ts');
+      const owner=`cleanup-${mode}`, prep=`prep_${mode}`, snap=`snapshot_${mode}`;
+      await client.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd)
+        VALUES('agent_'||$1,$1,$1,'Fixture','Test','Test',false,'active',30,600,1)`,[owner]);
+      const key=computerTemplateKey(owner),templates=new SqlComputerTemplateStore(database);
+      await client.query(`INSERT INTO computer_template_preparations(id,scope,fingerprint,provider,state,deadline,template_id)
+        VALUES($1,$2,$3,'vercel','READY',now()+interval '5 minutes',$4)`,[prep,key.scope,key.fingerprint,snap]);
+      const first=await fixture({owner,controller:'OWNER',preparationId:prep,snapshotId:snap});
+      const second=mode==='multiple'?await fixture({owner,controller:'OWNER',preparationId:prep,snapshotId:snap}):null;
+      let parent=true,snapshot=mode!=='already-absent',failDelete=mode==='delete-failure',staleVisibility=mode==='visibility-delay',deletes=0;
+      const get=Sandbox.get,snapshotGet=Snapshot.get;
+      Sandbox.get=async({name})=>{
+        if(name===`myeve-preparation-${prep}`&&parent)return {name,status:'stopped',tags:{application:'myeve-template-v1',preparation:prep,scope:key.scope,fingerprint:key.fingerprint},currentSnapshotId:snap,
+          async stop(){if(mode==='stop-failure')throw Error('deterministic stop failure');},async delete(){parent=false;}};
+        const owned=(await database.query('SELECT * FROM computer_resource_lifecycles WHERE resource_name=$1 AND owner_id=$2',[name,owner]))[0];
+        if(!owned||!resources.has(name))throw {response:{status:404}};
+        return {name,tags:resourceTags(owned),currentSnapshotId:snap,currentSession:()=>({sessionId:owned.provider_session_id,status:resources.get(name)}),async stop(){resources.set(name,'stopped');},async delete(){resources.delete(name);}};
+      };
+      Snapshot.get=async({snapshotId})=>{
+        assert.equal(snapshotId,snap,'only exact persisted snapshot identity');
+        return {status:snapshot||staleVisibility?'created':'deleted',async delete(){deletes++;if(failDelete)throw Error('deterministic snapshot delete failure');snapshot=false;}};
+      };
+      try {
+        if(mode==='waiter')await templates.enter(key,'pending-waiter',Date.now()+60_000);
+        if(mode==='process-loss'||mode==='reuse-wins'||mode==='cleanup-wins') {
+          await gateway.terminateOwnedComputer({binding:resourceBinding(first),initiator:'owner',controlVersion:1},provider);
+          assert.equal((await templates.current(key)).state,'READY','Stop committed before template callback');
+          if(mode==='process-loss') {
+            await client.query("UPDATE computer_resource_lifecycles SET created_at=now()-interval '2 days' WHERE id=$1",[first.id]);
+            await recoverComputerResources(owner);
+          } else if(mode==='reuse-wins') {
+            const replacement=await fixture({owner,controller:'OWNER',preparationId:prep,snapshotId:snap});
+            await retireUnusedComputerTemplate(owner);assert.equal(parent,true);assert.equal(snapshot,true);assert.equal(deletes,0);
+            await stopComputerSession(owner,replacement.computer_session_id);
+          } else {
+            const token=await templates.cleaning(prep,'invalid_template');assert.ok(token);
+            await assert.rejects(fixture({owner,preparationId:prep,snapshotId:snap}),/ownership could not be established/);
+            await client.query("UPDATE computer_template_preparations SET deadline=now()-interval '1 second' WHERE id=$1",[prep]);
+            await recoverComputerResources(owner);
+            const next=await templates.claim(key,Date.now()+60_000);assert.ok(next);assert.notEqual(next.id,prep);
+            await templates.enter(key,'replacement-waiter',Date.now()+60_000);
+            assert.equal(await templates.ready(next.id,'replacement_snapshot'),true);
+            // A stale worker can only address the old immutable preparation/snapshot.
+            await templates.cleaned(prep,token,true,Date.now());
+            assert.equal((await templates.current(key)).templateId,'replacement_snapshot');
+            await templates.leave('replacement-waiter');
+          }
+        } else await stopComputerSession(owner,first.computer_session_id);
+        assert.equal(resources.has(first.resource_name),false);
+        assert.equal((await client.query('SELECT controller FROM computer_control_leases WHERE computer_session_id=$1',[first.computer_session_id])).rows[0].controller,'NONE');
+        if(second||mode==='waiter') {
+          assert.equal((await computerRuntimeReadiness(owner)).state,'READY');assert.equal(snapshot,true);assert.equal(deletes,0);
+          if(second)await stopComputerSession(owner,second.computer_session_id);
+          else {
+            await templates.leave('pending-waiter');
+            await client.query("UPDATE computer_resource_lifecycles SET created_at=now()-interval '2 days' WHERE id=$1",[first.id]);
+            await recoverComputerResources(owner);
+          }
+        }
+        if(mode==='delete-failure'||mode==='visibility-delay') {
+          assert.equal((await computerRuntimeReadiness(owner)).state,'UNAVAILABLE');
+          assert.equal((await templates.current(key)).state,'CLEANING');
+          const before=deletes;await recoverComputerResources(owner);assert.equal(deletes,before,'cooldown prevents retry spin');
+          failDelete=false;staleVisibility=false;
+          await client.query("UPDATE computer_template_preparations SET deadline=now()-interval '1 second' WHERE id=$1",[prep]);
+          await recoverComputerResources(owner);
+        }
+        assert.equal(parent,false);assert.equal(snapshot,false);
+        if(mode!=='cleanup-wins') {
+          assert.equal((await computerRuntimeReadiness(owner)).state,'COLD');
+          const before=deletes;await stopComputerSession(owner,first.computer_session_id);await recoverComputerResources(owner);assert.equal(deletes,before);
+        }
+      } finally {Sandbox.get=get;Snapshot.get=snapshotGet;}
+    });
+  }
+  await check('template retirement isolates owner, environment and deployment',async()=>{
+    const {computerTemplateKey}=await import('../lib/computer-runtime.ts');
+    const {retireUnusedComputerTemplate}=await import('../lib/computer-resource-recovery.ts');
+    for(const [name,key] of [
+      ['other-owner',computerTemplateKey('never-retire-other')],
+      ['production',computerTemplateKey('never-retire',{...process.env,VERCEL_ENV:'production'})],
+      ['new-deployment',computerTemplateKey('never-retire',{...process.env,VERCEL_DEPLOYMENT_ID:'new-deployment'})],
+    ])await client.query(`INSERT INTO computer_template_preparations(id,scope,fingerprint,provider,state,deadline,template_id)
+      VALUES($1,$2,$3,'vercel','READY',now()+interval '5 minutes',$1)`,[name,key.scope,key.fingerprint]);
+    const get=Sandbox.get;let calls=0;Sandbox.get=async()=>{calls++;throw Error('foreign resource touched');};
+    try {await retireUnusedComputerTemplate('never-retire');assert.equal(calls,0);
+      assert.equal((await client.query("SELECT count(*) FROM computer_template_preparations WHERE id IN ('other-owner','production','new-deployment') AND state='READY'")).rows[0].count,'3');
+    }finally{Sandbox.get=get;}
   });
   await check('global recovery survives removal of session, Run and Agent rows',async()=>{
     const row=await fixture({owner:'other'});

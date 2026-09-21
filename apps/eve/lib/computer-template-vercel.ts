@@ -79,22 +79,26 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
   },
   async cleanup(row, signal, identifySnapshot) {
     const sandbox = await lookup(row, signal);
-    if (!sandbox) {
-      if (!row.templateId) return true;
-      // This identity was persisted only after ownership verification (or our
-      // successful preparation). Recover an asynchronously orphaned snapshot.
-      try {
-        const snapshot = await Snapshot.get({ ...credentials(), snapshotId: row.templateId, signal });
-        if (snapshot.status !== "deleted") await attempt(snapshot.delete({ signal: AbortSignal.timeout(3_000) }), 3_000);
-      } catch (error) { if (status(error) !== 404) throw error; }
-      return snapshotAbsent(row.templateId, signal);
+    let snapshotId = row.templateId;
+    if (sandbox) {
+      if (!owned(sandbox, row)) return false;
+      // Never substitute a different snapshot for an already persisted identity.
+      if (snapshotId && sandbox.currentSnapshotId && snapshotId !== sandbox.currentSnapshotId) return false;
+      snapshotId ??= sandbox.currentSnapshotId ?? null;
+      if (snapshotId && identifySnapshot) await identifySnapshot(snapshotId);
+      await attempt(sandbox.stop({ signal: AbortSignal.timeout(3_000) }), 3_000);
+      await attempt(sandbox.delete({ deleteOrphanSnapshots: true, signal: AbortSignal.timeout(3_000) }), 3_000);
+      if (await lookup(row, signal)) return false;
     }
-    if (!owned(sandbox, row)) return false; // A matching name without ownership proof is never deleted.
-    const snapshotId = sandbox.currentSnapshotId ?? row.templateId;
-    if (snapshotId && identifySnapshot) await identifySnapshot(snapshotId).catch(() => {});
-    await attempt(sandbox.stop({ signal: AbortSignal.timeout(3_000) }), 3_000);
-    await attempt(sandbox.delete({ deleteOrphanSnapshots: true, signal: AbortSignal.timeout(3_000) }), 3_000);
-    return (await lookup(row, signal)) === null && await snapshotAbsent(snapshotId, signal);
+    // Deleting the named Sandbox does not guarantee deletion of its snapshot,
+    // particularly after another Sandbox inherited it. Finish in this same claim.
+    if (snapshotId) {
+      try {
+        const snapshot = await Snapshot.get({ ...credentials(), snapshotId, signal });
+        if (snapshot.status !== "deleted") await attempt(snapshot.delete({ signal: AbortSignal.any([signal, AbortSignal.timeout(3_000)]) }), 3_000);
+      } catch (error) { if (status(error) !== 404) throw error; }
+    }
+    return snapshotAbsent(snapshotId, signal);
   },
   classify(error): TemplateFailure {
     const code = status(error);

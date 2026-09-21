@@ -2667,7 +2667,7 @@
     "lib/computer-template-vercel.ts": {
       "classification": "ENFORCED",
       "reason": "Preparation resources use exclusive UUID creation; cleanup requires exact name and application/preparation/environment-owner scope tags. Compatibility fingerprints are verified separately. Stop and delete are independently bounded; sandbox and known snapshot absence are verified. No arbitrary enumeration.",
-      "sha256": "c3c114ac77980a93cdbe1c7e7ab356bd02433d671129a5e994e6a6069482304d"
+      "sha256": "5a4a2a1380ea36d341944c905a4da6cebfeed005fec463817e18b30c856f6433"
     },
     "app/api/computer-runtime/route.ts": {
       "classification": "READ_ONLY",
@@ -2687,7 +2687,7 @@
     "lib/computer-resource-recovery.ts": {
       "classification": "ENFORCED",
       "reason": "Selects existing durable Computer tombstones and routes termination through the existing Action Gateway; SQL proves automatic reasons. Shared preparation retirement checks waiters and dependent resources under its existing fencing.",
-      "sha256": "70f48328f907743dcb53eb02cfdf8814450eee2de0c7e62e64eba21ccf86b8b8"
+      "sha256": "4b9e954485f344808e9fdb427a01604cb821f8fe0e40d25ae3c303f707f764cc"
     }
   }
 }
