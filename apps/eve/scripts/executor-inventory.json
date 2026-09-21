@@ -2552,7 +2552,7 @@
     "lib/relay/client.ts": {
       "classification": "ENFORCED",
       "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Qualification delta: Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
-      "sha256": "a19c4d06844379c521c93954cc4f206d50d9808b19da00ad8fb3beaf2de2d3e9"
+      "sha256": "02675551546342cbbf831b2e14b2cbd428ca0f3b93355b0e39655d6cefa3a544"
     },
     "lib/relay/contracts.ts": {
       "classification": "NOT_APPLICABLE",

@@ -10,9 +10,11 @@ The receiver now verifies canonical V2 `Ed25519` / `relay-federation-v2` asserti
 
 The root Node test launcher now uses the existing `tsx` dependency: the merged Lazy Computer code requires TypeScript parameter-property and extensionless-import support, which Node strip-only mode does not provide. No dependency versions changed.
 
+The required loopback Relay URL needs an explicit local override. `MYEVE_RELAY_ALLOW_LOCAL_HTTP=true` is accepted only under `NODE_ENV=development` for exact loopback hostnames. Production/non-loopback HTTP, credentials in URLs, paths, queries and disabled Federation remain rejected; 12 regression cases cover this boundary.
+
 ## Qualification
 
-- Exact lockfile installation; 834 Vitest tests and 134 Node tests passed.
+- Exact lockfile installation; 846 Vitest tests and 134 Node tests passed.
 - Both workspace typechecks and production builds passed. Capability registry, skill routing and 545 executor classifications passed.
 - All 33 migrations ordered. The real isolated PostgreSQL lineage suite passed fresh/current/historical reconciliation, state/ledger preservation, schema convergence, rollback, checksum/tamper rejection and authority preservation. No shared database was used.
 - Unchanged public canonical Relay vector passes MyEve verification, including Unicode/canonicalization and immutable key-version binding.

@@ -4,7 +4,7 @@
     "3025d71",
     "8762e40"
   ],
-  "vitest": 834,
+  "vitest": 846,
   "node": 134,
   "migrations": 33,
   "executorClassifications": 545,
@@ -14,10 +14,10 @@
   "independentSecurityReview": "NOT_RUN",
   "productionPlatformQualification": "NOT_RUN",
   "logSha256": {
-    "vitest": "52df620f789059d468092f9d5285f0bd179f889628ec4fe0c258a5c06cef4a83",
-    "node": "a905560998607152356cf06280e2d34ab85355ed5e445885842bfd6b45c3d827",
-    "typecheck": "6066e34b51605c727ced6489c163f1ca8c0efd8a55d9b97dd1f33b9219a58814",
-    "build": "dc2f1ca047b75b02125b977f49278275b0a00388218411a48d87668ea8baca78",
+    "vitest": "fce69b223a41c27d45e4594be56320b16b36893b1dbb6c5efb86a9f918f45f86",
+    "node": "f67c2995dd8a771000dfab2e9ad2844c25b7c475aad8f67be8b319a763770444",
+    "typecheck": "b4fd1b37b8c074111e854f7301285ee05724ee94521168c15692f26828795978",
+    "build": "dc0e4cd27af28f3b388ae2890bdde99be42f47cf13e028ff967afa153554377c",
     "migrations": "e3398b51ff970aa18d9ce61a8fe670288463b8cacea30075dbde7825bdd73c41"
   }
 }

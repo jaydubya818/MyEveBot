@@ -6,8 +6,13 @@ export function relayOrigin(): string {
   if (process.env.MYEVE_RELAY_ENABLED !== "true")
     throw new Error("Relay sharing is disabled for this deployment.");
   const url = new URL(process.env.MYEVE_RELAY_ORIGIN ?? "");
+  const localDevelopment =
+    process.env.NODE_ENV === "development" &&
+    process.env.MYEVE_RELAY_ALLOW_LOCAL_HTTP === "true" &&
+    url.protocol === "http:" &&
+    ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
   if (
-    url.protocol !== "https:" ||
+    (url.protocol !== "https:" && !localDevelopment) ||
     url.username ||
     url.password ||
     url.pathname !== "/" ||
