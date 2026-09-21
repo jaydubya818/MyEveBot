@@ -644,7 +644,7 @@
     "agent/sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a7717591856aa3d5a65d19c33758fa420770b2188ba680bfe393a95086c5cdb2"
+      "sha256": "eb07540a23910c0bd88e01de7c50bf5667fb30508c6f07846ba1d07ba7b096b7"
     },
     "agent/schedules/email.ts": {
       "classification": "INTERNAL",
@@ -1306,7 +1306,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "dc1514029306a7ffa5bea44c1af6a6426b26b484c07d8e9820abc1648d346c45",
+      "sha256": "41e59199752ea3df4e78c52db63f8b2b5190b068153987ae485b34467d005b4e",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -2647,7 +2647,7 @@
     "lib/relay/owner/config.ts": {
       "classification": "BLOCKED",
       "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration.",
-      "sha256": "29002bc3396445a08ee67080aadf56f8d04425704eb99f696b8a151a7615582d"
+      "sha256": "fc24c7f42bfa86d7b67216e1069e3fefc9be71bb19d8555ad4da02efe8e7ff3f"
     },
     "lib/relay/owner/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2682,7 +2682,7 @@
     "lib/relay/owner/worker.ts": {
       "classification": "BLOCKED",
       "reason": "Immutable release gate blocks dispatch/reconciliation/cancellation schedule; at-most-once canonical dispatch and existing Eve client; actual runtime qualification incomplete.",
-      "sha256": "311e442863c9d288ff24c75aa602d8135d6aa4250363b751757a9d950961b638"
+      "sha256": "c4267d3d8a91da7cef87902c16524f9e439763ed2a062828ee20da4b3fa76052"
     },
     "lib/relay/owner/approval-budget.ts": {
       "classification": "ENFORCED",
@@ -2697,7 +2697,7 @@
     "lib/relay/owner/model.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-only provider boundary: exact local authority, scoped prompt/tools, conservative durable reservation, one provider invocation and accounting before output. Release gate remains false; actual runtime qualification pending.",
-      "sha256": "dabed07472dbd99473e619bbbdfd15b24f4799e8ad3fe503df89e974d292b621"
+      "sha256": "2396391bfbd0791ee5b7c5a33539ba31cd1ba7743abac8d9c4585a93aa933164"
     },
     "agent/tools/web_fetch.ts": {
       "classification": "READ_ONLY",

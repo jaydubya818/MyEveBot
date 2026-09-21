@@ -69,11 +69,13 @@ export function ownerBudgetedModel(claim:OwnerRuntimeClaim,stepKey:string):Langu
       const inputUsed=response.usage.inputTokens.total,outputUsed=response.usage.outputTokens.total;
       if(!Number.isFinite(cost)||cost<0||!Number.isSafeInteger(inputUsed)||!Number.isSafeInteger(outputUsed)||Number(inputUsed)<0||Number(outputUsed)<0)throw new Error("Provider usage unavailable.");
       const used=Number(inputUsed)+Number(outputUsed);
-      const clean:LanguageModelV4GenerateResult={content:response.content,usage:response.usage,finishReason:response.finishReason,warnings:response.warnings,providerMetadata:response.providerMetadata};
+      // Reasoning is billable provider output, but is neither an executable
+      // action nor public result evidence. Account it and omit it from replay.
+      const clean:LanguageModelV4GenerateResult={content:response.content.filter(item=>item.type!=="reasoning"),usage:response.usage,finishReason:response.finishReason,warnings:response.warnings,providerMetadata:response.providerMetadata};
       // Account paid usage before validating or exposing output. Bad output is
       // still paid work. The result can be replayed only after policy validation.
       const toolCalls=response.content.filter(item=>item.type==="tool-call");
-      const invalid=response.content.some(item=>!["text","tool-call"].includes(item.type))||toolCalls.some(item=>item.providerExecuted||!allowed.includes(item.toolName));
+      const invalid=response.content.some(item=>!["text","reasoning","tool-call"].includes(item.type))||toolCalls.some(item=>item.providerExecuted||!allowed.includes(item.toolName));
       if(invalid){await budget.settle(reservation,{microUsd:Math.ceil(cost*1_000_000),tokens:used},{...clean,content:[],finishReason:{unified:"error",raw:"scope_denied"}});throw new Error("Model requested out-of-scope execution.");}
       if(toolCalls.length){
         const rows=await db().query(`UPDATE owner_channel_requests SET tools_requested=tools_requested+$3 WHERE owner_id=$1 AND run_id=$2 AND tools_requested+$3<=12 AND revoked_at IS NULL AND expires_at>now() RETURNING run_id`,[claim.ownerId,claim.runId,toolCalls.length]);

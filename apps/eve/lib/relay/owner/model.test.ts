@@ -12,6 +12,13 @@ const options={prompt:[{role:'system' as const,content:'PRIVATE_CANARY_DO_NOT_DI
 const result={content:[{type:'text',text:'Public answer'}],finishReason:{unified:'stop',raw:'stop'},usage:{inputTokens:{total:100},outputTokens:{total:100}},warnings:[],providerMetadata:{gateway:{cost:'0.001'}}};
 beforeEach(()=>{vi.clearAllMocks();f.reserve.mockResolvedValue(null);f.settle.mockResolvedValue(undefined);f.unknown.mockResolvedValue(undefined);f.generate.mockResolvedValue(result);f.resolve.mockResolvedValue({channelCapabilities:['web.read'],status:'running',source_identity:'source',request:{message:'Public research only'}});f.capability.mockReturnValue({allowed:true});f.pricing.mockResolvedValue({models:[{id:'openai/fixture',pricing:{input:'0.000001',output:'0.000002'}}]});f.query.mockResolvedValue([{run_id:'run'}]);});
 describe('owner provider execution boundary',()=>{
+ it('accounts reasoning tokens without exposing or replaying reasoning content',async()=>{
+  f.generate.mockResolvedValue({...result,content:[{type:'reasoning',text:'PRIVATE_REASONING'},...result.content]});
+  const response=await ownerBudgetedModel(claim,'turn:0').doGenerate(options);
+  expect(response.content).toEqual(result.content);
+  expect(JSON.stringify(f.settle.mock.calls[0])).not.toContain('PRIVATE_REASONING');
+  expect(f.settle.mock.calls[0][1]).toEqual({microUsd:1000,tokens:200});
+ });
  it('strips private context and tools before the actual provider boundary',async()=>{
   await ownerBudgetedModel(claim,'turn:0').doGenerate(options);
   const passed=f.generate.mock.calls[0][0];expect(JSON.stringify(passed)).not.toContain('PRIVATE_');expect(passed.tools.map((t:{name:string})=>t.name)).toEqual(['web_fetch']);

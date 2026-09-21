@@ -60,7 +60,8 @@ export async function reconcileOwnerRun(accepted:AcceptedOwnerCommand){
  } // Exact saved Action owns continuation; no model replay.
  if(row.session_id){
   const claim={ownerId:accepted.mapping.ownerId,agentId:accepted.mapping.agentId,runId:accepted.runId,dispatchId:String(row.dispatch_id),expiresAt:Date.now()+60000,purpose:"observe" as const};
-  const stream=runtimeClient(claim).session(String(row.session_id)).stream({follow:false,startIndex:0,signal:AbortSignal.timeout(5000),streamReconnectPolicy:{reconnect:false}});
+  // Eve treats a string as a continuation token, not a durable session ID.
+  const stream=runtimeClient(claim).session({sessionId:String(row.session_id),streamIndex:0}).stream({follow:false,startIndex:0,signal:AbortSignal.timeout(5000),streamReconnectPolicy:{reconnect:false}});
   try{await settleOwnerStream(accepted,stream);}catch{
    if(!row.deadline_at||new Date(String(row.deadline_at)).getTime()>=Date.now())throw new Error("Canonical stream observation unavailable.");
   }

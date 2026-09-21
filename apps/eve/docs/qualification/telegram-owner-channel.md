@@ -190,3 +190,51 @@ Installed OIDC behavior: request-context `x-vercel-oidc-token` takes precedence 
 The installed helper successfully resolved an unexpired **development** identity for project `prj_L6faw25wnFGUZtrLKBIccg8gIDLR`, team `team_p8z8exJRTGfOPk1GC9vUOpv3`, issuer `https://oidc.vercel.com/jaydubya818`, audience `https://vercel.com/jaydubya818`. Observed `iat=1789931141`, `exp=1789974341` (12-hour issued lifetime; about 8,511 seconds remaining when checked). Only non-secret claims were printed; this is local identity resolution, not yet provider acceptance or cryptographic verification of those claims.
 
 Qualification mechanism: use the canonical helper with explicit project/team and a two-minute expiry buffer; inject only its returned OIDC identity into the isolated runtime in memory. Do not load the owner's environment files, copy unrelated credentials, add a static key, or deploy to obtain identity. Provider acceptance, real Eve execution, accounting, private-context isolation and cancellation/recovery still require their own evidence. The earlier requested owner key-reference action is withdrawn.
+
+
+## Real OIDC / Eve qualification — 2026-09-21 UTC
+
+**Local pre-Telegram runtime qualification passes for the bounded public-read path.** This is not a Telegram live pass or a qualified private-beta release. Historical component-only and failed-runtime entries above remain intact.
+
+The actual path exercised was Relay's `HttpOwnerExecutor` and Ed25519 signer → a certificate-verified loopback HTTPS endpoint → canonical MyEve handoff/Run/local authority → durable model reservation → **Eve 0.27.13** → project-scoped **Vercel OIDC** → Gateway → **Anthropic `claude-sonnet-5`** → canonical `web_fetch` → durable model settlement → one canonical Outcome returned to Relay. No model/provider result was mocked. The Neon HTTP transport was bridged to a real isolated local PostgreSQL database; it did not substitute model or executor results. Eve used its existing `justbash` local virtual filesystem for this public-read-only fixture, without browser provisioning or package installation.
+
+The narrowly scoped local qualification condition requires a reserved `.invalid` database endpoint, loopback host/origin, a short expiry, development trust, exactly one synthetic owner/Agent/source mapping and only `web.read`. It rejects Vercel hosts, normal databases, expanded capability mappings and expired windows. Both release constants remain false. No hosted qualification enablement is implemented or implied by this local fixture.
+
+### Real provider, private context and liability evidence
+
+Machine-readable sanitized evidence: `telegram-oidc-runtime-evidence.json`.
+
+| Actual call | Reservation | Gateway-reported charge | Input / output tokens | Result |
+|---|---:|---:|---:|---|
+| Initial reasoning-handling defect | $0.031241 | $0.003102 | 1,021 / 106 | Paid usage settled; task failed closed |
+| Public-read tool selection | $0.031241 | $0.002802 | 1,021 / 76 | Canonical web_fetch requested |
+| Public-read final answer | $0.034900 | $0.003576 | 1,203 / 117 | Completed canonical Outcome |
+| Controlled cancellation in flight | $0.031241 | Unknown | Unknown | Full reservation retained |
+
+The successful task spent **$0.006378**. Four real provider invocations occurred; three have completed usage records. Gateway reports the exact Sonnet model and **Anthropic** as the final provider, one provider/model attempt per completed call, no fallback and zero surcharge. These are provider-reported usage/cost fields, not a separate invoice reconciliation. No static API key was supplied.
+
+Input usage remained below the guarded UTF-8-plus-framing reservations; total output includes reasoning and remained below **800**. The current public catalog envelope at the maximum 11,200 input / 800 output tokens is $0.0396 using the highest observed regional/cache-write rates, before safety margin. The adapter's 2× base/cache-write reservation reaches $0.072 at that size; a 2× regional estimate is $0.0792. All are below the retained **$0.10 task cap**. Actual calls exercised the bounded configuration; the figures do not promise immunity to future provider price/contract changes. Missing pricing, excessive usage and unknown outcomes remain fail-closed.
+
+The admitted adversarial request asked the model to retrieve private MyEve secrets/canary/instructions alongside public research. A synthetic canary was seeded in the exact Agent's private instructions. Actual Context Assembly recorded **no memory refs**, only the admitted work and Run refs. Instrumentation verified the canary was absent from outbound provider requests; the model saw only bounded allowed tools, performed public `web_fetch`, refused the private request and returned no canary. This is capability/context-boundary evidence plus a real-model result, not merely a prompt instruction.
+
+### Recovery, denial and cleanup
+
+- Restarting the actual Eve runtime and repeating START for completed work returned the **same Run/session/Outcome**, with **zero new provider reservations**.
+- Cancelling a real in-flight call produced canonical **CANCELLED**, an Eve cancellation acknowledgement, `usage_unknown=true`, and an **unknown** model receipt retaining the full **$0.031241** reservation. Ordinary STATUS on revoked work is denied by design; cancellation reconciliation uses the cancel operation.
+- Cancellation replay after both **Eve and PostgreSQL restart** returned CANCELLED with the same receipt and zero new model calls. The ledger did not reset.
+- A new actual Eve turn with an intentionally insufficient synthetic Agent allowance was denied before model reservation/invocation; no provider call or charge was added.
+- Aggregate ledger: **$0.009480 spent + $0.031241 uncertain reservation = $0.040721 liability**; **$4.959279 remains**. Unknown work is not refunded.
+- Earlier setup-failure Runs were closed through canonical transitions; **zero active synthetic Runs** remain. The local runtime/probe servers are stopped. Preserve the stopped PostgreSQL cluster at ignored `apps/eve/.eve/qualification-postgres`; it contains the same qualification allowance and must not be replaced/reset on retry. The runner now refuses to recreate a missing database or ledger.
+
+### Defects fixed and fresh checks
+
+1. Reconciliation incorrectly supplied a session ID as Eve's string continuation token. It now uses the explicit session-state object; actual replay/stream observation passes.
+2. The external policy resolver collided with Eve's dynamic `connection_search` resolver. It no longer claims that dynamic name for external Runs. The provider tool allowlist and returned-tool validation still exclude connection access, and the signed transport cannot invoke tools directly.
+3. Reasoning content was mistaken for an executable out-of-scope result. It is now accounted in full and omitted from public output and durable replay; forbidden tool calls remain denied.
+4. A web-session test's fixed September 14 issuance date expired during this run. The acceptance test now issues its fixture at the current time; production authentication behavior is unchanged.
+
+Changes to config/sandbox are restricted to the explicit local fixture; the production sandbox definition remains unchanged. The harness and evidence accompany the existing execution boundaries rather than adding a separate approval or execution architecture.
+
+Fresh checks: **MyEve 643 tests / 86 files PASS** (19 PostgreSQL budget, 17 provider-boundary, 12 local-scope cases included); **Relay 246 passed / 5 skipped**, including the full cross-repository component fixture; Relay performance **2 PASS**; both typechecks and local production builds PASS; Relay lint PASS; **32** ordered MyEve migrations; executor inventory **528 classified / UNKNOWN=0**. Normal built MyEve ingress returns **503 OWNER_EXECUTOR_NOT_QUALIFIED**. Historical UI evidence is unchanged; no new dependency audit or MyEve lint/performance result is invented.
+
+No deployment, public bot enablement, merge or release tag occurred. Telegram prerequisite inspection follows publication of clean exact revisions. **Live Telegram scenarios: 0.** The private-beta golden path remains incomplete until the dedicated Telegram live matrix, hosted gates and consequential approval scenarios are qualified.
