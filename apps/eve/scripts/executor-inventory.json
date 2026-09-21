@@ -2446,8 +2446,8 @@
     },
     "lib/relay/transport.ts": {
       "classification": "INTERNAL",
-      "reason": "Pinned signature verification and owner-bound encryption; no executor or network.",
-      "sha256": "ba54f853b47812a48cd1257f7a28e981e1d24b8f58f683f829ce260601b07608"
+      "reason": "Pinned signature verification and owner-bound encryption; no executor or network. Canonical Relay v2 verifier convergence: strict key/version-bound Ed25519 commitment; no execution or authority grant.",
+      "sha256": "c8bc8f22280b113e921ce296273a1b2574f84412a6f20b7d36f52e75741eb5f3"
     },
     "lib/relay/work.ts": {
       "classification": "ENFORCED",

@@ -422,10 +422,10 @@ describe("versioned Relay commitment migration", () => {
   const encode = (v: unknown) => Buffer.from(canonical(v)).toString("base64url");
   function v2(headerChange: Record<string, unknown> = {}, legacy = false) {
     const e = envelope();
-    const header = { alg: "Relay-Ed25519-SHA256-v2", typ: "relay-federation+digest", kid: identity.keyId, v: 2, purpose: "federation-delivery", ...headerChange };
+    const header = { alg: "Ed25519", typ: "relay-federation-v2", kid: identity.keyId, keyVersion: "pin", ...headerChange };
     const payload = { iss: identity.issuer, aud: identity.address, jti: e.id, iat: Math.floor(Date.now()/1000), exp: Math.floor(Date.now()/1000)+50, envelope: e };
     const material = `${encode(header)}.${encode(payload)}`;
-    const commitment = canonical({ domain: "relay.signature", version: 2, purpose: "federation-delivery", hashAlgorithm: "SHA-256", payloadHash: createHash("sha256").update(material).digest("hex") });
+    const commitment = canonical({ protocol: "relay.federation", version: 2, purpose: "federation-delivery", payloadDigestAlgorithm: "SHA-256", payloadDigest: createHash("sha256").update(material).digest("hex"), signingAlgorithm: "Ed25519", keyIdentity: {id: identity.keyId, version: "pin"} });
     return `${material}.${sign(null, Buffer.from(legacy ? material : commitment), keys.privateKey).toString("base64url")}`;
   }
   it("accepts v2 while preserving original legacy verification", () => {
@@ -446,7 +446,7 @@ describe("versioned Relay commitment migration", () => {
     const parts = v2().split(".");
     for (const text of [" " + Buffer.from(parts[1]!,"base64url").toString(), Buffer.from(parts[1]!,"base64url").toString().replace("{", '{"aud":"wrong",')]) {
       const material = `${parts[0]}.${Buffer.from(text).toString("base64url")}`;
-      const commitment = canonical({ domain: "relay.signature", version: 2, purpose: "federation-delivery", hashAlgorithm: "SHA-256", payloadHash: createHash("sha256").update(material).digest("hex") });
+      const commitment = canonical({ protocol: "relay.federation", version: 2, purpose: "federation-delivery", payloadDigestAlgorithm: "SHA-256", payloadDigest: createHash("sha256").update(material).digest("hex"), signingAlgorithm: "Ed25519", keyIdentity: {id: identity.keyId, version: "pin"} });
       const signed = `${material}.${sign(null,Buffer.from(commitment),keys.privateKey).toString("base64url")}`;
       expect(() => verifyEnvelope(signed,identity)).toThrow();
     }
