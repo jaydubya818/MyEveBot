@@ -20,7 +20,8 @@ const here=fileURLToPath(new URL('.',import.meta.url)),temp=mkdtempSync('/privat
 const {Pool}=createRequire(`${relay}/package.json`)('pg');
 const localPort=Number(process.env.FQ_LOCAL_POSTGRES_PORT??55439);
 assert.ok(Number.isInteger(localPort)&&localPort>=1024&&localPort<=65535);
-const admin=new Pool({connectionString:`postgresql://postgres@127.0.0.1:${localPort}/postgres`});
+const localAuth=process.env.FQ_LOCAL_POSTGRES_PASSWORD ? ':'+encodeURIComponent(process.env.FQ_LOCAL_POSTGRES_PASSWORD) : '';
+const admin=new Pool({connectionString:`postgresql://postgres${localAuth}@127.0.0.1:${localPort}/postgres`});
 const processes={},dbs={},roles=[],servers=[],checks=[];let runtime,ca,controller,authority,activeModel=false,holdModel=false,attempts=0;
 const session=`fq_${randomBytes(8).toString('hex')}`,control=randomBytes(32).toString('hex');
 const ports={relay:58600,myeve:58601,peer:58602,controller:58603,myeveSql:58604,peerSql:58605,controllerInternal:58606,model:58607};
@@ -53,19 +54,21 @@ try{
  ca=readFileSync(join(temp,'tls.crt'));const tls={key:readFileSync(join(temp,'tls.key')),cert:ca};
  for(const name of ['relay','myeve','peer']){
   const database=`fq_${name}_6384519e0e01`;assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[database])).rowCount,0,'Refuse an existing database');
-  await admin.query(`CREATE DATABASE ${database}`);dbs[name]={database,pool:new Pool({connectionString:`postgresql://postgres@127.0.0.1:${localPort}/${database}`})};
+  await admin.query(`CREATE DATABASE ${database}`);dbs[name]={database,pool:new Pool({connectionString:`postgresql://postgres${localAuth}@127.0.0.1:${localPort}/${database}`})};
   if(name!=='relay')for(const file of readdirSync(`${myeve}/apps/eve/migrations`).filter(f=>f.endsWith('.sql')).sort())await dbs[name].pool.query(readFileSync(`${myeve}/apps/eve/migrations/${file}`,'utf8'));
  }
- execFileSync(`${relay}/node_modules/.bin/tsx`,['scripts/migrate.ts'],{cwd:relay,env:{PATH:process.env.PATH,RELAY_DATABASE_URL:`postgresql://postgres@127.0.0.1:${localPort}/${dbs.relay.database}`},stdio:'pipe'});
+ execFileSync(`${relay}/node_modules/.bin/tsx`,['scripts/migrate.ts'],{cwd:relay,env:{PATH:process.env.PATH,RELAY_DATABASE_URL:`postgresql://postgres${localAuth}@127.0.0.1:${localPort}/${dbs.relay.database}`},stdio:'pipe'});
  for(const [name,d] of Object.entries(dbs)){
   const app=`${d.database}_app`,worker=`${d.database}_worker`;roles.push(app,worker);
   await d.pool.query(`CREATE ROLE ${app} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS CONNECTION LIMIT 4; REVOKE CONNECT ON DATABASE ${d.database} FROM PUBLIC; GRANT CONNECT ON DATABASE ${d.database} TO ${app}; GRANT USAGE ON SCHEMA public TO ${app}; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO ${app}; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO ${app};`);
   await d.pool.query(workerGrants(name));await d.pool.query(`ALTER ROLE ${worker} LOGIN`);
-  d.appUrl=`postgresql://${app}@127.0.0.1:${localPort}/${d.database}`;d.workerUrl=`postgresql://${worker}@127.0.0.1:${localPort}/${d.database}`;d.applicationRole=app;d.workerRole=worker;d.component=name;
+  if(localAuth){await d.pool.query('SELECT 1');await d.pool.query(`ALTER ROLE ${app} PASSWORD '${process.env.FQ_LOCAL_POSTGRES_PASSWORD.replaceAll("'","''")}'`);await d.pool.query(`ALTER ROLE ${worker} PASSWORD '${process.env.FQ_LOCAL_POSTGRES_PASSWORD.replaceAll("'","''")}'`);}
+  d.appUrl=`postgresql://${app}${localAuth}@127.0.0.1:${localPort}/${d.database}`;d.workerUrl=`postgresql://${worker}${localAuth}@127.0.0.1:${localPort}/${d.database}`;d.applicationRole=app;d.workerRole=worker;d.component=name;
  }
  await dbs.relay.pool.query(ddl);await dbs.relay.pool.query(evidenceDdl);
  authority=new Authority(dbs.relay.pool,session);await authority.create('local_closure_authorization');
  const controllerRole='fq_control_6384519e0e01';roles.push(controllerRole);await dbs.relay.pool.query(`CREATE ROLE ${controllerRole} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS;GRANT CONNECT ON DATABASE ${dbs.relay.database} TO ${controllerRole};GRANT USAGE ON SCHEMA fq_control TO ${controllerRole};GRANT SELECT,UPDATE ON fq_control.sessions TO ${controllerRole};`);
+ if(localAuth)await dbs.relay.pool.query(`ALTER ROLE ${controllerRole} PASSWORD '${process.env.FQ_LOCAL_POSTGRES_PASSWORD.replaceAll("'","''")}'`);
  const keys={},signingKeys=[],privateKeys={};
  for(const [purpose,name] of [['evidence','evidence'],['federation-delivery','delivery'],['passport','passport']]){const key=generateKeyPairSync('ed25519');keys[name]=`projects/fq-local/locations/us-east4/keyRings/fq-6384519e0e01/cryptoKeys/fq-${name}/cryptoKeyVersions/1`;privateKeys[purpose]=key.privateKey.export({type:'pkcs8',format:'pem'}).toString();signingKeys.push({keyId:`local-${name}`,keyVersion:keys[name],purpose,algorithm:'Ed25519',publicKeyPem:key.publicKey.export({type:'spki',format:'pem'}).toString(),state:'ACTIVE',activatedAt:'2026-01-01T00:00:00Z'});}
  keys.envelope='projects/fq-local/locations/us-east4/keyRings/fq-6384519e0e01/cryptoKeys/fq-envelope/cryptoKeyVersions/1';
@@ -76,7 +79,7 @@ try{
  const accounts={},passwords={};
  for(const name of ['myeve','peer']){passwords[name]=randomBytes(24).toString('hex');accounts[name]=await hostAdmin('relay',{operation:name==='myeve'?'bootstrap':'owner',owner:{accountName:`Synthetic ${name}`,name:`Synthetic ${name}`,email:`${name}@example.invalid`,password:passwords[name]}});}
  const configurationValue=configuration({origins,hashes:Object.fromEntries(Object.entries(tokens).map(([n,v])=>[n,hash(v)])),sources,owners,accounts:{myeve:accounts.myeve.accountId,peer:accounts.peer.accountId},keys});
- runtime=await startController({cwd:relay,environment:{FQ_CONTROL_DATABASE_URL:`postgresql://${controllerRole}@127.0.0.1:${localPort}/${dbs.relay.database}`,FQ_SESSION_ID:session,FQ_CONTROLLER_CONFIG:JSON.stringify(configurationValue),FQ_PRICING_REVIEWED_UNTIL:String(Date.now()+3600000),ANTHROPIC_API_KEY:'synthetic-local-provider-only',PORT:String(ports.controllerInternal),FQ_SOURCE_SHA:sources.relay},modelRequest:async(url,init)=>{assert.equal(url,'https://api.anthropic.com/v1/messages');attempts++;activeModel=true;const payload=JSON.parse(init.body);assert.equal(payload.model,'claude-haiku-4-5-20251001');assert.equal(payload.max_tokens,800);assert.equal(JSON.stringify(payload).includes('SYNTHETIC-PRIVATE'),false);try{if(holdModel)await new Promise((_,reject)=>init.signal.addEventListener('abort',()=>reject(Error('stopped')),{once:true}));return Response.json({model:payload.model,usage:{input_tokens:100,output_tokens:30},content:[{type:'text',text:'Synthetic Atlas analysis from the provided published source. ['+JSON.parse(payload.messages[0].content.split('\n').slice(1).join('\n')).sources[0].requestId+']'}]});}finally{activeModel=false;}}});
+ runtime=await startController({cwd:relay,environment:{FQ_CONTROL_DATABASE_URL:`postgresql://${controllerRole}${localAuth}@127.0.0.1:${localPort}/${dbs.relay.database}`,FQ_SESSION_ID:session,FQ_CONTROLLER_CONFIG:JSON.stringify(configurationValue),FQ_PRICING_REVIEWED_UNTIL:String(Date.now()+3600000),ANTHROPIC_API_KEY:'synthetic-local-provider-only',PORT:String(ports.controllerInternal),FQ_SOURCE_SHA:sources.relay},modelRequest:async(url,init)=>{assert.equal(url,'https://api.anthropic.com/v1/messages');attempts++;activeModel=true;const payload=JSON.parse(init.body);assert.equal(payload.model,'claude-haiku-4-5-20251001');assert.equal(payload.max_tokens,800);assert.equal(JSON.stringify(payload).includes('SYNTHETIC-PRIVATE'),false);try{if(holdModel)await new Promise((_,reject)=>init.signal.addEventListener('abort',()=>reject(Error('stopped')),{once:true}));return Response.json({model:payload.model,usage:{input_tokens:100,output_tokens:30},content:[{type:'text',text:'Synthetic Atlas analysis from the provided published source. ['+JSON.parse(payload.messages[0].content.split('\n').slice(1).join('\n')).sources[0].requestId+']'}]});}finally{activeModel=false;}}});
  controller=runtime.controller;controller.request=async(...args)=>{attempts++;return localFetch(...args);};
  const front=httpsServer(tls,(req,res)=>{const upstream=httpRequest({hostname:'127.0.0.1',port:ports.controllerInternal,path:req.url,method:req.method,headers:req.headers},r=>{res.writeHead(r.statusCode,r.headers);r.pipe(res);});upstream.on('error',()=>res.destroy());req.pipe(upstream);});front.listen(ports.controller,'127.0.0.1');servers.push(front);
  const artifacts={},seeds={},workerFiles={};
