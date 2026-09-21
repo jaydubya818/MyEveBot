@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createWebSessionToken,
@@ -16,8 +16,11 @@ const env = {
 } as NodeJS.ProcessEnv;
 
 describe("web owner authentication", () => {
+  afterEach(() => vi.useRealTimers());
   it("accepts a signed owner session", () => {
     const now = Date.UTC(2026, 8, 14);
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
     const token = createWebSessionToken(env, now);
     const request = new Request("https://sofie.example/api/files", {
       headers: { cookie: `${WEB_SESSION_COOKIE}=${encodeURIComponent(token)}` },
@@ -29,6 +32,8 @@ describe("web owner authentication", () => {
 
   it("rejects a modified session token", () => {
     const now = Date.UTC(2026, 8, 14);
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
     const token = createWebSessionToken(env, now);
 
     expect(verifyWebSessionToken(`${token}modified`, env, now)).toBeNull();

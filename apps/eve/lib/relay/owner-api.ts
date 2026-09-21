@@ -1,3 +1,4 @@
+import { revokeFederationArtifact } from "../qualification/artifact-storage.ts";
 import { createPublicKey } from "node:crypto";
 import { z } from "zod";
 import { listKnowledge } from "../knowledge.ts";
@@ -180,10 +181,7 @@ export async function ownerCommand(
     case "artifact-share":
       return artifactShare(store, id, z.string().max(255).parse(input));
     case "artifact-revoke":
-      await store.database.query(
-        "UPDATE myeve_relay_artifacts SET revoked=true WHERE owner_id=$1 AND id=$2",
-        [store.ownerId, id],
-      );
+      await revokeFederationArtifact(store,id);
       return { revoked: true };
     case "policy": {
       const mode = z.enum(["accept", "reject", "approval"]);

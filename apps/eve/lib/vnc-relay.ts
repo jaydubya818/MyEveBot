@@ -37,11 +37,14 @@ export function pipeVncSocket(client: ClientSocket, upstreamUrl: string): void {
 
   // Frames the browser sends before the upstream leg finishes its own
   // handshake are held back, within MAX_BACKLOG_BYTES.
-  const backlog: (Buffer | ArrayBuffer)[] = [];
+  const backlog: ArrayBuffer[] = [];
   let backlogBytes = 0;
 
   client.on("message", (data: RawData) => {
-    const frame = Array.isArray(data) ? Buffer.concat(data) : data;
+    const received = Array.isArray(data) ? Buffer.concat(data) : data;
+    const frame = received instanceof ArrayBuffer
+      ? received
+      : Uint8Array.from(received).buffer;
     if (upstream.readyState === WebSocket.CONNECTING) {
       backlogBytes += frame.byteLength;
       if (backlogBytes > MAX_BACKLOG_BYTES) {
