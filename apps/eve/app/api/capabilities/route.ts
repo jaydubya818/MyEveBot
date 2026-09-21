@@ -7,7 +7,8 @@ import {
   type CapabilityRisk,
 } from "@/lib/capability-registry";
 import { getCapabilityStatuses } from "@/lib/capabilities";
-import { requireWebAuth } from "@/lib/web-auth";
+import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
+import { computerRuntimeReadiness } from "@/lib/computer-runtime";
 
 export async function GET(request: Request): Promise<Response> {
   const denied = requireWebAuth(request);
@@ -33,7 +34,7 @@ export async function GET(request: Request): Promise<Response> {
   const registry = query ? findCapabilities(query, filters) : getCapabilities(filters);
 
   return Response.json(
-    { capabilities: getCapabilityStatuses(), registry },
+    { capabilities: getCapabilityStatuses(), registry, runtime: { computer: await computerRuntimeReadiness(webPrincipal(request)!.id) } },
     { headers: { "Cache-Control": "no-store" } },
   );
 }

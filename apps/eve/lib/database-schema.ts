@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0030_action_binding_reconciliation.sql";
+export const CURRENT_DATABASE_MIGRATION = "0032_computer_resource_lifecycles.sql";

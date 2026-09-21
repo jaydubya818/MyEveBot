@@ -758,6 +758,13 @@ export async function completeTask(ownerId: string, taskId: string): Promise<Tas
      VALUES ($1, 'task_completed', 'All critical-path checks passed with stored evidence')`,
     [taskId],
   );
+  {
+    const {computerRuntimeConfigured}=await import("./computer-runtime.ts");
+    if (computerRuntimeConfigured()) {
+      const {recoverComputerResources}=await import("./computer-resource-recovery.ts");
+      await recoverComputerResources(ownerId);
+    }
+  }
   return (await getTaskRun(ownerId, taskId))!;
 }
 
@@ -799,6 +806,13 @@ export async function transitionTask(
      VALUES ($1, 'status_changed', $2)`,
     [taskId, `Task ${to}${safeReason ? `: ${safeReason}` : ""}`],
   );
+  if (["cancelled","completed","failed","timed_out"].includes(to)) {
+    const {computerRuntimeConfigured}=await import("./computer-runtime.ts");
+    if (computerRuntimeConfigured()) {
+      const {recoverComputerResources}=await import("./computer-resource-recovery.ts");
+      await recoverComputerResources(ownerId);
+    }
+  }
   return (await getTaskRun(ownerId, taskId))!;
 }
 
