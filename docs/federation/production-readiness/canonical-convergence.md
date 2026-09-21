@@ -6,6 +6,8 @@ The owner selected Relay main `e2eb350f5655427d55cc204264020a9295173f96` as auth
 
 Started from the published MyEve checkpoint `f3aa77397c158884f625f9d556ed298d77cc2d9f`. History-preserving merges `3025d71` and `8762e40` include canonical Decision Intelligence (`3d9f0e5`) and qualified Lazy Computer/migration bridge (`aa07dbb`). Product Acceptance fixes remain ancestors. No Relay source was changed.
 
+During qualification, concurrent PR #4 advanced canonical main to `400cadb59b868c62fcdc5f31c6d8418b40334fec`. Its history, canonical producer fixture, added CI checks and deployment guard were preserved. The reconciliation retains the stricter explicit immutable-version binding and the already-qualified 33-migration runner; no historical migration was rewritten. The duplicate public fixture was consolidated into the canonical copy. Both workstreams' cross-repository suites pass on the cumulative receiver.
+
 The receiver now verifies canonical V2 `Ed25519` / `relay-federation-v2` assertions using the `relay.federation` signing envelope, exact canonical header/payload digest, purpose, key ID and immutable version. Explicit legacy V1 remains supported; the superseded 179-byte format is rejected without fallback. The 262,144-character token bound remains intact. Trusted provider versions are configured separately from incoming assertions; local signer versions default to their unique key IDs.
 
 The root Node test launcher now uses the existing `tsx` dependency: the merged Lazy Computer code requires TypeScript parameter-property and extensionless-import support, which Node strip-only mode does not provide. No dependency versions changed.
@@ -14,7 +16,7 @@ The required loopback Relay URL needs an explicit local override. `MYEVE_RELAY_A
 
 ## Qualification
 
-- Exact lockfile installation; 846 Vitest tests and 134 Node tests passed.
+- Exact lockfile installation; 853 Vitest tests and 135 Node tests passed.
 - Both workspace typechecks and production builds passed. Capability registry, skill routing and 545 executor classifications passed.
 - All 33 migrations ordered. The real isolated PostgreSQL lineage suite passed fresh/current/historical reconciliation, state/ledger preservation, schema convergence, rollback, checksum/tamper rejection and authority preservation. No shared database was used.
 - Unchanged public canonical Relay vector passes MyEve verification, including Unicode/canonicalization and immutable key-version binding.
@@ -25,7 +27,7 @@ The required loopback Relay URL needs an explicit local override. `MYEVE_RELAY_A
 
 ## Deployment boundary
 
-MyEve's verified Vercel project root is `apps/eve`. Its `vercel.json` disables Git deployments only for `codex/myeve-relay-final` and `main`, preserving all other branches. This uses Vercel's documented [git.deploymentEnabled](https://vercel.com/docs/project-configuration/git-configuration) control. Existing hosted deployments are untouched. Production deployment is not part of this source integration. Keep the guard until an explicit release decision.
+MyEve's verified Vercel project root is `apps/eve`. Its `vercel.json` disables Git deployments for `codex/myeve-relay-final` and `main`, and preserves the concurrent canonical guard for `codex/federation-final-consolidation`. Other branches remain unchanged. This uses Vercel's documented [git.deploymentEnabled](https://vercel.com/docs/project-configuration/git-configuration) control. Existing hosted deployments are untouched. Production deployment is not part of this source integration. Keep the guard until an explicit release decision.
 
 Federation remains disabled by default. Independent security review and Production-platform qualification remain **NOT_RUN**.
 

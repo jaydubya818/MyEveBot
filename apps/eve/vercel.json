@@ -3,8 +3,9 @@
   "outputDirectory": null,
   "git": {
     "deploymentEnabled": {
-      "codex/myeve-relay-final": false,
-      "main": false
+      "main": false,
+      "codex/federation-final-consolidation": false,
+      "codex/myeve-relay-final": false
     }
   }
 }

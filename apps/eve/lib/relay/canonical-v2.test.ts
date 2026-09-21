@@ -4,7 +4,7 @@ import { verifyEnvelope } from "./transport.ts";
 
 // Public-only producer vector from Relay main e2eb350f5655427d55cc204264020a9295173f96.
 // Kept verbatim: this test must not reproduce the receiver's signing algorithm.
-const vector = JSON.parse(readFileSync(new URL("./fixtures/canonical-v2.json", import.meta.url), "utf8"));
+const vector = JSON.parse(readFileSync(new URL("./fixtures/canonical-relay-v2.json", import.meta.url), "utf8"));
 const header = JSON.parse(vector.header);
 const identity = {
   issuer: "https://relay.synthetic.invalid",
