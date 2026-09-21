@@ -18,7 +18,9 @@ const myeve=resolve(process.env.FQ_MYEVE_SOURCE??'/private/tmp/fq-authorized-wor
 const output=resolve(process.env.FQ_SIMULATION_OUTPUT??'/private/tmp/fq-closure-simulation-report.json');
 const here=fileURLToPath(new URL('.',import.meta.url)),temp=mkdtempSync('/private/tmp/fq-closure-simulation-');
 const {Pool}=createRequire(`${relay}/package.json`)('pg');
-const admin=new Pool({connectionString:'postgresql://postgres@127.0.0.1:55439/postgres'});
+const localPort=Number(process.env.FQ_LOCAL_POSTGRES_PORT??55439);
+assert.ok(Number.isInteger(localPort)&&localPort>=1024&&localPort<=65535);
+const admin=new Pool({connectionString:`postgresql://postgres@127.0.0.1:${localPort}/postgres`});
 const processes={},dbs={},roles=[],servers=[],checks=[];let runtime,ca,controller,authority,activeModel=false,holdModel=false,attempts=0;
 const session=`fq_${randomBytes(8).toString('hex')}`,control=randomBytes(32).toString('hex');
 const ports={relay:58600,myeve:58601,peer:58602,controller:58603,myeveSql:58604,peerSql:58605,controllerInternal:58606,model:58607};
@@ -51,15 +53,15 @@ try{
  ca=readFileSync(join(temp,'tls.crt'));const tls={key:readFileSync(join(temp,'tls.key')),cert:ca};
  for(const name of ['relay','myeve','peer']){
   const database=`fq_${name}_6384519e0e01`;assert.equal((await admin.query('SELECT 1 FROM pg_database WHERE datname=$1',[database])).rowCount,0,'Refuse an existing database');
-  await admin.query(`CREATE DATABASE ${database}`);dbs[name]={database,pool:new Pool({connectionString:`postgresql://postgres@127.0.0.1:55439/${database}`})};
+  await admin.query(`CREATE DATABASE ${database}`);dbs[name]={database,pool:new Pool({connectionString:`postgresql://postgres@127.0.0.1:${localPort}/${database}`})};
   if(name!=='relay')for(const file of readdirSync(`${myeve}/apps/eve/migrations`).filter(f=>f.endsWith('.sql')).sort())await dbs[name].pool.query(readFileSync(`${myeve}/apps/eve/migrations/${file}`,'utf8'));
  }
- execFileSync(`${relay}/node_modules/.bin/tsx`,['scripts/migrate.ts'],{cwd:relay,env:{PATH:process.env.PATH,RELAY_DATABASE_URL:`postgresql://postgres@127.0.0.1:55439/${dbs.relay.database}`},stdio:'pipe'});
+ execFileSync(`${relay}/node_modules/.bin/tsx`,['scripts/migrate.ts'],{cwd:relay,env:{PATH:process.env.PATH,RELAY_DATABASE_URL:`postgresql://postgres@127.0.0.1:${localPort}/${dbs.relay.database}`},stdio:'pipe'});
  for(const [name,d] of Object.entries(dbs)){
   const app=`${d.database}_app`,worker=`${d.database}_worker`;roles.push(app,worker);
   await d.pool.query(`CREATE ROLE ${app} LOGIN NOINHERIT NOSUPERUSER NOCREATEDB NOCREATEROLE NOBYPASSRLS CONNECTION LIMIT 4; REVOKE CONNECT ON DATABASE ${d.database} FROM PUBLIC; GRANT CONNECT ON DATABASE ${d.database} TO ${app}; GRANT USAGE ON SCHEMA public TO ${app}; GRANT SELECT,INSERT,UPDATE,DELETE ON ALL TABLES IN SCHEMA public TO ${app}; GRANT USAGE,SELECT ON ALL SEQUENCES IN SCHEMA public TO ${app};`);
   await d.pool.query(workerGrants(name));await d.pool.query(`ALTER ROLE ${worker} LOGIN`);
-  d.appUrl=`postgresql://${app}@127.0.0.1:55439/${d.database}`;d.workerUrl=`postgresql://${worker}@127.0.0.1:55439/${d.database}`;d.applicationRole=app;d.workerRole=worker;d.component=name;
+  d.appUrl=`postgresql://${app}@127.0.0.1:${localPort}/${d.database}`;d.workerUrl=`postgresql://${worker}@127.0.0.1:${localPort}/${d.database}`;d.applicationRole=app;d.workerRole=worker;d.component=name;
  }
  await dbs.relay.pool.query(ddl);await dbs.relay.pool.query(evidenceDdl);
  authority=new Authority(dbs.relay.pool,session);await authority.create('local_closure_authorization');
@@ -74,7 +76,7 @@ try{
  const accounts={},passwords={};
  for(const name of ['myeve','peer']){passwords[name]=randomBytes(24).toString('hex');accounts[name]=await hostAdmin('relay',{operation:name==='myeve'?'bootstrap':'owner',owner:{accountName:`Synthetic ${name}`,name:`Synthetic ${name}`,email:`${name}@example.invalid`,password:passwords[name]}});}
  const configurationValue=configuration({origins,hashes:Object.fromEntries(Object.entries(tokens).map(([n,v])=>[n,hash(v)])),sources,owners,accounts:{myeve:accounts.myeve.accountId,peer:accounts.peer.accountId},keys});
- runtime=await startController({cwd:relay,environment:{FQ_CONTROL_DATABASE_URL:`postgresql://${controllerRole}@127.0.0.1:55439/${dbs.relay.database}`,FQ_SESSION_ID:session,FQ_CONTROLLER_CONFIG:JSON.stringify(configurationValue),FQ_PRICING_REVIEWED_UNTIL:String(Date.now()+3600000),ANTHROPIC_API_KEY:'synthetic-local-provider-only',PORT:String(ports.controllerInternal),FQ_SOURCE_SHA:sources.relay},modelRequest:async(url,init)=>{assert.equal(url,'https://api.anthropic.com/v1/messages');attempts++;activeModel=true;const payload=JSON.parse(init.body);assert.equal(payload.model,'claude-haiku-4-5-20251001');assert.equal(payload.max_tokens,800);assert.equal(JSON.stringify(payload).includes('SYNTHETIC-PRIVATE'),false);try{if(holdModel)await new Promise((_,reject)=>init.signal.addEventListener('abort',()=>reject(Error('stopped')),{once:true}));return Response.json({model:payload.model,usage:{input_tokens:100,output_tokens:30},content:[{type:'text',text:'Synthetic Atlas analysis from the provided published source. ['+JSON.parse(payload.messages[0].content.split('\n').slice(1).join('\n')).sources[0].requestId+']'}]});}finally{activeModel=false;}}});
+ runtime=await startController({cwd:relay,environment:{FQ_CONTROL_DATABASE_URL:`postgresql://${controllerRole}@127.0.0.1:${localPort}/${dbs.relay.database}`,FQ_SESSION_ID:session,FQ_CONTROLLER_CONFIG:JSON.stringify(configurationValue),FQ_PRICING_REVIEWED_UNTIL:String(Date.now()+3600000),ANTHROPIC_API_KEY:'synthetic-local-provider-only',PORT:String(ports.controllerInternal),FQ_SOURCE_SHA:sources.relay},modelRequest:async(url,init)=>{assert.equal(url,'https://api.anthropic.com/v1/messages');attempts++;activeModel=true;const payload=JSON.parse(init.body);assert.equal(payload.model,'claude-haiku-4-5-20251001');assert.equal(payload.max_tokens,800);assert.equal(JSON.stringify(payload).includes('SYNTHETIC-PRIVATE'),false);try{if(holdModel)await new Promise((_,reject)=>init.signal.addEventListener('abort',()=>reject(Error('stopped')),{once:true}));return Response.json({model:payload.model,usage:{input_tokens:100,output_tokens:30},content:[{type:'text',text:'Synthetic Atlas analysis from the provided published source. ['+JSON.parse(payload.messages[0].content.split('\n').slice(1).join('\n')).sources[0].requestId+']'}]});}finally{activeModel=false;}}});
  controller=runtime.controller;controller.request=async(...args)=>{attempts++;return localFetch(...args);};
  const front=httpsServer(tls,(req,res)=>{const upstream=httpRequest({hostname:'127.0.0.1',port:ports.controllerInternal,path:req.url,method:req.method,headers:req.headers},r=>{res.writeHead(r.statusCode,r.headers);r.pipe(res);});upstream.on('error',()=>res.destroy());req.pipe(upstream);});front.listen(ports.controller,'127.0.0.1');servers.push(front);
  const artifacts={},seeds={},workerFiles={};

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "BLOCKED_KMS_COMPATIBILITY_FAILED",
-  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / KMS COMPATIBILITY FAILED",
+  "status": "BLOCKED_MYEVE_CANDIDATE_HISTORY_AND_PACKAGE_REFRESH",
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
   "productionPlatformGate": "NOT_RUN",
@@ -16,7 +16,7 @@
   },
   "candidatePeer": {
     "product": "MyEve isolated second installation",
-    "version": "2ae91a8095db162188046a5c8fa6d987571e9933",
+    "version": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
     "role": "Full existing receiver, separately operated; deployment pending",
     "heterogeneousVendorCertification": false
   },
@@ -61,20 +61,20 @@
     "artifactBytes": 65536,
     "totalArtifactBytes": 524288,
     "requestLifetimeSeconds": 900,
-    "enforcementStatus": "DURABLE_COMPONENT_LIMITS_TESTED; ASSEMBLED_PATH_AND_EXCLUSIVE_PROVIDER_CUSTODY_INCOMPLETE"
+    "enforcementStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS; HOSTED_NOT_RUN"
   },
   "blockers": [
-    "Google KMS 65,536-byte signing-data limit rejects valid Relay delivery; no protocol change authorized",
-    "Owner-selected GCP project and authorized existing-key size compatibility probe",
+    "Restore missing MyEve ancestor 7852287e1c5f8eb14119d9e8accdf174d27eeb69 and publish/verify complete candidate 6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa without rewriting history.",
+    "Regenerate and freeze qualification worker packages/source manifests against the published v2 Relay and MyEve candidates before provisioning.",
     "Authorize exact paid KMS/WIF/IAM and three Railway services; install approved isolated roles/configuration/secrets and candidate deployments",
     "Read back hosted resource limits, exact workload IAM, TLS/ingress and smoke evidence",
     "Assign assessor, independent peer operator, stop contact and UTC window; authorize each external gate"
   ],
   "proposedSuccessors": {
-    "myeve": "2ae91a8095db162188046a5c8fa6d987571e9933",
-    "relay": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
     "controls": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
-    "status": "Local component regressions pass; not a qualified hosted successor; release pins unchanged"
+    "status": "Tested locally; MyEve complete source publication and v2 package freeze blocked; canonical release pins unchanged"
   },
   "authorization": {
     "infrastructure": "Explicitly authorized by owner, within existing/free capacity",
@@ -221,17 +221,42 @@
       "gitDeploymentEnabled": false
     }
   ],
-  "latestDesignReport": "kms-live-probe-report.md",
-  "candidateCryptoRevision": "d817c848a7f6797fe04787e28ac96081b69359ae",
-  "candidateQualification": "LOCAL_ENGINEERING_PASS; EXTERNAL_GATES_NOT_RUN",
+  "latestDesignReport": "signature-v2-qualification.md",
+  "candidateCryptoRevision": "c910c9debc1f92acd60649431a6466243a711c33",
+  "candidateQualification": "V2_KMS_PASSED_LIVE_AND_LOCAL_REGRESSIONS_PASS; FULL_MYEVE_PUBLICATION_AND_PACKAGE_REFRESH_BLOCKED",
   "candidateRevision": {
-    "relay": "d817c848a7f6797fe04787e28ac96081b69359ae",
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
     "canonicalRelayBase": "7ea29b2886d2b8bad7b1a1ca1c3e8df1d39ee9ee",
     "locallyQualified": true,
     "frozenPinsPromoted": false,
-    "myeve": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
     "controls": "817a8525059d436dc0978970d3e80e7371e009d6"
   },
-  "localEngineeringEvidence": "evidence/final-engineering-closure/three-worker-simulation.json",
-  "remainingEngineering": []
+  "localEngineeringEvidence": "evidence/signature-v2/three-worker-simulation.json",
+  "remainingEngineering": [
+    "Restore missing MyEve ancestor 7852287e1c5f8eb14119d9e8accdf174d27eeb69 and publish/verify complete candidate 6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa without rewriting history.",
+    "Regenerate and freeze qualification worker packages/source manifests against the published v2 Relay and MyEve candidates before provisioning."
+  ],
+  "signatureContract": {
+    "algorithm": "Relay-Ed25519-SHA256-v2",
+    "version": 2,
+    "purpose": "federation-delivery",
+    "domain": "relay.signature",
+    "digest": "SHA-256",
+    "providerSigningBytes": 179,
+    "completeTokenMaxChars": 262144,
+    "status": "PASSED_LIVE",
+    "legacyRawCompatibility": "FAILED (preserved historical evidence)",
+    "evidence": "evidence/signature-v2/kms-live.json"
+  },
+  "engineeringCandidates": {
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa"
+  },
+  "candidatePublication": {
+    "relay": "REMOTE_PARITY_VERIFIED",
+    "myeve": "BLOCKED_MISSING_ANCESTOR",
+    "myeveDelta": "evidence/signature-v2/myeve-candidate.patch",
+    "frozenPackages": "STALE_PRE_V2_DO_NOT_DEPLOY"
+  }
 }

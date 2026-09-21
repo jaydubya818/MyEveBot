@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "apply": false,
-  "status": "BLOCKED_KMS_COMPATIBILITY_FAILED",
+  "status": "BLOCKED_MYEVE_CANDIDATE_HISTORY_AND_PACKAGE_REFRESH",
   "federationDefault": false,
   "region": {
     "myeveA": "iad1",
@@ -89,8 +89,23 @@
     "estimatedInitialMonthlyKeyUsd": "0.24",
     "estimatedAfterTwoRotationsMonthlyKeyUsd": "0.36",
     "estimatedPer10000SoftwareOperationsUsd": "0.03",
-    "sizeCompatibility": "FAILED",
+    "sizeCompatibility": "PASSED_LIVE_VERSIONED_COMMITMENT",
     "sizeProbe": {
+      "envelopeMaterialBytes": 262057,
+      "rawBytes": 179,
+      "base64Bytes": 240,
+      "completeTokenChars": 262144,
+      "apiResult": "SUCCESS",
+      "signatureLength": 64,
+      "crcVerified": true,
+      "pinnedKeyVerified": true,
+      "relayVerified": true,
+      "myEveVerified": true
+    },
+    "custodyStatus": "APPROVED: Relay Vercel workload retains direct OIDC/STS KMS authority; controller enforces application admission only. IAM is the direct Google API boundary.",
+    "compatibilityEvidence": "evidence/signature-v2/kms-live.json",
+    "probeKeyVersion": "projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1",
+    "legacyRawSizeProbe": {
       "rawBytes": 262057,
       "base64Bytes": 349412,
       "apiResult": "NOT_RUN",
@@ -98,9 +113,7 @@
       "crcVerified": false,
       "pinnedKeyVerified": false
     },
-    "custodyStatus": "APPROVED: Relay Vercel workload retains direct OIDC/STS KMS authority; controller enforces application admission only. IAM is the direct Google API boundary.",
-    "compatibilityEvidence": "evidence/kms-live-probe/results.json",
-    "probeKeyVersion": "projects/relay-local-qualification/locations/us-east4/keyRings/fq-compatibility-probe/cryptoKeys/fq-ed25519-probe/cryptoKeyVersions/1"
+    "legacyCompatibilityEvidence": "evidence/kms-live-probe/results.json"
   },
   "vercel": {
     "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",
@@ -173,14 +186,15 @@
           "maximumHeartbeatAgeSeconds": 10
         },
         "stop": "Admission closes; operator validates exact frozen scope and current/active deployments before and after stop; evidence precedes app+worker DB NOLOGIN brake.",
-        "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+        "sourceSha": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
         "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
         "environment": {
           "FQ_COMPONENT": "myeve",
-          "FQ_SOURCE_SHA": "a1aa73ba75cd400c3046bae3d452de35377431f2"
+          "FQ_SOURCE_SHA": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa"
         },
         "volumes": [],
-        "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
+        "qualificationStatus": "V2_LOCAL_SIMULATION_PASS; PACKAGE_REFRESH_BLOCKED; HOSTED_NOT_RUN",
+        "previousPreV2SourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2"
       },
       {
         "name": "fq-relay-maintenance-control",
@@ -198,14 +212,15 @@
           "maximumHeartbeatAgeSeconds": 10
         },
         "stop": "Admission closes; operator validates exact frozen scope and current/active deployments before and after stop; evidence precedes app+worker DB NOLOGIN brake.",
-        "sourceSha": "d817c848a7f6797fe04787e28ac96081b69359ae",
+        "sourceSha": "c910c9debc1f92acd60649431a6466243a711c33",
         "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
         "environment": {
           "FQ_COMPONENT": "relay",
-          "FQ_SOURCE_SHA": "d817c848a7f6797fe04787e28ac96081b69359ae"
+          "FQ_SOURCE_SHA": "c910c9debc1f92acd60649431a6466243a711c33"
         },
         "volumes": [],
-        "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
+        "qualificationStatus": "V2_LOCAL_SIMULATION_PASS; PACKAGE_REFRESH_BLOCKED; HOSTED_NOT_RUN",
+        "previousPreV2SourceSha": "d817c848a7f6797fe04787e28ac96081b69359ae"
       },
       {
         "name": "fq-myeve-b",
@@ -223,14 +238,15 @@
           "maximumHeartbeatAgeSeconds": 10
         },
         "stop": "Admission closes; operator validates exact frozen scope and current/active deployments before and after stop; evidence precedes app+worker DB NOLOGIN brake.",
-        "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+        "sourceSha": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
         "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
         "environment": {
           "FQ_COMPONENT": "peer",
-          "FQ_SOURCE_SHA": "a1aa73ba75cd400c3046bae3d452de35377431f2"
+          "FQ_SOURCE_SHA": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa"
         },
         "volumes": [],
-        "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
+        "qualificationStatus": "V2_LOCAL_SIMULATION_PASS; PACKAGE_REFRESH_BLOCKED; HOSTED_NOT_RUN",
+        "previousPreV2SourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2"
       }
     ],
     "allInHardCapUsd": null,
@@ -247,7 +263,10 @@
     "resourceAuthorizationRequested": false,
     "packageCommand": "node scripts/federation-readiness/controls/package-worker.mjs SOURCE_CHECKOUT NEW_OUTPUT_DIRECTORY EXACT_APPLICATION_SHA"
   },
-  "remainingEngineering": [],
+  "remainingEngineering": [
+    "Restore missing MyEve ancestor 7852287e1c5f8eb14119d9e8accdf174d27eeb69 and publish/verify complete candidate 6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa without rewriting history.",
+    "Regenerate and freeze qualification worker packages/source manifests against the published v2 Relay and MyEve candidates before provisioning."
+  ],
   "externalGates": {
     "independentSecurity": "NOT_RUN",
     "productionPlatform": "NOT_RUN"
@@ -276,8 +295,8 @@
     "assembledPathValidated": true
   },
   "engineeringCandidates": {
-    "relay": "d817c848a7f6797fe04787e28ac96081b69359ae",
-    "myeve": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "relay": "c910c9debc1f92acd60649431a6466243a711c33",
+    "myeve": "6d8dd369eaf8f21ca7c8cab042c9ba429c0e54fa",
     "controls": "817a8525059d436dc0978970d3e80e7371e009d6"
   },
   "controllerKmsBoundary": {
@@ -290,5 +309,24 @@
   "controllerConfigurationRenderer": "scripts/federation-readiness/controls/configuration.mjs",
   "localSimulation": "scripts/federation-readiness/simulation/run.mjs",
   "workerRoleSqlRenderer": "workerGrants(component) in configuration.mjs",
-  "localSimulationEvidence": "evidence/final-engineering-closure/three-worker-simulation.json"
+  "localSimulationEvidence": "evidence/signature-v2/three-worker-simulation.json",
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE",
+  "signatureContract": {
+    "algorithm": "Relay-Ed25519-SHA256-v2",
+    "version": 2,
+    "purpose": "federation-delivery",
+    "domain": "relay.signature",
+    "digest": "SHA-256",
+    "providerSigningBytes": 179,
+    "completeTokenMaxChars": 262144,
+    "status": "PASSED_LIVE",
+    "legacyRawCompatibility": "FAILED (preserved historical evidence)",
+    "evidence": "evidence/signature-v2/kms-live.json"
+  },
+  "candidatePublication": {
+    "relay": "REMOTE_PARITY_VERIFIED",
+    "myeve": "BLOCKED_MISSING_ANCESTOR",
+    "myeveDelta": "evidence/signature-v2/myeve-candidate.patch",
+    "frozenPackages": "STALE_PRE_V2_DO_NOT_DEPLOY"
+  }
 }

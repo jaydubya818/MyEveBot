@@ -1,3 +1,5 @@
+> Latest: [signature v2 qualification](signature-v2-qualification.md) passed the bounded live KMS probe and local regressions. **NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE**: restore/publish the complete MyEve candidate and refresh frozen source packages. Both external gates remain NOT_RUN; federation remains disabled. Earlier reports below are historical where superseded.
+
 > Latest: [live KMS compatibility probe](kms-live-probe-report.md): **FAILED**. Google explicitly rejects signing data above 65,536 bytes; the unchanged Relay canonical maximum is 262,057 bytes. No further signing or provisioning. Both external gates remain NOT_RUN. Earlier readiness status below predates this provider result.
 
 # Final engineering closure

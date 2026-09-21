@@ -1,3 +1,5 @@
+> Mandatory added assessment scope: [v2 signature protocol and qualification evidence](signature-v2-qualification.md). Inspect the explicit version discriminator, domain/purpose-bound SHA-256 commitment, both canonical verifiers, downgrade and key-version substitution negatives, legacy history, unchanged size ceilings, and oversized-delivery audit/lifecycle. Receive the frozen target in a separate assessor context after source-publication/package blockers close. No assessor was invoked and this implementation cannot mark the gate PASS.
+
 > Current preparation: [KMS and isolated credential report](kms-preparation-report.md). Synthetic Vercel secrets are staged on disabled branches; KMS and hosted controls remain incomplete. Both external gates are NOT_RUN. Earlier status below is historical where superseded.
 
 # Independent security review and penetration-test package
