@@ -1,0 +1,20 @@
+test_120_submissions_and_denials_consume_admitted_attempts (test_session.SessionTests.test_120_submissions_and_denials_consume_admitted_attempts) ... ok
+test_2000_http_including_retries_and_health (test_session.SessionTests.test_2000_http_including_retries_and_health) ... ok
+test_artifact_actual_bytes_and_aggregate (test_session.SessionTests.test_artifact_actual_bytes_and_aggregate) ... ok
+test_component_cap_and_invalid_numeric_input (test_session.SessionTests.test_component_cap_and_invalid_numeric_input) ... ok
+test_deadline_cleanup_and_clock_rollback (test_session.SessionTests.test_deadline_cleanup_and_clock_rollback) ... ok
+test_emergency_stop_tries_all_brakes_and_reports_partial_failure (test_session.SessionTests.test_emergency_stop_tries_all_brakes_and_reports_partial_failure) ... ok
+test_missing_corrupt_state_and_duplicate_initialization_fail_closed (test_session.SessionTests.test_missing_corrupt_state_and_duplicate_initialization_fail_closed) ... ok
+test_model_unknown_cost_keeps_fence_and_stops (test_session.SessionTests.test_model_unknown_cost_keeps_fence_and_stops) ... ok
+test_restart_does_not_release_crashed_operations (test_session.SessionTests.test_restart_does_not_release_crashed_operations) ... ok
+test_separate_processes_cannot_oversubscribe (test_session.SessionTests.test_separate_processes_cannot_oversubscribe) ... ok
+test_spend_reserved_no_refund_and_80_percent_cutoff (test_session.SessionTests.test_spend_reserved_no_refund_and_80_percent_cutoff) ... ok
+test_two_inflight_and_rolling_rate (test_session.SessionTests.test_two_inflight_and_rolling_rate) ... ok
+test_real_process_is_terminated_without_inheriting_environment (test_supervisor.SupervisorTests.test_real_process_is_terminated_without_inheriting_environment) ... ok
+test_watchdog_fails_closed_for_state_loss_and_model_deadline (test_supervisor.SupervisorTests.test_watchdog_fails_closed_for_state_loss_and_model_deadline) ... ok
+test_watchdog_session_expiry_and_explicit_stop (test_supervisor.SupervisorTests.test_watchdog_session_expiry_and_explicit_stop) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 6.778s
+
+OK

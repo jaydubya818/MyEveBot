@@ -1,0 +1,19 @@
+{
+  "scope": "read-only database metadata; no owner data",
+  "databases": {
+    "myeve": {
+      "status": "METADATA_READ",
+      "endpointFingerprint": "66148630f154aca998c99b07541fe8a8c9d1fea54d4622a44d7a2956f689be8e",
+      "serverVersion": "18.6 (2078fcb)",
+      "canCreateDatabase": true,
+      "canCreateRole": true
+    },
+    "relay": {
+      "status": "METADATA_READ",
+      "endpointFingerprint": "d06cf587dcbd47c15ae3ff66d4ccd56c79f643ebc05c25919378b4abfe43274d",
+      "serverVersion": "18.6 (6569466)",
+      "canCreateDatabase": true,
+      "canCreateRole": true
+    }
+  }
+}

@@ -16,7 +16,7 @@ import { execFileSync, spawn } from "node:child_process";
 import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 const root = process.cwd();
-const canonicalBase = "4d3f1eb685422fc77296cef245e84c5b09da6e91";
+const canonicalBase = "e9984e4962151bffca1f6eb48c544b60bb643aa7";
 const require = createRequire(resolve(process.env.MYEVE_QUALIFICATION_RELAY_ROOT ?? "../relay-federation", "package.json"));
 const { Pool } = require("pg");
 const { WebSocketServer } = require("ws");
@@ -32,6 +32,8 @@ execFileSync("tar", ["-x", "-C", canonical], {
       "apps/eve/migrations",
       "apps/eve/scripts/migrate-database.ts",
       "apps/eve/lib/database-schema.ts",
+      "apps/eve/lib/owner-identity.ts",
+      "apps/eve/scripts/migration-sql.ts",
       "apps/eve/package.json",
       "package.json",
     ],
@@ -171,10 +173,10 @@ try {
       DATABASE_URL: connection(db),
     });
   const fresh = await migrate(root, "fresh");
-  assert.equal((fresh.match(/^Applied /gm) || []).length, 27);
-  report.checks.push("Fresh: normal runner applied 27 migrations");
+  assert.equal((fresh.match(/^Applied /gm) || []).length, 30);
+  report.checks.push("Fresh: normal runner applied 30 migrations");
   const before = await migrate(canonical, "upgrade");
-  assert.equal((before.match(/^Applied /gm) || []).length, 26);
+  assert.equal((before.match(/^Applied /gm) || []).length, 30);
   const db = pools.get(connection("upgrade"));
   await db.query(
     "INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('upgrade-agent','upgrade-owner','primary','Agent','Research','Private instruction',true,'active',30,600,1)",
@@ -195,18 +197,18 @@ try {
     );
   const original = await snapshot();
   const upgrade = await migrate(root, "upgrade");
-  assert.equal((upgrade.match(/^Applied /gm) || []).length, 1);
+  assert.equal((upgrade.match(/^Applied /gm) || []).length, 0);
   assert.equal(await snapshot(), original);
   report.checks.push(
-    "Populated canonical 0026 -> federation 0027: exactly one additive migration; Agent/Run/action data byte-equivalent",
+    "Populated canonical 0030: all checksums preserved, zero new migrations; Agent/Run/action data byte-equivalent",
   );
   for (const database of ["fresh", "upgrade"]) {
     const again = await migrate(root, database);
-    assert.equal((again.match(/^Already applied /gm) || []).length, 27);
+    assert.equal((again.match(/^Already applied /gm) || []).length, 30);
     assert.equal((again.match(/^Applied /gm) || []).length, 0);
   }
   report.checks.push(
-    "Normal migration runner rerun: 27 checksums accepted, zero reapplied on both databases",
+    "Normal migration runner rerun: 30 checksums accepted, zero reapplied on both databases",
   );
   const schema = async (pool) =>
     (
@@ -230,6 +232,7 @@ try {
   writeFileSync(join(failure, "package.json"), '{"type":"module"}');
   writeFileSync(join(failure, "apps/eve/scripts/migrate-database.ts"), readFileSync(join(root, "apps/eve/scripts/migrate-database.ts")));
   writeFileSync(join(failure, "apps/eve/lib/database-schema.ts"), 'export const CURRENT_DATABASE_MIGRATION="0001_failure.sql";');
+  for (const file of ["apps/eve/lib/owner-identity.ts", "apps/eve/scripts/migration-sql.ts"]) writeFileSync(join(failure, file), readFileSync(join(root, file)));
   const failedSql = join(failure, "apps/eve/migrations/0001_failure.sql");
   writeFileSync(failedSql, "CREATE TABLE rollback_probe(id integer); INSERT INTO absent_rollback_probe VALUES (1);");
   await assert.rejects(migrate(failure, "fresh"), /absent_rollback_probe/);

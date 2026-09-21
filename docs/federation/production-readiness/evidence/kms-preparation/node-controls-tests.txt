@@ -1,0 +1,13 @@
+✔ only fixed synthetic role is frozen; no table writes or database destruction (1.360292ms)
+✔ rejects production name or SQL interpolation before calling database (0.275709ms)
+✔ active login or session never counts as verified stop (0.081875ms)
+✔ actual incomplete target cannot launch (0.785083ms)
+✔ paper ready status or changed external gate cannot bypass prerequisites (0.060458ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 77.326667

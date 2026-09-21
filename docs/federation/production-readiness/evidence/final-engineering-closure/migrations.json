@@ -1,0 +1,17 @@
+{
+  "status": "PASSED",
+  "checks": [
+    "Fresh: normal runner applied 27 migrations",
+    "Populated canonical 0026 -> federation 0027: exactly one additive migration; Agent/Run/action data byte-equivalent",
+    "Normal migration runner rerun: 27 checksums accepted, zero reapplied on both databases",
+    "Fresh and upgraded schema columns/defaults/nullability match",
+    "Failed multi-command migration: DDL and journal rolled back atomically",
+    "Applied migration checksum drift refused before SQL execution",
+    "execution-reliability.integration.mjs: passed against isolated PostgreSQL",
+    "action-upgrade.integration.mjs: passed against isolated PostgreSQL"
+  ],
+  "cleanup": {
+    "containerRemoved": true,
+    "credentialsDestroyed": true
+  }
+}

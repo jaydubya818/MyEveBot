@@ -1,0 +1,9 @@
+{
+  "finalSimulation": "PASS",
+  "allTaskFixtureDirectoriesDestroyed": true,
+  "taskPostgresContainerRemoved": true,
+  "hostedResourcesCreated": false,
+  "paidModelCalls": 0,
+  "federationGenerallyEnabled": false,
+  "externalGatesExecuted": false
+}

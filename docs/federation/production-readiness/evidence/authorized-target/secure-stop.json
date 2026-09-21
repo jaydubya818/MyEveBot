@@ -1,0 +1,40 @@
+{
+  "reason": "STOP: existing Relay KMS/HSM contract; no hosted apps or keys installed",
+  "results": [
+    {
+      "component": "myeve",
+      "database": "fq_myeve_6384519e0e01",
+      "connection": "PASSED",
+      "tls": true,
+      "runtimePrivileges": "DML_ONLY_NO_OWNERSHIP",
+      "syntheticIdentityRows": 0,
+      "runtimeLogin": "REVOKED",
+      "runtimePassword": "CLEARED",
+      "oldCredential": "DENIED"
+    },
+    {
+      "component": "peer",
+      "database": "fq_peer_6384519e0e01",
+      "connection": "PASSED",
+      "tls": true,
+      "runtimePrivileges": "DML_ONLY_NO_OWNERSHIP",
+      "syntheticIdentityRows": 0,
+      "runtimeLogin": "REVOKED",
+      "runtimePassword": "CLEARED",
+      "oldCredential": "DENIED"
+    },
+    {
+      "component": "relay",
+      "database": "fq_relay_6384519e0e01",
+      "connection": "PASSED",
+      "tls": true,
+      "runtimePrivileges": "DML_ONLY_NO_OWNERSHIP",
+      "syntheticIdentityRows": 0,
+      "runtimeLogin": "REVOKED",
+      "runtimePassword": "CLEARED",
+      "oldCredential": "DENIED"
+    }
+  ],
+  "temporaryCredentialsRemoved": true,
+  "schemasPreserved": true
+}
