@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "INCOMPLETE_DO_NOT_PROVISION",
+  "status": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING",
   "createResources": false,
   "workspaceId": "56a1e903-2507-4cd4-904b-9c57513046b4",
   "services": [
@@ -8,11 +8,11 @@
       "name": "fq-myeve-a",
       "component": "myeve",
       "repository": "jaydubya818/MyEveBot",
-      "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
+      "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
       "existingCommand": "node --import tsx scripts/relay-worker.ts",
       "workingDirectory": "packaged application repository root",
       "qualificationCommand": "node qualification-runtime/worker-entrypoint.mjs",
-      "entrypointStatus": "Prepared executable source and component tests; source-stamped assembly and three-worker golden path NOT_RUN. Do not provision.",
+      "entrypointStatus": "Actual supervised entrypoint, roles, model/artifact paths, restart and active-work stop verified in local simulation.",
       "maxReplicas": 1,
       "cpuVcpu": 0.25,
       "memoryGB": 0.5,
@@ -22,24 +22,20 @@
       "volumes": 0,
       "serverlessSleep": false,
       "network": [
-        "HTTPS qualification controller only for federation/model/artifact/provider operations",
-        "TLS/HTTPS own isolated synthetic PostgreSQL transport",
-        "Relay supervisor parent additionally requires bounded model/provider egress; KMS identity custody remains unresolved"
+        "HTTPS component-scoped qualification controller RPC",
+        "Own isolated PostgreSQL transport"
       ],
       "secretReferences": [
-        "own synthetic DB application credential",
-        "own MYEVE_OWNER_ID and encrypted synthetic Relay credential",
-        "MYEVE_RELAY_ENCRYPTION_KEY",
-        "own synthetic artifact Ed25519 key and peer public-key pin",
-        "qualification-only model gateway credential with verified spend bound",
-        "component controller authentication",
-        "qualification-only Vercel ingress bypass secret"
+        "See exact environment names and role grants in final-engineering-closure.md; secret values are supplied only by the operator secret store."
       ],
       "forbiddenSecrets": [
         "personal/customer credentials",
         "Relay signing private key",
         "GCP service-account private key",
-        "other-owner DB credential"
+        "other-owner DB credential",
+        "Google KMS workload token in Railway child",
+        "model API key in application child",
+        "control-ledger UPDATE credential in application child"
       ],
       "health": {
         "path": "/health",
@@ -54,17 +50,18 @@
       ],
       "maximumComputeUsd": "0.013896",
       "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
-      "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
+      "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
+      "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
     },
     {
       "name": "fq-relay-maintenance-control",
       "component": "relay",
       "repository": "jaydubya818/relay",
-      "sourceSha": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
+      "sourceSha": "d817c848a7f6797fe04787e28ac96081b69359ae",
       "existingCommand": "pnpm worker",
       "workingDirectory": "packaged application repository root",
       "qualificationCommand": "node qualification-runtime/worker-entrypoint.mjs",
-      "entrypointStatus": "Prepared executable source and component tests; source-stamped assembly and three-worker golden path NOT_RUN. Do not provision.",
+      "entrypointStatus": "Actual supervised entrypoint, roles, model/artifact paths, restart and active-work stop verified in local simulation.",
       "maxReplicas": 1,
       "cpuVcpu": 0.25,
       "memoryGB": 0.5,
@@ -74,21 +71,21 @@
       "volumes": 0,
       "serverlessSleep": false,
       "network": [
-        "HTTPS qualification controller only for federation/model/artifact/provider operations",
-        "TLS/HTTPS own isolated synthetic PostgreSQL transport",
-        "Relay supervisor parent additionally requires bounded model/provider egress; KMS identity custody remains unresolved"
+        "HTTPS component-scoped qualification controller RPC",
+        "Own isolated PostgreSQL transport",
+        "Supervisor/controller parent alone invokes bounded model API; Vercel Relay API alone exchanges OIDC with Google STS and invokes exact KMS keys."
       ],
       "secretReferences": [
-        "own synthetic DB application credential",
-        "separate controller-only fq_control DB credential",
-        "component ingress authentication",
-        "operator stop credential in separate controller scope; never application scope"
+        "See exact environment names and role grants in final-engineering-closure.md; secret values are supplied only by the operator secret store."
       ],
       "forbiddenSecrets": [
         "personal/customer credentials",
         "Relay signing private key",
         "GCP service-account private key",
-        "other-owner DB credential"
+        "other-owner DB credential",
+        "Google KMS workload token in Railway child",
+        "model API key in application child",
+        "control-ledger UPDATE credential in application child"
       ],
       "health": {
         "path": "/health",
@@ -103,18 +100,18 @@
       ],
       "maximumComputeUsd": "0.013896",
       "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
-      "sourceStatus": "Ported onto canonical 7ea29b2; local regression recorded in evidence/preprovisioning; hosted integrations incomplete",
-      "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
+      "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
+      "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
     },
     {
       "name": "fq-myeve-b",
       "component": "peer",
       "repository": "jaydubya818/MyEveBot",
-      "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
+      "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
       "existingCommand": "node --import tsx scripts/relay-worker.ts",
       "workingDirectory": "packaged application repository root",
       "qualificationCommand": "node qualification-runtime/worker-entrypoint.mjs",
-      "entrypointStatus": "Prepared executable source and component tests; source-stamped assembly and three-worker golden path NOT_RUN. Do not provision.",
+      "entrypointStatus": "Actual supervised entrypoint, roles, model/artifact paths, restart and active-work stop verified in local simulation.",
       "maxReplicas": 1,
       "cpuVcpu": 0.25,
       "memoryGB": 0.5,
@@ -124,24 +121,20 @@
       "volumes": 0,
       "serverlessSleep": false,
       "network": [
-        "HTTPS qualification controller only for federation/model/artifact/provider operations",
-        "TLS/HTTPS own isolated synthetic PostgreSQL transport",
-        "Relay supervisor parent additionally requires bounded model/provider egress; KMS identity custody remains unresolved"
+        "HTTPS component-scoped qualification controller RPC",
+        "Own isolated PostgreSQL transport"
       ],
       "secretReferences": [
-        "own synthetic DB application credential",
-        "own MYEVE_OWNER_ID and encrypted synthetic Relay credential",
-        "MYEVE_RELAY_ENCRYPTION_KEY",
-        "own synthetic artifact Ed25519 key and peer public-key pin",
-        "qualification-only model gateway credential with verified spend bound",
-        "component controller authentication",
-        "qualification-only Vercel ingress bypass secret"
+        "See exact environment names and role grants in final-engineering-closure.md; secret values are supplied only by the operator secret store."
       ],
       "forbiddenSecrets": [
         "personal/customer credentials",
         "Relay signing private key",
         "GCP service-account private key",
-        "other-owner DB credential"
+        "other-owner DB credential",
+        "Google KMS workload token in Railway child",
+        "model API key in application child",
+        "control-ledger UPDATE credential in application child"
       ],
       "health": {
         "path": "/health",
@@ -156,7 +149,8 @@
       ],
       "maximumComputeUsd": "0.013896",
       "computeCeilingStatus": "conditional on provider enforcing 0.25 vCPU/0.5 GB and 3600-second total lifetime",
-      "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
+      "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
+      "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
     }
   ],
   "aggregateComputeUsd": "0.041688",
@@ -174,5 +168,7 @@
   "federationDefault": false,
   "withdrawnHardCeilingUsd": "0.10",
   "monetaryStatus": "No enforceable all-in ceiling; resource/time conditional estimate excludes builds and unbounded egress.",
-  "latestEngineeringStatus": "See final-hosted-engineering-report.md and preprovisioning-manifest.json; entrypoints prepared, three-worker topology NOT_RUN"
+  "latestEngineeringStatus": "Local engineering and full assembled simulation PASS; provider/hosted/external prerequisites remain. See final-engineering-closure.md.",
+  "remainingEngineering": [],
+  "localSimulationEvidence": "evidence/final-engineering-closure/three-worker-simulation.json"
 }

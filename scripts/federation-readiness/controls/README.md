@@ -1,3 +1,5 @@
+> Latest: [final engineering closure](../../../docs/federation/production-readiness/final-engineering-closure.md). Local full topology and stop PASS; resource provisioning still requires owner action, and hosted launch preflight must remain blocked until provider/target proofs exist. Controller admission does not hold Relay KMS authority. Earlier implementation statuses below are historical.
+
 > Current status: [final hosted engineering checkpoint](../../../docs/federation/production-readiness/final-hosted-engineering-report.md). Product call paths and component controls are integrated, but exclusive KMS custody and assembled topology proof remain incomplete. Do not provision or launch. Earlier implementation-status paragraphs below are historical.
 
 # Qualification controls — local preparation only

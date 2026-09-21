@@ -124,8 +124,10 @@
   },
   "preflight": "node scripts/federation-readiness/controls/preflight.mjs",
   "candidateProductRevisions": {
-    "relay": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
-    "productCodeCommit": "d1c4ed0",
-    "status": "UNPROMOTED; browser latency check fails on candidate and baseline"
-  }
+    "relay": "d817c848a7f6797fe04787e28ac96081b69359ae",
+    "myeve": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "controls": "817a8525059d436dc0978970d3e80e7371e009d6",
+    "status": "LOCAL_ENGINEERING_PASS; UNPROMOTED; HOSTED_NOT_RUN"
+  },
+  "engineeringStatus": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING"
 }

@@ -1,3 +1,5 @@
+> Latest: [final engineering closure](final-engineering-closure.md). **HOSTED TARGET READY FOR RESOURCE PROVISIONING; overall NO-GO.** Local three-worker simulation and stop PASS. Relay retains direct KMS workload authority under the approved application-admission boundary. KMS provider compatibility and both external gates remain unverified/NOT_RUN. Earlier checkpoints below are historical where superseded.
+
 > Current preparation: [KMS and isolated credential report](kms-preparation-report.md). Synthetic Vercel secrets are staged on disabled branches; KMS and hosted controls remain incomplete. Both external gates are NOT_RUN. Earlier status below is historical where superseded.
 
 > Current status: [authorized target report](authorized-target-report.md). Three schemas are prepared with credentials revoked; hosted construction stopped at the existing Relay KMS/HSM contract. Neither external gate ran. Earlier preparation statements below are historical where superseded.

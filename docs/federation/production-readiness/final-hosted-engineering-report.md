@@ -1,3 +1,5 @@
+> Latest: [final engineering closure](final-engineering-closure.md). **HOSTED TARGET READY FOR RESOURCE PROVISIONING; overall NO-GO.** Local three-worker simulation and stop PASS. Relay retains direct KMS workload authority under the approved application-admission boundary. KMS provider compatibility and both external gates remain unverified/NOT_RUN. Earlier checkpoints below are historical where superseded.
+
 # Final hosted engineering checkpoint
 
 **NO-GO — EXTERNAL QUALIFICATION PENDING / HOSTED TARGET INCOMPLETE.**

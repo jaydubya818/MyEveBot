@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "apply": false,
-  "status": "INCOMPLETE_DO_NOT_PROVISION",
+  "status": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING",
   "federationDefault": false,
   "region": {
     "myeveA": "iad1",
@@ -98,7 +98,7 @@
       "crcVerified": false,
       "pinnedKeyVerified": false
     },
-    "custodyStatus": "BLOCKED: Vercel web process retains exchangeable identity outside controller; owner decision requested before revising required Vercel-to-STS design"
+    "custodyStatus": "APPROVED: Relay Vercel workload retains direct OIDC/STS KMS authority; controller enforces application admission only. IAM is the direct Google API boundary."
   },
   "vercel": {
     "teamId": "team_p8z8exJRTGfOPk1GC9vUOpv3",
@@ -148,7 +148,7 @@
       "fq_peer_6384519e0e01_worker"
     ],
     "workerRoleProvisioned": false,
-    "workerArtifactPrivileges": "SELECT and expiry DELETE only; INSERT/UPDATE/TRUNCATE forbidden; membership/ownership restrictions still require complete assembled validation",
+    "workerArtifactPrivileges": "SELECT and expiry DELETE only; INSERT/UPDATE/TRUNCATE forbidden. NOINHERIT, no ownership, no memberships or CREATE; exact renderer exercised against local disposable roles.",
     "evidenceTable": "fq_control.evidence; operator INSERT/SELECT only; retain 30 days then explicit cleanup"
   },
   "railway": {
@@ -170,15 +170,15 @@
           "sourceSha": true,
           "maximumHeartbeatAgeSeconds": 10
         },
-        "stop": "TERM/KILL process group; operator-only railway-stop.mjs validates exact project/environment/service/deployment and terminal readback",
-        "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
-        "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+        "stop": "Admission closes; operator validates exact frozen scope and current/active deployments before and after stop; evidence precedes app+worker DB NOLOGIN brake.",
+        "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+        "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
         "environment": {
           "FQ_COMPONENT": "myeve",
-          "FQ_SOURCE_SHA": "2ae91a8095db162188046a5c8fa6d987571e9933"
+          "FQ_SOURCE_SHA": "a1aa73ba75cd400c3046bae3d452de35377431f2"
         },
         "volumes": [],
-        "qualificationStatus": "PREPARED_NOT_ASSEMBLED_OR_VALIDATED"
+        "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
       },
       {
         "name": "fq-relay-maintenance-control",
@@ -195,15 +195,15 @@
           "sourceSha": true,
           "maximumHeartbeatAgeSeconds": 10
         },
-        "stop": "TERM/KILL process group; operator-only railway-stop.mjs validates exact project/environment/service/deployment and terminal readback",
-        "sourceSha": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
-        "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+        "stop": "Admission closes; operator validates exact frozen scope and current/active deployments before and after stop; evidence precedes app+worker DB NOLOGIN brake.",
+        "sourceSha": "d817c848a7f6797fe04787e28ac96081b69359ae",
+        "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
         "environment": {
           "FQ_COMPONENT": "relay",
-          "FQ_SOURCE_SHA": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98"
+          "FQ_SOURCE_SHA": "d817c848a7f6797fe04787e28ac96081b69359ae"
         },
         "volumes": [],
-        "qualificationStatus": "PREPARED_NOT_ASSEMBLED_OR_VALIDATED"
+        "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
       },
       {
         "name": "fq-myeve-b",
@@ -220,15 +220,15 @@
           "sourceSha": true,
           "maximumHeartbeatAgeSeconds": 10
         },
-        "stop": "TERM/KILL process group; operator-only railway-stop.mjs validates exact project/environment/service/deployment and terminal readback",
-        "sourceSha": "2ae91a8095db162188046a5c8fa6d987571e9933",
-        "controlsSourceSha": "39f0bd22194f8b07c97e71377dcc17117ac23b6a",
+        "stop": "Admission closes; operator validates exact frozen scope and current/active deployments before and after stop; evidence precedes app+worker DB NOLOGIN brake.",
+        "sourceSha": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+        "controlsSourceSha": "817a8525059d436dc0978970d3e80e7371e009d6",
         "environment": {
           "FQ_COMPONENT": "peer",
-          "FQ_SOURCE_SHA": "2ae91a8095db162188046a5c8fa6d987571e9933"
+          "FQ_SOURCE_SHA": "a1aa73ba75cd400c3046bae3d452de35377431f2"
         },
         "volumes": [],
-        "qualificationStatus": "PREPARED_NOT_ASSEMBLED_OR_VALIDATED"
+        "qualificationStatus": "LOCAL_ASSEMBLED_SIMULATION_PASS_HOSTED_NOT_RUN"
       }
     ],
     "allInHardCapUsd": null,
@@ -245,13 +245,7 @@
     "resourceAuthorizationRequested": false,
     "packageCommand": "node scripts/federation-readiness/controls/package-worker.mjs SOURCE_CHECKOUT NEW_OUTPUT_DIRECTORY EXACT_APPLICATION_SHA"
   },
-  "remainingEngineering": [
-    "Resolve controller-only KMS custody without bypassing the previously required Vercel identity contract",
-    "Resolve nested MyEve owner HTTP -> Relay -> KMS dependency under aggregate HTTP concurrency 2; current single origin lane is safe against oversubscription but not a validated complete golden path",
-    "Freeze seven principals and exact route/key allowlists; prepare isolated worker-role grants and validate them against actual workers",
-    "Assemble source-stamped packages and run all three actual workers/controller through delivery, model, artifact, restart, stop and cleanup",
-    "Validate full hosted-stop composition including all application/worker roles and deployment replacement races; component adapters alone are insufficient"
-  ],
+  "remainingEngineering": [],
   "externalGates": {
     "independentSecurity": "NOT_RUN",
     "productionPlatform": "NOT_RUN"
@@ -271,17 +265,28 @@
     "priceReviewRequiredForEachWindow": true,
     "accountWideBillingCap": false,
     "liveCallPerformed": false,
-    "applicationIntegrationComplete": false,
+    "applicationIntegrationComplete": true,
     "sources": [
       "https://platform.claude.com/docs/en/models/haiku-4-5/overview",
       "https://platform.claude.com/docs/en/about-claude/pricing"
     ],
     "applicationCodeWired": true,
-    "assembledPathValidated": false
+    "assembledPathValidated": true
   },
   "engineeringCandidates": {
-    "myeve": "2ae91a8095db162188046a5c8fa6d987571e9933",
-    "relay": "894e6a3f5e99c2b186f2cfa72743d244d51a2c98",
-    "controls": "39f0bd22194f8b07c97e71377dcc17117ac23b6a"
-  }
+    "relay": "d817c848a7f6797fe04787e28ac96081b69359ae",
+    "myeve": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "controls": "817a8525059d436dc0978970d3e80e7371e009d6"
+  },
+  "controllerKmsBoundary": {
+    "approved": true,
+    "controller": "admission, policy and budget; no Google assertion/token/key custody",
+    "relay": "direct request-scoped Vercel OIDC to Google STS/WIF; exact qualification-key IAM",
+    "compromisedWorkloadDirectApiPreventedByController": false,
+    "applicationSigningPermitRequired": true
+  },
+  "controllerConfigurationRenderer": "scripts/federation-readiness/controls/configuration.mjs",
+  "localSimulation": "scripts/federation-readiness/simulation/run.mjs",
+  "workerRoleSqlRenderer": "workerGrants(component) in configuration.mjs",
+  "localSimulationEvidence": "evidence/final-engineering-closure/three-worker-simulation.json"
 }

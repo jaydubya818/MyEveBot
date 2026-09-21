@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "HOSTED_TARGET_INCOMPLETE_CUSTODY_AND_TOPOLOGY_VALIDATION",
-  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING",
+  "status": "HOSTED_TARGET_READY_FOR_RESOURCE_PROVISIONING",
+  "verdict": "NO-GO \u2014 EXTERNAL QUALIFICATION PENDING / HOSTED TARGET READY FOR RESOURCE PROVISIONING",
   "executionAuthorized": false,
   "independentSecurityGate": "NOT_RUN",
   "productionPlatformGate": "NOT_RUN",
@@ -64,12 +64,10 @@
     "enforcementStatus": "DURABLE_COMPONENT_LIMITS_TESTED; ASSEMBLED_PATH_AND_EXCLUSIVE_PROVIDER_CUSTODY_INCOMPLETE"
   },
   "blockers": [
-    "Resolve controller-only KMS custody without bypassing the previously required Vercel identity contract",
-    "Resolve nested MyEve owner HTTP -> Relay -> KMS dependency under aggregate HTTP concurrency 2; current single origin lane is safe against oversubscription but not a validated complete golden path",
-    "Freeze seven principals and exact route/key allowlists; prepare isolated worker-role grants and validate them against actual workers",
-    "Assemble source-stamped packages and run all three actual workers/controller through delivery, model, artifact, restart, stop and cleanup",
-    "Validate full hosted-stop composition including all application/worker roles and deployment replacement races; component adapters alone are insufficient",
-    "GCP project/key authorization and size compatibility; Railway resource authorization; operators/assessor/stop contact/window; provisioning/deployment and both external gates remain pending"
+    "Owner-selected GCP project and authorized existing-key size compatibility probe",
+    "Authorize exact paid KMS/WIF/IAM and three Railway services; install approved isolated roles/configuration/secrets and candidate deployments",
+    "Read back hosted resource limits, exact workload IAM, TLS/ingress and smoke evidence",
+    "Assign assessor, independent peer operator, stop contact and UTC window; authorize each external gate"
   ],
   "proposedSuccessors": {
     "myeve": "2ae91a8095db162188046a5c8fa6d987571e9933",
@@ -144,7 +142,7 @@
   ],
   "custody": {
     "requested": "KMS/HSM-backed hosted signing; synthetic application credentials in authorized Vercel branch stores",
-    "state": "PROVIDER_RECOMMENDATION_PENDING_COMPATIBILITY_AND_PAID_RESOURCE_AUTHORIZATION",
+    "state": "APPROVED_RELAY_WORKLOAD_AUTHORITY_PROVIDER_COMPATIBILITY_PENDING",
     "requiredBy": [
       "Relay docs/v2/evidence.md:9",
       "Relay docs/v2/evidence.md:17",
@@ -198,7 +196,7 @@
       "evidence": "evidence/kms-preparation/hosting-verification.json"
     }
   },
-  "preparationReport": "kms-preparation-report.md",
+  "preparationReport": "final-engineering-closure.md",
   "branchSlots": [
     {
       "repository": "MyEveBot",
@@ -222,13 +220,17 @@
       "gitDeploymentEnabled": false
     }
   ],
-  "latestDesignReport": "kms-controls-design.md",
-  "candidateCryptoRevision": "50a2c968a49620711dc8b7e55b8841a3d6a4bcc3",
-  "candidateQualification": "LOCAL_TESTS_ADVANCED; BROWSER_LATENCY_FAILURE_PREVENTS_FULL_REQUALIFICATION",
+  "latestDesignReport": "final-engineering-closure.md",
+  "candidateCryptoRevision": "d817c848a7f6797fe04787e28ac96081b69359ae",
+  "candidateQualification": "LOCAL_ENGINEERING_PASS; EXTERNAL_GATES_NOT_RUN",
   "candidateRevision": {
-    "relay": "fabe7c010264f89d1397b364583e80b7593f9f59",
+    "relay": "d817c848a7f6797fe04787e28ac96081b69359ae",
     "canonicalRelayBase": "7ea29b2886d2b8bad7b1a1ca1c3e8df1d39ee9ee",
-    "locallyQualified": false,
-    "frozenPinsPromoted": false
-  }
+    "locallyQualified": true,
+    "frozenPinsPromoted": false,
+    "myeve": "a1aa73ba75cd400c3046bae3d452de35377431f2",
+    "controls": "817a8525059d436dc0978970d3e80e7371e009d6"
+  },
+  "localEngineeringEvidence": "evidence/final-engineering-closure/three-worker-simulation.json",
+  "remainingEngineering": []
 }
