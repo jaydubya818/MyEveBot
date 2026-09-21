@@ -19,6 +19,9 @@ export async function POST(request:Request){
    await store.database.query(artifactInsertSql+' ON CONFLICT(id) DO NOTHING',v);
    const [stored]=await store.database.query('SELECT * FROM myeve_relay_artifacts WHERE id=$1 AND owner_id=$2',[v[0],owner]);
    if(!stored||decryptSecret<string>(owner,stored.content_encrypted)!==content||stored.request_id!==v[2]||!isDeepStrictEqual(stored.metadata,JSON.parse(v[4]))||stored.audience!==v[5]||stored.audience_public_key!==v[6]||new Date(stored.expires_at).getTime()!==Date.parse(v[7])||stored.revoked)throw Error();
+  }else if(input.action==='revoke'){
+   const v=z.object({action:z.literal('revoke'),ownerId:z.literal(owner),id:z.string().max(255)}).strict().parse(input);
+   await store.database.query('UPDATE myeve_relay_artifacts SET revoked=true WHERE owner_id=$1 AND id=$2',[owner,v.id]);
   }else if(input.action==='audience'){
    const v=z.object({action:z.literal('audience'),ownerId:z.literal(owner),id:z.string().max(255),audience:z.string().max(4096),key:z.string().max(8192)}).strict().parse(input);
    const [row]=await store.database.query('SELECT content_encrypted FROM myeve_relay_artifacts WHERE owner_id=$1 AND id=$2 AND NOT revoked AND expires_at>now()',[owner,v.id]);

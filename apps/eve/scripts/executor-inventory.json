@@ -2547,7 +2547,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "ab953d8c15d34464a4eb671d73fe9c0b392add1da8d805afe829e7d689497124"
+      "sha256": "8b5c0913b6317c4095e93729c75a850c07a66c082d0f1b1a453b277cc026e8f7"
     },
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
@@ -2587,12 +2587,12 @@
     "lib/qualification/artifact-storage.ts": {
       "classification": "INTERNAL",
       "reason": "Qualification workers send storage mutations through the guarded owner-bound web endpoint; normal federation callers retain existing local authority. Worker startup rejects INSERT/UPDATE/TRUNCATE artifact privileges. Hosted role provisioning remains blocked.",
-      "sha256": "8edb51465b714b6dc9dd20c0e299924bf69ee073cb37113f85d16dee5631e3f7"
+      "sha256": "bf86f2fbceb639f9d3b678b49d37818c6daf7d269d4d2e5512bb901a7ec0e545"
     },
     "app/api/relay/qualification-artifacts/route.ts": {
       "classification": "ENFORCED",
       "reason": "Qualification-only storage handler claims one-use request permit at entry, checks synthetic owner and decrypted actual bytes before mutation, and verifies immutable retry content. Direct ingress and owner/allowance denial covered by artifact-route.test.ts. Returns 404 outside explicit qualification.",
-      "sha256": "1786d6f2efde6ce53165a7495908959cf3ff787a9b2e26ba957d759babfbbda4"
+      "sha256": "875f33b3b4a05c5686afd5b031cc5253b7d113477a2ed55f3078a510a5acffa5"
     }
   }
 }

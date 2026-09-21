@@ -12,3 +12,9 @@ export async function updateFederationArtifactAudience(store: FederationStore,id
  const response=await qualificationFetch(new URL('/api/relay/qualification-artifacts',process.env.MYEVE_RELAY_ARTIFACT_ORIGIN),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'audience',ownerId:store.ownerId,id,audience,key})},'artifact-store');
  if(!response.ok)throw new Error('Qualification artifact publication denied.');
 }
+
+export async function revokeFederationArtifact(store: FederationStore,id:string){
+ if(!qualificationEnabled())return store.database.query('UPDATE myeve_relay_artifacts SET revoked=true WHERE owner_id=$1 AND id=$2',[store.ownerId,id]);
+ const response=await qualificationFetch(new URL('/api/relay/qualification-artifacts',process.env.MYEVE_RELAY_ARTIFACT_ORIGIN),{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'revoke',ownerId:store.ownerId,id})},'artifact-store');
+ if(!response.ok)throw new Error('Qualification artifact revocation denied.');
+}

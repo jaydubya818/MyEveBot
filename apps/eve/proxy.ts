@@ -7,7 +7,7 @@ import { webAuthConfigStatus, webAuthRequired, webPrincipal } from "@/lib/web-au
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (qualificationEnabled()) {
     if(request.nextUrl.pathname === "/api/relay/qualification-artifacts") return NextResponse.next();
-    try { await qualifyIngress(request, /^\/api\/relay(?:\/|$)/); return NextResponse.next(); }
+    try { await qualifyIngress(request, /^\/api\/relay\/artifacts\/[^/]+$/); return NextResponse.next(); }
     catch { return new NextResponse(null, {status:403}); }
   }
   if (/^\/(?:api|eve\/v1|login|_next\/static|_next\/image|favicon\.ico)/.test(request.nextUrl.pathname) || request.nextUrl.pathname.includes(".")) return NextResponse.next();
