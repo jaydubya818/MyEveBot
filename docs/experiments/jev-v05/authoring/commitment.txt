@@ -1,0 +1,65 @@
+I promise to return the borrowed compass before the expedition leaves.|The owner is addressing the lender.|Explicit personal promise.
+Our crew undertakes to clear the landing after the festival.|The crew has accepted this responsibility.|Explicit collective undertaking.
+I owe the archive a replacement storage box.|The owner acknowledges an outstanding obligation.|Acknowledged obligation.
+The conservator has agreed to provide a condition report.|The owner records the conservator's accepted undertaking.|Attributed agreement.
+I will carry the spare ropes; you have my word.|The owner is assuring the trip leader.|Explicit promise, not casual plan.
+We are bound to restore the courtyard after dismantling the stage.|The organizer acknowledges a current contractual duty.|Explicit obligation.
+I accept responsibility for checking each returned key.|The owner is accepting the assigned duty now.|Explicit acceptance of responsibility.
+The carpenter has promised to finish the rail before opening.|The promise is attributed to the carpenter.|Explicit other-person commitment.
+I undertake not to reproduce the restricted photographs.|The owner is accepting a condition of access.|Explicit negative undertaking.
+We agreed to keep a passage clear throughout the event.|The team has accepted that requirement.|Accepted continuing obligation.
+I will cover the final shift, as agreed.|The owner confirms an accepted duty.|Commitment anchored in agreement.
+The society owes the lender an inventory after the tour.|The speaker acknowledges the society's obligation.|Attributed obligation.
+I give my word that the original pages will remain onsite.|The custodian addresses the donor.|Explicit assurance.
+Our group has accepted the cleanup duty.|The organizer records an agreed responsibility.|Explicit accepted duty.
+I am responsible for bringing the translated captions.|The owner confirms their assigned task.|Acknowledged responsibility.
+The transporter undertakes to return the empty crates.|The accepted transport agreement includes this duty.|Attributed undertaking.
+I promised the guide that I would unlock the gate.|The promise remains outstanding.|Explicit existing promise.
+We must replace the damaged tile under the agreement.|The team acknowledges a specific accepted obligation.|Contractual commitment.
+I accept the obligation to preserve the source recording.|The owner accepts the donation condition.|Explicit duty acceptance.
+The tutor has committed to three follow-up sessions.|The sessions are an accepted undertaking, not a tentative proposal.|Attributed commitment.
+I shall repay the borrowed materials in kind.|The owner is making a repayment promise to the lender.|Explicit repayment undertaking.
+You can rely on me to deliver the labels tonight.|The owner is accepting the coordinator's request.|Assurance functioning as a promise.
+We have signed up to staff the west entrance.|The team has accepted that duty.|Explicit agreed responsibility.
+I will not share the restricted transcript.|This is the owner's explicit assurance in accepting access.|Negative promise.
+The host owes each exhibitor a secure overnight space.|The host acknowledges a term of the accepted participation agreement.|Attributed obligation.
+I am taking responsibility for the missing equipment report.|The owner accepts the reporting duty.|Explicit duty acceptance.
+Our association has pledged to maintain the footpath.|The pledge remains active.|Collective commitment.
+I guarantee that I will attend the handover.|The owner assures the outgoing custodian.|Explicit personal undertaking.
+The donor has agreed to supply the missing provenance papers.|The promise is recorded without claiming the papers arrived.|Attributed agreement.
+I commit to making the inventory available to the lender.|The owner addresses the lender.|Explicit commitment.
+We are obligated to remove the temporary fence when the permit ends.|The permit holder acknowledges the condition.|Specific continuing duty.
+I will take the damaged frame back, as I promised.|The owner confirms an existing undertaking.|Explicit reaffirmation.
+The apprentice has undertaken to label each offcut.|The supervisor records the accepted duty.|Attributed commitment.
+I owe you an answer on the loan request.|The owner acknowledges an obligation without making the decision yet.|Obligation to answer, not outcome choice.
+Our team agreed not to enter the protected area.|The team accepted this condition of participation.|Explicit negative agreement.
+I will provide the missing translation at my own expense.|The owner explicitly accepts the organizer's request in this sentence.|Accepted undertaking.
+The restoration fund is committed to reimbursing the approved costs.|The trustees acknowledge the fund's binding undertaking.|Institutional obligation.
+I promised not to leave the projector unattended.|The duty remains in force.|Existing negative promise.
+We accept the duty to record each transfer.|The group is accepting custodial responsibility.|Explicit undertaking.
+I am on the hook for returning the loaned stand.|The owner acknowledges their agreed responsibility.|Colloquial obligation.
+The boat crew has pledged to bring everyone back after the performance.|The operator records the accepted return duty.|Attributed promise.
+I will finish the captions by the deadline, even if the optional photographs are late.|The owner is reaffirming an accepted delivery duty.|Promise with non-excusing condition.
+If the bridge closes, I undertake to arrange the alternate crossing.|The owner explicitly accepts a conditional contingency duty.|Conditional commitment remains explicit.
+I have not withdrawn my promise to catalog the donated reels.|The existing promise is affirmed.|Negated withdrawal preserves commitment.
+The guide, not I, agreed to escort the group.|The owner corrects the subject of an accepted duty.|Attributed commitment correction.
+My promise covers the outer gate only.|The owner limits the scope of their accepted repair duty.|Explicit bounded promise.
+I cannot promise Friday, but I do promise completion before opening.|The owner narrows the timing of their undertaking.|Explicit promise despite rejected deadline.
+We did not merely offer; we agreed to supply the benches.|The team corrects the status of its undertaking.|Accepted commitment distinguished from offer.
+I am no longer bound to deliver the plinth.|The lender released the owner from the obligation yesterday.|Resolved release may be fact rather than active commitment.
+I intend to bring spare batteries.|No request has been accepted and no promise has been made.|Intention alone insufficient.
+I could cover the evening watch.|The owner is exploring availability, not accepting the assignment.|Capability or offer is not an accepted duty.
+I hope to return the book tomorrow.|The owner makes no assurance to the lender.|Wish rather than commitment.
+I will try to inspect the roof.|The owner has not accepted the inspection duty; this is a tentative intention.|Unclear undertaking scope.
+'The crew promises delivery' is only a line in the proposed advertisement.|No crew has accepted the advertised duty.|Quoted draft is not actual commitment.
+I promised to deliver the map, and I prefer paper copies.|The candidate combines a promise and a standing preference.|Multiple concepts without target isolation.
+We have chosen the smaller hall and owe the owner a deposit.|The candidate combines a selection and an obligation.|Decision and commitment coexist.
+I must have left the key in the cabinet.|The owner is guessing where the key went.|Epistemic must is not obligation.
+I should return the ladder soon.|The owner mentions borrowed equipment but does not clarify whether this is a duty or a plan.|Insufficient clarity of obligation.
+Of course I will carry every crate myself, since apparently I have eight arms.|The owner is using sarcasm to object to the proposed assignment.|Sarcasm rejects literal promise.
+You said I had agreed, but I never did.|The owner disputes that any obligation was accepted.|Denial of commitment rather than active duty.
+I agree to bring the lantern only if a covered cart is provided.|The owner accepts a clearly conditional undertaking.|Explicit conditional promise.
+The supplier's undertaking survives the date change.|The owner records an existing duty that remains active.|Reaffirmed attributed obligation.
+I will deliver it.|The prior question asked whether the owner was making a firm promise; this is the affirmative answer.|Context establishes explicit commitment.
+I will deliver it.|The owner is narrating a fictional character's next line during a script read-through.|Quoted fiction is not owner's commitment.
+Done.|No task, promise, or conversational referent is supplied.|No defensible classification.

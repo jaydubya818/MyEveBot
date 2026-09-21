@@ -1,0 +1,65 @@
+Use the western courtyard for the exhibition.|The owner is resolving the location choice after comparing two sites.|Explicit resolved choice.
+I have selected the wool backing.|The sample review is complete.|Choice has been made.
+We are keeping the original title.|This closes the discussion about renaming the play.|Resolved retention choice.
+The shortlist is closed with the harbor venue as our choice.|The owner is announcing the completed selection.|Explicit final selection.
+I choose the slower crossing.|The owner is deciding between two available sailings now.|Choice, no promise of action.
+We will preserve the handwritten corrections in the display copy.|This is the editorial ruling, not an undertaking to perform the work.|Explicit editorial choice.
+The telescope will use the smaller mount.|The owner is resolving the design options.|Design selection.
+No, retain the old route.|The owner rejects a proposed route change and closes the discussion.|Explicit choice with negation.
+I am reversing the earlier selection: take the green fabric.|The owner has authority to make the material choice.|Corrected selection.
+The second design is out; the first is approved.|The owner has finished comparing the designs.|Resolved choice among alternatives.
+We settled on a single narrator.|The production meeting has concluded.|Completed creative choice.
+The museum will not acquire this object.|The acquisition vote has just ended in rejection.|Explicit negative decision.
+I have chosen to leave the margin blank.|The owner is resolving a layout question.|Choice of omission.
+The old mechanism stays, despite the repair estimate.|The owner ends a replace-versus-repair discussion.|Resolved retention choice.
+Neither proposed caption will be used.|The owner has rejected both alternatives, with no new caption selected.|Decision can reject all options.
+The committee selected the reserve date.|The candidate reports the actual selection, not a proposal.|Explicit attributed decision.
+I am withdrawing our entry.|The owner makes the participation choice now.|Current choice to withdraw.
+We adopted the shorter interval.|The governing group completed its scheduling decision.|Resolved policy choice.
+The final version keeps both verses.|The editor is issuing the resolution of a disputed cut.|Explicit editorial decision.
+Put the map before the photographs.|The owner is answering the final ordering question, not assigning labor.|Resolved ordering choice.
+We are switching to reusable cases.|The owner announces an approved packaging selection.|Explicit change of approach.
+The trial will exclude the heated sample.|This resolves the trial design; it does not promise someone will run it.|Design choice.
+I have declined the offered extension.|The owner has made the acceptance choice.|Explicit refusal.
+Only the morning showing is going ahead.|The producer has resolved which showing to retain.|Resolved selection.
+We voted to keep admission free.|The vote is final and authoritative.|Collective choice.
+The replacement shall be oak.|The owner is selecting among materials, not quoting an old specification.|Explicit material ruling.
+I am closing the public path for the event.|The owner makes the authorized access choice.|Current operational decision.
+We chose not to name the donor on the panel.|The wording decision is complete.|Explicit decision not to act.
+The original sketch will remain off display.|The curatorial group has just resolved the loan request.|Resolved display choice.
+I am taking the apprenticeship.|The owner is accepting one offer rather than promising future performance.|Acceptance choice.
+The narrow border wins.|The owner is giving the final answer after a design comparison.|Colloquial selection.
+We will not repeat the experiment with this batch.|This is a resolved go/no-go choice, not a prediction.|Explicit rejection of continuation.
+I have canceled the private viewing.|The event owner is announcing a completed scheduling choice.|Explicit cancellation.
+The third candidate is our selection.|The selection panel has finished deliberation.|Completed choice.
+Keep the fragment separate from the reconstructed piece.|The conservator is resolving how to present it.|Presentation decision rather than work assignment.
+We are leaving the disputed date unspecified.|The editor has decided how to handle uncertainty.|Resolved editorial choice.
+I have opted out of the shared transport.|The owner confirms their participation selection.|Explicit personal decision.
+The old inscription takes precedence in this edition.|The editor has resolved which source text to use.|Explicit source selection.
+The request is denied.|The authorized owner is issuing the final permit decision.|Resolved refusal.
+We are removing the intermission.|The producer is ending a format discussion.|Format decision.
+I selected the removable adhesive after reviewing the test results.|No undertaking to apply it is included.|Explicit selection.
+This time, the freight option.|The booking clerk asked which of two services the owner had chosen; this is the answer.|Context completes a terse choice.
+Not the canal crossing; the road route.|The owner is making the final route selection.|Negated alternative plus choice.
+All right, keep it.|The preceding question was whether to remove the final stanza.|Context supplies the selected alternative.
+We are no longer pursuing the tower location.|The location search decision has been formally revised.|Reversal of prior choice.
+I chose the warmer room, though I generally prefer cool spaces.|The candidate contains a current choice and an explicit standing preference.|Multiple concepts without isolated target.
+The courier may use the bridge route.|The owner is granting one-time permission after a request, not predicting the route.|Permission may not fit a single category.
+I would choose the smaller boat if the tide allowed it.|The tide is not known and no booking choice has been made.|Conditional hypothetical choice is insufficient.
+We should probably keep the frame.|No final choice has been made; this is a suggestion in discussion.|Unresolved proposal.
+I will consider the northern venue.|The owner has not selected a venue and is not accepting an obligation.|Intention to consider, not a completed choice.
+'We chose red' is the rejected draft caption.|The owner is identifying text, not making that choice.|Factual reference to quoted choice words.
+I have not decided against preserving it.|The owner explicitly says the final decision is still open.|Double negation does not establish a choice.
+The blue one, unless you find a better option.|The owner leaves the selection open pending another person's search.|Conditional provisional status uncertain.
+I refuse to choose between the two.|The owner has settled on withholding a selection.|Choice to abstain rather than either option.
+The vote is final: no expansion.|The owner reports the adopted resolution.|Explicit collective decision.
+I prefer the harbor, but we have selected the hill.|The candidate states both preference and completed choice.|No primary-label priority for mixed statement.
+The doorway stays unpainted.|The owner is answering the decorator's final choice question.|Context establishes a choice.
+Fine, another identical poster; that will really help.|The owner is sarcastically rejecting repetition; no alternative is adopted.|Sarcasm does not establish a clear final choice.
+We reversed the cancellation and reinstated the rehearsal.|The owner announces the completed revision.|Explicit changed decision.
+I am choosing neither sponsor.|Both proposals have been reviewed and rejected.|Explicit rejection of alternatives.
+The panel's recommendation has been adopted.|The owner is recording a completed choice to adopt it.|Decision rather than mere advice.
+We are postponing the award, not abandoning it.|The committee has resolved the timing question.|Explicit postponement choice.
+I will choose after the test.|The owner leaves the decision pending and makes no promise to another party.|Future intention is insufficient.
+The plan is approved, and I will personally supply the timber.|Both approval and a personal undertaking are asserted with no isolated target.|Decision and commitment coexist.
+The last option.|No options or decision question are supplied.|Insufficient context.

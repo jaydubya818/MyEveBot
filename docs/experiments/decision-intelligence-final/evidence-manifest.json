@@ -1,0 +1,14 @@
+{
+  "source": "6a067090f4e8e215264c8d4c6b90150bd816cbe2",
+  "note": "Byte-preserved normalized synthetic evidence. V0 original is six-class; V0.5 labels and metrics unchanged.",
+  "sha256": {
+    "apps/eve/lib/decision-intelligence/retained/0a8db3e4-7d40-4be6-92b0-d5e6f6124648.json": "97cf71292cec1015b5b4fa360df731daeeee3b8e0a1445949220b5c95087c799",
+    "apps/eve/lib/decision-intelligence/retained/293b3ad5-2f93-4337-b3f3-ea37df476cb8.json": "a6da21acd04ea119eae213a600472210cd49ea44c83610bf1f0a8d44c89bcb72",
+    "apps/eve/lib/decision-intelligence/retained/a7438d26-d413-42db-84b7-eacda88c00ee.json": "4a79a5497e0eff9a5b83f673d7149f3d60358573bb67b70a61d7b4ba3a1897d7",
+    "apps/eve/lib/decision-intelligence/retained/d2263f0f-a636-4dcc-bba5-506e822d10a5.json": "ab852920d3442285950d4629fcc49e0b4a56b60402c5b1850e3c32e40888d5f2",
+    "apps/eve/lib/decision-intelligence/retained/e31927e6-4ff2-41a3-84d1-61b5f8533da9.json": "ab285cf18ccaf18f4a6b3969adb656890494893c061a48a8b84d6e7c6b143267",
+    "apps/eve/lib/decision-intelligence/retained/ee91fa28-2b8d-480f-84ee-2679c7ce15a6.json": "bfcad4f4e93b44f36478376bd23b128fa329290fc4102807af0161c042fce2e4",
+    "docs/experiments/decision-intelligence-final/v0-qualification/a1c8aa86-7195-474f-a6b1-92084cce04b0.json": "7c5e4bd1526162b30bbf6d023894b8e553e302628967250878d0cffbef179bf8",
+    "docs/experiments/decision-intelligence-final/v0-qualification/6b4fc30e-5935-42ef-8163-3a642b49e9bd.json": "a136074c526c59ba3d08f33f37bcb1811b90177ae7f2f5f64635eeb26a5263f8"
+  }
+}

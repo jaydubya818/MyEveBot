@@ -1,0 +1,16 @@
+{
+  "qualifiedSource": "6a067090f4e8e215264c8d4c6b90150bd816cbe2",
+  "unchangedSha256": {
+    "apps/eve/lib/decision-intelligence/jev-provider.ts": "63108ab54d7c6d4026cff27c5c9eb3555ed7d707655fc5b4c07d895c8ce73738",
+    "apps/eve/lib/decision-intelligence/contract.ts": "8d1b68b2c50b48993851f04605fface2494b1a21993b0fc622da011b57334617",
+    "apps/eve/lib/decision-intelligence/dataset.ts": "0da75a446843f015695412185aa7e5e0ebf3f0ea4ae20535763ef5bd316a3447",
+    "apps/eve/lib/decision-intelligence/shadow.ts": "24bfb74aa5280095ad33035f46d5b933c677de27ef68fdaa6d2c92872027c01f",
+    "apps/eve/lib/decision-intelligence/evaluation.ts": "d0d5994307fc5cdd912b732556ebbc3bc97109fbb7e85e712f96fa6666d0ca93",
+    "apps/eve/lib/decision-intelligence/experiment.ts": "f2fe789f40fd41e1804b5565e3d2bd3b73d96a2a62d52d0fe38069e39db7b273",
+    "apps/eve/lib/decision-intelligence/challenge-data.json": "45fdb3381abb8b87a7dd43571cfa63afa888510a7d401f7edf0dde73ddd79fcf",
+    "apps/eve/lib/decision-intelligence/metrics.ts": "068329c9d96be868b1a1c6c1b416b68c521b9290c2bcb19352ba64416add6454",
+    "apps/eve/lib/decision-intelligence/experiment-metrics.ts": "04a9f22f80554ebf937be64385566b1f994716c039656bc27b91842c9593c183",
+    "docs/experiments/jev-v05/rubric.json": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c"
+  },
+  "additionalJevCalls": 0
+}
