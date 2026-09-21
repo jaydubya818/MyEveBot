@@ -19,6 +19,7 @@ try {
   for (const name of migrations.filter(name => name < "0031")) await client.query(await readFile(new URL(name, directory), "utf8"));
   await client.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('ava','sarah','primary','Ava','Research','Research',true,'active',30,600,1)");
   await client.query(await readFile(new URL("0031_computer_template_lifecycle.sql", directory), "utf8"));
+  await client.query(await readFile(new URL("0032_computer_resource_lifecycles.sql", directory), "utf8"));
   assert.equal((await client.query("SELECT name FROM agents WHERE id='ava' AND owner_id='sarah'")).rows[0].name, "Ava");
   const database = { query: async (sql, params) => (await client.query(sql, params)).rows };
   const stores = [new SqlComputerTemplateStore(database)];

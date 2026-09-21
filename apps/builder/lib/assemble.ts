@@ -198,12 +198,17 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
       // Keep an explicit deny backend: deleting the root definition enables Eve's default backend.
       data = Buffer.from(`import type { SandboxBackend } from "eve/sandbox";
 export class ComputerSandboxAuthorityRequired extends Error {}
+export async function bindPreparedComputer(..._args: unknown[]): Promise<never> { throw new Error("Computer is disabled in this deployment."); }
 export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new Error("Computer is disabled in this deployment."); }
 export const computerSandboxBackend: SandboxBackend = {
   name: "myeve-computer-disabled",
   async prewarm() { return { reused: false }; },
   async create() { throw new Error("Computer is disabled in this deployment."); },
 };
+`);
+    } else if (!input.features.includes("browser") && relative === "lib/computer-resource-provider.ts") {
+      data = Buffer.from(`import type { ComputerLifecycleProvider } from "./action-gateway.ts";
+export const computerResourceProvider: ComputerLifecycleProvider = { async execute() { throw new Error("Computer is disabled in this deployment."); } };
 `);
     } else if (!input.features.includes("browser") && relative === "lib/computer-template-vercel.ts") {
       data = Buffer.from(`import type { ComputerTemplateProvider } from "./computer-template-lifecycle.ts";

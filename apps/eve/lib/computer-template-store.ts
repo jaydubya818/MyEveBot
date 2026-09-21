@@ -48,13 +48,19 @@ export class SqlComputerTemplateStore implements TemplateStore {
           AND w.fingerprint=computer_template_preparations.fingerprint AND w.expires_at>now()) RETURNING id`, [id,templateId,costUsd ?? null])).length === 1;
   }
   async cleaning(id: string, failure: TemplateFailure) {
+    // A concurrent canonical resource reservation changes this version while holding
+    // the preparation row lock. Retirement must retry with a fresh dependency view.
+    const observed=await this.database.query('SELECT updated_at::text AS version FROM computer_template_preparations WHERE id=$1',[id]);
+    if (!observed[0]) return null;
     const token = randomUUID();
     const rows = await this.database.query(`UPDATE computer_template_preparations
       SET state=CASE WHEN state='CLEANED' THEN state ELSE 'CLEANING' END,failure_code=$2,cleanup_token=$3,
         deadline=now()+interval '15 seconds',cleanup_attempts=cleanup_attempts+1,updated_at=now()
-      WHERE id=$1 AND (state IN ('PREPARING','FAILED') OR (state='READY' AND $2='invalid_template')
+      WHERE id=$1 AND updated_at=$4::timestamptz AND NOT EXISTS(SELECT 1 FROM computer_resource_lifecycles l WHERE l.preparation_id=computer_template_preparations.id AND l.state<>'cleaned')
+        AND (state<>'READY' OR NOT EXISTS(SELECT 1 FROM computer_template_waiters w WHERE w.scope=computer_template_preparations.scope AND w.fingerprint=computer_template_preparations.fingerprint AND w.expires_at>now()))
+        AND (state IN ('PREPARING','FAILED') OR (state='READY' AND $2='invalid_template')
         OR (state='CLEANING' AND deadline<=now())
-        OR (state='CLEANED' AND (cleanup_token IS NULL OR deadline<=now()))) RETURNING id`, [id,failure,token]);
+        OR (state='CLEANED' AND (cleanup_token IS NULL OR deadline<=now()))) RETURNING id`, [id,failure,token,observed[0].version]);
     return rows.length === 1 ? token : null;
   }
   async cleaned(id: string, token: string, success: boolean, retryAfter: number) {

@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0031_computer_template_lifecycle.sql";
+export const CURRENT_DATABASE_MIGRATION = "0032_computer_resource_lifecycles.sql";

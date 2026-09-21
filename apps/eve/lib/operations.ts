@@ -72,7 +72,8 @@ export async function getOperationsReport(ownerId: string): Promise<OperationsRe
       (SELECT count(*) FROM eve_events WHERE owner_id=$1 AND type IN ('TURN_FAILED','SESSION_FAILED') AND occurred_at >= now()-interval '24 hours') AS failed_turns,
       ((SELECT count(*) FROM task_runs WHERE owner_id=$1 AND ((status='running' AND (deadline_at < now() OR updated_at < now()-interval '30 minutes')) OR (status IN ('awaiting_approval','waiting_for_owner') AND deadline_at < now()))) +
        (SELECT count(*) FROM agent_runs r JOIN agents a ON a.owner_id=r.owner_id AND a.id=r.agent_id WHERE r.owner_id=$1 AND r.status='running' AND r.started_at+(a.max_runtime_seconds*interval '1 second') < now())) AS stuck_runs,
-      ((SELECT count(*) FROM computer_sessions WHERE owner_id=$1 AND status IN ('provisioning','ready','running','paused') AND expires_at <= now()) +
+      ((SELECT count(*) FROM computer_resource_lifecycles WHERE owner_id=$1 AND state='cleanup_pending' AND failure_code IS NOT NULL) +
+       (SELECT count(*) FROM computer_sessions WHERE owner_id=$1 AND status IN ('provisioning','ready','running','paused') AND expires_at <= now()) +
        (SELECT count(*) FROM computer_actions a JOIN computer_sessions s ON s.id=a.computer_session_id WHERE s.owner_id=$1 AND a.status='running' AND a.started_at < now()-interval '10 minutes')) AS orphaned_computers,
       ((SELECT count(*) FROM automation_runs WHERE status='error' AND fired_at >= now()-interval '24 hours') +
        (SELECT count(*) FROM review_deliveries WHERE owner_id=$1 AND status='failed' AND updated_at >= now()-interval '24 hours')) AS routine_failures,
@@ -195,6 +196,10 @@ async function sendAlert(ownerId: string, report: OperationsReport): Promise<voi
 
 export async function runOperationsMonitor(): Promise<void> {
   await runOperationsCleanup();
+  if (computerRuntimeConfigured()) {
+    const {recoverComputerResources}=await import("./computer-resource-recovery.ts");
+    await recoverComputerResources();
+  }
   const owners = await db().query(`SELECT DISTINCT owner_id FROM agents`) as Row[];
   for (const row of owners) {
     const ownerId = String(row.owner_id);

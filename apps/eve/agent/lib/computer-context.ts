@@ -15,7 +15,7 @@ import {
 import { resolveSessionAgent } from "./session-settings.ts";
 import { ActionGateway,consumeActionAuthority } from "../../lib/action-gateway.ts";
 import { prepareComputerRuntime } from "../../lib/computer-runtime.ts";
-import { withPreparedComputer, ComputerSandboxAuthorityRequired } from "../../lib/computer-sandbox-backend.ts";
+import { withPreparedComputer, bindPreparedComputer, ComputerSandboxAuthorityRequired } from "../../lib/computer-sandbox-backend.ts";
 import { toolActionRequest } from "./action-context.ts";
 
 export function computerOwnerId(ctx: Pick<ToolContext, "session">): string {
@@ -66,7 +66,7 @@ export async function provisionComputerSession(
       const prepared = await prepareComputerRuntime(request.ownerId, ctx.abortSignal);
       // Preparation grants no execution authority: recheck revocation, budget,
       // deadlines and Agent revision immediately before session creation.
-      provisioned=await withPreparedComputer(prepared, authorized, parameters, () => provisionAuthorizedComputerSession(ctx,parameters as typeof input));return provisioned;
+      provisioned=await withPreparedComputer(prepared, authorized, parameters, () => provisionAuthorizedComputerSession(ctx,{...parameters,runId:request.runId} as typeof input));return provisioned;
     },
     receipt:result=>({computerSessionId:result.session.id,sandboxId:result.session.sandboxId}),
     async verify(result) {
@@ -115,6 +115,7 @@ async function provisionAuthorizedComputerSession(
     allowedDomains: requestedDomains,
   });
   try {
+    if (session.status === "provisioning") await bindPreparedComputer(ownerId,session.id,input.runId!);
     const sandbox = await ctx.getSandbox();
     const currentDomains = Array.isArray(session.networkPolicy.allowedDomains)
       ? session.networkPolicy.allowedDomains.filter((value): value is string => typeof value === "string")
@@ -139,6 +140,8 @@ async function provisionAuthorizedComputerSession(
         failureSummary: "Computer session provisioning failed. Check runtime status before retrying.",
       });
     }
+    const {recoverComputerResources}=await import("../../lib/computer-resource-recovery.ts");
+    await recoverComputerResources(ownerId).catch(()=>{});
     throw error;
   }
 }

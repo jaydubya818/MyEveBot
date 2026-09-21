@@ -7,6 +7,7 @@ vi.mock("../../lib/action-gateway.ts", () => ({
 vi.mock("../../lib/computer-runtime.ts", () => ({ prepareComputerRuntime: f.prepare }));
 vi.mock("../../lib/computer-sandbox-backend.ts", () => ({
   ComputerSandboxAuthorityRequired: class extends Error {},
+  bindPreparedComputer: async () => {},
   withPreparedComputer: async (_prepared: unknown, _authority: unknown, _parameters: unknown, work: () => Promise<unknown>) => { await f.provider(); return work(); },
 }));
 vi.mock("./action-context.ts", () => ({ toolActionRequest: async () => ({ ownerId: "owner", actionKey: "action" }) }));

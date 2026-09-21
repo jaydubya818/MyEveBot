@@ -7,7 +7,7 @@ import evePackage from "eve/package.json" with { type: "json" };
 import sandboxPackage from "@vercel/sandbox/package.json" with { type: "json" };
 
 export function computerRuntimeConfigured(env = process.env): boolean {
-  return COMPUTER_RUNTIME_ENABLED && !!env.DATABASE_URL && !!env.VERCEL_PROJECT_ID &&
+  return COMPUTER_RUNTIME_ENABLED && !!env.DATABASE_URL && !!env.VERCEL_PROJECT_ID && !!env.VERCEL_TEAM_ID &&
     (!!env.VERCEL_OIDC_TOKEN || (!!env.VERCEL_TOKEN && !!env.VERCEL_TEAM_ID));
 }
 

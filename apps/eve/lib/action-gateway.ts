@@ -6,6 +6,20 @@ import { approvalBinding, canonicalActionValue, requestApproval, resolveApproval
 import { effectiveCapability, getAgent } from "./agents.ts";
 import { getCapability } from "./capability-registry.ts";
 import { type ExecutionDatabase, type RoutineConfiguration } from "./execution-types.ts";
+import { ComputerResourceStore, computerResourceEnvironment, resourceBinding, type ComputerResource, type ResourceBinding } from "./computer-resource-store.ts";
+
+export type ComputerLifecycleOperation = "stop" | "delete" | "verify";
+export interface ComputerLifecycleAuthority { readonly classification: "OWNED_RESOURCE_LIFECYCLE" }
+export interface ComputerLifecycleProvider {
+  execute(operation: ComputerLifecycleOperation, row: ComputerResource, authority: ComputerLifecycleAuthority, store: ComputerResourceStore): Promise<boolean>;
+}
+const lifecycleHandles = new WeakMap<ComputerLifecycleAuthority, { operation: ComputerLifecycleOperation; binding: string; expiresAt: number; revalidate: () => Promise<boolean> }>();
+/** Destructive-only authority cannot enter either ordinary Action Gateway handle map. */
+export async function consumeComputerLifecycleAuthority(authority: ComputerLifecycleAuthority, operation: ComputerLifecycleOperation, row: ComputerResource) {
+  const handle = lifecycleHandles.get(authority); lifecycleHandles.delete(authority);
+  if (!handle || handle.operation !== operation || handle.binding !== JSON.stringify(resourceBinding(row))
+    || Date.now() >= handle.expiresAt || !await handle.revalidate()) throw new ActionBlocked("denied", "computer_lifecycle_binding");
+}
 
 export interface ActionTarget {
   provider: string;
@@ -63,6 +77,15 @@ export async function consumeActionAuthority(context:AuthorizedAction|undefined,
 /** A second, independently consumed boundary immediately before the email transport. */
 export async function consumeProviderAuthority(context:AuthorizedAction|undefined,parameters:Record<string,unknown>,capabilityId:string):Promise<void> {
   await takeAuthority(providerHandles,context,parameters,capabilityId);
+}
+
+/** The canonical provisioning grant keeps a read-only revalidator through durable binding insertion. */
+export async function consumeComputerProvisionAuthority(context: AuthorizedAction, parameters: Record<string, unknown>) {
+  const record=await takeAuthority(providerHandles,context,parameters,"computer.session.create");
+  return async () => {
+    if(context.signal?.aborted || Date.now()>=context.expiresAt) throw new ActionBlocked("denied",context.idempotencyKey);
+    await record.revalidate();
+  };
 }
 
 function frozenJson<T>(value:T):T {
@@ -128,6 +151,47 @@ export class ActionGateway {
     approvals: typeof requestApproval = requestApproval,
     executionEnabled:()=>boolean=()=>ROUTINE_RELEASE.enabled,
   ) {this.database=database;this.authority=authority;this.approvals=approvals;this.executionEnabled=executionEnabled;}
+
+  /** Entry points are authenticated owner routes, qualified Agent adapters, and deterministic recovery.
+   * Resource names are assertions only; only pre-existing durable ownership can authorize deletion. */
+  async terminateOwnedComputer(input: { binding: ResourceBinding; initiator: "owner" | "system" | "agent"; controlVersion?: number;
+    agentAuthority?: AuthorizedAction; agentParameters?: Record<string, unknown> }, provider?: ComputerLifecycleProvider) {
+    const binding = frozenJson(input.binding);
+    if (binding.environment !== computerResourceEnvironment()) throw new ActionBlocked("denied", "computer_environment");
+    const store = new ComputerResourceStore(this.database);
+    const existing = await store.exact(binding);
+    if (!existing) throw new ActionBlocked("denied", "computer_lifecycle_binding");
+    if (input.initiator === "agent") {
+      const authority = input.agentAuthority;
+      if (!authority || authority.executor?.agentId !== existing.agent_id || authority.target?.resource !== existing.resource_name
+        || authority.target.account !== existing.owner_id || authority.target.environment !== existing.environment) throw new ActionBlocked("denied", "computer_agent_binding");
+      await consumeProviderAuthority(authority, input.agentParameters ?? {}, "computer.session.stop");
+    }
+    if (existing.state === "cleaned" && input.initiator !== "system") return { verified: true, lifecycleId: existing.id, reused: true };
+    const row = await store.claim(binding, input.initiator, input.controlVersion);
+    if (!row) throw new ActionBlocked("denied", "computer_lifecycle_fenced");
+    let verified = false;
+    try {
+      if (input.initiator === "system") await store.event(row, "recovery.attempted");
+      const adapter = provider ?? (await import("./computer-resource-provider.ts")).computerResourceProvider;
+      for (const operation of ["stop", "delete", "verify"] as const) {
+        const authority: ComputerLifecycleAuthority = Object.freeze({ classification: "OWNED_RESOURCE_LIFECYCLE" });
+        lifecycleHandles.set(authority, { operation, binding: JSON.stringify(resourceBinding(row)), expiresAt: Date.now()+10_000,
+          revalidate: () => store.validClaim(row) });
+        try {
+          await store.event(row, `${operation}.requested`);
+          const result = await adapter.execute(operation, row, authority, store);
+          if (!result) throw new Error("Computer cleanup is unverified.");
+          await store.event(row, operation === "verify" ? "absence.verified" : `${operation}.completed`);
+        } finally { lifecycleHandles.delete(authority); }
+      }
+      verified = true;
+      return { verified: true, lifecycleId: row.id, reused: false };
+    } finally {
+      if (!await store.finish(row, verified)) throw new ActionBlocked("result_unknown",row.id);
+      if (!verified) await store.event(row, "cleanup.failed", "unverified");
+    }
+  }
 
   async execute<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal?: AbortSignal): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
     action=frozenJson(action);
