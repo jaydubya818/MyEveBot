@@ -1,0 +1,17 @@
+{
+  "STANDARD": {
+    "count": 184,
+    "metadataHash": "2d64248f6bbab5620d70cc441a8ebb89db3dc945633f225f168628b25ac0f104",
+    "providerInputHash": "488a9297973bb77c5896afdc45206a662198d2fd76f5681796594288fd37a587"
+  },
+  "CHALLENGE": {
+    "count": 249,
+    "metadataHash": "aaa2e6a2b208a9ec5840377d693c5953247f8ba6d5ac83ffc285e0035f7d43ad",
+    "providerInputHash": "f90a35deaa4aca434a6f0b6dc4b5404f926e7d55d4044b2fba5d68114eb86474"
+  },
+  "TAXONOMY_STRESS": {
+    "count": 57,
+    "metadataHash": "50281fc94aaf1ff49cff33ab06187e9ea19356762fbafb58a8cbb48b674eb442",
+    "providerInputHash": "76552028672f8c13c169baaeefbae6b7678c80d88e144524b7b081a8610e8c91"
+  }
+}

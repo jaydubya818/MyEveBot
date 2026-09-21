@@ -1,0 +1,2217 @@
+[
+  {
+    "id": "challenge_0001",
+    "familyId": "family_243",
+    "candidate": "I prefer the quiet carriage, so I have selected it for Tuesday’s trip.",
+    "context": "Owner: Both carriage types were available at the same fare. I like quiet carriages generally, and the seat selection on this reservation is now complete.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "States both a general owner preference and a particular completed choice.",
+    "difficultyRationale": "The causal link does not eliminate either distinct asserted concept.",
+    "surfaceLure": null,
+    "domain": "travel",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0001",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Contains both a general carriage preference and an explicit completed reservation choice."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0002",
+    "familyId": "family_246",
+    "candidate": "If the vendor confirms stock, I will place the order, and the replacement pump will be here next week.",
+    "context": "Owner: I agreed to handle ordering once the stock email arrives. The vendor’s page estimates five working days but does not guarantee delivery; no stock confirmation has arrived.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "CONDITIONAL_COMMITMENT",
+      "COMMITMENT_FUTURE_FACT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines an accepted conditional obligation with an uncertain asserted delivery outcome.",
+    "difficultyRationale": "The promise is attributable, while the future arrival rests on an unconfirmed estimate.",
+    "surfaceLure": null,
+    "domain": "operations",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0002",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a conditional ordering commitment with an uncertain delivery prediction."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0003",
+    "familyId": "family_251",
+    "candidate": "The house rule is shoes off, which is how I prefer visitors to arrive, and we agreed to keep it after the renovation.",
+    "context": "Owner: The notice has been beside the door for years. During the renovation discussion I said I still preferred shoes left in the entryway; everyone agreed to retain that arrangement.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_FACT",
+      "PREFERENCE_DECISION",
+      "MULTI_CONCEPT",
+      "TEMPORAL_CHANGE"
+    ],
+    "rationale": "Combines an established household rule, explicit owner preference, and historical agreement to retain it.",
+    "difficultyRationale": "All three dimensions are naturally supported; the candidate gives no isolated target for choosing among them.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0003",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an established house rule, an explicit owner preference, and agreement to retain the arrangement."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0006",
+    "familyId": "family_160",
+    "candidate": "I used to want a full tour; now just show the checklist, and I will write it if the team agrees.",
+    "context": "Agent: Should I update your general onboarding style or this release only? Owner: I have not separated those yet. I used to want a full tour; now just show the checklist, and I will write it if the team agrees.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "CORRECTION",
+      "TEMPORAL_CHANGE",
+      "PREFERENCE_DECISION",
+      "CONDITIONAL_COMMITMENT",
+      "NEGATION"
+    ],
+    "rationale": "A changed but unscoped preference or choice is mixed with a conditional writing undertaking.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "product",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0006",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Mixes a changed desired format, an instruction, and a conditional undertaking while general versus release scope remains unresolved."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0008",
+    "familyId": "family_157",
+    "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+    "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "INTENT_COMMITMENT",
+      "INSIGHT_PREFERENCE"
+    ],
+    "rationale": "Unaccepted aspiration and self-interpretation about work fit are mixed, without a clear owner working default.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0008",
+      "label": "preference",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Expresses the owner’s affinity for working with beginners while withholding role acceptance."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0010",
+    "familyId": "family_153",
+    "candidate": "You tend to ask for fewer dependencies, so I selected the native implementation for you.",
+    "context": "Agent: You tend to ask for fewer dependencies, so I selected the native implementation for you. Owner: I have not reviewed that selection or confirmed a standing rule.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "INSIGHT_PREFERENCE",
+      "PREFERENCE_DECISION",
+      "NEGATION"
+    ],
+    "rationale": "Agent-generated owner characterization and agent selection are distinct; owner preference is unapproved.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "agent",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0010",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a claimed owner behavior pattern and the agent’s implementation choice without isolating either."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0019",
+    "familyId": "family_134",
+    "candidate": "I aim to have the captions ready Friday.",
+    "context": "Editor: Yesterday Friday was only a target. Can the production team rely on you to deliver then? Owner: Yes, I am accepting Friday as my delivery date. Editor: Give me the short version for the board. Owner: I aim to have the captions ready Friday.",
+    "label": "commitment",
+    "confidence": "MEDIUM",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "INTENT_COMMITMENT",
+      "CORRECTION",
+      "TEMPORAL_CHANGE",
+      "NEGATION",
+      "ATTRIBUTED_STATEMENT"
+    ],
+    "rationale": "The previously aspirational date becomes an explicitly accepted delivery obligation.",
+    "difficultyRationale": "Aim and a prior tentative target lure toward uncertainty while the correction establishes acceptance.",
+    "surfaceLure": "hypothesis",
+    "domain": "creative",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0019",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": true,
+      "rationale": "The candidate states an aim despite an accepted deadline in context; goal versus restated promise remains unresolved."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0023",
+    "familyId": "family_040",
+    "candidate": "The likely mismatch here is between “account created” and being able to qualify for the service.",
+    "context": "In six sessions users finished account creation, then stopped at the required company-registration-number field. Four explicitly said they were sole traders without that number. Two asked whether a personal tax number would work. No alternate onboarding has been tested.",
+    "label": "insight",
+    "confidence": "MEDIUM",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "INSIGHT_HYPOTHESIS"
+    ],
+    "rationale": "Interprets the demonstrated gap between creation and eligibility without predicting an intervention.",
+    "difficultyRationale": "Likely strongly cues hypothesis; the content organizes established session outcomes into two distinct milestones.",
+    "surfaceLure": "hypothesis",
+    "domain": "product",
+    "speaker": "coworker",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0023",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Synthesizes the observed gap between account creation and qualification; likely wording leaves an explanation boundary."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0027",
+    "familyId": "family_011",
+    "candidate": "In this week’s use, sharing new items worked while preserving completion across devices did not.",
+    "context": "I tracked the shared shopping list for a week. Every item I added appeared on both phones. Two items we had checked off on the phones returned to unchecked when my partner reconnected the offline tablet. Its cached list still had those items unchecked.",
+    "label": "insight",
+    "confidence": "HIGH",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "TEMPORAL_CHANGE"
+    ],
+    "rationale": "Synthesizes separate state traces into two distinct reliability dimensions.",
+    "difficultyRationale": "A compact behavioral summary can resemble raw evidence; it organizes outcomes by function.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0027",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Distinguishes successful item sharing from failed preservation of completion across devices."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0042",
+    "familyId": "family_238",
+    "candidate": "The café is closed on Mondays; I watched the owner lock it at noon today despite the open sign.",
+    "context": "It is Monday. The owner confirmed the weekly closure policy last week, but the sign was still lit when I passed at noon.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "MULTI_CONCEPT",
+      "TEMPORAL_CHANGE"
+    ],
+    "rationale": "A recurring policy and a fresh witnessed event appear together.",
+    "difficultyRationale": "Neither clause is an isolated target, and one does not reduce to evidence for the other.",
+    "surfaceLure": null,
+    "domain": "travel",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0042",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a standing closure policy with a fresh witnessed locking event."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0044",
+    "familyId": "family_008",
+    "candidate": "The bus wait, not the train leg, is where the recorded journeys spread out.",
+    "context": "My trip log has six entries for this route. The train leg took 42–45 minutes each time. Door-to-door totals ranged from 68 to 119 minutes; the long totals coincided with longer waits for the same connecting bus.",
+    "label": "observation",
+    "confidence": "HIGH",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "NEGATION"
+    ],
+    "rationale": "Reports the directly calculated location of variation in the log.",
+    "difficultyRationale": "The not-X-but-Y structure sounds explanatory; the claim only identifies measured variation.",
+    "surfaceLure": "insight",
+    "domain": "travel",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0044",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Identifies bus waiting as the component associated with variation in total journey duration."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "REVIEW_DISAGREEMENT"
+    ]
+  },
+  {
+    "id": "challenge_0048",
+    "familyId": "family_058",
+    "candidate": "I recognized every word on the cards, which shows recognition is ahead of fluent retrieval, and speaking first might close that gap.",
+    "context": "I checked the same ten words on cards and then in conversation. I have not tried speaking practice before card review.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "INSIGHT_HYPOTHESIS",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Includes a measured result, its interpretation and a testable learning prediction.",
+    "difficultyRationale": "Three linked propositions cannot honestly receive one primary category.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0048",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a card-performance observation, a recognition interpretation, and an untested practice prediction."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0059",
+    "familyId": "family_069",
+    "candidate": "The empty queue concealed unassigned work, so I will check the filter every morning as agreed; today there were six hidden requests.",
+    "context": "Yesterday the team treated a clean queue as proof that every request was handled. Today we found six unassigned requests excluded by the filter, and I agreed to check that filter personally each morning.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "DECISION_COMMITMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines an interpretation of the metric, an explicit ongoing obligation and a measured count.",
+    "difficultyRationale": "The shared incident links the clauses but leaves separate evidence, meaning and promise.",
+    "surfaceLure": null,
+    "domain": "operations",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0059",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an interpretation, an accepted recurring obligation, and a counted observation without isolating one target."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0068",
+    "familyId": "family_242",
+    "candidate": "We have settled on the smaller venue, and I will make sure the deposit reaches them by Friday.",
+    "context": "Owner: Both venues were available. We finished the selection during the call. The coordinator asked me personally to take responsibility for paying the deposit, and I accepted.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Contains a completed venue choice and an accepted personal payment obligation.",
+    "difficultyRationale": "Both propositions are explicit and consequential, with no single isolated target.",
+    "surfaceLure": null,
+    "domain": "creative",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0068",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a completed venue decision and a personal payment commitment."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0069",
+    "familyId": "family_063",
+    "candidate": "The equipment arrives Tuesday, and I will personally finish the readiness checklist on Monday.",
+    "context": "The supplier delivery date is confirmed. I also made a separate promise to finish the internal checklist before the delivery.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "COMMITMENT_FUTURE_FACT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Pairs a confirmed future delivery fact with a first-person commitment.",
+    "difficultyRationale": "Both clauses use future tense but have different sources and force.",
+    "surfaceLure": null,
+    "domain": "project-management",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0069",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a confirmed delivery assertion and a separate personal promise."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0075",
+    "familyId": "family_148",
+    "candidate": "Written updates work better for us; send them every Friday and I will compile them.",
+    "context": "Meeting notes: This line appears in the notes without a speaker marker: Written updates work better for us; send them every Friday and I will compile them. The attendee list includes the owner and three coworkers.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "ATTRIBUTED_STATEMENT",
+      "INSIGHT_PREFERENCE",
+      "DECISION_COMMITMENT"
+    ],
+    "rationale": "An interpretation, process instruction, and undertaking share a target with unresolved speaker attribution.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "operations",
+    "speaker": "meeting-notes",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0075",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Mixes an evaluative claim, recurring instruction, and promise with unresolved speaker attribution."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0078",
+    "familyId": "family_247",
+    "candidate": "We finish every lesson with a recap because that helps me retain the material.",
+    "context": "Owner: The tutor’s last six session plans end with a recap. I asked for that format after finding my recap notes easier to recall, and I still want it used.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_FACT",
+      "INSIGHT_PREFERENCE",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Current routine, approved preference, and learning interpretation overlap.",
+    "difficultyRationale": "Context supports several dimensions of the same routine without isolating which claim is being stored.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0078",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": true,
+      "rationale": "Candidate combines an existing routine and a retention explanation; the owner’s preference appears in context rather than explicitly in the candidate."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "RUBRIC_SENSITIVE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0081",
+    "familyId": "family_229",
+    "candidate": "The short exercises let beginners practice one technique at a time.",
+    "context": "The long exercise combines shading, perspective, and texture. Each short exercise uses only one of those techniques. We are comparing the two lesson formats.",
+    "label": "insight",
+    "confidence": "HIGH",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "MODERATE",
+    "boundaries": [
+      "INSIGHT_DECISION"
+    ],
+    "rationale": "Interprets the learning function of the exercise structure.",
+    "difficultyRationale": "It may favor a format, but comparing benefits is not itself a choice.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "coworker",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0081",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Draws the instructional implication of separating the techniques in short exercises."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0088",
+    "familyId": "family_061",
+    "candidate": "They clicked the disabled button three times; they must have thought the form was ready.",
+    "context": "I wrote this after watching a customer session. The recording captures three clicks on the disabled button. No participant interview followed.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_HYPOTHESIS",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines observed actions with an unverified mental-state explanation.",
+    "difficultyRationale": "Confident must wording does not remove the untested inference or isolate it from evidence.",
+    "surfaceLure": null,
+    "domain": "product",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0088",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines observed clicks with an unverified interpretation of the participant’s belief."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0089",
+    "familyId": "family_060",
+    "candidate": "Maya has agreed to answer urgent pages within ten minutes and is on call next Monday.",
+    "context": "The shift manager signed the response agreement. The current rota also lists her on call next Monday.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "COMMITMENT_FUTURE_FACT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Reports both an attributed obligation and a scheduled future fact.",
+    "difficultyRationale": "Shared subject and future relevance do not make the rota entry a promise.",
+    "surfaceLure": null,
+    "domain": "operations",
+    "speaker": "coworker",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0089",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines Maya’s response agreement with a separate scheduled shift fact."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0092",
+    "familyId": "family_249",
+    "candidate": "The quiet desk area is working: I counted fewer interruptions there today, and we should use it for all editing.",
+    "context": "Owner: I logged two interruptions during a two-hour edit in the quiet area and seven yesterday at the shared table. We have not discussed whether to change the team’s seating routine.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "INSIGHT_DECISION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines a measured contrast, an interpretation of success, and a recommendation.",
+    "difficultyRationale": "The proposed routine is not a completed choice, but the evidence and interpretation remain distinct asserted components.",
+    "surfaceLure": null,
+    "domain": "creative",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0092",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines observed interruptions, an interpretation of success, and a proposed general practice."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0099",
+    "familyId": "family_146",
+    "candidate": "I am going to rewrite the search service.",
+    "context": "Agent: Is that approved work or just something you are considering? Owner: I have not worked that out yet. I am going to rewrite the search service.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "INTENT_COMMITMENT",
+      "LOW_CONTEXT",
+      "NEGATION"
+    ],
+    "rationale": "An unresolved intention establishes neither an actual choice nor an accepted obligation.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0099",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Expresses an intention whose status as selected work or an undertaking remains explicitly unsettled."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0101",
+    "familyId": "family_158",
+    "candidate": "We like annual billing, so use it on the renewal and we will pay the full year up front.",
+    "context": "Owner: Are you telling me your usual purchasing style, choosing a renewal option, or accepting payment terms? Customer: All of those. We like annual billing, so use it on the renewal and we will pay the full year up front.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "ATTRIBUTED_STATEMENT",
+      "PREFERENCE_DECISION",
+      "DECISION_COMMITMENT"
+    ],
+    "rationale": "Customer taste, renewal selection, and payment acceptance are intentionally inseparable.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "business",
+    "speaker": "customer",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0101",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Explicitly combines purchasing style, a renewal choice, and acceptance of payment terms."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0102",
+    "familyId": "family_250",
+    "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+    "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "INTENT_COMMITMENT",
+      "COMMITMENT_FUTURE_FACT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Juxtaposes an intention about queue work and a strong assurance about report availability.",
+    "difficultyRationale": "The reassurance favors commitment, but the compound target also asserts a future outcome and an intention.",
+    "surfaceLure": "commitment",
+    "domain": "business",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0102",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The explicit assurance that the customer can count on delivery constitutes a promise regardless of feasibility."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0103",
+    "familyId": "family_064",
+    "candidate": "Priya prefers calls, but I prefer written summaries and have kept them as our default.",
+    "context": "Priya told the group she prefers phone calls. The owner responded that written summaries would remain the team default and that she personally prefers them.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_FACT",
+      "PREFERENCE_DECISION",
+      "ATTRIBUTED_STATEMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Mixes another person’s reported preference, the owner’s preference and a retained default choice.",
+    "difficultyRationale": "Speaker attribution resolves ownership but not the multiple concepts in the combined target.",
+    "surfaceLure": null,
+    "domain": "customer-support",
+    "speaker": "meeting-notes",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0103",
+      "label": "preference",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The central owner statement explicitly endorses written summaries as a personal and continuing default preference."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0106",
+    "familyId": "family_149",
+    "candidate": "I like the rougher draft and I have put it in the final submission.",
+    "context": "Coworker: You asked for my taste and for the submission status. I like the rougher draft and I have put it in the final submission.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "PREFERENCE_DECISION",
+      "ATTRIBUTED_STATEMENT"
+    ],
+    "rationale": "A coworker’s taste is not automatically owner preference, while submission choice is also explicit.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "creative",
+    "speaker": "coworker",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0106",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a coworker’s taste with submission status without isolating one target."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0121",
+    "familyId": "family_059",
+    "candidate": "Breakfast at the hotel costs 18 euros, and we are eating at the cafe instead.",
+    "context": "The hotel receipt states that breakfast costs 18 euros. I have compared the alternatives and selected the nearby cafe.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "DECISION_FACT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines established pricing with a selected alternative.",
+    "difficultyRationale": "The context resolves the choice as settled but leaves two concepts in the target.",
+    "surfaceLure": null,
+    "domain": "travel",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0121",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an established breakfast price with a selected dining alternative."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0127",
+    "familyId": "family_159",
+    "candidate": "No, evening chores work better; put laundry after dinner and I will handle it.",
+    "context": "Household notes: A speaker corrected an earlier suggestion during the family meeting. The recorder did not identify which adult spoke: No, evening chores work better; put laundry after dinner and I will handle it.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "CORRECTION",
+      "NEGATION",
+      "ATTRIBUTED_STATEMENT",
+      "INSIGHT_DECISION",
+      "DECISION_COMMITMENT"
+    ],
+    "rationale": "Interpretation, scheduling choice, and an undertaking are bundled, with an unidentified obligor.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "meeting-notes",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0127",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an evaluative claim, scheduling instruction, and undertaking from an unidentified speaker."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0135",
+    "familyId": "family_239",
+    "candidate": "I promise to send the signed forms tomorrow, when your application will be complete.",
+    "context": "Customer: I signed the remaining forms today. The portal says it treats an application as complete only after those forms arrive. I am replying to your request for a delivery date.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "COMMITMENT_FUTURE_FACT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Contains both a personal promise and a future state assertion about the application.",
+    "difficultyRationale": "The dependent future outcome is asserted alongside an explicit obligation, creating an unresolved compound target.",
+    "surfaceLure": null,
+    "domain": "business",
+    "speaker": "customer",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0135",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a promise to send forms with an additional application-completion prediction."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0138",
+    "familyId": "family_155",
+    "candidate": "The muted cover feels more trustworthy, which is why it is our cover and I will prepare the files.",
+    "context": "Designer: You reviewed comments calling the bright cover playful and the muted cover sober. What do you want captured? Owner: The muted cover feels more trustworthy, which is why it is our cover and I will prepare the files.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "INSIGHT_DECISION",
+      "DECISION_COMMITMENT"
+    ],
+    "rationale": "Synthesis, completed cover selection, and accepted production work coexist without an isolated target.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "creative",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0138",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines perceived trustworthiness, a cover choice, and future file preparation."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0158",
+    "familyId": "family_067",
+    "candidate": "I got it right before correcting myself to the wrong form, so my checking is outrunning my confidence; less rehearsal might help.",
+    "context": "My tutor corrected the transcript: I had pronounced the word correctly, then changed it to an incorrect form after hesitating. I have not tested any change to practice.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "INSIGHT_HYPOTHESIS",
+      "CORRECTION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Blends corrected performance evidence, a psychological interpretation and a proposed untested intervention.",
+    "difficultyRationale": "The psychological reading itself is rubric-sensitive, and two additional concepts remain explicit.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0158",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an observed self-correction, a confidence interpretation, and an untested practice proposal."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0159",
+    "familyId": "family_244",
+    "candidate": "The tank holds 80 liters, and the gauge has dropped ten liters since breakfast.",
+    "context": "The installation certificate lists usable capacity as 80 liters. I read 65 liters on the gauge at breakfast and 55 just now.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "MODERATE",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Established capacity and freshly measured consumption coexist.",
+    "difficultyRationale": "Each clause separately has clear semantics, but the combined candidate has no primary target.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0159",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines certified tank capacity with a fresh gauge-change observation."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0166",
+    "familyId": "family_066",
+    "candidate": "Having a value was not the same as having a usable identifier; the audit found four invalid values, and validation at entry is now approved.",
+    "context": "The audit found every invoice had a tax identifier, but four identifiers were invalid. Management has now selected validation at entry as the next change.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "INSIGHT_DECISION",
+      "NEGATION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines evidence, interpretation of completeness and an approved choice.",
+    "difficultyRationale": "All three clauses have clear roles but no single isolated target is supplied.",
+    "surfaceLure": null,
+    "domain": "business",
+    "speaker": "document",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0166",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an interpretation, an audit finding, and an approved change."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0177",
+    "familyId": "family_062",
+    "candidate": "The opening gives us a place without a direction, so I am replacing the last paragraph with a clear goal.",
+    "context": "The review group understood the setting but not the narrator’s goal. I selected a rewrite direction during our closing discussion.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "INSIGHT_DECISION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Joins an evidence-grounded interpretation with a selected edit.",
+    "difficultyRationale": "The chosen action is explicit in context and remains distinct from its interpretive reason.",
+    "surfaceLure": null,
+    "domain": "creative",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0177",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an interpretation of the opening with a selected rewrite action."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0180",
+    "familyId": "family_068",
+    "candidate": "The flight is delayed, and the inbound aircraft may be stuck in fog.",
+    "context": "I watched the gate agent announce a delay. She also said, “The inbound aircraft may be stuck in fog.” The airline app later confirmed the delay but gave no reason.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "FACT_OBSERVATION",
+      "OBSERVATION_HYPOTHESIS",
+      "ATTRIBUTED_STATEMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Joins a confirmed current status with an uncertain explanation relayed from staff.",
+    "difficultyRationale": "The event status can be established while its proposed cause remains tentative.",
+    "surfaceLure": null,
+    "domain": "travel",
+    "speaker": "customer",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0180",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an established delay with an uncertain explanation for it."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0181",
+    "familyId": "family_150",
+    "candidate": "I would take the advanced seminar if I felt ready.",
+    "context": "Agent: Have you selected it or told the instructor you will attend? Owner: Neither. I would take the advanced seminar if I felt ready. I am also drawn to the beginner workshop.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "INTENT_COMMITMENT",
+      "COUNTERFACTUAL",
+      "NEGATION"
+    ],
+    "rationale": "Counterfactual inclination and competing desire support no completed choice or obligation.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0181",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Expresses a conditional inclination; neither a settled choice nor a qualifying standing preference is established."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0185",
+    "familyId": "family_240",
+    "candidate": "“I prefer a written summary before every call,” Morgan said; keep that as the default for next time.",
+    "context": "Meeting transcript excerpt. Morgan, the account lead, and the owner both attended. The next speaker’s name is missing from the transcript, and “next time” could refer to Morgan’s client call or the owner’s review.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "PREFERENCE_FACT",
+      "ATTRIBUTED_STATEMENT",
+      "QUOTED_SPEECH",
+      "MULTI_CONCEPT",
+      "CONTEXT_DEPENDENT"
+    ],
+    "rationale": "The preference attribution and authority for adopting it are unresolved.",
+    "difficultyRationale": "Explicit preference wording tempts owner preference, but the missing speaker and referent prevent attribution.",
+    "surfaceLure": "preference",
+    "domain": "business",
+    "speaker": "meeting-notes",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0185",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "The speaker and intended owner of the purported default remain unresolved."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0186",
+    "familyId": "family_248",
+    "candidate": "“We will deliver the proofs on Friday,” Alex wrote, and Friday is now the delivery date in the project sheet.",
+    "context": "Alex is the printer’s account manager. The owner copied the email into the project sheet and changed its delivery-date cell. The email gives no separate courier confirmation.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "COMMITMENT_FUTURE_FACT",
+      "ATTRIBUTED_STATEMENT",
+      "QUOTED_SPEECH",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Relays an attributed delivery promise and a current recorded schedule value.",
+    "difficultyRationale": "The sheet is established as a record, but it does not collapse the attributed obligation into the same category.",
+    "surfaceLure": null,
+    "domain": "creative",
+    "speaker": "document",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0186",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines Alex’s delivery promise and a separate assertion about the project-sheet entry."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0191",
+    "familyId": "family_055",
+    "candidate": "We are going with the shorter signup copy, and I will have it live by Friday.",
+    "context": "The launch meeting ended this morning. The owner approved the new copy and assigned the rollout to herself.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "DECISION_COMMITMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines a completed choice with an explicit personal delivery promise.",
+    "difficultyRationale": "The conjunction preserves two independent speech acts; neither is isolated.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0191",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines copy selection and a separate personal rollout promise."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0195",
+    "familyId": "family_241",
+    "candidate": "The errors doubled after the release, which tells us the new importer is mishandling dates.",
+    "context": "The dashboard shows 12 failures before deployment and 24 afterward. Several failed records contain dates, but nobody has compared them with successful records or replayed them on the old importer.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_HYPOTHESIS",
+      "INSIGHT_HYPOTHESIS",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Combines a measured change with an unverified causal explanation presented assertively.",
+    "difficultyRationale": "The explanatory claim may be tentative despite confident phrasing, while the first clause remains direct evidence.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "coworker",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0195",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a measured error increase with an unverified causal diagnosis."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0199",
+    "familyId": "family_151",
+    "candidate": "I usually tackle repairs early, and I will fix the tap Saturday.",
+    "context": "Partner: Is Saturday an accepted job or an idea? Owner: I cannot say yet. I usually tackle repairs early, and I will fix the tap Saturday.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "INTENT_COMMITMENT",
+      "PREFERENCE_FACT",
+      "LOW_CONTEXT"
+    ],
+    "rationale": "A reported habit and unsettled future action do not yield one well-isolated category.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0199",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a habitual behavior claim with a future plan whose acceptance remains unresolved."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0205",
+    "familyId": "family_222",
+    "candidate": "Not a new approval layer: the revised routing makes the existing two-signature requirement visible earlier in the purchase flow.",
+    "context": "Review note: Both the old and new policies require two signatures above $5,000. Previously the requester learned about the second signature after submission; the revised screen lists both approvers before submission.",
+    "label": "insight",
+    "confidence": "HIGH",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "FACT_INSIGHT",
+      "NEGATION",
+      "CORRECTION",
+      "TEMPORAL_CHANGE"
+    ],
+    "rationale": "Interprets the relationship between unchanged policy and changed workflow visibility.",
+    "difficultyRationale": "Policy-review wording invites a simple fact reading; the candidate synthesizes what the redesign changes.",
+    "surfaceLure": "fact",
+    "domain": "operations",
+    "speaker": "document",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0205",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Synthesizes the revision as earlier visibility of an unchanged approval requirement."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0214",
+    "familyId": "family_156",
+    "candidate": "If approval arrives, we use rail and Alex handles the reservations.",
+    "context": "Document: Trip planning sheet copied from a discussion. It has no approval marker or record of Alex’s acceptance. The line reads: If approval arrives, we use rail and Alex handles the reservations.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "CONDITIONAL_COMMITMENT",
+      "DECISION_COMMITMENT",
+      "ATTRIBUTED_STATEMENT",
+      "LOW_CONTEXT"
+    ],
+    "rationale": "Conditional itinerary and assignment may be proposals or approved choices, with no evidence of acceptance.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "travel",
+    "speaker": "document",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0214",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "The conditional planning line establishes neither an accepted assignment nor a completed choice."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0233",
+    "familyId": "family_232",
+    "candidate": "Putting the answer key on a separate page makes an accidental glance less likely during practice.",
+    "context": "The combined worksheet places the answer directly below each question. The alternative puts all answers on a reverse page that the learner must turn over.",
+    "label": "insight",
+    "confidence": "MEDIUM",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "MODERATE",
+    "boundaries": [
+      "INSIGHT_PREFERENCE"
+    ],
+    "rationale": "Interprets the practical significance of the two layouts.",
+    "difficultyRationale": "A favored layout is plausible, but the candidate gives a relationship without expressing personal taste.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0233",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Draws a practical relationship between answer placement and accidental visibility; its predictive phrasing approaches hypothesis."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0246",
+    "familyId": "family_245",
+    "candidate": "Not Tuesday anymore: we moved the workshop to Thursday, and the calendar now lists Thursday at ten.",
+    "context": "Coordinator: Yesterday we approved the date change. I opened the shared calendar during this call and read the updated entry aloud.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "DECISION_FACT",
+      "FACT_OBSERVATION",
+      "MULTI_CONCEPT",
+      "NEGATION",
+      "CORRECTION",
+      "TEMPORAL_CHANGE"
+    ],
+    "rationale": "Combines a historical scheduling choice with a current display report.",
+    "difficultyRationale": "Correction spans both a decision and evidence that it was reflected in the calendar.",
+    "surfaceLure": null,
+    "domain": "learning",
+    "speaker": "coworker",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0246",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an approved scheduling choice and a freshly observed calendar entry."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0256",
+    "familyId": "family_065",
+    "candidate": "If the alarm arrives today I will fit it tonight as promised, and I hope to sort the cupboard this week too.",
+    "context": "I promised the landlord that I would replace the smoke alarm if the replacement unit arrived today. I also said I hoped to reorganize the hall cupboard sometime this week.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "CONDITIONAL_COMMITMENT",
+      "INTENT_COMMITMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Contains a conditional promise plus a separate casual intention.",
+    "difficultyRationale": "The explicit promise cannot upgrade the adjoining hope into an obligation.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0256",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a conditional promise with a separate unaccepted cupboard wish."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0268",
+    "familyId": "family_142",
+    "candidate": "We hope to maintain your quoted rate until renewal.",
+    "context": "Customer: I understand your cost forecasts are uncertain. Are you nevertheless agreeing to hold our rate until renewal? Owner: Yes, we accept that term. Customer: Please restate it. Owner: We hope to maintain your quoted rate until renewal.",
+    "label": "commitment",
+    "confidence": "MEDIUM",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "HARD",
+    "boundaries": [
+      "INTENT_COMMITMENT",
+      "COMMITMENT_FUTURE_FACT"
+    ],
+    "rationale": "The softened restatement follows explicit acceptance of the rate-hold term.",
+    "difficultyRationale": "Hope and forecast uncertainty lure toward prediction; accepting the term establishes obligation despite risk.",
+    "surfaceLure": null,
+    "domain": "business",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0268",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": true,
+      "rationale": "Hope in the candidate does not explicitly repeat the accepted rate obligation; contextual commitment and literal wish remain in tension."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0280",
+    "familyId": "family_018",
+    "candidate": "My original count overstated unplanned dinner spending by mixing it with planned lunches.",
+    "context": "I checked this month’s receipts against my envelope notes. My note of “five takeaways” was wrong: there were two takeaway dinners and three prepaid work lunches. The work lunches were already included in my lunch budget.",
+    "label": "insight",
+    "confidence": "HIGH",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_INSIGHT",
+      "CORRECTION"
+    ],
+    "rationale": "Interprets the effect of combining different expense categories.",
+    "difficultyRationale": "The correction is used to explain what the count misrepresented.",
+    "surfaceLure": null,
+    "domain": "personal-finance",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0280",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Interprets the counting error as conflating planned spending with unplanned spending."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0281",
+    "familyId": "family_141",
+    "candidate": "I want to own the permissions audit.",
+    "context": "Manager: I can assign it to you now. Are you accepting ownership? Owner: Yes, assign it to me; I accept the audit and its Friday handoff. Manager: Why did you raise your hand? Owner: I want to own the permissions audit.",
+    "label": "commitment",
+    "confidence": "MEDIUM",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "HARD",
+    "boundaries": [
+      "INTENT_COMMITMENT",
+      "NEGATION"
+    ],
+    "rationale": "The stated ownership intent is confirmed by explicit acceptance in the same exchange.",
+    "difficultyRationale": "Want wording suggests desire; accepted accountable ownership supplies the stronger contextual reading.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0281",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "The target expresses desire as the reason for volunteering; the separately accepted obligation does not settle how to label that desire itself."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE"
+    ]
+  },
+  {
+    "id": "challenge_0284",
+    "familyId": "family_022",
+    "candidate": "The current return process asks customers to provide information we already have in the same conversation.",
+    "context": "Three replacement requests arrived this morning. Each customer attached the return form, and each had already typed the same serial number into the chat.",
+    "label": "insight",
+    "confidence": "HIGH",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "MODERATE",
+    "boundaries": [
+      "OBSERVATION_INSIGHT"
+    ],
+    "rationale": "Interprets duplication as a process requirement.",
+    "difficultyRationale": "Meaningful process synthesis competes with a bare repetition count.",
+    "surfaceLure": null,
+    "domain": "operations",
+    "speaker": "coworker",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0284",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Interprets repeated serial-number requests as duplication within the same process."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0285",
+    "familyId": "family_152",
+    "candidate": "We want short proposals, and the two-page version is going to the buyer.",
+    "context": "Meeting notes: The owner and buyer both spoke about proposal length. This sentence was captured without identifying who said which part: We want short proposals, and the two-page version is going to the buyer.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "MULTI_CONCEPT",
+      "PREFERENCE_DECISION",
+      "ATTRIBUTED_STATEMENT"
+    ],
+    "rationale": "Owner endorsement and whether the version is chosen or merely intended remain unresolved.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "business",
+    "speaker": "meeting-notes",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0285",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an unattributed preference with a submission selection or plan."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0290",
+    "familyId": "family_237",
+    "candidate": "We chose regional storage last spring, and every active customer record is now stored there.",
+    "context": "Migration recap: The leadership minutes record the regional-storage choice in April. Yesterday’s inventory places all active customer records in that region.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "DECISION_FACT",
+      "MULTI_CONCEPT",
+      "TEMPORAL_CHANGE"
+    ],
+    "rationale": "Historical choice and present storage state are both substantive targets.",
+    "difficultyRationale": "The sentence combines a settled decision with a current factual state; neither is merely explanatory.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "meeting-notes",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0290",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a historical storage decision and a separate current inventory assertion."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0292",
+    "familyId": "family_147",
+    "candidate": "I want quieter trips, so the train is our selection and I will book it tonight.",
+    "context": "Partner: Are you giving me your general travel style, the itinerary, or taking the booking task? Owner: All three. I want quieter trips, so the train is our selection and I will book it tonight.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "DECISION_COMMITMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Owner style, completed itinerary selection, and booking acceptance are intentionally combined.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "travel",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0292",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Explicitly combines a travel preference, an itinerary choice, and a booking commitment."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0295",
+    "familyId": "family_057",
+    "candidate": "All three failures had empty filenames, and enforcing a name should stop the errors.",
+    "context": "The trace has three failed exports, each with an empty filename. No run with a forced filename has been attempted.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "OBSERVATION_HYPOTHESIS",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Reports measured failures and predicts an untested remedy.",
+    "difficultyRationale": "The evidence and proposed effect each retain independent classification.",
+    "surfaceLure": null,
+    "domain": "software",
+    "speaker": "agent",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0295",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines observed filename failures and an untested remedy prediction."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0297",
+    "familyId": "family_133",
+    "candidate": "I would like to handle the airport pickup.",
+    "context": "Partner: I need a yes or no so I can cancel the car service. Will you pick Mum up? Owner: Yes, you can rely on me for the pickup. Partner: What shall I tell her? Owner: I would like to handle the airport pickup.",
+    "label": "commitment",
+    "confidence": "MEDIUM",
+    "ambiguous": false,
+    "defensible": true,
+    "difficulty": "ADVERSARIAL",
+    "boundaries": [
+      "INTENT_COMMITMENT"
+    ],
+    "rationale": "A polite expression follows explicit acceptance of the requested pickup.",
+    "difficultyRationale": "Like wording looks like personal desire; reliance and acceptance establish the task obligation.",
+    "surfaceLure": "preference",
+    "domain": "travel",
+    "speaker": "owner",
+    "construction": "CHALLENGE",
+    "expected": null,
+    "review": {
+      "id": "challenge_0297",
+      "label": null,
+      "confidence": "MEDIUM",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": true,
+      "rationale": "The candidate expresses a wish while context supplies a promise; whether this restates the obligation remains unresolved."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "REVIEW_DISAGREEMENT",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "RUBRIC_SENSITIVE"
+    ]
+  },
+  {
+    "id": "challenge_0309",
+    "familyId": "family_056",
+    "candidate": "I prefer doing chores before breakfast, so we have chosen Saturday at eight.",
+    "context": "We compared three cleaning schedules. I told the household which one I enjoy, then recorded our agreed schedule.",
+    "label": null,
+    "confidence": "HIGH",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "PREFERENCE_DECISION",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Contains an owner preference and a settled household choice.",
+    "difficultyRationale": "Causal wording connects the concepts but does not collapse preference into decision.",
+    "surfaceLure": null,
+    "domain": "household",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0309",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines the owner’s general chore preference with a specific household schedule choice."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  },
+  {
+    "id": "challenge_0310",
+    "familyId": "family_154",
+    "candidate": "Actually, Maya wants the morning slot, and I might take it too.",
+    "context": "Agent: Yesterday you said the afternoon. Owner: Actually, Maya wants the morning slot, and I might take it too. Do not finalize the roster.",
+    "label": null,
+    "confidence": "LOW",
+    "ambiguous": true,
+    "defensible": false,
+    "difficulty": "HARD",
+    "boundaries": [
+      "CORRECTION",
+      "ATTRIBUTED_STATEMENT",
+      "NEGATION",
+      "INTENT_COMMITMENT",
+      "MULTI_CONCEPT"
+    ],
+    "rationale": "Another person’s desire and the owner’s tentative intent cannot establish one owner choice or obligation.",
+    "difficultyRationale": "Unresolved or genuinely mixed target; excluded from primary accuracy rather than treated as adversarial.",
+    "surfaceLure": null,
+    "domain": "operations",
+    "speaker": "owner",
+    "construction": "TAXONOMY_STRESS",
+    "expected": null,
+    "review": {
+      "id": "challenge_0310",
+      "label": null,
+      "confidence": "HIGH",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Mixes another person’s desired slot with the owner’s unresolved possibility; neither establishes an owner preference or choice."
+    },
+    "reviewStatus": "VALID",
+    "state": "TAXONOMY_STRESS",
+    "reasons": [
+      "AMBIGUOUS",
+      "GROUND_TRUTH_NOT_DEFENSIBLE",
+      "AUTHORED_TAXONOMY_STRESS"
+    ]
+  }
+]

@@ -1,4 +1,10 @@
 {
   "framework": "nextjs",
-  "outputDirectory": null
+  "outputDirectory": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "codex/federation-final-consolidation": false
+    }
+  }
 }

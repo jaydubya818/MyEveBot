@@ -1,0 +1,70 @@
+The south pier belongs to the island council.|The ownership register is current and uncontested.|Established legal ownership.
+The handbook defines a folio as one leaf, not one page.|The owner is quoting the handbook's terminology.|Established published definition.
+The observatory's charter predates the railway.|Both founding dates are documented in the archive.|Established chronology.
+The kiln's rated limit is twelve hundred degrees.|This is its manufacturer rating, not today's sensor reading.|Specification rather than observation.
+The blue ticket excludes the upper gallery.|Admission terms list the rooms included in each ticket.|Established entitlement.
+The river gauge uses centimeters above a fixed datum.|The instrument manual specifies its scale.|Measurement convention, not reading.
+The agreement expired yesterday; no renewal was signed.|The executed agreement and signature register are available.|Established contractual state.
+The collection has two legally distinct owners.|The accession documents separate municipal and trust holdings.|Established status.
+That quotation is from the second edition.|The bibliographic record resolves an earlier attribution dispute.|Resolved source attribution.
+The overnight crossing is not a passenger service.|The published operator license restricts it to freight.|Established service classification.
+The token remains valid after midnight.|The printed validity terms explicitly permit overnight use.|Established rule with temporal condition.
+No permit is required for sketches made without a tripod.|The current visitor policy states this exception.|Established policy, not personal preference.
+The east doorway is eighty centimeters wide.|A certified as-built plan supplies the dimension; no new measurement is being reported.|Established specification.
+The original score is in public ownership.|The donation deed transfers title to the municipality.|Established ownership rather than interpretation.
+The cassette holds a copy, not the master recording.|The archive's verified transfer record identifies the source.|Established provenance correction.
+Neither exhibit is insured for transport.|The active insurance schedule covers display only.|Established coverage exclusion.
+The quarry is outside the protected boundary.|The authoritative boundary map locates it beyond the reserve.|Established mapped relation.
+The society has no voting category for temporary members.|The adopted constitution lists all voting classes.|Established governance rule.
+The revised edition does include an index.|The catalog correction has been checked against the published book.|Resolved correction, not fresh noticing.
+The ferry's name changed, but its registration number did not.|The owner cites the vessel registry history.|Established identity history.
+The loan period begins on collection, not reservation.|The library's published terms specify the trigger.|Established rule.
+The permit covers the courtyard only.|The signed permit lists no indoor space.|Established authorization scope.
+The north stairway is a listed part of the building.|The conservation register explicitly includes it.|Established designation.
+The audio file is licensed for exhibition, not resale.|The executed license specifies permitted uses.|Established rights.
+The brass plate was replaced in the restoration of 1986.|The conservation record documents that completed intervention.|Established historical event.
+The handbook's word 'must' denotes a requirement.|The glossary defines the term; the speaker is not accepting a new obligation.|Established definition rather than commitment.
+A standard crate in this catalog contains six tiles.|The supplier defines its packaging unit this way.|Established unit.
+The red line indicates the former shoreline.|The map legend is explicit.|Established map convention.
+The rehearsal hall has never been part of this lease.|The full lease history excludes it.|Established negative status.
+The trust cannot sell donated objects under its charter.|The relevant charter clause is uncontested.|Established organizational restriction.
+The revised timetable takes effect next month.|The operator has published an effective date; this is a report of that notice.|Established scheduled policy fact.
+The river has two officially named branches here.|The gazetteer lists both names.|Established geographic nomenclature.
+The observer's surname is misspelled in the printed caption.|A verified identity record establishes the correct spelling.|Established textual error.
+The backup key opens only the outer gate.|The locksmith's registered key schedule identifies its scope.|Established specification.
+The accession number is an identifier, not an acquisition date.|The archive's numbering policy explicitly says so.|Established convention.
+The venue's legal capacity excludes staff.|The issued occupancy certificate defines the count.|Established definition of capacity.
+The certificate authenticates the frame only.|Its written scope excludes the painting.|Established certification scope.
+The tide table uses local standard time throughout.|Its explanatory legend excludes seasonal clock changes.|Established publication convention.
+The mounted specimen is a replica.|The accession record identifies its fabrication.|Established object identity.
+The donor retained reproduction rights.|The executed gift agreement states that reservation.|Established rights arrangement.
+The ticket is transferable once.|The current terms permit one named transfer.|Established entitlement.
+The workshop's official name contains no apostrophe.|The registered name resolves a signage discussion.|Established spelling.
+The grant excludes travel expenditure.|The award letter lists ineligible costs.|Established funding restriction.
+The map is not to scale.|The publisher explicitly labels the diagram schematic.|Established property from source.
+The west wing opened after the founder's death.|Verified dates settle the chronology.|Established historical relationship.
+The stair lift requires a separate electrical circuit.|The installation specification states this requirement.|Established technical requirement, not speaker promise.
+The bronze is a later casting from the original mold.|The certified provenance identifies casting history.|Established object history.
+The reserve's jurisdiction ends at the low-water mark.|The designation order specifies its legal boundary.|Established jurisdiction.
+The replacement part has the same thread but a different diameter.|The two manufacturer drawings establish both dimensions.|Established specification comparison.
+The bus operator is a cooperative.|Its registration lists that legal form.|Established organization type.
+The catalog's 'anonymous' field means attribution unknown.|The catalog schema documentation defines the value.|Established meaning rather than inference.
+The festival admits accompanied children without a separate ticket.|This is the current published admission rule.|Established policy.
+The archive closes on the anniversary holiday.|The approved calendar is being reported, not reconsidered.|Established schedule.
+The old permit is invalid even if its seal is intact.|The revocation notice applies to all copies.|Established validity condition.
+The charcoal drawing is dated by the artist, not the curator.|The authenticated inscription supplies the date.|Established attribution of a date.
+The printed serial number is not unique across editions.|The publisher's numbering specification reuses each sequence.|Established identifier scope.
+The route crosses two administrative districts.|Official route and district maps establish this.|Established geographic relationship.
+The label's 'circa' qualifies the date.|The style guide defines the notation.|Established terminology.
+The lease's renewal is optional for both parties.|The signed clause supplies separate refusal rights.|Established contract structure.
+The measuring vessel is calibrated for delivery, not containment.|Its certification specifies calibration type.|Established measurement property.
+The archived interview was translated from the original recording.|The verified production log records translation.|Established provenance.
+The final act is absent from the surviving manuscript.|The catalog describes a verified incomplete artifact, not today's inspection.|Established artifact condition.
+The rope's rated load assumes dry conditions.|The manufacturer's published rating states that qualification.|Established conditional specification.
+The advisory panel cannot issue permits.|The delegation instrument reserves that authority elsewhere.|Established authority boundary.
+The abbreviation refers to the station, not the village.|The official timetable key resolves the name.|Established reference.
+The guide described her own preference for candlelight.|Context establishes only that this quotation occurred; no one endorses it as the owner's preference.|Factual report of another person's statement.
+'We chose blue' is the title printed on the sculpture's plinth.|The candidate reports a verified title, not a current choice.|Quoted decision words used as a name.
+The phrase 'I promise' appears in the inscription.|The transcription is authenticated; the speaker is reporting text.|Quotation is not accepting an obligation.
+The minutes record a motion, not an adopted resolution.|The certified record marks it as withdrawn.|Established status distinction.
+The published correction says the vessel was copper, not tin.|The erratum is authoritative and uncontested.|Established corrected assertion.

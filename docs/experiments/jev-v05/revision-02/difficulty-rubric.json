@@ -1,0 +1,18 @@
+{
+  "id": "knowledge-challenge-difficulty:v1",
+  "status": "FROZEN BEFORE REVISION-02 AUTHORING",
+  "definitions": {
+    "EASY": "One semantic cue with little plausible category competition.",
+    "MODERATE": "One meaningful competing category; the candidate and bounded context resolve it.",
+    "HARD": "Multiple plausible cues; resolution requires a semantic distinction rather than category keywords.",
+    "ADVERSARIAL": "Realistic surface wording favors a specific plausible wrong class; context or a rubric distinction supports another defensible label. Not nonsense, prompt injection, or ambiguity alone."
+  },
+  "rules": [
+    "Assign difficulty before blind review and record the competing interpretation privately.",
+    "Do not change difficulty because reviewers agree or disagree.",
+    "Ambiguous, disputed, unresolved mixed or rubric-sensitive examples belong in TAXONOMY_STRESS, never primary accuracy.",
+    "Do not expose difficulty, cohort, family, author rationale or boundary tags to the provider or blind reviewer.",
+    "Context supplies natural evidence or conversation, not an explanation of the correct category.",
+    "Adversarial cases must name a plausible surface lure privately; negation alone is not evidence of difficulty."
+  ]
+}

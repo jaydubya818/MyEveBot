@@ -1,0 +1,3104 @@
+{
+  "summaries": [
+    {
+      "runId": "0a8db3e4-7d40-4be6-92b0-d5e6f6124648",
+      "experiment": "CHALLENGE_SEVEN",
+      "count": 249,
+      "analysis": {
+        "kind": "primary",
+        "metrics": {
+          "attempted": 249,
+          "succeeded": 249,
+          "failed": 0,
+          "failures": {},
+          "labeledCount": 249,
+          "correct": 223,
+          "accuracy": 0.8955823293172691,
+          "completion": 1,
+          "endToEndAccuracy": 0.8955823293172691,
+          "canonicalAccuracy": null,
+          "agreement": null,
+          "disagreementRate": null,
+          "bothCorrect": 0,
+          "canonicalOnlyCorrect": 0,
+          "providerOnlyCorrect": 0,
+          "bothWrong": 0,
+          "highConfidenceErrors": [],
+          "calibrationCount": 249,
+          "confidenceBands": [
+            {
+              "lower": 0,
+              "upper": 0.7,
+              "count": 58,
+              "labeledCount": 58,
+              "accuracy": 0.6379310344827587
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 24,
+              "labeledCount": 24,
+              "accuracy": 0.9166666666666666
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 39,
+              "labeledCount": 39,
+              "accuracy": 0.9230769230769231
+            },
+            {
+              "lower": 0.9,
+              "upper": 0.95,
+              "count": 20,
+              "labeledCount": 20,
+              "accuracy": 1
+            },
+            {
+              "lower": 0.95,
+              "upper": 1,
+              "count": 108,
+              "labeledCount": 108,
+              "accuracy": 1
+            }
+          ],
+          "perClass": [
+            {
+              "outcome": "decision",
+              "examples": 42,
+              "precision": 0.9069767441860465,
+              "recall": 0.9285714285714286,
+              "f1": 0.9176470588235294
+            },
+            {
+              "outcome": "fact",
+              "examples": 33,
+              "precision": 0.8,
+              "recall": 0.8484848484848485,
+              "f1": 0.8235294117647058
+            },
+            {
+              "outcome": "observation",
+              "examples": 58,
+              "precision": 0.9591836734693877,
+              "recall": 0.8103448275862069,
+              "f1": 0.8785046728971962
+            },
+            {
+              "outcome": "hypothesis",
+              "examples": 30,
+              "precision": 1,
+              "recall": 0.9333333333333333,
+              "f1": 0.9655172413793104
+            },
+            {
+              "outcome": "commitment",
+              "examples": 26,
+              "precision": 1,
+              "recall": 0.8076923076923077,
+              "f1": 0.8936170212765957
+            },
+            {
+              "outcome": "preference",
+              "examples": 17,
+              "precision": 0.8947368421052632,
+              "recall": 1,
+              "f1": 0.9444444444444444
+            },
+            {
+              "outcome": "insight",
+              "examples": 43,
+              "precision": 0.7962962962962963,
+              "recall": 1,
+              "f1": 0.8865979381443299
+            }
+          ],
+          "macroPrecision": 0.9081705080081418,
+          "macroRecall": 0.9040609636668749,
+          "macroF1": 0.9014082555328731,
+          "medianConfidence": 0.9,
+          "matrix": {
+            "decision": {
+              "decision": 39,
+              "fact": 1,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 2,
+              "insight": 0
+            },
+            "fact": {
+              "decision": 0,
+              "fact": 28,
+              "observation": 2,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 3
+            },
+            "observation": {
+              "decision": 0,
+              "fact": 5,
+              "observation": 47,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 6
+            },
+            "hypothesis": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 28,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 2
+            },
+            "commitment": {
+              "decision": 4,
+              "fact": 1,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 21,
+              "preference": 0,
+              "insight": 0
+            },
+            "preference": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 17,
+              "insight": 0
+            },
+            "insight": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 43
+            }
+          },
+          "latencyP50": 256.12291599999935,
+          "latencyP95": 389.590959000001,
+          "inputTokens": 147326,
+          "costUsd": null
+        },
+        "thresholds": [
+          {
+            "threshold": 0.7,
+            "selected": 191,
+            "total": 249,
+            "errors": 5,
+            "coverage": 0.7670682730923695,
+            "accuracy": 0.9738219895287958,
+            "fallback": 0.23293172690763053,
+            "estimatedErrorsPer1000": 20.080321285140563,
+            "hypotheticalCallsAvoided": 191
+          },
+          {
+            "threshold": 0.8,
+            "selected": 167,
+            "total": 249,
+            "errors": 3,
+            "coverage": 0.6706827309236948,
+            "accuracy": 0.9820359281437125,
+            "fallback": 0.3293172690763052,
+            "estimatedErrorsPer1000": 12.048192771084338,
+            "hypotheticalCallsAvoided": 167
+          },
+          {
+            "threshold": 0.85,
+            "selected": 146,
+            "total": 249,
+            "errors": 0,
+            "coverage": 0.5863453815261044,
+            "accuracy": 1,
+            "fallback": 0.41365461847389556,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 146
+          },
+          {
+            "threshold": 0.9,
+            "selected": 128,
+            "total": 249,
+            "errors": 0,
+            "coverage": 0.5140562248995983,
+            "accuracy": 1,
+            "fallback": 0.4859437751004016,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 128
+          },
+          {
+            "threshold": 0.95,
+            "selected": 108,
+            "total": 249,
+            "errors": 0,
+            "coverage": 0.43373493975903615,
+            "accuracy": 1,
+            "fallback": 0.5662650602409639,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 108
+          },
+          {
+            "threshold": 0.97,
+            "selected": 86,
+            "total": 249,
+            "errors": 0,
+            "coverage": 0.3453815261044177,
+            "accuracy": 1,
+            "fallback": 0.6546184738955824,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 86
+          },
+          {
+            "threshold": 0.99,
+            "selected": 60,
+            "total": 249,
+            "errors": 0,
+            "coverage": 0.24096385542168675,
+            "accuracy": 1,
+            "fallback": 0.7590361445783133,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 60
+          }
+        ],
+        "difficulty": {
+          "EASY": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          },
+          "MODERATE": {
+            "count": 52,
+            "accuracy": 0.9230769230769231,
+            "errors": 4,
+            "medianConfidence": 0.95,
+            "highConfidenceErrors": 0
+          },
+          "HARD": {
+            "count": 114,
+            "accuracy": 0.8947368421052632,
+            "errors": 12,
+            "medianConfidence": 0.9,
+            "highConfidenceErrors": 0
+          },
+          "ADVERSARIAL": {
+            "count": 83,
+            "accuracy": 0.8795180722891566,
+            "errors": 10,
+            "medianConfidence": 0.86,
+            "highConfidenceErrors": 0
+          }
+        },
+        "boundaries": {
+          "DECISION_COMMITMENT": {
+            "count": 30,
+            "accuracy": 0.9333333333333333,
+            "errors": 2,
+            "medianConfidence": 0.9,
+            "highConfidenceErrors": 0
+          },
+          "INTENT_COMMITMENT": {
+            "count": 25,
+            "accuracy": 0.84,
+            "errors": 4,
+            "medianConfidence": 0.83,
+            "highConfidenceErrors": 0
+          },
+          "COMMITMENT_FUTURE_FACT": {
+            "count": 9,
+            "accuracy": 0.8888888888888888,
+            "errors": 1,
+            "medianConfidence": 0.83,
+            "highConfidenceErrors": 0
+          },
+          "FACT_OBSERVATION": {
+            "count": 40,
+            "accuracy": 0.7,
+            "errors": 12,
+            "medianConfidence": 0.79,
+            "highConfidenceErrors": 0
+          },
+          "NEGATION": {
+            "count": 63,
+            "accuracy": 0.8412698412698413,
+            "errors": 10,
+            "medianConfidence": 0.87,
+            "highConfidenceErrors": 0
+          },
+          "CORRECTION": {
+            "count": 41,
+            "accuracy": 0.8292682926829268,
+            "errors": 7,
+            "medianConfidence": 0.76,
+            "highConfidenceErrors": 0
+          },
+          "OBSERVATION_HYPOTHESIS": {
+            "count": 30,
+            "accuracy": 0.9666666666666667,
+            "errors": 1,
+            "medianConfidence": 0.84,
+            "highConfidenceErrors": 0
+          },
+          "PREFERENCE_DECISION": {
+            "count": 30,
+            "accuracy": 0.9333333333333333,
+            "errors": 2,
+            "medianConfidence": 0.96,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_HYPOTHESIS": {
+            "count": 29,
+            "accuracy": 0.9655172413793104,
+            "errors": 1,
+            "medianConfidence": 0.92,
+            "highConfidenceErrors": 0
+          },
+          "ATTRIBUTED_STATEMENT": {
+            "count": 47,
+            "accuracy": 0.8723404255319149,
+            "errors": 6,
+            "medianConfidence": 0.89,
+            "highConfidenceErrors": 0
+          },
+          "QUOTED_SPEECH": {
+            "count": 20,
+            "accuracy": 0.9,
+            "errors": 2,
+            "medianConfidence": 0.9,
+            "highConfidenceErrors": 0
+          },
+          "CONDITIONAL_COMMITMENT": {
+            "count": 7,
+            "accuracy": 0.8571428571428571,
+            "errors": 1,
+            "medianConfidence": 0.71,
+            "highConfidenceErrors": 0
+          },
+          "OBSERVATION_INSIGHT": {
+            "count": 44,
+            "accuracy": 0.9318181818181818,
+            "errors": 3,
+            "medianConfidence": 0.97,
+            "highConfidenceErrors": 0
+          },
+          "CONTEXT_DEPENDENT": {
+            "count": 16,
+            "accuracy": 0.875,
+            "errors": 2,
+            "medianConfidence": 0.81,
+            "highConfidenceErrors": 0
+          },
+          "TEMPORAL_CHANGE": {
+            "count": 23,
+            "accuracy": 0.8260869565217391,
+            "errors": 4,
+            "medianConfidence": 0.89,
+            "highConfidenceErrors": 0
+          },
+          "COUNTERFACTUAL": {
+            "count": 7,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.91,
+            "highConfidenceErrors": 0
+          },
+          "FACT_INSIGHT": {
+            "count": 9,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.92,
+            "highConfidenceErrors": 0
+          },
+          "PREFERENCE_FACT": {
+            "count": 4,
+            "accuracy": 0.75,
+            "errors": 1,
+            "medianConfidence": 0.8,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_DECISION": {
+            "count": 6,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.93,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_PREFERENCE": {
+            "count": 2,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.8,
+            "highConfidenceErrors": 0
+          }
+        },
+        "highConfidenceErrors": [
+          {
+            "threshold": 0.9,
+            "ids": []
+          },
+          {
+            "threshold": 0.95,
+            "ids": []
+          },
+          {
+            "threshold": 0.99,
+            "ids": []
+          }
+        ]
+      },
+      "confidence": {
+        "count": 249,
+        "mean": 0.8331726907630528,
+        "median": 0.9,
+        "min": 0.37,
+        "max": 1
+      },
+      "correctConfidence": {
+        "count": 223,
+        "mean": 0.8616591928251126,
+        "median": 0.93,
+        "min": 0.43,
+        "max": 1
+      },
+      "errorConfidence": {
+        "count": 26,
+        "mean": 0.5888461538461539,
+        "median": 0.57,
+        "min": 0.37,
+        "max": 0.81
+      },
+      "latencyP95": 389.590959000001
+    },
+    {
+      "runId": "293b3ad5-2f93-4337-b3f3-ea37df476cb8",
+      "experiment": "V0_REPRODUCTION",
+      "count": 210,
+      "analysis": {
+        "kind": "primary",
+        "metrics": {
+          "attempted": 210,
+          "succeeded": 210,
+          "failed": 0,
+          "failures": {},
+          "labeledCount": 210,
+          "correct": 206,
+          "accuracy": 0.9809523809523809,
+          "completion": 1,
+          "endToEndAccuracy": 0.9809523809523809,
+          "canonicalAccuracy": null,
+          "agreement": null,
+          "disagreementRate": null,
+          "bothCorrect": 0,
+          "canonicalOnlyCorrect": 0,
+          "providerOnlyCorrect": 0,
+          "bothWrong": 0,
+          "highConfidenceErrors": [],
+          "calibrationCount": 210,
+          "confidenceBands": [
+            {
+              "lower": 0,
+              "upper": 0.7,
+              "count": 6,
+              "labeledCount": 6,
+              "accuracy": 0.5
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 4,
+              "labeledCount": 4,
+              "accuracy": 0.75
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 8,
+              "labeledCount": 8,
+              "accuracy": 1
+            },
+            {
+              "lower": 0.9,
+              "upper": 0.95,
+              "count": 13,
+              "labeledCount": 13,
+              "accuracy": 1
+            },
+            {
+              "lower": 0.95,
+              "upper": 1,
+              "count": 179,
+              "labeledCount": 179,
+              "accuracy": 1
+            }
+          ],
+          "perClass": [
+            {
+              "outcome": "decision",
+              "examples": 35,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "outcome": "fact",
+              "examples": 35,
+              "precision": 1,
+              "recall": 0.9428571428571428,
+              "f1": 0.9705882352941176
+            },
+            {
+              "outcome": "observation",
+              "examples": 35,
+              "precision": 0.9210526315789473,
+              "recall": 1,
+              "f1": 0.958904109589041
+            },
+            {
+              "outcome": "hypothesis",
+              "examples": 35,
+              "precision": 1,
+              "recall": 0.9428571428571428,
+              "f1": 0.9705882352941176
+            },
+            {
+              "outcome": "commitment",
+              "examples": 35,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "outcome": "preference",
+              "examples": 35,
+              "precision": 0.9722222222222222,
+              "recall": 1,
+              "f1": 0.9859154929577465
+            }
+          ],
+          "macroPrecision": 0.9822124756335282,
+          "macroRecall": 0.980952380952381,
+          "macroF1": 0.9809993455225037,
+          "medianConfidence": 1,
+          "matrix": {
+            "decision": {
+              "decision": 35,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0
+            },
+            "fact": {
+              "decision": 0,
+              "fact": 33,
+              "observation": 2,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0
+            },
+            "observation": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 35,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0
+            },
+            "hypothesis": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 1,
+              "hypothesis": 33,
+              "commitment": 0,
+              "preference": 1
+            },
+            "commitment": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 35,
+              "preference": 0
+            },
+            "preference": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 35
+            }
+          },
+          "latencyP50": 247.51270900000054,
+          "latencyP95": 356.39300000000367,
+          "inputTokens": 87610,
+          "costUsd": null
+        },
+        "thresholds": [
+          {
+            "threshold": 0.7,
+            "selected": 204,
+            "total": 210,
+            "errors": 1,
+            "coverage": 0.9714285714285714,
+            "accuracy": 0.9950980392156863,
+            "fallback": 0.02857142857142857,
+            "estimatedErrorsPer1000": 4.761904761904763,
+            "hypotheticalCallsAvoided": 204
+          },
+          {
+            "threshold": 0.8,
+            "selected": 200,
+            "total": 210,
+            "errors": 0,
+            "coverage": 0.9523809523809523,
+            "accuracy": 1,
+            "fallback": 0.047619047619047616,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 200
+          },
+          {
+            "threshold": 0.85,
+            "selected": 197,
+            "total": 210,
+            "errors": 0,
+            "coverage": 0.9380952380952381,
+            "accuracy": 1,
+            "fallback": 0.06190476190476191,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 197
+          },
+          {
+            "threshold": 0.9,
+            "selected": 192,
+            "total": 210,
+            "errors": 0,
+            "coverage": 0.9142857142857143,
+            "accuracy": 1,
+            "fallback": 0.08571428571428572,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 192
+          },
+          {
+            "threshold": 0.95,
+            "selected": 179,
+            "total": 210,
+            "errors": 0,
+            "coverage": 0.8523809523809524,
+            "accuracy": 1,
+            "fallback": 0.14761904761904762,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 179
+          },
+          {
+            "threshold": 0.97,
+            "selected": 169,
+            "total": 210,
+            "errors": 0,
+            "coverage": 0.8047619047619048,
+            "accuracy": 1,
+            "fallback": 0.19523809523809524,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 169
+          },
+          {
+            "threshold": 0.99,
+            "selected": 148,
+            "total": 210,
+            "errors": 0,
+            "coverage": 0.7047619047619048,
+            "accuracy": 1,
+            "fallback": 0.29523809523809524,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 148
+          }
+        ],
+        "difficulty": {
+          "EASY": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          },
+          "MODERATE": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          },
+          "HARD": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          },
+          "ADVERSARIAL": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          }
+        },
+        "boundaries": {},
+        "highConfidenceErrors": [
+          {
+            "threshold": 0.9,
+            "ids": []
+          },
+          {
+            "threshold": 0.95,
+            "ids": []
+          },
+          {
+            "threshold": 0.99,
+            "ids": []
+          }
+        ]
+      },
+      "confidence": {
+        "count": 210,
+        "mean": 0.9664285714285715,
+        "median": 1,
+        "min": 0.49,
+        "max": 1
+      },
+      "correctConfidence": {
+        "count": 206,
+        "mean": 0.9733009708737865,
+        "median": 1,
+        "min": 0.5,
+        "max": 1
+      },
+      "errorConfidence": {
+        "count": 4,
+        "mean": 0.6125,
+        "median": 0.54,
+        "min": 0.49,
+        "max": 0.73
+      },
+      "latencyP95": 356.39300000000367
+    },
+    {
+      "runId": "a7438d26-d413-42db-84b7-eacda88c00ee",
+      "experiment": "TAXONOMY_STRESS",
+      "count": 57,
+      "analysis": {
+        "kind": "stress",
+        "stress": {
+          "attempted": 57,
+          "succeeded": 57,
+          "failed": 0,
+          "completion": 1,
+          "confidenceCount": 57,
+          "medianConfidence": 0.7,
+          "highConfidenceRates": [
+            {
+              "threshold": 0.9,
+              "count": 15,
+              "rate": 0.2631578947368421
+            },
+            {
+              "threshold": 0.95,
+              "count": 12,
+              "rate": 0.21052631578947367
+            },
+            {
+              "threshold": 0.99,
+              "count": 6,
+              "rate": 0.10526315789473684
+            }
+          ],
+          "choices": {
+            "decision": 13,
+            "fact": 1,
+            "observation": 4,
+            "hypothesis": 3,
+            "commitment": 14,
+            "preference": 12,
+            "insight": 10
+          },
+          "reviewerAgreement": 0.8596491228070176,
+          "authorOnly": 2,
+          "reviewerOnly": 4,
+          "both": 5,
+          "neither": 46,
+          "disputedHighConfidence": [
+            {
+              "id": "challenge_0008",
+              "confidence": 1
+            },
+            {
+              "id": "challenge_0044",
+              "confidence": 0.98
+            },
+            {
+              "id": "challenge_0102",
+              "confidence": 0.99
+            },
+            {
+              "id": "challenge_0103",
+              "confidence": 0.95
+            }
+          ],
+          "latencyP50": 254.5717910000003,
+          "inputTokens": 33649,
+          "costUsd": null
+        }
+      },
+      "confidence": {
+        "count": 57,
+        "mean": 0.73,
+        "median": 0.7,
+        "min": 0.4,
+        "max": 1
+      },
+      "correctConfidence": null,
+      "errorConfidence": null,
+      "latencyP95": 394.99541699999827
+    },
+    {
+      "runId": "e31927e6-4ff2-41a3-84d1-61b5f8533da9",
+      "experiment": "CHALLENGE_SIX",
+      "count": 206,
+      "analysis": {
+        "kind": "primary",
+        "metrics": {
+          "attempted": 206,
+          "succeeded": 206,
+          "failed": 0,
+          "failures": {},
+          "labeledCount": 206,
+          "correct": 178,
+          "accuracy": 0.8640776699029126,
+          "completion": 1,
+          "endToEndAccuracy": 0.8640776699029126,
+          "canonicalAccuracy": null,
+          "agreement": null,
+          "disagreementRate": null,
+          "bothCorrect": 0,
+          "canonicalOnlyCorrect": 0,
+          "providerOnlyCorrect": 0,
+          "bothWrong": 0,
+          "highConfidenceErrors": [
+            "challenge_0156",
+            "challenge_0313",
+            "challenge_0315"
+          ],
+          "calibrationCount": 206,
+          "confidenceBands": [
+            {
+              "lower": 0,
+              "upper": 0.7,
+              "count": 29,
+              "labeledCount": 29,
+              "accuracy": 0.6206896551724138
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 20,
+              "labeledCount": 20,
+              "accuracy": 0.5
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 27,
+              "labeledCount": 27,
+              "accuracy": 0.8888888888888888
+            },
+            {
+              "lower": 0.9,
+              "upper": 0.95,
+              "count": 24,
+              "labeledCount": 24,
+              "accuracy": 0.9583333333333334
+            },
+            {
+              "lower": 0.95,
+              "upper": 1,
+              "count": 106,
+              "labeledCount": 106,
+              "accuracy": 0.9716981132075472
+            }
+          ],
+          "perClass": [
+            {
+              "outcome": "decision",
+              "examples": 42,
+              "precision": 1,
+              "recall": 0.7619047619047619,
+              "f1": 0.8648648648648649
+            },
+            {
+              "outcome": "fact",
+              "examples": 33,
+              "precision": 0.7045454545454546,
+              "recall": 0.9393939393939394,
+              "f1": 0.8051948051948052
+            },
+            {
+              "outcome": "observation",
+              "examples": 58,
+              "precision": 0.9565217391304348,
+              "recall": 0.7586206896551724,
+              "f1": 0.8461538461538461
+            },
+            {
+              "outcome": "hypothesis",
+              "examples": 30,
+              "precision": 0.8823529411764706,
+              "recall": 1,
+              "f1": 0.9375
+            },
+            {
+              "outcome": "commitment",
+              "examples": 26,
+              "precision": 0.96,
+              "recall": 0.9230769230769231,
+              "f1": 0.9411764705882353
+            },
+            {
+              "outcome": "preference",
+              "examples": 17,
+              "precision": 0.68,
+              "recall": 1,
+              "f1": 0.8095238095238095
+            }
+          ],
+          "macroPrecision": 0.8639033558087267,
+          "macroRecall": 0.8971660523384662,
+          "macroF1": 0.8674022993875935,
+          "medianConfidence": 0.96,
+          "matrix": {
+            "decision": {
+              "decision": 32,
+              "fact": 1,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 1,
+              "preference": 8
+            },
+            "fact": {
+              "decision": 0,
+              "fact": 31,
+              "observation": 2,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0
+            },
+            "observation": {
+              "decision": 0,
+              "fact": 10,
+              "observation": 44,
+              "hypothesis": 4,
+              "commitment": 0,
+              "preference": 0
+            },
+            "hypothesis": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 30,
+              "commitment": 0,
+              "preference": 0
+            },
+            "commitment": {
+              "decision": 0,
+              "fact": 2,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 24,
+              "preference": 0
+            },
+            "preference": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 17
+            }
+          },
+          "latencyP50": 248.32499999999982,
+          "latencyP95": 325.34549999999945,
+          "inputTokens": 95757,
+          "costUsd": null
+        },
+        "thresholds": [
+          {
+            "threshold": 0.7,
+            "selected": 177,
+            "total": 206,
+            "errors": 17,
+            "coverage": 0.8592233009708737,
+            "accuracy": 0.903954802259887,
+            "fallback": 0.1407766990291262,
+            "estimatedErrorsPer1000": 82.5242718446602,
+            "hypotheticalCallsAvoided": 177
+          },
+          {
+            "threshold": 0.8,
+            "selected": 157,
+            "total": 206,
+            "errors": 7,
+            "coverage": 0.7621359223300971,
+            "accuracy": 0.9554140127388535,
+            "fallback": 0.23786407766990292,
+            "estimatedErrorsPer1000": 33.980582524271846,
+            "hypotheticalCallsAvoided": 157
+          },
+          {
+            "threshold": 0.85,
+            "selected": 143,
+            "total": 206,
+            "errors": 6,
+            "coverage": 0.6941747572815534,
+            "accuracy": 0.958041958041958,
+            "fallback": 0.3058252427184466,
+            "estimatedErrorsPer1000": 29.12621359223301,
+            "hypotheticalCallsAvoided": 143
+          },
+          {
+            "threshold": 0.9,
+            "selected": 130,
+            "total": 206,
+            "errors": 4,
+            "coverage": 0.6310679611650486,
+            "accuracy": 0.9692307692307692,
+            "fallback": 0.36893203883495146,
+            "estimatedErrorsPer1000": 19.41747572815534,
+            "hypotheticalCallsAvoided": 130
+          },
+          {
+            "threshold": 0.95,
+            "selected": 106,
+            "total": 206,
+            "errors": 3,
+            "coverage": 0.5145631067961165,
+            "accuracy": 0.9716981132075472,
+            "fallback": 0.4854368932038835,
+            "estimatedErrorsPer1000": 14.563106796116505,
+            "hypotheticalCallsAvoided": 106
+          },
+          {
+            "threshold": 0.97,
+            "selected": 94,
+            "total": 206,
+            "errors": 2,
+            "coverage": 0.4563106796116505,
+            "accuracy": 0.9787234042553191,
+            "fallback": 0.5436893203883495,
+            "estimatedErrorsPer1000": 9.70873786407767,
+            "hypotheticalCallsAvoided": 94
+          },
+          {
+            "threshold": 0.99,
+            "selected": 69,
+            "total": 206,
+            "errors": 0,
+            "coverage": 0.33495145631067963,
+            "accuracy": 1,
+            "fallback": 0.6650485436893204,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 69
+          }
+        ],
+        "difficulty": {
+          "EASY": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          },
+          "MODERATE": {
+            "count": 43,
+            "accuracy": 0.8837209302325582,
+            "errors": 5,
+            "medianConfidence": 0.98,
+            "highConfidenceErrors": 1
+          },
+          "HARD": {
+            "count": 93,
+            "accuracy": 0.9139784946236559,
+            "errors": 8,
+            "medianConfidence": 0.9400000000000001,
+            "highConfidenceErrors": 1
+          },
+          "ADVERSARIAL": {
+            "count": 70,
+            "accuracy": 0.7857142857142857,
+            "errors": 15,
+            "medianConfidence": 0.9,
+            "highConfidenceErrors": 1
+          }
+        },
+        "boundaries": {
+          "DECISION_COMMITMENT": {
+            "count": 30,
+            "accuracy": 0.8666666666666667,
+            "errors": 4,
+            "medianConfidence": 0.92,
+            "highConfidenceErrors": 0
+          },
+          "INTENT_COMMITMENT": {
+            "count": 25,
+            "accuracy": 0.92,
+            "errors": 2,
+            "medianConfidence": 0.9400000000000001,
+            "highConfidenceErrors": 0
+          },
+          "COMMITMENT_FUTURE_FACT": {
+            "count": 9,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.97,
+            "highConfidenceErrors": 0
+          },
+          "FACT_OBSERVATION": {
+            "count": 40,
+            "accuracy": 0.775,
+            "errors": 9,
+            "medianConfidence": 0.92,
+            "highConfidenceErrors": 2
+          },
+          "NEGATION": {
+            "count": 51,
+            "accuracy": 0.803921568627451,
+            "errors": 10,
+            "medianConfidence": 0.88,
+            "highConfidenceErrors": 1
+          },
+          "CORRECTION": {
+            "count": 36,
+            "accuracy": 0.7777777777777778,
+            "errors": 8,
+            "medianConfidence": 0.86,
+            "highConfidenceErrors": 0
+          },
+          "OBSERVATION_HYPOTHESIS": {
+            "count": 30,
+            "accuracy": 0.9333333333333333,
+            "errors": 2,
+            "medianConfidence": 0.99,
+            "highConfidenceErrors": 0
+          },
+          "PREFERENCE_DECISION": {
+            "count": 30,
+            "accuracy": 0.8,
+            "errors": 6,
+            "medianConfidence": 0.96,
+            "highConfidenceErrors": 1
+          },
+          "CONDITIONAL_COMMITMENT": {
+            "count": 7,
+            "accuracy": 0.8571428571428571,
+            "errors": 1,
+            "medianConfidence": 0.84,
+            "highConfidenceErrors": 0
+          },
+          "ATTRIBUTED_STATEMENT": {
+            "count": 41,
+            "accuracy": 0.8536585365853658,
+            "errors": 6,
+            "medianConfidence": 0.88,
+            "highConfidenceErrors": 1
+          },
+          "OBSERVATION_INSIGHT": {
+            "count": 23,
+            "accuracy": 0.8260869565217391,
+            "errors": 4,
+            "medianConfidence": 0.87,
+            "highConfidenceErrors": 0
+          },
+          "CONTEXT_DEPENDENT": {
+            "count": 13,
+            "accuracy": 0.7692307692307693,
+            "errors": 3,
+            "medianConfidence": 0.9,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_HYPOTHESIS": {
+            "count": 15,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 1,
+            "highConfidenceErrors": 0
+          },
+          "QUOTED_SPEECH": {
+            "count": 18,
+            "accuracy": 0.8333333333333334,
+            "errors": 3,
+            "medianConfidence": 0.87,
+            "highConfidenceErrors": 1
+          },
+          "TEMPORAL_CHANGE": {
+            "count": 23,
+            "accuracy": 0.8260869565217391,
+            "errors": 4,
+            "medianConfidence": 0.92,
+            "highConfidenceErrors": 0
+          },
+          "COUNTERFACTUAL": {
+            "count": 5,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 1,
+            "highConfidenceErrors": 0
+          },
+          "FACT_INSIGHT": {
+            "count": 5,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.81,
+            "highConfidenceErrors": 0
+          },
+          "PREFERENCE_FACT": {
+            "count": 4,
+            "accuracy": 0.75,
+            "errors": 1,
+            "medianConfidence": 0.77,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_PREFERENCE": {
+            "count": 1,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.98,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_DECISION": {
+            "count": 3,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.97,
+            "highConfidenceErrors": 0
+          }
+        },
+        "highConfidenceErrors": [
+          {
+            "threshold": 0.9,
+            "ids": [
+              "challenge_0156",
+              "challenge_0298",
+              "challenge_0313",
+              "challenge_0315"
+            ]
+          },
+          {
+            "threshold": 0.95,
+            "ids": [
+              "challenge_0156",
+              "challenge_0313",
+              "challenge_0315"
+            ]
+          },
+          {
+            "threshold": 0.99,
+            "ids": []
+          }
+        ]
+      },
+      "confidence": {
+        "count": 206,
+        "mean": 0.8773786407766994,
+        "median": 0.96,
+        "min": 0.39,
+        "max": 1
+      },
+      "correctConfidence": {
+        "count": 178,
+        "mean": 0.9039887640449438,
+        "median": 0.97,
+        "min": 0.42,
+        "max": 1
+      },
+      "errorConfidence": {
+        "count": 28,
+        "mean": 0.7082142857142858,
+        "median": 0.71,
+        "min": 0.39,
+        "max": 0.98
+      },
+      "latencyP95": 325.34549999999945
+    },
+    {
+      "runId": "ee91fa28-2b8d-480f-84ee-2679c7ce15a6",
+      "experiment": "CHALLENGE_SEVEN",
+      "count": 14,
+      "analysis": {
+        "kind": "primary",
+        "metrics": {
+          "attempted": 14,
+          "succeeded": 14,
+          "failed": 0,
+          "failures": {},
+          "labeledCount": 14,
+          "correct": 11,
+          "accuracy": 0.7857142857142857,
+          "completion": 1,
+          "endToEndAccuracy": 0.7857142857142857,
+          "canonicalAccuracy": null,
+          "agreement": null,
+          "disagreementRate": null,
+          "bothCorrect": 0,
+          "canonicalOnlyCorrect": 0,
+          "providerOnlyCorrect": 0,
+          "bothWrong": 0,
+          "highConfidenceErrors": [],
+          "calibrationCount": 14,
+          "confidenceBands": [
+            {
+              "lower": 0,
+              "upper": 0.7,
+              "count": 3,
+              "labeledCount": 3,
+              "accuracy": 0.3333333333333333
+            },
+            {
+              "lower": 0.7,
+              "upper": 0.8,
+              "count": 2,
+              "labeledCount": 2,
+              "accuracy": 0.5
+            },
+            {
+              "lower": 0.8,
+              "upper": 0.9,
+              "count": 2,
+              "labeledCount": 2,
+              "accuracy": 1
+            },
+            {
+              "lower": 0.9,
+              "upper": 0.95,
+              "count": 2,
+              "labeledCount": 2,
+              "accuracy": 1
+            },
+            {
+              "lower": 0.95,
+              "upper": 1,
+              "count": 5,
+              "labeledCount": 5,
+              "accuracy": 1
+            }
+          ],
+          "perClass": [
+            {
+              "outcome": "decision",
+              "examples": 2,
+              "precision": 0.6666666666666666,
+              "recall": 1,
+              "f1": 0.8
+            },
+            {
+              "outcome": "fact",
+              "examples": 2,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "outcome": "observation",
+              "examples": 2,
+              "precision": null,
+              "recall": 0,
+              "f1": 0
+            },
+            {
+              "outcome": "hypothesis",
+              "examples": 2,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "outcome": "commitment",
+              "examples": 2,
+              "precision": 1,
+              "recall": 0.5,
+              "f1": 0.6666666666666666
+            },
+            {
+              "outcome": "preference",
+              "examples": 2,
+              "precision": 1,
+              "recall": 1,
+              "f1": 1
+            },
+            {
+              "outcome": "insight",
+              "examples": 2,
+              "precision": 0.5,
+              "recall": 1,
+              "f1": 0.6666666666666666
+            }
+          ],
+          "macroPrecision": 0.738095238095238,
+          "macroRecall": 0.7857142857142857,
+          "macroF1": 0.7333333333333334,
+          "medianConfidence": 0.88,
+          "matrix": {
+            "decision": {
+              "decision": 2,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 0
+            },
+            "fact": {
+              "decision": 0,
+              "fact": 2,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 0
+            },
+            "observation": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 2
+            },
+            "hypothesis": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 2,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 0
+            },
+            "commitment": {
+              "decision": 1,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 1,
+              "preference": 0,
+              "insight": 0
+            },
+            "preference": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 2,
+              "insight": 0
+            },
+            "insight": {
+              "decision": 0,
+              "fact": 0,
+              "observation": 0,
+              "hypothesis": 0,
+              "commitment": 0,
+              "preference": 0,
+              "insight": 2
+            }
+          },
+          "latencyP50": 268.935958,
+          "latencyP95": 403.56587500000006,
+          "inputTokens": 8449,
+          "costUsd": null
+        },
+        "thresholds": [
+          {
+            "threshold": 0.7,
+            "selected": 11,
+            "total": 14,
+            "errors": 1,
+            "coverage": 0.7857142857142857,
+            "accuracy": 0.9090909090909091,
+            "fallback": 0.21428571428571427,
+            "estimatedErrorsPer1000": 71.42857142857143,
+            "hypotheticalCallsAvoided": 11
+          },
+          {
+            "threshold": 0.8,
+            "selected": 9,
+            "total": 14,
+            "errors": 0,
+            "coverage": 0.6428571428571429,
+            "accuracy": 1,
+            "fallback": 0.35714285714285715,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 9
+          },
+          {
+            "threshold": 0.85,
+            "selected": 9,
+            "total": 14,
+            "errors": 0,
+            "coverage": 0.6428571428571429,
+            "accuracy": 1,
+            "fallback": 0.35714285714285715,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 9
+          },
+          {
+            "threshold": 0.9,
+            "selected": 7,
+            "total": 14,
+            "errors": 0,
+            "coverage": 0.5,
+            "accuracy": 1,
+            "fallback": 0.5,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 7
+          },
+          {
+            "threshold": 0.95,
+            "selected": 5,
+            "total": 14,
+            "errors": 0,
+            "coverage": 0.35714285714285715,
+            "accuracy": 1,
+            "fallback": 0.6428571428571429,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 5
+          },
+          {
+            "threshold": 0.97,
+            "selected": 4,
+            "total": 14,
+            "errors": 0,
+            "coverage": 0.2857142857142857,
+            "accuracy": 1,
+            "fallback": 0.7142857142857143,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 4
+          },
+          {
+            "threshold": 0.99,
+            "selected": 2,
+            "total": 14,
+            "errors": 0,
+            "coverage": 0.14285714285714285,
+            "accuracy": 1,
+            "fallback": 0.8571428571428571,
+            "estimatedErrorsPer1000": 0,
+            "hypotheticalCallsAvoided": 2
+          }
+        ],
+        "difficulty": {
+          "EASY": {
+            "count": 0,
+            "accuracy": null,
+            "errors": 0,
+            "medianConfidence": null,
+            "highConfidenceErrors": 0
+          },
+          "MODERATE": {
+            "count": 1,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 1,
+            "highConfidenceErrors": 0
+          },
+          "HARD": {
+            "count": 6,
+            "accuracy": 0.8333333333333334,
+            "errors": 1,
+            "medianConfidence": 0.71,
+            "highConfidenceErrors": 0
+          },
+          "ADVERSARIAL": {
+            "count": 7,
+            "accuracy": 0.7142857142857143,
+            "errors": 2,
+            "medianConfidence": 0.94,
+            "highConfidenceErrors": 0
+          }
+        },
+        "boundaries": {
+          "DECISION_COMMITMENT": {
+            "count": 3,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.87,
+            "highConfidenceErrors": 0
+          },
+          "INTENT_COMMITMENT": {
+            "count": 2,
+            "accuracy": 0.5,
+            "errors": 1,
+            "medianConfidence": 0.61,
+            "highConfidenceErrors": 0
+          },
+          "COMMITMENT_FUTURE_FACT": {
+            "count": 2,
+            "accuracy": 0.5,
+            "errors": 1,
+            "medianConfidence": 0.61,
+            "highConfidenceErrors": 0
+          },
+          "FACT_OBSERVATION": {
+            "count": 2,
+            "accuracy": 0.5,
+            "errors": 1,
+            "medianConfidence": 0.54,
+            "highConfidenceErrors": 0
+          },
+          "NEGATION": {
+            "count": 6,
+            "accuracy": 0.6666666666666666,
+            "errors": 2,
+            "medianConfidence": 0.87,
+            "highConfidenceErrors": 0
+          },
+          "CORRECTION": {
+            "count": 3,
+            "accuracy": 0.6666666666666666,
+            "errors": 1,
+            "medianConfidence": 0.95,
+            "highConfidenceErrors": 0
+          },
+          "OBSERVATION_HYPOTHESIS": {
+            "count": 1,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.71,
+            "highConfidenceErrors": 0
+          },
+          "PREFERENCE_DECISION": {
+            "count": 2,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.94,
+            "highConfidenceErrors": 0
+          },
+          "INSIGHT_HYPOTHESIS": {
+            "count": 2,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.88,
+            "highConfidenceErrors": 0
+          },
+          "ATTRIBUTED_STATEMENT": {
+            "count": 3,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.95,
+            "highConfidenceErrors": 0
+          },
+          "QUOTED_SPEECH": {
+            "count": 2,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.87,
+            "highConfidenceErrors": 0
+          },
+          "CONDITIONAL_COMMITMENT": {
+            "count": 1,
+            "accuracy": 1,
+            "errors": 0,
+            "medianConfidence": 0.67,
+            "highConfidenceErrors": 0
+          },
+          "OBSERVATION_INSIGHT": {
+            "count": 2,
+            "accuracy": 0.5,
+            "errors": 1,
+            "medianConfidence": 0.73,
+            "highConfidenceErrors": 0
+          },
+          "CONTEXT_DEPENDENT": {
+            "count": 1,
+            "accuracy": 0,
+            "errors": 1,
+            "medianConfidence": 0.73,
+            "highConfidenceErrors": 0
+          }
+        },
+        "highConfidenceErrors": [
+          {
+            "threshold": 0.9,
+            "ids": []
+          },
+          {
+            "threshold": 0.95,
+            "ids": []
+          },
+          {
+            "threshold": 0.99,
+            "ids": []
+          }
+        ]
+      },
+      "confidence": {
+        "count": 14,
+        "mean": 0.8414285714285714,
+        "median": 0.88,
+        "min": 0.54,
+        "max": 1
+      },
+      "correctConfidence": {
+        "count": 11,
+        "mean": 0.8999999999999999,
+        "median": 0.94,
+        "min": 0.67,
+        "max": 1
+      },
+      "errorConfidence": {
+        "count": 3,
+        "mean": 0.6266666666666666,
+        "median": 0.61,
+        "min": 0.54,
+        "max": 0.73
+      },
+      "latencyP95": 403.56587500000006
+    }
+  ],
+  "paired": {
+    "count": 206,
+    "six": {
+      "attempted": 206,
+      "succeeded": 206,
+      "failed": 0,
+      "failures": {},
+      "labeledCount": 206,
+      "correct": 178,
+      "accuracy": 0.8640776699029126,
+      "completion": 1,
+      "endToEndAccuracy": 0.8640776699029126,
+      "canonicalAccuracy": null,
+      "agreement": null,
+      "disagreementRate": null,
+      "bothCorrect": 0,
+      "canonicalOnlyCorrect": 0,
+      "providerOnlyCorrect": 0,
+      "bothWrong": 0,
+      "highConfidenceErrors": [
+        "challenge_0156",
+        "challenge_0313",
+        "challenge_0315"
+      ],
+      "calibrationCount": 206,
+      "confidenceBands": [
+        {
+          "lower": 0,
+          "upper": 0.7,
+          "count": 29,
+          "labeledCount": 29,
+          "accuracy": 0.6206896551724138
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 20,
+          "labeledCount": 20,
+          "accuracy": 0.5
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 27,
+          "labeledCount": 27,
+          "accuracy": 0.8888888888888888
+        },
+        {
+          "lower": 0.9,
+          "upper": 0.95,
+          "count": 24,
+          "labeledCount": 24,
+          "accuracy": 0.9583333333333334
+        },
+        {
+          "lower": 0.95,
+          "upper": 1,
+          "count": 106,
+          "labeledCount": 106,
+          "accuracy": 0.9716981132075472
+        }
+      ],
+      "perClass": [
+        {
+          "outcome": "decision",
+          "examples": 42,
+          "precision": 1,
+          "recall": 0.7619047619047619,
+          "f1": 0.8648648648648649
+        },
+        {
+          "outcome": "fact",
+          "examples": 33,
+          "precision": 0.7045454545454546,
+          "recall": 0.9393939393939394,
+          "f1": 0.8051948051948052
+        },
+        {
+          "outcome": "observation",
+          "examples": 58,
+          "precision": 0.9565217391304348,
+          "recall": 0.7586206896551724,
+          "f1": 0.8461538461538461
+        },
+        {
+          "outcome": "hypothesis",
+          "examples": 30,
+          "precision": 0.8823529411764706,
+          "recall": 1,
+          "f1": 0.9375
+        },
+        {
+          "outcome": "commitment",
+          "examples": 26,
+          "precision": 0.96,
+          "recall": 0.9230769230769231,
+          "f1": 0.9411764705882353
+        },
+        {
+          "outcome": "preference",
+          "examples": 17,
+          "precision": 0.68,
+          "recall": 1,
+          "f1": 0.8095238095238095
+        }
+      ],
+      "macroPrecision": 0.8639033558087267,
+      "macroRecall": 0.8971660523384662,
+      "macroF1": 0.8674022993875935,
+      "medianConfidence": 0.96,
+      "matrix": {
+        "decision": {
+          "decision": 32,
+          "fact": 1,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 1,
+          "preference": 8
+        },
+        "fact": {
+          "decision": 0,
+          "fact": 31,
+          "observation": 2,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 0
+        },
+        "observation": {
+          "decision": 0,
+          "fact": 10,
+          "observation": 44,
+          "hypothesis": 4,
+          "commitment": 0,
+          "preference": 0
+        },
+        "hypothesis": {
+          "decision": 0,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 30,
+          "commitment": 0,
+          "preference": 0
+        },
+        "commitment": {
+          "decision": 0,
+          "fact": 2,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 24,
+          "preference": 0
+        },
+        "preference": {
+          "decision": 0,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 17
+        }
+      },
+      "latencyP50": 248.32499999999982,
+      "latencyP95": 325.34549999999945,
+      "inputTokens": 95757,
+      "costUsd": null
+    },
+    "seven": {
+      "attempted": 206,
+      "succeeded": 206,
+      "failed": 0,
+      "failures": {},
+      "labeledCount": 206,
+      "correct": 180,
+      "accuracy": 0.8737864077669902,
+      "completion": 1,
+      "endToEndAccuracy": 0.8737864077669902,
+      "canonicalAccuracy": null,
+      "agreement": null,
+      "disagreementRate": null,
+      "bothCorrect": 0,
+      "canonicalOnlyCorrect": 0,
+      "providerOnlyCorrect": 0,
+      "bothWrong": 0,
+      "highConfidenceErrors": [],
+      "calibrationCount": 206,
+      "confidenceBands": [
+        {
+          "lower": 0,
+          "upper": 0.7,
+          "count": 56,
+          "labeledCount": 56,
+          "accuracy": 0.625
+        },
+        {
+          "lower": 0.7,
+          "upper": 0.8,
+          "count": 23,
+          "labeledCount": 23,
+          "accuracy": 0.9130434782608695
+        },
+        {
+          "lower": 0.8,
+          "upper": 0.9,
+          "count": 36,
+          "labeledCount": 36,
+          "accuracy": 0.9166666666666666
+        },
+        {
+          "lower": 0.9,
+          "upper": 0.95,
+          "count": 17,
+          "labeledCount": 17,
+          "accuracy": 1
+        },
+        {
+          "lower": 0.95,
+          "upper": 1,
+          "count": 74,
+          "labeledCount": 74,
+          "accuracy": 1
+        }
+      ],
+      "perClass": [
+        {
+          "outcome": "decision",
+          "examples": 42,
+          "precision": 0.9069767441860465,
+          "recall": 0.9285714285714286,
+          "f1": 0.9176470588235294
+        },
+        {
+          "outcome": "fact",
+          "examples": 33,
+          "precision": 0.8,
+          "recall": 0.8484848484848485,
+          "f1": 0.8235294117647058
+        },
+        {
+          "outcome": "observation",
+          "examples": 58,
+          "precision": 0.9591836734693877,
+          "recall": 0.8103448275862069,
+          "f1": 0.8785046728971962
+        },
+        {
+          "outcome": "hypothesis",
+          "examples": 30,
+          "precision": 1,
+          "recall": 0.9333333333333333,
+          "f1": 0.9655172413793104
+        },
+        {
+          "outcome": "commitment",
+          "examples": 26,
+          "precision": 1,
+          "recall": 0.8076923076923077,
+          "f1": 0.8936170212765957
+        },
+        {
+          "outcome": "preference",
+          "examples": 17,
+          "precision": 0.8947368421052632,
+          "recall": 1,
+          "f1": 0.9444444444444444
+        },
+        {
+          "outcome": "insight",
+          "examples": 0,
+          "precision": 0,
+          "recall": null,
+          "f1": 0
+        }
+      ],
+      "macroPrecision": 0.7944138942515282,
+      "macroRecall": 0.7612038208097321,
+      "macroF1": 0.7747514072265403,
+      "medianConfidence": 0.86,
+      "matrix": {
+        "decision": {
+          "decision": 39,
+          "fact": 1,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 2,
+          "insight": 0
+        },
+        "fact": {
+          "decision": 0,
+          "fact": 28,
+          "observation": 2,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 0,
+          "insight": 3
+        },
+        "observation": {
+          "decision": 0,
+          "fact": 5,
+          "observation": 47,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 0,
+          "insight": 6
+        },
+        "hypothesis": {
+          "decision": 0,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 28,
+          "commitment": 0,
+          "preference": 0,
+          "insight": 2
+        },
+        "commitment": {
+          "decision": 4,
+          "fact": 1,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 21,
+          "preference": 0,
+          "insight": 0
+        },
+        "preference": {
+          "decision": 0,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 17,
+          "insight": 0
+        },
+        "insight": {
+          "decision": 0,
+          "fact": 0,
+          "observation": 0,
+          "hypothesis": 0,
+          "commitment": 0,
+          "preference": 0,
+          "insight": 0
+        }
+      },
+      "latencyP50": 256.1592090000049,
+      "latencyP95": 389.590959000001,
+      "inputTokens": 121507,
+      "costUsd": null
+    },
+    "limitation": "Both outcome space and seven-class rubric wording differ; this is not an isolated causal estimate of adding one outcome.",
+    "sevenMacroF1OverSameSixClasses": 0.903876641764297,
+    "newInsightPredictions": 11
+  },
+  "difficulty": {
+    "MODERATE": {
+      "metrics": {
+        "attempted": 52,
+        "succeeded": 52,
+        "failed": 0,
+        "failures": {},
+        "labeledCount": 52,
+        "correct": 48,
+        "accuracy": 0.9230769230769231,
+        "completion": 1,
+        "endToEndAccuracy": 0.9230769230769231,
+        "canonicalAccuracy": null,
+        "agreement": null,
+        "disagreementRate": null,
+        "bothCorrect": 0,
+        "canonicalOnlyCorrect": 0,
+        "providerOnlyCorrect": 0,
+        "bothWrong": 0,
+        "highConfidenceErrors": [],
+        "calibrationCount": 52,
+        "confidenceBands": [
+          {
+            "lower": 0,
+            "upper": 0.7,
+            "count": 7,
+            "labeledCount": 7,
+            "accuracy": 0.7142857142857143
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "count": 4,
+            "labeledCount": 4,
+            "accuracy": 0.75
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "count": 10,
+            "labeledCount": 10,
+            "accuracy": 0.9
+          },
+          {
+            "lower": 0.9,
+            "upper": 0.95,
+            "count": 2,
+            "labeledCount": 2,
+            "accuracy": 1
+          },
+          {
+            "lower": 0.95,
+            "upper": 1,
+            "count": 29,
+            "labeledCount": 29,
+            "accuracy": 1
+          }
+        ],
+        "perClass": [
+          {
+            "outcome": "decision",
+            "examples": 8,
+            "precision": 1,
+            "recall": 0.75,
+            "f1": 0.8571428571428571
+          },
+          {
+            "outcome": "fact",
+            "examples": 7,
+            "precision": 0.875,
+            "recall": 1,
+            "f1": 0.9333333333333333
+          },
+          {
+            "outcome": "observation",
+            "examples": 13,
+            "precision": 1,
+            "recall": 0.8461538461538461,
+            "f1": 0.9166666666666666
+          },
+          {
+            "outcome": "hypothesis",
+            "examples": 6,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "outcome": "commitment",
+            "examples": 6,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "outcome": "preference",
+            "examples": 3,
+            "precision": 0.6,
+            "recall": 1,
+            "f1": 0.75
+          },
+          {
+            "outcome": "insight",
+            "examples": 9,
+            "precision": 0.9,
+            "recall": 1,
+            "f1": 0.9473684210526315
+          }
+        ],
+        "macroPrecision": 0.9107142857142857,
+        "macroRecall": 0.9423076923076924,
+        "macroF1": 0.9149301825993555,
+        "medianConfidence": 0.95,
+        "matrix": {
+          "decision": {
+            "decision": 6,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 2,
+            "insight": 0
+          },
+          "fact": {
+            "decision": 0,
+            "fact": 7,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 0
+          },
+          "observation": {
+            "decision": 0,
+            "fact": 1,
+            "observation": 11,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 1
+          },
+          "hypothesis": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 6,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 0
+          },
+          "commitment": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 6,
+            "preference": 0,
+            "insight": 0
+          },
+          "preference": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 3,
+            "insight": 0
+          },
+          "insight": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 9
+          }
+        },
+        "latencyP50": 251.42416700000467,
+        "latencyP95": 363.3339999999989,
+        "inputTokens": 30032,
+        "costUsd": null
+      },
+      "confidence": {
+        "count": 52,
+        "mean": 0.8805769230769229,
+        "median": 0.95,
+        "min": 0.48,
+        "max": 1
+      },
+      "threshold90": {
+        "threshold": 0.9,
+        "selected": 31,
+        "total": 52,
+        "errors": 0,
+        "coverage": 0.5961538461538461,
+        "accuracy": 1,
+        "fallback": 0.40384615384615385,
+        "estimatedErrorsPer1000": 0,
+        "hypotheticalCallsAvoided": 31
+      },
+      "threshold95": {
+        "threshold": 0.95,
+        "selected": 29,
+        "total": 52,
+        "errors": 0,
+        "coverage": 0.5576923076923077,
+        "accuracy": 1,
+        "fallback": 0.4423076923076923,
+        "estimatedErrorsPer1000": 0,
+        "hypotheticalCallsAvoided": 29
+      }
+    },
+    "HARD": {
+      "metrics": {
+        "attempted": 114,
+        "succeeded": 114,
+        "failed": 0,
+        "failures": {},
+        "labeledCount": 114,
+        "correct": 102,
+        "accuracy": 0.8947368421052632,
+        "completion": 1,
+        "endToEndAccuracy": 0.8947368421052632,
+        "canonicalAccuracy": null,
+        "agreement": null,
+        "disagreementRate": null,
+        "bothCorrect": 0,
+        "canonicalOnlyCorrect": 0,
+        "providerOnlyCorrect": 0,
+        "bothWrong": 0,
+        "highConfidenceErrors": [],
+        "calibrationCount": 114,
+        "confidenceBands": [
+          {
+            "lower": 0,
+            "upper": 0.7,
+            "count": 26,
+            "labeledCount": 26,
+            "accuracy": 0.5769230769230769
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "count": 11,
+            "labeledCount": 11,
+            "accuracy": 1
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "count": 16,
+            "labeledCount": 16,
+            "accuracy": 0.9375
+          },
+          {
+            "lower": 0.9,
+            "upper": 0.95,
+            "count": 11,
+            "labeledCount": 11,
+            "accuracy": 1
+          },
+          {
+            "lower": 0.95,
+            "upper": 1,
+            "count": 50,
+            "labeledCount": 50,
+            "accuracy": 1
+          }
+        ],
+        "perClass": [
+          {
+            "outcome": "decision",
+            "examples": 19,
+            "precision": 0.8260869565217391,
+            "recall": 1,
+            "f1": 0.9047619047619048
+          },
+          {
+            "outcome": "fact",
+            "examples": 15,
+            "precision": 0.8461538461538461,
+            "recall": 0.7333333333333333,
+            "f1": 0.7857142857142857
+          },
+          {
+            "outcome": "observation",
+            "examples": 25,
+            "precision": 0.9583333333333334,
+            "recall": 0.92,
+            "f1": 0.9387755102040817
+          },
+          {
+            "outcome": "hypothesis",
+            "examples": 15,
+            "precision": 1,
+            "recall": 0.9333333333333333,
+            "f1": 0.9655172413793104
+          },
+          {
+            "outcome": "commitment",
+            "examples": 12,
+            "precision": 1,
+            "recall": 0.5833333333333334,
+            "f1": 0.7368421052631579
+          },
+          {
+            "outcome": "preference",
+            "examples": 7,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "outcome": "insight",
+            "examples": 21,
+            "precision": 0.8076923076923077,
+            "recall": 1,
+            "f1": 0.8936170212765957
+          }
+        ],
+        "macroPrecision": 0.9197523491001752,
+        "macroRecall": 0.8814285714285715,
+        "macroF1": 0.8893182955141908,
+        "medianConfidence": 0.9,
+        "matrix": {
+          "decision": {
+            "decision": 19,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 0
+          },
+          "fact": {
+            "decision": 0,
+            "fact": 11,
+            "observation": 1,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 3
+          },
+          "observation": {
+            "decision": 0,
+            "fact": 1,
+            "observation": 23,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 1
+          },
+          "hypothesis": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 14,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 1
+          },
+          "commitment": {
+            "decision": 4,
+            "fact": 1,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 7,
+            "preference": 0,
+            "insight": 0
+          },
+          "preference": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 7,
+            "insight": 0
+          },
+          "insight": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 21
+          }
+        },
+        "latencyP50": 254.49058299999888,
+        "latencyP95": 372.75416700000005,
+        "inputTokens": 67408,
+        "costUsd": null
+      },
+      "confidence": {
+        "count": 114,
+        "mean": 0.8392982456140349,
+        "median": 0.9,
+        "min": 0.38,
+        "max": 1
+      },
+      "threshold90": {
+        "threshold": 0.9,
+        "selected": 61,
+        "total": 114,
+        "errors": 0,
+        "coverage": 0.5350877192982456,
+        "accuracy": 1,
+        "fallback": 0.4649122807017544,
+        "estimatedErrorsPer1000": 0,
+        "hypotheticalCallsAvoided": 61
+      },
+      "threshold95": {
+        "threshold": 0.95,
+        "selected": 50,
+        "total": 114,
+        "errors": 0,
+        "coverage": 0.43859649122807015,
+        "accuracy": 1,
+        "fallback": 0.5614035087719298,
+        "estimatedErrorsPer1000": 0,
+        "hypotheticalCallsAvoided": 50
+      }
+    },
+    "ADVERSARIAL": {
+      "metrics": {
+        "attempted": 83,
+        "succeeded": 83,
+        "failed": 0,
+        "failures": {},
+        "labeledCount": 83,
+        "correct": 73,
+        "accuracy": 0.8795180722891566,
+        "completion": 1,
+        "endToEndAccuracy": 0.8795180722891566,
+        "canonicalAccuracy": null,
+        "agreement": null,
+        "disagreementRate": null,
+        "bothCorrect": 0,
+        "canonicalOnlyCorrect": 0,
+        "providerOnlyCorrect": 0,
+        "bothWrong": 0,
+        "highConfidenceErrors": [],
+        "calibrationCount": 83,
+        "confidenceBands": [
+          {
+            "lower": 0,
+            "upper": 0.7,
+            "count": 25,
+            "labeledCount": 25,
+            "accuracy": 0.68
+          },
+          {
+            "lower": 0.7,
+            "upper": 0.8,
+            "count": 9,
+            "labeledCount": 9,
+            "accuracy": 0.8888888888888888
+          },
+          {
+            "lower": 0.8,
+            "upper": 0.9,
+            "count": 13,
+            "labeledCount": 13,
+            "accuracy": 0.9230769230769231
+          },
+          {
+            "lower": 0.9,
+            "upper": 0.95,
+            "count": 7,
+            "labeledCount": 7,
+            "accuracy": 1
+          },
+          {
+            "lower": 0.95,
+            "upper": 1,
+            "count": 29,
+            "labeledCount": 29,
+            "accuracy": 1
+          }
+        ],
+        "perClass": [
+          {
+            "outcome": "decision",
+            "examples": 15,
+            "precision": 1,
+            "recall": 0.9333333333333333,
+            "f1": 0.9655172413793104
+          },
+          {
+            "outcome": "fact",
+            "examples": 11,
+            "precision": 0.7142857142857143,
+            "recall": 0.9090909090909091,
+            "f1": 0.8
+          },
+          {
+            "outcome": "observation",
+            "examples": 20,
+            "precision": 0.9285714285714286,
+            "recall": 0.65,
+            "f1": 0.7647058823529411
+          },
+          {
+            "outcome": "hypothesis",
+            "examples": 9,
+            "precision": 1,
+            "recall": 0.8888888888888888,
+            "f1": 0.9411764705882353
+          },
+          {
+            "outcome": "commitment",
+            "examples": 8,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "outcome": "preference",
+            "examples": 7,
+            "precision": 1,
+            "recall": 1,
+            "f1": 1
+          },
+          {
+            "outcome": "insight",
+            "examples": 13,
+            "precision": 0.7222222222222222,
+            "recall": 1,
+            "f1": 0.8387096774193549
+          }
+        ],
+        "macroPrecision": 0.9092970521541951,
+        "macroRecall": 0.9116161616161617,
+        "macroF1": 0.9014441816771203,
+        "medianConfidence": 0.86,
+        "matrix": {
+          "decision": {
+            "decision": 14,
+            "fact": 1,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 0
+          },
+          "fact": {
+            "decision": 0,
+            "fact": 10,
+            "observation": 1,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 0
+          },
+          "observation": {
+            "decision": 0,
+            "fact": 3,
+            "observation": 13,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 4
+          },
+          "hypothesis": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 8,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 1
+          },
+          "commitment": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 8,
+            "preference": 0,
+            "insight": 0
+          },
+          "preference": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 7,
+            "insight": 0
+          },
+          "insight": {
+            "decision": 0,
+            "fact": 0,
+            "observation": 0,
+            "hypothesis": 0,
+            "commitment": 0,
+            "preference": 0,
+            "insight": 13
+          }
+        },
+        "latencyP50": 262.3519170000004,
+        "latencyP95": 398.31270799999766,
+        "inputTokens": 49886,
+        "costUsd": null
+      },
+      "confidence": {
+        "count": 83,
+        "mean": 0.7950602409638555,
+        "median": 0.86,
+        "min": 0.37,
+        "max": 1
+      },
+      "threshold90": {
+        "threshold": 0.9,
+        "selected": 36,
+        "total": 83,
+        "errors": 0,
+        "coverage": 0.43373493975903615,
+        "accuracy": 1,
+        "fallback": 0.5662650602409639,
+        "estimatedErrorsPer1000": 0,
+        "hypotheticalCallsAvoided": 36
+      },
+      "threshold95": {
+        "threshold": 0.95,
+        "selected": 29,
+        "total": 83,
+        "errors": 0,
+        "coverage": 0.3493975903614458,
+        "accuracy": 1,
+        "fallback": 0.6506024096385542,
+        "estimatedErrorsPer1000": 0,
+        "hypotheticalCallsAvoided": 29
+      }
+    }
+  },
+  "insight": {
+    "outcome": "insight",
+    "examples": 43,
+    "precision": 0.7962962962962963,
+    "recall": 1,
+    "f1": 0.8865979381443299
+  },
+  "stressDisputed95": [
+    {
+      "id": "challenge_0008",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "insight": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.261125,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.727Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0008",
+        "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+        "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "MULTI_CONCEPT",
+          "INTENT_COMMITMENT",
+          "INSIGHT_PREFERENCE"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0008",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Expresses the owner’s affinity for working with beginners while withholding role acceptance."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0044",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "insight",
+        "probabilities": {
+          "observation": 0.02,
+          "decision": 0,
+          "insight": 0.98,
+          "preference": 0,
+          "commitment": 0,
+          "hypothesis": 0,
+          "fact": 0
+        },
+        "confidence": 0.98,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 227.161834,
+        "inputTokens": 609,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:38.273Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0044",
+        "candidate": "The bus wait, not the train leg, is where the recorded journeys spread out.",
+        "context": "My trip log has six entries for this route. The train leg took 42–45 minutes each time. Door-to-door totals ranged from 68 to 119 minutes; the long totals coincided with longer waits for the same connecting bus.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "OBSERVATION_INSIGHT",
+          "NEGATION"
+        ],
+        "label": "observation",
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0044",
+          "label": "insight",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Identifies bus waiting as the component associated with variation in total journey duration."
+        },
+        "reasons": [
+          "REVIEW_DISAGREEMENT"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0102",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.01,
+          "preference": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 330.8870420000003,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.589Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0102",
+        "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+        "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "INTENT_COMMITMENT",
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0102",
+          "label": "commitment",
+          "confidence": "HIGH",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The explicit assurance that the customer can count on delivery constitutes a promise regardless of feasibility."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0103",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "preference": 0.95,
+          "commitment": 0,
+          "decision": 0.05,
+          "fact": 0,
+          "hypothesis": 0,
+          "insight": 0
+        },
+        "confidence": 0.95,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 212.40545800000018,
+        "inputTokens": 583,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.802Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0103",
+        "candidate": "Priya prefers calls, but I prefer written summaries and have kept them as our default.",
+        "context": "Priya told the group she prefers phone calls. The owner responded that written summaries would remain the team default and that she personally prefers them.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "PREFERENCE_FACT",
+          "PREFERENCE_DECISION",
+          "ATTRIBUTED_STATEMENT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "HIGH",
+        "review": {
+          "id": "challenge_0103",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The central owner statement explicitly endorses written summaries as a personal and continuing default preference."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    }
+  ],
+  "stressDisputed99": [
+    {
+      "id": "challenge_0008",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "preference",
+        "probabilities": {
+          "observation": 0,
+          "commitment": 0,
+          "insight": 0,
+          "decision": 0,
+          "hypothesis": 0,
+          "preference": 1,
+          "fact": 0
+        },
+        "confidence": 1,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 289.261125,
+        "inputTokens": 586,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:36.727Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0008",
+        "candidate": "I am hoping to mentor the next cohort; working with beginners suits me.",
+        "context": "Coordinator: Are you accepting the mentor role today? Owner: I need to think about that. I am hoping to mentor the next cohort; working with beginners suits me.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "HARD",
+        "boundaries": [
+          "MULTI_CONCEPT",
+          "INTENT_COMMITMENT",
+          "INSIGHT_PREFERENCE"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0008",
+          "label": "preference",
+          "confidence": "MEDIUM",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "Expresses the owner’s affinity for working with beginners while withholding role acceptance."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    },
+    {
+      "id": "challenge_0102",
+      "expected": null,
+      "canonical": null,
+      "cohort": "TAXONOMY_STRESS",
+      "result": {
+        "outcome": "commitment",
+        "probabilities": {
+          "decision": 0.01,
+          "preference": 0,
+          "commitment": 0.99,
+          "fact": 0,
+          "insight": 0,
+          "hypothesis": 0,
+          "observation": 0
+        },
+        "confidence": 0.99,
+        "provider": "Jev",
+        "model": "typesafe-ai/jev",
+        "latencyMs": 330.8870420000003,
+        "inputTokens": 595,
+        "costUsd": null,
+        "evaluatedAt": "2026-09-21T05:33:41.589Z"
+      },
+      "failure": null,
+      "truth": {
+        "id": "challenge_0102",
+        "candidate": "I intend to clear the queue tonight; you can count on having all the reports by nine.",
+        "context": "Customer asked whether the reports were guaranteed for the board pack. The account owner replied with this sentence, but the queue contains an unestimated number of reports and no prior service deadline is recorded.",
+        "state": "TAXONOMY_STRESS",
+        "expected": null,
+        "difficulty": "ADVERSARIAL",
+        "boundaries": [
+          "INTENT_COMMITMENT",
+          "COMMITMENT_FUTURE_FACT",
+          "MULTI_CONCEPT"
+        ],
+        "label": null,
+        "confidence": "LOW",
+        "review": {
+          "id": "challenge_0102",
+          "label": "commitment",
+          "confidence": "HIGH",
+          "ambiguous": false,
+          "defensible": true,
+          "rubricSensitive": false,
+          "rationale": "The explicit assurance that the customer can count on delivery constitutes a promise regardless of feasibility."
+        },
+        "reasons": [
+          "AMBIGUOUS",
+          "REVIEW_DISAGREEMENT",
+          "GROUND_TRUTH_NOT_DEFENSIBLE",
+          "AUTHORED_TAXONOMY_STRESS"
+        ]
+      }
+    }
+  ]
+}
