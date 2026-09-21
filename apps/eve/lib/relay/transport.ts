@@ -2,6 +2,7 @@ import {
   createCipheriv,
   createDecipheriv,
   createHash,
+  createPublicKey,
   randomBytes,
   verify,
 } from "node:crypto";
@@ -65,6 +66,8 @@ export interface RelayIdentity {
   ownerId: string;
   agentId: string;
   keyId: string;
+  // Immutable version pin. Local signers use their key ID as the version.
+  keyVersion?: string;
   publicKey: string;
 }
 
@@ -79,12 +82,25 @@ export function verifyEnvelope(
   const parts = token.split(".");
   if (parts.length !== 3) throw new Error("Invalid Relay assertion.");
   const header = z.union([
-    z.object({ alg: z.literal("EdDSA"), typ: z.literal("relay-federation+jwt"), kid: z.string() }).strict(),
-    z.object({ alg: z.literal("Relay-Ed25519-SHA256-v2"), typ: z.literal("relay-federation+digest"), kid: z.string().min(1).max(255), v: z.literal(2), purpose: z.literal("federation-delivery") }).strict(),
+    z.object({
+      alg: z.literal("EdDSA"),
+      typ: z.literal("relay-federation+jwt"),
+      kid: z.string().min(1).max(255),
+    }).strict(),
+    z.object({
+      alg: z.literal("Ed25519"),
+      typ: z.literal("relay-federation-v2"),
+      kid: z.string().min(1).max(255),
+      keyVersion: z.string().min(1).max(512),
+    }).strict(),
   ]).parse(JSON.parse(Buffer.from(parts[0]!, "base64url").toString()));
   const material = `${parts[0]}.${parts[1]}`;
-  const isV2 = header.alg === "Relay-Ed25519-SHA256-v2";
+  const isV2 = header.alg === "Ed25519";
   if (isV2) {
+    if (
+      header.keyVersion !== (identity.keyVersion ?? identity.keyId) ||
+      createPublicKey(identity.publicKey).asymmetricKeyType !== "ed25519"
+    ) throw new Error("Invalid Relay signing key binding.");
     for (const segment of parts.slice(0, 2)) {
       if (!/^[A-Za-z0-9_-]+$/.test(segment!)) throw new Error("Invalid canonical encoding.");
       const bytes = Buffer.from(segment!, "base64url");
@@ -94,7 +110,15 @@ export function verifyEnvelope(
     if (!/^[A-Za-z0-9_-]{86}$/.test(parts[2]!) || Buffer.from(parts[2]!, "base64url").toString("base64url") !== parts[2]) throw new Error("Invalid signature encoding.");
   }
   // Version is selected exactly once. Never retry another signature contract.
-  const signingInput = isV2 ? canonical({ domain: "relay.signature", version: 2, purpose: "federation-delivery", hashAlgorithm: "SHA-256", payloadHash: createHash("sha256").update(material, "utf8").digest("hex") }) : material;
+  const signingInput = isV2 ? canonical({
+    protocol: "relay.federation",
+    version: 2,
+    purpose: "federation-delivery",
+    payloadDigestAlgorithm: "SHA-256",
+    payloadDigest: createHash("sha256").update(material, "utf8").digest("hex"),
+    signingAlgorithm: "Ed25519",
+    keyIdentity: { id: header.kid, version: header.keyVersion },
+  }) : material;
   if (
     header.kid !== identity.keyId ||
     !verify(

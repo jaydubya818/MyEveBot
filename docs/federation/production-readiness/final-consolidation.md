@@ -1,5 +1,7 @@
 # Final consolidation checkpoint
 
+Historical checkpoint. The owner subsequently selected canonical Relay; see [canonical convergence](canonical-convergence.md) for the superseding integration and qualification record.
+
 Status: **BLOCKED — owner protocol selection required**. Federation remains disabled by default. Independent security and production-platform qualification remain **NOT_RUN**.
 
 ## Ancestry and canonical reconciliation

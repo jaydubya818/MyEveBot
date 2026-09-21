@@ -2592,12 +2592,12 @@
     "lib/relay/store.ts": {
       "classification": "INTERNAL",
       "reason": "Owner-scoped adapter persistence, atomic delivery claims and fenced publication reader; no canonical private read capability.",
-      "sha256": "0d6ccf1a9c252a6ef1d8eaf0f07b2191b5d2b3eee7128fa0cd6936e9b6d8f92c"
+      "sha256": "72ea4bebd9118c6b87294beddf2c73b95e4a1037eaff784cc49241dc34634c17"
     },
     "lib/relay/transport.ts": {
       "classification": "INTERNAL",
       "reason": "Pinned signature verification and owner-bound encryption; no executor or network.",
-      "sha256": "ba54f853b47812a48cd1257f7a28e981e1d24b8f58f683f829ce260601b07608"
+      "sha256": "ea6a7c671e058ff34b367a4ea66e788e5a34726f8b1ee8803468d216d42d4125"
     },
     "lib/relay/work.ts": {
       "classification": "ENFORCED",

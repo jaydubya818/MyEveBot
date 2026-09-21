@@ -1,0 +1,56 @@
+{
+  "canonicalRelay": "e2eb350f5655427d55cc204264020a9295173f96",
+  "provider": "LOCAL",
+  "kmsCalls": 0,
+  "maximumPlusOneRejected": true,
+  "results": [
+    {
+      "materialBytes": 1291,
+      "tokenCharacters": 1378,
+      "relayVerification": "PASS",
+      "myeveVerification": "PASS",
+      "tamperRejection": "PASS",
+      "signingCalls": 1
+    },
+    {
+      "materialBytes": 23193,
+      "tokenCharacters": 23280,
+      "relayVerification": "PASS",
+      "myeveVerification": "PASS",
+      "tamperRejection": "PASS",
+      "signingCalls": 1
+    },
+    {
+      "materialBytes": 61925,
+      "tokenCharacters": 62012,
+      "relayVerification": "PASS",
+      "myeveVerification": "PASS",
+      "tamperRejection": "PASS",
+      "signingCalls": 1
+    },
+    {
+      "materialBytes": 132893,
+      "tokenCharacters": 132980,
+      "relayVerification": "PASS",
+      "myeveVerification": "PASS",
+      "tamperRejection": "PASS",
+      "signingCalls": 1
+    },
+    {
+      "materialBytes": 260000,
+      "tokenCharacters": 260087,
+      "relayVerification": "PASS",
+      "myeveVerification": "PASS",
+      "tamperRejection": "PASS",
+      "signingCalls": 1
+    },
+    {
+      "materialBytes": 262057,
+      "tokenCharacters": 262144,
+      "relayVerification": "PASS",
+      "myeveVerification": "PASS",
+      "tamperRejection": "PASS",
+      "signingCalls": 1
+    }
+  ]
+}

@@ -38,6 +38,11 @@ export class FederationStore {
       ownerId: row.relay_owner_id,
       agentId: row.relay_agent_id,
       keyId: row.signing_key_id,
+      // The deployment pin may name a provider version separately from its ID.
+      // Never apply a version configured for a different persisted signing key.
+      keyVersion: process.env.MYEVE_RELAY_KEY_ID === row.signing_key_id
+        ? process.env.MYEVE_RELAY_KEY_VERSION ?? row.signing_key_id
+        : row.signing_key_id,
       publicKey: row.signing_public_key,
       credential: decryptSecret(this.ownerId, row.agent_credential_encrypted),
       ownerSession: decryptSecret(this.ownerId, row.owner_session_encrypted),

@@ -1,4 +1,10 @@
 {
   "framework": "nextjs",
-  "outputDirectory": null
+  "outputDirectory": null,
+  "git": {
+    "deploymentEnabled": {
+      "codex/myeve-relay-final": false,
+      "main": false
+    }
+  }
 }
