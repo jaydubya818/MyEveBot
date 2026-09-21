@@ -2643,6 +2643,81 @@
       "classification": "INTERNAL",
       "reason": "Pure bounded ZIP preflight. Rejects duplicate and unsafe paths before decompression or integrity evaluation; no filesystem writes, restore authority or external effects.",
       "sha256": "1b81a6b79e5fe6327084bcf22228327dae4400b9f88dc28a3ef4c89d6e3f14c5"
+    },
+    "app/api/decision-intelligence/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "40405ab62f7c4a2fba04f913df4ca21feba3d5ac2a01921634d457d4b29837a9"
+    },
+    "lib/decision-intelligence/contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "8d1b68b2c50b48993851f04605fface2494b1a21993b0fc622da011b57334617"
+    },
+    "lib/decision-intelligence/dataset.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "0da75a446843f015695412185aa7e5e0ebf3f0ea4ae20535763ef5bd316a3447"
+    },
+    "lib/decision-intelligence/evaluation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "d0d5994307fc5cdd912b732556ebbc3bc97109fbb7e85e712f96fa6666d0ca93"
+    },
+    "lib/decision-intelligence/evidence-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Read-only validated public synthetic experiment evidence. No provider calls, owner data, canonical writes or execution authority.",
+      "sha256": "e1c5073a7aaff2c9d607c1a77fa93821e0d71046eaff72db8a41ad0314248c73"
+    },
+    "lib/decision-intelligence/fixtures.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "18ae86dea773182e5372ba6b6b450ec399950ee9765186ca22e12f9e39c7aeb0"
+    },
+    "lib/decision-intelligence/metrics.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "068329c9d96be868b1a1c6c1b416b68c521b9290c2bcb19352ba64416add6454"
+    },
+    "lib/decision-intelligence/shadow.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "24bfb74aa5280095ad33035f46d5b933c677de27ef68fdaa6d2c92872027c01f"
+    },
+    "lib/decision-intelligence/view.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
+      "sha256": "cec68b094919d1d0ebc14d30be6342f0dfef22d155fd9a8df06200f7859a6656"
+    },
+    "lib/decision-intelligence/jev-provider.ts": {
+      "classification": "INTERNAL",
+      "reason": "Optional synthetic-only advisory evaluator through the existing Vercel AI Gateway; disabled without explicit enablement, bounded timeout, no retries, normalized diagnostics; no Action executor, policy, canonical write, or runtime Agent registration.",
+      "sha256": "63108ab54d7c6d4026cff27c5c9eb3555ed7d707655fc5b4c07d895c8ce73738"
+    },
+    "lib/decision-intelligence/challenge-review.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure synthetic evaluation review validation and serialization; no provider calls, owner data access, canonical writes, or authority effects.",
+      "sha256": "3b400eb1371c2997f5b3743da0161b37dfb2d5f477a88eeacf2ace652dad597f"
+    },
+    "lib/decision-intelligence/challenge-cohorts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic-only Decision Intelligence dataset/contract/evidence evaluation support. Frozen cohort IDs only; no owner sampling, canonical writes, capability registration, or Action/Routine/Computer authority.",
+      "sha256": "7deadb2d3aa00c7e87610803f9aac8d3e3c7b43bee4fe2ee313243ded4d1a763"
+    },
+    "lib/decision-intelligence/experiment.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic-only Decision Intelligence dataset/contract/evidence evaluation support. Frozen cohort IDs only; no owner sampling, canonical writes, capability registration, or Action/Routine/Computer authority.",
+      "sha256": "f2fe789f40fd41e1804b5565e3d2bd3b73d96a2a62d52d0fe38069e39db7b273"
+    },
+    "lib/decision-intelligence/experiment-metrics.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic-only Decision Intelligence dataset/contract/evidence evaluation support. Frozen cohort IDs only; no owner sampling, canonical writes, capability registration, or Action/Routine/Computer authority.",
+      "sha256": "04a9f22f80554ebf937be64385566b1f994716c039656bc27b91842c9593c183"
+    },
+    "lib/decision-intelligence/retained-evidence.ts": {
+      "classification": "INTERNAL",
+      "reason": "Read-only validated public synthetic experiment evidence. No provider calls, owner data, canonical writes or execution authority.",
+      "sha256": "4b9f47ca0fb4d32a95a5b1874cf235310d7d6931fdff2cd336c1b9de180ba6a6"
     }
   }
 }

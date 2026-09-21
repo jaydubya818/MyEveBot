@@ -1,0 +1,2506 @@
+{
+  "status": "MANUAL_AUTHOR_AUDIT",
+  "scope": "All 500 legacy cases accounted for; only originally EASY/MODERATE cases considered for unchanged STANDARD reuse. Existing reviews reused only for byte-identical candidate/context.",
+  "cases": [
+    {
+      "originalId": "c001",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c002",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c003",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c004",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c005",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c006",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c007",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c008",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c009",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c010",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c011",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c012",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c013",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c014",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c015",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c016",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c017",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c018",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c019",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c020",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c021",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c022",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c023",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c024",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c025",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c026",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c027",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c028",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c029",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c030",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c031",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c032",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c033",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c034",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c035",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c036",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c037",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c038",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c039",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c040",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c041",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c042",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c043",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c044",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c045",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c046",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c047",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c048",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c049",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c050",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c051",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c052",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c053",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c054",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c055",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c056",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c057",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c058",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c059",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c060",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c061",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c062",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c063",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c064",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c065",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c066",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c067",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c068",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c069",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c070",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c071",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c072",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c073",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c074",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c075",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c076",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c077",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c078",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c079",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c080",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c081",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c082",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c083",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c084",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c085",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c086",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c087",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c088",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c089",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c090",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c091",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c092",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c093",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c094",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c095",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c096",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c097",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c098",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c099",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c100",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c101",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c102",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c103",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c104",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c105",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c106",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c107",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c108",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c109",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c110",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c111",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c112",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c113",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c114",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c115",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c116",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c117",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c118",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c119",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c120",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c121",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c122",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c123",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c124",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c125",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c126",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c127",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c128",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c129",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c130",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c131",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c132",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c133",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c134",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c135",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c136",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c137",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c138",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c139",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c140",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c141",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c142",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c143",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c144",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c145",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c146",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c147",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c148",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c149",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c150",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c151",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c152",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c153",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c154",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c155",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c156",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c157",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c158",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c159",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c160",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c161",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c162",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c163",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c164",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c165",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c166",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c167",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c168",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c169",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c170",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c171",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c172",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c173",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c174",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c175",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c176",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c177",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c178",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c179",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c180",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c181",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c182",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c183",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c184",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c185",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c186",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c187",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c188",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c189",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c190",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c191",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c192",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c193",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c194",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c195",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c196",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c197",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c198",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c199",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c200",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c201",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c202",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c203",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c204",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c205",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c206",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c207",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c208",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c209",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c210",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c211",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c212",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c213",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c214",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c215",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c216",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c217",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c218",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c219",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c220",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c221",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c222",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c223",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c224",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c225",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c226",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c227",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c228",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c229",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c230",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c231",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c232",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c233",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c234",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c235",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c236",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c237",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c238",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c239",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c240",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c241",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c242",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c243",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c244",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c245",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c246",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c247",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c248",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c249",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c250",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c251",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c252",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c253",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c254",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c255",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c256",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c257",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c258",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c259",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c260",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c261",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c262",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c263",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c264",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c265",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c266",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c267",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c268",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c269",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c270",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c271",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c272",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c273",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c274",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c275",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c276",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c277",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c278",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c279",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c280",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c281",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c282",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c283",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c284",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c285",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c286",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c287",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c288",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c289",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c290",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c291",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c292",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c293",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c294",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c295",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c296",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c297",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c298",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c299",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c300",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c301",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c302",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c303",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c304",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c305",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c306",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c307",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c308",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c309",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c310",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c311",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c312",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c313",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c314",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c315",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c316",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c317",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c318",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c319",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c320",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c321",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c322",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c323",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c324",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c325",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c326",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c327",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c328",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c329",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c330",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c331",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c332",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c333",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c334",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c335",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c336",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c337",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c338",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c339",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c340",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c341",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c342",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c343",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c344",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c345",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c346",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c347",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c348",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c349",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c350",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c351",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c352",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c353",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c354",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c355",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c356",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c357",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c358",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c359",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c360",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c361",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c362",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c363",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c364",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c365",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c366",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c367",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c368",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c369",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c370",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c371",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c372",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c373",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c374",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c375",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c376",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c377",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c378",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c379",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c380",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c381",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c382",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c383",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c384",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c385",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c386",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c387",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c388",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c389",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c390",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c391",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c392",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c393",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c394",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c395",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c396",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c397",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c398",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c399",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c400",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c401",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c402",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c403",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c404",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c405",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c406",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c407",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c408",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c409",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c410",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c411",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c412",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c413",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c414",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c415",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c416",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c417",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c418",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c419",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c420",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c421",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c422",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c423",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c424",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c425",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c426",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c427",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c428",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c429",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c430",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c431",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c432",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c433",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c434",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c435",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c436",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c437",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c438",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c439",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c440",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c441",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c442",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c443",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c444",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c445",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c446",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c447",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c448",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c449",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c450",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c451",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c452",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c453",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c454",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c455",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c456",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c457",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c458",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c459",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c460",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c461",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c462",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c463",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c464",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c465",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c466",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c467",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c468",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c469",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c470",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c471",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c472",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c473",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c474",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c475",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c476",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c477",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c478",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c479",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c480",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c481",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c482",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c483",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c484",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c485",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c486",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c487",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c488",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c489",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c490",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c491",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c492",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c493",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c494",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c495",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c496",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    },
+    {
+      "originalId": "c497",
+      "disposition": "CANDIDATE_STANDARD",
+      "reason": "Context supplies source, timing, evidence availability, or reported circumstances; no example-specific rubric answer guidance found in manual inspection."
+    },
+    {
+      "originalId": "c498",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c499",
+      "disposition": "NOT_REUSED",
+      "reason": "Original hard/adversarial metadata was not qualified. Preserve the first draft; do not silently downgrade or promote it into the revised benchmark."
+    },
+    {
+      "originalId": "c500",
+      "disposition": "REJECTED_LEAKAGE",
+      "reason": "Context supplies an interpretation of the speaker act, or rules out the competing label, rather than natural dialogue/evidence. Retain unchanged; do not reuse."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "accounted": true,
+  "leakage": true,
+  "neutralIds": true,
+  "reviewComplete": true,
+  "adversarial": true,
+  "substantialChallenge": true,
+  "insightAgreed": true,
+  "insightChallenge": true,
+  "boundaryDiversity": true,
+  "classCoverage": true,
+  "nearDuplicateScreen": true,
+  "datasetQualityPass": true,
+  "note": "Dataset quality gates only; not Stage 1 harness/UI/regression qualification."
+}
