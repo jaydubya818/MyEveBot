@@ -45,7 +45,7 @@ import { receiveArtifact } from "./artifacts.ts";
 import type { FederationStore } from "./store.ts";
 import type { Envelope } from "./transport.ts";
 
-it.each([true, false])("artifact ingress keeps source trust mandatory (trusted=%s)", async (trusted) => {
+it.each([[true, false], [false, false], [true, true]])("artifact ingress checks source trust and content hash (trusted=%s, corrupt=%s)", async (trusted, corrupt) => {
   const source = generateKeyPairSync("ed25519"); const recipient = generateKeyPairSync("ed25519");
   const caller = "relay://source/agent"; const address = "relay://target/agent";
   const header = Buffer.from(JSON.stringify({ alg: "EdDSA", typ: "JWT" })).toString("base64url");
@@ -55,12 +55,15 @@ it.each([true, false])("artifact ingress keeps source trust mandatory (trusted=%
   vi.stubEnv("MYEVE_RELAY_ARTIFACT_PRIVATE_KEY", recipient.privateKey.export({ type: "pkcs8", format: "pem" }).toString());
   vi.stubEnv("MYEVE_RELAY_ENCRYPTION_KEY", "a".repeat(64));
   vi.stubEnv("MYEVE_RELAY_INGRESS_SECRETS", JSON.stringify({ "https://source.test": secret }));
-  const fetch = vi.fn(async () => new Response("x")); vi.stubGlobal("fetch", fetch);
+  const fetch = vi.fn(async () => new Response(corrupt ? "y" : "x")); vi.stubGlobal("fetch", fetch);
   const database = { query: vi.fn(async () => [{ artifact_origin: trusted ? "https://source.test" : "https://different.test", artifact_public_key: source.publicKey.export({ type: "spki", format: "pem" }).toString() }]) };
   const store = { ownerId: "target", connection: async () => ({ address }), database } as unknown as FederationStore;
   const expiresAt = new Date(Date.now() + 120000).toISOString();
   const envelope = { target: { address }, caller: { ownerId: "source", agentId: "agent" }, resource: "artifact", capability: "artifact.share", idempotencyKey: "artifact-test", expiresAt, payload: { reference: "artifact", name: "synthetic", type: "text/plain", size: 1, checksum: `sha256:${createHash("sha256").update("x").digest("hex")}`, visibility: "SHARED", expiresAt, retrieval: { url: `https://source.test/artifact?token=${token}`, audience: address, expiresAt } } } as Envelope;
-  if (trusted) {
+  if (corrupt) {
+    await expect(receiveArtifact(store, envelope)).rejects.toThrow("integrity");
+    expect(database.query).toHaveBeenCalledTimes(1);
+  } else if (trusted) {
     await expect(receiveArtifact(store, envelope)).resolves.toEqual({ acknowledged: true });
     expect(fetch).toHaveBeenCalledWith(expect.any(URL), expect.objectContaining({ redirect: "error", headers: expect.objectContaining({ "x-vercel-protection-bypass": secret, authorization: expect.stringMatching(/^Bearer /) }) }));
   } else {
