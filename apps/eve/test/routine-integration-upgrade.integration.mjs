@@ -16,11 +16,13 @@ const client = await pool.connect(),
   schema = `routine_integration_upgrade_${Date.now()}`;
 const directory = new URL("../migrations/", import.meta.url);
 const apply = async (name) => {
-  for (const statement of splitSqlStatements(
-    await readFile(new URL(name, directory), "utf8"),
-  ))
-    await client.query(statement);
+  await client.query("BEGIN");
+  try {
+    for (const statement of splitSqlStatements(await readFile(new URL(name, directory), "utf8"))) await client.query(statement);
+    await client.query("COMMIT");
+  } catch (error) { await client.query("ROLLBACK"); throw error; }
 };
+
 const database = {
   query: async (sql, params) => (await client.query(sql, params)).rows,
 };
@@ -106,8 +108,25 @@ try {
     await client.query("SELECT * FROM routine_pending_sends")
   ).rows;
   for (const name of migrations.filter((n) => n >= "0029")) await apply(name);
-  for (const [name, sql] of Object.entries(selections))
-    assert.deepEqual((await client.query(sql)).rows, before[name], name);
+  for (const [name, sql] of Object.entries(selections)) {
+    const after = (await client.query(sql)).rows;
+    if (name === "computers") {
+      assert.equal(after[0].status, "lost");
+      assert.equal(after[0].failure_code, "legacy_resource_unbound");
+      assert(after[0].completed_at instanceof Date);
+      for (const key of Object.keys(before[name][0]).filter(k => !["status", "failure_code", "failure_summary", "completed_at"].includes(k)))
+        assert.deepEqual(after[0][key], before[name][0][key], key);
+    } else if (name === "control") {
+      assert.equal(after[0].controller, "NONE");
+      assert.equal(after[0].owner_input_enabled, false);
+      assert.equal(Number(after[0].version), Number(before[name][0].version) + 1);
+      assert.equal(after[0].claimed_by, null);
+      assert.equal(after[0].expires_at, null);
+      for (const key of ["computer_session_id", "owner_id", "agent_id"])
+        assert.equal(after[0][key], before[name][0][key]);
+    } else assert.deepEqual(after, before[name], name);
+  }
+  assert.equal((await client.query("SELECT count(*) FROM computer_resource_lifecycles")).rows[0].count, "0", "historical resource ownership is never invented");
   assert.deepEqual(
     (await client.query("SELECT * FROM myeve_relay_grants")).rows,
     relayBefore,
@@ -156,7 +175,7 @@ try {
     /action_requests_live_binding/,
   );
   console.log(
-    "PASS: populated current-main 0026 -> 0030; 12 canonical state groups preserved; Federation grant and pending draft preserved; no authority backfill; nullable receipts, blocked-only null Run, deferred FK and unique live binding enforced",
+    "PASS: populated current-main 0026 -> 0033; 10 state groups preserved, legacy Computer/control fenced without invented resource ownership; Federation grant and pending draft preserved; no authority backfill; nullable receipts, blocked-only null Run, deferred FK and unique live binding enforced",
   );
 } finally {
   await client.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);

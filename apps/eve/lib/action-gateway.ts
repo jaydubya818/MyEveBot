@@ -2,7 +2,7 @@ import { ROUTINE_RELEASE } from "./routine-release.ts";
 import {ActionRecovery} from "./action-recovery.ts";
 import { randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
-import { approvalBinding, canonicalActionValue, requestApproval, resolveApprovalPolicy, safeActionParameters, type ActionClass } from "./approvals.ts";
+import { approvalRequestId, approvalBinding, canonicalActionValue, requestApproval, resolveApprovalPolicy, safeActionParameters, type ActionClass } from "./approvals.ts";
 import { effectiveCapability, getAgent } from "./agents.ts";
 import { getCapability } from "./capability-registry.ts";
 import { type ExecutionDatabase, type RoutineConfiguration } from "./execution-types.ts";
@@ -297,6 +297,9 @@ export class ActionGateway {
       await this.recordDenial(action.ownerId,actionId,"authority_unavailable");
       throw new ActionBlocked("denied",actionId);
     }
+    const approvalGeneration=Number(row.approval_generation??0);
+    const expectedApprovalId=approvalRequestId({ownerId:action.ownerId,taskId:action.runId,
+      requestKey:`${actionId}:${row.attempt_count??0}:${approvalGeneration}`});
     const started = await this.database.query(`WITH started AS (
       UPDATE action_requests a SET status='executing',attempt_count=attempt_count+1,updated_at=now()
       WHERE a.owner_id=$1 AND a.id=$2 AND parameter_hash=$3 AND status IN ('planned','authorized','awaiting_approval')
@@ -312,7 +315,9 @@ export class ActionGateway {
         AND EXISTS(SELECT 1 FROM agents g WHERE g.owner_id=a.owner_id AND g.id=$8 AND g.status='active' AND g.updated_at=$9::timestamptz)
         AND ($4<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p
           WHERE p.id=a.approval_id AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
-            AND p.status='approved' AND p.expires_at>now()))
+            AND p.status='approved' AND p.decision='approved' AND p.expires_at>now()
+            AND p.id=$14 AND a.approval_generation=$15 AND p.agent_id=$8
+            AND p.action_class=a.action_class AND p.action=a.action_class AND p.capability_id=a.capability_id))
         AND (a.occurrence_id IS NULL OR EXISTS(SELECT 1 FROM execution_occurrences o JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
           WHERE o.owner_id=a.owner_id AND o.id=a.occurrence_id AND o.status='running' AND o.claim_version=$5 AND o.claimed_by=$6
             AND o.lease_expires_at>now() AND r.status='active' AND r.version=o.routine_version))
@@ -323,7 +328,7 @@ export class ActionGateway {
       INSERT INTO action_receipts(owner_id,action_id,attempt_number,event,details)
       SELECT owner_id,id,attempt_count,'authorized',jsonb_build_object('authority',$7::text,'decision',$4::text) FROM started
     ) SELECT id FROM started`, [action.ownerId,actionId,binding,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null,decision.source,action.executor.agentId,context[0].agent_revision,
-      action.delivery?.id??null,action.delivery?.claimVersion??null,action.delivery?.channel??null,action.delivery?.resultReference??null]);
+      action.delivery?.id??null,action.delivery?.claimVersion??null,action.delivery?.channel??null,action.delivery?.resultReference??null,expectedApprovalId,approvalGeneration]);
     if (!started[0]) {
       await this.recordDenial(action.ownerId,actionId,"execution_precondition_failed");
       throw new ActionBlocked(decision.decision === "REQUIRE_APPROVAL" ? "awaiting_approval" : "denied",actionId);
@@ -360,7 +365,10 @@ export class ActionGateway {
                 WHERE d.id=$5 AND d.owner_id=a.owner_id AND d.run_id=a.run_id AND d.status='delivering' AND d.claim_version=$6
                   AND d.claimed_until>now() AND o.status='completed' AND routine.status='active' AND routine.version=o.routine_version)))
             AND ($7<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p WHERE p.id=a.approval_id
-              AND p.owner_id=a.owner_id AND p.binding_hash=a.parameter_hash AND p.status='approved' AND p.expires_at>now()))
+              AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
+              AND p.status='approved' AND p.decision='approved' AND p.expires_at>now()
+              AND p.id=$10 AND a.approval_generation=$11 AND p.agent_id=g.id
+              AND p.action_class=a.action_class AND p.action=a.action_class AND p.capability_id=a.capability_id))
             AND (a.occurrence_id IS NULL OR EXISTS(SELECT 1 FROM execution_occurrences o JOIN execution_routines routine
               ON routine.owner_id=o.owner_id AND routine.id=o.routine_id WHERE o.owner_id=a.owner_id AND o.id=a.occurrence_id
                 AND o.status='running' AND o.claim_version=$8 AND o.claimed_by=$9 AND o.lease_expires_at>now()
@@ -368,7 +376,7 @@ export class ActionGateway {
             AND (a.computer_session_id IS NULL OR EXISTS(SELECT 1 FROM computer_control_leases c JOIN computer_sessions s ON s.id=c.computer_session_id
               WHERE c.owner_id=a.owner_id AND c.computer_session_id=a.computer_session_id AND c.controller='AGENT'
                 AND c.version=a.control_version AND c.agent_id=g.id AND s.expires_at>now() AND s.status IN ('ready','running')))`,
-          [action.ownerId,actionId,binding,context[0].agent_revision,action.delivery?.id??null,action.delivery?.claimVersion??null,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null]);
+          [action.ownerId,actionId,binding,context[0].agent_revision,action.delivery?.id??null,action.delivery?.claimVersion??null,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null,expectedApprovalId,approvalGeneration]);
         if(!valid.length)throw new ActionBlocked("denied",actionId);
       }});
       const result = await adapter.execute(action.parameters,authorized);

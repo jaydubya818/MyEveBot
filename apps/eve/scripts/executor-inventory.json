@@ -419,7 +419,7 @@
     "agent/lib/effect/chat-files.ts": {
       "classification": "INTERNAL",
       "reason": "Owner-authenticated canonical private-file inventory; list and read filter owner_id, and optional thread labels join on the same owner. No public storage URL is exposed. Cross-owner read/list regression exercises real PostgreSQL.",
-      "sha256": "4e4efa8443c19617c23819670e7a94ff402c965f7b8bd6e05a3705ade97a8e1c"
+      "sha256": "0caf7338e9d83749daf68ce1032c69a1109a94a4b309864be25fe6f81a023dee"
     },
     "agent/lib/effect/db.ts": {
       "classification": "INTERNAL",
@@ -2031,13 +2031,13 @@
     },
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
-      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks.",
-      "sha256": "06d478ac1a8d62371aefef480743da8a3d835af2a5efe906b5210e0e3e2015cb"
+      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption.",
+      "sha256": "e6ef220a437a41cbf9ccff6c4a96bd8d079de8c6ade204e41570067c700b04a4"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "5e003962e1c23637507db1275523f6450ad45af0761c34247fc33a47cf8f2fe7"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Static observation import keeps authored modules in one bundle; provider inspection remains call-time and read-only.",
+      "sha256": "ea85601f1f47f1d4d1b0f7ceafaaf8967043a94ee262f137fe04c3e6cbf1aa92"
     },
     "lib/activation.ts": {
       "classification": "INTERNAL",
@@ -2082,7 +2082,7 @@
     "lib/approvals.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "03bd4799a08df2c60abb546d01979f0136b6b944af88efec2bdc0c8c07e41320"
+      "sha256": "8c2c747b933a29cb9812ba34b4af920a3cf8ec3cbe46ec2f538ab640a3c719a2"
     },
     "lib/artifact-api.ts": {
       "classification": "INTERNAL",
@@ -2207,7 +2207,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Current migration identifier, now 0031; no effects.",
-      "sha256": "7130d3b26ce127d273706d731590279746c4a0479a25439e8b9ba250ecba7451"
+      "sha256": "c39655921d6b57bbc64073a87bd8ab7f6a433572b4f454595eeda85fe157d88b"
     },
     "lib/delegation-policy.ts": {
       "classification": "INTERNAL",
@@ -2352,7 +2352,7 @@
     "lib/owner-data-domains.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "9a05e1ff41a2385ac0771601a21263ddc1658f3b10e0f3dbc3ef554b08a5a712"
+      "sha256": "de079e2d7fddf427a00e01aea5743ae5c036571adb0e8adf834017fe2f5d1804"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",

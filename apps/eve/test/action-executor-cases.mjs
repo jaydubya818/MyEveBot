@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {ActionGateway} from "./admission-fixtures.mjs";
 import {ActionBlocked} from "../lib/action-gateway.ts";
-import { approvalBinding } from "../lib/approvals.ts";
+import { approvalBinding, approvalRequestId } from "../lib/approvals.ts";
 import { emailSendAdapter,fileWriteAdapter } from "../lib/action-adapters.ts";
 
 export async function qualifyActionExecutors(client,database,staleClaim) {
@@ -9,11 +9,12 @@ export async function qualifyActionExecutors(client,database,staleClaim) {
     max_model_steps,max_retries_per_specialist,max_estimated_cost_usd)
     VALUES('executor-test','sarah','delegated_work','Executor qualification','ava','running',600,0,30,0,1)`);
   let approvals=0;
+  const approvalIds=[];
   const approvalStore=async input=>{
-    const id=`exact_${++approvals}`;
+    const id=approvalRequestId(input); approvalIds.push(id); approvals++;
     const binding=approvalBinding({taskId:input.taskId,capabilityId:input.capabilityId,resource:input.resource,action:input.action,parameters:input.parameters});
-    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status)
-      VALUES($1,$2,$3,$4,'Fixture exact approval',$5,$6,$7,'high',now()+interval '1 hour','pending')`,
+    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status,agent_id,capability_id)
+      VALUES($1,$2,$3,$4,'Fixture exact approval',$5,$6,$7,'high',now()+interval '1 hour','pending','ava','tool.send_email')`,
       [id,input.taskId,input.ownerId,input.requestedBy,input.action,input.actionClass,binding]);
     return {decision:'REQUIRE_APPROVAL',approval:{id},reason:'fixture'};
   };
@@ -34,7 +35,7 @@ export async function qualifyActionExecutors(client,database,staleClaim) {
   assert.equal(sends,0,'direct executor invocation cannot bypass the gateway');
   await assert.rejects(gateway.execute(base,adapter),ActionBlocked);
   assert.equal(sends,0,'prompt claims cannot satisfy exact-action approval');
-  await client.query("UPDATE task_approval_decisions SET status='approved' WHERE id='exact_1'");
+  await client.query("UPDATE task_approval_decisions SET status='approved',decision='approved' WHERE id=$1",[approvalIds[0]]);
   account='work';
   await assert.rejects(gateway.execute(base,adapter),ActionBlocked);
   assert.equal(sends,0,'approval does not transfer between accounts');
@@ -52,7 +53,7 @@ export async function qualifyActionExecutors(client,database,staleClaim) {
 
   const expired={...base,actionKey:'expired',parameters:{...base.parameters,subject:'Expired'}};
   await assert.rejects(gateway.execute(expired,adapter),ActionBlocked);
-  await client.query("UPDATE task_approval_decisions SET status='approved',expires_at=now()-interval '1 second' WHERE id=$1",[`exact_${approvals}`]);
+  await client.query("UPDATE task_approval_decisions SET status='approved',expires_at=now()-interval '1 second' WHERE id=$1",[approvalIds.at(-1)]);
   await assert.rejects(gateway.execute(expired,adapter),ActionBlocked);
   assert.equal(sends,1,'expired approval never reaches the provider');
 
