@@ -65,3 +65,63 @@ test('stop evidence is durable before database brake and excludes request bodies
  const {rows}=await pool.query('SELECT record FROM fq_control.evidence WHERE session_id=$1',[a.id]);
  assert.equal(rows[0].record.stopped,true);assert.equal(rows[0].record.artifacts,1);assert.equal(JSON.stringify(rows).includes('synthetic-private-fixture'),false);
 });
+async function signingSetup(){
+ const ctx=await setup();ctx.c.principals.worker.component='relay';ctx.c.principals.relay=ctx.c.principals.worker;ctx.c.principals.origin.worker='relay';ctx.c.principals.origin.accountIds=['acct_synthetic_a'];
+ ctx.c.signingKeys={evidence:'version-evidence','federation-delivery':'version-delivery',passport:'version-passport'};
+ await ctx.a.transaction(s=>{s.workers.relay={at:s.workers.worker.at,sha};});
+ await ctx.a.http('root_request');
+ const material=Buffer.from('{"operation":"poll"}');
+ const permit=await ctx.c.permit(ctx.p,'root_request','POST','https://fq.invalid/test',material,'origin');
+ ctx.origin=ctx.c.authenticate('Bearer '+originToken);
+ await ctx.c.claim(ctx.origin,{operation:'root_request',permit,method:'POST',url:'https://fq.invalid/test',bodyBase64:material.toString('base64')});
+ ctx.binding={rootOperation:'root_request',requestId:'request_0001',accountId:'acct_synthetic_a',agentId:'agent_a',operation:'poll',purpose:'federation-delivery',payloadHash:'a'.repeat(64),keyVersion:'version-delivery'};
+ return ctx;
+}
+test('signing permits bind native account, agent, operation, purpose, request and payload; one use',async()=>{
+ const {c,p,origin,binding}=await signingSetup();await assert.rejects(c.signingAdmission(p,binding));
+ await assert.rejects(c.signingAdmission(origin,{...binding,accountId:'acct_other'}));
+ await assert.rejects(c.signingAdmission(origin,{...binding,operation:'publish'}));
+ const permit=await c.signingAdmission(origin,binding);
+ for(const changes of [{purpose:'evidence',keyVersion:'version-evidence'},{payloadHash:'b'.repeat(64)},{requestId:'other_request'},{agentId:'other_agent'},{operation:'submit'}])await assert.rejects(c.signingClaim(origin,{...binding,...permit,...changes}));
+ assert.equal((await c.signingClaim(origin,{...binding,...permit})).admitted,true);
+ await assert.rejects(c.signingClaim(origin,{...binding,...permit}));
+});
+test('expired, absent and stopped signing permits never authorize application signing',async()=>{
+ const {a,c,origin,binding}=await signingSetup();await assert.rejects(c.signingClaim(origin,{...binding,permitId:'absent',permit:'forged'}));
+ const permit=await c.signingAdmission(origin,binding);await a.transaction(s=>{s.signingPermits[permit.permitId].expires=0;});
+ await assert.rejects(c.signingClaim(origin,{...binding,...permit}));
+ const fresh=await c.signingAdmission(origin,binding);await a.stop();await assert.rejects(c.signingClaim(origin,{...binding,...fresh}));
+});
+test('direct provider authority carries no Google credentials and consumes one metered network attempt',async()=>{
+ const {a,c,origin}=await signingSetup();c.routes.kms={provider:true,url:'https://cloudkms.googleapis.com',methods:['POST'],pathPattern:'^/v1/exact:asymmetricSign$',callers:['origin']};
+ const input={operation:'provider_0001',rootOperation:'root_request',route:'kms',url:'https://cloudkms.googleapis.com/v1/exact:asymmetricSign',method:'POST',bodyHash:'a'.repeat(64)};
+ const permit=await c.providerAdmission(origin,input);await c.providerClaim(origin,{...input,...permit});
+ await assert.rejects(c.providerClaim(origin,{...input,...permit}));
+ assert.equal((await a.status()).http,2);await c.providerComplete(origin,input);assert.equal((await a.status()).http,2);
+ await assert.rejects(c.providerAdmission(origin,{...input,operation:'provider_0002',url:'https://cloudkms.googleapis.com/v1/unrelated:asymmetricSign'}));
+ assert.equal((await a.status()).http,2);
+});
+test('autonomous model provider cannot take a nested origin dependency slot',async()=>{
+ const {a}=await setup();await a.http('model_http',{channel:'standalone'});
+ await assert.rejects(a.http('relay_http',{channel:'origin'}),/HTTP_DEPENDENCY_SLOT/);
+ await a.complete('model_http');await a.transaction(s=>{s.recentHttp=[];});
+ await a.http('relay_http',{channel:'origin'});await assert.rejects(a.http('model_http_2',{channel:'standalone'}),/HTTP_DEPENDENCY_SLOT/);
+ await a.http('kms_http',{channel:'provider'});assert.equal(Object.keys((await a.status()).active).length,2);
+});
+test('operator queue rejects worker submissions, fences starts and denies queued commands on stop',async()=>{
+ const {a,c,p}=await setup();c.principals.operator={role:'operator',worker:'worker',credentialHash:hash('z'.repeat(43))};p.name='myeve';c.principals.myeve=c.principals.worker;await a.transaction(s=>{s.workers.myeve=s.workers.worker;});
+ const operator={name:'operator',...c.principals.operator};const {job}=await import('./jobs.mjs');
+ await assert.rejects(job(c,p,'job-submit',{id:'job_00001',worker:'myeve',command:{operation:'policy'}}));
+ await assert.rejects(job(c,operator,'job-submit',{id:'job_00001',worker:'myeve',command:{operation:'connect',input:{password:'must-not-queue'}}}));
+ await job(c,operator,'job-submit',{id:'job_00001',worker:'myeve',command:{operation:'policy'}});
+ assert.equal((await job(c,p,'job-take',{})).job.id,'job_00001');assert.equal((await job(c,p,'job-take',{})).job,null);
+ await job(c,p,'job-complete',{id:'job_00001',state:'COMPLETED',result:{ok:true}});
+ await assert.rejects(job(c,p,'job-complete',{id:'job_00001',state:'COMPLETED',result:{ok:true}}));
+ await job(c,operator,'job-submit',{id:'job_00002',worker:'myeve',command:{operation:'policy'}});await a.stop();assert.equal((await a.status()).jobs.job_00002.state,'DENIED');await assert.rejects(job(c,p,'job-take',{}));
+});
+test('only native submit commands consume submission allowance while every attempt counts HTTP',async()=>{
+ let ctx;ctx=await setup(async(url,init)=>{await ctx.c.claim(ctx.origin,{operation:init.headers['x-fq-operation'],permit:init.headers['x-fq-permit'],method:'POST',url,bodyBase64:Buffer.from(init.body).toString('base64')});return new Response('ok');});
+ ctx.c.routes.test.submission=false;ctx.c.routes.test.submissionOperations=['submit'];
+ for(const [n,operation] of ['poll','submit'].entries())await ctx.c.http(ctx.p,{operation:`attempt_${n}`,route:'test',bodyBase64:Buffer.from(JSON.stringify({operation})).toString('base64')});
+ const s=await ctx.a.status();assert.equal(s.http,2);assert.equal(s.submissions,1);
+});

@@ -20,7 +20,7 @@ const controls=fileURLToPath(new URL('.',import.meta.url));
 const readiness=resolve(controls,'../../..');
 const controlsSha=execFileSync('git',['rev-parse','HEAD'],{cwd:readiness,encoding:'utf8'}).trim();
 verifiedSource(readiness,controlsSha);
-const runtime=['worker-entrypoint.mjs','worker.mjs','runtime.mjs','server.mjs','controller.mjs','postgres.mjs','model.mjs'];
+const runtime=['worker-entrypoint.mjs','worker.mjs','runtime.mjs','server.mjs','controller.mjs','postgres.mjs','model.mjs','jobs.mjs'];
 mkdirSync(join(destination,'qualification-runtime'));
 for(const file of runtime)copyFileSync(join(controls,file),join(destination,'qualification-runtime',file));
 writeFileSync(join(destination,'qualification-runtime','source.json'),JSON.stringify({readiness:controlsSha}));

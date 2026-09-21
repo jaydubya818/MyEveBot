@@ -6,7 +6,7 @@ import {pathToFileURL} from 'node:url';
 
 export function validateTarget(d) {
   if(!['myeve','peer','relay'].includes(d.component) || d.database!==`fq_${d.component}_6384519e0e01` || d.applicationRole!==`${d.database}_app`) throw Error('Non-qualification target refused');
-  if(d.workerRole!==undefined&&(d.component==='relay'||d.workerRole!==`${d.database}_worker`))throw Error('Non-qualification worker role refused');
+  if(d.workerRole!==undefined&&d.workerRole!==`${d.database}_worker`)throw Error('Non-qualification worker role refused');
 }
 export async function freezeDatabase(admin,d) {
   validateTarget(d);

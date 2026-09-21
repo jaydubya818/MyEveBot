@@ -73,11 +73,11 @@ export class Authority {
     if (Object.hasOwn(state.operations, id)) deny('OPERATION_ALREADY_RESERVED');
   }
   async http(id, { submission = false, cleanup = false, channel } = {}) {
-    if (typeof submission !== 'boolean' || typeof cleanup !== 'boolean' || (submission && cleanup) || (channel!==undefined&&!['origin','provider'].includes(channel))) deny('CLASSIFICATION');
+    if (typeof submission !== 'boolean' || typeof cleanup !== 'boolean' || (submission && cleanup) || (channel!==undefined&&!['origin','provider','standalone'].includes(channel))) deny('CLASSIFICATION');
     return this.transaction((s, now) => {
       this.check(s, now, cleanup); this.operation(s, id);
       if (s.http >= 2000 || (submission && s.submissions >= 120)) deny('REQUEST_LIMIT');
-      if(channel==='origin' && Object.values(s.active).some(x=>x.kind==='http'&&x.channel==='origin')) deny('HTTP_DEPENDENCY_SLOT');
+      if(['origin','standalone'].includes(channel) && Object.values(s.active).some(x=>x.kind==='http')) deny('HTTP_DEPENDENCY_SLOT');
       if (Object.values(s.active).filter(x => x.kind === 'http').length >= 2) deny('HTTP_CONCURRENCY');
       s.recentHttp = s.recentHttp.filter(t => now - t < 1);
       if (s.recentHttp.length >= 2) deny('HTTP_RATE');
@@ -132,6 +132,7 @@ export class Authority {
     return this.transaction((s, now) => {
       if (!s.stopped) s.events.push({ kind: 'stop', at: now });
       s.stopped = true;
+      for(const value of Object.values(s.jobs??{}))if(value.state==='QUEUED')value.state='DENIED';
     });
   }
   async status() { return this.transaction((s, now) => ({ ...s, now })); }

@@ -16,7 +16,7 @@ export function haikuQualificationModel({authority,credential,pricingReviewedUnt
    // Reservation is made by Controller.modelCall before entering this function.
    if(typeof operation!=='string')throw Error('MODEL_OPERATION_REQUIRED');
    const body=JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:800,stream:false,service_tier:'standard_only',messages:[{role:'user',content:input}]});
-   await admitHttp(authority,operation+'_provider',{channel:'provider'},async()=>{signal.throwIfAborted();await authority.assertRunning();});
+   await admitHttp(authority,operation+'_provider',{channel:'standalone'},async()=>{signal.throwIfAborted();await authority.assertRunning();});
    await authority.transaction((s,now)=>{authority.check(s,now);if(!s.active[operation]||s.active[operation].kind!=='model'||s.active[operation].maximumMicrousd!==250000)throw Error('MODEL_RESERVATION_REQUIRED');signal.throwIfAborted();s.operations[operation+'_provider'].binding=createHash('sha256').update(JSON.stringify(['POST','https://api.anthropic.com/v1/messages',body])).digest('hex');s.operations[operation+'_provider'].expires=now+15;s.operations[operation+'_provider'].permitConsumed=true;});
    const response=await request('https://api.anthropic.com/v1/messages',{method:'POST',redirect:'error',signal,headers:{'content-type':'application/json','anthropic-version':'2023-06-01','x-api-key':key},body});
    const chunks=[];let bytes=0;for await(const chunk of response.body??[]){bytes+=chunk.length;if(bytes>131072)throw Error('MODEL_RESPONSE_TOO_LARGE');chunks.push(Buffer.from(chunk));}
