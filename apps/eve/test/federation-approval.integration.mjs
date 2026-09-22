@@ -37,13 +37,13 @@ const stage=async id=>{
 };
 const check=async(name,fn)=>{await fn();checks++;console.log(`PASS: ${name}`);};
 try{
- await client.query('BEGIN');await client.query('SET LOCAL search_path=pg_temp');
+ await client.query('BEGIN');await client.query('SET LOCAL search_path=pg_temp,public');
  for(const table of tables) await client.query(`CREATE TEMP TABLE ${table} (LIKE public.${table} INCLUDING ALL) ON COMMIT DROP`);
  const defaults=(await client.query("SELECT table_name,column_name FROM information_schema.columns WHERE table_schema='public' AND table_name=ANY($1) AND column_default LIKE 'nextval(%'",[tables])).rows;
  for(const [index,row] of defaults.entries()) {await client.query(`CREATE TEMP SEQUENCE test_sequence_${index}`);await client.query(`ALTER TABLE ${row.table_name} ALTER COLUMN ${row.column_name} SET DEFAULT nextval('pg_temp.test_sequence_${index}')`);}
  neonConfig.fetchFunction=async(_url,options)=>{
   const body=JSON.parse(options.body);
-  const query=async item=>{const result=await client.query({text:item.query,values:item.params,rowMode:'array',types:{getTypeParser:()=>v=>v}});return {fields:result.fields.map(f=>({name:f.name,dataTypeID:f.dataTypeID})),rows:result.rows,rowCount:result.rowCount,command:result.command,rowAsArray:true};};
+  const query=async item=>{await client.query('SAVEPOINT neon_statement');try{const result=await client.query({text:item.query,values:item.params,rowMode:'array',types:{getTypeParser:()=>v=>v}});return {fields:result.fields.map(f=>({name:f.name,dataTypeID:f.dataTypeID})),rows:result.rows,rowCount:result.rowCount,command:result.command,rowAsArray:true};}catch(error){await client.query('ROLLBACK TO neon_statement');throw error}finally{await client.query('RELEASE neon_statement')}};
   if(!body.queries)return Response.json(await query(body));
   const results=[];for(const item of body.queries)results.push(await query(item));return Response.json({results});
  };
@@ -62,7 +62,7 @@ try{
  await check('preparation replay cannot send or renew an expired approval',async()=>{
   const {ctx,value,row}=await stage('prepare-replay'),before=sends,def=await definition(ctx);
   await client.query("UPDATE task_approval_decisions SET expires_at=now()-interval '1 second' WHERE id=$1",[row.approval_id]);
-  assert.equal(await def.approval({...ctx,toolName:'federation_request',toolInput:value,approvedTools:new Set()}),'denied');
+  assert.equal(JSON.parse((await def.approval({...ctx,toolName:'federation_request',toolInput:value,approvedTools:new Set()})).reason).code,'ACTION_APPROVAL_EXPIRED');
   assert.equal(sends,before);
   assert.equal((await client.query('SELECT approval_generation FROM action_requests WHERE id=$1',[row.id])).rows[0].approval_generation,0);
   assert.equal((await client.query('SELECT count(*)::int n FROM task_approval_decisions WHERE task_id=$1',[row.run_id])).rows[0].n,1);
@@ -81,6 +81,54 @@ try{
   const def=await definition({...ctx,messages:decisionMessages(condition,changed,condition==='owner-denied'?'no':'yes')});
   assert.equal((await def.execute(changed,ctx)).status,'denied');assert.equal(sends,before);
   assert.equal((await client.query('SELECT count(*)::int n FROM task_approval_decisions WHERE task_id=$1',[row.run_id])).rows[0].n,1);
+ });
+ await check('expired admission creates no Action or approval, and surfaces specific reason',async()=>{
+  const {ctx,row}=await stage('expired-admission');
+  await client.query("UPDATE task_runs SET deadline_at=clock_timestamp()-interval '1 second' WHERE id=$1",[row.run_id]);
+  const before=(await client.query('SELECT (SELECT count(*) FROM action_requests)::int actions,(SELECT count(*) FROM task_approval_decisions)::int approvals')).rows[0];
+  const def=await definition(ctx),denial=await def.approval({...ctx,callId:'new-expired-call',toolName:'federation_request',toolInput:input('new-expired-call')});
+  assert.equal(denial.type,'denied');assert.equal(JSON.parse(denial.reason).code,'RUN_EXPIRED');
+  assert.deepEqual((await client.query('SELECT (SELECT count(*) FROM action_requests)::int actions,(SELECT count(*) FROM task_approval_decisions)::int approvals')).rows[0],before);
+ });
+ await check('fresh recovery preserves historical approval and exact call binding',async()=>{
+  const {ownerChatRun,toolActionRequest}=await import('../agent/lib/action-context.ts');
+  const {listApprovalRequests,decideApproval}=await import('../lib/approvals.ts');
+  const ctx=context('expired-admission');
+  const old=(await client.query("SELECT * FROM action_requests WHERE action_key='tool:expired-admission'")).rows[0];
+  const fresh=await ownerChatRun({ownerId:'approval-owner',sessionId:ctx.session.id,agentId:'approval-agent',recover:true,initialize:true});
+  assert.notEqual(fresh,old.run_id);
+  const historical=await toolActionRequest(ctx,{capabilityId:'federation.request',actionClass:'send',parameters:input('expired-admission')});assert.equal(historical.runId,old.run_id);
+  const view=(await listApprovalRequests('approval-owner')).find(p=>p.id===old.approval_id);assert.equal(view.status,'expired');assert.equal(view.effectiveReason,'Parent Run expired');
+  await assert.rejects(()=>decideApproval({ownerId:'approval-owner',id:old.approval_id,bindingHash:old.parameter_hash,decision:'approved',decidedBy:'approval-owner'}));
+  assert.equal((await client.query('SELECT status FROM task_approval_decisions WHERE id=$1',[old.approval_id])).rows[0].status,'pending');
+  const current=await toolActionRequest({...ctx,callId:'fresh-work'},{capabilityId:'federation.request',actionClass:'send',parameters:input('fresh-work')});assert.equal(current.runId,fresh);
+ });
+ await check('non-Federation and read admission reject expired Run before persistence',async()=>{
+  const {ActionGateway}=await import('../lib/action-gateway.ts');
+  const old=(await client.query("SELECT * FROM action_requests WHERE action_key='tool:expired-admission'")).rows[0];
+  let effects=0;const adapter={resolveTarget:async()=>({provider:'mail',account:'local',resource:'test@example.invalid'}),execute:async()=>{effects++;return{}},receipt:()=>({}),verify:async()=>({verified:true,receipt:{}})};
+  for(const actionClass of ['send','read'])await assert.rejects(()=>new ActionGateway().prepare({ownerId:'approval-owner',runId:old.run_id,actionKey:'non-federation-'+actionClass,capabilityId:'channel.web',actionClass,executor:{kind:'primary-agent',agentId:'approval-agent'},trigger:{kind:'owner_chat',id:'expired-admission'},parameters:{}},adapter),e=>e.actionId==='RUN_EXPIRED');
+  assert.equal(effects,0);assert.equal((await client.query("SELECT count(*)::int n FROM action_requests WHERE action_key LIKE 'non-federation-%'")).rows[0].n,0);
+ });
+ await check('Run expires between proposal and admission: zero persisted Actions or approvals',async()=>{
+  const {ActionGateway}=await import('../lib/action-gateway.ts');
+  const {toolActionRequest}=await import('../agent/lib/action-context.ts');
+  const ctx=context('admission-race');const action=await toolActionRequest(ctx,{capabilityId:'channel.web',actionClass:'send',parameters:{body:'test'}});
+  let effects=0;
+  const adapter={resolveTarget:async()=>{await client.query("UPDATE task_runs SET deadline_at=clock_timestamp() WHERE id=$1",[action.runId]);return {provider:'test',account:'test',resource:'test'}},execute:async()=>{effects++;return{}},receipt:()=>({}),verify:async()=>({verified:true,receipt:{}})};
+  await assert.rejects(()=>new ActionGateway(undefined,{evaluate:async()=>({decision:'REQUIRE_APPROVAL',reason:'Test',source:'local'})}).prepare(action,adapter),e=>e.actionId==='RUN_EXPIRED');
+  assert.equal(effects,0);assert.equal((await client.query('SELECT count(*)::int n FROM action_requests WHERE run_id=$1',[action.runId])).rows[0].n,0);
+  assert.equal((await client.query('SELECT count(*)::int n FROM task_approval_decisions WHERE task_id=$1',[action.runId])).rows[0].n,0);
+ });
+ await check('canonical thread deletion preserves multi-Run evidence and owner isolation',async()=>{
+  await client.query("CREATE TEMP TABLE web_chat_threads(id text PRIMARY KEY,title text NOT NULL,updated_at bigint NOT NULL,chat jsonb NOT NULL DEFAULT '{}',owner_id text)");
+  await client.query("INSERT INTO web_chat_threads(id,title,updated_at,owner_id) VALUES('expired-admission','Test',1,'approval-owner')");
+  const {deleteThread}=await import('../lib/threads-db.ts');
+  const before=(await client.query("SELECT task_id,is_current FROM task_run_sessions WHERE session_id='expired-admission' ORDER BY task_id")).rows;
+  assert.equal(before.length,2);await deleteThread('other-owner','expired-admission');
+  assert.equal((await client.query('SELECT count(*)::int n FROM web_chat_threads')).rows[0].n,1);
+  await deleteThread('approval-owner','expired-admission');assert.equal((await client.query('SELECT count(*)::int n FROM web_chat_threads')).rows[0].n,0);
+  assert.deepEqual((await client.query("SELECT task_id,is_current FROM task_run_sessions WHERE session_id='expired-admission' ORDER BY task_id")).rows,before);
  });
  console.log(`Targeted SQL approval continuation: ${checks} passed; mocked Relay sends=${sends}; live Relay effects=0; qualified data unchanged.`);
 }finally{globalThis.fetch=fetchBefore;neonConfig.fetchFunction=neonBefore;await client.query('ROLLBACK');await client.end();}

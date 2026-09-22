@@ -1,3 +1,4 @@
+import {localSqlFixture} from './local-sql-fixture.mjs';
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { Pool } from "pg";
@@ -9,18 +10,17 @@ import { ActionGateway, consumeActionAuthority, consumeProviderAuthority } from 
 
 // Fixed loopback fixture only: never read an environment file or shared URL.
 process.env.DATABASE_URL = "postgresql://myeve_test@action-context.invalid/postgres";
-const pool = new Pool({ host: "127.0.0.1", port: 55442, user: "myeve_test", database: "postgres" });
+const pool = new Pool(localSqlFixture({ host: "127.0.0.1", port: 55442, user: "myeve_test", database: "postgres" }));
 const client = await pool.connect();
 const schema = `action_context_${Date.now()}`;
 const originalFetch = globalThis.fetch;
 const originalTransport = neonConfig.fetchFunction;
-let providerCalls = 0, checks = 0, runInsert;
+let providerCalls = 0, checks = 0;
 globalThis.fetch = async () => { providerCalls++; throw new Error("External providers forbidden in SQL regression"); };
 // Exercise the application's real Neon query serialization and PostgreSQL parser.
 neonConfig.fetchFunction = async (_url, options) => {
   const body = JSON.parse(options.body);
   const query = async ({ query, params }) => {
-    if (query.includes("WITH run AS")) runInsert = { query, params };
     const result = await client.query({ text: query, values: params, rowMode: "array", types: { getTypeParser: () => value => value } });
     return { fields: result.fields.map(f => ({ name: f.name, dataTypeID: f.dataTypeID })), rows: result.rows, rowCount: result.rowCount, command: result.command, rowAsArray: true };
   };
@@ -52,18 +52,13 @@ try {
     const row = (await client.query("SELECT max_duration_seconds,extract(epoch FROM deadline_at-started_at)::int AS duration FROM task_runs WHERE id=$1", [request.runId])).rows[0];
     assert.deepEqual(row, { max_duration_seconds: 600, duration: 600 });
   });
-  // Replay the exact captured application SQL, changing only runtime and unique identities.
-  for (const [value, code] of [[null, "23502"], [0, "23514"], [1, null], [10, null], [600, null], [86400, null], [10.5, "22P02"]]) {
-    await check(`runtime SQL boundary ${value}`, async () => {
-      const params = [...runInsert.params]; params[0] = `boundary_${value}`; params[3] = value; params[6] = `session_${value}`;
-      if (code) await assert.rejects(client.query(runInsert.query, params), error => error.code === code);
-      else {
-        await client.query(runInsert.query, params);
-        const row = (await client.query("SELECT max_duration_seconds,extract(epoch FROM deadline_at-started_at)::int AS duration FROM task_runs WHERE id=$1", [params[0]])).rows[0];
-        assert.deepEqual(row, { max_duration_seconds: value, duration: value });
-      }
-    });
-  }
+  for(const value of [10,600,86400])await check(`canonical initializer uses current Agent runtime ${value}`,async()=>{
+    await client.query('UPDATE agents SET max_runtime_seconds=$1 WHERE id=$2',[value,agent]);
+    const request=await toolActionRequest(context('boundary-'+value),input);
+    const row=(await client.query('SELECT max_duration_seconds,extract(epoch FROM deadline_at-started_at)::int AS duration FROM task_runs WHERE id=$1',[request.runId])).rows[0];
+    assert.deepEqual(row,{max_duration_seconds:value,duration:value});
+  });
+  await client.query('UPDATE agents SET max_runtime_seconds=600 WHERE id=$1',[agent]);
   for (const value of [null, 0, 1, 9, 10.5, 86401]) await check(`Agent rejects invalid runtime ${value}`, async () => {
     assert.match(validateAgentInput({ name: "Test", role: "Test", instructions: "Test", limits: { maxRuntimeSeconds: value } }), /Max runtime/);
   });

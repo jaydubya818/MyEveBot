@@ -16,7 +16,7 @@ export async function qualifyCoverage(client,database) {
   const policy=decision=>({evaluate:async()=>({decision,reason:'fixture',source:'fixture'})});
   for(const capability of ['tool.send_email','files.write','browser.click','browser.navigate','computer.session.create','notification.send']) {
     let calls=0,handle;
-    const action={ownerId:'sarah',runId:'executor-test',actionKey:`matrix:${capability}`,capabilityId:capability,actionClass:'send',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat'},parameters:{target:'one',content:'original'}};
+    const action={ownerId:'sarah',runId:'executor-test',actionKey:`matrix:${capability}`,capabilityId:capability,actionClass:'send',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat',id:'fixture-session'},parameters:{target:'one',content:'original'}};
     const adapter={resolveTarget:async()=>({provider:'local-fixture',account:'sarah',resource:'one'}),execute:async(params,authority)=>{await consumeActionAuthority(authority,params,capability);handle=authority;calls++;return {};},verify:async()=>({verified:true,receipt:{fixture:true}})};
     await assert.rejects(new ActionGateway(database,policy('DENY'),approvalStore).execute({...action,actionKey:`deny:${capability}`},adapter));assert.equal(calls,0);
     const gateway=new ActionGateway(database,policy('REQUIRE_APPROVAL'),approvalStore);
@@ -36,7 +36,7 @@ export async function qualifyCoverage(client,database) {
     await assert.rejects(new ActionGateway(database,policy('ALLOW')).execute({...action,actionKey:`target-offline:${capability}`},{...adapter,resolveTarget:async()=>{throw new Error('unresolved');}}));assert.equal(calls,1);
   }
   let calls=0;
-  const browser={ownerId:'sarah',runId:'executor-test',actionKey:'control-agent',capabilityId:'browser.click',actionClass:'write',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat'},parameters:{selector:'#local-fixture'},computer:{sessionId:'computer-fixture',controlVersion:2}};
+  const browser={ownerId:'sarah',runId:'executor-test',actionKey:'control-agent',capabilityId:'browser.click',actionClass:'write',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat',id:'fixture-session'},parameters:{selector:'#local-fixture'},computer:{sessionId:'computer-fixture',controlVersion:2}};
   const adapter={resolveTarget:async()=>({provider:'browser',account:'computer-fixture',resource:'https://local.invalid'}),execute:async(params,handle)=>{await consumeActionAuthority(handle,params,'browser.click');calls++;return {};},verify:async()=>({verified:true,receipt:{}})};
   const gateway=new ActionGateway(database,policy('ALLOW'));
   await gateway.execute(browser,adapter);assert.equal(calls,1);

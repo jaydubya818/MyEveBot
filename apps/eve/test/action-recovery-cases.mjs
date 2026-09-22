@@ -5,7 +5,7 @@ import {ActionRecovery} from '../lib/action-recovery.ts';
 import {approvalBinding,approvalRequestId} from '../lib/approvals.ts';
 
 export async function qualifyRecovery(client,database) {
-  const base={ownerId:'sarah',runId:'executor-test',actionKey:'recovery',capabilityId:'tool.send_email',actionClass:'send',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat'},parameters:{to:['sarah@example.test'],text:'report'}};
+  const base={ownerId:'sarah',runId:'executor-test',actionKey:'recovery',capabilityId:'tool.send_email',actionClass:'send',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat',id:'fixture-session'},parameters:{to:['sarah@example.test'],text:'report'}};
   const authority={evaluate:async()=>({decision:'ALLOW',source:'fixture',reason:'fixture'})};
   const gateway=new ActionGateway(database,authority);
   const recovery=new ActionRecovery(database);

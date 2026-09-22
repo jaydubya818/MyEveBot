@@ -319,7 +319,7 @@
     "agent/lib/action-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "d80c0082853267c606f5ed981bfeb61541977fc4220400a174fde4e4abca6690"
+      "sha256": "25957332d970f862a2b637717ecd43961fa337966a993eaf54d24e04ba9f6050"
     },
     "agent/lib/agentmail.ts": {
       "classification": "ENFORCED",
@@ -374,7 +374,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "683f5205bc06250fef34f1a9d9fc8bd69d44996d92ae176d2ad5b0a7bb9f7529"
+      "sha256": "9768b61d20e188c8b1c894f752a64b8679253eeba113524a08efd70dbf31c134"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -584,7 +584,7 @@
     "agent/lib/skill-manager.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8df341cdab4de84af6a96f7b5a658b4ab0371a39327fb124a76a5df333875281"
+      "sha256": "8cc1747c0a9ad9460ce2679639d3fc596ce5a1bec4aeee75bfc919ba7630e8f0"
     },
     "agent/lib/skill-store.ts": {
       "classification": "INTERNAL",
@@ -2047,7 +2047,7 @@
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
       "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption.",
-      "sha256": "89ea5100c7cd97f9d7858423594fd9371d4e6698d9a4d922936046f88b25477b"
+      "sha256": "3ff7e03763ff02fa14426f0198c97c15ce168224a30430a44a888068212e4013"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2097,7 +2097,7 @@
     "lib/approvals.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8c2c747b933a29cb9812ba34b4af920a3cf8ec3cbe46ec2f538ab640a3c719a2"
+      "sha256": "90b05c895dc2f4664cbe992ffd156880869b54e29165a3c613f7908a792e224d"
     },
     "lib/artifact-api.ts": {
       "classification": "INTERNAL",
@@ -2262,12 +2262,12 @@
     "lib/control-center.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "19cf9bd7e6632fd1422fcc6681d055e30742ff527ba19ee7d201d4af84af7e72"
+      "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315"
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Current migration identifier, now 0031; no effects.",
-      "sha256": "c39655921d6b57bbc64073a87bd8ab7f6a433572b4f454595eeda85fe157d88b"
+      "sha256": "9931800ad975a550ba29595de4959e7e7c5e349fd4e5a5ca74907f798bc6266e"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2487,7 +2487,7 @@
     "lib/owner-data-domains.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "de079e2d7fddf427a00e01aea5743ae5c036571adb0e8adf834017fe2f5d1804"
+      "sha256": "19f975ca9f9fc9327ee1bbb8843c22b731dcbf7bc211badf32adf91788b6466e"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",
@@ -2732,7 +2732,7 @@
     "lib/task-runs.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "24b941b6eef4793ca0cff2cd0ceabe7313b69dacc4ff6f34847ae80ff4091288"
+      "sha256": "1f86a0c566aef24a9d6405a2e41cca59c493991c965c9c1db4a76d1e49d2fbc5"
     },
     "lib/task-types.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2798,7 +2798,12 @@
       "classification": "ENFORCED",
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "667a415a2e40f813574d791a4313074d0e48aa5154eb9187409d0e7f18fed84a"
+      "sha256": "562e1bd0bad6ba03d52edb7a7b8f27a22a81baa96be0db10cd3fe20a9330429e"
+    },
+    "agent/hooks/owner-chat-run.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-chat execution-context recovery only; canonical SQL initializer preserves historical Run authority and creates no Action or provider effect. Confirmation, routine and delegated contexts cannot renew authority.",
+      "sha256": "fd0c08600d0f9c6cdf4365079c9c6ca4fd0198cf0d7c81e5e7367dda3c501914"
     }
   }
 }

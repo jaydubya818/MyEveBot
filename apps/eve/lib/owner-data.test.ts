@@ -127,6 +127,15 @@ describe("owner data archives", () => {
     await expect(createOwnerArchive(bundle)).rejects.toThrow("Unsafe secret-bearing field");
   });
 
+  it("exports all session-Run bindings without restoring execution authority",async()=>{
+    const links=[{session_id:"session",task_id:"old",is_current:false},{session_id:"session",task_id:"current",is_current:true}];
+    const query=vi.fn(async(sql:string)=>sql.includes("FROM task_run_sessions s")?links:[]);
+    const bundle=await collectOwnerData("owner-a",query);
+    expect(bundle.categories.runs.records.sessionRuns).toEqual(links);
+    expect(query.mock.calls.find(([sql])=>sql.includes("FROM task_run_sessions s"))?.[0]).toContain("WHERE r.owner_id=$1");
+    expect(ownerDataInventory(bundle).find(row=>row.id==="runs")?.portability).toBe("non_restorable");
+  });
+
   it("uses owner filters and an explicit field allowlist", async () => {
     const statements: Array<{ sql: string; params: unknown[] | undefined }> = [];
     const query = vi.fn(async (sql: string, params?: unknown[]) => {

@@ -107,6 +107,11 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
       : await new ActionGateway().execute(action, adapter, ctx.abortSignal);
     return { ...evidence, response: response ?? {status: "already_executed", message: "Use status to reauthorize retrieval of the request result."} };
   } catch (error) {
+    // Preserve safe lifecycle causes rather than attributing them to Relay.
+    if(error instanceof ActionBlocked && error.actionId.startsWith("RUN_")) {
+      return {status:"denied",code:error.actionId,canEscalate:false,
+        message:"The execution context is expired or unavailable. Nothing was sent. New work needs a fresh context and exact Action approval; do not retry the old Action."};
+    }
     // Never surface transport errors, credentials, or raw provider payloads.
     if (error instanceof ActionBlocked && error.status === "awaiting_approval") {
       return {status: "awaiting_approval", code: "exact_action_approval_required", actionId: error.actionId,
@@ -128,16 +133,19 @@ export async function prepareFederationApproval(ctx: ApprovalContext<Input>) {
   if (parsed.data.operation !== "request" || parsed.data.request?.capability === "knowledge.query") return "not-applicable" as const;
   if (Date.parse(parsed.data.request!.expiresAt) <= Date.now()) return "denied" as const;
   const result = await executeFederationTool(parsed.data, ctx, true);
+  if ("code" in result && result.code?.startsWith("RUN_")) return {type:"denied" as const,reason:JSON.stringify(result)};
   if (!("actionId" in result) || !("status" in result) || result.status !== "awaiting_approval") return "denied" as const;
   const {store} = await binding(ctx);
   // A second model call cannot acquire a different call's pending approval. Nor
   // can a stale native confirmation approve a replacement approval generation.
-  const rows = await store.database.query(`SELECT a.id FROM action_requests a
+  const rows = await store.database.query(`SELECT a.id,(p.expires_at>clock_timestamp()) AS approval_live FROM action_requests a
     JOIN task_approval_decisions p ON p.id=a.approval_id JOIN task_runs r ON r.id=a.run_id AND r.owner_id=a.owner_id
     WHERE a.owner_id=$1 AND a.id=$2 AND a.action_key=$3 AND a.approval_generation=0 AND a.attempt_count=0
-      AND a.status='awaiting_approval' AND p.status='pending' AND p.expires_at>now()
+      AND a.status='awaiting_approval' AND p.status='pending'
       AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())`,
     [store.ownerId, result.actionId, `tool:${ctx.callId}`]);
+  if(rows.length===1 && rows[0]?.approval_live===false)return {type:"denied" as const,
+    reason:JSON.stringify({code:"ACTION_APPROVAL_EXPIRED",message:"The exact Action approval expired. Nothing was sent; new work requires a fresh Action approval."})};
   return rows.length === 1 ? "user-approval" as const : "denied" as const;
 }
 
@@ -184,7 +192,7 @@ export async function resolveFederationApprovals(ctx: DynamicResolveContext) {
       JOIN task_approval_decisions p ON p.id=a.approval_id AND p.owner_id=a.owner_id AND p.binding_hash=a.parameter_hash AND p.task_id=a.run_id
         AND p.capability_id=a.capability_id AND p.action_class=a.action_class
       JOIN task_run_sessions s ON s.task_id=a.run_id JOIN task_runs r ON r.id=a.run_id AND r.owner_id=a.owner_id
-      WHERE a.owner_id=$1 AND s.session_id=$2 AND a.action_key=$3 AND a.capability_id='federation.request'
+      WHERE a.owner_id=$1 AND s.session_id=$2 AND s.is_current AND a.action_key=$3 AND a.capability_id='federation.request'
         AND a.status='awaiting_approval' AND a.approval_generation=0 AND a.attempt_count=0
         AND p.status IN ('pending','approved','denied') AND p.expires_at>now() AND p.agent_id=$4
         AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())`,

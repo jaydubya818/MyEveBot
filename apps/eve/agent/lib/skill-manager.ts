@@ -185,7 +185,7 @@ export async function recordSkillUsage(input: {
        loaded_step_index, last_accounted_step
      ) VALUES (
        $1, $2, $3, $4, $5,
-       (SELECT task_id FROM task_run_sessions WHERE session_id = $4 LIMIT 1),
+       (SELECT task_id FROM task_run_sessions WHERE session_id = $4 AND is_current LIMIT 1),
        $6, $6
      )
      ON CONFLICT (session_id, turn_id, skill_name) DO NOTHING`,

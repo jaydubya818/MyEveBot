@@ -74,8 +74,8 @@ export async function qualifyFinalGate(client,database) {
   const nextStamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
   assert.equal(await recovery.resolveByOwner('sarah',id,'not_occurred',nextStamp),'retryable');
   assert.equal((await client.query('SELECT approval_id FROM action_requests WHERE id=$1',[id])).rows[0].approval_id,null);
-  await assert.rejects(pending.resume(resumed,gateway,adapter),error=>error.status==='awaiting_approval');
-  assert.equal(approvals,2);assert.equal(sends,1,'owner non-execution attestation still needs fresh approval');
+  await assert.rejects(pending.resume(resumed,gateway,adapter),error=>error.status==='denied'&&error.actionId==='RUN_NOT_EXECUTABLE');
+  assert.equal(approvals,1);assert.equal(sends,1,'terminal Run cannot admit a replacement approval after owner attestation');
   await client.query("UPDATE action_requests SET status='needs_you',updated_at=now() WHERE id=$1",[id]);
   const cancelStamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
   assert.equal(await recovery.resolveByOwner('sarah',id,'cancel',cancelStamp),'cancelled');

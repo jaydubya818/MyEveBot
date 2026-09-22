@@ -33,8 +33,8 @@ beforeEach(() => {
     return {requestId: "request", status: "COMPLETED", result: {ownerId:"atlas",publisherAgentId:"atlas-agent", publicationVersion:1,kind:"OWNER_PUBLISHED_KNOWLEDGE",records:[{content:"Atlas pilot launch date is October 15.", reference:"published",provenance:"owner publication"}]}};
   });
   state.query.mockImplementation(async (sql: string, params: any[] = []) => {
-    if (sql.includes("SELECT r.id,r.agent_id")) return [{id:"run",agent_id:"sofie"}];
-    if (sql.includes("SELECT r.agent_id,r.role_id")) return [{agent_id:"sofie",role_id:null,agent_revision:"2026-01-01"}];
+    if (sql.includes("SELECT owner_chat_run")) return [{id:"run"}];
+    if (sql.includes("SELECT r.agent_id,r.role_id")) return [{agent_id:"sofie",role_id:null,run_live:true,agent_revision:"2026-01-01"}];
     if (sql.includes("INSERT INTO action_requests")) {state.action = {id:params[0],parameter_hash:params[10],status:params[13],attempt_count:0}; return [state.action];}
     if (sql.includes("WITH started AS")) return [{id:state.action.id}];
     if (sql.includes("SELECT a.id FROM action_requests")) return [{id:state.action.id}];
