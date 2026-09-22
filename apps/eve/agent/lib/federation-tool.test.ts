@@ -16,7 +16,7 @@ import tool from "../tools/federation_request.ts";
 import { executeFederationTool, federationToolAvailable, federationToolInput } from "./federation-tool.ts";
 import { ActionGateway, ActionBlocked } from "../../lib/action-gateway.ts";
 import { RelayOperationError } from "../../lib/relay/client.ts";
-import { encryptSecret } from "../../lib/relay/transport.ts";
+import { digest, encryptSecret } from "../../lib/relay/transport.ts";
 import { getCapability } from "../../lib/capability-registry.ts";
 const ctx: any = {callId: "test-call", session: {id: "session", auth: {current: {principalId: "owner", principalType: "user", attributes: {owner: "true"}}, initiator: null}}};
 const input: any = {operation: "request", request: {target: "relay://atlas/agent", resource: "published-view", capability: "knowledge.query", idempotencyKey: "fixture-request", expiresAt: "2099-01-01T00:00:00.000Z", payload: {mode: "RECORD_RETRIEVAL", query: "pilot launch", requestedTypes: ["fact"], topics: [], maxRecords: 1}}};
@@ -28,15 +28,19 @@ beforeEach(() => {
   state.connection = {localOwnerId: "owner", localAgentId: "sofie", ownerId: "relay-owner", agentId: "relay-sofie", credential: "fixture-secret-not-for-model"};
   state.request = {}; state.action = {};
   state.command.mockImplementation(async command => {
+    if (command.operation === "authority.inspect") return {authorized:true,status:"ACTIVE",expiresAt:"2099-01-01T00:00:00Z",approvalRequired:false,observedAt:new Date().toISOString(),executionRecheckRequired:true};
     if (command.operation === "submit") return {requestId: "request", status: "QUEUED"};
     if (command.operation === "discover") return {agents: []};
     return {requestId: "request", status: "COMPLETED", result: {ownerId:"atlas",publisherAgentId:"atlas-agent", publicationVersion:1,kind:"OWNER_PUBLISHED_KNOWLEDGE",records:[{content:"Atlas pilot launch date is October 15.", reference:"published",provenance:"owner publication"}]}};
   });
   state.query.mockImplementation(async (sql: string, params: any[] = []) => {
+    if (sql.includes("SELECT * FROM myeve_peer_permissions")) return [{id:"permission",owner_id:"owner",local_agent_id:"sofie",relay_origin:"https://relay.example",local_relay_account_id:"relay-owner",local_relay_agent_id:"relay-sofie",peer_account_id:"atlas",peer_agent_id:"agent",revision:1,expires_at:null,revoked_at:null,policies:[{capability:"knowledge.query",resource:"published-view",policy:"ALLOW",recordTypes:["fact"],topics:[]}]}];
+    if (sql.includes("SELECT * FROM myeve_peer_action_bindings")) return [{permission_id:"permission",permission_revision:1,request_hash:digest(input.request)}];
     if (sql.includes("SELECT owner_chat_run")) return [{id:"run"}];
     if (sql.includes("SELECT r.agent_id,r.role_id")) return [{agent_id:"sofie",role_id:null,run_live:true,agent_revision:"2026-01-01"}];
-    if (sql.includes("INSERT INTO action_requests")) {state.action = {id:params[0],parameter_hash:params[10],status:params[13],attempt_count:0}; return [state.action];}
+    if (sql.includes("INSERT INTO action_requests")) {state.action = {id:params[0],parameter_hash:params[10],executor:JSON.parse(params[5]),trigger:JSON.parse(params[6]),status:params[13],attempt_count:0}; return [state.action];}
     if (sql.includes("WITH started AS")) return [{id:state.action.id}];
+    if (sql.includes("SELECT a.id,a.parameter_hash")) return [state.action];
     if (sql.includes("SELECT a.id FROM action_requests")) return [{id:state.action.id}];
     if (sql.includes("SELECT id FROM changed")) return [{id:state.action.id}];
     if (sql.includes("INSERT INTO myeve_relay_requests")) {state.request = {envelope_encrypted:params[7]}; return [];}
@@ -72,19 +76,27 @@ describe("canonical Federation tool boundary", () => {
     expect(JSON.stringify(result)).not.toContain(state.connection.credential);
     expect(JSON.stringify(state.query.mock.calls.filter(([sql])=>sql.includes("action_receipts")))).not.toContain("Atlas pilot launch date");
   });
+  it("an executing Action for different exact parameters cannot authorize the low-level send", async () => {
+    const query = state.query.getMockImplementation()!;
+    state.query.mockImplementation(async (sql: string, params: any[]) => sql.includes("SELECT a.id,a.parameter_hash")
+      ? [{ ...state.action, parameter_hash: "different-approved-request" }] : query(sql, params));
+    expect(await executeFederationTool(input, ctx)).toMatchObject({ status: "denied" });
+    expect(state.command).not.toHaveBeenCalledWith({ operation: "submit", input: input.request });
+  });
   it.each(["missing peer grant","revoked grant","private resource"])("preserves canonical Relay denial: %s",async () => {
     state.command.mockRejectedValue(new Error("Relay refused operation (403). fixture-secret-not-for-model"));
     const result=await executeFederationTool(input,ctx);
     expect(result).not.toHaveProperty("response");
-    expect(state.command).toHaveBeenCalledWith({operation:"submit",input:input.request});
+    expect(state.command).toHaveBeenCalledWith({operation:"authority.inspect",input:input.request});
+    expect(state.command).not.toHaveBeenCalledWith({operation:"submit",input:input.request});
     expect(JSON.stringify(result)).not.toContain("fixture-secret");
   });
   it("pending approval retains its Action identity and is distinct from Relay authority denial", async () => {
     vi.spyOn(ActionGateway.prototype,"execute").mockRejectedValueOnce(new ActionBlocked("awaiting_approval","exact-action"));
     expect(await executeFederationTool(input,ctx)).toMatchObject({status:"awaiting_approval",code:"exact_action_approval_required",actionId:"exact-action",canEscalate:true});
-    expect(state.command).not.toHaveBeenCalled();
+    expect(state.command).not.toHaveBeenCalledWith({operation:"submit",input:input.request});
     state.command.mockRejectedValue(new RelayOperationError(403));
-    expect(await executeFederationTool(input,ctx)).toMatchObject({code:"federation_authority_denied",httpStatus:403,canEscalate:false});
+    expect(await executeFederationTool(input,ctx)).toMatchObject({code:"RELAY_UNAVAILABLE",canEscalate:false});
   });
   it("revocation before result retrieval never releases cached content",async () => {
     state.request={envelope_encrypted:encryptSecret("owner",input.request)};

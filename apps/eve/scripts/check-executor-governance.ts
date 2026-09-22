@@ -36,7 +36,9 @@ for(const file of files) {
     visit(ast);
     if(!/disableTool\(\)|denyUnqualifiedExecutor\(|denyUnqualifiedConnection\(/.test(source))errors.push(`${file}: missing fail-closed boundary`);
   }
-  if(policy.disposition==="gateway"&&!/new ActionGateway\(\)\.execute\(|executeBrowserAction\(/.test(source))errors.push(`${file}: missing executor gateway`);
+  // The Federation adapter supplies an explicit database and narrowing authority
+  // provider. Recognize that constructor without weakening the execution check.
+  if(policy.disposition==="gateway"&&!/new ActionGateway\([^;\n]*\)\.execute\(|executeBrowserAction\(/.test(source))errors.push(`${file}: missing executor gateway`);
 }
 for(const file of Object.keys(inventory.executors))if(!files.includes(file))errors.push(`${file}: stale executor inventory`);
 if(errors.length){console.error(errors.join("\n"));process.exitCode=1;}

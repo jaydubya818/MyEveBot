@@ -47,6 +47,19 @@ function fixtureBundle(): OwnerDataBundle {
 }
 
 describe("owner data archives", () => {
+  it("exports peer policy as owner-scoped non-restorable metadata without credentials", async () => {
+    const domain = OWNER_DATA_DOMAINS.find(domain => domain.id === "peer_permissions")!;
+    const query = vi.fn().mockResolvedValue([{ id: "permission", local_agent_id: "sofie", peer_agent_id: "atlas", policies: [], expires_at: null }]);
+    const exported = await domain.load({ ownerId: "owner", query });
+    expect(domain.restorable).toBe(false);
+    expect(exported.portability).toBe("non_restorable");
+    expect(exported.records.relationships[0]).toMatchObject({ restorableAuthority: false, restoreStatus: "requires_fresh_owner_review" });
+    expect(query).toHaveBeenCalledWith(expect.stringContaining("WHERE owner_id=$1"), ["owner"]);
+    expect(query.mock.calls[0][0]).not.toMatch(/SELECT \*|credential|session|private_key/);
+    const bundle = fixtureBundle(); bundle.categories.peer_permissions = exported;
+    const archive = await createOwnerArchive(bundle);
+    expect((await validateOwnerArchive(new Uint8Array(archive))).valid).toBe(true);
+  });
   it("creates a portable archive whose manifest and checksums validate", async () => {
     const archive = await createOwnerArchive(fixtureBundle());
     const validation = await validateOwnerArchive(new Uint8Array(archive));
