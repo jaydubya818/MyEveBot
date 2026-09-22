@@ -18,6 +18,8 @@ import {
 import { submissionSchema } from "./contracts.ts";
 import { decryptSecret, encryptSecret, type Envelope } from "./transport.ts";
 import { FederationStore } from "./store.ts";
+import { incomingPeerPermission } from "./incoming-permissions.ts";
+import { bindPeerAction, PeerPermissionError } from "./peer-permissions.ts";
 
 export function boundedWorkSummary(content: string) {
   if (content.length <= 900) return content;
@@ -46,7 +48,13 @@ export async function executeExternalWork(
   envelope: Envelope,
   beforeExecution: () => Promise<void>,
 ) {
-  const connection = await store.connection();
+  let peer;
+  try { peer = await incomingPeerPermission(store, envelope); }
+  catch (error) {
+    if (error instanceof PeerPermissionError) return { status: "REJECTED" as const, reason: error.code };
+    throw error;
+  }
+  const connection = peer.connection;
   const submission = submissionSchema.parse({
     target: envelope.target.address,
     resource: envelope.resource,
@@ -126,12 +134,15 @@ export async function executeExternalWork(
     request = { local_run_id: run.id };
   }
   const runId = String(request.local_run_id);
+  await bindPeerAction(store, runId, envelope.id, peer.row!, peer.request);
   const authority = {
     evaluate: async (
       action: Parameters<typeof localAuthorityProvider.evaluate>[0],
       target: Parameters<typeof localAuthorityProvider.evaluate>[1],
     ) => {
-      const current = await store.connection();
+      const permission = await incomingPeerPermission(store, envelope, peer.row!.revision);
+      await bindPeerAction(store, runId, envelope.id, permission.row!, permission.request);
+      const current = permission.connection;
       const decision = externalWorkDecision(
         input.task,
         current.localWorkPolicy[input.category],
@@ -153,7 +164,7 @@ export async function executeExternalWork(
           },
         ],
         maximumRisk: "low",
-        requiresApprovalFor: decision === "approval" ? ["files.read"] : [],
+        requiresApprovalFor: ["files.read"],
       });
       return local;
     },
@@ -233,6 +244,8 @@ export async function executeExternalWork(
           }
           await consumeActionAuthority(authorized, parameters, "files.read");
           // Fresh Relay authorization is checked immediately before the model call.
+          const permission = await incomingPeerPermission(store, envelope, peer.row!.revision);
+          await bindPeerAction(store, runId, envelope.id, permission.row!, permission.request);
           await beforeExecution();
           // Only an authorized, freshly accepted request may resume its canonical Run.
           const [run] = await store.database.query(

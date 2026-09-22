@@ -133,6 +133,11 @@ function platform(
 }
 
 export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
+  platform("federation.permissions.manage", "Manage peer permissions", "integration", "Authenticated owner configuration for exact peer relationships. Never callable by an Agent tool or a peer.", {
+    permissions: ["peer-policy.write"], risk: { level: "high", categories: ["authority-change"] },
+    configuration: ["DATABASE_URL"], source: { type: "builtin", reference: "app/api/relay/peer-permissions/route.ts" },
+    evidence: { supported: true, required: true, types: ["peer-permission-changed"] }, keywords: ["peer", "permission", "owner"],
+  }),
   platform("federation.request", "Federated request", "tool", "Request bounded work through the existing Federation boundary; never expands local authority.", {permissions:["work.request"],configuration:["MYEVE_RELAY_ENABLED", "MYEVE_RELAY_ORIGIN", "DATABASE_URL"],source:{type:"builtin",reference:"agent/tools/federation_request.ts"},evidence:{supported:true,required:true,types:["relay-request-id","action-receipt"]},keywords:["federation","relay","peer","published"]}),
   platform("notification.send","Result notification","channel","Deliver an owner-approved completed result through a claimed outbox entry.",{
     permissions:["notification.send"],risk:{level:"medium",categories:["external-communication"]},

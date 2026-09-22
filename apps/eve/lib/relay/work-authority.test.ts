@@ -122,3 +122,12 @@ describe("Federation preserves current local Action Gateway decisions", () => {
     },
   );
 });
+
+// These suites isolate existing executor and cost-accounting behavior. Peer
+// identity/scope and durable Action binding have separate integration coverage.
+vi.mock("./incoming-permissions.ts", () => ({
+  incomingPeerPermission: async (store: any, envelope: any) => ({
+    connection: await store.connection(), row: { id: "fixture-permission", revision: 1 }, request: envelope,
+  }),
+}));
+vi.mock("./peer-permissions.ts", async original => ({ ...await original<object>(), bindPeerAction: async () => {} }));

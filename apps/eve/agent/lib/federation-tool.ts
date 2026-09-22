@@ -1,6 +1,6 @@
 import type { ApprovalContext, DynamicResolveContext, ToolContext } from "eve/tools";
 import { z } from "zod";
-import { ActionBlocked, ActionGateway, consumeActionAuthority, consumeProviderAuthority, type ActionAdapter } from "../../lib/action-gateway.ts";
+import { ActionBlocked, ActionGateway, consumeActionAuthority, consumeProviderAuthority, localAuthorityProvider, type ActionAdapter } from "../../lib/action-gateway.ts";
 import { approvalBinding, approvalRequestId, canonicalActionValue, decideApproval } from "../../lib/approvals.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
 import { getCapability } from "../../lib/capability-registry.ts";
@@ -8,11 +8,12 @@ import { RelayClient, RelayOperationError, relayOrigin } from "../../lib/relay/c
 import { submissionSchema } from "../../lib/relay/contracts.ts";
 import { sendExternal, getExternalResult } from "../../lib/relay/inbox.ts";
 import { FederationStore } from "../../lib/relay/store.ts";
+import { bindPeerAction, effectivePeerPermission, peerReadModel, PeerPermissionError, requireEffectivePermission } from "../../lib/relay/peer-permissions.ts";
 import { resolveSessionAgent } from "./session-settings.ts";
 import { toolActionRequest } from "./action-context.ts";
 
 export const federationToolInput = z.object({
-  operation: z.enum(["discover", "request", "status"]),
+  operation: z.enum(["discover", "permissions", "request", "status"]),
   request: submissionSchema.optional(),
   requestId: z.string().min(1).max(255).optional(),
 }).strict().superRefine((input, ctx) => {
@@ -48,9 +49,11 @@ export async function federationToolAvailable(ctx: Pick<DynamicResolveContext, "
 /** One governed adapter; every transport operation uses the existing Federation service. */
 export async function executeFederationTool(value: Input, ctx: Pick<ToolContext, "session" | "callId"> & Partial<Pick<ToolContext, "abortSignal">>, prepareOnly = false) {
   let relayFailure: RelayOperationError | undefined;
+  let peerFailure: PeerPermissionError | undefined;
   const relayOperation = async <T>(operation: () => Promise<T>): Promise<T> => {
     try { return await operation(); } catch (error) {
       if (error instanceof RelayOperationError) relayFailure = error;
+      if (error instanceof PeerPermissionError) peerFailure = error;
       throw error;
     }
   };
@@ -63,6 +66,21 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
       parameters: input});
     if (action.executor.agentId !== initial.agent.id || action.trigger.kind !== "owner_chat"
       || !["primary-agent", "persistent-agent"].includes(action.executor.kind)) throw new ActionBlocked("denied", "federation_identity");
+    let effective: Awaited<ReturnType<typeof effectivePeerPermission>> | undefined;
+    if (input.operation === "request") {
+      effective = requireEffectivePermission(await effectivePeerPermission(initial.store, initial.connection, input.request!));
+      await bindPeerAction(initial.store, action.runId, action.actionKey, effective.row!, input.request!);
+    }
+    const authority = { evaluate: async (...args: Parameters<typeof localAuthorityProvider.evaluate>) => {
+      try {
+      const local = await localAuthorityProvider.evaluate(...args);
+      if (local.decision === "DENY" || input.operation !== "request") return local;
+      const fresh = await binding(ctx);
+      effective = requireEffectivePermission(await effectivePeerPermission(fresh.store, fresh.connection, input.request!, effective!.row!.revision));
+      await bindPeerAction(fresh.store, action.runId, action.actionKey, effective.row!, input.request!);
+      return effective.effective === "REQUIRE_APPROVAL" ? { ...local, decision: "REQUIRE_APPROVAL" as const } : local;
+      } catch (error) { if (error instanceof PeerPermissionError) peerFailure = error; throw error; }
+    } };
     // Content remains in canonical encrypted Federation storage, never Action receipts.
     let response: Record<string, unknown> | undefined;
     const adapter: ActionAdapter<Record<string, unknown>> = {
@@ -85,11 +103,17 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
         if (fresh.agent.id !== authority.executor.agentId || fresh.connection.agentId !== authority.target.account
           || relayOrigin() !== authority.target.environment) throw new ActionBlocked("denied", "federation_identity_changed");
         await consumeProviderAuthority(authority, parameters, CAPABILITY);
-        if (input.operation === "request") response = await relayOperation(() => sendExternal(fresh.store, input.request));
+        if (input.operation === "request") {
+          const current = requireEffectivePermission(await effectivePeerPermission(fresh.store, fresh.connection, input.request!, effective!.row!.revision));
+          await bindPeerAction(fresh.store, action.runId, action.actionKey, current.row!, input.request!);
+          response = await relayOperation(() => sendExternal(fresh.store, input.request, { runId: action.runId, actionKey: action.actionKey, revision: current.row!.revision }));
+        }
         else if (input.operation === "status") response = await relayOperation(() => getExternalResult(fresh.store, input.requestId!));
-        else {
+        else if (input.operation === "permissions") {
+          response = { ...await peerReadModel(fresh.store, fresh.agent.id), currentTime: new Date().toISOString() };
+        } else {
           const discovery = await relayOperation(() => new RelayClient(fresh.connection.credential).command({operation: "discover", input: {}}));
-          response = {...discovery, currentTime: new Date().toISOString()};
+          response = {...discovery, ...await peerReadModel(fresh.store, fresh.agent.id), currentTime: new Date().toISOString()};
         }
         return response!;
       },
@@ -103,10 +127,12 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
         return {verified: true, receipt: {operation: input.operation, requestId: result.requestId ?? null, status: result.status ?? "discovered"}};
       },
     };
-    const evidence = prepareOnly ? await new ActionGateway().prepare(action, adapter)
-      : await new ActionGateway().execute(action, adapter, ctx.abortSignal);
+    const evidence = prepareOnly ? await new ActionGateway(initial.store.database, authority).prepare(action, adapter)
+      : await new ActionGateway(initial.store.database, authority).execute(action, adapter, ctx.abortSignal);
     return { ...evidence, response: response ?? {status: "already_executed", message: "Use status to reauthorize retrieval of the request result."} };
   } catch (error) {
+    const permissionError = error instanceof PeerPermissionError ? error : peerFailure;
+    if (permissionError) return { status: "denied", code: permissionError.code, canEscalate: false, message: permissionError.message };
     // Never surface transport errors, credentials, or raw provider payloads.
     if (error instanceof ActionBlocked && error.status === "awaiting_approval") {
       return {status: "awaiting_approval", code: "exact_action_approval_required", actionId: error.actionId,
@@ -125,8 +151,14 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
 export async function prepareFederationApproval(ctx: ApprovalContext<Input>) {
   const parsed = federationToolInput.safeParse(ctx.toolInput);
   if (!parsed.success) return "denied" as const;
-  if (parsed.data.operation !== "request" || parsed.data.request?.capability === "knowledge.query") return "not-applicable" as const;
+  if (parsed.data.operation !== "request") return "not-applicable" as const;
   if (Date.parse(parsed.data.request!.expiresAt) <= Date.now()) return "denied" as const;
+  if (parsed.data.request?.capability === "knowledge.query") {
+    const {store, connection} = await binding(ctx);
+    const current = await effectivePeerPermission(store, connection, parsed.data.request);
+    if (current.effective === "DENY") return "denied" as const;
+    if (current.effective === "ALLOW") return "not-applicable" as const;
+  }
   const result = await executeFederationTool(parsed.data, ctx, true);
   if (!("actionId" in result) || !("status" in result) || result.status !== "awaiting_approval") return "denied" as const;
   const {store} = await binding(ctx);
@@ -178,7 +210,7 @@ export async function resolveFederationApprovals(ctx: DynamicResolveContext) {
   const {agent, store, connection} = await binding(ctx);
   for (const response of responses) {
     const input = response.input;
-    if (input.operation !== "request" || input.request?.capability === "knowledge.query") continue;
+    if (input.operation !== "request") continue;
     if (Date.parse(input.request!.expiresAt) <= Date.now()) continue;
     const rows = await store.database.query(`SELECT a.*,p.id AS pending_approval_id,p.status AS approval_status FROM action_requests a
       JOIN task_approval_decisions p ON p.id=a.approval_id AND p.owner_id=a.owner_id AND p.binding_hash=a.parameter_hash AND p.task_id=a.run_id
@@ -196,7 +228,7 @@ export async function resolveFederationApprovals(ctx: DynamicResolveContext) {
       resource: JSON.stringify([input.request!.target, input.request!.capability, input.request!.resource]), environment: relayOrigin()};
     const executor = {kind: agent.isPrimary ? "primary-agent" : "persistent-agent", agentId: agent.id};
     const trigger = {kind: "owner_chat", id: ctx.session.id};
-    const actionClass = input.request!.capability === "work.request" ? "execute" : "send";
+    const actionClass = input.request!.capability === "knowledge.query" ? "read" : input.request!.capability === "work.request" ? "execute" : "send";
     const hash = approvalBinding({taskId: String(row.run_id), capabilityId: CAPABILITY, resource: JSON.stringify(canonicalActionValue(target)),
       action: actionClass, parameters: {payload: input, target, executor, trigger, computer: null}});
     if (hash !== row.parameter_hash || row.action_class !== actionClass) continue;

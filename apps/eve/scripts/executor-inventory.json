@@ -2152,7 +2152,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "37cff8cef6dd2c181aeb199844136ed1c30f4064675880a119e02a327f5bb9c6"
+      "sha256": "2d19ce4dcdc83c27dad544b690b52088308a7e691c1fc97ed9e9a71c7cc73bdc"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2267,7 +2267,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Current migration identifier, now 0031; no effects.",
-      "sha256": "c39655921d6b57bbc64073a87bd8ab7f6a433572b4f454595eeda85fe157d88b"
+      "sha256": "c6a801defa5190b6698493fdd445abbcce38d9091422158241dbaaf2d481e62e"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2487,7 +2487,7 @@
     "lib/owner-data-domains.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "de079e2d7fddf427a00e01aea5743ae5c036571adb0e8adf834017fe2f5d1804"
+      "sha256": "74f9b8fd8bdfaca048f61696b1aa40d67f1fbb9b074aa72502b852098451cd01"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",
@@ -2561,8 +2561,8 @@
     },
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
-      "reason": "Pinned signed owner/Agent target, durable claim and fresh Relay acceptance; work passes independent local policy plus canonical ActionGateway; no generic runtime access.",
-      "sha256": "32bf23a8b59c3db181d95afb8fc9be46f3e84fbb170d12694a6708185306b533"
+      "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
+      "sha256": "ec8fb54630069e205449397c17724f38f364ebe8d6007fdae7cc46709e3e5313"
     },
     "lib/relay/ingress.ts": {
       "classification": "INTERNAL",
@@ -2602,7 +2602,7 @@
     "lib/relay/work.ts": {
       "classification": "ENFORCED",
       "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output.",
-      "sha256": "0d3cadf0b01306cdd7d25728bedc75a616949dd317ec3551d94f8d5000397376"
+      "sha256": "3a7b4806d376a68341bcca20f55ddeaf049c711d3bf4a77a65f54513367c144c"
     },
     "lib/reminder-execution.ts": {
       "classification": "INTERNAL",
@@ -2792,13 +2792,28 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "4907ae4a07ca8c1a73f79fbc7fec4a15e83b5e2d4d9ac4b9b8495f339171fa36"
+      "sha256": "bc58fd259af81aa9c2dc7224cc1ea3b4e0f3376f62173927b813889d3b8b1c2f"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "667a415a2e40f813574d791a4313074d0e48aa5154eb9187409d0e7f18fed84a"
+      "sha256": "4bf51c19e42f1829d67d04182708e6bfc3a08b46225271e02fa5ef37b24f3ced"
+    },
+    "lib/relay/peer-permissions.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-scoped policy CAS and atomic safe audit; deterministic exact identity/resource/revision checks; authenticated Relay inspection is advisory only. No grant or Action approval creation.",
+      "sha256": "e100be737eb9daad67bc1a5be24c5b194b3f70e8f0c914f63009ad4ce5f54a60"
+    },
+    "lib/relay/incoming-permissions.ts": {
+      "classification": "ENFORCED",
+      "reason": "Current owner/Agent peer policy plus exact bounded Action Gateway authority; signed delivery checked upstream; final revision fence; correlated reply exception requires exact outgoing parent, participants, and conversation.",
+      "sha256": "caaea3276ba20e2772c47ecd8991fec55cd25af1b814b2c1b83c63f9be209766"
+    },
+    "app/api/relay/peer-permissions/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Authenticated owner and exact same-origin mutation, strict bounded body, owner derived from session, revision CAS. Inspection exposes no credentials; disabled Federation permits only revocation.",
+      "sha256": "48cef953aac8c41ffbc8dca536536b06f5e3a7f97f81438a93f06d7da146f581"
     }
   }
 }
