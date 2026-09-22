@@ -1316,7 +1316,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "b0ede774f40920d77cb7936f1cef1b1dab541c8e702871d62b73f2310574e86d",
+      "sha256": "5a1a3f97e9ce5176eb4392f46b107676b34e9c96d4937721610ed4bedd596935",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -2152,7 +2152,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c8801db2b87f1991d62be9ee8389de32fcee559e42884a7e9fc93625d60e5b19"
+      "sha256": "37cff8cef6dd2c181aeb199844136ed1c30f4064675880a119e02a327f5bb9c6"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2788,6 +2788,17 @@
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
       "sha256": "ca22b41a0a795172eb18676e36dc29c03688698f2c7cf3f336d88a70f7c6d98d"
+    },
+    "agent/tools/federation_request.ts": {
+      "classification": "ENFORCED",
+      "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
+      "sha256": "0a49d9b12cee182391dbfd2cf55dc6fdc25684a4f2dfe157377b2af7d5795e64"
+    },
+    "agent/lib/federation-tool.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Federation service adapter with authenticated Agent/Relay binding, exact feature gate, Action Gateway and one-use provider authority; no owner administration.",
+      "disposition": "gateway",
+      "sha256": "fc07d2e0a3e7c5e40bfda624763ffce9efd940bdefdad72c14eb110a2b85b73f"
     }
   }
 }

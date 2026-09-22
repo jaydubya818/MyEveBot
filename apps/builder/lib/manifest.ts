@@ -58,6 +58,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/complete_work.ts",
   "agent/tools/bash.ts",
   "agent/tools/discover_capabilities.ts",
+  // Resolver emits no callable tool unless Federation is explicitly configured.
+  "agent/tools/federation_request.ts",
   "agent/tools/list_agents.ts",
   "agent/tools/list_roles.ts",
   "agent/tools/list_solution_packs.ts",

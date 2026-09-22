@@ -133,7 +133,7 @@ function platform(
 }
 
 export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
-  platform("federation.request", "Federated work request", "integration", "Request bounded work through the existing Federation boundary; never expands local authority.", {permissions:["work.request"],configuration:["MYEVE_RELAY_ENABLED"],keywords:["federation","relay"]}),
+  platform("federation.request", "Federated request", "tool", "Request bounded work through the existing Federation boundary; never expands local authority.", {permissions:["work.request"],configuration:["MYEVE_RELAY_ENABLED", "MYEVE_RELAY_ORIGIN", "DATABASE_URL"],source:{type:"builtin",reference:"agent/tools/federation_request.ts"},evidence:{supported:true,required:true,types:["relay-request-id","action-receipt"]},keywords:["federation","relay","peer","published"]}),
   platform("notification.send","Result notification","channel","Deliver an owner-approved completed result through a claimed outbox entry.",{
     permissions:["notification.send"],risk:{level:"medium",categories:["external-communication"]},
     evidence:{supported:true,required:true,types:["provider-message-id"]},
@@ -524,6 +524,9 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
+  if (definition.id === "federation.request" && env.MYEVE_RELAY_ENABLED !== "true") {
+    return {status: "disabled", configured: false, reason: "Federation is disabled in this deployment."};
+  }
   if (definition.feature && !enabledFeatures(env).has(definition.feature)) {
     return { status: "disabled", configured: false, reason: "Not included in this deployment." };
   }
