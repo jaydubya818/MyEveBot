@@ -319,7 +319,7 @@
     "agent/lib/action-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "5c4ab4862ab5b7b1ff1ee84351ab8d04687ab057955a4cff88b52e39a6535e90"
+      "sha256": "d80c0082853267c606f5ed981bfeb61541977fc4220400a174fde4e4abca6690"
     },
     "agent/lib/agentmail.ts": {
       "classification": "ENFORCED",
@@ -2047,7 +2047,7 @@
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
       "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption.",
-      "sha256": "e6ef220a437a41cbf9ccff6c4a96bd8d079de8c6ade204e41570067c700b04a4"
+      "sha256": "89ea5100c7cd97f9d7858423594fd9371d4e6698d9a4d922936046f88b25477b"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2552,7 +2552,7 @@
     "lib/relay/client.ts": {
       "classification": "ENFORCED",
       "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Qualification delta: Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
-      "sha256": "02675551546342cbbf831b2e14b2cbd428ca0f3b93355b0e39655d6cefa3a544"
+      "sha256": "765ca7e925f3e3c22514d865ddae473076f836f3145dec3de3f0be971cdbce26"
     },
     "lib/relay/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2792,13 +2792,13 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "0a49d9b12cee182391dbfd2cf55dc6fdc25684a4f2dfe157377b2af7d5795e64"
+      "sha256": "4907ae4a07ca8c1a73f79fbc7fec4a15e83b5e2d4d9ac4b9b8495f339171fa36"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Federation service adapter with authenticated Agent/Relay binding, exact feature gate, Action Gateway and one-use provider authority; no owner administration.",
+      "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "fc07d2e0a3e7c5e40bfda624763ffce9efd940bdefdad72c14eb110a2b85b73f"
+      "sha256": "667a415a2e40f813574d791a4313074d0e48aa5154eb9187409d0e7f18fed84a"
     }
   }
 }

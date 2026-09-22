@@ -1,9 +1,10 @@
-import type { DynamicResolveContext, ToolContext } from "eve/tools";
+import type { ApprovalContext, DynamicResolveContext, ToolContext } from "eve/tools";
 import { z } from "zod";
 import { ActionBlocked, ActionGateway, consumeActionAuthority, consumeProviderAuthority, type ActionAdapter } from "../../lib/action-gateway.ts";
+import { approvalBinding, approvalRequestId, canonicalActionValue, decideApproval } from "../../lib/approvals.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
 import { getCapability } from "../../lib/capability-registry.ts";
-import { RelayClient, relayOrigin } from "../../lib/relay/client.ts";
+import { RelayClient, RelayOperationError, relayOrigin } from "../../lib/relay/client.ts";
 import { submissionSchema } from "../../lib/relay/contracts.ts";
 import { sendExternal, getExternalResult } from "../../lib/relay/inbox.ts";
 import { FederationStore } from "../../lib/relay/store.ts";
@@ -20,7 +21,7 @@ export const federationToolInput = z.object({
     ctx.addIssue({code: "custom", message: "request requires only a canonical request; status requires only requestId; discover takes neither."});
   }
 });
-type Input = z.infer<typeof federationToolInput>;
+export type Input = z.infer<typeof federationToolInput>;
 const CAPABILITY = "federation.request";
 
 async function binding(ctx: Pick<DynamicResolveContext, "session">) {
@@ -45,7 +46,14 @@ export async function federationToolAvailable(ctx: Pick<DynamicResolveContext, "
 }
 
 /** One governed adapter; every transport operation uses the existing Federation service. */
-export async function executeFederationTool(value: Input, ctx: ToolContext) {
+export async function executeFederationTool(value: Input, ctx: Pick<ToolContext, "session" | "callId"> & Partial<Pick<ToolContext, "abortSignal">>, prepareOnly = false) {
+  let relayFailure: RelayOperationError | undefined;
+  const relayOperation = async <T>(operation: () => Promise<T>): Promise<T> => {
+    try { return await operation(); } catch (error) {
+      if (error instanceof RelayOperationError) relayFailure = error;
+      throw error;
+    }
+  };
   try {
     const input = federationToolInput.parse(value);
     const initial = await binding(ctx);
@@ -77,10 +85,10 @@ export async function executeFederationTool(value: Input, ctx: ToolContext) {
         if (fresh.agent.id !== authority.executor.agentId || fresh.connection.agentId !== authority.target.account
           || relayOrigin() !== authority.target.environment) throw new ActionBlocked("denied", "federation_identity_changed");
         await consumeProviderAuthority(authority, parameters, CAPABILITY);
-        if (input.operation === "request") response = await sendExternal(fresh.store, input.request);
-        else if (input.operation === "status") response = await getExternalResult(fresh.store, input.requestId!);
+        if (input.operation === "request") response = await relayOperation(() => sendExternal(fresh.store, input.request));
+        else if (input.operation === "status") response = await relayOperation(() => getExternalResult(fresh.store, input.requestId!));
         else {
-          const discovery = await new RelayClient(fresh.connection.credential).command({operation: "discover", input: {}});
+          const discovery = await relayOperation(() => new RelayClient(fresh.connection.credential).command({operation: "discover", input: {}}));
           response = {...discovery, currentTime: new Date().toISOString()};
         }
         return response!;
@@ -95,10 +103,108 @@ export async function executeFederationTool(value: Input, ctx: ToolContext) {
         return {verified: true, receipt: {operation: input.operation, requestId: result.requestId ?? null, status: result.status ?? "discovered"}};
       },
     };
-    const evidence = await new ActionGateway().execute(action, adapter, ctx.abortSignal);
+    const evidence = prepareOnly ? await new ActionGateway().prepare(action, adapter)
+      : await new ActionGateway().execute(action, adapter, ctx.abortSignal);
     return { ...evidence, response: response ?? {status: "already_executed", message: "Use status to reauthorize retrieval of the request result."} };
   } catch (error) {
     // Never surface transport errors, credentials, or raw provider payloads.
+    if (error instanceof ActionBlocked && error.status === "awaiting_approval") {
+      return {status: "awaiting_approval", code: "exact_action_approval_required", actionId: error.actionId,
+        canEscalate: true, message: "Waiting for the owner's decision on this exact Action. Do not recreate or resubmit it."};
+    }
+    if (relayFailure && [401, 403].includes(relayFailure.status)) {
+      return {status: error instanceof ActionBlocked ? error.status : "denied", code: "federation_authority_denied",
+        httpStatus: relayFailure.status, canEscalate: false,
+        message: "Relay denied current peer/capability/resource authority. Owner approval cannot renew or expand it. Do not retry automatically."};
+    }
     return {status: error instanceof ActionBlocked ? error.status : "denied", code: "federation_unavailable_or_denied", canEscalate: false};
   }
+}
+
+/** Native Eve approval retains the original tool call in its durable input batch. */
+export async function prepareFederationApproval(ctx: ApprovalContext<Input>) {
+  const parsed = federationToolInput.safeParse(ctx.toolInput);
+  if (!parsed.success) return "denied" as const;
+  if (parsed.data.operation !== "request" || parsed.data.request?.capability === "knowledge.query") return "not-applicable" as const;
+  if (Date.parse(parsed.data.request!.expiresAt) <= Date.now()) return "denied" as const;
+  const result = await executeFederationTool(parsed.data, ctx, true);
+  if (!("actionId" in result) || !("status" in result) || result.status !== "awaiting_approval") return "denied" as const;
+  const {store} = await binding(ctx);
+  // A second model call cannot acquire a different call's pending approval. Nor
+  // can a stale native confirmation approve a replacement approval generation.
+  const rows = await store.database.query(`SELECT a.id FROM action_requests a
+    JOIN task_approval_decisions p ON p.id=a.approval_id JOIN task_runs r ON r.id=a.run_id AND r.owner_id=a.owner_id
+    WHERE a.owner_id=$1 AND a.id=$2 AND a.action_key=$3 AND a.approval_generation=0 AND a.attempt_count=0
+      AND a.status='awaiting_approval' AND p.status='pending' AND p.expires_at>now()
+      AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())`,
+    [store.ownerId, result.actionId, `tool:${ctx.callId}`]);
+  return rows.length === 1 ? "user-approval" as const : "denied" as const;
+}
+
+/** Read framework-generated structured decisions, never conversational prose or approvedTools. */
+export function federationApprovalResponses(messages: DynamicResolveContext["messages"]) {
+  const requests = new Map<string, {callId: string; input: Input}>();
+  const decisions: Array<{callId: string; input: Input; approved: boolean}> = [];
+  for (const message of messages) {
+    if (!Array.isArray(message.content)) continue;
+    if (message.role === "assistant") {
+      for (const part of message.content) {
+        if (part.type !== "tool-approval-request" || part.isAutomatic === true) continue;
+        const embedded = z.object({toolCall: z.object({toolCallId: z.string(), toolName: z.string(), input: z.unknown()})}).safeParse(part);
+        const call = embedded.success ? embedded.data.toolCall : message.content.find(candidate => candidate.type === "tool-call" && candidate.toolCallId === part.toolCallId);
+        if (!call || !("input" in call) || !("toolName" in call) || call.toolName !== "federation_request") continue;
+        const parsed = federationToolInput.safeParse(call.input);
+        if (parsed.success) requests.set(part.approvalId, {callId: call.toolCallId, input: parsed.data});
+      }
+    } else if (message.role === "tool") {
+      for (const part of message.content) {
+        if (part.type !== "tool-approval-response") continue;
+        const request = requests.get(part.approvalId);
+        if (request) { decisions.push({...request, approved: part.approved}); requests.delete(part.approvalId); }
+      }
+    }
+  }
+  return decisions;
+}
+
+/** Bridge the owner's native exact-call decision to canonical Action authority.
+ * step.started runs after Eve resolves the durable input batch, before SDK tool
+ * continuation. User messages cannot supply assistant/tool protocol parts.
+ */
+export async function resolveFederationApprovals(ctx: DynamicResolveContext) {
+  const responses = federationApprovalResponses(ctx.messages);
+  const resolved: string[] = [];
+  if (!responses.length) return resolved;
+  const {agent, store, connection} = await binding(ctx);
+  for (const response of responses) {
+    const input = response.input;
+    if (input.operation !== "request" || input.request?.capability === "knowledge.query") continue;
+    if (Date.parse(input.request!.expiresAt) <= Date.now()) continue;
+    const rows = await store.database.query(`SELECT a.*,p.id AS pending_approval_id,p.status AS approval_status FROM action_requests a
+      JOIN task_approval_decisions p ON p.id=a.approval_id AND p.owner_id=a.owner_id AND p.binding_hash=a.parameter_hash AND p.task_id=a.run_id
+        AND p.capability_id=a.capability_id AND p.action_class=a.action_class
+      JOIN task_run_sessions s ON s.task_id=a.run_id JOIN task_runs r ON r.id=a.run_id AND r.owner_id=a.owner_id
+      WHERE a.owner_id=$1 AND s.session_id=$2 AND a.action_key=$3 AND a.capability_id='federation.request'
+        AND a.status='awaiting_approval' AND a.approval_generation=0 AND a.attempt_count=0
+        AND p.status IN ('pending','approved','denied') AND p.expires_at>now() AND p.agent_id=$4
+        AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())`,
+      [store.ownerId, ctx.session.id, `tool:${response.callId}`, agent.id]);
+    if (rows.length !== 1) continue;
+    const row = rows[0]!;
+    if (row.pending_approval_id !== approvalRequestId({ownerId: store.ownerId, taskId: String(row.run_id), requestKey: `${row.id}:0:0`})) continue;
+    const target = {provider: "relay", account: connection.agentId,
+      resource: JSON.stringify([input.request!.target, input.request!.capability, input.request!.resource]), environment: relayOrigin()};
+    const executor = {kind: agent.isPrimary ? "primary-agent" : "persistent-agent", agentId: agent.id};
+    const trigger = {kind: "owner_chat", id: ctx.session.id};
+    const actionClass = input.request!.capability === "work.request" ? "execute" : "send";
+    const hash = approvalBinding({taskId: String(row.run_id), capabilityId: CAPABILITY, resource: JSON.stringify(canonicalActionValue(target)),
+      action: actionClass, parameters: {payload: input, target, executor, trigger, computer: null}});
+    if (hash !== row.parameter_hash || row.action_class !== actionClass) continue;
+    if (row.approval_status === "pending") {
+      await decideApproval({ownerId: store.ownerId, id: String(row.pending_approval_id), bindingHash: hash,
+        decision: response.approved ? "approved" : "denied", decidedBy: store.ownerId});
+    }
+    if (response.approved && row.approval_status !== "denied") resolved.push(response.callId);
+  }
+  return resolved;
 }

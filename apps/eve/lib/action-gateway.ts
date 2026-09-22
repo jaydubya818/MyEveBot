@@ -194,6 +194,19 @@ export class ActionGateway {
   }
 
   async execute<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal?: AbortSignal): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
+    return this.run(action, adapter, signal, false);
+  }
+
+  /** Persist the exact Action/approval without ever claiming or invoking its adapter. */
+  async prepare(action: ActionRequest, adapter: Pick<ActionAdapter<never>, "resolveTarget">) {
+    return this.run(action, {
+      ...adapter,
+      execute: async () => { throw new Error("Preparation cannot execute."); },
+      verify: async () => { throw new Error("Preparation cannot verify."); },
+    }, undefined, true);
+  }
+
+  private async run<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal: AbortSignal | undefined, prepareOnly: boolean): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
     action=frozenJson(action);
     if (!action.actionKey || !action.ownerId || !action.runId) throw new Error("Action identity is incomplete.");
     let target: ActionTarget;
@@ -262,6 +275,8 @@ export class ActionGateway {
       row.approval_id=null;
     }
     if(row.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW")decision={...decision,decision:"REQUIRE_APPROVAL"};
+    // A preparation replay never replaces an expired approval generation.
+    if (prepareOnly && row.approval_id) throw new ActionBlocked("awaiting_approval", actionId);
     if (decision.decision === "REQUIRE_APPROVAL") {
       if(row.approval_id) {
         const expired=await this.database.query(`UPDATE action_requests a SET approval_id=NULL,status='planned',approval_generation=approval_generation+1,updated_at=now()
@@ -285,6 +300,7 @@ export class ActionGateway {
         throw new ActionBlocked("awaiting_approval",actionId);
       }
     }
+    if (prepareOnly) return {actionId, receipt: {status: "prepared"}};
     // This CAS is the transmission boundary. A crash after it is uncertain even
     // when execute never got CPU time. Safety takes precedence over availability.
     // Re-evaluate after approval lookup and immediately before the durable claim.

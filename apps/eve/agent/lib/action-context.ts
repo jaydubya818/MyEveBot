@@ -7,7 +7,7 @@ import { db } from "./receipts-db.ts";
 
 /** Derive identity from verified runtime state, never tool/model parameters. */
 export async function toolActionRequest(
-  ctx: ToolContext,
+  ctx: Pick<ToolContext, "session" | "callId">,
   input: Pick<ActionRequest,"capabilityId"|"actionClass"|"parameters"|"computer">,
 ):Promise<ActionRequest> {
   const caller=ctx?.session?.auth.current;

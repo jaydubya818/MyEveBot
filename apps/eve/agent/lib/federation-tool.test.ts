@@ -14,6 +14,8 @@ vi.mock("../../lib/relay/store.ts", () => ({FederationStore: class {
 vi.mock("../../lib/relay/client.ts", async importOriginal => ({...await importOriginal<object>(), RelayClient: class {command = state.command;}}));
 import tool from "../tools/federation_request.ts";
 import { executeFederationTool, federationToolAvailable, federationToolInput } from "./federation-tool.ts";
+import { ActionGateway, ActionBlocked } from "../../lib/action-gateway.ts";
+import { RelayOperationError } from "../../lib/relay/client.ts";
 import { encryptSecret } from "../../lib/relay/transport.ts";
 import { getCapability } from "../../lib/capability-registry.ts";
 const ctx: any = {callId: "test-call", session: {id: "session", auth: {current: {principalId: "owner", principalType: "user", attributes: {owner: "true"}}, initiator: null}}};
@@ -76,6 +78,13 @@ describe("canonical Federation tool boundary", () => {
     expect(result).not.toHaveProperty("response");
     expect(state.command).toHaveBeenCalledWith({operation:"submit",input:input.request});
     expect(JSON.stringify(result)).not.toContain("fixture-secret");
+  });
+  it("pending approval retains its Action identity and is distinct from Relay authority denial", async () => {
+    vi.spyOn(ActionGateway.prototype,"execute").mockRejectedValueOnce(new ActionBlocked("awaiting_approval","exact-action"));
+    expect(await executeFederationTool(input,ctx)).toMatchObject({status:"awaiting_approval",code:"exact_action_approval_required",actionId:"exact-action",canEscalate:true});
+    expect(state.command).not.toHaveBeenCalled();
+    state.command.mockRejectedValue(new RelayOperationError(403));
+    expect(await executeFederationTool(input,ctx)).toMatchObject({code:"federation_authority_denied",httpStatus:403,canEscalate:false});
   });
   it("revocation before result retrieval never releases cached content",async () => {
     state.request={envelope_encrypted:encryptSecret("owner",input.request)};

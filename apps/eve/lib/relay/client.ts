@@ -42,6 +42,10 @@ export async function boundedJson(
   }
   return JSON.parse(Buffer.concat(chunks).toString());
 }
+export class RelayOperationError extends Error {
+  constructor(readonly status: number) { super(`Relay refused the operation (${status}).`); }
+}
+
 export class RelayClient {
   private origin: string;
   constructor(
@@ -76,7 +80,7 @@ export class RelayClient {
     });
     const result = await boundedJson(response);
     if (!response.ok)
-      throw new Error(`Relay refused the operation (${response.status}).`);
+      throw new RelayOperationError(response.status);
     return result;
   }
   command(command: unknown) {
