@@ -1,9 +1,9 @@
 import {beforeEach,describe,expect,it,vi} from 'vitest';
 const mocks=vi.hoisted(()=>({run:vi.fn(),agent:vi.fn(),identity:vi.fn()}));
-vi.mock('../lib/action-context.ts',()=>({ownerChatRun:mocks.run}));
-vi.mock('../lib/session-settings.ts',()=>({resolveSessionAgent:mocks.agent}));
+vi.mock('./action-context.ts',()=>({ownerChatRun:mocks.run}));
+vi.mock('./session-settings.ts',()=>({resolveSessionAgent:mocks.agent}));
 vi.mock('../../lib/execution-auth.ts',()=>({executionIdentityFromAuth:mocks.identity}));
-import hook from './owner-chat-run.ts';
+import hook from '../hooks/owner-chat-run.ts';
 const ctx:any={session:{id:'same-conversation',auth:{current:{principalId:'owner',principalType:'user',attributes:{owner:'true'}}}}};
 const receive=(message:string,context=ctx)=>hook.events!['message.received']!({data:{message}} as any,context);
 beforeEach(()=>{vi.resetAllMocks();mocks.agent.mockResolvedValue({id:'agent'});mocks.run.mockResolvedValue('fresh-run');});
