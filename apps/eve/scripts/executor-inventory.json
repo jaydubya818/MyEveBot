@@ -2823,7 +2823,7 @@
     "agent/lib/jev-chat.ts": {
       "classification": "ENFORCED",
       "reason": "Explicit direct-owner evaluation only: native approval policy, execution caller/configuration rechecks, bounded text, obvious-secret rejection, no retries or fallback. Existing Jev adapter enforces 3s timeout. No persistence/retrieval or consequential action execution.",
-      "sha256": "84512d46934b43b2879622a16079aa6c66d66d90aa978d095bbb76b7ebe47523"
+      "sha256": "fefd1a45ad44c492022460eaea383af04dcabaeed7b34d49c5d9e41b496a82ac"
     },
     "agent/tools/evaluate_with_jev.ts": {
       "classification": "ENFORCED",

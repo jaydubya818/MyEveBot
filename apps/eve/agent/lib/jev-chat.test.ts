@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 import { DecisionFailure } from "../../lib/decision-intelligence/contract.ts";
 const mocks = vi.hoisted(() => ({ configured: vi.fn(), evaluate: vi.fn() }));
 vi.mock("../../lib/decision-intelligence/jev-provider.ts", () => ({
@@ -15,6 +16,13 @@ const result = { outcome: "preference", probabilities: { preference: 0.8 }, conf
   provider: "Jev", model: "typesafe-ai/jev", latencyMs: 12, inputTokens: 22, costUsd: null, evaluatedAt: "2026-09-23T12:00:00.000Z" };
 beforeEach(() => { vi.resetAllMocks(); mocks.configured.mockReturnValue(true); mocks.evaluate.mockResolvedValue(result); });
 describe("explicit Jev chat evaluation", () => {
+  it("exports a provider-compatible root object while retaining operation validation", () => {
+    expect(z.toJSONSchema(jevChatInput)).toMatchObject({ type: "object", additionalProperties: false });
+    expect(jevChatInput.safeParse({ operation: "evaluate" }).success).toBe(false);
+    expect(jevChatInput.safeParse({ operation: "status", statements: ["Unapproved text"] }).success).toBe(false);
+    expect(jevChatInput.safeParse({ operation: "status" }).success).toBe(true);
+    expect(jevChatInput.safeParse(input).success).toBe(true);
+  });
   it("registers a real callable tool and gates text transmission on native approval", () => {
     expect(tool.description).toContain("not a person");
     expect(tool.approval).toBe(jevChatApproval);
