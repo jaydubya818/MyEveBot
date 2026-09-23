@@ -7,7 +7,9 @@
       "codex/federation-final-consolidation": false,
       "codex/myeve-relay-final": false,
       "codex/federation-callable-tool": false,
-      "codex/federation-approval-continuation": false
+      "codex/federation-approval-continuation": false,
+      "codex/jev-chat-release": false,
+      "codex/jev-chat-evaluation": false
     }
   }
 }
