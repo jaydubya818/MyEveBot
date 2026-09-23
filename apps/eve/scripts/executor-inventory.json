@@ -2808,7 +2808,7 @@
     "lib/relay/peer-permissions.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-scoped policy CAS and atomic safe audit; deterministic exact identity/resource/revision checks; authenticated Relay inspection is advisory only. No grant or Action approval creation.",
-      "sha256": "1b24244036eadb027aa616513e15f48ea2573511abbd3164696f7688340f4ca5"
+      "sha256": "cc364578b2cdfda273cb8f57dff469f1befab64bb8c6bda45deca6f7ecdbbf30"
     },
     "lib/relay/incoming-permissions.ts": {
       "classification": "ENFORCED",

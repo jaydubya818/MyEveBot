@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { evaluatePeerPermission, inspectionSchema, inspectPeerAuthority, permissionCommandSchema, peerPolicySchema, type PeerPermission } from "./peer-permissions.ts";
+import { evaluatePeerPermission, inspectionSchema, inspectPeerAuthority, permissionCommandSchema, peerPolicySchema, peerReadModel, type PeerPermission } from "./peer-permissions.ts";
+import { z } from "zod";
 import { RelayClient } from "./client.ts";
-import type { Connection } from "./store.ts";
+import type { Connection, FederationStore } from "./store.ts";
 import type { Submission } from "./contracts.ts";
 
 const binding = { ownerId: "owner", localAgentId: "sofie", origin: "https://relay.example", localAccountId: "account",
@@ -13,6 +14,14 @@ const row = (): PeerPermission => ({ id: "permission", owner_id: binding.ownerId
   mutation_id: "test", mutation_hash: "test", created_at: "2026-01-01T00:00:00Z", updated_at: "2026-01-01T00:00:00Z" });
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllEnvs(); });
 describe("durable peer policy identity and scope", () => {
+  it("returns strict JSON tool output when the database returns native Date values", async () => {
+    const timestamp = new Date("2026-01-01T00:00:00.000Z");
+    const store = {ownerId: "owner", database: {query: async () => [{...row(), updated_at: timestamp, revoked_at: timestamp, expires_at: timestamp}]},
+      connection: async () => {throw new Error("offline");}} as unknown as FederationStore;
+    const result = await peerReadModel(store);
+    expect(z.json().safeParse(result).success).toBe(true);
+    expect(result.relationships[0]).toMatchObject({updatedAt: timestamp.toISOString(), revokedAt: timestamp.toISOString(), expiresAt: timestamp.toISOString()});
+  });
   it("until revoked retains the exact Action approval floor", () => {
     expect(evaluatePeerPermission(row(), binding)).toMatchObject({ policy: "REQUIRE_APPROVAL" });
   });

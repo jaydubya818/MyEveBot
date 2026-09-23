@@ -235,7 +235,10 @@ export async function peerReadModel(store: FederationStore, localAgentId?: strin
       : capabilities.some(p => p.effective !== "DENY") ? (capabilities.some(p => p.policy !== "DENY" && p.effective === "DENY") ? "PARTIALLY_AVAILABLE" : "ACTIVE")
       : connection ? "RELAY_AUTH_REQUIRED" : "RELAY_UNAVAILABLE";
     relationships.push({ id: row.id, localAgentId: row.local_agent_id, peer, displayName: row.display_name, revision: row.revision,
-      policies: capabilities, expiresAt: row.expires_at, revokedAt: row.revoked_at, updatedAt: row.updated_at, status });
+      // Neon may return Date instances. Eve's tool-result boundary requires
+      // JSON values, not objects that merely implement JSON.stringify hooks.
+      policies: capabilities, expiresAt: row.expires_at ? new Date(row.expires_at).toISOString() : null,
+      revokedAt: row.revoked_at ? new Date(row.revoked_at).toISOString() : null, updatedAt: new Date(row.updated_at).toISOString(), status });
   }
   return { relationships, managePath: "/manage/relay", navigation: "Manage → Relay → Peer permissions", privateKnowledge: "DENY",
     note: "Relay observations do not grant authority. Every execution rechecks current policy and Relay authority. Exact consequential actions always require approval." };
