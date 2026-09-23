@@ -1,6 +1,6 @@
 # Combined Multi-Run and Persistent Peer Permissions qualification
 
-Status: deterministic qualification and corrected builds passed; live qualification pending the pushed checkpoint. Not yet qualified for canonical merge. Production migrations and feature enablement are not authorized by this local qualification.
+Status: **LOCAL COMBINED QUALIFICATION PASS** at code checkpoint `6ca1a80d40182bcfc1cb5caa871dc124ec438a13`. Final model canary, golden same-Action send, correlated acknowledgement and post-reload health passed. Canonical merge follows the final CI gate. Production migrations and feature enablement remain separately controlled.
 
 ## Source lineage
 
@@ -30,7 +30,7 @@ Manage offers the peer-address messaging binding only after read-only Relay insp
 
 Evidence logs are local `/private/tmp/combined-*.log`. They are not production qualification. Earlier individual-feature reports retain their historical scope and do not qualify this combined head.
 
-## Remaining release gates
+## Original release gates (historical; completed below)
 
 Final corrected builds, desktop/mobile/keyboard owner flow, pushed attributable checkpoint, private backup and writer pause, verify both 0034 checksums and apply only 0035 locally, canonical runtime reload preserving model authentication, exact bounded Atlas grant renewal if needed, owner Manage relationship establishment, long-lived conversation fresh-Run native approval and same-Action send, correlated actual acknowledgement, pending revoke/expiry denials, restart persistence and privacy evidence. Maximum two intentional local Atlas sends across this combined qualification. No sandbox/KMS provisioning. No Production migration or enablement.
 
@@ -61,4 +61,33 @@ Live qualification found and fixed native-Date tool serialization. A first Knowl
 
 Final isolated regression results at the response-clarification checkpoint: 928 Eve tests, 28 combined SQL approval checks, types/registry/routing and executor governance pass. Eve build passes; final Builder packaging and CI are tracked separately. Four browser tests cover desktop/mobile, keyboard focus, failed-save preservation and missing messaging configuration with no internal-resource prompt.
 
-Status remains **NOT YET FULLY QUALIFIED / NOT MERGED** until final source activation, last bounded send and final verification complete. Production migration and enablement remain untouched.
+Historical status at that checkpoint was **NOT YET FULLY QUALIFIED / NOT MERGED**. The completion evidence below supersedes it. Production migration and enablement remain untouched.
+
+## Completed final acceptance and canonical integration (2026-09-23 UTC)
+
+Composio preservation: **PASS**. The three unrelated tracked files were preserved byte-for-byte, with binary diff equality, in `/private/tmp/myeve-composio-preserved-20260923`, branch `codex/composio-preserved-20260923`, local checkpoint `fb14599b9342cfff568fcf70b2a29bf6e018b546`, based on `c8fe000ac06e02af09f27f5d4602014cda34c036`. No secrets or dependency/runtime directories were copied. It was not pushed, merged or reapplied. Shared source was restored only after preservation verification.
+
+The final golden message asked Atlas what research and analysis it is best suited for and what bounded work it currently accepts. Sofie showed the exact draft. A stale model-authored expiry was denied with no Action or send; after refreshing current time and relationship via the canonical tools, Sofie prepared a fresh native Action without a resource input. Approval resumed **the same Action, Run, payload/resource hash and permission revision**:
+
+- Action: `action_d777702d-96a5-477c-a9fa-3b3c1762d006`
+- Run: `action_run_ae097ee5-44ba-4586-9b9b-66fdbb0557fe`
+- Approval: `approval_3de8e8c12888222b2072738e9eda73bb14ab5369ac50cddc33532007813dcc32`
+- Canonical hash: `6ffe6b862425390d56b513d84e0f121ecdade69e9981be997c91204dcdd2ab3e`
+- Request: `frq_c4dd5d59f57a403f8b63cb5cb3c8b0e6`
+- Pending attempts: **0**; approved completed attempts: **1**; duplicate deliveries: **0**.
+
+Atlas has one completed incoming record for that request, a completed receiving Run, and acknowledged Relay delivery. Sofie automatically fetched the correlated result after approval and surfaced the actual `{ "acknowledged": true }` response, explicitly saying this was not a substantive research/work-scope answer. No owner-supplied resource was requested. The final acceptance sent **one** message; the entire combined qualification sent **two** (the authorized maximum). Both databases contain six historical message records, versus the four-record baseline. No further message was sent.
+
+The used first one-call grant was revoked and replaced with the same exact identity/capability/resource/rate and original expiry `2026-09-23T04:39:48.043Z`, without extending the window. This is finite test authority, not permanent Relay authority. The durable relationship remains revision 4 and Until revoked. Grant expiry and rate limits continue to apply to future owner tests.
+
+Post-reload read-only ledger checks found 0035 and zero pending migrations in both qualified databases, with all candidate checksums matching. **Neither 0034 nor 0035 was rerun** during restoration/final qualification. The original relationship and all historical Run/Action/approval records remain. The privacy marker has zero matches across Sofie's persisted public tables; model streams also contain no marker. Atlas's private source fixture remains private.
+
+Canonical main independently advanced to `185edd9290879a011ae8d52f4928d3fef510eeb1` with Jev source. It was integrated through merge `301c0f8bf3ee290d2018e557c81fa8388fec3eb2`, retaining both histories and all deployment-disable controls. Permission, Federation, Action and migration implementation stayed unchanged from the live-qualified candidate. The merged model canary found a provider-incompatible root union in the newly added Jev tool schema. A minimal compatibility correction exports a root object while retaining operation-specific validation, exact native approval and disabled runtime configuration. It adds no Jev activation or provider call.
+
+Final regression: **942 Eve tests / 120 files PASS**, TypeScript/registry/routing PASS, governance **553 classified sources / UNKNOWN=0**, Eve webpack build PASS. Builder types/manifest **149 files / release 255** and webpack build PASS. Earlier unchanged core (135), SQL native approval (28), lifecycle (16), Action context (22), Computer lifecycle (59), routine/permission/privacy matrices, migration preservation/rollback checks and four desktop/mobile/keyboard/error-state browser checks remain passing evidence. The compatibility test explicitly verifies a provider-compatible root object and rejects missing evaluate statements or statements on status.
+
+Known limits remain explicit: Atlas's message handler returned an acknowledgement only; the earlier failed Knowledge fixture remains fenced for recovery and was not falsely relabelled as success. Successful fresh Published Knowledge retrieval and private denial are separately evidenced. No additional send was used for the main/Jev integration: its affected schema was verified with deterministic tests and the live model canary.
+
+Production schema rollout is pending separate control: **0034 Multi-Run Conversation Lifecycle and 0035 Persistent Peer Permissions are required before deployment**. This task did not inspect or migrate Production schema, enable Production Federation, or create Production peer grants. Automatic deployment remains disabled. Local qualification must not be represented as Production readiness.
+
+Final code checkpoint: `6ca1a80d40182bcfc1cb5caa871dc124ec438a13`. Final no-tools model canary: **PASS** after schema correction. MyEve, workers, Sofie engine, Atlas, Relay and both qualified databases remain running. The owner-testing source is clean; preservation work remains isolated.
