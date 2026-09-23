@@ -86,6 +86,8 @@ export const CORE_PRUNABLE_FILES = [
 export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
   knowledge: [
     "agent/instructions/knowledge.md",
+    "agent/instructions/jev.md",
+    "agent/tools/evaluate_with_jev.ts",
     "agent/tools/record_fact.ts",
     "agent/tools/record_observation.ts",
     "agent/tools/record_decision.ts",
