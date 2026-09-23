@@ -135,7 +135,7 @@ export const viewSchema = z
 export const conditionsSchema = z
   .object({
     notBefore: timestamp.optional(),
-    expiresAt: timestamp,
+    expiresAt: timestamp.nullable(),
     rateLimit: z
       .object({
         calls: z.number().int().min(1).max(120),
