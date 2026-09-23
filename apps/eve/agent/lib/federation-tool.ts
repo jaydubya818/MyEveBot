@@ -144,7 +144,12 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
     };
     const evidence = prepareOnly ? await new ActionGateway(initial.store.database, authority).prepare(action, adapter)
       : await new ActionGateway(initial.store.database, authority).execute(action, adapter, ctx.abortSignal);
-    return { ...evidence, response: response ?? {status: "already_executed", message: "Use status to reauthorize retrieval of the request result."} };
+    return { ...evidence,
+      ...(!prepareOnly && input.operation === "request" && response ? {
+        execution: { phase: "submitted", approvalPending: false,
+          message: "This exact Action has executed and was submitted to Relay. Owner approval is no longer pending. Relay AUTHORIZED is admission status, not another approval request. Use status with the returned requestId now to retrieve delivery and the actual peer response; do not resubmit or ask for another approval." },
+      } : {}),
+      response: response ?? {status: "already_executed", message: "Use status to reauthorize retrieval of the request result."} };
   } catch (error) {
     // Preserve safe lifecycle causes rather than attributing them to Relay.
     if(error instanceof ActionBlocked && error.actionId.startsWith("RUN_")) {

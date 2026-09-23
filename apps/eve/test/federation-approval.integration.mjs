@@ -195,7 +195,7 @@ try{
   const freshCtx=context('automatic-resource-fresh'),freshValue=input(freshCtx.callId);delete freshValue.request.resource;
   const fresh=await definition(freshCtx);assert.equal(await fresh.approval({...freshCtx,toolInput:freshValue}),'user-approval');
   const approved=await definition({...freshCtx,messages:decisionMessages(freshCtx.callId,freshValue)});
-  assert.notEqual((await approved.execute(freshValue,freshCtx)).status,'denied');assert.equal(sends,before+1);
+  const executed=await approved.execute(freshValue,freshCtx);assert.notEqual(executed.status,'denied');assert.equal(executed.execution.phase,'submitted');assert.equal(executed.execution.approvalPending,false);assert.equal(sends,before+1);
   assert.equal(submitted.at(-1).resource,'relay://atlas/agent');
   await approved.execute(freshValue,freshCtx);assert.equal(sends,before+1);
   await client.query("UPDATE myeve_peer_permissions SET policies=$1::jsonb,revision=revision+1 WHERE id='permission'",[JSON.stringify(original)]);

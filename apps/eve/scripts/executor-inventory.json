@@ -2792,13 +2792,13 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "55ccef6f413b96d1c9348e231ea3afc1cfdf5923089809a56db03769c331887f"
+      "sha256": "62a9df4044c13e9e442fc89e05dcbba557f169f7f826b43cbbf1caaecd9cbec0"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "e98ff3c6f641a6b247c8060f1dc66f3321fd3008bbb33fc7fc8b4b13adbe66f7"
+      "sha256": "973ef6add419a590accd1e57ca25cd0e7bb3f46961f2da71e47950a25b4392b0"
     },
     "agent/hooks/owner-chat-run.ts": {
       "classification": "INTERNAL",
