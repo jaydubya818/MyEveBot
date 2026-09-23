@@ -241,5 +241,6 @@ export async function peerReadModel(store: FederationStore, localAgentId?: strin
       revokedAt: row.revoked_at ? new Date(row.revoked_at).toISOString() : null, updatedAt: new Date(row.updated_at).toISOString(), status });
   }
   return { relationships, managePath: "/manage/relay", navigation: "Manage → Relay → Peer permissions", privateKnowledge: "DENY",
+    renewalGuidance: "This Manage route edits local MyEve policy only. Outbound Relay grants must be issued or renewed by the target peer owner through Relay owner administration; changing local policy cannot restore them. MISSING does not reveal grant history or whether a publication is private, expired, unpublished or nonexistent. Never claim a missing grant was never established, and never ask the owner for opaque resource IDs.",
     note: "Relay observations do not grant authority. Every execution rechecks current policy and Relay authority. Exact consequential actions always require approval." };
 }

@@ -2792,7 +2792,7 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "62a9df4044c13e9e442fc89e05dcbba557f169f7f826b43cbbf1caaecd9cbec0"
+      "sha256": "416aae7bbc92ea86ef7e80f4c8159c8a9639cb1692b6f30a28d977d2e15cb26d"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
@@ -2808,7 +2808,7 @@
     "lib/relay/peer-permissions.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-scoped policy CAS and atomic safe audit; deterministic exact identity/resource/revision checks; authenticated Relay inspection is advisory only. No grant or Action approval creation.",
-      "sha256": "cc364578b2cdfda273cb8f57dff469f1befab64bb8c6bda45deca6f7ecdbbf30"
+      "sha256": "5f9e77cc572968d2ae4a7cec0a8fcf69a2952caf4aed51164529ae3f890ff723"
     },
     "lib/relay/incoming-permissions.ts": {
       "classification": "ENFORCED",

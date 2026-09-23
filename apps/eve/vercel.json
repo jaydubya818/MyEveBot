@@ -11,7 +11,8 @@
       "fix/expired-run-action-admission": false,
       "codex/multirun-peer-permissions": false,
       "codex/jev-chat-release": false,
-      "codex/jev-chat-evaluation": false
+      "codex/jev-chat-evaluation": false,
+      "codex/relay-renewal-guidance": false
     }
   }
 }
