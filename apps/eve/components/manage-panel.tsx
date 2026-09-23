@@ -1115,7 +1115,7 @@ export function ManagePanel({
             All settings
           </button>
           <div className="min-h-64 rounded-2xl border border-kumo-hairline bg-kumo-canvas p-4 sm:p-6">
-            {capabilities === null && !capabilityError ? (
+            {capabilities === null && !capabilityError && activeSection !== "documentation" ? (
               <LoadingRow />
             ) : (
               <SectionShell
