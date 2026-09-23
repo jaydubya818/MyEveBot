@@ -138,6 +138,24 @@ export async function currentPeerPermission(store: FederationStore, connection: 
     localAccountId: connection.ownerId, localRelayAgentId: connection.agentId, peer, capability, resource, revision });
   return { ...decision, row: row as PeerPermission | undefined };
 }
+
+/** Messaging destinations come from owner-managed policy, never model selection. */
+export async function resolvePeerMessageResource(store: FederationStore, connection: Connection, peer: string, supplied?: string) {
+  const identity = peerIdentity(peer);
+  const [row] = await store.database.query(`SELECT * FROM myeve_peer_permissions WHERE owner_id=$1 AND local_agent_id=$2
+    AND relay_origin=$3 AND local_relay_account_id=$4 AND local_relay_agent_id=$5 AND peer_account_id=$6 AND peer_agent_id=$7`,
+  [store.ownerId, connection.localAgentId, relayOrigin(), connection.ownerId, connection.agentId, identity.accountId, identity.agentId]);
+  const policies = z.array(peerPolicySchema).safeParse(row?.policies);
+  const candidates = policies.success ? policies.data.filter(p => p.capability === "message.send" && p.policy !== "DENY") : [];
+  if (candidates.length !== 1) throw new PeerPermissionError("PEER_MESSAGE_NOT_CONFIGURED",
+    "Messaging isn't currently configured for this exact peer relationship, so nothing was sent. Configure it in /manage/relay. Do not request an internal resource identifier from the owner.");
+  const resource = candidates[0]!.resource;
+  if (supplied !== undefined && supplied !== resource) throw new PeerPermissionError("PEER_MESSAGE_RESOURCE_CHANGED",
+    "The requested messaging resource does not match this relationship. Nothing was sent. Review /manage/relay; a changed binding requires a new Action approval.");
+  const current = await currentPeerPermission(store, connection, peer, "message.send", resource);
+  if (current.policy === "DENY") requireEffectivePermission({ ...current, relay: null, effective: "DENY", reason: current.code });
+  return resource;
+}
 export const inspectionSchema = z.object({
   authorized: z.boolean(), status: z.enum(["ACTIVE", "MISSING", "EXPIRED", "REVOKED", "NOT_YET_ACTIVE", "PEER_UNAVAILABLE", "RESOURCE_NOT_AUTHORIZED", "CAPABILITY_NOT_AUTHORIZED", "DENIED"]),
   expiresAt: z.string().datetime({ offset: true }).nullable(), approvalRequired: z.boolean(), observedAt: z.string().datetime({ offset: true }), executionRecheckRequired: z.literal(true),

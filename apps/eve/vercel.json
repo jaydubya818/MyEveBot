@@ -8,7 +8,8 @@
       "codex/myeve-relay-final": false,
       "codex/federation-callable-tool": false,
       "codex/federation-approval-continuation": false,
-      "fix/expired-run-action-admission": false
+      "fix/expired-run-action-admission": false,
+      "codex/multirun-peer-permissions": false
     }
   }
 }

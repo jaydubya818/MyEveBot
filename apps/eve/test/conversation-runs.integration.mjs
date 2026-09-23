@@ -3,7 +3,7 @@ import {Client} from 'pg';
 import {spawnSync} from 'node:child_process';
 import {loadMigrations,runMigrations} from '../scripts/migration-runner.ts';
 const url=new URL(process.env.RUN_TEST_DATABASE_URL??'');
-assert.equal(url.hostname,'127.0.0.1');assert.equal(url.port,'55432');assert.equal(url.pathname,'/fq_run_lifecycle_test');
+assert.equal(url.hostname,'127.0.0.1');assert.equal(url.port,'55439');assert.equal(url.pathname,'/myeve_combined_lifecycle_test');
 const c=new Client({connectionString:url.href,ssl:false});await c.connect();let checks=0;
 const test=async(name,fn)=>{await fn();checks++;console.log('PASS: '+name)};
 const database={query:async(s,p)=>(await c.query(s,p)).rows,transaction:async statements=>{await c.query('BEGIN');try{for(const s of statements)await c.query(s.sql,s.params);await c.query('COMMIT')}catch(e){await c.query('ROLLBACK');throw e}}};
@@ -11,7 +11,7 @@ const migrations=await loadMigrations();
 const run=async(client,session,id,recover=true,initialize=true,owner='owner',agent='agent')=>(await client.query('SELECT owner_chat_run($1,$2,$3,$4,$5,$6) AS id',[owner,session,agent,id,recover,initialize])).rows[0].id;
 try{
  await c.query('DROP SCHEMA public CASCADE');await c.query('CREATE SCHEMA public');
- await test('fresh migration chain to canonical 0033',()=>runMigrations(database,migrations.slice(0,-1),()=>{}));
+ await test('fresh migration chain to canonical 0033',()=>runMigrations(database,migrations.filter(m=>m.name<'0034'),()=>{}));
  await c.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent','owner','sofie','Sofie','Test','Test',true,'active',30,900,2)");
  await c.query("INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,started_at,deadline_at) VALUES('action_run_old','owner','delegated_work','Test','agent','running',900,0,30,0,2,now()-interval '2 hours',now()-interval '1 hour')");
  await c.query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES('action_run_old','session','orchestrator')");
@@ -19,7 +19,7 @@ try{
  await c.query("INSERT INTO action_requests(id,owner_id,run_id,action_key,executor,trigger,capability_id,action_class,target,parameter_hash,decision,authority_source,approval_id,status) VALUES('history-action','owner','action_run_old','historical','{}','{}','federation.request','send','{}',$1,'REQUIRE_APPROVAL','local','history-pending','awaiting_approval')",['a'.repeat(64)]);
  const lineage=(await c.query("SELECT row_to_json(a) AS row FROM action_requests a UNION ALL SELECT row_to_json(p) FROM task_approval_decisions p")).rows;
  await test('failed migration rolls back schema and populated evidence atomically',async()=>{
-   await assert.rejects(()=>database.transaction([...migrations.at(-1).statements.map(sql=>({sql})),{sql:"SELECT 1/0"}]));
+   await assert.rejects(()=>database.transaction([...migrations.find(m=>m.name==='0034_conversation_runs.sql').statements.map(sql=>({sql})),{sql:"SELECT 1/0"}]));
    assert.equal((await c.query("SELECT count(*)::int n FROM information_schema.columns WHERE table_schema='public' AND table_name='task_run_sessions' AND column_name='is_current'")).rows[0].n,0);
    assert.equal((await c.query("SELECT count(*)::int n FROM pg_constraint WHERE conrelid='task_run_sessions'::regclass AND conname='task_run_sessions_session_id_key'")).rows[0].n,1);
  });

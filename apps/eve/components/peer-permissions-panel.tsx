@@ -6,7 +6,7 @@ type Policy = { capability: string; resource: string; policy: string; recordType
 type Relationship = { id: string; localAgentId: string; peer: string; displayName: string; revision: number;
   expiresAt: string | null; revokedAt: string | null; status: string;
   policies: (Policy & { effective: string; relayStatus: string; relayExpiresAt: string | null; reason: string })[] };
-type Model = { relationships: Relationship[]; discoveryStatus: string; peers: { address?: string; name?: string }[] };
+type Model = { relationships: Relationship[]; discoveryStatus: string; peers: { address?: string; name?: string; messagingResource?: string | null }[] };
 type Draft = { permissionId?: string; localAgentId: string; peer: string; displayName: string; policies: Policy[];
   expiresAt: string | null; expectedRevision: number; mutationId: string; revoke: boolean };
 const control = "w-full min-w-0 rounded-md border border-kumo-line bg-transparent px-3 py-2 text-sm disabled:opacity-50";
@@ -19,6 +19,8 @@ const split = (value: string) => value.split(",").map(part => part.trim()).filte
 export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string }) {
   const [model, setModel] = useState<Model>();
   const [selected, setSelected] = useState<Relationship>();
+  const [peerAddress, setPeerAddress] = useState("");
+  const messagingResource = model?.peers.find(p => p.address === peerAddress)?.messagingResource ?? "";
   const [editing, setEditing] = useState(false);
   const [policies, setPolicies] = useState<Policy[]>([]);
   const [expiry, setExpiry] = useState("7");
@@ -36,7 +38,7 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
   useEffect(() => { void refresh().catch(e => setError(e.message)); }, []);
   useEffect(() => { if (editing || review) heading.current?.focus(); }, [editing, review]);
   function edit(row?: Relationship) {
-    setSelected(row); setReview(undefined); setError(""); setNotice(""); setEditing(true);
+    setSelected(row); setPeerAddress(row?.peer ?? ""); setReview(undefined); setError(""); setNotice(""); setEditing(true);
     setPolicies(row ? row.policies.map(({ capability, resource, policy, recordTypes, topics }) => ({ capability, resource, policy, recordTypes, topics })) : []);
     setExpiry(row ? "keep" : "7");
   }
@@ -61,7 +63,7 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
       <h2 id="peer-permissions-title" className="font-semibold">Peer permissions</h2>
       <button type="button" className="rounded-md border px-3 py-2 text-sm" disabled={busy} onClick={() => edit()}>Add relationship</button>
     </div>
-    <p className="text-sm text-kumo-subtle">Choose an exact peer and resource for each capability. Private Knowledge is never shared. Every consequential outbound action still needs exact approval.</p>
+    <p className="text-sm text-kumo-subtle">Choose a peer and scoped capabilities. Messaging uses the configured destination automatically. Private Knowledge is never shared. Every consequential outbound action still needs exact approval.</p>
     {error && <p role="alert" className="rounded-md border p-3 text-sm">{error}</p>}
     {notice && <p role="status" className="text-sm">{notice}</p>}
     {!model && !error && <p role="status">Loading peer permissions…</p>}
@@ -99,6 +101,7 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
           <button type="button" disabled={busy} onClick={() => setReview(undefined)}>Back</button></div>
       </div> : <form key={selected?.id ?? "new"} className="space-y-4" onSubmit={event => {
         event.preventDefault(); setError("");
+        if (policies.some(p => !p.resource)) { setError("Messaging is not configured for this peer. Refresh after Relay messaging authority is available; no policy was saved."); return; }
         const fields = new FormData(event.currentTarget);
         const expiresAt = expiry === "keep" ? selected?.expiresAt ?? null : expiry === "never" ? null : expiry === "custom"
           ? new Date(String(fields.get("customExpiry"))).toISOString() : new Date(Date.now() + Number(expiry) * 86400000).toISOString();
@@ -106,12 +109,12 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
           policies, expiresAt, expectedRevision: selected?.revision ?? 0, mutationId: crypto.randomUUID(), revoke: false });
       }}>
         <label className="block text-sm">Display name<input className={control} name="displayName" defaultValue={selected?.displayName} required maxLength={100}/></label>
-        <label className="block text-sm">Exact Relay peer address<input className={control} name="peer" list="discovered-relay-peers" defaultValue={selected?.peer} readOnly={Boolean(selected)} required type="url"/></label>
+        <label className="block text-sm">Exact Relay peer address<input className={control} name="peer" list="discovered-relay-peers" value={peerAddress} onChange={e => { setPeerAddress(e.target.value); const resource = model?.peers.find(p => p.address === e.target.value)?.messagingResource ?? ""; setPolicies(current => current.map(p => p.capability === "message.send" ? {...p, resource} : p)); }} readOnly={Boolean(selected)} required type="url"/></label>
         <datalist id="discovered-relay-peers">{model?.peers.filter(p => typeof p.address === "string").map(p => <option key={p.address} value={p.address}>{p.name ?? p.address}</option>)}</datalist>
         {policies.map((policy, i) => <fieldset key={i} className="space-y-3 rounded-lg border border-kumo-line p-3">
           <legend className="px-1 text-sm">Capability {i + 1}</legend>
-          <label className="block text-sm">Capability<select className={control} value={policy.capability} onChange={e => update(i, { capability: e.target.value, policy: "DENY", recordTypes: [], topics: [] })}>{capabilities.map(c => <option key={c} value={c}>{capabilityNames[c]}</option>)}</select></label>
-          <label className="block text-sm">Exact resource<input className={control} value={policy.resource} required onChange={e => update(i, { resource: e.target.value })}/></label>
+          <label className="block text-sm">Capability<select className={control} value={policy.capability} onChange={e => update(i, { capability: e.target.value, resource: e.target.value === "message.send" ? messagingResource : "", policy: "DENY", recordTypes: [], topics: [] })}>{capabilities.map(c => <option key={c} value={c}>{capabilityNames[c]}</option>)}</select></label>
+          {policy.capability === "message.send" ? <p className="text-sm">{policy.resource ? "Messaging destination is bound to this exact peer relationship." : "Messaging is not configured for this peer. Current Relay messaging authority is required before this relationship can be saved."}</p> : <label className="block text-sm">Exact resource<input className={control} value={policy.resource} required onChange={e => update(i, { resource: e.target.value })}/></label>}
           <label className="block text-sm">MyEve policy<select className={control} value={policy.policy} onChange={e => update(i, { policy: e.target.value })}><option value="DENY">Deny</option><option value="REQUIRE_APPROVAL">Require exact approval</option>{["knowledge.query", "message.receive"].includes(policy.capability) && <option value="ALLOW">Allow scoped access</option>}</select></label>
           {policy.capability === "knowledge.query" && <>
             <label className="block text-sm">Published record types (comma separated)<input className={control} defaultValue={policy.recordTypes.join(", ")} required={policy.policy !== "DENY"} onBlur={e => update(i, { recordTypes: split(e.target.value) })}/></label>
@@ -119,7 +122,7 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
           </>}
           <button type="button" className="text-sm underline" onClick={() => setPolicies(current => current.filter((_, index) => index !== i))}>Remove capability {i + 1}</button>
         </fieldset>)}
-        <button type="button" className="rounded-md border px-3 py-2 text-sm" disabled={policies.length >= 50} onClick={() => setPolicies(current => [...current, { capability: "message.send", resource: "", policy: "DENY", recordTypes: [], topics: [] }])}>Add scoped capability</button>
+        <button type="button" className="rounded-md border px-3 py-2 text-sm" disabled={policies.length >= 50} onClick={() => setPolicies(current => [...current, { capability: "message.send", resource: messagingResource, policy: "DENY", recordTypes: [], topics: [] }])}>Add scoped capability</button>
         <label className="block text-sm">MyEve expiration<select className={control} value={expiry} onChange={e => setExpiry(e.target.value)}>{selected && <option value="keep">Keep current: {date(selected.expiresAt)}</option>}<option value="0.0416666667">1 hour</option><option value="1">1 day</option><option value="7">7 days</option><option value="30">30 days</option><option value="custom">Custom date and time</option><option value="never">Until revoked</option></select></label>
         {expiry === "custom" && <label className="block text-sm">Expiration in your local time<input className={control} type="datetime-local" name="customExpiry" required/></label>}
         <div className="flex gap-3"><button className="rounded-md border px-3 py-2 text-sm">Review changes</button><button type="button" className="text-sm" onClick={() => setEditing(false)}>Cancel</button></div>

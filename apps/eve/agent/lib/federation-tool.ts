@@ -8,13 +8,20 @@ import { RelayClient, RelayOperationError, relayOrigin } from "../../lib/relay/c
 import { submissionSchema } from "../../lib/relay/contracts.ts";
 import { sendExternal, getExternalResult } from "../../lib/relay/inbox.ts";
 import { FederationStore } from "../../lib/relay/store.ts";
-import { bindPeerAction, effectivePeerPermission, peerReadModel, PeerPermissionError, requireEffectivePermission } from "../../lib/relay/peer-permissions.ts";
+import { bindPeerAction, effectivePeerPermission, peerReadModel, PeerPermissionError, requireEffectivePermission, resolvePeerMessageResource } from "../../lib/relay/peer-permissions.ts";
 import { resolveSessionAgent } from "./session-settings.ts";
 import { toolActionRequest } from "./action-context.ts";
 
+// The transport contract remains unchanged. Only the authored message input may
+// omit the resource; canonicalization fills it before any Action is prepared.
+const toolSubmissionSchema = z.discriminatedUnion("capability", [
+  submissionSchema.options[0],
+  submissionSchema.options[1].extend({ resource: z.string().min(1).max(255).optional() }),
+  submissionSchema.options[2], submissionSchema.options[3],
+]);
 export const federationToolInput = z.object({
   operation: z.enum(["discover", "permissions", "request", "status"]),
-  request: submissionSchema.optional(),
+  request: toolSubmissionSchema.optional(),
   requestId: z.string().min(1).max(255).optional(),
 }).strict().superRefine((input, ctx) => {
   if ((input.operation === "request") !== Boolean(input.request)
@@ -24,6 +31,14 @@ export const federationToolInput = z.object({
 });
 export type Input = z.infer<typeof federationToolInput>;
 const CAPABILITY = "federation.request";
+
+async function canonicalInput(input: Input, store: FederationStore, connection: Awaited<ReturnType<FederationStore["connection"]>>) {
+  if (!input.request) return { ...input, request: undefined };
+  const request = input.request.capability === "message.send"
+    ? { ...input.request, resource: await resolvePeerMessageResource(store, connection, input.request.target, input.request.resource) }
+    : input.request;
+  return { ...input, request: submissionSchema.parse(request) };
+}
 
 async function binding(ctx: Pick<DynamicResolveContext, "session">) {
   relayOrigin(); // Exact true feature gate and canonical origin validation.
@@ -58,8 +73,8 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
     }
   };
   try {
-    const input = federationToolInput.parse(value);
     const initial = await binding(ctx);
+    const input = await canonicalInput(federationToolInput.parse(value), initial.store, initial.connection);
     const action = await toolActionRequest(ctx, {capabilityId: CAPABILITY,
       actionClass: input.operation !== "request" || input.request?.capability === "knowledge.query" ? "read"
         : input.request?.capability === "work.request" ? "execute" : "send",
@@ -165,7 +180,7 @@ export async function prepareFederationApproval(ctx: ApprovalContext<Input>) {
     if (current.effective === "ALLOW") return "not-applicable" as const;
   }
   const result = await executeFederationTool(parsed.data, ctx, true);
-  if ("code" in result && result.code?.startsWith("RUN_")) return {type:"denied" as const,reason:JSON.stringify(result)};
+  if ("code" in result && (result.code?.startsWith("RUN_") || result.code?.startsWith("PEER_MESSAGE_"))) return {type:"denied" as const,reason:JSON.stringify(result)};
   if (!("actionId" in result) || !("status" in result) || result.status !== "awaiting_approval") return "denied" as const;
   const {store} = await binding(ctx);
   // A second model call cannot acquire a different call's pending approval. Nor
@@ -217,7 +232,9 @@ export async function resolveFederationApprovals(ctx: DynamicResolveContext) {
   if (!responses.length) return resolved;
   const {agent, store, connection} = await binding(ctx);
   for (const response of responses) {
-    const input = response.input;
+    let input: Awaited<ReturnType<typeof canonicalInput>>;
+    try { input = await canonicalInput(response.input, store, connection); }
+    catch (error) { if (error instanceof PeerPermissionError) continue; throw error; }
     if (input.operation !== "request") continue;
     if (Date.parse(input.request!.expiresAt) <= Date.now()) continue;
     const rows = await store.database.query(`SELECT a.*,p.id AS pending_approval_id,p.status AS approval_status FROM action_requests a

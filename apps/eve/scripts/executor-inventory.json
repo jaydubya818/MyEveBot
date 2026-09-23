@@ -2792,13 +2792,13 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "bc58fd259af81aa9c2dc7224cc1ea3b4e0f3376f62173927b813889d3b8b1c2f"
+      "sha256": "55ccef6f413b96d1c9348e231ea3afc1cfdf5923089809a56db03769c331887f"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "50518f42440f9bf64058f14cbcfd7942eb27ae2bdc993e4d3e5346e522d1acd8"
+      "sha256": "e98ff3c6f641a6b247c8060f1dc66f3321fd3008bbb33fc7fc8b4b13adbe66f7"
     },
     "agent/hooks/owner-chat-run.ts": {
       "classification": "INTERNAL",
@@ -2808,7 +2808,7 @@
     "lib/relay/peer-permissions.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-scoped policy CAS and atomic safe audit; deterministic exact identity/resource/revision checks; authenticated Relay inspection is advisory only. No grant or Action approval creation.",
-      "sha256": "e100be737eb9daad67bc1a5be24c5b194b3f70e8f0c914f63009ad4ce5f54a60"
+      "sha256": "1b24244036eadb027aa616513e15f48ea2573511abbd3164696f7688340f4ca5"
     },
     "lib/relay/incoming-permissions.ts": {
       "classification": "ENFORCED",
@@ -2818,7 +2818,7 @@
     "app/api/relay/peer-permissions/route.ts": {
       "classification": "ENFORCED",
       "reason": "Authenticated owner and exact same-origin mutation, strict bounded body, owner derived from session, revision CAS. Inspection exposes no credentials; disabled Federation permits only revocation.",
-      "sha256": "48cef953aac8c41ffbc8dca536536b06f5e3a7f97f81438a93f06d7da146f581"
+      "sha256": "7ab43883083e7b437fa1a91659eca453601c04a77e8e794cc1243b81fb7522fb"
     }
   }
 }

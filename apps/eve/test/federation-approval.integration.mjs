@@ -15,9 +15,9 @@ import {encryptSecret} from '../lib/relay/transport.ts';
 // Existing loopback database supplies schema shapes only. Every test row and
 // sequence is connection-local TEMP state, discarded on rollback/disconnect.
 const url=new URL(process.env.FEDERATION_TEST_DATABASE_URL??'');
-assert(['127.0.0.1','localhost'].includes(url.hostname));assert.equal(url.port,'55439');assert.equal(url.pathname,'/myeve_peer_v1');
+assert(['127.0.0.1','localhost'].includes(url.hostname));assert.equal(url.port,'55439');assert.equal(url.pathname,'/myeve_combined_v1');
 const client=new Client({connectionString:url.href,ssl:false});await client.connect();
-const tables=['agents','agent_capabilities','agent_runs','task_runs','task_run_sessions','task_approval_decisions','task_transitions','task_milestones','task_specialists','task_acceptance_checks','task_artifacts','outcomes','eve_events','action_requests','action_receipts','execution_occurrences','execution_routine_versions','execution_routines','review_deliveries','computer_control_leases','computer_sessions','myeve_relay_connections','myeve_relay_requests','myeve_peer_permissions','myeve_peer_action_bindings','myeve_relay_activity'];
+const tables=['agents','agent_capabilities','agent_runs','task_runs','task_run_sessions','task_approval_decisions','task_transitions','task_milestones','task_specialists','task_acceptance_checks','task_artifacts','outcomes','eve_events','action_requests','action_receipts','execution_occurrences','execution_routine_versions','execution_routines','review_deliveries','computer_control_leases','computer_sessions','myeve_relay_connections','myeve_relay_requests','myeve_peer_permissions','myeve_peer_action_bindings','myeve_relay_activity','web_chat_threads'];
 const fetchBefore=globalThis.fetch,neonBefore=neonConfig.fetchFunction;
 let sends=0,checks=0,relayStatus="ACTIVE";const submitted=[];
 process.env.DATABASE_URL='postgresql://fixture@approval-test.invalid/postgres';
@@ -142,7 +142,6 @@ try{
   assert.equal((await client.query('SELECT count(*)::int n FROM task_approval_decisions WHERE task_id=$1',[action.runId])).rows[0].n,0);
  });
  await check('canonical thread deletion preserves multi-Run evidence and owner isolation',async()=>{
-  await client.query("CREATE TEMP TABLE web_chat_threads(id text PRIMARY KEY,title text NOT NULL,updated_at bigint NOT NULL,chat jsonb NOT NULL DEFAULT '{}',owner_id text)");
   await client.query("INSERT INTO web_chat_threads(id,title,updated_at,owner_id) VALUES('expired-admission','Test',1,'approval-owner')");
   const {deleteThread}=await import('../lib/threads-db.ts');
   const before=(await client.query("SELECT task_id,is_current FROM task_run_sessions WHERE session_id='expired-admission' ORDER BY task_id")).rows;
@@ -167,6 +166,61 @@ try{
   const result=await def.execute(value,ctx);assert.equal(result.status,'denied',JSON.stringify(result));assert.equal(sends,before);
   assert.equal((await client.query('SELECT count(*)::int n FROM task_approval_decisions WHERE task_id=$1',[row.run_id])).rows[0].n,1);
   relayStatus='ACTIVE';await client.query("UPDATE myeve_peer_permissions SET revoked_at=NULL,expires_at=NULL WHERE id='permission'");
+ });
+ await check('omitted messaging resource resolves durably and changed binding cannot inherit approval',async()=>{
+  const original=(await client.query("SELECT policies FROM myeve_peer_permissions WHERE id='permission'")).rows[0].policies;
+  const policies=original.map(p=>p.capability==='message.send'?{...p,resource:'relay://atlas/agent'}:p);
+  await client.query("UPDATE myeve_peer_permissions SET policies=$1::jsonb WHERE id='permission'",[JSON.stringify(policies)]);
+  const ctx=context('automatic-resource'),value=input(ctx.callId);delete value.request.resource;
+  const before=sends,def=await definition(ctx);
+  const substituted=await def.approval({...ctx,toolInput:{...value,request:{...value.request,resource:'model-invented-resource'}}});
+  assert.equal(substituted.type,'denied');assert.equal(JSON.parse(substituted.reason).code,'PEER_MESSAGE_RESOURCE_CHANGED');
+  assert.equal((await client.query('SELECT count(*)::int n FROM action_requests WHERE action_key=$1',[`tool:${ctx.callId}`])).rows[0].n,0);
+  assert.equal(await def.approval({...ctx,toolInput:value}),'user-approval');
+  const row=(await client.query('SELECT * FROM action_requests WHERE action_key=$1',[`tool:${ctx.callId}`])).rows[0];
+  const changed=policies.map(p=>p.capability==='message.send'?{...p,resource:'different-resource'}:p);
+  await client.query("UPDATE myeve_peer_permissions SET policies=$1::jsonb,revision=revision+1 WHERE id='permission'",[JSON.stringify(changed)]);
+  const stale=await definition({...ctx,messages:decisionMessages(ctx.callId,value)});
+  assert.equal((await stale.execute(value,ctx)).status,'denied');assert.equal(sends,before);
+  assert.equal((await client.query('SELECT status FROM task_approval_decisions WHERE id=$1',[row.approval_id])).rows[0].status,'pending');
+  await client.query("UPDATE myeve_peer_permissions SET policies='[]'::jsonb WHERE id='permission'");
+  const missingCtx=context('missing-resource'),missing=await definition(missingCtx);
+  const denial=await missing.approval({...missingCtx,toolInput:value});
+  assert.equal(denial.type,'denied');assert.equal(JSON.parse(denial.reason).code,'PEER_MESSAGE_NOT_CONFIGURED');
+  assert.match(JSON.parse(denial.reason).message,/\/manage\/relay/);
+  assert.equal((await client.query('SELECT count(*)::int n FROM action_requests WHERE action_key=$1',[`tool:${missingCtx.callId}`])).rows[0].n,0);
+  await client.query("UPDATE myeve_peer_permissions SET policies=$1::jsonb,revision=revision+1 WHERE id='permission'",[JSON.stringify(policies)]);
+  const freshCtx=context('automatic-resource-fresh'),freshValue=input(freshCtx.callId);delete freshValue.request.resource;
+  const fresh=await definition(freshCtx);assert.equal(await fresh.approval({...freshCtx,toolInput:freshValue}),'user-approval');
+  const approved=await definition({...freshCtx,messages:decisionMessages(freshCtx.callId,freshValue)});
+  assert.notEqual((await approved.execute(freshValue,freshCtx)).status,'denied');assert.equal(sends,before+1);
+  assert.equal(submitted.at(-1).resource,'relay://atlas/agent');
+  await approved.execute(freshValue,freshCtx);assert.equal(sends,before+1);
+  await client.query("UPDATE myeve_peer_permissions SET policies=$1::jsonb,revision=revision+1 WHERE id='permission'",[JSON.stringify(original)]);
+ });
+ await check('three Runs retain one peer permission and require fresh authority, Actions and approvals',async()=>{
+  const {ownerChatRun}=await import('../agent/lib/action-context.ts');
+  const sessionId='three-run-permission';const actions=[],runs=[],approvals=[];const before=sends;
+  const permission=(await client.query("SELECT id,revision FROM myeve_peer_permissions WHERE id='permission'")).rows[0];
+  for(let cycle=0;cycle<3;cycle++){
+   const run=await ownerChatRun({ownerId:'approval-owner',sessionId,agentId:'approval-agent',recover:true,initialize:true});runs.push(run);
+   const callId=`three-run-call-${cycle}`,ctx={...context(sessionId),callId},value=input(callId),def=await definition(ctx);
+   // Every new Run checks Relay and the durable local policy before staging work.
+   relayStatus='REVOKED';assert.equal(await def.approval({...ctx,toolInput:value}),'denied');relayStatus='ACTIVE';
+   await client.query("UPDATE myeve_peer_permissions SET revoked_at=now() WHERE id='permission'");
+   assert.equal(await def.approval({...ctx,toolInput:value}),'denied');
+   await client.query("UPDATE myeve_peer_permissions SET revoked_at=NULL WHERE id='permission'");
+   assert.equal(await def.approval({...ctx,toolInput:value}),'user-approval');
+   const row=(await client.query('SELECT * FROM action_requests WHERE action_key=$1',[`tool:${callId}`])).rows[0];
+   assert.equal(row.run_id,run);actions.push(row.id);approvals.push(row.approval_id);
+   const binding=(await client.query('SELECT permission_id,permission_revision FROM myeve_peer_action_bindings WHERE run_id=$1 AND action_key=$2',[run,`tool:${callId}`])).rows[0];
+   assert.equal(binding.permission_id,permission.id);assert.equal(binding.permission_revision,permission.revision);
+   await client.query("UPDATE task_runs SET deadline_at=now()-interval '1 second' WHERE id=$1",[run]);
+   const approved=await definition({...ctx,messages:decisionMessages(callId,value)});
+   assert.equal((await approved.execute(value,ctx)).status,'denied');assert.equal(sends,before);
+  }
+  assert.equal(new Set(runs).size,3);assert.equal(new Set(actions).size,3);assert.equal(new Set(approvals).size,3);
+  assert.deepEqual((await client.query("SELECT id,revision FROM myeve_peer_permissions WHERE id='permission'")).rows[0],permission);
  });
  await check('incoming unsolicited messages require exact approval; revocation blocks continuation',async()=>{
   await client.query("UPDATE myeve_peer_permissions SET policies=policies || $1::jsonb,revision=revision+1 WHERE id='permission'",[JSON.stringify([{capability:'message.receive',resource:'synthetic-messages',policy:'REQUIRE_APPROVAL',recordTypes:[],topics:[]}])]);
