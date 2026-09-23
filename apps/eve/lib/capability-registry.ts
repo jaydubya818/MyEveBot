@@ -424,6 +424,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("update_review_schedule", { description: "Update an explicitly owner-approved review schedule and delivery policy.", feature: "goals", permissions: ["reviews.schedule"], risk: "medium", riskCategories: ["proactive-action", "external-communication"], approval: "always", configuration: ["DATABASE_URL", "OWNER_TIMEZONE"], dependencies: ["notification.review-delivery"], keywords: ["daily brief", "weekly review", "schedule", "timezone", "quiet hours", "delivery"] }),
   tool("record_fact", { description: "Record a durable fact with confidence and current-conversation provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["fact", "know", "confirm", "provenance"] }),
   tool("record_observation", { description: "Record a noticed pattern without promoting it to a preference.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["observation", "pattern", "noticed", "evidence"] }),
+  tool("evaluate_with_jev", { feature: "knowledge", description: "Owner-approved advisory Jev evaluation of explicitly supplied text; no Knowledge writes or authority changes.", permissions: ["model.evaluate"], risk: "medium", riskCategories: ["external-data", "metered-action"], approval: "conditional", configuration: ["MYEVE_DECISION_INTELLIGENCE_ENABLED", "AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN"], keywords: ["jev", "classification", "decision intelligence"] }),
   tool("record_decision", { description: "Record an explicit decision with rationale, reopen condition, and provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "standing-intent"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["decision", "decide", "rationale", "revisit", "supersede"] }),
   tool("record_commitment", { description: "Record an explicit owner obligation without broad automatic extraction.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "standing-intent"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["commitment", "promise", "due", "obligation"] }),
   tool("search_knowledge", { description: "Search typed structured knowledge with status, Goal, confidence, and date filters.", feature: "knowledge", permissions: ["knowledge.read"], configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["knowledge", "search", "fact", "decision", "history"] }),
@@ -524,6 +525,9 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
+  if (definition.id === "tool.evaluate_with_jev" && env.MYEVE_DECISION_INTELLIGENCE_ENABLED !== "true") {
+    return {status: "disabled", configured: false, reason: "Jev evaluation is disabled in this deployment."};
+  }
   if (definition.id === "federation.request" && env.MYEVE_RELAY_ENABLED !== "true") {
     return {status: "disabled", configured: false, reason: "Federation is disabled in this deployment."};
   }

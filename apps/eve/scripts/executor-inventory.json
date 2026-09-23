@@ -2152,7 +2152,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "37cff8cef6dd2c181aeb199844136ed1c30f4064675880a119e02a327f5bb9c6"
+      "sha256": "58bcd2b0ed63413ccee8e4b3693ef4f2caf673ba424f825101fc853559baf150"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2799,6 +2799,16 @@
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
       "sha256": "667a415a2e40f813574d791a4313074d0e48aa5154eb9187409d0e7f18fed84a"
+    },
+    "agent/tools/evaluate_with_jev.ts": {
+      "classification": "ENFORCED",
+      "reason": "Direct owner-only advisory model inference; native approval of exact bounded input before Gateway submission. No Knowledge writes, retrieval, Federation, or authority changes. Status/disabled paths make zero calls; execution rechecks caller/configuration.",
+      "sha256": "dc234bab59ada600c0f8dad3cdd5f3059d0e28bb8bbe845c29e9d69f64346556"
+    },
+    "agent/lib/jev-chat.ts": {
+      "classification": "ENFORCED",
+      "reason": "Explicit direct-owner evaluation only: native approval policy, execution caller/configuration rechecks, bounded text, obvious-secret rejection, no retries or fallback. Existing Jev adapter enforces 3s timeout. No persistence/retrieval or consequential action execution.",
+      "sha256": "84512d46934b43b2879622a16079aa6c66d66d90aa978d095bbb76b7ebe47523"
     }
   }
 }
