@@ -105,7 +105,9 @@ try{
  });
  await check('expired admission creates no Action or approval, and surfaces specific reason',async()=>{
   const {ctx,row}=await stage('expired-admission');
-  await client.query("UPDATE task_runs SET deadline_at=clock_timestamp()-interval '1 second' WHERE id=$1",[row.run_id]);
+  // This fixture stays in one transaction: make expiry earlier than its stable
+  // now() as well as wall time so the historical approval reason is deterministic.
+  await client.query("UPDATE task_runs SET deadline_at=now()-interval '1 second' WHERE id=$1",[row.run_id]);
   const before=(await client.query('SELECT (SELECT count(*) FROM action_requests)::int actions,(SELECT count(*) FROM task_approval_decisions)::int approvals')).rows[0];
   const def=await definition(ctx),denial=await def.approval({...ctx,callId:'new-expired-call',toolName:'federation_request',toolInput:input('new-expired-call')});
   assert.equal(denial.type,'denied');assert.equal(JSON.parse(denial.reason).code,'RUN_EXPIRED');
