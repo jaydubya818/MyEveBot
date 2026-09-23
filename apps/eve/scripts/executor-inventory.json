@@ -2152,7 +2152,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2d19ce4dcdc83c27dad544b690b52088308a7e691c1fc97ed9e9a71c7cc73bdc"
+      "sha256": "784404146ddc6a244c467f4909e74c0fe610b1299017ad5540112bbe3afee6f8"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2819,6 +2819,16 @@
       "classification": "ENFORCED",
       "reason": "Authenticated owner and exact same-origin mutation, strict bounded body, owner derived from session, revision CAS. Inspection exposes no credentials; disabled Federation permits only revocation.",
       "sha256": "7ab43883083e7b437fa1a91659eca453601c04a77e8e794cc1243b81fb7522fb"
+    },
+    "agent/lib/jev-chat.ts": {
+      "classification": "ENFORCED",
+      "reason": "Explicit direct-owner evaluation only: native approval policy, execution caller/configuration rechecks, bounded text, obvious-secret rejection, no retries or fallback. Existing Jev adapter enforces 3s timeout. No persistence/retrieval or consequential action execution.",
+      "sha256": "84512d46934b43b2879622a16079aa6c66d66d90aa978d095bbb76b7ebe47523"
+    },
+    "agent/tools/evaluate_with_jev.ts": {
+      "classification": "ENFORCED",
+      "reason": "Direct owner-only advisory model inference; native approval of exact bounded input before Gateway submission. No Knowledge writes, retrieval, Federation, or authority changes. Status/disabled paths make zero calls; execution rechecks caller/configuration.",
+      "sha256": "dc234bab59ada600c0f8dad3cdd5f3059d0e28bb8bbe845c29e9d69f64346556"
     }
   }
 }
