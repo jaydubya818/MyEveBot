@@ -213,7 +213,7 @@ export function SystemHealthPanel() {
       >
         <div>
           <p className="text-sm font-semibold">
-            {healthy ? `${AGENT_NAME} is ready` : `${AGENT_NAME} needs setup`}
+            {healthy ? "Service checks passed" : "Some services need attention"}
           </p>
           <p className="mt-1 text-xs leading-5 text-kumo-subtle">
             {readyCount} of {includedCount} included services are ready.
@@ -232,6 +232,8 @@ export function SystemHealthPanel() {
           {loading ? "Checking…" : "Run checks"}
         </Button>
       </div>
+
+      <p className="text-sm leading-6 text-kumo-subtle">These checks verify the operation described for each service. A reachable model catalog does not verify model authentication or a successful chat response. <a href="/manage/documentation#health" className="text-kumo-interact underline">Understand service status</a></p>
 
       <ul className="rounded-2xl border border-kumo-hairline p-4 sm:p-5">
         {report.checks.map((check) => (

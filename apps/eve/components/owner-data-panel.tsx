@@ -64,8 +64,8 @@ function statusLabel(value: string): string {
 function OwnerDataNavigation({ view, onChange }: { view: "knowledge" | "backup"; onChange: (view: "knowledge" | "backup") => void }) {
   return (
     <nav className="flex gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1" aria-label="Owner Data Center">
-      <button type="button" className={view === "knowledge" ? "rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" : "rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default"} onClick={() => onChange("knowledge")}>What MyEve Knows</button>
-      <button type="button" className={view === "backup" ? "rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" : "rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default"} onClick={() => onChange("backup")}>Backup & recovery</button>
+      <button type="button" className={view === "knowledge" ? "rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" : "rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default"} aria-current={view === "knowledge" ? "page" : undefined} onClick={() => onChange("knowledge")}>What MyEve Knows</button>
+      <button type="button" className={view === "backup" ? "rounded-lg bg-kumo-tint px-3 py-2 text-sm font-medium" : "rounded-lg px-3 py-2 text-sm text-kumo-subtle hover:text-kumo-default"} aria-current={view === "backup" ? "page" : undefined} onClick={() => onChange("backup")}>Backup & recovery</button>
     </nav>
   );
 }
@@ -79,6 +79,8 @@ export function OwnerDataBackupErrorState({ message, onNavigate, onRetry }: { me
         <div className="flex-1">
           <h3 className="font-medium">Unable to load backup data</h3>
           <p className="mt-1 text-kumo-subtle">{message}</p>
+          <p className="mt-2 text-kumo-subtle">Retry once. If this continues, check System or contact your deployment administrator. An unavailable inventory does not mean your data is empty.</p>
+          <a href="/manage/system" className="mt-3 inline-block text-sm text-kumo-interact underline">Check System</a>
           <button type="button" className="mt-3 rounded-lg border border-kumo-hairline bg-kumo-elevated px-3 py-1.5 text-sm font-medium hover:bg-kumo-tint" onClick={onRetry}>Retry</button>
         </div>
       </section>

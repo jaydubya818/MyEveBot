@@ -11,6 +11,7 @@ import {
   CalendarDotsIcon,
   ChatCircleDotsIcon,
   BrainIcon,
+  BookOpenIcon,
   CaretDownIcon,
   CaretRightIcon,
   CheckIcon,
@@ -36,6 +37,7 @@ import type { Icon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 import type { CapabilityId, CapabilityStatus } from "@/lib/capabilities";
+import { DocumentationPanel } from "@/components/documentation-panel";
 import { AppearancePanel } from "@/components/appearance-panel";
 import { ApprovalCenterPanel } from "@/components/approval-center-panel";
 import { ControlCenterPanel } from "@/components/control-center-panel";
@@ -306,9 +308,14 @@ function ConnectionsTab() {
   const [available, setAvailable] = useState<string[]>([]);
   const [failed, setFailed] = useState(false);
   const [pendingToolkit, setPendingToolkit] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
 
   function load() {
-    void fetch("/api/connections")
+    setConnections(null);
+    setFailed(false);
+    setAvailable([]);
+    void fetch("/api/connections", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((body: { connections?: ConnectionItem[]; checked?: string[] } | null) => {
         if (body === null) {
@@ -330,6 +337,7 @@ function ConnectionsTab() {
 
   function connect(toolkit: string) {
     setPendingToolkit(toolkit);
+    setActionError(null);
     void fetch("/api/connections", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -343,25 +351,28 @@ function ConnectionsTab() {
         window.open(url, "_blank", "noopener");
       })
       .catch((error: unknown) => {
-        alert(error instanceof Error ? error.message : "Connect failed");
+        setActionError("Could not start the connection. Retry, or check System if the service remains unavailable.");
       })
       .finally(() => setPendingToolkit(null));
   }
 
-  function disconnect(toolkit: string, accountId: string) {
-    setConnections(
-      (prev) =>
-        prev?.map((entry) =>
-          entry.toolkit === toolkit
-            ? { ...entry, accounts: entry.accounts.filter((account) => account.id !== accountId) }
-            : entry,
-        ) ?? null,
-    );
-    void fetch("/api/connections", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ toolkit, accountId }),
-    });
+  async function disconnect(toolkit: string, accountId: string) {
+    if (disconnecting !== null) return;
+    setDisconnecting(accountId);
+    setActionError(null);
+    try {
+      const response = await fetch("/api/connections", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ toolkit, accountId }),
+      });
+      if (!response.ok) throw new Error("Disconnect failed");
+      load();
+    } catch {
+      setActionError("Could not confirm disconnection. Refresh the account list before trying again.");
+    } finally {
+      setDisconnecting(null);
+    }
   }
 
   if (connections === null) return <LoadingRow />;
@@ -369,8 +380,17 @@ function ConnectionsTab() {
   return (
     <div className="flex flex-col gap-3">
       {failed && (
-        <EmptyNote>Couldn&rsquo;t reach Composio. Check COMPOSIO_API_KEY and retry.</EmptyNote>
+        <div role="alert" className="rounded-xl border border-kumo-danger/25 bg-kumo-danger/5 p-4">
+          <h3 className="text-sm font-semibold">App connections are unavailable</h3>
+          <p className="mt-2 text-sm leading-6 text-kumo-subtle">We could not load your accounts from the connection service. This does not mean your accounts were disconnected. Retry, or check service health in System.</p>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Button variant="secondary" size="sm" onClick={load}>Retry loading accounts</Button>
+            <a className="text-sm text-kumo-interact underline" href="/manage/system">Check System</a>
+          </div>
+        </div>
       )}
+      {actionError && <p role="alert" className="text-sm text-kumo-danger">{actionError}</p>}
+      {!failed && <Button variant="secondary" size="sm" onClick={load}>Refresh accounts</Button>}
       {!failed && connections.length === 0 && (
         <EmptyNote>No connected apps yet. Connect one below or ask {AGENT_NAME} in chat.</EmptyNote>
       )}
@@ -397,7 +417,7 @@ function ConnectionsTab() {
                         {account.status}
                       </Badge>
                       <DeleteButton
-                        label={`Disconnect ${entry.toolkit}`}
+                        label={`Disconnect ${entry.toolkit} account ${account.alias ?? account.label ?? account.id}`}
                         onDelete={() => disconnect(entry.toolkit, account.id)}
                       />
                     </li>
@@ -432,6 +452,7 @@ function ConnectionsTab() {
           </DropdownMenu>
         </div>
       )}
+      {disconnecting && <p role="status" className="text-xs text-kumo-subtle">Disconnecting account…</p>}
       {!failed && (
         <p className="text-xs text-kumo-subtle">
           Other apps can be connected by asking {AGENT_NAME} in chat — this list covers the common
@@ -449,7 +470,7 @@ interface UpdateInfo {
   updateUrl?: string;
 }
 
-type ManageSection = "decision-intelligence" | "routines" | "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
+type ManageSection = "documentation" | "decision-intelligence" | "routines" | "relay" | Exclude<CapabilityId, "computer"> | "system" | "activity" | "control" | "approvals" | "review-delivery" | "agents" | "getting-started" | "slack" | "imessage" | "data";
 
 interface SectionDefinition {
   id: ManageSection;
@@ -465,13 +486,15 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
       {
         id: "getting-started" as const,
         label: "Getting started",
-        description: "Setup and first useful job",
+        description: "Setup checklist and first task",
         icon: CheckIcon,
       },
+      { id: "documentation", label: "Documentation", description: "Setup guides and everyday help", icon: BookOpenIcon },
+
       {
         id: "review-delivery" as const,
         label: "Briefs & reviews",
-        description: "Scheduled proactive delivery",
+        description: "Digest schedule and delivery",
         icon: CalendarDotsIcon,
       },
       {
@@ -489,13 +512,13 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
       {
         id: "data" as const,
         label: "Your data",
-        description: "Export, verify, and retention",
+        description: "Review information and backups",
         icon: DatabaseIcon,
       },
       {
         id: "agents" as const,
         label: "Agents",
-        description: "Role catalog and persistent Agents",
+        description: "Agent identities, roles, and access",
         icon: UsersThreeIcon,
       },
     ],
@@ -512,7 +535,7 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
       {
         id: "triggers" as const,
         label: "Triggers",
-        description: "Event-driven work",
+        description: "Work started by incoming events",
         icon: LightningIcon,
       },
     ],
@@ -567,7 +590,7 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
   {
     label: "Operations",
     sections: [
-      { id: "routines", label: "Routines", description: "Readiness and reviewed capabilities", icon: ControlIcon },
+      { id: "routines", label: "Routines", description: "Recurring work and required access", icon: ControlIcon },
       { id: "relay", label: "Relay", description: "Owner-controlled external sharing", icon: PlugsIcon },
       {
         id: "control" as const,
@@ -578,13 +601,13 @@ const SECTION_GROUPS: { label: string; sections: SectionDefinition[] }[] = [
       {
         id: "approvals" as const,
         label: "Approvals",
-        description: "Exact-action owner decisions",
+        description: "Review actions waiting for you",
         icon: ShieldCheckIcon,
       },
       {
         id: "activity" as const,
         label: "Activity",
-        description: "Audited tasks and evidence",
+        description: "Task history and evidence",
         icon: ListChecksIcon,
       },
       {
@@ -610,13 +633,12 @@ function sectionFromPath(pathname: string): ManageSection | null {
 
 function SectionStatus({ capability }: { capability: CapabilityStatus | undefined }) {
   if (capability?.state === "setup_required") {
-    return <Badge variant="secondary">Setup</Badge>;
+    return <Badge variant="secondary">Needs setup</Badge>;
   }
   if (capability?.state === "ready") {
     return (
       <span className="flex items-center gap-1 text-[11px] text-kumo-subtle">
-        <span className="size-1.5 rounded-full bg-kumo-success" aria-hidden />
-        Ready
+        Configured
       </span>
     );
   }
@@ -796,13 +818,13 @@ export function ManagePanel({
 
   const capabilityById = new Map(capabilities?.map((capability) => [capability.id, capability]));
   const capabilityFor = (id: ManageSection) =>
-    id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
+    id === "documentation" || id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data"
       ? undefined
       : id === "review-delivery"
         ? capabilityById.get("goals")
         : capabilityById.get(id);
   const isVisible = (id: ManageSection) =>
-    id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
+    id === "documentation" || id === "decision-intelligence" || id === "routines" || id === "relay" || id === "system" || id === "activity" || id === "control" || id === "approvals" || id === "agents" || id === "getting-started" || id === "slack" || id === "imessage" || id === "data" || capabilityFor(id)?.state !== "excluded";
   const visibleSections = ALL_SECTIONS.filter((section) => isVisible(section.id));
   const activeSection =
     selectedSection !== null && isVisible(selectedSection)
@@ -836,7 +858,9 @@ export function ManagePanel({
   const focusedWorkspace = activeSection === "skills";
 
   let sectionContent: React.ReactNode;
-  if (activeSection === "getting-started") {
+  if (activeSection === "documentation") {
+    sectionContent = <DocumentationPanel />;
+  } else if (activeSection === "getting-started") {
     sectionContent = <ActivationPanel capabilities={capabilities ?? []} onNavigate={selectSection} onStartPrompt={onStartPrompt} />;
   } else if (activeSection === "system") {
     sectionContent = <SystemHealthPanel />;
@@ -1044,7 +1068,7 @@ export function ManagePanel({
                           type="button"
                           aria-current={selected ? "page" : undefined}
                           className={cn(
-                            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors",
+                            "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-start transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kumo-interact",
                             selected ? "bg-kumo-recessed" : "hover:bg-kumo-tint",
                           )}
                           onClick={() => selectSection(section.id)}
@@ -1057,7 +1081,7 @@ export function ManagePanel({
                           </span>
                           <span className="min-w-0 flex-1">
                             <span className="block text-sm font-medium">{section.label}</span>
-                            <span className="block truncate text-xs text-kumo-subtle">{section.description}</span>
+                            <span className="block text-xs leading-5 text-kumo-subtle">{section.description}</span>
                           </span>
                           {capability?.state === "setup_required" ? (
                             <span className="size-2 rounded-full bg-kumo-warning" title="Setup required">
@@ -1100,6 +1124,7 @@ export function ManagePanel({
                 capability={activeCapability}
                 allowSetupRequiredContent={activeSection === "skills"}
               >
+                {activeSection !== "documentation" && <p className="mb-5 text-xs text-kumo-subtle">Need help with setup or a failed action? <button type="button" className="font-medium text-kumo-interact underline underline-offset-4" onClick={() => selectSection("documentation")}>Open documentation</button></p>}
                 {sectionContent}
               </SectionShell>
             )}
