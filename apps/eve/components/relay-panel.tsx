@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { PeerPermissionsPanel } from "./peer-permissions-panel";
 
 type Row = Record<string, any>;
 const control =
@@ -73,6 +74,7 @@ export function RelayPanel() {
           Your private Knowledge stays in MyEve. Federation requires an
           explicitly configured Relay connection and signing-key pin.
         </p>
+        <PeerPermissionsPanel localAgentId="" />
       </div>
     );
   const connection = data.connection;
@@ -172,6 +174,7 @@ export function RelayPanel() {
       </section>
       {connection && (
         <>
+          <PeerPermissionsPanel localAgentId={connection.local_agent_id} />
           <section className={section}>
             <h2 className="font-semibold">Publish selected Knowledge</h2>
             <p className="text-sm text-kumo-subtle">
@@ -530,11 +533,11 @@ export function RelayPanel() {
                     {r.state === "needs_approval" && (
                       <>
                         {button(
-                          "Approve exact work",
+                          "Approve exact request",
                           () => void act("decide", true, r.request_id),
                         )}
                         {button(
-                          "Deny work",
+                          "Deny request",
                           () => void act("decide", false, r.request_id),
                         )}
                       </>
@@ -560,20 +563,15 @@ export function RelayPanel() {
               className="grid gap-2"
               onSubmit={(e) => {
                 const f = form(e);
-                void act("send", {
-                  capability: "message.send",
-                  target: f.target,
-                  resource: f.resource,
+                const request = {
+                  capability: "message.send", target: f.target, resource: f.resource,
                   conversationId: reply?.conversation_id ?? crypto.randomUUID(),
-                  idempotencyKey: crypto.randomUUID(),
-                  expiresAt: expiry(),
-                  payload: {
-                    body: f.body,
-                    ...(reply ? { replyTo: reply.request_id } : {}),
-                  },
-                }).then((r) => {
-                  if (r) setReply(null);
-                });
+                  idempotencyKey: crypto.randomUUID(), expiresAt: expiry(),
+                  payload: { body: f.body, ...(reply ? { replyTo: reply.request_id } : {}) },
+                };
+                void navigator.clipboard.writeText(`Propose this exact Relay request for Action approval: ${JSON.stringify(request)}`)
+                  .then(() => setNotice("Request copied. Paste it into your Agent chat to review and approve the exact Action. Nothing was sent."))
+                  .catch(() => setError("Clipboard access failed. Ask your Agent in chat to propose this message with the exact recipient and resource."));
               }}
             >
               <input
@@ -604,7 +602,7 @@ export function RelayPanel() {
                 required
               />
               <button className={control} disabled={busy}>
-                Send message
+                Copy request for Agent chat
               </button>
             </form>
           </section>

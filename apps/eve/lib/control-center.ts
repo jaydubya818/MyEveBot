@@ -15,6 +15,9 @@ export const ACTIONABLE_APPROVAL_PREDICATE = `
   AND ad.task_id = r.id
   AND ad.status = 'pending'
   AND ad.expires_at > now()
+  AND r.status IN ('running','awaiting_approval')
+  AND (r.deadline_at IS NULL OR r.deadline_at>now())
+  AND NOT EXISTS(SELECT 1 FROM task_run_sessions history WHERE history.task_id=r.id AND NOT history.is_current)
   AND ad.binding_hash ~ '^[0-9a-f]{64}$'
   AND ad.goal_id IS NOT DISTINCT FROM r.goal_id
   AND ad.goal_task_id IS NOT DISTINCT FROM r.goal_task_id

@@ -1,3 +1,4 @@
+import {localSqlFixture} from './local-sql-fixture.mjs';
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
 import {Pool} from 'pg';
@@ -12,7 +13,7 @@ import {ActionGateway,consumeComputerLifecycleAuthority,consumeActionAuthority,c
 import {ComputerResourceStore,computerResourceEnvironment,resourceBinding} from '../lib/computer-resource-store.ts';
 process.env.VERCEL_TOKEN='fixture';process.env.VERCEL_TEAM_ID='team_fixture';process.env.VERCEL_PROJECT_ID='project_fixture';process.env.VERCEL_ENV='test';delete process.env.VERCEL;
 globalThis.fetch=async()=>{throw new Error('Real providers forbidden');};
-const pool=new Pool({host:'127.0.0.1',port:55442,user:'myeve_test',database:'postgres'});
+const pool=new Pool(localSqlFixture({host:'127.0.0.1',port:55442,user:'myeve_test',database:'postgres'}));
 const client=await pool.connect();const schema=`resource_qualification_${Date.now()}`;
 neonConfig.fetchFunction=async(_url,options)=>{
   const body=JSON.parse(options.body);
@@ -59,6 +60,7 @@ try {
   await client.query(`INSERT INTO computer_sessions(id,owner_id,agent_id,runtime_session_id,status,expires_at) VALUES('legacy','owner','agent_owner','legacy','ready',now()+interval '5 minutes')`);
   await client.query(`INSERT INTO computer_control_leases(computer_session_id,owner_id,agent_id,controller) VALUES('legacy','owner','agent_owner','AGENT')`);
   await client.query(await readFile(new URL('0032_computer_resource_lifecycles.sql',directory),'utf8'));
+  await client.query(await readFile(new URL('0034_conversation_runs.sql',directory),'utf8'));
   await check('upgrade fences unbound legacy without false ownership',async()=>{
     assert.equal((await client.query("SELECT status FROM computer_sessions WHERE id='legacy'")).rows[0].status,'lost');
     assert.equal((await client.query('SELECT count(*) FROM computer_resource_lifecycles')).rows[0].count,'0');
@@ -159,8 +161,9 @@ try {
       remote={name:options.name,tags:options.tags,status:'running',currentSession:()=>({sessionId:'canonical_vm'}),async update(){}};return remote;
     };
     Sandbox.get=async({name,resume})=>{assert.equal(name,remote.name);assert.equal(resume,false);return remote;};
+    await client.query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES($1,$2,'orchestrator') ON CONFLICT DO NOTHING",[fixtureRow.run_id,fixtureRow.runtime_session_id]);
     const authorizedGateway=new ActionGateway(database,{evaluate:async()=>({decision:'ALLOW',source:'fixture',reason:'fixture'})});
-    const request={ownerId:'owner',runId:fixtureRow.run_id,actionKey:'canonical-create',capabilityId:'computer.session.create',actionClass:'create',executor:{kind:'persistent-agent',agentId:'agent_owner'},trigger:{kind:'owner_chat'},parameters:{}};
+    const request={ownerId:'owner',runId:fixtureRow.run_id,actionKey:'canonical-create',capabilityId:'computer.session.create',actionClass:'create',executor:{kind:'persistent-agent',agentId:'agent_owner'},trigger:{kind:'owner_chat',id:fixtureRow.runtime_session_id},parameters:{}};
     try{
       await authorizedGateway.execute(request,{resolveTarget:async()=>({provider:'sandbox',account:'owner',resource:fixtureRow.runtime_session_id}),
         async execute(params,authority){await consumeActionAuthority(authority,params,'computer.session.create');return withPreparedComputer({id:'preparation',state:'READY',templateId:'shared_snapshot'},authority,params,async()=>{

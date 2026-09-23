@@ -351,7 +351,7 @@ export async function listTaskRuns(ownerId: string, threadId?: string): Promise<
 
 async function taskIdForSession(sessionId: string): Promise<string | null> {
   const rows = (await db().query(
-    `SELECT task_id FROM task_run_sessions WHERE session_id = $1 LIMIT 1`,
+    `SELECT task_id FROM task_run_sessions WHERE session_id = $1 AND is_current LIMIT 1`,
     [sessionId],
   )) as Row[];
   return rows[0] === undefined ? null : textValue(rows[0].task_id);
@@ -395,7 +395,7 @@ export async function recordTaskModelStep(sessionId: string, costUsd = 0): Promi
      SET model_steps = model_steps + 1,
          estimated_cost_usd = estimated_cost_usd + $2,
          updated_at = now()
-     WHERE id = (SELECT task_id FROM task_run_sessions WHERE session_id = $1)
+     WHERE id = (SELECT task_id FROM task_run_sessions WHERE session_id = $1 AND is_current)
        AND status = 'running'
      RETURNING id, model_steps, max_model_steps, estimated_cost_usd,
                max_estimated_cost_usd, deadline_at`,
@@ -424,7 +424,7 @@ export async function assertTaskBudget(sessionId: string): Promise<void> {
             r.max_estimated_cost_usd, r.deadline_at
      FROM task_runs r
      JOIN task_run_sessions s ON s.task_id = r.id
-     WHERE s.session_id = $1 AND r.status = 'running' LIMIT 1`,
+     WHERE s.session_id = $1 AND s.is_current AND r.status = 'running' LIMIT 1`,
     [sessionId],
   )) as Row[];
   const row = rows[0];

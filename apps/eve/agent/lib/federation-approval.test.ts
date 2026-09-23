@@ -9,6 +9,13 @@ vi.mock("../../lib/relay/store.ts", () => ({FederationStore: class {
 }}));
 vi.mock("./session-settings.ts", () => ({resolveSessionAgent: async () => ({id:"sofie", isPrimary:false, status:"active",riskCeiling:"low",capabilities:state.available?[{id:"federation.request",enabled:true,availability:"available"}]:[]})}));
 vi.mock("../../lib/approvals.ts", async original => ({...await original<object>(), decideApproval: state.decide}));
+vi.mock("../../lib/relay/peer-permissions.ts", async original => {
+  const actual = await original<typeof import("../../lib/relay/peer-permissions.ts")>();
+  return {...actual, resolvePeerMessageResource: async (_store: unknown, _connection: unknown, _peer: string, supplied?: string) => {
+    if (supplied !== undefined && supplied !== "synthetic-messages") throw new actual.PeerPermissionError("PEER_MESSAGE_RESOURCE_CHANGED", "Changed binding");
+    return "synthetic-messages";
+  }};
+});
 import {approvalBinding, approvalRequestId, canonicalActionValue} from "../../lib/approvals.ts";
 import {ActionGateway, ActionBlocked} from "../../lib/action-gateway.ts";
 import {federationApprovalResponses, prepareFederationApproval, resolveFederationApprovals} from "./federation-tool.ts";

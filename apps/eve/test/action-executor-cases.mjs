@@ -8,6 +8,7 @@ export async function qualifyActionExecutors(client,database,staleClaim) {
   await client.query(`INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,max_duration_seconds,max_specialists,
     max_model_steps,max_retries_per_specialist,max_estimated_cost_usd)
     VALUES('executor-test','sarah','delegated_work','Executor qualification','ava','running',600,0,30,0,1)`);
+  await client.query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES('executor-test','fixture-session','orchestrator')");
   let approvals=0;
   const approvalIds=[];
   const approvalStore=async input=>{

@@ -99,7 +99,7 @@ export class ActionBlocked extends Error {
   readonly status:"denied"|"awaiting_approval"|"result_unknown";
   readonly actionId:string;
   constructor(status: "denied" | "awaiting_approval" | "result_unknown", actionId: string) {
-    super(status === "awaiting_approval" ? "Waiting for exact-action approval." : status === "result_unknown" ? "Result needs verification before retry." : "Action is not authorized.");
+    super(actionId.startsWith("RUN_") ? `${actionId}: Execution context unavailable; new work needs fresh authority.` : status === "awaiting_approval" ? "Waiting for exact-action approval." : status === "result_unknown" ? "Result needs verification before retry." : "Action is not authorized.");
     this.status=status;this.actionId=actionId;
   }
 }
@@ -212,13 +212,15 @@ export class ActionGateway {
     let target: ActionTarget;
     let decision: AuthorityDecision;
     let targetResolved=false;
-    const context = await this.database.query(`SELECT r.agent_id,r.role_id,g.updated_at::text AS agent_revision,o.id AS occurrence_id,o.claim_version,o.claimed_by,o.lease_expires_at,
+    const context = await this.database.query(`SELECT r.agent_id,r.role_id,
+        (r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>clock_timestamp())) AS run_live,(r.deadline_at<=clock_timestamp()) AS run_expired,g.updated_at::text AS agent_revision,o.id AS occurrence_id,o.claim_version,o.claimed_by,o.lease_expires_at,
         o.status AS occurrence_status,v.configuration
       FROM task_runs r JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
       LEFT JOIN execution_occurrences o ON o.owner_id=r.owner_id AND o.run_id=r.id
       LEFT JOIN execution_routine_versions v ON v.owner_id=o.owner_id AND v.routine_id=o.routine_id AND v.version=o.routine_version
       WHERE r.owner_id=$1 AND r.id=$2 AND r.agent_id=$3`, [action.ownerId,action.runId,action.executor.agentId]);
     if (!context[0]) throw new ActionBlocked("denied", "unresolved");
+    if(context[0].run_live!==true && !action.delivery)throw new ActionBlocked("denied",context[0].run_expired===true?"RUN_EXPIRED":"RUN_NOT_EXECUTABLE");
     if((context[0].role_id??null)!==(action.executor.roleId??null))throw new ActionBlocked("denied","unresolved");
     const occurrence = context[0].occurrence_id;
     if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied","routine_execution_disabled");
@@ -252,13 +254,18 @@ export class ActionGateway {
     const pending=await existingAction();
     let rows = pending.length?pending:await this.database.query(`INSERT INTO action_requests(id,owner_id,run_id,occurrence_id,action_key,executor,trigger,capability_id,
         action_class,target,parameter_hash,safe_summary,decision,authority_source,status,computer_session_id,control_version,reason_code)
-      VALUES($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9,$10::jsonb,$11,$17::jsonb,$12,$13,$14,$15,$16,$18)
+      SELECT $1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9,$10::jsonb,$11,$17::jsonb,$12,$13,$14,$15,$16,$18
+      FROM task_runs admission WHERE admission.id=$3 AND admission.owner_id=$2
+        AND ((admission.status IN ('running','awaiting_approval') AND (admission.deadline_at IS NULL OR admission.deadline_at>clock_timestamp()))
+          OR ($19::boolean AND admission.status='completed'))
+        AND ($7::jsonb->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s
+          WHERE s.task_id=admission.id AND s.session_id=$7::jsonb->>'id' AND s.is_current))
       ON CONFLICT DO NOTHING RETURNING *`,
     [id,action.ownerId,action.runId,action.occurrence?.id??null,action.actionKey,JSON.stringify(action.executor),JSON.stringify(action.trigger),action.capabilityId,
       action.actionClass,JSON.stringify(safeActionParameters(target as unknown as Record<string,unknown>)),binding,decision.decision,decision.source,
-      decision.decision === "DENY" ? "denied" : "planned",action.computer?.sessionId??null,action.computer?.controlVersion??null,JSON.stringify(summary),reasonCode]);
+      decision.decision === "DENY" ? "denied" : "planned",action.computer?.sessionId??null,action.computer?.controlVersion??null,JSON.stringify(summary),reasonCode,Boolean(action.delivery)]);
     if(!rows.length)rows=await existingAction();
-    if(!rows.length)throw new ActionBlocked("denied","binding_claim_changed");
+    if(!rows.length)throw new ActionBlocked("denied","RUN_EXPIRED");
     const row = rows[0]!;
     const actionId = String(row.id);
     if (row.parameter_hash !== binding || decision.decision === "DENY") {
@@ -328,6 +335,7 @@ export class ActionGateway {
             WHERE d.id=$10 AND d.owner_id=a.owner_id AND d.run_id=a.run_id AND d.claim_version=$11 AND d.status='delivering'
               AND d.claimed_until>now() AND d.channel=$12 AND d.result_reference=$13 AND o.status='completed'
               AND routine.status='active' AND routine.version=o.routine_version))))
+        AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
         AND EXISTS(SELECT 1 FROM agents g WHERE g.owner_id=a.owner_id AND g.id=$8 AND g.status='active' AND g.updated_at=$9::timestamptz)
         AND ($4<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p
           WHERE p.id=a.approval_id AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
@@ -372,6 +380,7 @@ export class ActionGateway {
           JOIN task_runs r ON r.owner_id=a.owner_id AND r.id=a.run_id
           JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
           WHERE a.owner_id=$1 AND a.id=$2 AND a.status='executing' AND a.parameter_hash=$3
+            AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
             AND g.status='active' AND g.updated_at=$4::timestamptz
             AND (($5::text IS NULL AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())
               AND r.model_steps<r.max_model_steps AND r.estimated_cost_usd<r.max_estimated_cost_usd)

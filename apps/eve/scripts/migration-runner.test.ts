@@ -7,10 +7,10 @@ const feature: LedgerRow[]=Object.entries(lineage).map(([name,checksum])=>({name
 const reconciled=migrations.find(m=>m.name===RECONCILIATION)!;
 const extendedFeature=[...feature,...canonical.filter(m=>m.name.startsWith('0031')||m.name.startsWith('0032'))];
 const receipt: ReconciliationRecord={id:'0033',origin:FEATURE_LINEAGE,source_ledger:extendedFeature,satisfied_migrations:{[SATISFIED_MIGRATION]:migrations.find(m=>m.name===SATISFIED_MIGRATION)!.checksum}};
-const bridge={source_ledger:extendedFeature,canonical_manifest:Object.fromEntries(migrations.map(m=>[m.name,m.checksum])),satisfied_migrations:{...receipt.satisfied_migrations,[HISTORICAL_RECONCILIATION]:HISTORICAL_CHECKSUM}};
+const bridge={source_ledger:extendedFeature,canonical_manifest:Object.fromEntries(migrations.filter(m=>m.name<=RECONCILIATION).map(m=>[m.name,m.checksum])),satisfied_migrations:{...receipt.satisfied_migrations,[HISTORICAL_RECONCILIATION]:HISTORICAL_CHECKSUM}};
 describe('migration lineage planning',()=>{
- it('supports an empty canonical database',()=>expect(planMigrations(migrations,[]).pending).toHaveLength(33));
- it('supports the exact canonical prefix',()=>expect(planMigrations(migrations,canonical).pending.map(m=>m.name)).toEqual([RECONCILIATION]));
+ it('supports an empty canonical database',()=>expect(planMigrations(migrations,[]).pending).toHaveLength(migrations.length));
+ it('supports the exact canonical prefix',()=>expect(planMigrations(migrations,canonical).pending.map(m=>m.name)).toEqual(migrations.filter(m=>m.name>=RECONCILIATION).map(m=>m.name)));
  it('recognizes only the complete known deployed lineage',()=>expect(planMigrations(migrations,feature).pending.map(m=>m.name)).toEqual(migrations.filter(m=>m.name>'0030z').map(m=>m.name)));
  it('does not mark skipped 0030 as applied',()=>expect(planMigrations(migrations,feature).satisfied).toEqual(receipt.satisfied_migrations));
  it('rejects one arbitrary checksum',()=>expect(()=>planMigrations(migrations,feature.map((r,i)=>i? r:{...r,checksum:'unknown'}))).toThrow(/Unknown/));
@@ -20,7 +20,7 @@ describe('migration lineage planning',()=>{
  it('rejects holes in a canonical prefix',()=>expect(()=>planMigrations(migrations,canonical.filter(r=>!r.name.startsWith('0002')))).toThrow(/Noncontiguous/));
  it('rejects a reconciliation ledger row without evidence',()=>expect(()=>planMigrations(migrations,[...feature,reconciled])).toThrow(/Partial/));
  it('rejects evidence without a reconciliation ledger row',()=>expect(()=>planMigrations(migrations,feature,receipt)).toThrow(/Partial/));
- it('accepts a verified rerun',()=>expect(planMigrations(migrations,[...extendedFeature,reconciled],receipt,bridge).pending).toEqual([]));
+ it('accepts a verified rerun',()=>expect(planMigrations(migrations,[...extendedFeature,...migrations.filter(m=>m.name>=RECONCILIATION)],receipt,bridge).pending).toEqual([]));
  it('rejects tampered equivalence evidence',()=>expect(()=>planMigrations(migrations,[...extendedFeature,reconciled],{...receipt,satisfied_migrations:{[SATISFIED_MIGRATION]:'unknown'}},bridge)).toThrow(/evidence/));
  it('rejects falsified canonical 0030 on the feature lineage',()=>expect(()=>planMigrations(migrations,[...extendedFeature,canonical.find(m=>m.name===SATISFIED_MIGRATION)!,reconciled],receipt,bridge)).toThrow(/cannot claim/));
 });
