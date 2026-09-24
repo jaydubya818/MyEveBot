@@ -457,6 +457,19 @@ export function RelayPanel() {
             ))}
           </section>
           <section className={section}>
+            <h2 className="font-semibold">Replies to peer messages</h2>
+            <p className="text-sm text-kumo-subtle">Allow your Agent to answer authorized peer messages using only the profile below and the incoming message. Private Knowledge, memory, chat history, and tools are excluded. Each message permits one model call, at most 600 output tokens and a conservative $0.25 estimated cost limit. Existing peer permissions and approvals still apply. Model authentication must be configured in the receiving service.</p>
+            <form key={JSON.stringify(data.messageReplies)} className="grid gap-2" onSubmit={(e) => {
+              const f = form(e); void act("message-replies", { enabled: f.enabled === "on", publicProfile: f.publicProfile });
+            }}>
+              <label className="flex items-center gap-2 text-sm"><input name="enabled" type="checkbox" defaultChecked={data.messageReplies?.enabled ?? false} /> Answer authorized peer messages</label>
+              <label className="text-sm">Information your Agent may share
+                <textarea name="publicProfile" aria-label="Public reply profile" className={`${control} mt-2 min-h-32 w-full`} maxLength={4000} defaultValue={data.messageReplies?.publicProfile ?? ""} placeholder="Describe verified capabilities and limits. Include only information you intend every authorized messaging peer to receive." />
+              </label>
+              <button className={control} disabled={busy}>Save reply settings</button>
+            </form>
+          </section>
+          <section className={section}>
             <h2 className="font-semibold">External work policy</h2>
             <p className="text-sm">
               Work can use only explicitly shared artifacts, with no
@@ -535,7 +548,9 @@ export function RelayPanel() {
                       Local MyEve Run: {r.local_run_id}
                     </a>
                   )}
-                  {r.capability === "message.send" && (r.result?.acknowledged === true || r.result?.result?.acknowledged === true) && (
+                  {(r.result?.reply?.body ?? r.result?.result?.reply?.body) && <p className="whitespace-pre-wrap text-sm">Agent reply: {r.result?.reply?.body ?? r.result?.result?.reply?.body}</p>}
+                  {(r.result?.replyStatus ?? r.result?.result?.replyStatus) === "unavailable" && <p className="text-sm text-kumo-subtle">Message received, but the receiving Agent could not generate an answer. Its owner should check model authentication and budget. No answer was fabricated.</p>}
+                  {r.capability === "message.send" && !r.result?.reply && !r.result?.result?.reply && (r.result?.acknowledged === true || r.result?.result?.acknowledged === true) && (
                     <p className="text-sm text-kumo-subtle">Delivery acknowledged. This is a receipt, not an agent-written reply.</p>
                   )}
                   {r.result && (

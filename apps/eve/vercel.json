@@ -4,6 +4,7 @@
   "git": {
     "deploymentEnabled": {
       "main": false,
+      "codex/peer-message-answers": false,
       "codex/federation-request-deadline": false,
       "codex/federation-final-consolidation": false,
       "codex/myeve-relay-final": false,

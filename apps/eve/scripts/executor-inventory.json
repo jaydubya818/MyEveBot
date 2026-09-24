@@ -2562,7 +2562,7 @@
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
       "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
-      "sha256": "ec8fb54630069e205449397c17724f38f364ebe8d6007fdae7cc46709e3e5313"
+      "sha256": "b8acd23fd1675b1744252c8f26f21797cd779d7e4f33ea980c94aa67b7b4b985"
     },
     "lib/relay/ingress.ts": {
       "classification": "INTERNAL",
@@ -2572,7 +2572,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "d170802bd93f623398ca9205f795957b7e5dbe9ad723b7953317c5b038be50dd"
+      "sha256": "5ad918c0d85491aa60643e79c533fe49fa4c0b595567e9ad7b6593eeec19e89a"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2792,13 +2792,13 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "77224c69948f263d2611a6b92e4292b63a628b3ab65340025fe47b1cebe72d3d"
+      "sha256": "6d53f68b0a3b94a9a7424de63e576e24fee2c4b993e0673afa102c34b53f2078"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "d7bda6ef9d583c961e6c36a4583d5c7c6e366cfa101cae68f958cebe3d19ffd4"
+      "sha256": "1664d0701b45b7e0fb99739a70d3767cf954ae3e21bbbcbb82e21b1b002342a5"
     },
     "agent/hooks/owner-chat-run.ts": {
       "classification": "INTERNAL",
@@ -2813,7 +2813,7 @@
     "lib/relay/incoming-permissions.ts": {
       "classification": "ENFORCED",
       "reason": "Current owner/Agent peer policy plus exact bounded Action Gateway authority; signed delivery checked upstream; final revision fence; correlated reply exception requires exact outgoing parent, participants, and conversation.",
-      "sha256": "caaea3276ba20e2772c47ecd8991fec55cd25af1b814b2c1b83c63f9be209766"
+      "sha256": "42cb974a560fdb38805d11451b3b92b08106bfcb87e2630826392cf2004e7c54"
     },
     "app/api/relay/peer-permissions/route.ts": {
       "classification": "ENFORCED",
@@ -2864,6 +2864,16 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Static owner documentation and TypeScript interfaces only. No functions, I/O, model calls, authority changes, or executable effects.",
       "sha256": "dbb2b896ae994f281816afc434ae89a00b7ded151ad383e936de155df51710a1"
+    },
+    "lib/relay/message-reply-settings.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner-scoped reply opt-in and explicit public profile; disabled by default.",
+      "sha256": "7e7e3e11529aa0e327f0a7a1e6b85d8ae64803b6185a32c5f4c2879af38f4937"
+    },
+    "lib/relay/message-reply.ts": {
+      "classification": "INTERNAL",
+      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation.",
+      "sha256": "8e9b949b6982ef68e3bef7026641a4a9a5ac52da277e938cb1428ced5a5ae09d"
     }
   }
 }

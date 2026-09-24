@@ -136,7 +136,20 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
           await bindPeerAction(fresh.store, action.runId, action.actionKey, current.row!, input.request!);
           response = await relayOperation(() => sendExternal(fresh.store, input.request, { runId: action.runId, actionKey: action.actionKey, revision: current.row!.revision }));
         }
-        else if (input.operation === "status") response = await relayOperation(() => getExternalResult(fresh.store, input.requestId!));
+        else if (input.operation === "status") {
+          // Wait briefly for the existing request; never submit a second message.
+          // Every read repeats canonical local and Relay authority checks.
+          const until = Date.now() + 25000;
+          do {
+            ctx.abortSignal?.throwIfAborted();
+            const current = await binding(ctx);
+            if (current.agent.id !== initial.agent.id || current.connection.agentId !== initial.connection.agentId)
+              throw new ActionBlocked("denied", "federation_identity_changed");
+            response = await relayOperation(() => getExternalResult(current.store, input.requestId!));
+            if (!["AUTHORIZED", "QUEUED", "ACCEPTED", "RUNNING"].includes(String(response?.status)) || Date.now() >= until) break;
+            await new Promise<void>(resolve => setTimeout(resolve, Math.min(1000, until - Date.now())));
+          } while (Date.now() <= until);
+        }
         else if (input.operation === "permissions") {
           response = { ...await peerReadModel(fresh.store, fresh.agent.id), currentTime: new Date().toISOString() };
         } else {
@@ -160,7 +173,7 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
     return { ...evidence,
       ...(!prepareOnly && input.operation === "request" && response ? {
         execution: { phase: "submitted", approvalPending: false,
-          message: "This exact Action has executed and was submitted to Relay. Owner approval is no longer pending. Relay AUTHORIZED is admission status, not another approval request. Use status with the returned requestId now to retrieve delivery and the actual peer response; do not resubmit or ask for another approval." },
+          message: "This exact Action has executed and was submitted to Relay. The required approval for this exact Action has been satisfied; this does not indicate standing approval or absence of a native prompt. Owner approval is no longer pending. Relay AUTHORIZED is admission status, not another approval request. Use status with the returned requestId now to retrieve delivery and the actual peer response; do not resubmit or ask for another approval." },
       } : {}),
       response: response ?? {status: "already_executed", message: "Use status to reauthorize retrieval of the request result."} };
   } catch (error) {

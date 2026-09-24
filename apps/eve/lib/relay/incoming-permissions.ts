@@ -4,6 +4,8 @@ import { completeDelegatedTask, createDelegatedTask, transitionTask } from "../t
 import { submissionSchema, type Submission } from "./contracts.ts";
 import { currentPeerPermission, bindPeerAction, PeerPermissionError } from "./peer-permissions.ts";
 import { FederationStore } from "./store.ts";
+import { messageReplySettings, type MessageReplySettings } from "./message-reply-settings.ts";
+import { digest } from "./transport.ts";
 import { decryptSecret, type Envelope } from "./transport.ts";
 
 export function incomingSubmission(envelope: Envelope): Submission {
@@ -43,7 +45,7 @@ export async function correlatedReply(store: FederationStore, envelope: Envelope
   return original.success && original.data.capability === "message.send" && original.data.target === `relay://${envelope.caller.ownerId}/${envelope.caller.agentId}` && original.data.conversationId === envelope.conversationId;
 }
 
-export async function executeIncomingPermission<T>(store: FederationStore, envelope: Envelope, effect: (revalidate: () => Promise<void>) => Promise<T>) {
+export async function executeIncomingPermission<T>(store: FederationStore, envelope: Envelope, effect: (revalidate: () => Promise<void>) => Promise<T>, replySettings?: MessageReplySettings) {
   try {
     const initial = await incomingPeerPermission(store, envelope);
     const [stored] = await store.database.query("SELECT local_run_id FROM myeve_relay_requests WHERE owner_id=$1 AND request_id=$2", [store.ownerId, envelope.id]);
@@ -52,7 +54,7 @@ export async function executeIncomingPermission<T>(store: FederationStore, envel
       const run = await createDelegatedTask({ ownerId: store.ownerId, agentId: initial.agent.id, sessionId: `relay-session-${envelope.id}`,
         title: `Incoming ${envelope.capability}`, objective: "Process one exact authenticated peer request within its current scope.",
         expectedOutput: "A bounded protocol response", maxDurationSeconds: Math.min(300, initial.agent.limits.maxRuntimeSeconds),
-        maxModelSteps: 1, maxEstimatedCostUsd: 0, maxWorkers: 1 });
+        maxModelSteps: 1, maxEstimatedCostUsd: replySettings?.enabled ? Math.min(0.25, initial.agent.limits.maxEstimatedCostUsd) : 0, maxWorkers: 1 });
       runId = run.id;
       await store.database.query("UPDATE myeve_relay_requests SET local_run_id=$3 WHERE owner_id=$1 AND request_id=$2", [store.ownerId, envelope.id, runId]);
     }
@@ -60,6 +62,7 @@ export async function executeIncomingPermission<T>(store: FederationStore, envel
     await bindPeerAction(store, stableRunId, envelope.id, initial.row!, initial.request);
     const authority = { evaluate: async (action: Parameters<typeof localAuthorityProvider.evaluate>[0], target: Parameters<typeof localAuthorityProvider.evaluate>[1]) => {
       const current = await incomingPeerPermission(store, envelope, initial.row!.revision);
+      if (replySettings && digest(await messageReplySettings(store)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; review this request again.");
       await bindPeerAction(store, stableRunId, envelope.id, current.row!, current.request);
       const reply = await correlatedReply(store, envelope);
       return localAuthorityProvider.evaluate(action, target, {
@@ -72,24 +75,25 @@ export async function executeIncomingPermission<T>(store: FederationStore, envel
     let result: T | undefined;
     const outcome = await new ActionGateway(store.database, authority).execute({ ownerId: store.ownerId, runId: stableRunId, actionKey: envelope.id,
       capabilityId: "federation.request", actionClass: "read", executor: { kind: "persistent-agent", agentId: initial.agent.id },
-      trigger: { kind: "relay_request", id: envelope.id }, parameters: { request: initial.request, caller: envelope.caller } }, {
+      trigger: { kind: "relay_request", id: envelope.id }, parameters: { request: initial.request, caller: envelope.caller, ...(replySettings ? { replySettingsHash: digest(replySettings) } : {}) } }, {
       resolveTarget: async () => ({ provider: "relay", account: initial.connection.agentId,
         resource: JSON.stringify([envelope.caller.ownerId, envelope.caller.agentId, envelope.capability, envelope.resource]) }),
       execute: async (parameters, authorized) => {
         await consumeActionAuthority(authorized, parameters, "federation.request");
         const revalidate = async () => {
           const current = await incomingPeerPermission(store, envelope, initial.row!.revision);
+          if (replySettings && digest(await messageReplySettings(store)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; nothing was disclosed.");
           await bindPeerAction(store, stableRunId, envelope.id, current.row!, current.request);
         };
         await revalidate();
+        const [run] = await store.database.query("SELECT status FROM task_runs WHERE owner_id=$1 AND id=$2", [store.ownerId, stableRunId]);
+        if (run.status === "awaiting_approval") await transitionTask(store.ownerId, stableRunId, "running", "owner", "Exact incoming request approved");
         result = await effect(revalidate);
         return { completed: true };
       },
       verify: async () => ({ verified: true, receipt: { requestId: envelope.id } }),
     });
     if (result === undefined) throw new Error("Incoming response requires recovery.");
-    const [run] = await store.database.query("SELECT status FROM task_runs WHERE owner_id=$1 AND id=$2", [store.ownerId, stableRunId]);
-    if (run.status === "awaiting_approval") await transitionTask(store.ownerId, stableRunId, "running", "owner", "Exact incoming request approved");
     await completeDelegatedTask({ ownerId: store.ownerId, taskId: stableRunId,
       summary: "Authenticated peer request completed within its current permission scope.", evidenceSummary: `Request ${envelope.id}; Action ${outcome.actionId}.` });
     return { status: "COMPLETED" as const, result };
