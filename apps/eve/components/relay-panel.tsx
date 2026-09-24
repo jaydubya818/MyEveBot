@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { peerMessageDraft } from "../lib/relay/message-draft";
 import { grantDurationOptions, grantExpiry } from "../lib/relay/grant-duration";
 import { PeerPermissionsPanel } from "./peer-permissions-panel";
 
@@ -534,6 +535,9 @@ export function RelayPanel() {
                       Local MyEve Run: {r.local_run_id}
                     </a>
                   )}
+                  {r.capability === "message.send" && (r.result?.acknowledged === true || r.result?.result?.acknowledged === true) && (
+                    <p className="text-sm text-kumo-subtle">Delivery acknowledged. This is a receipt, not an agent-written reply.</p>
+                  )}
                   {r.result && (
                     <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs">
                       {JSON.stringify(r.result, null, 2)}
@@ -571,26 +575,29 @@ export function RelayPanel() {
               ))
             )}
             <h3 className="font-medium">
-              {reply ? "Reply to authenticated sender" : "Send a message"}
+              {reply ? "Draft reply to authenticated sender" : "Draft a message"}
             </h3>
             <form
               key={reply?.request_id ?? "new"}
               className="grid gap-2"
               onSubmit={(e) => {
                 const f = form(e);
-                const request = {
-                  capability: "message.send", target: f.target, resource: f.resource,
+                let request;
+                try { request = peerMessageDraft({
+                  target: reply ? `relay://${reply.sender_owner_id}/${reply.sender_agent_id}` : f.target,
+                  body: f.body,
                   conversationId: reply?.conversation_id ?? crypto.randomUUID(),
-                  idempotencyKey: crypto.randomUUID(), expiresAt: expiry(),
-                  payload: { body: f.body, ...(reply ? { replyTo: reply.request_id } : {}) },
-                };
+                  ...(reply ? { replyTo: reply.request_id } : {}),
+                }, crypto.randomUUID()); }
+                catch { setError("Enter a valid peer address and a non-empty message."); return; }
                 void navigator.clipboard.writeText(`Propose this exact Relay request for Action approval: ${JSON.stringify(request)}`)
                   .then(() => setNotice("Request copied. Paste it into your Agent chat to review and approve the exact Action. Nothing was sent."))
-                  .catch(() => setError("Clipboard access failed. Ask your Agent in chat to propose this message with the exact recipient and resource."));
+                  .catch(() => setError("Clipboard access failed. Ask your Agent in chat to draft this message for the selected peer. The saved relationship supplies the messaging resource."));
               }}
             >
               <input
                 name="target"
+                readOnly={Boolean(reply)}
                 defaultValue={
                   reply
                     ? `relay://${reply.sender_owner_id}/${reply.sender_agent_id}`
@@ -601,13 +608,7 @@ export function RelayPanel() {
                 aria-label="Recipient Relay address"
                 required
               />
-              <input
-                name="resource"
-                className={control}
-                placeholder="Messaging resource granted by recipient"
-                aria-label="Messaging resource"
-                required
-              />
+              <p className="text-sm text-kumo-subtle">Messaging access comes from the saved peer relationship. Your Agent resolves it before requesting approval. No internal resource identifier is needed.</p>
               <textarea
                 name="body"
                 className={control}

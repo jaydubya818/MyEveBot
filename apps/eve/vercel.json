@@ -13,7 +13,8 @@
       "codex/jev-chat-release": false,
       "codex/jev-chat-evaluation": false,
       "codex/relay-renewal-guidance": false,
-      "codex/relay-grant-expiry-settings": false
+      "codex/relay-grant-expiry-settings": false,
+      "codex/peer-conversation-ui": false
     }
   }
 }

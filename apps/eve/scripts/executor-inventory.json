@@ -2792,7 +2792,7 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "416aae7bbc92ea86ef7e80f4c8159c8a9639cb1692b6f30a28d977d2e15cb26d"
+      "sha256": "556659d0c32916b18826be31de0a5f4eb50b0271ebc25bf432a85fb54e4dd053"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
@@ -2834,6 +2834,11 @@
       "classification": "INTERNAL",
       "reason": "Pure validation and expiry calculation for owner-managed grant preferences; does not grant authority or execute actions.",
       "sha256": "38061ac276a25aa18e746431edd4abd66ab6d05bf7c6001665baecb9b65bc819"
+    },
+    "lib/relay/message-draft.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure owner UI proposal validation. Omits internal resource; canonical Federation resolution and exact Action approval remain mandatory. No execution.",
+      "sha256": "e0c6e182b4eabf46f06a2f8a79cdf0388c5c7a03d503f41d915fc3c8ecbe1026"
     }
   }
 }
