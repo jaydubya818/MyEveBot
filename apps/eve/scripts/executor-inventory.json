@@ -2829,6 +2829,11 @@
       "classification": "ENFORCED",
       "reason": "Direct owner-only advisory model inference; native approval of exact bounded input before Gateway submission. No Knowledge writes, retrieval, Federation, or authority changes. Status/disabled paths make zero calls; execution rechecks caller/configuration.",
       "sha256": "dc234bab59ada600c0f8dad3cdd5f3059d0e28bb8bbe845c29e9d69f64346556"
+    },
+    "lib/admin-guides.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Static owner documentation and TypeScript interfaces only. No functions, I/O, model calls, authority changes, or executable effects.",
+      "sha256": "dbb2b896ae994f281816afc434ae89a00b7ded151ad383e936de155df51710a1"
     }
   }
 }
