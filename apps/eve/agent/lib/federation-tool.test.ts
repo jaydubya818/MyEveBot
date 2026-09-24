@@ -13,7 +13,7 @@ vi.mock("../../lib/relay/store.ts", () => ({FederationStore: class {
 }}));
 vi.mock("../../lib/relay/client.ts", async importOriginal => ({...await importOriginal<object>(), RelayClient: class {command = state.command;}}));
 import tool from "../tools/federation_request.ts";
-import { executeFederationTool, federationToolAvailable, federationToolInput } from "./federation-tool.ts";
+import { executeFederationTool, federationToolAvailable, federationToolInput, prepareFederationApproval } from "./federation-tool.ts";
 import { ActionGateway, ActionBlocked } from "../../lib/action-gateway.ts";
 import { RelayOperationError } from "../../lib/relay/client.ts";
 import { digest, encryptSecret } from "../../lib/relay/transport.ts";
@@ -26,6 +26,7 @@ beforeEach(() => {
   vi.stubEnv("DATABASE_URL", "postgres://fixture"); vi.stubEnv("MYEVE_RELAY_ENCRYPTION_KEY", "a".repeat(64));
   state.agent = {id: "sofie", name: "Sofie", status: "active", isPrimary: false, riskCeiling: "low", limits: {maxSteps: 20,maxRuntimeSeconds:900,maxEstimatedCostUsd:2}, capabilities: [{id:"federation.request",enabled:true,availability:"available"}]};
   state.connection = {localOwnerId: "owner", localAgentId: "sofie", ownerId: "relay-owner", agentId: "relay-sofie", credential: "fixture-secret-not-for-model"};
+  input.request.expiresAt = new Date(Date.now() + 3600000).toISOString();
   state.request = {}; state.action = {};
   state.command.mockImplementation(async command => {
     if (command.operation === "authority.inspect") return {authorized:true,status:"ACTIVE",expiresAt:"2099-01-01T00:00:00Z",approvalRequired:false,observedAt:new Date().toISOString(),executionRecheckRequired:true};
@@ -50,6 +51,15 @@ beforeEach(() => {
   });
 });
 describe("canonical Federation tool boundary", () => {
+  it("rejects a grant expiry used as a request deadline before creating an Action and explains the real cause", async () => {
+    const invalid = { ...input, request: { ...input.request, expiresAt: new Date(Date.now() + 7 * 86400000).toISOString() } };
+    expect(await executeFederationTool(invalid, ctx, true)).toMatchObject({ code: "FEDERATION_REQUEST_EXPIRY_INVALID" });
+    const approval = await prepareFederationApproval({ ...ctx, toolInput: invalid });
+    expect(approval).toMatchObject({ type: "denied" });
+    expect(JSON.parse((approval as {reason: string}).reason)).toMatchObject({ code: "FEDERATION_REQUEST_EXPIRY_INVALID" });
+    expect(state.query).not.toHaveBeenCalled();
+    expect(state.command).not.toHaveBeenCalled();
+  });
   it("disabled and false flags hide the tool and deny execution before transport", async () => {
     for (const flag of ["", "false"]) {
       vi.stubEnv("MYEVE_RELAY_ENABLED", flag);
