@@ -94,7 +94,7 @@ export async function relayDashboard(store: FederationStore) {
     ),
   ]);
   return {
-    messageReplies: await messageReplySettings(store.ownerId),
+    messageReplies: await messageReplySettings(store),
     grantDuration: grantDurationSchema.catch("7d").parse(await settingsStore.getFresh(`relay-grant-duration:${store.ownerId}`)),
     enabled: true,
     origin: relayOrigin(),
@@ -168,7 +168,7 @@ export async function ownerCommand(
         z.enum(["PAUSED", "REVOKED"]).parse(input),
       );
     case "message-replies":
-      return saveMessageReplySettings(store.ownerId, input);
+      return saveMessageReplySettings(store, input);
     case "grant-duration": {
       const duration = grantDurationSchema.parse(input);
       await settingsStore.set(`relay-grant-duration:${store.ownerId}`, duration);

@@ -62,7 +62,7 @@ export async function executeIncomingPermission<T>(store: FederationStore, envel
     await bindPeerAction(store, stableRunId, envelope.id, initial.row!, initial.request);
     const authority = { evaluate: async (action: Parameters<typeof localAuthorityProvider.evaluate>[0], target: Parameters<typeof localAuthorityProvider.evaluate>[1]) => {
       const current = await incomingPeerPermission(store, envelope, initial.row!.revision);
-      if (replySettings && digest(await messageReplySettings(store.ownerId)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; review this request again.");
+      if (replySettings && digest(await messageReplySettings(store)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; review this request again.");
       await bindPeerAction(store, stableRunId, envelope.id, current.row!, current.request);
       const reply = await correlatedReply(store, envelope);
       return localAuthorityProvider.evaluate(action, target, {
@@ -82,7 +82,7 @@ export async function executeIncomingPermission<T>(store: FederationStore, envel
         await consumeActionAuthority(authorized, parameters, "federation.request");
         const revalidate = async () => {
           const current = await incomingPeerPermission(store, envelope, initial.row!.revision);
-          if (replySettings && digest(await messageReplySettings(store.ownerId)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; nothing was disclosed.");
+          if (replySettings && digest(await messageReplySettings(store)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; nothing was disclosed.");
           await bindPeerAction(store, stableRunId, envelope.id, current.row!, current.request);
         };
         await revalidate();

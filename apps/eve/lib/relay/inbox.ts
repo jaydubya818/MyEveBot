@@ -47,7 +47,7 @@ async function processRequest(store: FederationStore, envelope: Envelope) {
   try {
     let response: ResponseBody;
     if (envelope.capability !== "work.request") {
-      const replySettings = envelope.capability === "message.send" ? await messageReplySettings(store.ownerId) : undefined;
+      const replySettings = envelope.capability === "message.send" ? await messageReplySettings(store) : undefined;
       response = await executeIncomingPermission(store, envelope, async revalidate => {
         const connection = await store.connection();
         // Relay rechecks the sender's current authority before any local effect.
