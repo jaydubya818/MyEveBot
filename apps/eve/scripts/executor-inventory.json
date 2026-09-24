@@ -2557,7 +2557,7 @@
     "lib/relay/contracts.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Strict Relay 1.0 transport schemas; no authority or effects.",
-      "sha256": "033270afd62f8e3db36811412371c663d55ac721fb75254ca18eabac81bac355"
+      "sha256": "db22686ac1d13936c00f0c2de0af415dd412cd09f3bfb34be03f078d03c7f658"
     },
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
@@ -2572,7 +2572,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "8b5c0913b6317c4095e93729c75a850c07a66c082d0f1b1a453b277cc026e8f7"
+      "sha256": "d170802bd93f623398ca9205f795957b7e5dbe9ad723b7953317c5b038be50dd"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2792,7 +2792,7 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "416aae7bbc92ea86ef7e80f4c8159c8a9639cb1692b6f30a28d977d2e15cb26d"
+      "sha256": "556659d0c32916b18826be31de0a5f4eb50b0271ebc25bf432a85fb54e4dd053"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
@@ -2849,6 +2849,16 @@
       "classification": "INTERNAL",
       "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
       "sha256": "38a45c368cf64bf04d13f104707b05764323c6f18a4e75c9eb6aaeb802fb082e"
+    },
+    "lib/relay/grant-duration.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure validation and expiry calculation for owner-managed grant preferences; does not grant authority or execute actions.",
+      "sha256": "38061ac276a25aa18e746431edd4abd66ab6d05bf7c6001665baecb9b65bc819"
+    },
+    "lib/relay/message-draft.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure owner UI proposal validation. Omits internal resource; canonical Federation resolution and exact Action approval remain mandatory. No execution.",
+      "sha256": "e0c6e182b4eabf46f06a2f8a79cdf0388c5c7a03d503f41d915fc3c8ecbe1026"
     }
   }
 }
