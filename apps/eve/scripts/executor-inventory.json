@@ -2839,6 +2839,11 @@
       "classification": "INTERNAL",
       "reason": "Pure owner UI proposal validation. Omits internal resource; canonical Federation resolution and exact Action approval remain mandatory. No execution.",
       "sha256": "e0c6e182b4eabf46f06a2f8a79cdf0388c5c7a03d503f41d915fc3c8ecbe1026"
+    },
+    "lib/admin-guides.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Static owner documentation and TypeScript interfaces only. No functions, I/O, model calls, authority changes, or executable effects.",
+      "sha256": "dbb2b896ae994f281816afc434ae89a00b7ded151ad383e936de155df51710a1"
     }
   }
 }
