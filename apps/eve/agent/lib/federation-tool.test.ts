@@ -86,6 +86,37 @@ describe("canonical Federation tool boundary", () => {
     expect(JSON.stringify(result)).not.toContain(state.connection.credential);
     expect(JSON.stringify(state.query.mock.calls.filter(([sql])=>sql.includes("action_receipts")))).not.toContain("Atlas pilot launch date");
   });
+  it("waits for the same accepted request and returns its real result without another submit", async () => {
+    vi.useFakeTimers();
+    try {
+      state.request = { envelope_encrypted: encryptSecret("owner", input.request) };
+      const command = state.command.getMockImplementation()!;
+      let reads = 0;
+      state.command.mockImplementation(async value => value.operation === "get" && ++reads === 1
+        ? { requestId: "request", status: "ACCEPTED" } : command(value));
+      const pending = executeFederationTool({ operation: "status", requestId: "request" }, ctx);
+      await vi.advanceTimersByTimeAsync(1100);
+      expect(await pending).toMatchObject({ response: { status: "COMPLETED" } });
+      expect(reads).toBe(2);
+      expect(state.command.mock.calls.filter(([value]) => value.operation === "submit")).toHaveLength(0);
+    } finally { vi.useRealTimers(); }
+  });
+  it("withholds the answer if authority is revoked during the bounded wait", async () => {
+    vi.useFakeTimers();
+    try {
+      state.request = { envelope_encrypted: encryptSecret("owner", input.request) };
+      let read = false;
+      state.command.mockImplementation(async value => {
+        if (value.operation === "get") { read = true; return { requestId: "request", status: "ACCEPTED" }; }
+        if (read) throw new RelayOperationError(403);
+        return { authorized: true, status: "ACTIVE", expiresAt: "2099-01-01T00:00:00Z", approvalRequired: false, observedAt: new Date().toISOString(), executionRecheckRequired: true };
+      });
+      const pending = executeFederationTool({ operation: "status", requestId: "request" }, ctx);
+      await vi.advanceTimersByTimeAsync(1100);
+      expect(await pending).not.toHaveProperty("response");
+      expect(state.command.mock.calls.filter(([value]) => value.operation === "submit")).toHaveLength(0);
+    } finally { vi.useRealTimers(); }
+  });
   it("an executing Action for different exact parameters cannot authorize the low-level send", async () => {
     const query = state.query.getMockImplementation()!;
     state.query.mockImplementation(async (sql: string, params: any[]) => sql.includes("SELECT a.id,a.parameter_hash")
