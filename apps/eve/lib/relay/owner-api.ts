@@ -1,3 +1,5 @@
+import { settingsStore } from "../../agent/lib/settings-db.ts";
+import { grantDurationSchema } from "./grant-duration.ts";
 import { revokeFederationArtifact } from "../qualification/artifact-storage.ts";
 import { createPublicKey } from "node:crypto";
 import { z } from "zod";
@@ -91,6 +93,7 @@ export async function relayDashboard(store: FederationStore) {
     ),
   ]);
   return {
+    grantDuration: grantDurationSchema.catch("7d").parse(await settingsStore.getFresh(`relay-grant-duration:${store.ownerId}`)),
     enabled: true,
     origin: relayOrigin(),
     connection: connections[0] ?? null,
@@ -121,6 +124,7 @@ const commandSchema = z
       "confirm",
       "publication-status",
       "grant",
+      "grant-duration",
       "revoke-grant",
       "rotate",
       "revoke-credential",
@@ -160,6 +164,11 @@ export async function ownerCommand(
         id,
         z.enum(["PAUSED", "REVOKED"]).parse(input),
       );
+    case "grant-duration": {
+      const duration = grantDurationSchema.parse(input);
+      await settingsStore.set(`relay-grant-duration:${store.ownerId}`, duration);
+      return { duration };
+    }
     case "grant":
       return grantPeer(store, input);
     case "revoke-grant":

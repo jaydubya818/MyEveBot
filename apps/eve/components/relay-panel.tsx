@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { grantDurationOptions, grantExpiry } from "../lib/relay/grant-duration";
 import { PeerPermissionsPanel } from "./peer-permissions-panel";
 
 type Row = Record<string, any>;
@@ -353,6 +354,14 @@ export function RelayPanel() {
             </p>
           </section>
           <section className={section}>
+            <h2 className="font-semibold">Grant expiry settings</h2>
+            <p className="text-sm text-kumo-subtle">Choose the default for new grants you issue. Existing grants and grants issued by another peer’s owner are unchanged. Never means until revoked; identity credentials, published Knowledge, and individual requests still have their own expiry.</p>
+            <form className="flex flex-wrap gap-2" onSubmit={(e) => { const f = form(e); void act("grant-duration", f.duration); }}>
+              <select key={data.grantDuration} name="duration" aria-label="Default grant expiry" className={control} defaultValue={data.grantDuration}>
+                {grantDurationOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+              <button className={control} disabled={busy}>Save expiry preference</button>
+            </form>
             <h2 className="font-semibold">Independent capability grants</h2>
             <form
               className="grid gap-2"
@@ -365,7 +374,7 @@ export function RelayPanel() {
                   capability: f.capability,
                   resource: f.resource,
                   conditions: {
-                    expiresAt: expiry(),
+                    expiresAt: grantExpiry(f.duration),
                     rateLimit: { calls: 10, windowSeconds: 60 },
                     allowedTopics: [],
                     approvalRequired: false,
@@ -423,15 +432,21 @@ export function RelayPanel() {
                 placeholder="Work cost ceiling"
                 aria-label="Work cost ceiling"
               />
+              <label className="text-sm">Grant expiry
+                <select key={data.grantDuration} name="duration" aria-label="Grant expiry" className={control} defaultValue={data.grantDuration}>
+                  {grantDurationOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              <p className="text-sm text-kumo-subtle">Review the peer, capability, resource, and expiry before granting access. A never-expiring grant remains active until revoked.</p>
               <button className={control} disabled={busy}>
-                Grant for 24 hours
+                Create grant
               </button>
             </form>
             {data.grants.map((g: Row) => (
               <div key={g.id} className="text-sm">
                 <p>
                   {g.document.capability} → {g.document.granteeOwnerId}/
-                  {g.document.granteeAgentId} · {g.status}
+                  {g.document.granteeAgentId} · {g.status} · {g.document.conditions.expiresAt === null ? "Never expires — until revoked" : `Expires ${new Date(g.document.conditions.expiresAt).toLocaleString()}`}
                 </p>
                 {button(
                   "Revoke grant",
