@@ -32,6 +32,16 @@ export const federationToolInput = z.object({
 export type Input = z.infer<typeof federationToolInput>;
 const CAPABILITY = "federation.request";
 
+function requestLifetimeFailure(input: Input) {
+  if (input.operation !== "request" || !input.request) return null;
+  const now = Date.now();
+  const expiry = Date.parse(input.request.expiresAt);
+  if (expiry > now && expiry <= now + 86400000) return null;
+  return { status: "denied" as const, code: "FEDERATION_REQUEST_EXPIRY_INVALID", canEscalate: false,
+    message: "Nothing was sent and no Action approval was created. The message/request deadline must be in the future and within 24 hours of currentTime. It is separate from the peer grant expiry. Propose the same payload with a fresh deadline about one hour from currentTime through the native Action approval flow; never treat this as missing owner approval.",
+    currentTime: new Date(now).toISOString() };
+}
+
 async function canonicalInput(input: Input, store: FederationStore, connection: Awaited<ReturnType<FederationStore["connection"]>>) {
   if (!input.request) return { ...input, request: undefined };
   const request = input.request.capability === "message.send"
@@ -73,8 +83,11 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
     }
   };
   try {
+    const parsed = federationToolInput.parse(value);
+    const lifetimeFailure = requestLifetimeFailure(parsed);
+    if (lifetimeFailure) return lifetimeFailure;
     const initial = await binding(ctx);
-    const input = await canonicalInput(federationToolInput.parse(value), initial.store, initial.connection);
+    const input = await canonicalInput(parsed, initial.store, initial.connection);
     const action = await toolActionRequest(ctx, {capabilityId: CAPABILITY,
       actionClass: input.operation !== "request" || input.request?.capability === "knowledge.query" ? "read"
         : input.request?.capability === "work.request" ? "execute" : "send",
@@ -177,7 +190,8 @@ export async function prepareFederationApproval(ctx: ApprovalContext<Input>) {
   const parsed = federationToolInput.safeParse(ctx.toolInput);
   if (!parsed.success) return "denied" as const;
   if (parsed.data.operation !== "request") return "not-applicable" as const;
-  if (Date.parse(parsed.data.request!.expiresAt) <= Date.now()) return "denied" as const;
+  const lifetimeFailure = requestLifetimeFailure(parsed.data);
+  if (lifetimeFailure) return { type: "denied" as const, reason: JSON.stringify(lifetimeFailure) };
   if (parsed.data.request?.capability === "knowledge.query") {
     const {store, connection} = await binding(ctx);
     const current = await effectivePeerPermission(store, connection, parsed.data.request);
