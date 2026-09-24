@@ -2562,7 +2562,7 @@
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
       "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
-      "sha256": "ec8fb54630069e205449397c17724f38f364ebe8d6007fdae7cc46709e3e5313"
+      "sha256": "3a73ea2b654ff0a0aca9b085791f1cff4652bb0790017abb3618cbc63932d283"
     },
     "lib/relay/ingress.ts": {
       "classification": "INTERNAL",
@@ -2572,7 +2572,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "d170802bd93f623398ca9205f795957b7e5dbe9ad723b7953317c5b038be50dd"
+      "sha256": "eaceea3cb9a7bb35e89af583cf92cb7d9e2f4a2103c84335127f66c23ee752a7"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2792,7 +2792,7 @@
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
       "reason": "Step-scoped callable Federation capability; disabled or unauthorized identities emit no tool; executor independently rechecks authority.",
-      "sha256": "77224c69948f263d2611a6b92e4292b63a628b3ab65340025fe47b1cebe72d3d"
+      "sha256": "a767768e899519b45f861a15d9dd3354218401d9ddffe3e708de16f2527c29fe"
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
@@ -2813,7 +2813,7 @@
     "lib/relay/incoming-permissions.ts": {
       "classification": "ENFORCED",
       "reason": "Current owner/Agent peer policy plus exact bounded Action Gateway authority; signed delivery checked upstream; final revision fence; correlated reply exception requires exact outgoing parent, participants, and conversation.",
-      "sha256": "caaea3276ba20e2772c47ecd8991fec55cd25af1b814b2c1b83c63f9be209766"
+      "sha256": "5b1b57f7ce7a6383393ad83160bf3349e93ac40ca4e19e574e884238d2fa1548"
     },
     "app/api/relay/peer-permissions/route.ts": {
       "classification": "ENFORCED",
@@ -2864,6 +2864,16 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Static owner documentation and TypeScript interfaces only. No functions, I/O, model calls, authority changes, or executable effects.",
       "sha256": "dbb2b896ae994f281816afc434ae89a00b7ded151ad383e936de155df51710a1"
+    },
+    "lib/relay/message-reply-settings.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner-scoped reply opt-in and explicit public profile; disabled by default.",
+      "sha256": "e5f94a259247c45548c1eeb5c9c5c22c1663440e085c6b8db531bb1cece252af"
+    },
+    "lib/relay/message-reply.ts": {
+      "classification": "INTERNAL",
+      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation.",
+      "sha256": "8e9b949b6982ef68e3bef7026641a4a9a5ac52da277e938cb1428ced5a5ae09d"
     }
   }
 }

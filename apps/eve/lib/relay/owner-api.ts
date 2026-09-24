@@ -1,3 +1,4 @@
+import { messageReplySettings, saveMessageReplySettings } from "./message-reply-settings.ts";
 import { settingsStore } from "../../agent/lib/settings-db.ts";
 import { grantDurationSchema } from "./grant-duration.ts";
 import { revokeFederationArtifact } from "../qualification/artifact-storage.ts";
@@ -93,6 +94,7 @@ export async function relayDashboard(store: FederationStore) {
     ),
   ]);
   return {
+    messageReplies: await messageReplySettings(store.ownerId),
     grantDuration: grantDurationSchema.catch("7d").parse(await settingsStore.getFresh(`relay-grant-duration:${store.ownerId}`)),
     enabled: true,
     origin: relayOrigin(),
@@ -125,6 +127,7 @@ const commandSchema = z
       "publication-status",
       "grant",
       "grant-duration",
+      "message-replies",
       "revoke-grant",
       "rotate",
       "revoke-credential",
@@ -164,6 +167,8 @@ export async function ownerCommand(
         id,
         z.enum(["PAUSED", "REVOKED"]).parse(input),
       );
+    case "message-replies":
+      return saveMessageReplySettings(store.ownerId, input);
     case "grant-duration": {
       const duration = grantDurationSchema.parse(input);
       await settingsStore.set(`relay-grant-duration:${store.ownerId}`, duration);

@@ -1,3 +1,6 @@
+import { answerPeerMessage } from "./message-reply.ts";
+import { messageReplySettings } from "./message-reply-settings.ts";
+import { getAgent } from "../agents.ts";
 import { FederationStore } from "./store.ts";
 import { RelayClient, relayOrigin } from "./client.ts";
 import {
@@ -44,6 +47,7 @@ async function processRequest(store: FederationStore, envelope: Envelope) {
   try {
     let response: ResponseBody;
     if (envelope.capability !== "work.request") {
+      const replySettings = envelope.capability === "message.send" ? await messageReplySettings(store.ownerId) : undefined;
       response = await executeIncomingPermission(store, envelope, async revalidate => {
         const connection = await store.connection();
         // Relay rechecks the sender's current authority before any local effect.
@@ -51,8 +55,14 @@ async function processRequest(store: FederationStore, envelope: Envelope) {
         await revalidate();
         if (envelope.capability === "knowledge.query") return answerPublished(envelope, store.publishedReader());
         if (envelope.capability === "artifact.share") return receiveArtifact(store, envelope);
-        return { acknowledged: true };
-      });
+        if (!replySettings?.enabled) return { acknowledged: true };
+        const agent = await getAgent(store.ownerId, connection.localAgentId, store.database);
+        if (!agent) throw new Error("Receiving Agent unavailable.");
+        const answer = await answerPeerMessage({ envelope, settings: replySettings,
+          modelId: agent.preferredModel ?? "anthropic/claude-sonnet-5", costLimit: agent.limits.maxEstimatedCostUsd, revalidate });
+        await revalidate();
+        return answer;
+      }, replySettings);
     }
     else {
       const work = await executeExternalWork(store, envelope, async () => {
