@@ -499,7 +499,7 @@
     "agent/lib/knowledge-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "eec7d099ad4dab0989723bf1a18b1b1a4fe6a744b0e60016fdda5afe0f76c5ba"
+      "sha256": "71e3d9d9ad419213050705223beefe8532d1598fee80e54b05a8a29714bdbb72"
     },
     "agent/lib/local-computer-url.ts": {
       "classification": "INTERNAL",
@@ -2152,7 +2152,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "784404146ddc6a244c467f4909e74c0fe610b1299017ad5540112bbe3afee6f8"
+      "sha256": "99a2d1b27983320c71745506dd1075d7a2a2c7af765a5abae7ed32931c3abadd"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2442,7 +2442,7 @@
     "lib/knowledge.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "45d6426dca8f62312fe9e1f5d579315d36e2470288bc18b0643da6161a68e449"
+      "sha256": "cb364bac1bebb2fbf0bfce527ed50b66c52356f89df44a545532275fb5197256"
     },
     "lib/live-session-provider.ts": {
       "classification": "BLOCKED",
@@ -2829,6 +2829,26 @@
       "classification": "ENFORCED",
       "reason": "Direct owner-only advisory model inference; native approval of exact bounded input before Gateway submission. No Knowledge writes, retrieval, Federation, or authority changes. Status/disabled paths make zero calls; execution rechecks caller/configuration.",
       "sha256": "dc234bab59ada600c0f8dad3cdd5f3059d0e28bb8bbe845c29e9d69f64346556"
+    },
+    "agent/tools/record_hypothesis.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
+      "sha256": "1e327aefee1a657e32c4fef4fffb49f1ae5cda8163f1fe4bc0cf5175f9295264"
+    },
+    "agent/tools/record_preference.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
+      "sha256": "8ec34c45dad7391d7351063c943ff0023f4930874a38ae7f5b80c2b191433e3a"
+    },
+    "agent/tools/get_knowledge.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
+      "sha256": "b5a2278e814bbe53e3c5a00d60b95e35fc14c97cfae068bd624c20e996a56d69"
+    },
+    "agent/tools/update_knowledge_status.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
+      "sha256": "38a45c368cf64bf04d13f104707b05764323c6f18a4e75c9eb6aaeb802fb082e"
     },
     "lib/relay/grant-duration.ts": {
       "classification": "INTERNAL",

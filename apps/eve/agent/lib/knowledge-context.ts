@@ -34,7 +34,7 @@ export async function currentConversationProvenance(ctx: ToolContext, ownerId: s
     sourceType: "chat",
     provider: "eve",
     externalId: ctx.session.id,
-    referenceUri: threadId ? `/?thread=${encodeURIComponent(threadId)}` : null,
+    referenceUri: threadId ? `/chat?thread=${encodeURIComponent(threadId)}` : null,
     capturedAt: new Date().toISOString(),
   });
   return [{ sourceId: source.id, relation: "mentioned_in" as const, confidence: 1 }];

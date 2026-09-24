@@ -17,8 +17,8 @@ const TABS: { id: KnowledgeKind; label: string; description: string }[] = [
 ];
 
 interface ApiProblem { error?: string | { message?: string }; }
-async function requestJson<T>(path: string): Promise<T> {
-  const response = await fetch(path);
+async function requestJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const response = await fetch(path, { signal });
   const body = await response.json().catch(() => null) as (T & ApiProblem) | null;
   if (!response.ok) throw new Error(typeof body?.error === "object" ? body.error.message : typeof body?.error === "string" ? body.error : "The request could not be completed.");
   if (!body) throw new Error("The server returned an empty response.");
@@ -50,7 +50,7 @@ function Detail({ record, onOpen }: { record: KnowledgeRecordView; onOpen: (id: 
       <header className="border-b border-kumo-hairline px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center gap-2"><span className="text-xs font-medium uppercase tracking-[0.14em] text-kumo-subtle">{record.kind}</span><Status value={record.status} /><span className="text-xs text-kumo-subtle">{Math.round(record.confidence * 100)}% confidence</span></div>
         <h2 className="mt-3 text-xl font-semibold tracking-tight"><RecordTitle record={record} /></h2>
-        {record.title && <p className="mt-2 text-sm leading-6 text-kumo-default">{record.statement}</p>}
+        {(record.title || record.preferenceKey || record.subject) && <p className="mt-2 text-sm leading-6 text-kumo-default">{record.statement}</p>}
       </header>
       <div className="grid gap-0 sm:grid-cols-[minmax(0,1fr)_210px]">
         <div className="min-w-0 px-5 py-5 sm:px-6">
@@ -83,30 +83,79 @@ export function KnowledgePanel() {
   const [error, setError] = useState<string | null>(null);
   const tabInfo = useMemo(() => TABS.find((item) => item.id === tab)!, [tab]);
 
-  const load = useCallback(async () => {
-    setError(null);
-    try {
-      const params = new URLSearchParams({ type: tab }); if (query.trim()) params.set("q", query.trim()); if (status) params.set("status", status);
-      const body = await requestJson<{ records: KnowledgeRecordView[] }>(`/api/knowledge?${params}`);
-      setRecords(body.records);
-      setSelectedId((current) => { const requested = new URLSearchParams(window.location.search).get("knowledge"); return requested ?? (current && body.records.some((record) => record.id === current) ? current : body.records[0]?.id ?? null); });
-    } catch (reason) { setRecords([]); setError(reason instanceof Error ? reason.message : "Knowledge could not be loaded."); }
-  }, [query, status, tab]);
+  const [revision, setRevision] = useState(0);
+  const [initialized, setInitialized] = useState(false);
+  const [detailError, setDetailError] = useState<string | null>(null);
+  const load = useCallback(() => setRevision((value) => value + 1), []);
 
-  useEffect(() => { const timer = window.setTimeout(() => void load(), 180); return () => window.clearTimeout(timer); }, [load]);
-  useEffect(() => { if (!selectedId) { setDetail(null); return; } setDetail(null); void requestJson<{ record: KnowledgeRecordView }>(`/api/knowledge/${encodeURIComponent(selectedId)}`).then((body) => setDetail(body.record)).catch((reason) => setError(reason instanceof Error ? reason.message : "This record could not be loaded.")); }, [selectedId]);
+  useEffect(() => {
+    const controller = new AbortController();
+    const id = new URLSearchParams(window.location.search).get("knowledge");
+    if (!id) { setInitialized(true); return; }
+    void requestJson<{ record: KnowledgeRecordView }>(`/api/knowledge/${encodeURIComponent(id)}`, controller.signal)
+      .then(({ record }) => { setTab(record.kind); setSelectedId(record.id); })
+      .catch((reason) => { if (!controller.signal.aborted) setDetailError(reason instanceof Error ? reason.message : "This record could not be loaded."); })
+      .finally(() => { if (!controller.signal.aborted) setInitialized(true); });
+    return () => controller.abort();
+  }, []);
 
-  function select(id: string) { setSelectedId(id); const url = new URL(window.location.href); url.searchParams.set("knowledge", id); window.history.replaceState(null, "", url.pathname + url.search); }
+  useEffect(() => {
+    if (!initialized) return;
+    const controller = new AbortController();
+    setRecords(null); setError(null);
+    const timer = window.setTimeout(() => {
+      const params = new URLSearchParams({ type: tab });
+      if (query.trim()) params.set("q", query.trim());
+      if (status) params.set("status", status);
+      void requestJson<{ records: KnowledgeRecordView[] }>(`/api/knowledge?${params}`, controller.signal)
+        .then(({ records: next }) => {
+          if (controller.signal.aborted) return;
+          setRecords(next);
+          setSelectedId((current) => current && next.some((record) => record.id === current) ? current : next[0]?.id ?? null);
+        })
+        .catch((reason) => {
+          if (controller.signal.aborted) return;
+          setRecords([]); setSelectedId(null);
+          setError(reason instanceof Error ? reason.message : "Knowledge could not be loaded.");
+        });
+    }, 180);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [initialized, query, status, tab, revision]);
+
+  useEffect(() => {
+    setDetail(null);
+    if (!selectedId) return;
+    const controller = new AbortController();
+    setDetailError(null);
+    void requestJson<{ record: KnowledgeRecordView }>(`/api/knowledge/${encodeURIComponent(selectedId)}`, controller.signal)
+      .then(({ record }) => { if (!controller.signal.aborted) setDetail(record); })
+      .catch((reason) => { if (!controller.signal.aborted) setDetailError(reason instanceof Error ? reason.message : "This record could not be loaded."); });
+    return () => controller.abort();
+  }, [selectedId, revision]);
+
+  function select(id: string) {
+    setSelectedId(id);
+    const url = new URL(window.location.href);
+    url.searchParams.set("knowledge", id);
+    window.history.replaceState(null, "", url.pathname + url.search);
+  }
+
+  function changeTab(kind: KnowledgeKind) {
+    setTab(kind); setStatus(""); setQuery(""); setRecords(null); setSelectedId(null); setDetail(null); setDetailError(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("knowledge");
+    window.history.replaceState(null, "", url.pathname + url.search);
+  }
 
   return <section>
     <header className="mb-5 ps-8 md:ps-0"><div className="flex items-start justify-between gap-4"><div><div className="flex items-center gap-2"><BrainIcon className="size-5" /><h1 className="text-xl font-semibold tracking-tight">Knowledge</h1></div><p className="mt-1 text-sm text-kumo-subtle">What is known, why it is believed, and what remains uncertain.</p></div><Button variant="ghost" size="sm" shape="square" icon={ArrowClockwiseIcon} aria-label="Refresh knowledge" onClick={() => void load()} /></div></header>
-    <div className="mb-5 overflow-x-auto"><div className="flex min-w-max gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1">{TABS.map((item) => <button key={item.id} type="button" className={cn("rounded-lg px-3 py-2 text-sm text-kumo-subtle transition-colors hover:text-kumo-default", tab === item.id && "bg-kumo-tint font-medium text-kumo-default")} onClick={() => { setTab(item.id); setStatus(""); setSelectedId(null); }}>{item.label}</button>)}</div></div>
+    <div className="mb-5 overflow-x-auto"><div className="flex min-w-max gap-1 rounded-xl border border-kumo-hairline bg-kumo-elevated p-1">{TABS.map((item) => <button key={item.id} type="button" className={cn("rounded-lg px-3 py-2 text-sm text-kumo-subtle transition-colors hover:text-kumo-default", tab === item.id && "bg-kumo-tint font-medium text-kumo-default")} aria-pressed={tab === item.id} onClick={() => changeTab(item.id)}>{item.label}</button>)}</div></div>
     <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
       <aside><div className="grid grid-cols-[minmax(0,1fr)_120px] gap-2"><div className="relative"><MagnifyingGlassIcon className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-kumo-subtle" /><Input aria-label="Search knowledge" value={query} placeholder={`Search ${tabInfo.label.toLowerCase()}`} className="w-full ps-9" onChange={(event) => setQuery(event.target.value)} /></div><select aria-label="Filter by status" className="h-9 rounded-lg border border-kumo-hairline bg-kumo-elevated px-2 text-xs capitalize" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">All statuses</option>{KNOWLEDGE_STATUSES[tab].map((value) => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}</select></div><p className="mt-3 text-xs leading-5 text-kumo-subtle">{tabInfo.description}</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-kumo-danger/25 bg-kumo-danger/10 p-3 text-sm text-kumo-danger">{error}</div>}
-        {records === null ? <div className="flex justify-center py-12"><Loader /></div> : records.length === 0 ? <div className="mt-5 rounded-xl border border-dashed border-kumo-hairline p-5 text-center"><p className="text-sm font-medium">No {tabInfo.label.toLowerCase()} found</p><p className="mt-1 text-xs leading-5 text-kumo-subtle">Records appear here after they are created through chat or the Knowledge API.</p></div> : <ul className="mt-4 space-y-2">{records.map((record) => <li key={record.id}><button type="button" className={cn("w-full rounded-xl border border-kumo-hairline bg-kumo-elevated p-3 text-start transition-colors hover:bg-kumo-tint", selectedId === record.id && "border-kumo-line bg-kumo-tint")} onClick={() => select(record.id)}><div className="flex items-center justify-between gap-2"><Status value={record.status} /><span className="text-[11px] text-kumo-subtle">{date(record.decidedAt ?? record.createdAt)}</span></div><p className="mt-2 line-clamp-2 text-sm font-medium"><RecordTitle record={record} /></p>{record.title && <p className="mt-1 line-clamp-2 text-xs leading-5 text-kumo-subtle">{record.statement}</p>}</button></li>)}</ul>}
+        {records === null ? <div className="flex justify-center py-12"><Loader /></div> : records.length === 0 ? <div className="mt-5 rounded-xl border border-dashed border-kumo-hairline p-5 text-center"><p className="text-sm font-medium">No {tabInfo.label.toLowerCase()} found</p><p className="mt-1 text-xs leading-5 text-kumo-subtle">Ask Sofie to record a {tabInfo.id}. Saved records appear here with their sources.</p></div> : <ul className="mt-4 space-y-2">{records.map((record) => <li key={record.id}><button type="button" className={cn("w-full rounded-xl border border-kumo-hairline bg-kumo-elevated p-3 text-start transition-colors hover:bg-kumo-tint", selectedId === record.id && "border-kumo-line bg-kumo-tint")} onClick={() => select(record.id)}><div className="flex items-center justify-between gap-2"><Status value={record.status} /><span className="text-[11px] text-kumo-subtle">{date(record.decidedAt ?? record.createdAt)}</span></div><p className="mt-2 line-clamp-2 text-sm font-medium"><RecordTitle record={record} /></p>{record.title && <p className="mt-1 line-clamp-2 text-xs leading-5 text-kumo-subtle">{record.statement}</p>}</button></li>)}</ul>}
       </aside>
-      <div>{selectedId && detail === null ? <div className="flex min-h-64 items-center justify-center rounded-2xl border border-kumo-hairline"><Loader /></div> : detail ? <Detail record={detail} onOpen={select} /> : <div className="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-kumo-hairline p-8 text-center"><div><BrainIcon className="mx-auto size-6 text-kumo-subtle" /><p className="mt-3 text-sm font-medium">Select a record</p><p className="mt-1 text-xs text-kumo-subtle">Its provenance and history will appear here.</p></div></div>}</div>
+      <div>{detailError ? <div role="alert" className="rounded-xl border border-kumo-danger/25 p-5"><p>{detailError}</p><Button variant="outline" size="sm" onClick={load}>Retry</Button></div> : selectedId && detail === null ? <div className="flex min-h-64 items-center justify-center rounded-2xl border border-kumo-hairline"><Loader /></div> : detail ? <Detail record={detail} onOpen={select} /> : <div className="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-kumo-hairline p-8 text-center"><div><BrainIcon className="mx-auto size-6 text-kumo-subtle" /><p className="mt-3 text-sm font-medium">Select a record</p><p className="mt-1 text-xs text-kumo-subtle">Its provenance and history will appear here.</p></div></div>}</div>
     </div>
   </section>;
 }

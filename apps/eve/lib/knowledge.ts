@@ -212,7 +212,7 @@ export async function listKnowledge(ownerId: string, filters: KnowledgeFilters =
   if (filters.minConfidence !== undefined) add("k.confidence>=?", filters.minConfidence);
   if (filters.from) add("k.created_at>=?::timestamptz", filters.from);
   if (filters.to) add("k.created_at<=?::timestamptz", filters.to);
-  if (filters.query?.trim()) { values.push(filters.query.trim()); conditions.push(`to_tsvector('english',coalesce(k.title,'')||' '||k.statement) @@ websearch_to_tsquery('english',$${values.length})`); }
+  if (filters.query?.trim()) { values.push(filters.query.trim()); conditions.push(`to_tsvector('english',coalesce(k.title,'')||' '||k.statement||' '||coalesce(k.subject,'')||' '||coalesce(k.preference_key,'')||' '||coalesce(k.preference_value::text,'')) @@ websearch_to_tsquery('english',$${values.length})`); }
   values.push(Math.min(200, Math.max(1, filters.limit ?? 100)));
   const rows = await db().query(
     `SELECT k.*,g.title AS goal_title,(SELECT newer.id FROM knowledge_records newer WHERE newer.owner_id=k.owner_id AND newer.supersedes_id=k.id ORDER BY newer.created_at DESC LIMIT 1) AS superseded_by_id
