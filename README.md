@@ -10,10 +10,10 @@ Current product priorities and shipped foundations are tracked in the canonical 
 
 ## Filing and following a MyEve issue with Sofie
 
-1. **Ask Sofie to file the issue.** In Sofie's chat, explicitly ask her to file a MYE issue and hand it to Foreman. Include a concise title, the desired outcome, relevant context (reproduction details or links), any constraints, acceptance criteria, and the priority. Sofie files one Linear issue from that context and replies with the issue link.
-2. **Confirm the assignment.** Open the issue in Linear and check that the Assignee is `myeve-foreman`. Sofie's reply also states whether the Foreman session has started or the delegation is still pending.
+1. **Ask Sofie to file the issue.** In Sofie's chat, explicitly ask her to file a MYE issue and hand it to Foreman. Include a concise title, the desired outcome, relevant context (reproduction details or links), any constraints, acceptance criteria, and the priority. Sofie files one Linear issue from that context and returns its link after verifying the issue was saved.
+2. **Confirm the delegation.** Open the issue in Linear and check that `myeve-foreman` appears as the delegated agent in Properties. Sofie's reply states whether the Foreman session has started or the delegation is still pending.
 3. **Jump to the issue from Sofie's sidebar.** Use the **Linear issues** shortcut in Sofie's chat sidebar to open the Linear workspace in a new tab, then open the issue there.
-4. **Find the Foreman session.** On the Linear issue, open the Activity feed; the Foreman session appears there as a link/comment. Follow it to watch Foreman work on the issue.
+4. **Find the Foreman session.** On the Linear issue, click **View progress** in Properties to open Foreman's agent session. The Activity feed also shows its work and updates.
 
 ## What it does
 
