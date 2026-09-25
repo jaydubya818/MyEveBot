@@ -61,8 +61,10 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/bash.ts",
   "agent/tools/ask_question.ts",
   "agent/tools/discover_capabilities.ts",
+  "agent/tools/create_factory_work_order.ts",
   "agent/tools/delegate_foreman_issue.ts",
   "agent/tools/delegate_foreman_issue.test.ts",
+  "agent/tools/get_factory_work_order.ts",
   // Resolver emits no callable tool unless Federation is explicitly configured.
   "agent/tools/federation_request.ts",
   "agent/tools/list_agents.ts",

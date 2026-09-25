@@ -2016,7 +2016,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c3b6818452234519d3a3e312db4c0ee1e237a3e07846b5a6b9748dc735839b2c"
+      "sha256": "5e59217cf52eac4be9c2cd660c3b9177ae7bd43df2d3742a453019a75bb6ee66"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2942,6 +2942,23 @@
       "classification": "INTERNAL",
       "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
       "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2"
+    },
+    "agent/tools/create_factory_work_order.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "disposition": "gateway",
+      "sha256": "cceac2e5595bf3306a40baf19b01d2667f3a90fce1092db79923180a2b3b3aa7"
+    },
+    "agent/tools/get_factory_work_order.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "disposition": "gateway",
+      "sha256": "4b28255d2fcc0ccfa1c834ec00764e8808bf23f93fbb57cf230343ca946ddc95"
+    },
+    "agent/lib/myfactory.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
     }
   }
 }
