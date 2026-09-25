@@ -2904,7 +2904,7 @@
     },
     "agent/lib/foreman.ts": {
       "classification": "ENFORCED",
-      "sha256": "02b6608c9f87e7da9a1bd50402e025ced656ae1123d096e1abd17ecf0ebf0ddd",
+      "sha256": "00142f3be0525120103ec9f8fb514c8c767b433324fa2341a62b2dfaa9fd30e9",
       "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; readback verifies content, delegate and actual agent-session startup. Tested deny, mismatch and uncertain outcomes."
     },
     "agent/tools/delegate_foreman_issue.ts": {

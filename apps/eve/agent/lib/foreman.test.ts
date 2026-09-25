@@ -53,6 +53,7 @@ describe("Foreman target and verified delegation",()=>{
   });
   it("deduplicates identical requests within an owner session and separates owners",()=>{
     const input={title:params.title,description:params.description};const id=foremanIssueId("owner","session",input);
+    expect(id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
     expect(id).toBe(foremanIssueId("owner","session",input));expect(id).not.toBe(foremanIssueId("other","session",input));
     expect(id).not.toBe(foremanIssueId("owner","session",{...input,description:"changed"}));
     expect(foremanDescription(input,config)).toContain("Do not merge, mark ready, or deploy.");

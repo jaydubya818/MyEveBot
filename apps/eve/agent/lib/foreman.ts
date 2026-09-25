@@ -19,7 +19,7 @@ export function foremanConfig(): ForemanConfig {
 }
 export function foremanIssueId(ownerId: string, sessionId: string, input: z.infer<typeof foremanInput>): string {
   const h = createHash("sha256").update(JSON.stringify([ownerId, sessionId, input.title, input.description])).digest("hex");
-  return `${h.slice(0,8)}-${h.slice(8,12)}-5${h.slice(13,16)}-a${h.slice(17,20)}-${h.slice(20,32)}`;
+  return `${h.slice(0,8)}-${h.slice(8,12)}-4${h.slice(13,16)}-a${h.slice(17,20)}-${h.slice(20,32)}`;
 }
 export function foremanDescription(input: z.infer<typeof foremanInput>, config: ForemanConfig): string {
   return `${input.description}\n\n## Delivery boundary\nRepository: ${config.repository}. Run the Foreman pipeline and return an independently reviewed draft PR linked to this Linear issue. Do not merge, mark ready, or deploy. Submitted from the owner's Sofie chat.`;
