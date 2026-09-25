@@ -1,4 +1,4 @@
-import { deleteThread, getThreadChat, upsertThread, upsertThreadMeta } from "@/lib/threads-db";
+import { ThreadOwnerConflictError, assertThreadOwner, deleteThread, getThreadChat, upsertThread, upsertThreadMeta } from "@/lib/threads-db";
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
 import { requestOwnerId } from "@/lib/agent-api";
@@ -63,6 +63,9 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
   try {
     const ownerId = requestOwnerId(request);
     if (meta.agentId && await getAgent(ownerId, meta.agentId) === null) {
+      // A former owner's local cache can reference an Agent absent from this
+      // workspace. Report the owner conflict before an unrelated agent error.
+      await assertThreadOwner(ownerId, id);
       return apiError(request, 400, "invalid_agent", "Agent not found for this owner.");
     }
     if (meta.agentId && meta.roleId) {
@@ -79,6 +82,9 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
     }
     return Response.json({ ok: true });
   } catch (error) {
+    if (error instanceof ThreadOwnerConflictError) {
+      return apiError(request, 409, "thread_owner_conflict", "This conversation is not available in this workspace.");
+    }
     console.error("Thread save failed", error);
     return apiError(request, 503, "thread_save_failed", "This conversation could not be saved.");
   }

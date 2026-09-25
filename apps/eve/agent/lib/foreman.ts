@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { getToken } from "@vercel/connect";
 import { z } from "zod";
 import { consumeActionAuthority, consumeProviderAuthority, type ActionAdapter } from "../../lib/action-gateway.ts";
+import { normalizedForemanDescription } from "./foreman-description.ts";
 
 export const FOREMAN_CAPABILITY = "tool.delegate_foreman_issue";
 export const foremanInput = z.object({
@@ -19,13 +20,31 @@ export function foremanConfig(): ForemanConfig {
 }
 export function foremanIssueId(ownerId: string, sessionId: string, input: z.infer<typeof foremanInput>): string {
   const h = createHash("sha256").update(JSON.stringify([ownerId, sessionId, input.title, input.description])).digest("hex");
-  return `${h.slice(0,8)}-${h.slice(8,12)}-5${h.slice(13,16)}-a${h.slice(17,20)}-${h.slice(20,32)}`;
+  return `${h.slice(0,8)}-${h.slice(8,12)}-4${h.slice(13,16)}-a${h.slice(17,20)}-${h.slice(20,32)}`;
 }
 export function foremanDescription(input: z.infer<typeof foremanInput>, config: ForemanConfig): string {
   return `${input.description}\n\n## Delivery boundary\nRepository: ${config.repository}. Run the Foreman pipeline and return an independently reviewed draft PR linked to this Linear issue. Do not merge, mark ready, or deploy. Submitted from the owner's Sofie chat.`;
 }
 const issueSchema = z.object({ id:z.string(), identifier:z.string(), url:z.string().url(), title:z.string(), description:z.string().nullable(), team:z.object({id:z.string()}), delegate:z.object({id:z.string()}).nullable(), agentSessions:z.object({nodes:z.array(z.object({id:z.string(),status:z.string()}))}) });
 type Issue = z.infer<typeof issueSchema>;
+type IssueMatchChecks = { exists:boolean; id:boolean; title:boolean; description:boolean; team:boolean; delegate:boolean };
+function issueMatchChecks(issue:Issue|undefined,parameters:Record<string,unknown>,config:ForemanConfig):IssueMatchChecks {
+  return {
+    exists:!!issue,
+    id:!!issue && issue.id===parameters.issueId,
+    title:!!issue && issue.title===parameters.title,
+    description:!!issue && normalizedForemanDescription(issue.description)===normalizedForemanDescription(String(parameters.description)),
+    team:!!issue && issue.team.id===config.teamId,
+    delegate:!!issue && issue.delegate?.id===config.delegateId,
+  };
+}
+function issueMatches(checks:IssueMatchChecks):boolean { return Object.values(checks).every(Boolean); }
+function foremanSessionStatus(status:string|null):"started"|"delegated_pending"|"delegated_failed" {
+  const normalized=status?.trim().toLowerCase();
+  if(normalized==="failed" || normalized==="error" || normalized==="cancelled" || normalized==="canceled") return "delegated_failed";
+  if(normalized==="active" || normalized==="running" || normalized==="started" || normalized==="complete" || normalized==="completed" || normalized==="finished" || normalized==="succeeded") return "started";
+  return "delegated_pending";
+}
 export type LinearQuery = (query:string, variables:Record<string,unknown>) => Promise<unknown>;
 export function linearQuery(config:ForemanConfig):LinearQuery {
   return async (query,variables) => {
@@ -42,7 +61,6 @@ export function foremanAdapter(config:ForemanConfig, request:LinearQuery=linearQ
     const data = await request(`query($id:ID!){ issues(filter:{id:{eq:$id}}) { nodes { ${fields} } } }`,{id});
     return z.object({issues:z.object({nodes:z.array(issueSchema)})}).parse(data).issues.nodes[0];
   };
-  const matches = (issue:Issue,parameters:Record<string,unknown>) => issue.id===parameters.issueId && issue.title===parameters.title && issue.description===parameters.description && issue.team.id===config.teamId && issue.delegate?.id===config.delegateId;
   let expected:Record<string,unknown>;
   return {
     async resolveTarget(parameters) {
@@ -56,7 +74,7 @@ export function foremanAdapter(config:ForemanConfig, request:LinearQuery=linearQ
       await consumeProviderAuthority(authority,parameters,FOREMAN_CAPABILITY);
       const existing=await read(String(parameters.issueId));
       if(existing) {
-        if(!matches(existing,parameters)) throw new Error("Existing issue differs from this request; no changes made.");
+        if(!issueMatches(issueMatchChecks(existing,parameters,config))) throw new Error("Existing issue differs from this request; no changes made.");
         return existing;
       }
       // One mutation creates and delegates; deterministic issue ID prevents duplicate creates.
@@ -67,13 +85,23 @@ export function foremanAdapter(config:ForemanConfig, request:LinearQuery=linearQ
     receipt(issue) { return {issueId:issue.id,issueIdentifier:issue.identifier,issueUrl:issue.url}; },
     async verify(issue,target) {
       let saved=await read(issue.id);
-      // Agent session creation is asynchronous; absence means delegated, not started.
-      for(let attempt=0;saved && saved.agentSessions.nodes.length===0 && attempt<4;attempt++) {
-        await new Promise(resolve=>setTimeout(resolve,1000)); saved=await read(issue.id);
+      let checks=issueMatchChecks(saved,expected,config);
+      // Linear can expose the session before all issue fields are consistent on
+      // readback. Re-read the exact request binding for a bounded interval.
+      for(let attempt=0;attempt<4 && (!issueMatches(checks) || !saved?.agentSessions.nodes.length);attempt++) {
+        await new Promise(resolve=>setTimeout(resolve,1000));
+        saved=await read(issue.id);
+        checks=issueMatchChecks(saved,expected,config);
       }
-      const session=saved?.agentSessions.nodes[0];
-      return {verified:!!saved && matches(saved,expected) && target.account===config.workspaceId,
-        receipt:{issueId:issue.id,issueIdentifier:issue.identifier,issueUrl:issue.url,sessionId:session?.id??null,sessionStatus:session?.status??null,status:session?"started":"delegated_pending",verified:!!saved && matches(saved,expected)}};
+      const sessions=saved?.agentSessions.nodes??[];
+      const session=sessions.find(item=>foremanSessionStatus(item.status)==="started")
+        ?? sessions.find(item=>foremanSessionStatus(item.status)==="delegated_failed")
+        ?? sessions[0];
+      const workspaceMatches=target.account===config.workspaceId;
+      const verified=issueMatches(checks) && workspaceMatches;
+      const sessionStatus=session?.status??null;
+      return {verified,
+        receipt:{issueId:issue.id,issueIdentifier:issue.identifier,issueUrl:issue.url,sessionId:session?.id??null,sessionStatus,status:foremanSessionStatus(sessionStatus),verified,checks:{...checks,workspace:workspaceMatches}}};
     },
   };
 }
