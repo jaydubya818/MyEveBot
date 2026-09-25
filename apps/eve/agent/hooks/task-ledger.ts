@@ -1,4 +1,5 @@
 import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
+import { db } from "../lib/receipts-db.ts";
 import { defineHook } from "eve/hooks";
 
 import {

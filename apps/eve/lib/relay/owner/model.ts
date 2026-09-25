@@ -1,5 +1,4 @@
 import { gateway } from "ai";
-// Derive provider types from the same installed Gateway as the executing model.
 type LanguageModelV4 = ReturnType<typeof gateway>;
 type LanguageModelV4CallOptions = Parameters<LanguageModelV4["doGenerate"]>[0];
 type LanguageModelV4GenerateResult = Awaited<ReturnType<LanguageModelV4["doGenerate"]>>;
