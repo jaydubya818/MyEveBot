@@ -295,3 +295,80 @@ The active campaign ledger is now stopped at `~/Library/Application Support/Rela
 Fresh checks: Relay **398 passed / 5 skipped** including cross-repository approval/duplicate/revocation tests; MyEve **1,063 passed / 1 skipped**; provider-boundary subset **25 passed**; MyEve production build/typecheck PASS; governance **570 classified / UNKNOWN=0**. Earlier integration lint, migrations, Relay build/typecheck and performance results remain the preceding checkpoint; no fresh UI or dependency-audit result is implied.
 
 Both release gates remain false. No deployment, public enablement, merge into main, release tag or `PASSED_LIVE` claim. Live Telegram scenarios: **0**. Local actual-runtime prerequisites are ready for the next qualification stage, but hosted and consequential Telegram scenarios remain pending. Smallest owner input: dedicated qualification bot @username and non-secret secure token reference, or create that dedicated bot through BotFather and securely store its token. Never paste the token. **TELEGRAM PRIVATE-BETA GOLDEN PATH INCOMPLETE; not ready to merge into main.**
+
+
+## Reconciliation and local live-path preparation — 2026-09-25 UTC
+
+Branch `claude/telegram-local-qualification` from main `14d8c361bc842729caef27f6dc71169e168fa85c`,
+reconciling `codex/telegram-owner-integration` at `65dd90f98f3cbbdfd2a0ee29e5718982ec57e0bf`.
+Earlier sections remain historical evidence for their own sources; the Eve 0.66.3 runtime results
+above were produced on the branch source and are not re-claimed for this candidate.
+
+### Reconciliation decisions
+
+Both lineages integrated `23a5497` + `6755045` independently. Main-only follow-ups (README,
+builder manifest, integration record) are kept. Runtime-evidenced branch semantics are taken:
+approval active-time pause/resume (`approval-budget.ts`), deadline-bound channel reservation,
+exact completed-approval observation, JustBash sandbox for the local fixture only, Eve 0.66 session
+attach and the signed exact-session cancel endpoint, harness cleanup mode, private-tool exclusions.
+Main's `web.read` builtin registration and its checker are kept (the branch versions fail the
+capability-registry check). Reconciliation fix: `no_active_turn` cancel acknowledgements may omit
+the session ID but must not name another session; `accepted` must name the recorded session.
+`worker.test.ts` was rewritten for the endpoint rather than deleted.
+
+### Local qualification identities
+
+`localOwnerQualification` still requires loopback origin, the `.invalid` bridged database, ≤1 h
+expiry, development trust, one mapping, `web.read` only and `OWNER_CHANNEL_RELEASE_QUALIFIED=false`.
+It now admits exactly one of two pinned Relay identity sets:
+
+- Harness set (`qualification-relay` / `qualification-principal` / `qualification-relay-agent`,
+  source `qualification-source`), preserving the recorded campaign Runs.
+- Live set (`acct_qualificationrelay` / `prn_qualificationowner` / `agt_qualificationsofie`) with a
+  source equal to `MYEVE_OWNER_LOCAL_SOURCE_IDENTITY`, which must be a canonical Relay pairing binding
+  `tgb_<32 lowercase hex>`. Mixed sets are denied.
+
+`scripts/qualification/owner-runtime.mjs serve` runs the executor for live Telegram: it trusts only
+the supplied Relay public key, maps only the live set to the pinned binding, publishes the loopback
+CA certificate for the Relay worker, and stops on SIGTERM or window expiry. All harness modes now
+refuse unless port 55447 serves the active campaign data directory and the campaign lock is held
+(the retired Documents copy has the same system identifier).
+
+### Campaign ledger
+
+Active ledger: `~/Library/Application Support/RelayQualification/telegram-private-beta/postgres`.
+Exclusive lock `campaign.lock/owner.json` held by this session through cleanup.
+
+| Point | Reserved (µUSD) | Spent (µUSD) | Liability | Calls (uncertain) | Active Runs |
+|---|---:|---:|---:|---:|---:|
+| Recovered at session start | 62,221 | 16,312 | 78,533 | 7 (2) | 0 |
+| After phase ceiling and dry run | 62,221 | 16,312 | 78,533 | 7 (2) | 0 |
+
+Phase ceiling: CHECK `owner_qualification_phase_ceiling` limits reserved + spent to **1,078,533 µUSD**
+(prior liability + $1.00) inside the same ledger; the original $5 CHECK is retained. Applied by
+`scripts/qualification/phase-ceiling.mjs` under `ACCESS EXCLUSIVE` with before/after equality;
+backups `before-phase2-ceiling.dump` (sha256 `7ac06e5c…d04c`) and `after-phase2-ceiling.dump`
+(sha256 `a49d9b90…93bf`). A DB-backed test proves the real reservation trigger denies admission
+beyond the ceiling before invocation without altering liability. Uncertain reservations remain charged.
+
+### Evidence (component and local; not live Telegram)
+
+| Check | Result |
+|---|---|
+| Full suite with 39 PostgreSQL owner tests | 1,085 passed / 1 skipped |
+| Typecheck, capability registry, skill routing, executor governance | PASS (570 classified, UNKNOWN=0) |
+| Migration order | 38 validated; no new migration |
+| Integrated no-spend dry run (real Eve 0.66.3, OIDC, campaign ledger, Relay-style probe) | Authenticated non-admission for the live set; other identities/keys denied; ledger unchanged |
+
+Model calls in this phase: **0**. Live Telegram scenarios: **0**.
+
+### Approval capability finding
+
+Only `tool.send_email` (AgentMail) is wired for approval continuation at the owner endpoint, and the
+local mapping permits only `web.read`. The Federation `qualification-artifacts` route is not an
+Action Gateway capability and belongs to NOT_RUN federation gates. Exact-approval, expired-approval
+and recovery scenarios need an owner decision: a consequential real-email test to an owner-controlled
+address, or a reviewed qualification-only harmless adapter through the canonical Action Gateway,
+approval binding and continuation. A synthetic artifact result would not qualify real email.
+
+Verdict: **TELEGRAM PRIVATE-BETA GOLDEN PATH INCOMPLETE.** Both release constants remain false.

@@ -2849,8 +2849,8 @@
     },
     "lib/relay/owner/config.ts": {
       "classification": "BLOCKED",
-      "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration; optional exact tgb_ Relay binding source pin for local live qualification only.",
-      "sha256": "6d23992af0aac9a08559c12641c5da7624ff18710950306f7394f147e568c596"
+      "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration; local qualification admits exactly one pinned Relay identity set (harness constant source, or canonical live IDs with an exact tgb_ binding pin).",
+      "sha256": "84b4134e083b3af4b9708977abdea49369535b49dac891932c24c034497f6a63"
     },
     "lib/relay/owner/contracts.ts": {
       "classification": "NOT_APPLICABLE",

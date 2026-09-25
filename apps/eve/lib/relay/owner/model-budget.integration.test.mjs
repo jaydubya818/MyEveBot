@@ -96,6 +96,22 @@ suite('durable owner model budget',()=>{
   expect((await query('SELECT sum(model_calls_started)::int n FROM owner_channel_requests'))[0].n).toBe(50);
   await expect(new OwnerModelBudget(database).reserve({...input(),microUsd:1,tokens:1})).rejects.toThrow('aggregate');
  });
+ it('a phase ceiling inside the same ledger denies admission before invocation without altering liability',async()=>{
+  // Mirrors scripts/qualification/phase-ceiling.mjs: prior liability 78,533 plus a 60,000 phase allowance.
+  await query('UPDATE owner_qualification_budget SET reserved_microusd=62221,spent_microusd=16312');
+  await query('ALTER TABLE owner_qualification_budget ADD CONSTRAINT owner_qualification_phase_ceiling CHECK(reserved_microusd+spent_microusd<=138533)');
+  try{
+   await budget.reserve(input());
+   expect(await totals()).toEqual({reserved_microusd:'122221',spent_microusd:'16312'});
+   await expect(new OwnerModelBudget(database).reserve({...input('turn:1'),microUsd:1,tokens:1})).rejects.toThrow();
+   expect(await totals()).toEqual({reserved_microusd:'122221',spent_microusd:'16312'});
+   expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(1);
+   expect((await query('SELECT model_calls_started FROM owner_channel_requests'))[0].model_calls_started).toBe(1);
+   // Settlement releases only proven unused reservation and stays inside the ceiling.
+   await budget.settle(input(),{microUsd:10000,tokens:1000},{content:'safe'});
+   expect(await totals()).toEqual({reserved_microusd:'62221',spent_microusd:'26312'});
+  }finally{await query('ALTER TABLE owner_qualification_budget DROP CONSTRAINT owner_qualification_phase_ceiling');}
+ });
  it('retains aggregate uncertainty after cancellation, restart and receipt cleanup',async()=>{
   await budget.reserve(input());await budget.unknown(input());
   await query("UPDATE task_runs SET status='cancelled'");

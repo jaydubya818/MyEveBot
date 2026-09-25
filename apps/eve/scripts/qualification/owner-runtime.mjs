@@ -9,12 +9,20 @@ import {spawn,execFileSync} from 'node:child_process';
 import {createServer,request as httpsRequest} from 'node:https';
 import {request as httpRequest} from 'node:http';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
-import {readFile,appendFile,access,mkdtemp,rm} from 'node:fs/promises';
+import {readFile,appendFile,access,mkdtemp,rm,mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const mode=process.argv[2]??'research';
-if(!['research','cancel','replay','cancel-replay','budget-denied','cleanup'].includes(mode))throw new Error('Unsupported qualification mode');
+if(!['research','cancel','replay','cancel-replay','budget-denied','cleanup','serve'].includes(mode))throw new Error('Unsupported qualification mode');
+// serve: long-running live-Telegram executor. Trusts only the supplied Relay public
+// key, maps only the live Relay identity set to the exactly pinned pairing binding,
+// and publishes the (public) loopback CA certificate for the Relay worker.
+const serve=mode==='serve'?{
+ keyId:process.env.RELAY_QUALIFICATION_KEY_ID??'',publicKeyFile:process.env.RELAY_QUALIFICATION_PUBLIC_KEY_FILE??'',
+ binding:process.env.MYEVE_OWNER_LOCAL_SOURCE_IDENTITY??'',windowMs:Number(process.env.MYEVE_QUALIFICATION_WINDOW_MS??'')}:null;
+if(serve&&(!/^[A-Za-z0-9._:-]{3,128}$/.test(serve.keyId)||!serve.publicKeyFile.startsWith('/')||!/^tgb_[0-9a-f]{32}$/.test(serve.binding)||!Number.isSafeInteger(serve.windowMs)||serve.windowMs<60000||serve.windowMs>3600000))
+ throw new Error('serve requires RELAY_QUALIFICATION_KEY_ID, absolute RELAY_QUALIFICATION_PUBLIC_KEY_FILE, a tgb_ MYEVE_OWNER_LOCAL_SOURCE_IDENTITY and a 1-60 minute MYEVE_QUALIFICATION_WINDOW_MS');
 const relay=process.env.RELAY_QUALIFICATION_SOURCE??path.resolve(root,'../../../relay-telegram-channel-continuation');
 const evePackage=JSON.parse(await readFile(createRequire(import.meta.url).resolve('eve/package.json'),'utf8'));
 const {createLocalEd25519Signer}=await import(path.join(relay,'lib/v2/evidence/crypto.ts'));
@@ -42,8 +50,11 @@ const oidc=await getVercelOidcToken({project:'prj_L6faw25wnFGUZtrLKBIccg8gIDLR',
 const claims=JSON.parse(Buffer.from(oidc.split('.')[1],'base64url').toString());
 if(claims.project_id!=='prj_L6faw25wnFGUZtrLKBIccg8gIDLR'||claims.exp*1000<Date.now()+120000)throw new Error('Project identity unavailable');
 const signer=createLocalEd25519Signer(),secret=randomBytes(32).toString('hex');
-const trust={environment:'development',audience:'myeve-local-qualification',keys:{[signer.keyId]:await signer.publicKeyPem()},mappings:[{enabled:true,ownerId:'qualification-owner',agentId:'qualification-agent',relayAccountId:'qualification-relay',relayOwnerPrincipalId:'qualification-principal',relayAgentId:'qualification-relay-agent',sourceIdentity:'qualification-source',allowedCapabilities:['web.read']}]};
-const env={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,NODE_ENV:'development',HOSTNAME:'127.0.0.1',PORT:'3228',MYEVE_OWNER_LOCAL_ORIGIN:'http://127.0.0.1:3228',DATABASE_URL:'postgresql://qualification:local@qualification.invalid/owner_qualification',VERCEL_OIDC_TOKEN:oidc,MYEVE_SESSION_SECRET:secret,MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:String(Date.now()+1800000),MYEVE_RELAY_OWNER_TRUST:JSON.stringify(trust),NEXT_TELEMETRY_DISABLED:'1'};
+const trust=serve
+ ?{environment:'development',audience:'myeve-local-qualification',keys:{[serve.keyId]:await readFile(serve.publicKeyFile,'utf8')},mappings:[{enabled:true,ownerId:'qualification-owner',agentId:'qualification-agent',relayAccountId:'acct_qualificationrelay',relayOwnerPrincipalId:'prn_qualificationowner',relayAgentId:'agt_qualificationsofie',sourceIdentity:serve.binding,allowedCapabilities:['web.read']}]}
+ :{environment:'development',audience:'myeve-local-qualification',keys:{[signer.keyId]:await signer.publicKeyPem()},mappings:[{enabled:true,ownerId:'qualification-owner',agentId:'qualification-agent',relayAccountId:'qualification-relay',relayOwnerPrincipalId:'qualification-principal',relayAgentId:'qualification-relay-agent',sourceIdentity:'qualification-source',allowedCapabilities:['web.read']}]};
+const until=Date.now()+(serve?serve.windowMs:1800000);
+const env={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,NODE_ENV:'development',HOSTNAME:'127.0.0.1',PORT:'3228',MYEVE_OWNER_LOCAL_ORIGIN:'http://127.0.0.1:3228',DATABASE_URL:'postgresql://qualification:local@qualification.invalid/owner_qualification',VERCEL_OIDC_TOKEN:oidc,MYEVE_SESSION_SECRET:secret,MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:String(until),MYEVE_RELAY_OWNER_TRUST:JSON.stringify(trust),NEXT_TELEMETRY_DISABLED:'1',...(serve?{MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:serve.binding}:{})};
 const bootstrap=path.join(root,'scripts/qualification/owner-bootstrap.mjs');
 env.NODE_OPTIONS=`--import=${pathToFileURL(bootstrap).href}`;
 const tlsDir=await mkdtemp('/private/tmp/myeve-owner-tls-');
@@ -67,7 +78,14 @@ const transport=new HttpOwnerExecutor({endpoint,audience:trust.audience,environm
 try{
  let ready=false;for(let i=0;i<120;i++){if(child.exitCode!==null)throw new Error('Runtime exited');try{const r=await fetch('http://127.0.0.1:3228/eve/v1/health',{signal:AbortSignal.timeout(1000)});if(r.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,500));}
  if(!ready)throw new Error('Runtime health timeout');
- if(mode==='cleanup'){
+ if(serve){
+  const caFile=path.join(campaign,'live','executor-ca.pem');
+  await mkdir(path.dirname(caFile),{recursive:true,mode:0o700});await writeFile(caFile,cert,{mode:0o644});
+  console.log(JSON.stringify({phase:'serving',endpoint,audience:trust.audience,caFile,until:new Date(until).toISOString(),runtime:`eve@${evePackage.version}`,relayKeyId:serve.keyId}));
+  // Stop at SIGTERM/SIGINT or when the qualification window closes; MyEve's own gate also closes then.
+  await new Promise(resolve=>{process.once('SIGTERM',resolve);process.once('SIGINT',resolve);child.once('exit',resolve);setTimeout(resolve,Math.max(0,until-Date.now())).unref?.();});
+  console.log(JSON.stringify({phase:'stopping',at:new Date().toISOString()}));
+ }else if(mode==='cleanup'){
   const before=(await pool.query('SELECT count(*)::int calls FROM owner_model_calls')).rows[0].calls;
   const pending=(await pool.query("SELECT w.request FROM owner_channel_requests w JOIN task_runs r ON r.id=w.run_id AND r.owner_id=w.owner_id WHERE w.owner_id='qualification-owner' AND w.agent_id='qualification-agent' AND r.status IN ('queued','running','awaiting_approval','waiting_for_owner','paused')")).rows;
   const results=[];

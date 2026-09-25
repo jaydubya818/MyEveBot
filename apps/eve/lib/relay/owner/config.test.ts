@@ -8,14 +8,17 @@ describe("isolated owner qualification",()=>{
  it.each([{VERCEL:"1"},{VERCEL_URL:"preview.vercel.app"},{HOSTNAME:"0.0.0.0"},{MYEVE_OWNER_LOCAL_ORIGIN:"https://preview.vercel.app"},{DATABASE_URL:"postgresql://owner@production.invalid/db"},{MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:"0"},{MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:String(Date.now()+7200000)}])("denies non-fixture environment %j",override=>expect(ownerChannelConfiguration({...environment(),...override}).enabled).toBe(false));
  it.each([{ownerId:"real-owner"},{allowedCapabilities:["web.read","tool.send_email"]},{sourceIdentity:"another-source"}])("denies expanded mapping %j",override=>expect(ownerChannelConfiguration({...environment(),MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],...override}]})}).enabled).toBe(false));
  const binding="tgb_0123456789abcdef0123456789abcdef";
- const withSource=(sourceIdentity:string,pin?:string)=>ownerChannelConfiguration({...environment(),...(pin===undefined?{}:{MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:pin}),MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],sourceIdentity}]})}).enabled;
- it("admits a live Relay binding source only when pinned exactly",()=>{expect(withSource(binding,binding)).toBe(true);expect(withSource("qualification-source",binding)).toBe(true);});
+ const liveIds={relayAccountId:"acct_qualificationrelay",relayOwnerPrincipalId:"prn_qualificationowner",relayAgentId:"agt_qualificationsofie"};
+ const live=(mapping:Record<string,unknown>,pin:string|null=binding,extra:Record<string,string>={})=>ownerChannelConfiguration({...environment(),...extra,...(pin===null?{}:{MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:pin}),MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],...liveIds,sourceIdentity:binding,...mapping}]})}).enabled;
+ it("admits the live Relay identity set only with the exactly pinned binding source",()=>expect(live({})).toBe(true));
  it.each([
-  [binding,undefined],[binding,"tgb_ffffffffffffffffffffffffffffffff"],["tgb_short","tgb_short"],
-  ["tgb_0123456789ABCDEF0123456789ABCDEF","tgb_0123456789ABCDEF0123456789ABCDEF"],["acct_0123456789abcdef0123456789abcdef","acct_0123456789abcdef0123456789abcdef"],
- ])("denies unpinned or malformed source %s (pin %s)",(source,pin)=>expect(withSource(source,pin)).toBe(false));
- it("still denies a pinned binding in a hosted runtime or with expanded capabilities",()=>{
-  expect(ownerChannelConfiguration({...environment(),VERCEL:"1",MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:binding,MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],sourceIdentity:binding}]})}).enabled).toBe(false);
-  expect(ownerChannelConfiguration({...environment(),MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:binding,MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],sourceIdentity:binding,allowedCapabilities:["web.read","tool.send_email"]}]})}).enabled).toBe(false);
- });
+  ["no pin",{},null],["other pin",{},"tgb_ffffffffffffffffffffffffffffffff"],["malformed short",{sourceIdentity:"tgb_short"},"tgb_short"],
+  ["uppercase",{sourceIdentity:"tgb_0123456789ABCDEF0123456789ABCDEF"},"tgb_0123456789ABCDEF0123456789ABCDEF"],
+  ["wrong prefix",{sourceIdentity:"acct_0123456789abcdef0123456789abcdef"},"acct_0123456789abcdef0123456789abcdef"],
+  ["live ids with harness source",{sourceIdentity:"qualification-source"},binding],
+  ["harness ids with live source",{relayAccountId:"qualification-relay",relayOwnerPrincipalId:"qualification-principal",relayAgentId:"qualification-relay-agent"},binding],
+  ["mixed account",{relayAccountId:"qualification-relay"},binding],["other Relay agent",{relayAgentId:"agt_sofieproduction"},binding],
+  ["expanded capabilities",{allowedCapabilities:["web.read","tool.send_email"]},binding],["real MyEve owner",{ownerId:"real-owner"},binding],
+ ] as const)("denies %s",(_name,mapping,pin)=>expect(live(mapping,pin)).toBe(false));
+ it("still denies the live set in a hosted runtime",()=>expect(live({},binding,{VERCEL:"1"})).toBe(false));
 });
