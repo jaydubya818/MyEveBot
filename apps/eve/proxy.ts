@@ -1,9 +1,16 @@
+import { qualificationEnabled, qualifyIngress } from "./lib/qualification/client";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 import { webAuthConfigStatus, webAuthRequired, webPrincipal } from "@/lib/web-auth";
 
-export function proxy(request: NextRequest): NextResponse {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
+  if (qualificationEnabled()) {
+    if(request.nextUrl.pathname === "/api/relay/qualification-artifacts") return NextResponse.next();
+    try { await qualifyIngress(request, /^\/api\/relay\/artifacts\/[^/]+$/); return NextResponse.next(); }
+    catch { return new NextResponse(null, {status:403}); }
+  }
+  if (/^\/(?:api|eve\/v1|login|_next\/static|_next\/image|favicon\.ico)/.test(request.nextUrl.pathname) || request.nextUrl.pathname.includes(".")) return NextResponse.next();
   if (!webAuthRequired()) return NextResponse.next();
   if (webPrincipal(request) !== null) return NextResponse.next();
 
@@ -15,5 +22,5 @@ export function proxy(request: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ["/((?!api|eve/v1|login|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: ["/:path*"],
 };

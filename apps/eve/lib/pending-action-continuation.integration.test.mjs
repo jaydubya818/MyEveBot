@@ -12,13 +12,15 @@ import {Pool} from 'pg';
 import {afterAll,afterEach,beforeAll,beforeEach,describe,expect,it,vi} from 'vitest';
 const injected=vi.hoisted(()=>({database:null,session:null,clientOptions:null}));
 vi.mock('../agent/lib/receipts-db.ts',()=>({db:()=>injected.database}));
-vi.mock('eve/client',()=>({Client:class {constructor(options){injected.clientOptions=options;}session(){return injected.session;}}}));
+vi.mock('eve/client',()=>({Client:class {constructor(options){injected.clientOptions=options;}sessions={create:async options=>({session:injected.session,response:await injected.session.send(options)}),attach:()=>injected.session};}}));
 import {ActionGateway,ActionBlocked,consumeActionAuthority,consumeProviderAuthority} from './action-gateway.ts';
 import {decideApproval} from './approvals.ts';
 import {PendingActionContinuation} from './pending-action-continuation.ts';
 import {ActionRecovery} from './action-recovery.ts';
 const realOwnerConfiguration=ownerChannelConfiguration;
 const suite=process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'?describe:describe.skip;
+const fixtureUrl=process.env.MYEVE_OWNER_TEST_DATABASE_URL??`postgresql://${process.env.USER}@127.0.0.1:55447/postgres`;
+if(process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'&&new URL(fixtureUrl).hostname!=='127.0.0.1')throw new Error('Loopback test database required.');
 suite('canonical owner pending-action continuation',()=>{
  let pool,admin;const schema=`owner_continuation_${process.pid}_${Date.now()}`;
  const query=async(text,params=[])=> (await pool.query(text,params)).rows;
@@ -27,8 +29,8 @@ suite('canonical owner pending-action continuation',()=>{
  }};
  beforeAll(async()=>{
   // Ignores DATABASE_URL and .env; only the disposable loopback fixture.
-  admin=new Pool({host:'127.0.0.1',port:55447,database:'postgres',user:process.env.USER});await admin.query(`CREATE SCHEMA ${schema}`);
-  pool=new Pool({host:'127.0.0.1',port:55447,database:'postgres',user:process.env.USER,options:`-c search_path=${schema}`});injected.database=database;
+  admin=new Pool({connectionString:fixtureUrl});await admin.query(`CREATE SCHEMA ${schema}`);
+  pool=new Pool({connectionString:fixtureUrl,options:`-c search_path=${schema}`});injected.database=database;
   const dir=new URL('../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
   await query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent-fixture','owner-fixture','owner-fixture','Fixture','Qualification','Isolated fixture',true,'active',8,60,0.1)`);
  });
@@ -37,9 +39,10 @@ suite('canonical owner pending-action continuation',()=>{
   vi.spyOn(ownerConfig,'ownerChannelConfiguration').mockReturnValue({enabled:true,trust,issues:[]});
   await query('TRUNCATE task_runs CASCADE');await query("UPDATE agents SET is_primary=true,status='active'");
   await query(`INSERT INTO task_runs(id,owner_id,kind,title,agent_id,thread_id,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,deadline_at) VALUES('run-fixture','owner-fixture','delegated_work','Fixture','agent-fixture','thread-fixture','running',60,0,8,0,0.1,now()+interval '60 seconds')`);
+  await query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES('run-fixture','run-fixture','orchestrator')");
  });
  afterAll(async()=>{await pool?.end();if(admin){await admin.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);await admin.end();}});
- const action=()=>({ownerId:'owner-fixture',runId:'run-fixture',actionKey:'isolated-artifact',capabilityId:'files.write',actionClass:'write',executor:{kind:'primary-agent',agentId:'agent-fixture'},trigger:{kind:'owner_chat',id:'owner-channel-request'},parameters:{path:'/workspace/fixture.txt',content:'private synthetic fixture'}});
+ const action=(runId='run-fixture',sessionId=runId)=>({ownerId:'owner-fixture',runId,actionKey:'isolated-artifact',capabilityId:'files.write',actionClass:'write',executor:{kind:'primary-agent',agentId:'agent-fixture'},trigger:{kind:'owner_chat',id:sessionId},parameters:{path:'/workspace/fixture.txt',content:'private synthetic fixture'}});
  async function pending(){
   const request=action(),gateway=new ActionGateway(database);let effects=0;
   const adapter={resolveTarget:async()=>({provider:'fixture',account:'owner-fixture',resource:'/workspace/fixture.txt'}),execute:async(parameters,context)=>{await consumeActionAuthority(context,parameters,'files.write');await consumeProviderAuthority(context,parameters,'files.write');effects++;return {id:'isolated-receipt'};},verify:async()=>({verified:true,receipt:{id:'isolated-receipt'}})};
@@ -87,7 +90,8 @@ suite('canonical owner pending-action continuation',()=>{
   const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database),start={commandId:'start-'+input.requestId,operation:'start',work:input};const admitted=await service.accept(envelope(start));
   // Deterministic model fixture; Run was created by real signed admission.
   await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '60 seconds' WHERE id=$1",[admitted.runId]);
-  const request={...action(),runId:admitted.runId};let effects=0;
+  await query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES($1,$1,'orchestrator')",[admitted.runId]);
+  const request=action(admitted.runId);let effects=0;
   const adapter={resolveTarget:async()=>({provider:'fixture',account:mapping.ownerId,resource:'/workspace/fixture.txt'}),execute:async(parameters,context)=>{await consumeActionAuthority(context,parameters,'files.write');await consumeProviderAuthority(context,parameters,'files.write');effects++;return {};},verify:async()=>({verified:true,receipt:{id:'fixture-artifact'}})};
   await expect(new ActionGateway(database).execute(request,adapter)).rejects.toMatchObject({status:'awaiting_approval'});expect(effects).toBe(0);
   const waiting=await ownerRunSnapshot(admitted,database);expect(waiting.state).toBe('WAITING_APPROVAL');expect(waiting.pending.target).toContain('/workspace/fixture.txt');
@@ -120,7 +124,8 @@ suite('canonical owner pending-action continuation',()=>{
  it.each(['revoked','action_limit','unknown_cost','gate'])('denies %s at the canonical effect boundary',async reason=>{
   const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database);const admitted=await service.accept(envelope({commandId:'start-'+input.requestId,operation:'start',work:input}));
   await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '60 seconds' WHERE id=$1",[admitted.runId]);
-  const request={...action(),runId:admitted.runId};let effects=0;
+  await query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES($1,$1,'orchestrator')",[admitted.runId]);
+  const request=action(admitted.runId);let effects=0;
   const adapter={resolveTarget:async()=>({provider:'fixture',account:mapping.ownerId,resource:'/workspace/fixture.txt'}),execute:async(parameters,context)=>{await consumeActionAuthority(context,parameters,'files.write');if(reason==='revoked')await service.revoke(mapping);if(reason==='gate')vi.spyOn(ownerConfig,'ownerChannelConfiguration').mockReturnValue({enabled:false,trust,issues:[]});await consumeProviderAuthority(context,parameters,'files.write');effects++;return {};},verify:async()=>({verified:true,receipt:{id:'fixture'}})};
   await expect(new ActionGateway(database).execute(request,adapter)).rejects.toMatchObject({status:'awaiting_approval'});
   const pending=await new PendingActionContinuation(database).get(mapping.ownerId,admitted.runId);await decideApproval({ownerId:mapping.ownerId,id:pending.approvalId,bindingHash:pending.bindingHash,decision:'approved',decidedBy:mapping.ownerId});
@@ -138,7 +143,7 @@ suite('canonical owner pending-action continuation',()=>{
   injected.session={state:{sessionId:'eve-dispatch-fixture'},send:async()=>{
    const claim=verifyOwnerRuntime(injected.clientOptions.headers()['x-myeve-owner-run']);await bindOwnerRuntime(claim,'eve-dispatch-fixture','first-turn',database);
    research++;draft++;
-   await expect(new ActionGateway(database).execute({...action(),runId:admitted.runId},adapter)).rejects.toMatchObject({status:'awaiting_approval'});
+   await expect(new ActionGateway(database).execute(action(admitted.runId,'eve-dispatch-fixture'),adapter)).rejects.toMatchObject({status:'awaiting_approval'});
    return (async function*(){yield {type:'turn.failed',data:{sequence:1,turnId:'first-turn',code:'awaiting_approval',message:'saved checkpoint'}};})();
   }};
   await Promise.all([dispatchOwnerRun(admitted),dispatchOwnerRun(admitted)]);
@@ -177,14 +182,17 @@ suite('canonical owner pending-action continuation',()=>{
  it('human approval waiting preserves remaining active time and replay cannot reset it',async()=>{
   const input=work();input.taskId=input.requestId;const service=new OwnerChannelHandoff(trust,database);const admitted=await service.accept(envelope({commandId:'start-'+input.requestId,operation:'start',work:input}));
   await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '60 seconds' WHERE id=$1",[admitted.runId]);
+  await query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES($1,$1,'orchestrator')",[admitted.runId]);
   let effects=0;const adapter={resolveTarget:async()=>({provider:'fixture',account:mapping.ownerId,resource:'/workspace/fixture.txt'}),execute:async(parameters,context)=>{await consumeActionAuthority(context,parameters,'files.write');await consumeProviderAuthority(context,parameters,'files.write');effects++;return {};},verify:async()=>({verified:true,receipt:{id:'fixture'}})};
-  await expect(new ActionGateway(database).execute({...action(),runId:admitted.runId},adapter)).rejects.toMatchObject({status:'awaiting_approval'});
+  await expect(new ActionGateway(database).execute(action(admitted.runId),adapter)).rejects.toMatchObject({status:'awaiting_approval'});
   const pending=await new PendingActionContinuation(database).get(mapping.ownerId,admitted.runId);
   await query("UPDATE task_approval_decisions SET requested_at=now()-interval '2 minutes' WHERE id=$1",[pending.approvalId]);
-  await query("UPDATE task_runs r SET deadline_at=p.requested_at+interval '7 seconds' FROM task_approval_decisions p WHERE p.task_id=r.id AND p.id=$1",[pending.approvalId]);
+  const [paused]=await query("SELECT remaining_runtime_ms FROM owner_channel_requests WHERE run_id=$1",[admitted.runId]);
+  expect(paused.remaining_runtime_ms).toBeGreaterThan(0);expect(paused.remaining_runtime_ms).toBeLessThanOrEqual(60000);
+  expect((await query("SELECT deadline_at FROM task_runs WHERE id=$1",[admitted.runId]))[0].deadline_at).toBeNull();
   const approval={commandId:'approval-'+input.requestId,operation:'approval',work:input,decision:{reference:pending.approvalId,bindingHash:pending.bindingHash,choice:'approve'}};
   await new OwnerRunControl(database).apply(await service.accept(envelope(approval)),()=>adapter);
-  const [budget]=await query('SELECT remaining_runtime_ms FROM owner_channel_requests WHERE run_id=$1',[admitted.runId]);expect(budget.remaining_runtime_ms).toBe(7000);
+  const [budget]=await query('SELECT remaining_runtime_ms FROM owner_channel_requests WHERE run_id=$1',[admitted.runId]);expect(budget.remaining_runtime_ms).toBe(paused.remaining_runtime_ms);
   const [before]=await query('SELECT deadline_at::text AS deadline FROM task_runs WHERE id=$1',[admitted.runId]);
   await new OwnerRunControl(database).apply(await service.accept(envelope(approval)),()=>adapter);
   const [after]=await query('SELECT deadline_at::text AS deadline FROM task_runs WHERE id=$1',[admitted.runId]);expect(after.deadline).toBe(before.deadline);expect(effects).toBe(1);
@@ -195,8 +203,9 @@ suite('canonical owner pending-action continuation',()=>{
   const service=new OwnerChannelHandoff(trust,database);
   const admitted=await service.accept(envelope({commandId:'budget-start-'+input.requestId,operation:'start',work:input}));
   await query("UPDATE task_runs SET status='running',deadline_at=now()+interval '60 seconds' WHERE id=$1",[admitted.runId]);
+  await query("INSERT INTO task_run_sessions(task_id,session_id,role) VALUES($1,$1,'orchestrator')",[admitted.runId]);
   let effects=0;const adapter={resolveTarget:async()=>({provider:'fixture',account:mapping.ownerId,resource:'/workspace/budget.txt'}),execute:async()=>{effects++;return {};},verify:async()=>({verified:true,receipt:{}})};
-  await expect(new ActionGateway(database).execute({...action(),runId:admitted.runId},adapter)).rejects.toMatchObject({status:'awaiting_approval'});
+  await expect(new ActionGateway(database).execute(action(admitted.runId),adapter)).rejects.toMatchObject({status:'awaiting_approval'});
   const pending=await new PendingActionContinuation(database).get(mapping.ownerId,admitted.runId);
   await decideApproval({ownerId:mapping.ownerId,id:pending.approvalId,bindingHash:pending.bindingHash,decision:'approved',decidedBy:mapping.ownerId});
   await query('UPDATE task_runs SET max_estimated_cost_usd=0.05 WHERE id=$1',[admitted.runId]);

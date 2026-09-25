@@ -1,0 +1,162 @@
+{
+  "sha256": "2de2d1341d5178b97de1da75c0c513ef7a9c7157f361a51cc8ea494430ed4872",
+  "checked": 35,
+  "mismatches": [],
+  "domains": {
+    "profile": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "reviewPreferences": 0
+      }
+    },
+    "conversations": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "conversations": 10,
+        "summaries": 0
+      }
+    },
+    "goals": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "goals": 3,
+        "plans": 0,
+        "milestones": 1,
+        "tasks": 1,
+        "dependencies": 0,
+        "reviewCheckpoints": 2
+      }
+    },
+    "knowledge": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "sources": 1,
+        "records": 6,
+        "provenance": 6,
+        "relationships": 0
+      }
+    },
+    "memories": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "memories": 0
+      }
+    },
+    "agents": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "agents": 4,
+        "capabilities": 5,
+        "auditHistory": 10
+      }
+    },
+    "runs": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "runs": 8,
+        "agentRuns": 2,
+        "specialists": 0,
+        "acceptanceChecks": 0,
+        "milestones": 14,
+        "transitions": 25,
+        "contextEntries": 0,
+        "contextAssemblies": 5
+      }
+    },
+    "results": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "outcomes": 1,
+        "evidence": 0
+      }
+    },
+    "routines": {
+      "completeness": "complete",
+      "portability": "partially_restorable",
+      "recordGroups": {
+        "reminders": 0,
+        "routines": 0,
+        "versions": 0,
+        "occurrences": 0,
+        "attempts": 0,
+        "deliveries": 0
+      }
+    },
+    "browser_profiles": {
+      "completeness": "metadata_only",
+      "portability": "restorable_with_reconnection",
+      "recordGroups": {
+        "profiles": 3,
+        "grants": 1
+      }
+    },
+    "computer_history": {
+      "completeness": "metadata_only",
+      "portability": "non_restorable",
+      "recordGroups": {
+        "sessions": 0,
+        "browserSessions": 0,
+        "controlLeases": 0,
+        "controlReceipts": 0,
+        "actions": 0
+      }
+    },
+    "approval_history": {
+      "completeness": "complete",
+      "portability": "non_restorable",
+      "recordGroups": {
+        "approvals": 3
+      }
+    },
+    "action_history": {
+      "completeness": "metadata_only",
+      "portability": "non_restorable",
+      "recordGroups": {
+        "requests": 0,
+        "receipts": 0
+      }
+    },
+    "skills": {
+      "completeness": "partial",
+      "portability": "partially_restorable",
+      "recordGroups": {
+        "assignments": 0,
+        "usage": 0,
+        "evalRuns": 0,
+        "evalResults": 0,
+        "privateSkills": 0
+      }
+    },
+    "files": {
+      "completeness": "partial",
+      "portability": "reference_only",
+      "recordGroups": {
+        "chatFiles": 0,
+        "taskArtifacts": 0,
+        "computerArtifacts": 0
+      }
+    },
+    "connections": {
+      "completeness": "unavailable",
+      "portability": "unavailable",
+      "recordGroups": {
+        "connectedAccounts": 0
+      }
+    },
+    "finance": {
+      "completeness": "complete",
+      "portability": "fully_restorable",
+      "recordGroups": {
+        "receipts": 0
+      }
+    }
+  }
+}

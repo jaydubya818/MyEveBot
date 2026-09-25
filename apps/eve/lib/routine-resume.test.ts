@@ -3,7 +3,7 @@ const m=vi.hoisted(()=>({pending:false,research:0,analysis:0,drafts:0,sends:0,ap
   resume:vi.fn(),client:vi.fn(),saveThread:vi.fn(),query:vi.fn()}));
 vi.mock("eve/client",()=>({Client:class {
   constructor(){m.client();}
-  session(){return {state:{},send:async function*(){m.research++;m.analysis++;m.drafts++;m.pending=true;yield {type:"turn.completed"};}};}
+  sessions={create:async()=>({session:{state:{sessionId:"routine",streamIndex:0}},response:(async function*(){m.research++;m.analysis++;m.drafts++;m.pending=true;yield {type:"turn.completed"};})()})};
 }}));
 vi.mock("./routine-pending-send.ts",()=>({RoutinePendingSend:class {
   get=async()=>m.pending?{status:"awaiting_approval"}:null;

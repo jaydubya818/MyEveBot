@@ -1,5 +1,5 @@
 import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import type { ToolContext } from "eve/tools";
 import { ActionBlocked, type ActionRequest } from "../../lib/action-gateway.ts";
 import { executionIdentityFromAuth, resolveExecution } from "../../lib/execution-auth.ts";
@@ -8,7 +8,7 @@ import { db } from "./receipts-db.ts";
 
 /** Derive identity from verified runtime state, never tool/model parameters. */
 export async function toolActionRequest(
-  ctx: ToolContext,
+  ctx: Pick<ToolContext, "session" | "callId">,
   input: Pick<ActionRequest,"capabilityId"|"actionClass"|"parameters"|"computer">,
 ):Promise<ActionRequest> {
   const caller=ctx?.session?.auth.current;
@@ -27,27 +27,32 @@ export async function toolActionRequest(
   }
   let runId=ownerRuntime?.runId??occurrence?.runId;
   if(!runId) {
-    const linked=await db().query(`SELECT r.id,r.agent_id FROM task_runs r JOIN task_run_sessions s ON s.task_id=r.id
-      WHERE r.owner_id=$1 AND s.session_id=$2`,[ownerId,ctx.session.id]);
-    if(linked[0]) {
-      if(linked[0].agent_id!==agent.id)throw new ActionBlocked("denied","unresolved");
-      runId=String(linked[0].id);
-    } else {
-      runId=`action_run_${createHash("sha256").update(JSON.stringify([ownerId,ctx.session.id])).digest("hex")}`;
-      await db().query(`WITH run AS (
-        INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,max_duration_seconds,max_specialists,
-          max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,started_at,deadline_at)
-        VALUES($1,$2,'delegated_work','Owner-requested actions',$3,'running',$4,0,$5,0,$6,now(),now()+($4*interval '1 second'))
-        ON CONFLICT(id) DO NOTHING RETURNING id
-      ) INSERT INTO task_run_sessions(task_id,session_id,role) SELECT id,$7,'orchestrator' FROM run
-        ON CONFLICT(session_id) DO NOTHING`,[runId,ownerId,agent.id,agent.limits.maxRuntimeSeconds,agent.limits.maxSteps,agent.limits.maxEstimatedCostUsd,ctx.session.id]);
-      const bound=await db().query(`SELECT task_id FROM task_run_sessions WHERE session_id=$1`,[ctx.session.id]);
-      if(bound[0]?.task_id!==runId)throw new ActionBlocked("denied","unresolved");
-    }
+    // Replays resolve their original durable Run, even after the session rolls over.
+    const historical=await db().query(`SELECT a.run_id FROM action_requests a
+      JOIN task_run_sessions s ON s.task_id=a.run_id
+      WHERE a.owner_id=$1 AND s.session_id=$2 AND a.action_key=$3`,[ownerId,ctx.session.id,`tool:${ctx.callId}`]);
+    if(historical.length>1)throw new ActionBlocked("denied","RUN_BINDING_INVALID");
+    if(historical[0])runId=String(historical[0].run_id);
+    else runId=await ownerChatRun({ownerId,sessionId:ctx.session.id,agentId:agent.id,recover:false,initialize:true});
+
   }
   const roleId=caller.attributes.myeveRoleId;
   return {...input,ownerId,runId,actionKey:`tool:${ctx.callId}`,
     executor:{kind:occurrence?"routine":typeof roleId==="string"?"on-demand-role":agent.isPrimary?"primary-agent":"persistent-agent",agentId:agent.id,...(typeof roleId==="string"?{roleId}:{})},
     trigger:{kind:occurrence?"scheduled_occurrence":"owner_chat",id:occurrence?.occurrenceId??ctx.session.id},
     ...(occurrence?{occurrence:{id:occurrence.occurrenceId,claimVersion:occurrence.version,workerId:occurrence.workerId}}:{})};
+}
+
+/** Recovery is only invoked on new owner input, never from a tool retry. */
+export async function ownerChatRun(input:{ownerId:string;sessionId:string;agentId:string;recover:boolean;initialize:boolean}):Promise<string> {
+  try {
+    const rows=await db().query(`SELECT owner_chat_run($1,$2,$3,$4,$5,$6) AS id`,
+      [input.ownerId,input.sessionId,input.agentId,`action_run_${randomUUID()}`,input.recover,input.initialize]);
+    if(input.initialize && !rows[0]?.id)throw new Error("RUN_CREATION_FAILED");
+    return rows[0]?.id==null?"":String(rows[0].id);
+  } catch(error) {
+    const message=error instanceof Error?error.message:"";
+    const reason=["RUN_EXPIRED","RUN_NOT_EXECUTABLE","RUN_BINDING_INVALID","RUN_RECOVERY_REQUIRES_OWNER_REVIEW"].find(code=>message.includes(code));
+    throw new ActionBlocked("denied",reason??"RUN_CREATION_FAILED");
+  }
 }

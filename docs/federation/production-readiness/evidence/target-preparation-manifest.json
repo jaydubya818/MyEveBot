@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-09-20T16:38:35.330982+00:00",
+  "scope": "Frozen preparation package only; no active target or gate execution",
+  "baselineCommit": "0824ff2",
+  "myevePin": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+  "relayPin": "614c638d6fc4099db8064540326f5de4438e93a1",
+  "independentSecurityGate": "NOT_RUN",
+  "productionPlatformGate": "NOT_RUN",
+  "sha256": {
+    "docs/federation/production-readiness/README.md": "46f88620031f3e23a0be7377f3f302f66a4bfbc4de9101d6f8e975fe3dbe000e",
+    "docs/federation/production-readiness/assessor-target.md": "775ab101356e465b7b93a2540129855b41036abe720d2ff1d4f2e3aed1414007",
+    "docs/federation/production-readiness/deployment-target.md": "8a0bfa0e5987f73b599407034f970f03310d4b5e6de5ec63de4c5c9b23d723d5",
+    "docs/federation/production-readiness/evidence/hosting-inventory.json": "384c4fe84056a165e5522556fe2ae67117c5cbb0adaa8c0c710092e0ed2c8965",
+    "docs/federation/production-readiness/execution-report.md": "0c4ab352f5ccc344a786fd6075da3c4e0af3564a49a10a29a2a20f58f20d26ea",
+    "docs/federation/production-readiness/platform-qualification.md": "b0883957136d50ef5a5a103f7806d4302c2bc6c375f12128be5cbeab4a2ef425",
+    "docs/federation/production-readiness/qualification-session.md": "3b611927fb694d68222831598097427ef3a625df598191d39cfc7da45fc365b6",
+    "docs/federation/production-readiness/security-review.md": "f6984cc0c69c7d9a39425c6ada4f429ab91655f66ca75ac131ca16f1d838d15d",
+    "docs/federation/production-readiness/target-manifest.json": "d72029cce1e5e3fc6215b481ad5fd8b041ae1a2ede1b74115d7f132c8b676be8",
+    "scripts/federation-readiness/codex-peer.disabled.toml": "8a82c81c3e7c6b2d3fb68747ecac7908a52f4aad7834b3935ece5a0a0a7cf7e3",
+    "scripts/federation-readiness/inspect-hosting.py": "8362708d9332110cf522d4a34d2853730db2ade464f2e924a97ec2420f0fb1d7"
+  },
+  "relaySourceSha256": {
+    "lib/v2/platform-bindings.ts": "6a8e1e2977be892fc9a13d8326e40f6d4886cb72c3d6204a6683260ed7bff890",
+    "lib/v2/deployment.ts": "d1a81985c38edfb5d7f1f021f95f6eca356414d0e57e111ba6dc0a414e63bba9",
+    "lib/v2/evidence/crypto.ts": "bfaaa1c16ddd5040ac828a855cec3fa5e7700899f2117cad62f45ee08a725253",
+    "lib/v2/federation/api.ts": "7f1b8359afc6394b05874309e9ac10c81a8a0937e56fc653656c1d2de4db82d3",
+    "lib/v2/federation/mcp.ts": "5786a6600dc5a6bc5ad1b743ec0c1093d3be0ea10192475e31112e8d5e6c28bf",
+    "lib/v2/federation/transport.ts": "de5fa1ee3a8986af9242887599385584a3d0e6755ab9e01c73e126a7695d3416",
+    "docs/v1-release.md": "bdade434da447c80bc07cd4a4d915d056492324704314a75d3a2f8ce0fc4d71a",
+    "docs/v2/runtime-compatibility.md": "f09f8d94fdf8a7c2fca46f29d6975e514360e3c66a378e007fa8aab9fba579c0"
+  }
+}

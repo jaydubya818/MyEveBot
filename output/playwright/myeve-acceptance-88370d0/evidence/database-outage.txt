@@ -1,0 +1,12 @@
+### Result
+{"status":503,"body":{"error":{"code":"goals_unavailable","message":"Goals are temporarily unavailable.","requestId":"53b5cbd5-40fd-4835-abc8-eb08f6d7ca18"}},"ui":"- main:\n  - img\n  - heading \"Goals are unavailable\" [level=2]\n  - paragraph: Goals are temporarily unavailable.\n  - button \"Try again\":\n    - img\n    - text: Try again"}
+### Ran Playwright code
+```js
+await (async page => {await page.goto("http://localhost:3073/goals",{waitUntil:"domcontentloaded"});await page.getByText("Goals are unavailable",{exact:true}).waitFor();const r=await page.request.get("http://localhost:3073/api/goals");await page.screenshot({path:"/tmp/myeve-acceptance-88370d0/evidence/database-outage.png"});return {status:r.status(),body:await r.json(),ui:await page.locator("main").ariaSnapshot()};})(page);
+```
+### Page
+- Page URL: http://localhost:3073/goals
+- Page Title: Ava
+- Console: 10 errors, 3 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L3594-L3706

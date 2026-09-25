@@ -1,0 +1,141 @@
+### Page
+- Page URL: http://localhost:3073/goals
+- Page Title: Ava
+- Console: 7 errors, 30 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e12]:
+    - complementary [ref=e13]:
+      - generic [ref=e14]:
+        - button "Back to chat" [ref=e215]: Ava
+        - generic [ref=e16]:
+          - button "Goals" [pressed] [ref=e216] [cursor=pointer]:
+            - img [ref=e18]
+          - button "Knowledge" [ref=e217] [cursor=pointer]:
+            - img [ref=e21]
+          - button "Results" [ref=e218] [cursor=pointer]:
+            - img [ref=e24]
+          - button "Computer" [ref=e219] [cursor=pointer]:
+            - img [ref=e27]
+          - button "Agents" [ref=e220] [cursor=pointer]:
+            - img [ref=e30]
+          - button "Review" [ref=e221] [cursor=pointer]:
+            - img [ref=e33]
+          - button "Channels" [ref=e222] [cursor=pointer]:
+            - img [ref=e36]
+          - button "Files" [ref=e223] [cursor=pointer]:
+            - img [ref=e39]
+          - button "Manage" [ref=e224] [cursor=pointer]:
+            - img [ref=e42]
+          - button "New thread" [ref=e225] [cursor=pointer]:
+            - img [ref=e45]
+      - textbox "Search threads" [ref=e226]
+      - navigation [ref=e50]:
+        - generic [ref=e51]:
+          - paragraph [ref=e52]: Today
+          - list [ref=e53]:
+            - listitem [ref=e54]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e227]:
+                - generic [ref=e57]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e58]: 12:46 PM
+              - generic [ref=e59]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e228] [cursor=pointer]:
+                  - img [ref=e61]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e229] [cursor=pointer]:
+                  - img [ref=e64]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e230] [cursor=pointer]:
+                  - img [ref=e67]
+    - main [ref=e146]:
+      - generic [ref=e148]:
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - img [ref=e152]
+              - heading "Goals" [level=1] [ref=e231]
+            - paragraph [ref=e156]: Your outcomes, current plan, and clearest next move.
+          - button "New goal" [ref=e232] [cursor=pointer]:
+            - generic [ref=e159]:
+              - img [ref=e160]
+              - text: New goal
+        - navigation "Goal status" [ref=e234]:
+          - button "Active1" [ref=e235]
+          - button "Waiting0" [ref=e236]
+          - button "Blocked0" [ref=e237]
+          - button "Completed0" [ref=e238]
+          - button "Archived0" [ref=e239]
+        - generic [ref=e240]:
+          - complementary [ref=e241]:
+            - list [ref=e242]:
+              - listitem [ref=e243]:
+                - button "0% complete Launch Project Atlas 0/0 · Dec 19, 2026" [ref=e244]:
+                  - generic "0% complete" [ref=e245]:
+                    - generic [ref=e246]: 0%
+                  - generic [ref=e247]:
+                    - paragraph [ref=e248]: Launch Project Atlas
+                    - paragraph [ref=e249]:
+                      - img [ref=e250]
+                      - text: 0/0 · Dec 19, 2026
+          - article [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - generic [ref=e256]:
+                  - generic [ref=e257]:
+                    - generic [ref=e258]: active
+                    - generic [ref=e259]: normal priority
+                  - heading "Launch Project Atlas" [level=2] [ref=e260]
+                  - paragraph [ref=e261]: "Launch a phased pilot in 90 days. Milestones: validate demand, build onboarding, run pilot. Dependency: recruit pilot users. Risk: onboarding abandonment. Next action: interview five prospects."
+                - generic "0% complete" [ref=e262]:
+                  - generic [ref=e263]: 0%
+              - generic [ref=e264]:
+                - paragraph [ref=e265]: Done means
+                - list [ref=e266]:
+                  - listitem [ref=e267]:
+                    - img [ref=e268]
+                    - text: 10 pilot customers complete onboarding
+                  - listitem [ref=e270]:
+                    - img [ref=e271]
+                    - text: 80% pilot onboarding completion
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - img [ref=e275]
+                  - text: Dec 19, 2026
+                - generic [ref=e277]: ·
+                - generic [ref=e278]: 0 of 0 tasks complete
+              - generic [ref=e279]:
+                - button "Edit goal" [ref=e280] [cursor=pointer]
+                - button "Pause" [ref=e281] [cursor=pointer]
+                - button "Complete goal" [ref=e282] [cursor=pointer]
+            - generic [ref=e283]:
+              - generic [ref=e284]:
+                - generic [ref=e285]:
+                  - heading "Plan & milestones" [level=3] [ref=e286]
+                  - paragraph [ref=e287]: Previous plan versions stay in the activity history.
+                - button "Milestone" [ref=e288] [cursor=pointer]:
+                  - img [ref=e289]
+                  - text: Milestone
+              - paragraph [ref=e291]: No plan yet. Ask Ava to decompose this goal, or add milestones directly.
+            - generic [ref=e292]:
+              - generic [ref=e293]:
+                - heading "Tasks" [level=3] [ref=e294]
+                - paragraph [ref=e295]: Only executable, dependency-free work enters Focus.
+              - generic [ref=e297]:
+                - textbox "Task title" [ref=e298]:
+                  - /placeholder: Add the next concrete task
+                - button "Add" [disabled] [ref=e299]:
+                  - generic [ref=e301]: Add
+              - paragraph [ref=e302]: No tasks yet. A goal becomes actionable when the first concrete task is added.
+            - generic [ref=e303]:
+              - heading "Activity" [level=3] [ref=e304]
+              - list [ref=e305]:
+                - listitem [ref=e306]:
+                  - generic [ref=e308]:
+                    - paragraph [ref=e309]: "Created goal: Launch Project Atlas"
+                    - paragraph [ref=e310]: 9/20/2026, 12:47:16 PM
+                    - paragraph [ref=e311]: Owner intent became a persistent goal
+  - button "Open Next.js Dev Tools" [ref=e8] [cursor=pointer]:
+    - img [ref=e9]
+  - alert [ref=e115]
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L205-L207

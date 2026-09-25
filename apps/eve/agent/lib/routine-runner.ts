@@ -28,8 +28,7 @@ export const routineRunner:ExecutionRunner={
     }
     const host=process.env.VERCEL_URL?`https://${process.env.VERCEL_URL}`:`http://localhost:${process.env.PORT??"3000"}`;
     const client=new Client({host,redirect:"error",headers:()=>({[EXECUTION_HEADER]:signExecution({ownerId:claim.ownerId,occurrenceId:claim.occurrenceId,version:claim.version,workerId:claim.workerId})})});
-    const session=client.session();
-    const stream=await session.send({message:claim.configuration.instructions,signal,streamReconnectPolicy:{reconnect:false}});
+    const {session,response:stream}=await client.sessions.create({message:claim.configuration.instructions,signal,streamReconnectPolicy:{reconnect:false}});
     const events:HandleMessageStreamEvent[]=[];
     let completed=false;
     let failed=false;

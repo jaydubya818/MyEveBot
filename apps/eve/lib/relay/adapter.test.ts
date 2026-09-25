@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { generateKeyPairSync, sign, randomBytes } from "node:crypto";
+import { generateKeyPairSync, sign, randomBytes, createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import {
+  canonical,
   verifyEnvelope,
   requestDigest,
   encryptSecret,
@@ -413,5 +414,41 @@ describe("full work output and bounded gateway receipt", () => {
       "Full result retained in the source-owned artifact.",
     );
     expect(summary).toMatch(/output\.…/);
+  });
+});
+
+
+describe("canonical Relay V2 signing envelope", () => {
+  const encode = (v: unknown) => Buffer.from(canonical(v)).toString("base64url");
+  function v2(headerChange: Record<string, unknown> = {}, legacy = false) {
+    const e = envelope();
+    const header = { alg: "Ed25519", typ: "relay-federation-v2", kid: identity.keyId, keyVersion: identity.keyId, ...headerChange };
+    const payload = { iss: identity.issuer, aud: identity.address, jti: e.id, iat: Math.floor(Date.now()/1000), exp: Math.floor(Date.now()/1000)+50, envelope: e };
+    const material = `${encode(header)}.${encode(payload)}`;
+    const commitment = canonical({ protocol: "relay.federation", version: 2, purpose: "federation-delivery", payloadDigestAlgorithm: "SHA-256", payloadDigest: createHash("sha256").update(material).digest("hex"), signingAlgorithm: "Ed25519", keyIdentity: { id: identity.keyId, version: identity.keyId } });
+    return `${material}.${sign(null, Buffer.from(legacy ? material : commitment), keys.privateKey).toString("base64url")}`;
+  }
+  it("accepts v2 while preserving original legacy verification", () => {
+    expect(verifyEnvelope(v2(), identity).id).toBe("request");
+    expect(verifyEnvelope(token(), identity).id).toBe("request");
+  });
+  it.each([{v:3},{purpose:"passport"},{kid:"another"},{keyVersion:"another-version"},{alg:"EdDSA"},{typ:"relay-federation+jwt"},{alg:"Relay-Ed25519-SHA256-v2",typ:"relay-federation+digest"}])("denies version/purpose/key/format substitution %j", change => {
+    expect(() => verifyEnvelope(v2(change), identity)).toThrow();
+  });
+  it("denies raw signatures labeled v2 and mutated claims", () => {
+    expect(() => verifyEnvelope(v2({},true), identity)).toThrow();
+    const parts = v2().split(".");
+    const claims = JSON.parse(Buffer.from(parts[1]!,"base64url").toString());
+    claims.envelope.caller.agentId = "tampered"; parts[1] = encode(claims);
+    expect(() => verifyEnvelope(parts.join("."), identity)).toThrow();
+  });
+  it("denies noncanonical and duplicate-key JSON even when signed", () => {
+    const parts = v2().split(".");
+    for (const text of [" " + Buffer.from(parts[1]!,"base64url").toString(), Buffer.from(parts[1]!,"base64url").toString().replace("{", '{"aud":"wrong",')]) {
+      const material = `${parts[0]}.${Buffer.from(text).toString("base64url")}`;
+      const commitment = canonical({ protocol: "relay.federation", version: 2, purpose: "federation-delivery", payloadDigestAlgorithm: "SHA-256", payloadDigest: createHash("sha256").update(material).digest("hex"), signingAlgorithm: "Ed25519", keyIdentity: { id: identity.keyId, version: identity.keyId } });
+      const signed = `${material}.${sign(null,Buffer.from(commitment),keys.privateKey).toString("base64url")}`;
+      expect(() => verifyEnvelope(signed,identity)).toThrow();
+    }
   });
 });

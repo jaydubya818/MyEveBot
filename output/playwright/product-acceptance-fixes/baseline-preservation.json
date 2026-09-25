@@ -1,0 +1,12 @@
+{
+  "location": "/Users/jaywest/Myeve/output/playwright/myeve-acceptance-88370d0",
+  "sha256": {
+    "REPORT.md": "f2802dd20c697c4ee14ab17f49e0f388edd7700518c5062fdd6f1cb2bd889cb8",
+    "COVERAGE.md": "1452c90f2bd5a402c51c414b4b9d20f140be71d95eccc860311a29d951358e98",
+    "coverage.json": "a2712e5238b3389e26d105ffdede0015289cc6e75132633b786cac057a055e76",
+    "evidence/isolated-state.dump": "8eb4dbc280057ada7325d068414404e5973161b8bb606278effdb1de4ad2f188"
+  },
+  "sections": 251,
+  "originalWorktreeHead": "38dc7281659b025f02b89edb138d38763b516955",
+  "startingMain": "88370d0662c7824445b59779a8b8e8b21abfa10b"
+}

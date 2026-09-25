@@ -3,75 +3,30 @@ import { memoryStore } from "@/agent/lib/memory-store";
 import { createKnowledge, getKnowledge } from "@/lib/knowledge";
 import type { KnowledgeRecordView } from "@/lib/knowledge-types";
 import { recordOwnerDataOperation } from "@/lib/owner-data-operations";
+import {
+  OWNER_KNOWLEDGE_TYPES,
+  type OwnerKnowledgeFilters,
+  type OwnerKnowledgePage,
+  type OwnerKnowledgeRepository,
+  type OwnerKnowledgeSource,
+  type OwnerKnowledgeType,
+  type OwnerKnowledgeView,
+} from "@/lib/owner-knowledge-types";
 import type { ExecutionScope, MemoryScopeType } from "@/lib/memory-scopes";
 
-import { OWNER_KNOWLEDGE_TYPES } from "./owner-knowledge-types";
-export { OWNER_KNOWLEDGE_TYPES } from "./owner-knowledge-types";
-export type OwnerKnowledgeType = (typeof OWNER_KNOWLEDGE_TYPES)[number];
-export type OwnerKnowledgeRepository = "memory" | "knowledge";
-export type OwnerKnowledgeReview = "needs_review" | "contradictions" | "stale" | "recent" | "corrected";
+export {
+  OWNER_KNOWLEDGE_TYPES,
+  type OwnerKnowledgeFilters,
+  type OwnerKnowledgePage,
+  type OwnerKnowledgeRepository,
+  type OwnerKnowledgeReview,
+  type OwnerKnowledgeSource,
+  type OwnerKnowledgeType,
+  type OwnerKnowledgeView,
+} from "@/lib/owner-knowledge-types";
 
 type Row = Record<string, unknown>;
 export type OwnerKnowledgeQuery = (sql: string, params?: unknown[]) => Promise<Row[]>;
-
-export interface OwnerKnowledgeSource {
-  type: string;
-  id: string | null;
-  label: string;
-  date: string | null;
-  url: string | null;
-}
-
-export interface OwnerKnowledgeView {
-  id: string;
-  canonicalType: OwnerKnowledgeType;
-  canonicalRepository: OwnerKnowledgeRepository;
-  title: string | null;
-  content: string;
-  structuredValue: unknown | null;
-  scope: { type: MemoryScopeType; id: string; label: string; accessSummary: string };
-  agentRef: { id: string; name: string | null } | null;
-  goalRef: { id: string; title: string | null } | null;
-  projectRef: string | null;
-  taskRef: string | null;
-  source: OwnerKnowledgeSource | null;
-  provenance: Array<{ relation: string; confidence: number; source: OwnerKnowledgeSource }>;
-  status: string;
-  confidence: number;
-  createdAt: string;
-  updatedAt: string;
-  lastConfirmedAt: string | null;
-  supersedes: string | null;
-  supersededBy: string | null;
-  contradictions: string[];
-  staleReasons: string[];
-  eligibleForContext: string[];
-  usedInRuns: number;
-  remoteAvailability: "available" | "not_applicable" | "provider_unavailable";
-}
-
-export interface OwnerKnowledgeFilters {
-  query?: string;
-  type?: OwnerKnowledgeType;
-  scope?: MemoryScopeType;
-  agentId?: string;
-  goalId?: string;
-  source?: string;
-  status?: string;
-  updatedFrom?: string;
-  review?: OwnerKnowledgeReview;
-  page?: number;
-  limit?: number;
-  executionScope?: ExecutionScope;
-  recordId?: string;
-}
-
-export interface OwnerKnowledgePage {
-  items: OwnerKnowledgeView[];
-  page: number;
-  limit: number;
-  hasMore: boolean;
-}
 
 const text = (value: unknown): string => typeof value === "string" ? value : String(value ?? "");
 const nullableText = (value: unknown): string | null => value == null ? null : text(value);

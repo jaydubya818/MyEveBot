@@ -60,6 +60,8 @@ An enabled installation must configure these independently from owner login secr
 
 - `MYEVE_RELAY_ORIGIN`: pinned HTTPS Relay origin; no path, query or credentials.
 - `MYEVE_RELAY_KEY_ID` and `MYEVE_RELAY_PUBLIC_KEY`: trusted Relay Ed25519 verification pin.
+- `MYEVE_RELAY_KEY_VERSION`: immutable canonical V2 provider version associated with `MYEVE_RELAY_KEY_ID`. Local signing defaults to the key ID. A distinct provider version must be explicitly pinned; versions from an incoming assertion are never trusted. The configured version applies only when the stored connection's key ID matches the configured ID.
+- Local development only: `MYEVE_RELAY_ALLOW_LOCAL_HTTP=true` permits an HTTP Relay origin only when `NODE_ENV=development` and the hostname is exactly `localhost`, `127.0.0.1` or `[::1]`. Federation must still be explicitly enabled. Production always requires HTTPS; owner authentication, origin checks, signing pins and grants are unchanged.
 - `MYEVE_RELAY_ENCRYPTION_KEY`: separate random 32-byte key encoded as 64 hex characters.
 - `MYEVE_RELAY_OWNER_ORIGIN`: exact browser origin behind a reverse proxy; no trust in
   caller-supplied forwarded headers. If absent, the request URL origin is used.

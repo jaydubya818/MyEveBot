@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { redactEvidenceText, QA_SPECIALISTS } from "../../lib/task-types.ts";
 import { recordTaskArtifact } from "../../lib/task-runs.ts";
+import { getComputerSandbox } from "../lib/computer-context.ts";
 
 const MAX_BYTES = 20 * 1024 * 1024;
 const TEXT_CONTENT = /^(?:text\/|application\/(?:json|xml))/i;
@@ -24,7 +25,7 @@ export default defineTool({
     contentType: z.string().min(1).max(160),
   }),
   async execute(input, ctx) {
-    const sandbox = await ctx.getSandbox();
+    const sandbox = await getComputerSandbox(ctx);
     const source = await sandbox.readBinaryFile({ path: input.path });
     if (source === null) throw new Error(`No evidence file at ${sandbox.resolvePath(input.path)}.`);
     if (source.byteLength > MAX_BYTES) throw new Error("Evidence artifacts must be 20 MB or smaller.");

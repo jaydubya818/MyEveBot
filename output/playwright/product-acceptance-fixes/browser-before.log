@@ -1,0 +1,112 @@
+
+Running 2 tests using 1 worker
+
+(node:62824) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 test/browser/blockers.spec.cjs:8:1 › mobile normal taps reach every top-level destination without an intercepting drawer (39.2s)
+(node:63356) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 test/browser/blockers.spec.cjs:47:1 › chat upload is one durable file, survives reload, is readable and exported (18.0s)
+
+
+  1) test/browser/blockers.spec.cjs:8:1 › mobile normal taps reach every top-level destination without an intercepting drawer
+
+    TimeoutError: locator.tap: Timeout 10000ms exceeded.
+    Call log:
+      - waiting for getByRole('button', { name: /^Open (threads|sidebar)$/ })
+        - locator resolved to <button type="button" aria-label="Open threads" data-kumo-component="Button" class="group flex shrink-0 font-medium select-none border-0 focus:outline-none focus:ring-kumo-focus/50 focus-visible:ring-2 focus-visible:ring-kumo-brand cursor-pointer disabled:cursor-not-allowed disabled:text-kumo-subtle gap-1 rounded-md text-xs items-center justify-center p-0 size-6.5 text-kumo-default hover:bg-kumo-tint shadow-none bg-inherit absolute start-2 top-2 z-20 md:hidden">…</button>
+      - attempting tap action
+        2 × waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">…</svg> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+        - retrying tap action
+        - waiting 20ms
+        - waiting for element to be visible, enabled and stable
+        - element is visible, enabled and stable
+        - scrolling into view if needed
+        - done scrolling
+        - <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">…</svg> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+      2 × retrying tap action
+          - waiting 100ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" id="base-ui-_r_j_" aria-label="New thread" data-kumo-component="Button" data-base-ui-tooltip-trigger="" class="group flex shrink-0 font-medium select-none border-0 focus:outline-none focus:ring-kumo-focus/50 focus-visible:ring-2 focus-visible:ring-kumo-brand cursor-pointer disabled:cursor-not-allowed disabled:text-kumo-subtle gap-1 rounded-md text-xs items-center justify-center p-0 size-6.5 text-kumo-default hover:bg-kumo-tint shadow-none bg-inherit cursor-default">…</button> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+      4 × retrying tap action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">…</svg> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+        - retrying tap action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">…</svg> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+        - retrying tap action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" id="base-ui-_r_j_" aria-label="New thread" data-kumo-component="Button" data-base-ui-tooltip-trigger="" class="group flex shrink-0 font-medium select-none border-0 focus:outline-none focus:ring-kumo-focus/50 focus-visible:ring-2 focus-visible:ring-kumo-brand cursor-pointer disabled:cursor-not-allowed disabled:text-kumo-subtle gap-1 rounded-md text-xs items-center justify-center p-0 size-6.5 text-kumo-default hover:bg-kumo-tint shadow-none bg-inherit cursor-default">…</button> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+        - retrying tap action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <button type="button" id="base-ui-_r_j_" aria-label="New thread" data-kumo-component="Button" data-base-ui-tooltip-trigger="" class="group flex shrink-0 font-medium select-none border-0 focus:outline-none focus:ring-kumo-focus/50 focus-visible:ring-2 focus-visible:ring-kumo-brand cursor-pointer disabled:cursor-not-allowed disabled:text-kumo-subtle gap-1 rounded-md text-xs items-center justify-center p-0 size-6.5 text-kumo-default hover:bg-kumo-tint shadow-none bg-inherit cursor-default">…</button> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+      2 × retrying tap action
+          - waiting 500ms
+          - waiting for element to be visible, enabled and stable
+          - element is visible, enabled and stable
+          - scrolling into view if needed
+          - done scrolling
+          - <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">…</svg> from <aside class="fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0">…</aside> subtree intercepts pointer events
+      - retrying tap action
+        - waiting 500ms
+
+
+      3 | const {duplicateArchive,changeArchiveJson}=require('../fixtures/owner-archives.ts');
+      4 |
+    > 5 | async function openDrawer(page){await page.getByRole('button',{name:/^Open (threads|sidebar)$/}).tap();}
+        |                                                                                                  ^
+      6 | async function attach(page,name,bytes){const choose=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Attach files',exact:true}).click();await(await choose).setFiles({name,mimeType:'text/plain',buffer:Buffer.from(bytes)});}
+      7 |
+      8 | test('mobile normal taps reach every top-level destination without an intercepting drawer',async({browser})=>{
+        at openDrawer (/private/tmp/myeve-product-acceptance-fixes/apps/eve/test/browser/blockers.spec.cjs:5:98)
+        at /private/tmp/myeve-product-acceptance-fixes/apps/eve/test/browser/blockers.spec.cjs:11:9
+
+    Error Context: ../../output/playwright/product-acceptance-fixes/browser-artifacts/blockers-mobile-normal-tap-9de1b-hout-an-intercepting-drawer/error-context.md
+
+  2) test/browser/blockers.spec.cjs:47:1 › chat upload is one durable file, survives reload, is readable and exported
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 1
+    Received: 0
+
+    Call Log:
+    - Timeout 15000ms exceeded while waiting on the predicate
+
+      50 |   await page.route('**/eve/v1/session',r=>{submitted=r.request().postDataJSON();return r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Model execution deliberately disabled in this test'})});});
+      51 |   await page.goto('/chat');await page.getByRole('textbox',{name:'Message Ava',exact:true}).fill('What is the target in the attached synthetic file?');await attach(page,name,content);await page.getByRole('button',{name:'Send',exact:true}).click();
+    > 52 |   await expect.poll(async()=>((await(await request.get('/api/files')).json()).files).filter(f=>f.filename===name).length).toBe(1);
+         |                                                                                                                           ^
+      53 |   const file=(await(await request.get('/api/files')).json()).files.find(f=>f.filename===name);expect(file.sizeBytes).toBe(Buffer.byteLength(content));expect(file.mediaType).toBe('text/plain');expect(file.threadId).toBeTruthy();expect(file.createdAt).toBeTruthy();
+      54 |   await expect.poll(()=>Boolean(submitted)).toBe(true);
+      55 |   expect(JSON.stringify(submitted).includes(file.id)).toBe(true);
+        at /private/tmp/myeve-product-acceptance-fixes/apps/eve/test/browser/blockers.spec.cjs:52:123
+
+    Error Context: ../../output/playwright/product-acceptance-fixes/browser-artifacts/blockers-chat-upload-is-on-d446c-ad-is-readable-and-exported/error-context.md
+
+  2 failed
+    test/browser/blockers.spec.cjs:8:1 › mobile normal taps reach every top-level destination without an intercepting drawer
+    test/browser/blockers.spec.cjs:47:1 › chat upload is one durable file, survives reload, is readable and exported

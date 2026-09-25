@@ -1,0 +1,2773 @@
+{
+  "status": "REJECTED_DRAFT_NOT_FOR_EVALUATION",
+  "exactV0Duplicates": [],
+  "normalizedV0Duplicates": [],
+  "nearestV0": [
+    {
+      "id": "c141",
+      "v0Id": "commitment_032",
+      "score": 0.5
+    },
+    {
+      "id": "c016",
+      "v0Id": "preference_009",
+      "score": 0.45454545454545453
+    },
+    {
+      "id": "c168",
+      "v0Id": "decision_011",
+      "score": 0.45454545454545453
+    },
+    {
+      "id": "c172",
+      "v0Id": "commitment_010",
+      "score": 0.4166666666666667
+    },
+    {
+      "id": "c136",
+      "v0Id": "decision_015",
+      "score": 0.4
+    },
+    {
+      "id": "c007",
+      "v0Id": "preference_008",
+      "score": 0.38461538461538464
+    },
+    {
+      "id": "c095",
+      "v0Id": "commitment_006",
+      "score": 0.38461538461538464
+    },
+    {
+      "id": "c257",
+      "v0Id": "commitment_032",
+      "score": 0.38461538461538464
+    },
+    {
+      "id": "c038",
+      "v0Id": "preference_014",
+      "score": 0.375
+    },
+    {
+      "id": "c261",
+      "v0Id": "commitment_017",
+      "score": 0.36363636363636365
+    },
+    {
+      "id": "c457",
+      "v0Id": "commitment_013",
+      "score": 0.36363636363636365
+    },
+    {
+      "id": "c173",
+      "v0Id": "hypothesis_017",
+      "score": 0.35714285714285715
+    },
+    {
+      "id": "c130",
+      "v0Id": "commitment_032",
+      "score": 0.3333333333333333
+    },
+    {
+      "id": "c358",
+      "v0Id": "commitment_035",
+      "score": 0.3333333333333333
+    },
+    {
+      "id": "c366",
+      "v0Id": "fact_023",
+      "score": 0.3333333333333333
+    },
+    {
+      "id": "c461",
+      "v0Id": "preference_011",
+      "score": 0.3333333333333333
+    },
+    {
+      "id": "c445",
+      "v0Id": "preference_029",
+      "score": 0.3125
+    },
+    {
+      "id": "c039",
+      "v0Id": "commitment_020",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c090",
+      "v0Id": "decision_035",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c228",
+      "v0Id": "commitment_010",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c355",
+      "v0Id": "commitment_015",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c400",
+      "v0Id": "decision_018",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c432",
+      "v0Id": "decision_015",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c446",
+      "v0Id": "commitment_018",
+      "score": 0.3076923076923077
+    },
+    {
+      "id": "c067",
+      "v0Id": "preference_020",
+      "score": 0.3
+    },
+    {
+      "id": "c234",
+      "v0Id": "fact_011",
+      "score": 0.3
+    },
+    {
+      "id": "c423",
+      "v0Id": "fact_023",
+      "score": 0.3
+    },
+    {
+      "id": "c426",
+      "v0Id": "observation_019",
+      "score": 0.3
+    },
+    {
+      "id": "c476",
+      "v0Id": "fact_011",
+      "score": 0.3
+    },
+    {
+      "id": "c066",
+      "v0Id": "preference_028",
+      "score": 0.29411764705882354
+    },
+    {
+      "id": "c055",
+      "v0Id": "fact_008",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c058",
+      "v0Id": "preference_009",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c083",
+      "v0Id": "commitment_018",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c100",
+      "v0Id": "commitment_010",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c157",
+      "v0Id": "decision_035",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c222",
+      "v0Id": "commitment_024",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c254",
+      "v0Id": "preference_001",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c321",
+      "v0Id": "commitment_018",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c388",
+      "v0Id": "preference_009",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c410",
+      "v0Id": "commitment_006",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c420",
+      "v0Id": "commitment_032",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c425",
+      "v0Id": "commitment_006",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c428",
+      "v0Id": "commitment_010",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c500",
+      "v0Id": "decision_025",
+      "score": 0.2857142857142857
+    },
+    {
+      "id": "c015",
+      "v0Id": "commitment_001",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c056",
+      "v0Id": "commitment_010",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c097",
+      "v0Id": "hypothesis_023",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c103",
+      "v0Id": "decision_015",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c123",
+      "v0Id": "commitment_032",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c285",
+      "v0Id": "commitment_001",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c301",
+      "v0Id": "fact_019",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c307",
+      "v0Id": "decision_015",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c325",
+      "v0Id": "decision_015",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c377",
+      "v0Id": "decision_023",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c415",
+      "v0Id": "commitment_001",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c495",
+      "v0Id": "fact_019",
+      "score": 0.2727272727272727
+    },
+    {
+      "id": "c044",
+      "v0Id": "hypothesis_017",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c215",
+      "v0Id": "commitment_004",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c264",
+      "v0Id": "commitment_017",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c281",
+      "v0Id": "observation_034",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c286",
+      "v0Id": "decision_013",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c313",
+      "v0Id": "commitment_015",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c350",
+      "v0Id": "commitment_033",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c368",
+      "v0Id": "decision_025",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c409",
+      "v0Id": "commitment_034",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c414",
+      "v0Id": "hypothesis_015",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c449",
+      "v0Id": "preference_008",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c450",
+      "v0Id": "decision_015",
+      "score": 0.26666666666666666
+    },
+    {
+      "id": "c494",
+      "v0Id": "commitment_027",
+      "score": 0.2631578947368421
+    },
+    {
+      "id": "c017",
+      "v0Id": "decision_013",
+      "score": 0.25
+    },
+    {
+      "id": "c028",
+      "v0Id": "commitment_030",
+      "score": 0.25
+    },
+    {
+      "id": "c034",
+      "v0Id": "commitment_022",
+      "score": 0.25
+    },
+    {
+      "id": "c068",
+      "v0Id": "decision_018",
+      "score": 0.25
+    },
+    {
+      "id": "c075",
+      "v0Id": "preference_011",
+      "score": 0.25
+    },
+    {
+      "id": "c084",
+      "v0Id": "commitment_022",
+      "score": 0.25
+    },
+    {
+      "id": "c105",
+      "v0Id": "decision_006",
+      "score": 0.25
+    },
+    {
+      "id": "c138",
+      "v0Id": "observation_022",
+      "score": 0.25
+    },
+    {
+      "id": "c161",
+      "v0Id": "fact_027",
+      "score": 0.25
+    },
+    {
+      "id": "c209",
+      "v0Id": "decision_015",
+      "score": 0.25
+    },
+    {
+      "id": "c212",
+      "v0Id": "preference_023",
+      "score": 0.25
+    },
+    {
+      "id": "c224",
+      "v0Id": "decision_009",
+      "score": 0.25
+    },
+    {
+      "id": "c242",
+      "v0Id": "commitment_032",
+      "score": 0.25
+    },
+    {
+      "id": "c245",
+      "v0Id": "hypothesis_008",
+      "score": 0.25
+    },
+    {
+      "id": "c283",
+      "v0Id": "commitment_032",
+      "score": 0.25
+    },
+    {
+      "id": "c348",
+      "v0Id": "commitment_007",
+      "score": 0.25
+    },
+    {
+      "id": "c356",
+      "v0Id": "decision_018",
+      "score": 0.25
+    },
+    {
+      "id": "c393",
+      "v0Id": "preference_032",
+      "score": 0.25
+    },
+    {
+      "id": "c402",
+      "v0Id": "decision_035",
+      "score": 0.25
+    },
+    {
+      "id": "c430",
+      "v0Id": "commitment_008",
+      "score": 0.25
+    },
+    {
+      "id": "c447",
+      "v0Id": "fact_025",
+      "score": 0.25
+    },
+    {
+      "id": "c477",
+      "v0Id": "commitment_001",
+      "score": 0.25
+    },
+    {
+      "id": "c049",
+      "v0Id": "observation_027",
+      "score": 0.23809523809523808
+    },
+    {
+      "id": "c026",
+      "v0Id": "commitment_006",
+      "score": 0.23529411764705882
+    },
+    {
+      "id": "c156",
+      "v0Id": "hypothesis_014",
+      "score": 0.23529411764705882
+    },
+    {
+      "id": "c200",
+      "v0Id": "commitment_021",
+      "score": 0.23529411764705882
+    },
+    {
+      "id": "c231",
+      "v0Id": "decision_005",
+      "score": 0.23529411764705882
+    },
+    {
+      "id": "c260",
+      "v0Id": "commitment_014",
+      "score": 0.23529411764705882
+    },
+    {
+      "id": "c023",
+      "v0Id": "hypothesis_018",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c087",
+      "v0Id": "fact_033",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c111",
+      "v0Id": "decision_034",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c116",
+      "v0Id": "fact_019",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c154",
+      "v0Id": "preference_006",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c198",
+      "v0Id": "preference_033",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c203",
+      "v0Id": "fact_023",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c226",
+      "v0Id": "decision_015",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c251",
+      "v0Id": "hypothesis_023",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c266",
+      "v0Id": "fact_019",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c271",
+      "v0Id": "commitment_010",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c296",
+      "v0Id": "commitment_032",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c298",
+      "v0Id": "fact_023",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c327",
+      "v0Id": "observation_015",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c367",
+      "v0Id": "commitment_032",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c375",
+      "v0Id": "decision_015",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c380",
+      "v0Id": "decision_002",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c389",
+      "v0Id": "fact_023",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c390",
+      "v0Id": "commitment_032",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c394",
+      "v0Id": "observation_033",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c408",
+      "v0Id": "hypothesis_011",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c411",
+      "v0Id": "commitment_032",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c424",
+      "v0Id": "fact_023",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c433",
+      "v0Id": "decision_006",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c458",
+      "v0Id": "commitment_012",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c485",
+      "v0Id": "commitment_032",
+      "score": 0.23076923076923078
+    },
+    {
+      "id": "c192",
+      "v0Id": "hypothesis_028",
+      "score": 0.22727272727272727
+    },
+    {
+      "id": "c030",
+      "v0Id": "fact_027",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c045",
+      "v0Id": "fact_027",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c093",
+      "v0Id": "hypothesis_031",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c112",
+      "v0Id": "fact_008",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c190",
+      "v0Id": "commitment_001",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c227",
+      "v0Id": "commitment_001",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c277",
+      "v0Id": "fact_002",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c278",
+      "v0Id": "decision_011",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c305",
+      "v0Id": "fact_008",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c335",
+      "v0Id": "fact_008",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c346",
+      "v0Id": "decision_025",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c452",
+      "v0Id": "decision_022",
+      "score": 0.2222222222222222
+    },
+    {
+      "id": "c025",
+      "v0Id": "hypothesis_006",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c120",
+      "v0Id": "fact_009",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c129",
+      "v0Id": "fact_025",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c133",
+      "v0Id": "preference_025",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c145",
+      "v0Id": "fact_015",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c151",
+      "v0Id": "hypothesis_035",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c158",
+      "v0Id": "fact_009",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c174",
+      "v0Id": "hypothesis_011",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c182",
+      "v0Id": "commitment_018",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c183",
+      "v0Id": "commitment_002",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c185",
+      "v0Id": "fact_033",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c193",
+      "v0Id": "commitment_032",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c194",
+      "v0Id": "preference_009",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c202",
+      "v0Id": "decision_013",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c216",
+      "v0Id": "decision_013",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c236",
+      "v0Id": "fact_015",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c240",
+      "v0Id": "commitment_008",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c258",
+      "v0Id": "commitment_019",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c284",
+      "v0Id": "fact_009",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c331",
+      "v0Id": "decision_006",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c379",
+      "v0Id": "commitment_001",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c381",
+      "v0Id": "hypothesis_011",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c383",
+      "v0Id": "decision_015",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c384",
+      "v0Id": "decision_013",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c398",
+      "v0Id": "fact_023",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c413",
+      "v0Id": "hypothesis_015",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c421",
+      "v0Id": "fact_005",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c431",
+      "v0Id": "fact_009",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c439",
+      "v0Id": "decision_018",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c462",
+      "v0Id": "decision_006",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c463",
+      "v0Id": "decision_016",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c475",
+      "v0Id": "commitment_001",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c484",
+      "v0Id": "decision_015",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c491",
+      "v0Id": "decision_018",
+      "score": 0.21428571428571427
+    },
+    {
+      "id": "c306",
+      "v0Id": "preference_029",
+      "score": 0.21052631578947367
+    },
+    {
+      "id": "c336",
+      "v0Id": "hypothesis_035",
+      "score": 0.21052631578947367
+    },
+    {
+      "id": "c460",
+      "v0Id": "hypothesis_008",
+      "score": 0.21052631578947367
+    },
+    {
+      "id": "c482",
+      "v0Id": "hypothesis_014",
+      "score": 0.21052631578947367
+    },
+    {
+      "id": "c005",
+      "v0Id": "fact_011",
+      "score": 0.2
+    },
+    {
+      "id": "c013",
+      "v0Id": "decision_013",
+      "score": 0.2
+    },
+    {
+      "id": "c019",
+      "v0Id": "decision_015",
+      "score": 0.2
+    },
+    {
+      "id": "c020",
+      "v0Id": "fact_009",
+      "score": 0.2
+    },
+    {
+      "id": "c031",
+      "v0Id": "decision_006",
+      "score": 0.2
+    },
+    {
+      "id": "c036",
+      "v0Id": "fact_008",
+      "score": 0.2
+    },
+    {
+      "id": "c050",
+      "v0Id": "commitment_010",
+      "score": 0.2
+    },
+    {
+      "id": "c053",
+      "v0Id": "preference_012",
+      "score": 0.2
+    },
+    {
+      "id": "c060",
+      "v0Id": "observation_022",
+      "score": 0.2
+    },
+    {
+      "id": "c065",
+      "v0Id": "fact_019",
+      "score": 0.2
+    },
+    {
+      "id": "c073",
+      "v0Id": "commitment_003",
+      "score": 0.2
+    },
+    {
+      "id": "c092",
+      "v0Id": "decision_024",
+      "score": 0.2
+    },
+    {
+      "id": "c104",
+      "v0Id": "commitment_001",
+      "score": 0.2
+    },
+    {
+      "id": "c118",
+      "v0Id": "hypothesis_032",
+      "score": 0.2
+    },
+    {
+      "id": "c119",
+      "v0Id": "observation_010",
+      "score": 0.2
+    },
+    {
+      "id": "c124",
+      "v0Id": "observation_015",
+      "score": 0.2
+    },
+    {
+      "id": "c131",
+      "v0Id": "decision_030",
+      "score": 0.2
+    },
+    {
+      "id": "c143",
+      "v0Id": "fact_008",
+      "score": 0.2
+    },
+    {
+      "id": "c147",
+      "v0Id": "fact_008",
+      "score": 0.2
+    },
+    {
+      "id": "c150",
+      "v0Id": "decision_002",
+      "score": 0.2
+    },
+    {
+      "id": "c152",
+      "v0Id": "observation_010",
+      "score": 0.2
+    },
+    {
+      "id": "c160",
+      "v0Id": "commitment_031",
+      "score": 0.2
+    },
+    {
+      "id": "c170",
+      "v0Id": "decision_011",
+      "score": 0.2
+    },
+    {
+      "id": "c171",
+      "v0Id": "commitment_010",
+      "score": 0.2
+    },
+    {
+      "id": "c189",
+      "v0Id": "decision_033",
+      "score": 0.2
+    },
+    {
+      "id": "c191",
+      "v0Id": "hypothesis_032",
+      "score": 0.2
+    },
+    {
+      "id": "c204",
+      "v0Id": "observation_010",
+      "score": 0.2
+    },
+    {
+      "id": "c211",
+      "v0Id": "hypothesis_023",
+      "score": 0.2
+    },
+    {
+      "id": "c221",
+      "v0Id": "observation_023",
+      "score": 0.2
+    },
+    {
+      "id": "c225",
+      "v0Id": "decision_032",
+      "score": 0.2
+    },
+    {
+      "id": "c249",
+      "v0Id": "decision_013",
+      "score": 0.2
+    },
+    {
+      "id": "c253",
+      "v0Id": "hypothesis_007",
+      "score": 0.2
+    },
+    {
+      "id": "c255",
+      "v0Id": "hypothesis_029",
+      "score": 0.2
+    },
+    {
+      "id": "c256",
+      "v0Id": "hypothesis_015",
+      "score": 0.2
+    },
+    {
+      "id": "c272",
+      "v0Id": "decision_013",
+      "score": 0.2
+    },
+    {
+      "id": "c275",
+      "v0Id": "decision_013",
+      "score": 0.2
+    },
+    {
+      "id": "c280",
+      "v0Id": "hypothesis_020",
+      "score": 0.2
+    },
+    {
+      "id": "c290",
+      "v0Id": "commitment_013",
+      "score": 0.2
+    },
+    {
+      "id": "c297",
+      "v0Id": "hypothesis_002",
+      "score": 0.2
+    },
+    {
+      "id": "c303",
+      "v0Id": "preference_033",
+      "score": 0.2
+    },
+    {
+      "id": "c339",
+      "v0Id": "decision_032",
+      "score": 0.2
+    },
+    {
+      "id": "c342",
+      "v0Id": "hypothesis_032",
+      "score": 0.2
+    },
+    {
+      "id": "c343",
+      "v0Id": "commitment_010",
+      "score": 0.2
+    },
+    {
+      "id": "c369",
+      "v0Id": "fact_011",
+      "score": 0.2
+    },
+    {
+      "id": "c370",
+      "v0Id": "fact_008",
+      "score": 0.2
+    },
+    {
+      "id": "c373",
+      "v0Id": "fact_005",
+      "score": 0.2
+    },
+    {
+      "id": "c403",
+      "v0Id": "hypothesis_002",
+      "score": 0.2
+    },
+    {
+      "id": "c407",
+      "v0Id": "commitment_021",
+      "score": 0.2
+    },
+    {
+      "id": "c434",
+      "v0Id": "decision_006",
+      "score": 0.2
+    },
+    {
+      "id": "c435",
+      "v0Id": "fact_008",
+      "score": 0.2
+    },
+    {
+      "id": "c448",
+      "v0Id": "decision_034",
+      "score": 0.2
+    },
+    {
+      "id": "c451",
+      "v0Id": "observation_028",
+      "score": 0.2
+    },
+    {
+      "id": "c464",
+      "v0Id": "commitment_021",
+      "score": 0.2
+    },
+    {
+      "id": "c470",
+      "v0Id": "observation_004",
+      "score": 0.2
+    },
+    {
+      "id": "c478",
+      "v0Id": "decision_011",
+      "score": 0.2
+    },
+    {
+      "id": "c483",
+      "v0Id": "decision_008",
+      "score": 0.2
+    },
+    {
+      "id": "c487",
+      "v0Id": "fact_008",
+      "score": 0.2
+    },
+    {
+      "id": "c492",
+      "v0Id": "preference_001",
+      "score": 0.2
+    },
+    {
+      "id": "c362",
+      "v0Id": "fact_027",
+      "score": 0.19047619047619047
+    },
+    {
+      "id": "c437",
+      "v0Id": "decision_026",
+      "score": 0.19047619047619047
+    },
+    {
+      "id": "c002",
+      "v0Id": "observation_022",
+      "score": 0.1875
+    },
+    {
+      "id": "c008",
+      "v0Id": "hypothesis_022",
+      "score": 0.1875
+    },
+    {
+      "id": "c024",
+      "v0Id": "hypothesis_008",
+      "score": 0.1875
+    },
+    {
+      "id": "c029",
+      "v0Id": "decision_011",
+      "score": 0.1875
+    },
+    {
+      "id": "c040",
+      "v0Id": "preference_012",
+      "score": 0.1875
+    },
+    {
+      "id": "c052",
+      "v0Id": "fact_031",
+      "score": 0.1875
+    },
+    {
+      "id": "c072",
+      "v0Id": "decision_004",
+      "score": 0.1875
+    },
+    {
+      "id": "c076",
+      "v0Id": "decision_005",
+      "score": 0.1875
+    },
+    {
+      "id": "c109",
+      "v0Id": "fact_030",
+      "score": 0.1875
+    },
+    {
+      "id": "c113",
+      "v0Id": "hypothesis_032",
+      "score": 0.1875
+    },
+    {
+      "id": "c149",
+      "v0Id": "commitment_031",
+      "score": 0.1875
+    },
+    {
+      "id": "c210",
+      "v0Id": "preference_009",
+      "score": 0.1875
+    },
+    {
+      "id": "c220",
+      "v0Id": "fact_017",
+      "score": 0.1875
+    },
+    {
+      "id": "c229",
+      "v0Id": "hypothesis_007",
+      "score": 0.1875
+    },
+    {
+      "id": "c230",
+      "v0Id": "hypothesis_002",
+      "score": 0.1875
+    },
+    {
+      "id": "c232",
+      "v0Id": "commitment_021",
+      "score": 0.1875
+    },
+    {
+      "id": "c248",
+      "v0Id": "decision_004",
+      "score": 0.1875
+    },
+    {
+      "id": "c250",
+      "v0Id": "preference_024",
+      "score": 0.1875
+    },
+    {
+      "id": "c269",
+      "v0Id": "fact_026",
+      "score": 0.1875
+    },
+    {
+      "id": "c304",
+      "v0Id": "hypothesis_018",
+      "score": 0.1875
+    },
+    {
+      "id": "c308",
+      "v0Id": "preference_006",
+      "score": 0.1875
+    },
+    {
+      "id": "c322",
+      "v0Id": "commitment_009",
+      "score": 0.1875
+    },
+    {
+      "id": "c333",
+      "v0Id": "commitment_021",
+      "score": 0.1875
+    },
+    {
+      "id": "c338",
+      "v0Id": "observation_015",
+      "score": 0.1875
+    },
+    {
+      "id": "c347",
+      "v0Id": "hypothesis_019",
+      "score": 0.1875
+    },
+    {
+      "id": "c360",
+      "v0Id": "hypothesis_022",
+      "score": 0.1875
+    },
+    {
+      "id": "c382",
+      "v0Id": "decision_016",
+      "score": 0.1875
+    },
+    {
+      "id": "c395",
+      "v0Id": "observation_029",
+      "score": 0.1875
+    },
+    {
+      "id": "c417",
+      "v0Id": "hypothesis_007",
+      "score": 0.1875
+    },
+    {
+      "id": "c422",
+      "v0Id": "hypothesis_007",
+      "score": 0.1875
+    },
+    {
+      "id": "c440",
+      "v0Id": "commitment_032",
+      "score": 0.1875
+    },
+    {
+      "id": "c442",
+      "v0Id": "fact_003",
+      "score": 0.1875
+    },
+    {
+      "id": "c443",
+      "v0Id": "preference_033",
+      "score": 0.1875
+    },
+    {
+      "id": "c466",
+      "v0Id": "observation_001",
+      "score": 0.1875
+    },
+    {
+      "id": "c480",
+      "v0Id": "preference_019",
+      "score": 0.1875
+    },
+    {
+      "id": "c497",
+      "v0Id": "hypothesis_008",
+      "score": 0.1875
+    },
+    {
+      "id": "c037",
+      "v0Id": "decision_024",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c046",
+      "v0Id": "fact_001",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c114",
+      "v0Id": "fact_006",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c155",
+      "v0Id": "commitment_001",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c162",
+      "v0Id": "observation_009",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c167",
+      "v0Id": "observation_002",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c181",
+      "v0Id": "fact_002",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c187",
+      "v0Id": "fact_008",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c205",
+      "v0Id": "commitment_001",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c270",
+      "v0Id": "decision_023",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c282",
+      "v0Id": "decision_016",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c287",
+      "v0Id": "fact_008",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c310",
+      "v0Id": "preference_014",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c311",
+      "v0Id": "fact_007",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c315",
+      "v0Id": "decision_007",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c320",
+      "v0Id": "observation_002",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c328",
+      "v0Id": "decision_007",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c386",
+      "v0Id": "fact_011",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c391",
+      "v0Id": "observation_020",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c392",
+      "v0Id": "preference_014",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c419",
+      "v0Id": "fact_008",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c467",
+      "v0Id": "observation_009",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c481",
+      "v0Id": "fact_012",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c499",
+      "v0Id": "observation_023",
+      "score": 0.18181818181818182
+    },
+    {
+      "id": "c009",
+      "v0Id": "decision_008",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c022",
+      "v0Id": "preference_012",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c043",
+      "v0Id": "hypothesis_020",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c054",
+      "v0Id": "observation_007",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c071",
+      "v0Id": "observation_012",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c074",
+      "v0Id": "decision_008",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c098",
+      "v0Id": "hypothesis_021",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c107",
+      "v0Id": "observation_008",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c115",
+      "v0Id": "commitment_011",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c122",
+      "v0Id": "fact_030",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c126",
+      "v0Id": "hypothesis_018",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c127",
+      "v0Id": "hypothesis_031",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c159",
+      "v0Id": "decision_004",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c169",
+      "v0Id": "decision_008",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c235",
+      "v0Id": "observation_004",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c243",
+      "v0Id": "commitment_001",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c259",
+      "v0Id": "observation_007",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c265",
+      "v0Id": "fact_027",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c273",
+      "v0Id": "observation_010",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c274",
+      "v0Id": "hypothesis_020",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c332",
+      "v0Id": "observation_022",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c357",
+      "v0Id": "commitment_004",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c396",
+      "v0Id": "hypothesis_014",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c416",
+      "v0Id": "decision_006",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c429",
+      "v0Id": "hypothesis_014",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c471",
+      "v0Id": "decision_003",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c486",
+      "v0Id": "preference_012",
+      "score": 0.17647058823529413
+    },
+    {
+      "id": "c011",
+      "v0Id": "hypothesis_034",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c012",
+      "v0Id": "decision_007",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c027",
+      "v0Id": "fact_008",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c035",
+      "v0Id": "fact_008",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c042",
+      "v0Id": "preference_011",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c047",
+      "v0Id": "commitment_028",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c048",
+      "v0Id": "fact_023",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c064",
+      "v0Id": "fact_030",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c080",
+      "v0Id": "fact_009",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c081",
+      "v0Id": "observation_002",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c091",
+      "v0Id": "fact_014",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c094",
+      "v0Id": "fact_030",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c101",
+      "v0Id": "preference_009",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c102",
+      "v0Id": "decision_016",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c110",
+      "v0Id": "decision_030",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c125",
+      "v0Id": "commitment_028",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c132",
+      "v0Id": "decision_030",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c164",
+      "v0Id": "observation_002",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c176",
+      "v0Id": "fact_008",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c199",
+      "v0Id": "decision_025",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c206",
+      "v0Id": "observation_009",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c207",
+      "v0Id": "hypothesis_014",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c208",
+      "v0Id": "hypothesis_015",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c223",
+      "v0Id": "fact_011",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c233",
+      "v0Id": "decision_016",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c244",
+      "v0Id": "commitment_010",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c252",
+      "v0Id": "fact_011",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c316",
+      "v0Id": "decision_011",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c317",
+      "v0Id": "commitment_001",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c326",
+      "v0Id": "preference_014",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c334",
+      "v0Id": "decision_024",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c345",
+      "v0Id": "fact_001",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c363",
+      "v0Id": "fact_002",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c364",
+      "v0Id": "observation_019",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c376",
+      "v0Id": "commitment_032",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c404",
+      "v0Id": "decision_026",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c436",
+      "v0Id": "observation_014",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c444",
+      "v0Id": "commitment_010",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c453",
+      "v0Id": "decision_030",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c469",
+      "v0Id": "observation_002",
+      "score": 0.16666666666666666
+    },
+    {
+      "id": "c003",
+      "v0Id": "commitment_028",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c070",
+      "v0Id": "observation_028",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c086",
+      "v0Id": "observation_008",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c096",
+      "v0Id": "decision_011",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c184",
+      "v0Id": "fact_027",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c195",
+      "v0Id": "hypothesis_033",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c217",
+      "v0Id": "commitment_028",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c292",
+      "v0Id": "hypothesis_021",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c309",
+      "v0Id": "hypothesis_021",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c351",
+      "v0Id": "hypothesis_029",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c399",
+      "v0Id": "hypothesis_020",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c490",
+      "v0Id": "fact_027",
+      "score": 0.15789473684210525
+    },
+    {
+      "id": "c014",
+      "v0Id": "fact_035",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c021",
+      "v0Id": "hypothesis_002",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c032",
+      "v0Id": "decision_016",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c062",
+      "v0Id": "decision_034",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c088",
+      "v0Id": "fact_004",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c089",
+      "v0Id": "hypothesis_023",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c121",
+      "v0Id": "decision_016",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c135",
+      "v0Id": "observation_009",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c139",
+      "v0Id": "hypothesis_020",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c142",
+      "v0Id": "observation_009",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c146",
+      "v0Id": "preference_013",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c148",
+      "v0Id": "fact_004",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c153",
+      "v0Id": "hypothesis_023",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c175",
+      "v0Id": "observation_002",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c188",
+      "v0Id": "observation_002",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c241",
+      "v0Id": "decision_016",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c247",
+      "v0Id": "decision_030",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c267",
+      "v0Id": "preference_007",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c276",
+      "v0Id": "decision_031",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c289",
+      "v0Id": "fact_011",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c293",
+      "v0Id": "preference_013",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c299",
+      "v0Id": "preference_019",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c319",
+      "v0Id": "preference_011",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c329",
+      "v0Id": "fact_023",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c330",
+      "v0Id": "decision_031",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c344",
+      "v0Id": "commitment_001",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c353",
+      "v0Id": "hypothesis_004",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c365",
+      "v0Id": "decision_030",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c374",
+      "v0Id": "hypothesis_020",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c378",
+      "v0Id": "decision_034",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c405",
+      "v0Id": "observation_002",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c412",
+      "v0Id": "fact_004",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c438",
+      "v0Id": "observation_002",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c454",
+      "v0Id": "fact_014",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c455",
+      "v0Id": "observation_017",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c472",
+      "v0Id": "observation_009",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c496",
+      "v0Id": "decision_015",
+      "score": 0.15384615384615385
+    },
+    {
+      "id": "c082",
+      "v0Id": "hypothesis_007",
+      "score": 0.15
+    },
+    {
+      "id": "c214",
+      "v0Id": "observation_027",
+      "score": 0.15
+    },
+    {
+      "id": "c279",
+      "v0Id": "decision_005",
+      "score": 0.15
+    },
+    {
+      "id": "c324",
+      "v0Id": "hypothesis_008",
+      "score": 0.15
+    },
+    {
+      "id": "c359",
+      "v0Id": "commitment_025",
+      "score": 0.15
+    },
+    {
+      "id": "c418",
+      "v0Id": "fact_027",
+      "score": 0.15
+    },
+    {
+      "id": "c010",
+      "v0Id": "fact_024",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c018",
+      "v0Id": "decision_002",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c057",
+      "v0Id": "preference_003",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c059",
+      "v0Id": "fact_001",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c061",
+      "v0Id": "commitment_018",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c063",
+      "v0Id": "decision_028",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c079",
+      "v0Id": "decision_014",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c085",
+      "v0Id": "observation_009",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c099",
+      "v0Id": "fact_027",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c106",
+      "v0Id": "observation_002",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c108",
+      "v0Id": "commitment_001",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c128",
+      "v0Id": "fact_033",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c134",
+      "v0Id": "decision_016",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c140",
+      "v0Id": "decision_015",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c177",
+      "v0Id": "fact_001",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c180",
+      "v0Id": "decision_007",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c197",
+      "v0Id": "fact_010",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c201",
+      "v0Id": "decision_015",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c237",
+      "v0Id": "observation_002",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c262",
+      "v0Id": "decision_012",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c263",
+      "v0Id": "decision_024",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c288",
+      "v0Id": "decision_016",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c300",
+      "v0Id": "fact_010",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c302",
+      "v0Id": "fact_023",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c323",
+      "v0Id": "fact_023",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c371",
+      "v0Id": "hypothesis_023",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c397",
+      "v0Id": "fact_029",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c401",
+      "v0Id": "decision_016",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c427",
+      "v0Id": "preference_023",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c459",
+      "v0Id": "fact_005",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c479",
+      "v0Id": "fact_004",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c498",
+      "v0Id": "hypothesis_027",
+      "score": 0.14285714285714285
+    },
+    {
+      "id": "c033",
+      "v0Id": "observation_027",
+      "score": 0.13636363636363635
+    },
+    {
+      "id": "c004",
+      "v0Id": "commitment_020",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c006",
+      "v0Id": "fact_010",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c041",
+      "v0Id": "preference_001",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c078",
+      "v0Id": "fact_010",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c144",
+      "v0Id": "commitment_032",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c178",
+      "v0Id": "fact_010",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c218",
+      "v0Id": "commitment_017",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c238",
+      "v0Id": "fact_011",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c239",
+      "v0Id": "decision_015",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c246",
+      "v0Id": "commitment_032",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c268",
+      "v0Id": "hypothesis_031",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c291",
+      "v0Id": "hypothesis_020",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c312",
+      "v0Id": "decision_024",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c318",
+      "v0Id": "decision_007",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c340",
+      "v0Id": "decision_015",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c354",
+      "v0Id": "decision_015",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c385",
+      "v0Id": "decision_007",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c456",
+      "v0Id": "observation_017",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c474",
+      "v0Id": "observation_010",
+      "score": 0.13333333333333333
+    },
+    {
+      "id": "c001",
+      "v0Id": "hypothesis_034",
+      "score": 0.125
+    },
+    {
+      "id": "c117",
+      "v0Id": "fact_026",
+      "score": 0.125
+    },
+    {
+      "id": "c137",
+      "v0Id": "observation_032",
+      "score": 0.125
+    },
+    {
+      "id": "c186",
+      "v0Id": "decision_009",
+      "score": 0.125
+    },
+    {
+      "id": "c295",
+      "v0Id": "hypothesis_019",
+      "score": 0.125
+    },
+    {
+      "id": "c349",
+      "v0Id": "fact_003",
+      "score": 0.125
+    },
+    {
+      "id": "c441",
+      "v0Id": "decision_034",
+      "score": 0.125
+    },
+    {
+      "id": "c468",
+      "v0Id": "fact_003",
+      "score": 0.125
+    },
+    {
+      "id": "c473",
+      "v0Id": "fact_010",
+      "score": 0.125
+    },
+    {
+      "id": "c488",
+      "v0Id": "fact_009",
+      "score": 0.125
+    },
+    {
+      "id": "c493",
+      "v0Id": "observation_026",
+      "score": 0.12
+    },
+    {
+      "id": "c337",
+      "v0Id": "observation_029",
+      "score": 0.11764705882352941
+    },
+    {
+      "id": "c341",
+      "v0Id": "decision_010",
+      "score": 0.11764705882352941
+    },
+    {
+      "id": "c372",
+      "v0Id": "decision_004",
+      "score": 0.11764705882352941
+    },
+    {
+      "id": "c179",
+      "v0Id": "fact_003",
+      "score": 0.1111111111111111
+    },
+    {
+      "id": "c196",
+      "v0Id": "hypothesis_004",
+      "score": 0.1111111111111111
+    },
+    {
+      "id": "c213",
+      "v0Id": "decision_009",
+      "score": 0.1111111111111111
+    },
+    {
+      "id": "c219",
+      "v0Id": "hypothesis_033",
+      "score": 0.1111111111111111
+    },
+    {
+      "id": "c406",
+      "v0Id": "fact_027",
+      "score": 0.1111111111111111
+    },
+    {
+      "id": "c163",
+      "v0Id": "decision_012",
+      "score": 0.10526315789473684
+    },
+    {
+      "id": "c051",
+      "v0Id": "decision_009",
+      "score": 0.1
+    },
+    {
+      "id": "c361",
+      "v0Id": "preference_007",
+      "score": 0.1
+    },
+    {
+      "id": "c465",
+      "v0Id": "decision_009",
+      "score": 0.1
+    },
+    {
+      "id": "c294",
+      "v0Id": "preference_001",
+      "score": 0.09090909090909091
+    },
+    {
+      "id": "c352",
+      "v0Id": "hypothesis_018",
+      "score": 0.09090909090909091
+    },
+    {
+      "id": "c314",
+      "v0Id": "preference_001",
+      "score": 0.08333333333333333
+    },
+    {
+      "id": "c489",
+      "v0Id": "preference_026",
+      "score": 0.08333333333333333
+    },
+    {
+      "id": "c069",
+      "v0Id": "preference_024",
+      "score": 0.07142857142857142
+    },
+    {
+      "id": "c166",
+      "v0Id": "observation_033",
+      "score": 0.07142857142857142
+    },
+    {
+      "id": "c387",
+      "v0Id": "hypothesis_010",
+      "score": 0.07142857142857142
+    },
+    {
+      "id": "c165",
+      "v0Id": "preference_011",
+      "score": 0.05263157894736842
+    },
+    {
+      "id": "c077",
+      "v0Id": "decision_001",
+      "score": 0
+    }
+  ],
+  "nearDuplicateThreshold": 0.6,
+  "nearDuplicateCandidates": [],
+  "structuralSerializationPass": true,
+  "semanticContextCueCandidates": [
+    {
+      "id": "c003",
+      "context": "The owner explicitly revises a standing preference."
+    },
+    {
+      "id": "c016",
+      "context": "The owner establishes a standing display preference."
+    },
+    {
+      "id": "c028",
+      "context": "Both approval and a personal undertaking are asserted with no isolated target."
+    },
+    {
+      "id": "c031",
+      "context": "The location search decision has been formally revised."
+    },
+    {
+      "id": "c053",
+      "context": "The owner describes their communication preference."
+    },
+    {
+      "id": "c055",
+      "context": "The authorized owner is issuing the final permit decision."
+    },
+    {
+      "id": "c057",
+      "context": "The owner specifies a recurring material preference."
+    },
+    {
+      "id": "c075",
+      "context": "The owner establishes a report structure preference."
+    },
+    {
+      "id": "c083",
+      "context": "The team corrects the status of its undertaking."
+    },
+    {
+      "id": "c101",
+      "context": "The owner is making the final one-time color selection, with no standing preference."
+    },
+    {
+      "id": "c108",
+      "context": "The owner narrows the timing of their undertaking."
+    },
+    {
+      "id": "c111",
+      "context": "The owner confirms an existing undertaking."
+    },
+    {
+      "id": "c125",
+      "context": "No specific repair decision is being made."
+    },
+    {
+      "id": "c133",
+      "context": "This is the owner's recurring organization preference."
+    },
+    {
+      "id": "c154",
+      "context": "The owner sets their normal lending workflow preference."
+    },
+    {
+      "id": "c157",
+      "context": "The wording decision is complete."
+    },
+    {
+      "id": "c183",
+      "context": "The sessions are an accepted undertaking, not a tentative proposal."
+    },
+    {
+      "id": "c192",
+      "context": "The owner accepts a clearly conditional undertaking."
+    },
+    {
+      "id": "c194",
+      "context": "The owner establishes a continuing presentation preference."
+    },
+    {
+      "id": "c198",
+      "context": "The owner describes a recurring decision-support preference."
+    },
+    {
+      "id": "c200",
+      "context": "No primary clause is isolated."
+    },
+    {
+      "id": "c203",
+      "context": "The trustees acknowledge the fund's binding undertaking."
+    },
+    {
+      "id": "c210",
+      "context": "The owner states a tone preference."
+    },
+    {
+      "id": "c211",
+      "context": "The governing group completed its scheduling decision."
+    },
+    {
+      "id": "c212",
+      "context": "The owner is specifying their usual workspace preference."
+    },
+    {
+      "id": "c215",
+      "context": "The owner acknowledges an obligation without making the decision yet."
+    },
+    {
+      "id": "c217",
+      "context": "The owner states their current relative preference."
+    },
+    {
+      "id": "c232",
+      "context": "The candidate contains a current choice and an explicit standing preference."
+    },
+    {
+      "id": "c246",
+      "context": "The owner reaffirms their established instruction-format preference."
+    },
+    {
+      "id": "c250",
+      "context": "The owner describes a standing practice preference."
+    },
+    {
+      "id": "c261",
+      "context": "The owner leaves the decision pending and makes no promise to another party."
+    },
+    {
+      "id": "c267",
+      "context": "The owner describes a general visiting preference."
+    },
+    {
+      "id": "c268",
+      "context": "The map legend is explicit."
+    },
+    {
+      "id": "c269",
+      "context": "Context establishes only that this quotation occurred; no one endorses it as the owner's preference."
+    },
+    {
+      "id": "c271",
+      "context": "The owner only reports their behavior; they have not approved a preference."
+    },
+    {
+      "id": "c272",
+      "context": "The speaker means the bell was unusually loud during today's tour, not a general ranking."
+    },
+    {
+      "id": "c277",
+      "context": "The owner has not adopted that template as a personal preference."
+    },
+    {
+      "id": "c293",
+      "context": "The owner sets a general scheduling preference."
+    },
+    {
+      "id": "c299",
+      "context": "The owner describes a standing accessibility-related travel preference."
+    },
+    {
+      "id": "c308",
+      "context": "The owner states a general participation preference."
+    },
+    {
+      "id": "c310",
+      "context": "The owner states a recurring presentation preference."
+    },
+    {
+      "id": "c326",
+      "context": "The owner describes their normal presentation preference."
+    },
+    {
+      "id": "c342",
+      "context": "No general owner preference or actual choice is explicitly established."
+    },
+    {
+      "id": "c344",
+      "context": "The owner specifies their continuing editorial preference."
+    },
+    {
+      "id": "c347",
+      "context": "This is the editorial ruling, not an undertaking to perform the work."
+    },
+    {
+      "id": "c350",
+      "context": "This is a resolved go/no-go choice, not a prediction."
+    },
+    {
+      "id": "c355",
+      "context": "The owner describes a standing meeting preparation preference."
+    },
+    {
+      "id": "c356",
+      "context": "The owner explicitly says the final decision is still open."
+    },
+    {
+      "id": "c364",
+      "context": "The handler records behavior, not a preference on behalf of the owner."
+    },
+    {
+      "id": "c368",
+      "context": "The owner explicitly withdraws a standing preference without selecting a replacement."
+    },
+    {
+      "id": "c400",
+      "context": "No undertaking to apply it is included."
+    },
+    {
+      "id": "c402",
+      "context": "The candidate reports a verified title, not a current choice."
+    },
+    {
+      "id": "c415",
+      "context": "This is the owner's explicit assurance in accepting access."
+    },
+    {
+      "id": "c420",
+      "context": "The candidate combines a promise and a standing preference."
+    },
+    {
+      "id": "c427",
+      "context": "The owner describes a standing personal navigation preference."
+    },
+    {
+      "id": "c429",
+      "context": "The owner explicitly approves an observed tendency as a continuing preference."
+    },
+    {
+      "id": "c432",
+      "context": "The candidate states both preference and completed choice."
+    },
+    {
+      "id": "c441",
+      "context": "The candidate combines a measured result with explicit uncertainty, without proposing an explanation."
+    },
+    {
+      "id": "c446",
+      "context": "The owner records the conservator's accepted undertaking."
+    },
+    {
+      "id": "c449",
+      "context": "The owner states a continuing interaction preference."
+    },
+    {
+      "id": "c469",
+      "context": "The observer records a sound change, not a general explanation."
+    },
+    {
+      "id": "c474",
+      "context": "The owner specifies a continuing workspace preference."
+    },
+    {
+      "id": "c475",
+      "context": "The owner records both a noticed condition and an explicit undertaking with no isolated target."
+    },
+    {
+      "id": "c484",
+      "context": "The owner states a standing personal choice tendency."
+    },
+    {
+      "id": "c499",
+      "context": "No options or decision question are supplied."
+    }
+  ],
+  "limitations": "Token Jaccard is a lexical screen, not proof of semantic independence. Context cue matches require human/author interpretation; legitimate conversational context can contain these words. The initial authoring inspection found actual explanatory label cues as well as legitimate matches. No semantic novelty PASS is claimed."
+}

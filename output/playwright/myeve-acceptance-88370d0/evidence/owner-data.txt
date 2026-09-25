@@ -1,0 +1,271 @@
+### Page
+- Page URL: http://localhost:3073/manage/data
+- Page Title: Ava
+- Console: 4 errors, 54 warnings
+### Snapshot
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e253] [cursor=pointer]:
+    - img [ref=e254]
+  - alert [ref=e257]
+  - generic [ref=e1985]:
+    - complementary [ref=e1986]:
+      - generic [ref=e1987]:
+        - button "Back to chat" [ref=e1988]: Ava
+        - generic [ref=e1989]:
+          - button "Goals" [ref=e1990] [cursor=pointer]:
+            - img [ref=e1991]
+          - button "Knowledge" [ref=e1993] [cursor=pointer]:
+            - img [ref=e1994]
+          - button "Results" [ref=e1996] [cursor=pointer]:
+            - img [ref=e1997]
+          - button "Computer" [ref=e1999] [cursor=pointer]:
+            - img [ref=e2000]
+          - button "Agents" [ref=e2002] [cursor=pointer]:
+            - img [ref=e2003]
+          - button "Review" [ref=e2005] [cursor=pointer]:
+            - img [ref=e2006]
+          - button "Channels" [ref=e2008] [cursor=pointer]:
+            - img [ref=e2009]
+          - button "Files" [ref=e2011] [cursor=pointer]:
+            - img [ref=e2012]
+          - button "Manage" [pressed] [ref=e2014] [cursor=pointer]:
+            - img [ref=e2015]
+          - button "New thread" [ref=e2017] [cursor=pointer]:
+            - img [ref=e2018]
+      - textbox "Search threads" [ref=e2022]
+      - navigation [ref=e2023]:
+        - generic [ref=e2024]:
+          - paragraph [ref=e2025]: Today
+          - list [ref=e2026]:
+            - listitem [ref=e2027]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e2028]:
+                - generic [ref=e2030]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e2031]: 12:46 PM
+              - generic [ref=e2032]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e2033] [cursor=pointer]:
+                  - img [ref=e2034]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e2036] [cursor=pointer]:
+                  - img [ref=e2037]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e2039] [cursor=pointer]:
+                  - img [ref=e2040]
+    - main [ref=e2042]:
+      - generic [ref=e2043]:
+        - generic [ref=e2044]:
+          - heading "Manage" [level=1] [ref=e2045]
+          - paragraph [ref=e2046]: Configure what Ava knows, connects to, and handles for you.
+        - generic [ref=e2048]:
+          - navigation "Manage sections" [ref=e2049]:
+            - generic [ref=e2050]:
+              - paragraph [ref=e2051]: General
+              - list [ref=e2052]:
+                - listitem [ref=e2053]:
+                  - button "Getting started Setup and first useful job" [ref=e2054]:
+                    - img [ref=e2056]
+                    - generic [ref=e2058]:
+                      - generic [ref=e2059]: Getting started
+                      - generic [ref=e2060]: Setup and first useful job
+                - listitem [ref=e2061]:
+                  - button "Briefs & reviews Scheduled proactive delivery" [ref=e2062]:
+                    - img [ref=e2064]
+                    - generic [ref=e2066]:
+                      - generic [ref=e2067]: Briefs & reviews
+                      - generic [ref=e2068]: Scheduled proactive delivery
+                - listitem [ref=e2069]:
+                  - button "System Setup and service health" [ref=e2070]:
+                    - img [ref=e2072]
+                    - generic [ref=e2074]:
+                      - generic [ref=e2075]: System
+                      - generic [ref=e2076]: Setup and service health
+                - listitem [ref=e2077]:
+                  - button "Appearance Identity and theme" [ref=e2078]:
+                    - img [ref=e2080]
+                    - generic [ref=e2082]:
+                      - generic [ref=e2083]: Appearance
+                      - generic [ref=e2084]: Identity and theme
+                - listitem [ref=e2085]:
+                  - button "Your data Export, verify, and retention" [ref=e2086]:
+                    - img [ref=e2088]
+                    - generic [ref=e2090]:
+                      - generic [ref=e2091]: Your data
+                      - generic [ref=e2092]: Export, verify, and retention
+                - listitem [ref=e2093]:
+                  - button "Agents Role catalog and persistent Agents" [ref=e2094]:
+                    - img [ref=e2096]
+                    - generic [ref=e2098]:
+                      - generic [ref=e2099]: Agents
+                      - generic [ref=e2100]: Role catalog and persistent Agents
+            - generic [ref=e2101]:
+              - paragraph [ref=e2102]: Automations
+              - list [ref=e2103]:
+                - listitem [ref=e2104]:
+                  - button "Reminders Scheduled follow-ups 0" [ref=e2105]:
+                    - img [ref=e2107]
+                    - generic [ref=e2109]:
+                      - generic [ref=e2110]: Reminders
+                      - generic [ref=e2111]: Scheduled follow-ups
+                    - generic [ref=e2112]: "0"
+                - listitem [ref=e2113]:
+                  - button "Triggers Event-driven work 0" [ref=e2114]:
+                    - img [ref=e2116]
+                    - generic [ref=e2118]:
+                      - generic [ref=e2119]: Triggers
+                      - generic [ref=e2120]: Event-driven work
+                    - generic [ref=e2121]: "0"
+            - generic [ref=e2122]:
+              - paragraph [ref=e2123]: Channels
+              - list [ref=e2124]:
+                - listitem [ref=e2125]:
+                  - button "Slack Workspace messaging and reactions" [ref=e2126]:
+                    - img [ref=e2128]
+                    - generic [ref=e2130]:
+                      - generic [ref=e2131]: Slack
+                      - generic [ref=e2132]: Workspace messaging and reactions
+                - listitem [ref=e2133]:
+                  - button "iMessage Pairing and shared-number delivery" [ref=e2134]:
+                    - img [ref=e2136]
+                    - generic [ref=e2138]:
+                      - generic [ref=e2139]: iMessage
+                      - generic [ref=e2140]: Pairing and shared-number delivery
+            - generic [ref=e2141]:
+              - paragraph [ref=e2142]: Knowledge & tools
+              - list [ref=e2143]:
+                - listitem [ref=e2144]:
+                  - button "Memory What Ava remembers Setup required" [ref=e2145]:
+                    - img [ref=e2147]
+                    - generic [ref=e2149]:
+                      - generic [ref=e2150]: Memory
+                      - generic [ref=e2151]: What Ava remembers
+                    - generic "Setup required" [ref=e2152]:
+                      - generic [ref=e2153]: Setup required
+                - listitem [ref=e2154]:
+                  - button "Connections Apps and accounts Setup required" [ref=e2155]:
+                    - img [ref=e2157]
+                    - generic [ref=e2159]:
+                      - generic [ref=e2160]: Connections
+                      - generic [ref=e2161]: Apps and accounts
+                    - generic "Setup required" [ref=e2162]:
+                      - generic [ref=e2163]: Setup required
+                - listitem [ref=e2164]:
+                  - button "Skills Reusable procedures Setup required" [ref=e2165]:
+                    - img [ref=e2167]
+                    - generic [ref=e2169]:
+                      - generic [ref=e2170]: Skills
+                      - generic [ref=e2171]: Reusable procedures
+                    - generic "Setup required" [ref=e2172]:
+                      - generic [ref=e2173]: Setup required
+            - generic [ref=e2174]:
+              - paragraph [ref=e2175]: Operations
+              - list [ref=e2176]:
+                - listitem [ref=e2177]:
+                  - button "Routines Readiness and reviewed capabilities" [ref=e2178]:
+                    - img [ref=e2180]
+                    - generic [ref=e2182]:
+                      - generic [ref=e2183]: Routines
+                      - generic [ref=e2184]: Readiness and reviewed capabilities
+                - listitem [ref=e2185]:
+                  - button "Relay Owner-controlled external sharing" [ref=e2186]:
+                    - img [ref=e2188]
+                    - generic [ref=e2190]:
+                      - generic [ref=e2191]: Relay
+                      - generic [ref=e2192]: Owner-controlled external sharing
+                - listitem [ref=e2193]:
+                  - button "Control Center Live work and safe controls" [ref=e2194]:
+                    - img [ref=e2196]
+                    - generic [ref=e2198]:
+                      - generic [ref=e2199]: Control Center
+                      - generic [ref=e2200]: Live work and safe controls
+                - listitem [ref=e2201]:
+                  - button "Approvals Exact-action owner decisions" [ref=e2202]:
+                    - img [ref=e2204]
+                    - generic [ref=e2206]:
+                      - generic [ref=e2207]: Approvals
+                      - generic [ref=e2208]: Exact-action owner decisions
+                - listitem [ref=e2209]:
+                  - button "Activity Audited tasks and evidence" [ref=e2210]:
+                    - img [ref=e2212]
+                    - generic [ref=e2214]:
+                      - generic [ref=e2215]: Activity
+                      - generic [ref=e2216]: Audited tasks and evidence
+                - listitem [ref=e2217]:
+                  - button "Finance Recorded receipts" [ref=e2218]:
+                    - img [ref=e2220]
+                    - generic [ref=e2222]:
+                      - generic [ref=e2223]: Finance
+                      - generic [ref=e2224]: Recorded receipts
+          - generic [ref=e2227]:
+            - generic [ref=e2229]:
+              - heading "Your data" [level=2] [ref=e2230]
+              - paragraph [ref=e2231]: Export, verify, and retention
+            - generic [ref=e2232]:
+              - navigation "Owner Data Center" [ref=e2233]:
+                - button "What MyEve Knows" [ref=e2234]
+                - button "Backup & recovery" [ref=e2235]
+              - generic [ref=e2236]:
+                - generic [ref=e2238]:
+                  - generic [ref=e2239]:
+                    - generic [ref=e2240]:
+                      - img [ref=e2241]
+                      - heading "What MyEve Knows" [level=3] [ref=e2243]
+                    - paragraph [ref=e2244]: Inspect durable Memory and Knowledge, understand why it exists, and keep final authority over corrections and removal.
+                  - button "Refresh" [ref=e2245] [cursor=pointer]:
+                    - img [ref=e2246]
+                - navigation "Knowledge review queues" [ref=e2248]:
+                  - button "All" [ref=e2249]
+                  - button "Needs review" [ref=e2250]
+                  - button "Contradictions" [ref=e2251]
+                  - button "Potentially stale" [ref=e2252]
+                  - button "Recently learned" [ref=e2253]
+                  - button "Recently corrected" [ref=e2254]
+                - generic [ref=e2255]:
+                  - generic [ref=e2256]:
+                    - img
+                    - textbox "Search what MyEve knows" [ref=e2257]:
+                      - /placeholder: Search Memory and Knowledge
+                  - combobox "Filter by type" [ref=e2258]:
+                    - option "All types" [selected]
+                    - option "Memory"
+                    - option "Fact"
+                    - option "Observation"
+                    - option "Hypothesis"
+                    - option "Decision"
+                    - option "Commitment"
+                    - option "Preference"
+                    - option "Insight"
+                  - combobox "Filter by scope" [ref=e2259]:
+                    - option "All scopes" [selected]
+                    - option "Owner"
+                    - option "Agent"
+                    - option "Goal"
+                    - option "Project"
+                    - option "Task"
+                - group [ref=e2260]:
+                  - generic "More filters" [ref=e2261] [cursor=pointer]
+                  - option "All Agents" [selected]
+                  - option "Ava"
+                  - option "All Goals" [selected]
+                  - option "Launch Project Atlas"
+                  - option "Improve Customer Onboarding"
+                  - option "All sources" [selected]
+                  - option "Explicit"
+                  - option "Chat"
+                  - option "Email"
+                  - option "Slack"
+                  - option "Telegram"
+                  - option "File"
+                  - option "Web"
+                  - option "Run"
+                  - option "Manual"
+                - generic [ref=e2262]:
+                  - complementary [ref=e2263]:
+                    - generic [ref=e2264]:
+                      - img [ref=e2265]
+                      - paragraph [ref=e2267]: Nothing durable yet
+                      - paragraph [ref=e2268]: Try another search or filter. MyEve never invents missing provenance.
+                  - generic [ref=e2271]:
+                    - img [ref=e2272]
+                    - paragraph [ref=e2274]: Select information to inspect
+                    - paragraph [ref=e2275]: Scope, provenance, history, and owner controls will appear here.
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L508-L564

@@ -1,0 +1,13 @@
+
+Running 6 tests using 1 worker
+
+(node:83976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/browser/blockers.spec.cjs:8:1 › mobile normal taps reach every top-level destination without an intercepting drawer (19.3s)
+  ✓  2 test/browser/blockers.spec.cjs:26:1 › mobile Manage inventory is fully reachable by touch (5.4s)
+  ✓  3 test/browser/blockers.spec.cjs:36:1 › desktop navigation and mobile keyboard focus remain usable (2.4s)
+  ✓  4 test/browser/blockers.spec.cjs:41:1 › backup rejects duplicate and secret content through the actual verification form (3.6s)
+  ✓  5 test/browser/blockers.spec.cjs:50:1 › chat upload is one durable file, survives reload, is readable and exported (8.9s)
+  ✓  6 test/browser/blockers.spec.cjs:71:1 › failed upload retains the draft and creates no phantom file or model call (994ms)
+
+  6 passed (41.4s)

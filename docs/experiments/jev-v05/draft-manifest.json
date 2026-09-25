@@ -1,0 +1,38 @@
+{
+  "datasetCandidate": "knowledge-classification-challenge-v1-draft-01",
+  "status": "REJECTED_DRAFT_NOT_FOR_EVALUATION",
+  "eligibleForLiveEvaluation": false,
+  "authorId": "codex-authoring-main",
+  "reviewType": "AI INDEPENDENT REVIEW",
+  "reviewModel": "Inherited Codex model; exact identifier unavailable in agent context",
+  "groundTruthReview": {
+    "agentInvocations": 3,
+    "separatelyInvokedExternalModelApis": 0,
+    "inputTokens": null,
+    "outputTokens": null,
+    "costUsd": null,
+    "usageNote": "Codex agent review usage was not exposed; unavailable is not zero. Separate from Jev benchmark usage."
+  },
+  "jev": {
+    "calls": 0,
+    "ownerData": "NONE",
+    "behavioralInfluence": "NONE"
+  },
+  "fileSha256": {
+    "rubric.json": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c",
+    "authored.json": "09a6fa2bbc122a91442fcf8900f9036f2dea5a1b5c81367f9e99a55be1eb6665",
+    "reviewed.json": "289abeffbfa9811368535be3efe75fc22d7cb52c5c332f49c2065a867418a1b3",
+    "primary.json": "80337a72681d6e2e6bdfe03dbfaba4be6fef47b9da84d81e41c1a82b5f69a40d",
+    "ambiguity.json": "48680fadac115c488cae2466e3345df5b26ef15226d9c1c03f08605d53b81f60",
+    "disagreement.json": "f493f7ceadc85f5ec6368c79b10edef7743d1507ec0c625a2d61126ef7e9a8c2",
+    "human-review.json": "0562d8617550f50a1c9fc21d397f097a070d4e758919a536385459ddcea6afaa",
+    "agreement.json": "e78ea5b1404327cb03a8d3b2e531c3bd1d7529eee8a31770781f7b6e11b4d65b",
+    "quality-audit.json": "e1ec3995c14a6f2e599f8dac7530165eabaa0c7e6b71b1a12e0c8a7f2d3f6975",
+    "review/blind-1.json": "e96fed0630198ae1925e956556b2c509ac2bb64cb96642d2fde6500d401d6a12",
+    "review/results-1.json": "131f4aeb8eb01e61bc18bed299912b2f488971c53b3ecd8c980553e3de92fffd",
+    "review/blind-2.json": "eac41671cff31587e509cf4af001519fe968e2603a283022b3af67d217f4cbbd",
+    "review/results-2.json": "f4df34ab88a86614d9738462384e561357788c31b6f56243ead57d36684ec642",
+    "review/blind-3.json": "d20c989135ee2842a1b3238e2eb86278c84198e7b0f8f3cfd144bb2cb2c7cecd",
+    "review/results-3.json": "4ce1a0581df98a39b52a3b79db8645fc840fdcdd1dd95a333394ae1d8e2659a0"
+  }
+}

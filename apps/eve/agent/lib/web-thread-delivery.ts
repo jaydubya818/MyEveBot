@@ -40,9 +40,7 @@ export async function deliverToWebChatThread(
   origin: "reminder" | "webhook" | "email" = "reminder",
 ): Promise<WebChatDelivery> {
   const client = new Client({ host: baseUrl() });
-  const session = client.session();
-
-  const response = await session.send({ message });
+  const { session, response } = await client.sessions.create({ message });
   const events: HandleMessageStreamEvent[] = [];
   for await (const event of response) events.push(event);
 

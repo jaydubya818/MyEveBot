@@ -1,3 +1,5 @@
+import { insertFederationArtifact } from "../qualification/artifact-storage.ts";
+import { qualificationEnabled, qualificationModel, qualifyArtifact } from "../qualification/client.ts";
 import { generateText, gateway } from "ai";
 import { randomUUID, createHash } from "node:crypto";
 import {
@@ -16,6 +18,8 @@ import {
 import { submissionSchema } from "./contracts.ts";
 import { decryptSecret, encryptSecret, type Envelope } from "./transport.ts";
 import { FederationStore } from "./store.ts";
+import { incomingPeerPermission } from "./incoming-permissions.ts";
+import { bindPeerAction, PeerPermissionError } from "./peer-permissions.ts";
 
 export function boundedWorkSummary(content: string) {
   if (content.length <= 900) return content;
@@ -44,7 +48,13 @@ export async function executeExternalWork(
   envelope: Envelope,
   beforeExecution: () => Promise<void>,
 ) {
-  const connection = await store.connection();
+  let peer;
+  try { peer = await incomingPeerPermission(store, envelope); }
+  catch (error) {
+    if (error instanceof PeerPermissionError) return { status: "REJECTED" as const, reason: error.code };
+    throw error;
+  }
+  const connection = peer.connection;
   const submission = submissionSchema.parse({
     target: envelope.target.address,
     resource: envelope.resource,
@@ -124,12 +134,15 @@ export async function executeExternalWork(
     request = { local_run_id: run.id };
   }
   const runId = String(request.local_run_id);
+  await bindPeerAction(store, runId, envelope.id, peer.row!, peer.request);
   const authority = {
     evaluate: async (
       action: Parameters<typeof localAuthorityProvider.evaluate>[0],
       target: Parameters<typeof localAuthorityProvider.evaluate>[1],
     ) => {
-      const current = await store.connection();
+      const permission = await incomingPeerPermission(store, envelope, peer.row!.revision);
+      await bindPeerAction(store, runId, envelope.id, permission.row!, permission.request);
+      const current = permission.connection;
       const decision = externalWorkDecision(
         input.task,
         current.localWorkPolicy[input.category],
@@ -151,7 +164,7 @@ export async function executeExternalWork(
           },
         ],
         maximumRisk: "low",
-        requiresApprovalFor: decision === "approval" ? ["files.read"] : [],
+        requiresApprovalFor: ["files.read"],
       });
       return local;
     },
@@ -193,6 +206,8 @@ export async function executeExternalWork(
             expectedOutput: input.expectedOutput,
             sources: context,
           });
+          if (qualificationEnabled() && Number(input.budget.cost) < 0.204) throw new Error("Qualification model liability exceeds the local budget.");
+          if (!qualificationEnabled()) {
           let pricingTimeout: ReturnType<typeof setTimeout> | undefined;
           const { models } = await Promise.race([
             gateway.getAvailableModels(),
@@ -226,8 +241,11 @@ export async function executeExternalWork(
             throw new Error(
               "Model pricing unavailable or estimated call exceeds the local budget.",
             );
+          }
           await consumeActionAuthority(authorized, parameters, "files.read");
           // Fresh Relay authorization is checked immediately before the model call.
+          const permission = await incomingPeerPermission(store, envelope, peer.row!.revision);
+          await bindPeerAction(store, runId, envelope.id, permission.row!, permission.request);
           await beforeExecution();
           // Only an authorized, freshly accepted request may resume its canonical Run.
           const [run] = await store.database.query(
@@ -249,7 +267,7 @@ export async function executeExternalWork(
             Date.parse(envelope.expiresAt) - Date.now(),
           );
           if (remaining <= 0) throw new Error("Work expired.");
-          const response = await generateText({
+          const response = qualificationEnabled() ? await qualificationModel(store.ownerId, envelope.id, `${system}\n${prompt}`, AbortSignal.timeout(remaining)) : await generateText({
             model: gateway(modelId),
             system,
             prompt,
@@ -292,16 +310,18 @@ export async function executeExternalWork(
             sourceAgentId: connection.agentId,
             requestId: envelope.id,
           };
+          await qualifyArtifact(store.ownerId, artifactId, fullOutput);
           // Persist the full output before the action gateway stores its bounded
           // receipt. Its normal evidence redaction/truncation must not lose output.
-          await store.database.query(
-            "INSERT INTO myeve_relay_artifacts(id,owner_id,request_id,content_encrypted,metadata,audience,audience_public_key,expires_at) VALUES($1,$2,$3,$4,$5::jsonb,'','',$6)",
+          await insertFederationArtifact(store,
             [
               artifactId,
               store.ownerId,
               envelope.id,
               encryptSecret(store.ownerId, fullOutput),
               JSON.stringify(metadata),
+              "",
+              "",
               envelope.expiresAt,
             ],
           );

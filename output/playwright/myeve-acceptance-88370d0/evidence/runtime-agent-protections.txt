@@ -1,0 +1,12 @@
+### Result
+[{"case":"primary-pause","status":400,"body":{"error":{"code":"agent_action_failed","message":"The primary Agent cannot be paused, disabled, or archived without a replacement.","requestId":"24913707-7ccc-4093-bf55-66528f6acc53"}}},{"case":"primary-archive","status":400,"body":{"error":{"code":"agent_action_failed","message":"The primary Agent cannot be paused, disabled, or archived without a replacement.","requestId":"5235546b-0b26-4b27-8274-f29fc903e4ea"}}},{"case":"paused","status":403,"body":"{\"code\":\"inactive_agent_binding\",\"error\":\"Analyst is paused and cannot execute new work.\",\"ok\":false}"},{"case":"archived","status":403,"body":"{\"code\":\"inactive_agent_binding\",\"error\":\"Analyst Copy is archived and cannot execute new work.\",\"ok\":false}"},{"case":"wrong-agent","status":403,"body":"{\"code\":\"invalid_agent_binding\",\"error\":\"Agent does not belong to the current owner.\",\"ok\":false}"}]
+### Ran Playwright code
+```js
+await (async page => { const base="http://localhost:3073";const {agents}=await (await page.request.get(base+"/api/agents?includeArchived=true")).json();const analyst=agents.find(a=>a.name==="Analyst"),archived=agents.find(a=>a.status==="archived"),primary=agents.find(a=>a.isPrimary);const cases=[];for(const action of ["pause","archive"]){const r=await page.request.post(base+"/api/agents/"+primary.id+"/"+action,{data:{}});cases.push({case:"primary-"+action,status:r.status(),body:await r.json()});}await page.request.post(base+"/api/agents/"+analyst.id+"/pause",{data:{}});try{for(const [name,id] of [["paused",analyst.id],["archived",archived.id],["wrong-agent","agent_wrong_owner_fixture"]]){const r=await page.request.post(base+"/eve/v1/session",{headers:{"x-myeve-agent-id":id},data:{message:"Reply only with fixture",clientContext:{eveWebModel:"openai/gpt-5.2"}}});cases.push({case:name,status:r.status(),body:(await r.text()).slice(0,1200)});}}finally{await page.request.post(base+"/api/agents/"+analyst.id+"/resume",{data:{}});}return cases;})(page);
+```
+### Page
+- Page URL: http://localhost:3073/manage
+- Page Title: Ava
+- Console: 2 errors, 7 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L1953-L2086

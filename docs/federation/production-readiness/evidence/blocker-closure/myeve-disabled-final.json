@@ -1,0 +1,45 @@
+{
+  "scope": "local merged source; no deployed configuration attestation",
+  "results": [
+    {
+      "flag": "(unset)",
+      "ownerGet": "disabled",
+      "ownerPost": 404,
+      "artifactGet": 404,
+      "client": "denied",
+      "worker": "refused"
+    },
+    {
+      "flag": "",
+      "ownerGet": "disabled",
+      "ownerPost": 404,
+      "artifactGet": 404,
+      "client": "denied",
+      "worker": "refused"
+    },
+    {
+      "flag": "false",
+      "ownerGet": "disabled",
+      "ownerPost": 404,
+      "artifactGet": 404,
+      "client": "denied",
+      "worker": "refused"
+    },
+    {
+      "flag": "TRUE",
+      "ownerGet": "disabled",
+      "ownerPost": 404,
+      "artifactGet": 404,
+      "client": "denied",
+      "worker": "refused"
+    },
+    {
+      "flag": "1",
+      "ownerGet": "disabled",
+      "ownerPost": 404,
+      "artifactGet": 404,
+      "client": "denied",
+      "worker": "refused"
+    }
+  ]
+}

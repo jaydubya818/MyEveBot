@@ -18,6 +18,8 @@ import { requestOrigin } from "@/lib/app-url";
 import { devVncRelayUrl } from "@/lib/dev-vnc-relay";
 import { ensureAllBrowserProfiles, ensureBrowserProfile, type BrowserProfileView } from "@/lib/browser-profiles";
 import { getAgent, listAgents } from "@/lib/agents";
+import { apiError } from "@/lib/api-errors";
+import { computerApiFailure, logComputerApiDiagnostic } from "@/lib/computer-api-errors";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 // Backs the live desktop view: the same Orgo desktop the agent drives, exposed
@@ -143,11 +145,13 @@ async function requestedProfile(request: Request, agentId?: unknown): Promise<Br
   return ensureBrowserProfile(ownerId, agent);
 }
 
-function failure(error: unknown): Response {
-  return Response.json(
-    { enabled: true, error: error instanceof Error ? error.message : "Orgo request failed." },
-    { status: 502 },
-  );
+function failure(request: Request, error: unknown, context: string): Response {
+  return computerApiFailure(request, error, {
+    context,
+    status: 503,
+    code: "computer_unavailable",
+    message: "The computer session is currently unavailable.",
+  });
 }
 
 export async function GET(request: Request): Promise<Response> {
@@ -156,7 +160,7 @@ export async function GET(request: Request): Promise<Response> {
   try {
     return await currentState(request, await requestedProfile(request));
   } catch (error) {
-    return failure(error);
+    return failure(request, error, "Computer state read failed");
   }
 }
 
@@ -168,7 +172,7 @@ export async function POST(request: Request): Promise<Response> {
   const body = (await request.json().catch(() => null)) as { action?: unknown; agentId?: unknown } | null;
   const action = body?.action;
   if (action !== "start" && action !== "stop" && action !== "restart") {
-    return new Response("Invalid action", { status: 400 });
+    return apiError(request, 400, "invalid_computer_action", "Choose start, stop, or restart.");
   }
 
   try {
@@ -177,13 +181,13 @@ export async function POST(request: Request): Promise<Response> {
     // Waking provisions and waits for the VM — and restarts one that claims
     // to be running with nothing to connect to — so the follow-up read finds
     // the instance fields a VNC client needs.
-    if (profile.status !== "ready") return Response.json({ enabled: true, profile, error: "Finish owner takeover or reconnect this profile before changing its desktop." }, { status: 409 });
+    if (profile.status !== "ready") return apiError(request, 409, "computer_profile_not_ready", "Finish owner takeover or reconnect this profile before changing its desktop.");
     if (action === "start") await desktop.wake();
     if (action === "stop") await desktop.stop();
     if (action === "restart") await desktop.restart();
     return await currentState(request, profile);
   } catch (error) {
-    return failure(error);
+    return failure(request, error, "Computer action failed");
   }
 }
 
@@ -200,31 +204,34 @@ export async function PUT(request: Request): Promise<Response> {
   const body = (await request.json().catch(() => null)) as { apiKey?: unknown } | null;
   const key = typeof body?.apiKey === "string" ? body.apiKey.trim() : "";
   if (key.length === 0 || key.length > 200) {
-    return Response.json({ error: "That does not look like an API key." }, { status: 400 });
+    return apiError(request, 400, "invalid_computer_key", "That does not look like an API key.");
   }
 
   try {
     await orgo.verifyKey(key);
     await setAppOrgoKey(key);
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Could not save the key." },
-      { status: 400 },
-    );
+    return computerApiFailure(request, error, {
+      context: "Computer provider key verification failed",
+      status: 400,
+      code: "invalid_computer_key",
+      message: "The computer provider rejected that key.",
+    });
   }
 
-  let provisionError: string | null = null;
+  let provisionFailed = false;
   try {
     await orgo.provision();
   } catch (error) {
-    provisionError = error instanceof Error ? error.message : "Could not start the desktop.";
+    provisionFailed = true;
+    logComputerApiDiagnostic(request, error, "Computer provisioning failed after key verification");
   }
 
   try {
     const profile = await requestedProfile(request);
-    return await currentState(request, profile, provisionError === null ? {} : { error: provisionError });
+    return await currentState(request, profile, provisionFailed ? { error: "The computer could not be started yet. Retry from the Computer panel." } : {});
   } catch (error) {
-    return failure(error);
+    return failure(request, error, "Computer state refresh failed after key verification");
   }
 }
 
@@ -235,20 +242,17 @@ export async function PATCH(request: Request): Promise<Response> {
 
   const body = (await request.json().catch(() => null)) as { model?: unknown } | null;
   if (!isTaskModel(body?.model)) {
-    return Response.json({ error: "Choose a supported computer-use model." }, { status: 400 });
+    return apiError(request, 400, "invalid_computer_model", "Choose a supported computer-use model.");
   }
   const model = body.model;
   let supported: boolean;
   try {
     supported = await isSupportedTaskModel(model);
   } catch {
-    return Response.json(
-      { error: "The Gateway model catalog is temporarily unavailable. Try again shortly." },
-      { status: 503 },
-    );
+    return apiError(request, 503, "computer_model_catalog_unavailable", "The model catalog is temporarily unavailable. Try again shortly.");
   }
   if (!supported) {
-    return Response.json({ error: "Choose a supported computer-use model." }, { status: 400 });
+    return apiError(request, 400, "invalid_computer_model", "Choose a supported computer-use model.");
   }
   const exit = await runtime.runPromiseExit(
     Effect.tryPromise({
@@ -257,12 +261,12 @@ export async function PATCH(request: Request): Promise<Response> {
     }),
   );
   if (Exit.isFailure(exit)) {
-    const error = Cause.squash(exit.cause);
-    const message = error instanceof Error ? error.message : "Could not save the model.";
-    return Response.json(
-      { error: message },
-      { status: message.startsWith("No database is configured") ? 503 : 400 },
-    );
+    return computerApiFailure(request, Cause.squash(exit.cause), {
+      context: "Computer model preference update failed",
+      status: 503,
+      code: "computer_model_update_failed",
+      message: "The computer model preference could not be saved.",
+    });
   }
 
   // Saving the preference must not depend on the unrelated Orgo live-status
@@ -278,9 +282,11 @@ export async function DELETE(request: Request): Promise<Response> {
     await setAppOrgoKey(null);
     return await currentState(request, await requestedProfile(request));
   } catch (error) {
-    return Response.json(
-      { error: error instanceof Error ? error.message : "Could not remove the key." },
-      { status: 400 },
-    );
+    return computerApiFailure(request, error, {
+      context: "Computer provider key removal failed",
+      status: 503,
+      code: "computer_key_removal_failed",
+      message: "The computer provider key could not be removed.",
+    });
   }
 }

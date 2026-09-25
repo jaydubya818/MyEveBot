@@ -327,7 +327,7 @@ describe("saved chat progress", () => {
   it("recognizes a newly available session id at equal event counts", () => {
     expect(
       savedChatHasProgress(
-        { events: [], session: { streamIndex: 0 } },
+        { events: [] },
         { events: [], session: { sessionId: "session-1", streamIndex: 0 } },
       ),
     ).toBe(true);

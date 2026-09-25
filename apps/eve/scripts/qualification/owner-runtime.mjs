@@ -3,6 +3,7 @@
 // Requires the isolated PostgreSQL cluster on loopback:55447. Never resets its
 // $5 ledger. No real owner database, environment export or static model key.
 import {Pool} from 'pg';
+import {createRequire} from 'node:module';
 import {getVercelOidcToken} from '@vercel/oidc';
 import {spawn,execFileSync} from 'node:child_process';
 import {createServer,request as httpsRequest} from 'node:https';
@@ -14,7 +15,8 @@ import path from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
 const mode=process.argv[2]??'research';
 if(!['research','cancel','replay','cancel-replay','budget-denied'].includes(mode))throw new Error('Unsupported qualification mode');
-const relay=path.resolve(root,'../../../relay-telegram-channel-continuation');
+const relay=process.env.RELAY_QUALIFICATION_SOURCE??path.resolve(root,'../../../relay-telegram-channel-continuation');
+const evePackage=JSON.parse(await readFile(createRequire(import.meta.url).resolve('eve/package.json'),'utf8'));
 const {createLocalEd25519Signer}=await import(path.join(relay,'lib/v2/evidence/crypto.ts'));
 const {HttpOwnerExecutor}=await import(path.join(relay,'lib/v2/channels/executor.ts'));
 const connection={host:'127.0.0.1',port:55447,user:process.env.USER};
@@ -65,7 +67,7 @@ try{
  if(mode==='replay')work=(await pool.query("SELECT w.request FROM owner_channel_requests w JOIN task_runs r ON r.id=w.run_id WHERE r.status='completed' ORDER BY w.admitted_at DESC LIMIT 1")).rows[0].request;
  if(mode==='cancel-replay')work=(await pool.query("SELECT w.request FROM owner_channel_requests w JOIN task_runs r ON r.id=w.run_id WHERE r.status='cancelled' ORDER BY w.admitted_at DESC LIMIT 1")).rows[0].request;
  const before=(await pool.query('SELECT count(*)::int calls FROM owner_model_calls')).rows[0].calls;
- console.log(JSON.stringify({phase:'starting',mode,requestId:work.requestId,runtime:'eve@0.27.13',auth:'vercel-oidc',oidcExpiresAt:claims.exp,privateCanarySeeded:true}));
+ console.log(JSON.stringify({phase:'starting',mode,requestId:work.requestId,runtime:`eve@${evePackage.version}`,auth:'vercel-oidc',oidcExpiresAt:claims.exp,privateCanarySeeded:true}));
  // Use Relay's real signer and HTTP executor. No model/provider adapter fixture.
  let result=await transport.call({commandId:randomUUID(),operation:mode==='cancel-replay'?'cancel':'start',work});
  if(mode==='cancel'){

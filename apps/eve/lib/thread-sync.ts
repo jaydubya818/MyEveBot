@@ -1,4 +1,4 @@
-import type { HandleMessageStreamEvent, SessionState } from "eve/client";
+import type { HandleMessageStreamEvent, ClientSessionState } from "eve/client";
 import { isCurrentTurnBoundaryEvent } from "eve/client";
 
 /**
@@ -28,7 +28,7 @@ import { isCurrentTurnBoundaryEvent } from "eve/client";
 
 export interface SavedChat {
   events?: readonly HandleMessageStreamEvent[];
-  session?: SessionState;
+  session?: ClientSessionState;
   /**
    * A user message saved before eve accepts the turn. This is deliberately
    * separate from `events`: synthetic stream events would shift every saved
@@ -740,8 +740,8 @@ export function isVerifiedCatchUpStop(
 export function acceptedComputerSendNeedsRecovery(input: {
   useComputer: boolean;
   reachedBoundary: boolean;
-  sessionBeforeSend: SessionState | undefined;
-  sessionAfterError: SessionState | undefined;
+  sessionBeforeSend: ClientSessionState | undefined;
+  sessionAfterError: ClientSessionState | undefined;
 }): boolean {
   return (
     input.useComputer &&

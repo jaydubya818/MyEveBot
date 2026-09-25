@@ -1,0 +1,70 @@
+{
+  "status": "PASS",
+  "contract": "relay-federation-v2",
+  "relaySource": "e2eb350f5655427d55cc204264020a9295173f96",
+  "contractHash": "b690dcc401b985c007fecda8d4308be4449d5034c157fac163b89443e4c98bc5",
+  "cases": [
+    {
+      "name": "small",
+      "materialBytes": 1291,
+      "tokenCharacters": 1378,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "intermediate",
+      "materialBytes": 23193,
+      "tokenCharacters": 23280,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "64K-class",
+      "materialBytes": 61925,
+      "tokenCharacters": 62012,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "132K-class",
+      "materialBytes": 132893,
+      "tokenCharacters": 132980,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "260000",
+      "materialBytes": 260000,
+      "tokenCharacters": 260087,
+      "providerInputBytes": 407,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    },
+    {
+      "name": "262057",
+      "materialBytes": 262057,
+      "tokenCharacters": 262144,
+      "providerInputBytes": 406,
+      "relayToMyEve": "PASS",
+      "myEveCanonicalBytesToRelay": "PASS",
+      "tamperPurposeVersionDomainAlgorithmKeyDowngrade": "DENY"
+    }
+  ],
+  "maximumPlusOne": {
+    "rejected": true,
+    "signerCalls": 0
+  },
+  "worstSchemaSigningInputBytes": 4861,
+  "absoluteSigningInputCapBytes": 8192,
+  "kmsCalls": 0,
+  "reverseRuntimeDeliverySigning": "NOT_APPLICABLE: MyEve does not issue Relay delivery assertions; canonical byte reconstruction tested"
+}

@@ -1,0 +1,24 @@
+{
+  "base": "f3aa77397c158884f625f9d556ed298d77cc2d9f",
+  "historyMerges": [
+    "3025d71",
+    "8762e40"
+  ],
+  "vitest": 853,
+  "node": 135,
+  "migrations": 33,
+  "executorClassifications": 545,
+  "builds": 2,
+  "kmsCalls": 0,
+  "runtimeProviderAttempts": 0,
+  "independentSecurityReview": "NOT_RUN",
+  "productionPlatformQualification": "NOT_RUN",
+  "logSha256": {
+    "vitest": "cae3230b7bfded37df946d7ce266d9a0e2d45c83a5625fa2096c1b12e2aab33d",
+    "node": "9a5cdb419a38bfc2a5c7895da0cd0945474d2d42fb7c262570db651d77d04484",
+    "typecheck": "9b2417db60e3cba4499afc4b4bae3ce027be53c2ba3c1a32c707adb38e23c9eb",
+    "build": "55bf3bcc2fffe9c96ec54a8255d7d5981cdf5d531771da56992ffe0311c988e6",
+    "migrations": "e3398b51ff970aa18d9ce61a8fe670288463b8cacea30075dbde7825bdd73c41"
+  },
+  "concurrentCanonical": "400cadb59b868c62fcdc5f31c6d8418b40334fec"
+}

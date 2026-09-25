@@ -15,8 +15,7 @@ import {
 } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { OWNER_KNOWLEDGE_TYPES } from "@/lib/owner-knowledge-types";
-import type { OwnerKnowledgePage, OwnerKnowledgeReview, OwnerKnowledgeView } from "@/lib/owner-knowledge";
+import { OWNER_KNOWLEDGE_TYPES, type OwnerKnowledgePage, type OwnerKnowledgeReview, type OwnerKnowledgeView } from "@/lib/owner-knowledge-types";
 import { MEMORY_SCOPE_TYPES } from "@/lib/memory-scopes";
 import { cn } from "@/lib/utils";
 

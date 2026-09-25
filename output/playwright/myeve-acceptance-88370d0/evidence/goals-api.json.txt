@@ -1,0 +1,12 @@
+### Result
+{"goals":[{"id":"goal_b96e7077-00db-43dd-913c-372f69f9301e","title":"Launch Project Atlas","description":"Launch a phased pilot in 90 days. Milestones: validate demand, build onboarding, run pilot. Dependency: recruit pilot users. Risk: onboarding abandonment. Next action: interview five prospects.","motivation":"","status":"active","priority":"normal","planningMode":"simple","successCriteria":["10 pilot customers complete onboarding","80% pilot onboarding completion"],"targetDate":"2026-12-19","source":"web","sourceReference":null,"startedAt":"2026-09-20T19:47:16.451Z","completedAt":null,"archivedAt":null,"createdAt":"2026-09-20T19:47:16.464Z","updatedAt":"2026-09-20T19:48:09.667Z","progress":0,"taskCount":1,"completedTaskCount":0},{"id":"goal_c5991e7d-514a-475a-9554-f2483a51ca34","title":"Improve Customer Onboarding","description":"Reduce account setup abandonment using pilot feedback.","motivation":"","status":"active","priority":"normal","planningMode":"simple","successCriteria":["80% completion"],"targetDate":null,"source":"web","sourceReference":null,"startedAt":"2026-09-20T19:48:10.188Z","completedAt":null,"archivedAt":null,"createdAt":"2026-09-20T19:48:10.188Z","updatedAt":"2026-09-20T19:48:10.188Z","progress":0,"taskCount":0,"completedTaskCount":0}],"capability":{"id":"goals","state":"ready"}}
+### Ran Playwright code
+```js
+await (async page => { const goals=await (await page.request.get("http://localhost:3073/api/goals")).json(); return goals; })(page);
+```
+### Page
+- Page URL: http://localhost:3073/channels
+- Page Title: Ava
+- Console: 2 errors, 31 warnings
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L951-L956

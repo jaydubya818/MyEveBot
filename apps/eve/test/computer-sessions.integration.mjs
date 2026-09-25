@@ -88,9 +88,13 @@ integration("Agent Run computer sessions enforce links, isolation, capabilities,
     assert.equal(networkEvents.length, 1);
     assert.equal((await pauseComputerSession(ownerId, stoppable.id)).status, "paused");
     assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), null);
-    assert.equal((await resumeComputerSession(ownerId, stoppable.id)).status, "ready");
-    assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), firstAgent.id);
-    assert.equal((await stopComputerSession(ownerId, stoppable.id)).status, "stopped");
+    // This repository-only fixture has no Run/Browser/provider binding. It
+    // cannot regain execution authority merely because its row says paused.
+    await assert.rejects(() => resumeComputerSession(ownerId, stoppable.id), /requires an active Run, ComputerSession, BrowserSession, and provider session binding/);
+    assert.equal((await getComputerSession(ownerId, stoppable.id)).status, "paused");
+    assert.equal(await activeComputerAgentId(ownerId, stoppable.runtimeSessionId), null);
+    await assert.rejects(() => stopComputerSession(ownerId, stoppable.id), /Computer provider environment is unresolved|Exact Computer resource ownership is unavailable/);
+    assert.equal((await getComputerSession(ownerId, stoppable.id)).status, "paused");
 
     await transitionAgent(ownerId, secondAgent.id, "disabled", actor);
     await assert.rejects(() => createComputerSession({ ownerId, agentId: secondAgent.id, runtimeSessionId: `runtime_${crypto.randomUUID()}` }), /disabled/);

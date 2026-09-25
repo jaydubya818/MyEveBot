@@ -37,19 +37,17 @@ export default defineAgent({
   // The dynamic fallback is newer than the framework's bundled Gateway
   // catalog. Use a conservative known window so compaction can compile and
   // starts early enough even when the selected model supports a larger one.
-  modelContextWindowTokens: 200_000,
   model: defineDynamic({
-    fallback: DEFAULT_MODEL,
     events: {
       "turn.started": async (_event, ctx) => {
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-        return agent?.preferredModel ?? clientTurnSettings(ctx.messages).model;
+        return { model: agent?.preferredModel ?? clientTurnSettings(ctx.messages).model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
       },
       // Reasoning effort is a per-call AI SDK setting, not a field the dynamic
       // model selection object accepts, so a requested level rides on a live
       // gateway model wrapped with default settings. Live models are only
-      // allowed from step.started; with no level requested this returns null
-      // and the turn-scoped string selection (plain prompt-cache path) wins.
+      // allowed from step.started; with no level requested this returns a model ID
+      // and returns the selected model with its normal prompt-cache behavior.
       "step.started": async (_event, ctx) => {
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
         if(ownerRuntime)return ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event));
@@ -59,11 +57,11 @@ export default defineAgent({
         const configuredReasoning = agent?.reasoningPreference;
         const selectedReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
         const reasoning = selectedReasoning === "default" ? null : selectedReasoning;
-        if (reasoning === null) return null;
-        return wrapLanguageModel({
+        if (reasoning === null) return { model: model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
+        return { model: wrapLanguageModel({
           model: gateway(model ?? DEFAULT_MODEL),
           middleware: reasoningMiddleware(reasoning),
-        });
+        }), modelContextWindowTokens: 200_000 };
       },
     },
   }),

@@ -90,7 +90,7 @@ export function FilesPage({
           shape="square"
           icon={SidebarSimpleIcon}
           aria-label="Open sidebar"
-          className="md:hidden"
+          className="min-h-11 min-w-11 md:hidden"
           onClick={onOpenSidebar}
         />
         <div className="min-w-0 flex-1">

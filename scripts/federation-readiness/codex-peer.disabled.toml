@@ -1,0 +1,11 @@
+# Template only. Do not install into the existing user profile.
+# Isolated synthetic profile, target authorization and peer receiver are prerequisites.
+[mcp_servers.myeve_federation_qualification]
+enabled = false
+url = "https://qualification-target.invalid/api/v2/federation/mcp"
+bearer_token_env_var = "FQ_PEER_AGENT_TOKEN"
+startup_timeout_sec = 10
+tool_timeout_sec = 15
+enabled_tools = ["relay_discover_agents", "relay_query_knowledge", "relay_send_message", "relay_request_work", "relay_get_request", "relay_acknowledge_result"]
+# Receiving operations intentionally excluded: model-mediated signature/replay checks
+# do not establish a trusted receiver. Do not broaden without a frozen receiver integration.

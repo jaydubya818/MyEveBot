@@ -1,5 +1,7 @@
 import { withEve } from "eve/next";
 import type { NextConfig } from "next";
+import { createRequire } from "node:module";
+import { dirname, join, relative } from "node:path";
 
 const qaLocalOrigin =
   process.env.MYEVE_QA_LOCAL_ORIGIN?.trim() ?? process.env.SOFIE_QA_LOCAL_ORIGIN?.trim();
@@ -14,4 +16,9 @@ const nextConfig: NextConfig = {
 
 // Mounts the eve agent (./agent) on this app's origin: one dev server, one
 // Vercel deployment. /eve/v1/** routes to the agent service.
-export default withEve(nextConfig);
+// Generated services do not inherit npm's CLI PATH. Resolve the installed CLI,
+// as withEve's default does. Our provider prepares metadata without provisioning.
+const evePackage = createRequire(join(process.cwd(), "package.json")).resolve("eve/package.json");
+const eveCli = relative(process.cwd(), join(dirname(evePackage), "bin/eve.js")).replaceAll("\\", "/");
+const quotedEveCli = `'${eveCli.replaceAll("'", "'\\''")}'`;
+export default withEve(nextConfig, { eveBuildCommand: `node ${quotedEveCli} build` });

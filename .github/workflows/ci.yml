@@ -18,6 +18,10 @@ jobs:
 
       - run: npm install --no-audit --no-fund
 
+      - run: node scripts/protocol-convergence/check-contract.mjs
+
+      - run: npm run test --workspace=eve-agent -- lib/relay
+
       - run: npm run typecheck
 
       - run: npm run db:migrations:check

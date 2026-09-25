@@ -1,4 +1,5 @@
-import type { ToolContext,Approval } from "eve/tools";
+import type { ApprovalPolicy } from "eve/tools/approval";
+import type { ToolContext } from "eve/tools";
 import { ActionBlocked,ActionGateway } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "./action-context.ts";
 
@@ -13,7 +14,7 @@ export async function denyUnqualifiedExecutor(ctx:ToolContext,capabilityId:strin
   throw new ActionBlocked("denied","unqualified_executor");
 }
 
-export function denyUnqualifiedConnection(capabilityId:string):Approval {
+export function denyUnqualifiedConnection(capabilityId:string):ApprovalPolicy {
   return async ctx=>{
     try {await denyUnqualifiedExecutor(ctx as unknown as ToolContext,capabilityId,{tool:ctx.toolName});}
     catch {/* Gateway writes the denial when authenticated run context exists. */}

@@ -21,7 +21,7 @@ export default installedSkills.map((skill) =>
           ? skill.routingPrompts
           : [`Load your "${skill.name}" skill. Briefly state when it applies.`];
       for (const [index, prompt] of prompts.entries()) {
-        const session = index === 0 ? t : t.newSession();
+        const session = index === 0 ? t : await t.session();
         await session.send(
           `${SKILL_EVAL_MESSAGE_PREFIX} This is a routing-only check. Identify and load the single best project skill for the following user request, then briefly state the workflow without performing it: ${prompt}`,
         );

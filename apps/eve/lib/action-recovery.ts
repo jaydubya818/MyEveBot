@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
+import { inspectBoundMessage } from "../agent/lib/agentmail.ts";
 import { safeActionParameters } from "./approvals.ts";
 import type { ActionTarget } from "./action-gateway.ts";
 import type { ExecutionDatabase } from "./execution-types.ts";
@@ -81,7 +82,6 @@ export function recoveryStrategy(capability:string,provider:string):RecoveryStra
     id:"email.message_identity.v1",
     async inspect({target,receipt}) {
       if(typeof receipt.messageId!=="string")return {outcome:"indeterminate",evidence:{reason:"provider_message_id_missing"}};
-      const {inspectBoundMessage}=await import("../agent/lib/agentmail.ts");
       const message=await inspectBoundMessage(target.account,receipt.messageId);
       const verified=message.message_id===receipt.messageId && message.inbox_id===target.account && message.thread_id===receipt.threadId;
       return {outcome:verified?"succeeded":"indeterminate",evidence:{messageId:message.message_id,account:message.inbox_id,verified}};

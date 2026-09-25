@@ -49,4 +49,4 @@ const unqualifiedChannel = () => telegramChannel({
   },
 });
 
-export default blockedChannel();
+export default blockedChannel("/eve/v1/telegram");

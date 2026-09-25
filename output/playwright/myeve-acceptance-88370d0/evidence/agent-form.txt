@@ -1,0 +1,540 @@
+### Page
+- Page URL: http://localhost:3073/agents
+- Page Title: Ava
+- Console: 13 errors, 87 warnings
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e253] [cursor=pointer]:
+    - img [ref=e254]
+  - alert [ref=e257]: Ava
+  - generic [ref=e1985]:
+    - complementary [ref=e1986]:
+      - generic [ref=e1987]:
+        - button "Back to chat" [ref=e1988]: Ava
+        - generic [ref=e1989]:
+          - button "Goals" [ref=e1990] [cursor=pointer]:
+            - img [ref=e1991]
+          - button "Knowledge" [ref=e1993] [cursor=pointer]:
+            - img [ref=e1994]
+          - button "Results" [ref=e1996] [cursor=pointer]:
+            - img [ref=e1997]
+          - button "Computer" [ref=e1999] [cursor=pointer]:
+            - img [ref=e2000]
+          - button "Agents" [pressed] [ref=e2002] [cursor=pointer]:
+            - img [ref=e2003]
+          - button "Review" [ref=e2005] [cursor=pointer]:
+            - img [ref=e2006]
+          - button "Channels" [ref=e2008] [cursor=pointer]:
+            - img [ref=e2009]
+          - button "Files" [ref=e2011] [cursor=pointer]:
+            - img [ref=e2012]
+          - button "Manage" [ref=e2014] [cursor=pointer]:
+            - img [ref=e2015]
+          - button "New thread" [ref=e2017] [cursor=pointer]:
+            - img [ref=e2018]
+      - textbox "Search threads" [ref=e2022]
+      - navigation [ref=e2023]:
+        - generic [ref=e2024]:
+          - paragraph [ref=e2025]: Today
+          - list [ref=e2026]:
+            - listitem [ref=e2027]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e2028]:
+                - generic [ref=e2030]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e2031]: 12:46 PM
+              - generic [ref=e2032]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e2033] [cursor=pointer]:
+                  - img [ref=e2034]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e2036] [cursor=pointer]:
+                  - img [ref=e2037]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e2039] [cursor=pointer]:
+                  - img [ref=e2040]
+    - main [ref=e2042]:
+      - generic [ref=e2805]:
+        - generic [ref=e2806]:
+          - generic [ref=e2807]:
+            - paragraph [ref=e2808]: Execution resources
+            - heading "Agents" [level=1] [ref=e2809]
+            - paragraph [ref=e2810]: Persistent Agents are configured identities. Roles are reusable expertise for bounded work.
+          - button "Create Agent" [active] [ref=e2811] [cursor=pointer]:
+            - generic [ref=e2813]:
+              - img [ref=e2814]
+              - text: Create Agent
+        - generic [ref=e2816]:
+          - heading "Your Agents" [level=2] [ref=e2817]
+          - paragraph [ref=e2818]: Persistent identities you can open directly, pause, duplicate, or archive.
+        - generic [ref=e2819]:
+          - navigation "Agents" [ref=e2820]:
+            - button "Ava Primary Primary personal agent active" [ref=e2821]:
+              - generic [ref=e2822]:
+                - img [ref=e2824]
+                - generic [ref=e2826]:
+                  - generic [ref=e2827]:
+                    - generic [ref=e2828]: Ava
+                    - generic [ref=e2829]: Primary
+                  - generic [ref=e2830]: Primary personal agent
+                - generic [ref=e2831]: active
+          - generic [ref=e3144]:
+            - generic [ref=e3145]:
+              - heading "Create Agent" [level=2] [ref=e3146]
+              - paragraph [ref=e3147]: Role describes purpose. Only checked capabilities grant access.
+            - generic [ref=e3148]:
+              - generic [ref=e3149]:
+                - text: Name
+                - textbox "Agent name" [ref=e3150]
+              - generic [ref=e3151]:
+                - text: Role
+                - textbox "Agent role" [ref=e3152]:
+                  - /placeholder: Researcher
+            - generic [ref=e3153]:
+              - text: Description
+              - textbox "Agent description" [ref=e3154]
+            - generic [ref=e3155]:
+              - text: Instructions
+              - textbox "Agent instructions" [ref=e3156]
+            - generic [ref=e3157]:
+              - generic [ref=e3158]:
+                - text: Preferred model
+                - textbox "Preferred model" [ref=e3159]:
+                  - /placeholder: Provider default
+              - generic [ref=e3160]:
+                - text: Reasoning
+                - combobox "Reasoning preference" [ref=e3161]:
+                  - option "default" [selected]
+                  - option "none"
+                  - option "minimal"
+                  - option "low"
+                  - option "medium"
+                  - option "high"
+                  - option "xhigh"
+              - generic [ref=e3162]:
+                - text: Risk ceiling
+                - combobox "Risk ceiling" [ref=e3163]:
+                  - option "low" [selected]
+                  - option "medium"
+                  - option "high"
+            - group "Capabilities" [ref=e3164]:
+              - generic [ref=e3165]: Capabilities
+              - generic [ref=e3166]:
+                - generic [ref=e3167]:
+                  - checkbox "Federated work request low risk · unconfigured · Requires MYEVE_RELAY_ENABLED." [ref=e3168]
+                  - generic [ref=e3169]:
+                    - text: Federated work request
+                    - generic [ref=e3170]: low risk · unconfigured · Requires MYEVE_RELAY_ENABLED.
+                - generic [ref=e3171]:
+                  - checkbox "Vercel Blob medium risk · unconfigured · Requires BLOB_READ_WRITE_TOKEN." [disabled] [ref=e3172]
+                  - generic [ref=e3173]:
+                    - text: Vercel Blob
+                    - generic [ref=e3174]: medium risk · unconfigured · Requires BLOB_READ_WRITE_TOKEN.
+                - generic [ref=e3175]:
+                  - checkbox "Long-term memory medium risk · unconfigured · Requires SUPERMEMORY_API_KEY." [disabled] [ref=e3176]
+                  - generic [ref=e3177]:
+                    - text: Long-term memory
+                    - generic [ref=e3178]: medium risk · unconfigured · Requires SUPERMEMORY_API_KEY.
+                - generic [ref=e3179]:
+                  - checkbox "Connected apps high risk · unconfigured · Requires COMPOSIO_API_KEY." [disabled] [ref=e3180]
+                  - generic [ref=e3181]:
+                    - text: Connected apps
+                    - generic [ref=e3182]: high risk · unconfigured · Requires COMPOSIO_API_KEY.
+                - generic [ref=e3183]:
+                  - checkbox "Automation scheduler medium risk · available" [disabled] [ref=e3184]
+                  - generic [ref=e3185]:
+                    - text: Automation scheduler
+                    - generic [ref=e3186]: medium risk · available
+                - generic [ref=e3187]:
+                  - checkbox "Browser and computer high risk · available" [disabled] [ref=e3188]
+                  - generic [ref=e3189]:
+                    - text: Browser and computer
+                    - generic [ref=e3190]: high risk · available
+                - generic [ref=e3191]:
+                  - checkbox "Start computer sessions medium risk · available" [disabled] [ref=e3192]
+                  - generic [ref=e3193]:
+                    - text: Start computer sessions
+                    - generic [ref=e3194]: medium risk · available
+                - generic [ref=e3195]:
+                  - checkbox "Stop computer sessions low risk · available" [ref=e3196]
+                  - generic [ref=e3197]:
+                    - text: Stop computer sessions
+                    - generic [ref=e3198]: low risk · available
+                - generic [ref=e3199]:
+                  - checkbox "Observe computer sessions low risk · available" [ref=e3200]
+                  - generic [ref=e3201]:
+                    - text: Observe computer sessions
+                    - generic [ref=e3202]: low risk · available
+                - generic [ref=e3203]:
+                  - checkbox "Pause computer authority medium risk · available" [disabled] [ref=e3204]
+                  - generic [ref=e3205]:
+                    - text: Pause computer authority
+                    - generic [ref=e3206]: medium risk · available
+                - generic [ref=e3207]:
+                  - checkbox "Human Takeover high risk · unconfigured · Requires DATABASE_URL and SESSION_BOUND_OWNER_INPUT_PROVIDER." [disabled] [ref=e3208]
+                  - generic [ref=e3209]:
+                    - text: Human Takeover
+                    - generic [ref=e3210]: high risk · unconfigured · Requires DATABASE_URL and SESSION_BOUND_OWNER_INPUT_PROVIDER.
+                - generic [ref=e3211]:
+                  - checkbox "Browser navigation low risk · available" [ref=e3212]
+                  - generic [ref=e3213]:
+                    - text: Browser navigation
+                    - generic [ref=e3214]: low risk · available
+                - generic [ref=e3215]:
+                  - checkbox "Browser reading low risk · available" [ref=e3216]
+                  - generic [ref=e3217]:
+                    - text: Browser reading
+                    - generic [ref=e3218]: low risk · available
+                - generic [ref=e3219]:
+                  - checkbox "Browser interaction high risk · available" [disabled] [ref=e3220]
+                  - generic [ref=e3221]:
+                    - text: Browser interaction
+                    - generic [ref=e3222]: high risk · available
+                - generic [ref=e3223]:
+                  - checkbox "Browser typing high risk · available" [disabled] [ref=e3224]
+                  - generic [ref=e3225]:
+                    - text: Browser typing
+                    - generic [ref=e3226]: high risk · available
+                - generic [ref=e3227]:
+                  - checkbox "Sandbox terminal medium risk · available" [disabled] [ref=e3228]
+                  - generic [ref=e3229]:
+                    - text: Sandbox terminal
+                    - generic [ref=e3230]: medium risk · available
+                - generic [ref=e3231]:
+                  - checkbox "Web search low risk · available" [ref=e3232]
+                  - generic [ref=e3233]:
+                    - text: Web search
+                    - generic [ref=e3234]: low risk · available
+                - generic [ref=e3235]:
+                  - checkbox "Web reading low risk · available" [ref=e3236]
+                  - generic [ref=e3237]:
+                    - text: Web reading
+                    - generic [ref=e3238]: low risk · available
+                - generic [ref=e3239]:
+                  - checkbox "File reading low risk · available" [ref=e3240]
+                  - generic [ref=e3241]:
+                    - text: File reading
+                    - generic [ref=e3242]: low risk · available
+                - generic [ref=e3243]:
+                  - checkbox "File writing medium risk · available" [disabled] [ref=e3244]
+                  - generic [ref=e3245]:
+                    - text: File writing
+                    - generic [ref=e3246]: medium risk · available
+                - generic [ref=e3247]:
+                  - checkbox "Receipt finance medium risk · available" [disabled] [ref=e3248]
+                  - generic [ref=e3249]:
+                    - text: Receipt finance
+                    - generic [ref=e3250]: medium risk · available
+                - generic [ref=e3251]:
+                  - checkbox "Authored skills low risk · available" [ref=e3252]
+                  - generic [ref=e3253]:
+                    - text: Authored skills
+                    - generic [ref=e3254]: low risk · available
+                - generic [ref=e3255]:
+                  - checkbox "Personal skills medium risk · unconfigured · Requires BLOB_READ_WRITE_TOKEN." [disabled] [ref=e3256]
+                  - generic [ref=e3257]:
+                    - text: Personal skills
+                    - generic [ref=e3258]: medium risk · unconfigured · Requires BLOB_READ_WRITE_TOKEN.
+                - generic [ref=e3259]:
+                  - checkbox "Skill control plane medium risk · available" [disabled] [ref=e3260]
+                  - generic [ref=e3261]:
+                    - text: Skill control plane
+                    - generic [ref=e3262]: medium risk · available
+                - generic [ref=e3263]:
+                  - checkbox "Goal operating system medium risk · available" [disabled] [ref=e3264]
+                  - generic [ref=e3265]:
+                    - text: Goal operating system
+                    - generic [ref=e3266]: medium risk · available
+            - generic [ref=e3267]:
+              - generic [ref=e3268]:
+                - text: Max steps
+                - spinbutton "Maximum steps" [ref=e3269]: "20"
+              - generic [ref=e3270]:
+                - text: Runtime seconds
+                - spinbutton "Maximum runtime seconds" [ref=e3271]: "900"
+              - generic [ref=e3272]:
+                - text: Cost limit ($)
+                - spinbutton "Maximum estimated cost" [ref=e3273]: "2"
+              - generic [ref=e3274]:
+                - text: Retries
+                - spinbutton "Maximum retries" [ref=e3275]: "1"
+            - generic [ref=e3276]:
+              - text: Notifications
+              - combobox "Notification preference" [ref=e3277]:
+                - option "silent"
+                - option "activity" [selected]
+                - option "digest"
+                - option "push on block"
+            - generic [ref=e3278]:
+              - button "Cancel" [ref=e3279] [cursor=pointer]
+              - button "Save Agent" [ref=e3280] [cursor=pointer]:
+                - generic [ref=e3282]: Save Agent
+        - region "Role Catalog" [ref=e2868]:
+          - generic [ref=e2869]:
+            - generic [ref=e2870]:
+              - paragraph [ref=e2871]: Available expertise
+              - heading "Role Catalog" [level=2] [ref=e2872]
+              - paragraph [ref=e2873]: Role Packs describe reusable expertise. Use a Role for one bounded run, or create a persistent identity you can customize.
+            - generic [ref=e2874]: 4 Role Packs · 1 Solution Pack
+          - generic [ref=e2875]:
+            - group [ref=e2876]:
+              - generic "General 4 Roles Cross-domain Reusable roles for research, communication, analysis, and coordination." [ref=e2877] [cursor=pointer]:
+                - generic [ref=e2878]:
+                  - generic [ref=e2879]:
+                    - generic [ref=e2880]: General
+                    - generic [ref=e2881]: 4 Roles
+                    - generic [ref=e2882]: Cross-domain
+                  - generic [ref=e2883]: Reusable roles for research, communication, analysis, and coordination.
+                - generic [ref=e2884]: ›
+              - text: Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent
+            - group [ref=e2885]:
+              - generic "Software Development 10 Roles Software delivery Roles organized around a complete, evidence-backed software delivery lifecycle." [ref=e2886] [cursor=pointer]:
+                - generic [ref=e2887]:
+                  - generic [ref=e2888]:
+                    - generic [ref=e2889]: Software Development
+                    - generic [ref=e2890]: 10 Roles
+                    - generic [ref=e2891]: Software delivery
+                  - generic [ref=e2892]: Roles organized around a complete, evidence-backed software delivery lifecycle.
+                - generic [ref=e2893]: ›
+              - text: Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent Use Role Create Agent
+            - group [ref=e2894]:
+              - generic "Marketing Engineering 11 Roles Marketing Evidence-backed marketing expertise coordinated around owner Goals, explicit approvals, measurable outcomes, and governed learning." [ref=e2895] [cursor=pointer]:
+                - generic [ref=e2896]:
+                  - generic [ref=e2897]:
+                    - generic [ref=e2898]: Marketing Engineering
+                    - generic [ref=e2899]: 11 Roles
+                    - generic [ref=e2900]: Marketing
+                  - generic [ref=e2901]: Evidence-backed marketing expertise coordinated around owner Goals, explicit approvals, measurable outcomes, and governed learning.
+                - generic [ref=e2902]: ›
+              - generic [ref=e2903]:
+                - generic [ref=e2904]:
+                  - paragraph [ref=e2905]: Marketing operating lifecycle
+                  - generic [ref=e2906]:
+                    - generic [ref=e2907]:
+                      - generic [ref=e2908]: Understand
+                      - img [ref=e2909]
+                    - generic [ref=e2911]:
+                      - generic [ref=e2912]: Research
+                      - img [ref=e2913]
+                    - generic [ref=e2915]:
+                      - generic [ref=e2916]: Plan
+                      - img [ref=e2917]
+                    - generic [ref=e2919]:
+                      - generic [ref=e2920]: Produce
+                      - img [ref=e2921]
+                    - generic [ref=e2923]:
+                      - generic [ref=e2924]: Verify
+                      - img [ref=e2925]
+                    - generic [ref=e2927]:
+                      - generic [ref=e2928]: Approve
+                      - img [ref=e2929]
+                    - generic [ref=e2931]:
+                      - generic [ref=e2932]: Execute
+                      - img [ref=e2933]
+                    - generic [ref=e2935]:
+                      - generic [ref=e2936]: Measure
+                      - img [ref=e2937]
+                    - generic [ref=e2940]: Learn
+                - generic [ref=e2941]:
+                  - group [ref=e2942]:
+                    - generic "Marketing Engineer On demand Coordinates an evidence-backed marketing goal from missing context through owner-ready work and measured learning." [ref=e2943] [cursor=pointer]:
+                      - generic [ref=e2945]:
+                        - generic [ref=e2946]:
+                          - generic [ref=e2947]: Marketing Engineer
+                          - generic [ref=e2948]: On demand
+                        - generic [ref=e2949]: Coordinates an evidence-backed marketing goal from missing context through owner-ready work and measured learning.
+                      - generic [ref=e2950]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e2951]:
+                    - generic "Market Researcher On demand Finds and verifies market, competitor, customer-conversation, search, and channel evidence." [ref=e2952] [cursor=pointer]:
+                      - generic [ref=e2954]:
+                        - generic [ref=e2955]:
+                          - generic [ref=e2956]: Market Researcher
+                          - generic [ref=e2957]: On demand
+                        - generic [ref=e2958]: Finds and verifies market, competitor, customer-conversation, search, and channel evidence.
+                      - generic [ref=e2959]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e2960]:
+                    - generic "Product Marketer On demand Turns customer and market evidence into positioning, messaging, offers, segmentation, and launch direction." [ref=e2961] [cursor=pointer]:
+                      - generic [ref=e2963]:
+                        - generic [ref=e2964]:
+                          - generic [ref=e2965]: Product Marketer
+                          - generic [ref=e2966]: On demand
+                        - generic [ref=e2967]: Turns customer and market evidence into positioning, messaging, offers, segmentation, and launch direction.
+                      - generic [ref=e2968]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e2969]:
+                    - generic "Content Strategist On demand Plans source-faithful content systems and adapts ideas to each channel and audience." [ref=e2970] [cursor=pointer]:
+                      - generic [ref=e2972]:
+                        - generic [ref=e2973]:
+                          - generic [ref=e2974]: Content Strategist
+                          - generic [ref=e2975]: On demand
+                        - generic [ref=e2976]: Plans source-faithful content systems and adapts ideas to each channel and audience.
+                      - generic [ref=e2977]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e2978]:
+                    - generic "Creative / Brand Designer On demand Develops visual direction and campaign assets that apply the approved brand system consistently." [ref=e2979] [cursor=pointer]:
+                      - generic [ref=e2981]:
+                        - generic [ref=e2982]:
+                          - generic [ref=e2983]: Creative / Brand Designer
+                          - generic [ref=e2984]: On demand
+                        - generic [ref=e2985]: Develops visual direction and campaign assets that apply the approved brand system consistently.
+                      - generic [ref=e2986]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e2987]:
+                    - generic "Growth / Performance Marketer On demand Designs bounded acquisition experiments and interprets funnel performance without overstating attribution." [ref=e2988] [cursor=pointer]:
+                      - generic [ref=e2990]:
+                        - generic [ref=e2991]:
+                          - generic [ref=e2992]: Growth / Performance Marketer
+                          - generic [ref=e2993]: On demand
+                        - generic [ref=e2994]: Designs bounded acquisition experiments and interprets funnel performance without overstating attribution.
+                      - generic [ref=e2995]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e2996]:
+                    - generic "SEO / AEO Specialist On demand Researches search demand and improves organic and AI-answer discoverability using verifiable evidence." [ref=e2997] [cursor=pointer]:
+                      - generic [ref=e2999]:
+                        - generic [ref=e3000]:
+                          - generic [ref=e3001]: SEO / AEO Specialist
+                          - generic [ref=e3002]: On demand
+                        - generic [ref=e3003]: Researches search demand and improves organic and AI-answer discoverability using verifiable evidence.
+                      - generic [ref=e3004]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e3005]:
+                    - generic "Lifecycle / Email Marketer On demand Designs segmented lifecycle messaging, retention, reactivation, and campaign timing." [ref=e3006] [cursor=pointer]:
+                      - generic [ref=e3008]:
+                        - generic [ref=e3009]:
+                          - generic [ref=e3010]: Lifecycle / Email Marketer
+                          - generic [ref=e3011]: On demand
+                        - generic [ref=e3012]: Designs segmented lifecycle messaging, retention, reactivation, and campaign timing.
+                      - generic [ref=e3013]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e3014]:
+                    - generic "Landing Page / CRO Specialist On demand Plans and prepares landing pages, forms, conversion experiments, and tracking verification." [ref=e3015] [cursor=pointer]:
+                      - generic [ref=e3017]:
+                        - generic [ref=e3018]:
+                          - generic [ref=e3019]: Landing Page / CRO Specialist
+                          - generic [ref=e3020]: On demand
+                        - generic [ref=e3021]: Plans and prepares landing pages, forms, conversion experiments, and tracking verification.
+                      - generic [ref=e3022]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e3023]:
+                    - generic "Marketing Operations On demand Prepares reliable campaign operations, integrations, tracking, automations, and data flows." [ref=e3024] [cursor=pointer]:
+                      - generic [ref=e3026]:
+                        - generic [ref=e3027]:
+                          - generic [ref=e3028]: Marketing Operations
+                          - generic [ref=e3029]: On demand
+                        - generic [ref=e3030]: Prepares reliable campaign operations, integrations, tracking, automations, and data flows.
+                      - generic [ref=e3031]: ›
+                    - text: Use Role Create Agent
+                  - group [ref=e3032]:
+                    - generic "Marketing Analyst On demand Interprets performance, attribution quality, experiments, and trends into evidence-backed recommendations." [ref=e3033] [cursor=pointer]:
+                      - generic [ref=e3035]:
+                        - generic [ref=e3036]:
+                          - generic [ref=e3037]: Marketing Analyst
+                          - generic [ref=e3038]: On demand
+                        - generic [ref=e3039]: Interprets performance, attribution quality, experiments, and trends into evidence-backed recommendations.
+                      - generic [ref=e3040]: ›
+                    - text: Use Role Create Agent
+            - group [ref=e3041]:
+              - generic "Verification 3 Roles Product QA The fixed independent product-QA panel with isolated tools and evidence requirements." [ref=e3042] [cursor=pointer]:
+                - generic [ref=e3043]:
+                  - generic [ref=e3044]:
+                    - generic [ref=e3045]: Verification
+                    - generic [ref=e3046]: 3 Roles
+                    - generic [ref=e3047]: Product QA
+                  - generic [ref=e3048]: The fixed independent product-QA panel with isolated tools and evidence requirements.
+                - generic [ref=e3049]: ›
+            - group [ref=e3050]:
+              - generic "Founder OS Solution Pack 9 domains A Goal-centric operating system for understanding business state, finding the current constraint, assembling expertise, and preparing owner decisions." [ref=e3051] [cursor=pointer]:
+                - generic [ref=e3052]:
+                  - generic [ref=e3053]:
+                    - generic [ref=e3054]: Founder OS
+                    - generic [ref=e3055]: Solution Pack
+                    - generic [ref=e3056]: 9 domains
+                  - generic [ref=e3057]: A Goal-centric operating system for understanding business state, finding the current constraint, assembling expertise, and preparing owner decisions.
+                - generic [ref=e3058]: ›
+              - generic [ref=e3059]:
+                - generic [ref=e3060]:
+                  - generic [ref=e3061]:
+                    - paragraph [ref=e3062]: Purpose
+                    - paragraph [ref=e3063]: Help an owner operate the business as a connected system rather than a collection of unrelated chats or bots.
+                    - paragraph [ref=e3064]: Composes Founder OS Core · Marketing Engineering
+                  - generic [ref=e3065]:
+                    - button "Use Founder OS" [ref=e3066] [cursor=pointer]:
+                      - generic [ref=e3068]:
+                        - img [ref=e3069]
+                        - text: Use Founder OS
+                    - button "Create Founder Agent" [ref=e3071] [cursor=pointer]:
+                      - img [ref=e3072]
+                      - text: Create Founder Agent
+                - region "Operating domains" [ref=e3074]:
+                  - generic [ref=e3075]:
+                    - heading "Operating domains" [level=3] [ref=e3076]
+                    - generic [ref=e3077]: Health waits for canonical evidence
+                  - generic [ref=e3078]:
+                    - group [ref=e3079]:
+                      - generic "Strategy unknown Set direction, choose priorities, and make explicit strategic tradeoffs." [ref=e3080] [cursor=pointer]:
+                        - generic [ref=e3081]:
+                          - generic [ref=e3082]: Strategy
+                          - generic [ref=e3083]: unknown
+                        - generic [ref=e3084]: Set direction, choose priorities, and make explicit strategic tradeoffs.
+                    - group [ref=e3085]:
+                      - generic "Traffic unknown Build relevant awareness with the right audience." [ref=e3086] [cursor=pointer]:
+                        - generic [ref=e3087]:
+                          - generic [ref=e3088]: Traffic
+                          - generic [ref=e3089]: unknown
+                        - generic [ref=e3090]: Build relevant awareness with the right audience.
+                    - group [ref=e3091]:
+                      - generic "Leads unknown Turn relevant attention into qualified demand." [ref=e3092] [cursor=pointer]:
+                        - generic [ref=e3093]:
+                          - generic [ref=e3094]: Leads
+                          - generic [ref=e3095]: unknown
+                        - generic [ref=e3096]: Turn relevant attention into qualified demand.
+                    - group [ref=e3097]:
+                      - generic "Conversion unknown Help qualified prospects take the next intended step." [ref=e3098] [cursor=pointer]:
+                        - generic [ref=e3099]:
+                          - generic [ref=e3100]: Conversion
+                          - generic [ref=e3101]: unknown
+                        - generic [ref=e3102]: Help qualified prospects take the next intended step.
+                    - group [ref=e3103]:
+                      - generic "Sales unknown Convert qualified opportunities through a trustworthy, repeatable sales process." [ref=e3104] [cursor=pointer]:
+                        - generic [ref=e3105]:
+                          - generic [ref=e3106]: Sales
+                          - generic [ref=e3107]: unknown
+                        - generic [ref=e3108]: Convert qualified opportunities through a trustworthy, repeatable sales process.
+                    - group [ref=e3109]:
+                      - generic "Offer unknown Align positioning, packaging, pricing, and value with customer evidence and delivery reality." [ref=e3110] [cursor=pointer]:
+                        - generic [ref=e3111]:
+                          - generic [ref=e3112]: Offer
+                          - generic [ref=e3113]: unknown
+                        - generic [ref=e3114]: Align positioning, packaging, pricing, and value with customer evidence and delivery reality.
+                    - group [ref=e3115]:
+                      - generic "Delivery unknown Deliver promised outcomes reliably and create retention and expansion capacity." [ref=e3116] [cursor=pointer]:
+                        - generic [ref=e3117]:
+                          - generic [ref=e3118]: Delivery
+                          - generic [ref=e3119]: unknown
+                        - generic [ref=e3120]: Deliver promised outcomes reliably and create retention and expansion capacity.
+                    - group [ref=e3121]:
+                      - generic "Finance unknown Provide transparent financial analysis, forecasts, and constraints without money-movement authority." [ref=e3122] [cursor=pointer]:
+                        - generic [ref=e3123]:
+                          - generic [ref=e3124]: Finance
+                          - generic [ref=e3125]: unknown
+                        - generic [ref=e3126]: Provide transparent financial analysis, forecasts, and constraints without money-movement authority.
+                    - group [ref=e3127]:
+                      - generic "Systems unknown Improve people, process, capacity, and operating reliability across the business." [ref=e3128] [cursor=pointer]:
+                        - generic [ref=e3129]:
+                          - generic [ref=e3130]: Systems
+                          - generic [ref=e3131]: unknown
+                        - generic [ref=e3132]: Improve people, process, capacity, and operating reliability across the business.
+                - generic [ref=e3133]:
+                  - group [ref=e3134]:
+                    - generic "Goal templates · 3 ready" [ref=e3135] [cursor=pointer]:
+                      - text: Goal templates
+                      - generic [ref=e3136]: · 3 ready
+                  - group [ref=e3137]:
+                    - generic "Workflows and artifacts · 1 / 31" [ref=e3138] [cursor=pointer]:
+                      - text: Workflows and artifacts
+                      - generic [ref=e3139]: · 1 / 31
+                  - group [ref=e3140]:
+                    - generic "Knowledge and capabilities" [ref=e3141] [cursor=pointer]
+                  - group [ref=e3142]:
+                    - generic "Approval boundaries" [ref=e3143] [cursor=pointer]
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L601-L606

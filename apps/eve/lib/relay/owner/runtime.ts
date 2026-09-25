@@ -48,7 +48,7 @@ export async function bindOwnerRuntime(claim:OwnerRuntimeClaim,sessionId:string,
  UPDATE owner_channel_requests SET session_id=$5,turn_id=$6 WHERE owner_id=$1 AND run_id=$2 AND agent_id=$3 AND dispatch_id=$4
  AND revoked_at IS NULL AND (session_id IS NULL OR session_id=$5) AND (turn_id IS NULL OR turn_id=$6) RETURNING run_id
  ) INSERT INTO task_run_sessions(task_id,session_id,role) SELECT run_id,$5,'orchestrator' FROM bound
- ON CONFLICT(session_id) DO UPDATE SET session_id=EXCLUDED.session_id WHERE task_run_sessions.task_id=EXCLUDED.task_id RETURNING task_id`,[claim.ownerId,claim.runId,claim.agentId,claim.dispatchId,sessionId,turnId]);
+ ON CONFLICT(session_id) WHERE is_current DO UPDATE SET session_id=EXCLUDED.session_id WHERE task_run_sessions.task_id=EXCLUDED.task_id RETURNING task_id`,[claim.ownerId,claim.runId,claim.agentId,claim.dispatchId,sessionId,turnId]);
  if(row?.task_id!==claim.runId)throw new Error("Owner runtime session already bound.");
 }
 

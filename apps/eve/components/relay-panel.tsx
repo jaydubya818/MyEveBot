@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import { peerMessageDraft } from "../lib/relay/message-draft";
+import { grantDurationOptions, grantExpiry } from "../lib/relay/grant-duration";
+import { PeerPermissionsPanel } from "./peer-permissions-panel";
 
 type Row = Record<string, any>;
 const control =
@@ -73,6 +76,7 @@ export function RelayPanel() {
           Your private Knowledge stays in MyEve. Federation requires an
           explicitly configured Relay connection and signing-key pin.
         </p>
+        <PeerPermissionsPanel localAgentId="" />
       </div>
     );
   const connection = data.connection;
@@ -172,6 +176,7 @@ export function RelayPanel() {
       </section>
       {connection && (
         <>
+          <PeerPermissionsPanel localAgentId={connection.local_agent_id} />
           <section className={section}>
             <h2 className="font-semibold">Publish selected Knowledge</h2>
             <p className="text-sm text-kumo-subtle">
@@ -350,6 +355,14 @@ export function RelayPanel() {
             </p>
           </section>
           <section className={section}>
+            <h2 className="font-semibold">Grant expiry settings</h2>
+            <p className="text-sm text-kumo-subtle">Choose the default for new grants you issue. Existing grants and grants issued by another peer’s owner are unchanged. Never means until revoked; identity credentials, published Knowledge, and individual requests still have their own expiry.</p>
+            <form className="flex flex-wrap gap-2" onSubmit={(e) => { const f = form(e); void act("grant-duration", f.duration); }}>
+              <select key={data.grantDuration} name="duration" aria-label="Default grant expiry" className={control} defaultValue={data.grantDuration}>
+                {grantDurationOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+              <button className={control} disabled={busy}>Save expiry preference</button>
+            </form>
             <h2 className="font-semibold">Independent capability grants</h2>
             <form
               className="grid gap-2"
@@ -362,7 +375,7 @@ export function RelayPanel() {
                   capability: f.capability,
                   resource: f.resource,
                   conditions: {
-                    expiresAt: expiry(),
+                    expiresAt: grantExpiry(f.duration),
                     rateLimit: { calls: 10, windowSeconds: 60 },
                     allowedTopics: [],
                     approvalRequired: false,
@@ -420,15 +433,21 @@ export function RelayPanel() {
                 placeholder="Work cost ceiling"
                 aria-label="Work cost ceiling"
               />
+              <label className="text-sm">Grant expiry
+                <select key={data.grantDuration} name="duration" aria-label="Grant expiry" className={control} defaultValue={data.grantDuration}>
+                  {grantDurationOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              </label>
+              <p className="text-sm text-kumo-subtle">Review the peer, capability, resource, and expiry before granting access. A never-expiring grant remains active until revoked.</p>
               <button className={control} disabled={busy}>
-                Grant for 24 hours
+                Create grant
               </button>
             </form>
             {data.grants.map((g: Row) => (
               <div key={g.id} className="text-sm">
                 <p>
                   {g.document.capability} → {g.document.granteeOwnerId}/
-                  {g.document.granteeAgentId} · {g.status}
+                  {g.document.granteeAgentId} · {g.status} · {g.document.conditions.expiresAt === null ? "Never expires — until revoked" : `Expires ${new Date(g.document.conditions.expiresAt).toLocaleString()}`}
                 </p>
                 {button(
                   "Revoke grant",
@@ -436,6 +455,19 @@ export function RelayPanel() {
                 )}
               </div>
             ))}
+          </section>
+          <section className={section}>
+            <h2 className="font-semibold">Replies to peer messages</h2>
+            <p className="text-sm text-kumo-subtle">Allow your Agent to answer authorized peer messages using only the profile below and the incoming message. Private Knowledge, memory, chat history, and tools are excluded. Each message permits one model call, at most 600 output tokens and a conservative $0.25 estimated cost limit. Existing peer permissions and approvals still apply. Model authentication must be configured in the receiving service.</p>
+            <form key={JSON.stringify(data.messageReplies)} className="grid gap-2" onSubmit={(e) => {
+              const f = form(e); void act("message-replies", { enabled: f.enabled === "on", publicProfile: f.publicProfile });
+            }}>
+              <label className="flex items-center gap-2 text-sm"><input name="enabled" type="checkbox" defaultChecked={data.messageReplies?.enabled ?? false} /> Answer authorized peer messages</label>
+              <label className="text-sm">Information your Agent may share
+                <textarea name="publicProfile" aria-label="Public reply profile" className={`${control} mt-2 min-h-32 w-full`} maxLength={4000} defaultValue={data.messageReplies?.publicProfile ?? ""} placeholder="Describe verified capabilities and limits. Include only information you intend every authorized messaging peer to receive." />
+              </label>
+              <button className={control} disabled={busy}>Save reply settings</button>
+            </form>
           </section>
           <section className={section}>
             <h2 className="font-semibold">External work policy</h2>
@@ -516,6 +548,11 @@ export function RelayPanel() {
                       Local MyEve Run: {r.local_run_id}
                     </a>
                   )}
+                  {(r.result?.reply?.body ?? r.result?.result?.reply?.body) && <p className="whitespace-pre-wrap text-sm">Agent reply: {r.result?.reply?.body ?? r.result?.result?.reply?.body}</p>}
+                  {(r.result?.replyStatus ?? r.result?.result?.replyStatus) === "unavailable" && <p className="text-sm text-kumo-subtle">Message received, but the receiving Agent could not generate an answer. Its owner should check model authentication and budget. No answer was fabricated.</p>}
+                  {r.capability === "message.send" && !r.result?.reply && !r.result?.result?.reply && (r.result?.acknowledged === true || r.result?.result?.acknowledged === true) && (
+                    <p className="text-sm text-kumo-subtle">Delivery acknowledged. This is a receipt, not an agent-written reply.</p>
+                  )}
                   {r.result && (
                     <pre className="max-h-48 overflow-auto whitespace-pre-wrap text-xs">
                       {JSON.stringify(r.result, null, 2)}
@@ -530,11 +567,11 @@ export function RelayPanel() {
                     {r.state === "needs_approval" && (
                       <>
                         {button(
-                          "Approve exact work",
+                          "Approve exact request",
                           () => void act("decide", true, r.request_id),
                         )}
                         {button(
-                          "Deny work",
+                          "Deny request",
                           () => void act("decide", false, r.request_id),
                         )}
                       </>
@@ -553,31 +590,29 @@ export function RelayPanel() {
               ))
             )}
             <h3 className="font-medium">
-              {reply ? "Reply to authenticated sender" : "Send a message"}
+              {reply ? "Draft reply to authenticated sender" : "Draft a message"}
             </h3>
             <form
               key={reply?.request_id ?? "new"}
               className="grid gap-2"
               onSubmit={(e) => {
                 const f = form(e);
-                void act("send", {
-                  capability: "message.send",
-                  target: f.target,
-                  resource: f.resource,
+                let request;
+                try { request = peerMessageDraft({
+                  target: reply ? `relay://${reply.sender_owner_id}/${reply.sender_agent_id}` : f.target,
+                  body: f.body,
                   conversationId: reply?.conversation_id ?? crypto.randomUUID(),
-                  idempotencyKey: crypto.randomUUID(),
-                  expiresAt: expiry(),
-                  payload: {
-                    body: f.body,
-                    ...(reply ? { replyTo: reply.request_id } : {}),
-                  },
-                }).then((r) => {
-                  if (r) setReply(null);
-                });
+                  ...(reply ? { replyTo: reply.request_id } : {}),
+                }, crypto.randomUUID()); }
+                catch { setError("Enter a valid peer address and a non-empty message."); return; }
+                void navigator.clipboard.writeText(`Propose this exact Relay request for Action approval: ${JSON.stringify(request)}`)
+                  .then(() => setNotice("Request copied. Paste it into your Agent chat to review and approve the exact Action. Nothing was sent."))
+                  .catch(() => setError("Clipboard access failed. Ask your Agent in chat to draft this message for the selected peer. The saved relationship supplies the messaging resource."));
               }}
             >
               <input
                 name="target"
+                readOnly={Boolean(reply)}
                 defaultValue={
                   reply
                     ? `relay://${reply.sender_owner_id}/${reply.sender_agent_id}`
@@ -588,13 +623,7 @@ export function RelayPanel() {
                 aria-label="Recipient Relay address"
                 required
               />
-              <input
-                name="resource"
-                className={control}
-                placeholder="Messaging resource granted by recipient"
-                aria-label="Messaging resource"
-                required
-              />
+              <p className="text-sm text-kumo-subtle">Messaging access comes from the saved peer relationship. Your Agent resolves it before requesting approval. No internal resource identifier is needed.</p>
               <textarea
                 name="body"
                 className={control}
@@ -604,7 +633,7 @@ export function RelayPanel() {
                 required
               />
               <button className={control} disabled={busy}>
-                Send message
+                Copy request for Agent chat
               </button>
             </form>
           </section>

@@ -33,9 +33,8 @@ export async function dispatchOwnerRun(accepted:AcceptedOwnerCommand){
  ) INSERT INTO task_transitions(task_id,from_status,to_status,actor,reason)
  SELECT id,'queued','running','agent','Authenticated owner-channel dispatch' FROM started RETURNING task_id`,[mapping.ownerId,runId,dispatchId]);
  if(!row)return;
- const session=runtimeClient(claim).session();
  try{
-  const events=await session.send({message:command.work.message,signal:AbortSignal.timeout(60000),streamReconnectPolicy:{reconnect:false}});
+  const {session,response:events}=await runtimeClient(claim).sessions.create({message:command.work.message,signal:AbortSignal.timeout(60000),streamReconnectPolicy:{reconnect:false}});
   if(!session.state.sessionId)throw new Error("Eve session identity unavailable.");
   const bound=await db().query(`UPDATE owner_channel_requests SET session_id=$4 WHERE owner_id=$1 AND run_id=$2 AND dispatch_id=$3 AND (session_id IS NULL OR session_id=$4) RETURNING run_id`,[mapping.ownerId,runId,dispatchId,session.state.sessionId]);
   if(!bound.length)throw new Error("Eve session identity changed.");
@@ -61,7 +60,7 @@ export async function reconcileOwnerRun(accepted:AcceptedOwnerCommand){
  if(row.session_id){
   const claim={ownerId:accepted.mapping.ownerId,agentId:accepted.mapping.agentId,runId:accepted.runId,dispatchId:String(row.dispatch_id),expiresAt:Date.now()+60000,purpose:"observe" as const};
   // Eve treats a string as a continuation token, not a durable session ID.
-  const stream=runtimeClient(claim).session({sessionId:String(row.session_id),streamIndex:0}).stream({follow:false,startIndex:0,signal:AbortSignal.timeout(5000),streamReconnectPolicy:{reconnect:false}});
+  const stream=runtimeClient(claim).sessions.attach(String(row.session_id)).stream({follow:false,startIndex:0,signal:AbortSignal.timeout(5000),streamReconnectPolicy:{reconnect:false}});
   try{await settleOwnerStream(accepted,stream);}catch{
    if(!row.deadline_at||new Date(String(row.deadline_at)).getTime()>=Date.now())throw new Error("Canonical stream observation unavailable.");
   }

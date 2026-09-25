@@ -9,3 +9,4 @@ node_modules
 .output
 .worktrees/
 .worktrees
+.env*.local

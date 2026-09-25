@@ -68,7 +68,7 @@ const unqualifiedChannel = () => defineChannel<
   },
 
   routes: [
-    POST("/eve/v1/agentphone/voice", async (req, { send }) => {
+    POST("/eve/v1/agentphone/voice", async (req, { from: source }) => {
       const phone = await runTool(verifiedPhone()).catch(() => null);
       if (phone === null) {
         return Response.json({ error: "no phone provisioned" }, { status: 503 });
@@ -121,9 +121,8 @@ const unqualifiedChannel = () => defineChannel<
       }
 
       const cursor = await runTool(phoneCallCursor(voice.callId)).catch(() => 0);
-      const session = await send(voice.transcript, {
+      const session = await source(voice.callId).send(voice.transcript, {
         auth: voiceAuth(voice, phone.ownerNumber),
-        continuationToken: voice.callId,
         state: { callId: voice.callId, from: voice.from },
       });
 
@@ -131,15 +130,14 @@ const unqualifiedChannel = () => defineChannel<
     }),
   ],
 
-  async receive(input, { send }) {
+  async receive(input, { from: source }) {
     const callId = typeof input.target.callId === "string" ? input.target.callId.trim() : "";
     if (callId.length === 0) {
       throw new Error("agentphone-voice receive requires target.callId.");
     }
     const from = typeof input.target.from === "string" ? input.target.from : null;
-    return send(input.message, {
+    return source(callId).send(input.message, {
       auth: input.auth,
-      continuationToken: callId,
       state: { callId, from },
     });
   },
@@ -149,4 +147,4 @@ const unqualifiedChannel = () => defineChannel<
   events: {},
 });
 
-export default blockedChannel();
+export default blockedChannel("/eve/v1/agentphone/voice");

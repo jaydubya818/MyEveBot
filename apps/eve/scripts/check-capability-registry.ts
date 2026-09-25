@@ -1,19 +1,23 @@
 import { readdir } from "node:fs/promises";
 import path from "node:path";
 
-import { CAPABILITY_DEFINITIONS } from "../lib/capability-registry.ts";
+import { BROWSER_TOOL_CAPABILITIES, CAPABILITY_DEFINITIONS } from "../lib/capability-registry.ts";
 
 const eveRoot = path.resolve(import.meta.dirname, "..");
 const toolDirectory = path.join(eveRoot, "agent", "tools");
 const authoredTools = (await readdir(toolDirectory))
-  .filter((name) => name.endsWith(".ts"))
+  .filter((name) => name.endsWith(".ts") && !name.endsWith(".test.ts"))
   .map((name) => `agent/tools/${name}`)
   .sort();
 const registeredTools = CAPABILITY_DEFINITIONS.filter(
   (capability) => capability.kind === "tool" && capability.source.reference?.startsWith("agent/tools/"),
 ).map((capability) => capability.source.reference!).sort();
 
-const missing = authoredTools.filter((file) => !registeredTools.includes(file));
+// Browser wrappers retain their existing browser.* capability identities.
+const governedBrowserTools = Object.entries(BROWSER_TOOL_CAPABILITIES)
+  .filter(([, id]) => CAPABILITY_DEFINITIONS.some(capability => capability.id === id))
+  .map(([name]) => `agent/tools/browser__${name}.ts`);
+const missing = authoredTools.filter((file) => !registeredTools.includes(file) && !governedBrowserTools.includes(file));
 const stale = registeredTools.filter((file) => !authoredTools.includes(file));
 const duplicateIds = CAPABILITY_DEFINITIONS.map((capability) => capability.id).filter(
   (id, index, all) => all.indexOf(id) !== index,

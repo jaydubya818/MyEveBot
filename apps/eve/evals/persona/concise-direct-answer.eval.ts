@@ -9,8 +9,7 @@ export default defineEval({
     t.succeeded();
     t.usedNoTools();
     t.messageIncludes(/1989/);
-    t.judge.autoevals
-      .closedQA("The response leads with the answer, is concise, and contains no filler.")
+    t.judge("The response leads with the answer, is concise, and contains no filler.")
       .atLeast(0.7);
   },
 });

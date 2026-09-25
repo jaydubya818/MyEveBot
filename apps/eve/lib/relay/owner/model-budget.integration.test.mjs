@@ -3,14 +3,16 @@ import {Pool} from 'pg';
 import {beforeAll,beforeEach,afterAll,describe,it,expect} from 'vitest';
 import {OwnerModelBudget} from './model-budget.ts';
 const suite=process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'?describe:describe.skip;
+const fixtureUrl=process.env.MYEVE_OWNER_TEST_DATABASE_URL??`postgresql://${process.env.USER}@127.0.0.1:55447/postgres`;
+if(process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'&&new URL(fixtureUrl).hostname!=='127.0.0.1')throw new Error('Loopback test database required.');
 suite('durable owner model budget',()=>{
  let admin,pool,budget;const schema=`owner_budget_${process.pid}_${Date.now()}`;
  const query=async(text,params=[])=>(await pool.query(text,params)).rows;
  const database={query};
  const input=(stepKey='turn:0')=>({ownerId:'owner',runId:'run',stepKey,requestHash:'sha256:fixture',modelId:'fixture/model',microUsd:60000,tokens:6000});
  beforeAll(async()=>{
-  admin=new Pool({host:'127.0.0.1',port:55447,database:'postgres',user:process.env.USER});await admin.query(`CREATE SCHEMA ${schema}`);
-  pool=new Pool({host:'127.0.0.1',port:55447,database:'postgres',user:process.env.USER,options:`-c search_path=${schema}`});
+  admin=new Pool({connectionString:fixtureUrl});await admin.query(`CREATE SCHEMA ${schema}`);
+  pool=new Pool({connectionString:fixtureUrl,options:`-c search_path=${schema}`});
   const dir=new URL('../../../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
   await query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent','owner','budget','Budget fixture','Qualification','Synthetic',true,'active',8,60,0.1)");
  });
@@ -124,7 +126,7 @@ suite('durable owner model budget',()=>{
   await budget.reserve(input());await budget.settle(input(),{microUsd:20000,tokens:1000},{});
   const other=await anotherRun('upgrade');await budget.reserve(other);await budget.unknown(other);
   await query('DROP TRIGGER owner_model_qualification_accounting ON owner_model_calls; DROP FUNCTION account_owner_qualification_model_call(); DROP TABLE owner_qualification_budget');
-  await query(await readFile(new URL('../../../migrations/0032_owner_qualification_budget.sql',import.meta.url),'utf8'));
+  await query(await readFile(new URL('../../../migrations/0038_owner_qualification_budget.sql',import.meta.url),'utf8'));
   expect(await totals()).toEqual({reserved_microusd:'100000',spent_microusd:'20000'});
   expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(2);
  });

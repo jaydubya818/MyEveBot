@@ -118,7 +118,7 @@ export function VoiceOrb() {
     generationRef.current += 1;
     realtimeRef.current?.close();
     realtimeRef.current = null;
-    writerRef.current?.finish(dispatcherRef.current?.continuationToken);
+    writerRef.current?.finish(dispatcherRef.current?.sessionId);
     // Keep the writer + dispatcher alive: an in-flight dispatch still appends
     // its result to the thread after the orb closes (while the tab is open).
     setCaption("");
@@ -216,7 +216,7 @@ export function VoiceOrb() {
       lastActivityRef.current = Date.now();
       const current = generation === generationRef.current;
       if (!current) {
-        writer.finish(dispatcherRef.current?.continuationToken);
+        writer.finish(dispatcherRef.current?.sessionId);
         return;
       }
       if (stateRef.current === "working") setState("listening");
@@ -361,7 +361,7 @@ export function VoiceOrb() {
       // On reuse, replay the recent spoken history to the next dispatch so
       // references like "that restaurant" still resolve.
       dispatchedFromRef.current = reusable ? dispatchedFromRef.current : 0;
-      if (!reusable) dispatcherRef.current = new SofieDispatcher(writer.resumeToken);
+      if (!reusable) dispatcherRef.current = new SofieDispatcher(writer.resumeSessionId);
       pendingRequestsRef.current = null;
       lastActivityRef.current = Date.now();
 
@@ -450,7 +450,7 @@ export function VoiceOrb() {
           // The wrapper already closed the connection; drop our handle too so
           // a retry starts clean instead of stacking on a dead session.
           realtimeRef.current = null;
-          writerRef.current?.finish(dispatcherRef.current?.continuationToken);
+          writerRef.current?.finish(dispatcherRef.current?.sessionId);
           setState("error");
         },
         onClosed: () => {

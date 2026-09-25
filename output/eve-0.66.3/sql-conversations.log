@@ -1,0 +1,17 @@
+PASS: fresh migration chain to canonical 0033
+PASS: failed migration rolls back schema and populated evidence atomically
+PASS: populated upgrade preserves old binding and marks current
+PASS: canonical runner rerun
+PASS: expired tool admission cannot initialize replacement
+PASS: eight concurrent recoveries create one current Run
+PASS: old Run unchanged; history retained; fresh budget and deadline
+PASS: historical Actions and pending/decided approvals survive rollover byte-for-byte
+PASS: database rejects two current links
+PASS: process reconnect resolves durable current pointer
+PASS: fresh process resolves the persisted current binding
+PASS: third cycle preserves two historical Runs
+PASS: owner and Agent isolation fail closed
+PASS: viewing session creates no Run
+PASS: intentional budget ceiling cannot be reset through chat
+PASS: empty database namespace runs full chain including 0034
+SQL lifecycle: 16 checks passed; isolated database only; live effects=0

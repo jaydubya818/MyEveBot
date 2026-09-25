@@ -1,3 +1,6 @@
+import { insertFederationArtifact, updateFederationArtifactAudience } from "../qualification/artifact-storage.ts";
+import { qualificationFetch, qualifyArtifact } from "../qualification/client.ts";
+import { ingressHeaders } from "./ingress.ts";
 import {
   createHash,
   createPrivateKey,
@@ -97,13 +100,14 @@ export async function receiveArtifact(
     claims.sub !== payload.reference
   )
     throw new Error("Artifact source or audience mismatch.");
-  const response = await fetch(url, {
+  const response = await qualificationFetch(url, {
     redirect: "error",
     signal: AbortSignal.timeout(15000),
     headers: {
+      ...ingressHeaders(url.origin),
       authorization: `Bearer ${jwt({ iss: connection.address, aud: url.toString(), exp: Math.floor(Date.now() / 1000) + 30 })}`,
     },
-  });
+  }, "artifact");
   if (!response.ok) throw new Error("Artifact source refused retrieval.");
   const reader = response.body?.getReader();
   if (!reader) throw new Error("Empty artifact response.");
@@ -128,10 +132,10 @@ export async function receiveArtifact(
   )
     throw new Error("Artifact integrity or supported type mismatch.");
   const id = `relay_artifact_${randomUUID()}`;
+  await qualifyArtifact(store.ownerId, id, bytes);
   const { retrieval: ignored, ...metadata } = payload;
   void ignored;
-  await store.database.query(
-    "INSERT INTO myeve_relay_artifacts(id,owner_id,request_id,content_encrypted,metadata,audience,audience_public_key,expires_at) VALUES($1,$2,$3,$4,$5::jsonb,$6,$7,$8)",
+  await insertFederationArtifact(store,
     [
       id,
       store.ownerId,
@@ -167,16 +171,14 @@ export async function artifactShare(
     throw new Error(
       "Select an owned artifact and explicitly trusted recipient.",
     );
+  await qualifyArtifact(store.ownerId, id, decryptSecret<string>(store.ownerId, row.content_encrypted));
   const origin = new URL(process.env.MYEVE_RELAY_ARTIFACT_ORIGIN ?? "");
   if (origin.protocol !== "https:" || origin.username || origin.password)
     throw new Error("An HTTPS MyEve artifact origin is required.");
   const expiresAt = new Date(
     Math.min(Date.now() + 120000, new Date(row.expires_at).getTime()),
   ).toISOString();
-  await store.database.query(
-    "UPDATE myeve_relay_artifacts SET audience=$3,audience_public_key=$4 WHERE owner_id=$1 AND id=$2",
-    [store.ownerId, id, target, peer.artifact_public_key],
-  );
+  await updateFederationArtifactAudience(store,id,target,peer.artifact_public_key);
   const token = jwt({
     iss: connection.address,
     aud: target,
@@ -226,6 +228,7 @@ export async function retrieveArtifact(
     proof.aud !== url
   )
     throw new Error("Artifact audience denied.");
+  await qualifyArtifact(store.ownerId, id, decryptSecret<string>(store.ownerId, row.content_encrypted));
   return {
     content: decryptSecret<string>(store.ownerId, row.content_encrypted),
     type: String(row.metadata.type),

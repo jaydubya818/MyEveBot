@@ -58,7 +58,7 @@ function hookMessage(hook: WebhookRow, contentType: string | null, payload: stri
 
 export default defineChannel({
   routes: [
-    POST("/eve/v1/hooks/:hookId/:secret", async (req, { receive, waitUntil, params }) => {
+    POST("/eve/v1/hooks/:hookId/:secret", async (req, { to, waitUntil, params }) => {
       const hook = await getWebhook(params.hookId);
       // A single 404 for both unknown id and bad secret, so probing reveals nothing.
       if (hook === null || !secretsMatch(hook.secret, params.secret)) {
@@ -81,35 +81,19 @@ export default defineChannel({
               attributes: { webhook_id: hook.id, webhook_name: hook.name },
             };
             if (route.kind === "telegram") {
-              await receive(telegram, {
-                message,
-                target: { chatId: route.chatId },
-                auth,
-              });
+              await to(telegram, { chatId: route.chatId }).send(message, { auth });
             } else if (route.kind === "imessage") {
               // The session runs in the owner's iMessage conversation, so a
               // reply text continues it.
-              await receive(imessage, {
-                message,
-                target: { handle: route.handle },
-                auth,
-              });
+              await to(imessage, { handle: route.handle }).send(message, { auth });
             } else if (route.kind === "slack") {
               // The session runs in the owner's Slack DM, so a reply in that
               // thread continues it.
-              await receive(slack, {
-                message,
-                target: { channelId: route.channelId },
-                auth,
-              });
+              await to(slack, { channelId: route.channelId }).send(message, { auth });
             } else if (route.kind === "phone") {
               // The session runs in the owner's text thread, so a reply
               // continues it.
-              await receive(agentphone, {
-                message,
-                target: { target: route.target },
-                auth,
-              });
+              await to(agentphone, { target: route.target }).send(message, { auth });
             } else {
               const delivery = await deliverToWebChatThread(`Webhook: ${hook.name}`, message, "webhook");
               threadId = delivery.threadId;

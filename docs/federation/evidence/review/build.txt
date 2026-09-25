@@ -11,41 +11,41 @@
 
 eveclaw-builder:build: cache bypass, force executing 0d76dceebced937e
 eve-agent:build: cache bypass, force executing 4108bba0f511f25a
-eveclaw-builder:build: 
+eveclaw-builder:build:
 eveclaw-builder:build: > eveclaw-builder@0.0.0 build
 eveclaw-builder:build: > next build
-eveclaw-builder:build: 
-eve-agent:build: 
+eveclaw-builder:build:
+eve-agent:build:
 eve-agent:build: > eve-agent@0.0.0 build
 eve-agent:build: > npm run skills:prepare && next build
-eve-agent:build: 
-eve-agent:build: 
+eve-agent:build:
+eve-agent:build:
 eve-agent:build: > eve-agent@0.0.0 skills:prepare
 eve-agent:build: > node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs
-eve-agent:build: 
+eve-agent:build:
 eve-agent:build: Normalized 0 imported skills for Eve.
 eveclaw-builder:build: ▲ Next.js 16.3.5 (Turbopack)
 eveclaw-builder:build: ✓ Running next.config.ts took 13ms
 eveclaw-builder:build: - Cache Components enabled
 eveclaw-builder:build: - Partial Prefetching enabled
-eveclaw-builder:build: 
+eveclaw-builder:build:
 eve-agent:build: Cataloged 79 installed skills.
 eveclaw-builder:build:   Creating an optimized production build ...
 eve-agent:build: ▲ Next.js 16.3.5 (Turbopack)
 eve-agent:build: ✓ Running next.config.ts took 279ms
-eve-agent:build: 
+eve-agent:build:
 eve-agent:build:   Creating an optimized production build ...
 eveclaw-builder:build: ✓ Compiled successfully in 426ms
 eveclaw-builder:build:   Running TypeScript ...
 eveclaw-builder:build:   Finished TypeScript in 270ms ...
 eveclaw-builder:build:   Collecting page data using 12 workers ...
 eveclaw-builder:build:   Generating static pages using 12 workers (0/11) ...
-eveclaw-builder:build:   Generating static pages using 12 workers (2/11) 
-eveclaw-builder:build:   Generating static pages using 12 workers (5/11) 
-eveclaw-builder:build:   Generating static pages using 12 workers (8/11) 
+eveclaw-builder:build:   Generating static pages using 12 workers (2/11)
+eveclaw-builder:build:   Generating static pages using 12 workers (5/11)
+eveclaw-builder:build:   Generating static pages using 12 workers (8/11)
 eveclaw-builder:build: ✓ Generating static pages using 12 workers (11/11) in 316ms
 eveclaw-builder:build:   Finalizing page optimization ...
-eveclaw-builder:build: 
+eveclaw-builder:build:
 eveclaw-builder:build: Route (app)
 eveclaw-builder:build: ┌ ○ /
 eveclaw-builder:build: ├ ○ /_not-found
@@ -57,25 +57,25 @@ eveclaw-builder:build: ├ ƒ /api/stores
 eveclaw-builder:build: ├ ƒ /api/template-version
 eveclaw-builder:build: ├ ƒ /api/update
 eveclaw-builder:build: └ ◐ /update
-eveclaw-builder:build: 
-eveclaw-builder:build: 
+eveclaw-builder:build:
+eveclaw-builder:build:
 eveclaw-builder:build: ƒ Proxy (Middleware)
-eveclaw-builder:build: 
+eveclaw-builder:build:
 eveclaw-builder:build: ○  (Static)             prerendered as static content
 eveclaw-builder:build: ◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content
 eveclaw-builder:build: ƒ  (Dynamic)            server-rendered on demand
-eveclaw-builder:build: 
+eveclaw-builder:build:
 eve-agent:build: ✓ Compiled successfully in 2.4s
 eve-agent:build:   Running TypeScript ...
 eve-agent:build:   Finished TypeScript in 3.0s ...
 eve-agent:build:   Collecting page data using 15 workers ...
 eve-agent:build:   Generating static pages using 15 workers (0/81) ...
-eve-agent:build:   Generating static pages using 15 workers (20/81) 
-eve-agent:build:   Generating static pages using 15 workers (40/81) 
-eve-agent:build:   Generating static pages using 15 workers (60/81) 
+eve-agent:build:   Generating static pages using 15 workers (20/81)
+eve-agent:build:   Generating static pages using 15 workers (40/81)
+eve-agent:build:   Generating static pages using 15 workers (60/81)
 eve-agent:build: ✓ Generating static pages using 15 workers (81/81) in 307ms
 eve-agent:build:   Finalizing page optimization ...
-eve-agent:build: 
+eve-agent:build:
 eve-agent:build: Route (app)
 eve-agent:build: ┌ ○ /
 eve-agent:build: ├ ○ /_not-found
@@ -188,15 +188,14 @@ eve-agent:build: ├ ƒ /manage/[section]
 eve-agent:build: ├ ○ /results
 eve-agent:build: ├ ○ /review
 eve-agent:build: └ ƒ /share/[token]
-eve-agent:build: 
-eve-agent:build: 
+eve-agent:build:
+eve-agent:build:
 eve-agent:build: ƒ Proxy (Middleware)
-eve-agent:build: 
+eve-agent:build:
 eve-agent:build: ○  (Static)   prerendered as static content
 eve-agent:build: ƒ  (Dynamic)  server-rendered on demand
-eve-agent:build: 
+eve-agent:build:
 
  Tasks:    2 successful, 2 total
 Cached:    0 cached, 2 total
-  Time:    9.1s 
-
+  Time:    9.1s

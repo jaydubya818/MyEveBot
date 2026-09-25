@@ -1,0 +1,18 @@
+✔ session and thread Agent bindings are authoritative across requests (76.753958ms)
+✔ persistent Agent repository enforces owner, lifecycle, capabilities, primary, duplication, and run attribution (148.654583ms)
+✔ persistent browser profiles isolate Agents and enforce revocable sharing (160.918583ms)
+✔ Agent Run computer sessions enforce links, isolation, capabilities, limits, actions, and lifecycle (202.938541ms)
+✔ goal repository persists a dependency-aware lifecycle and immutable events (221.951333ms)
+✔ knowledge core preserves typed state, provenance, Goal links, relationships, and owner boundaries (365.346875ms)
+✔ operations telemetry is persisted and appears in the owner report (25.087791ms)
+✔ outcomes and reviews preserve owner scope, lineage, and checkpoints (184.323667ms)
+✔ review delivery preferences schedule durably and deduplicate a period (142.831708ms)
+✔ scoped memory and Context Assembly prove the seeded Agent/Goal isolation path (211.921333ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 10760.73625

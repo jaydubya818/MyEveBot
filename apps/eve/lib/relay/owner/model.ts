@@ -1,5 +1,8 @@
 import { gateway } from "ai";
-import type { LanguageModelV4, LanguageModelV4CallOptions, LanguageModelV4GenerateResult, LanguageModelV4StreamPart } from "@ai-sdk/provider";
+type LanguageModelV4 = ReturnType<typeof gateway>;
+type LanguageModelV4CallOptions = Parameters<LanguageModelV4["doGenerate"]>[0];
+type LanguageModelV4GenerateResult = Awaited<ReturnType<LanguageModelV4["doGenerate"]>>;
+type LanguageModelV4StreamPart = Awaited<ReturnType<LanguageModelV4["doStream"]>>["stream"] extends ReadableStream<infer Part> ? Part : never;
 import { db } from "../../../agent/lib/receipts-db.ts";
 import { effectiveCapability, getAgent } from "../../agents.ts";
 import { OwnerModelBudget, type ModelReservation } from "./model-budget.ts";

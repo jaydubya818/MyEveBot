@@ -1,6 +1,6 @@
-import type {ExecutionDatabase} from "./execution-types.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
+import type { ExecutionDatabase } from "./execution-types.ts";
 import type { ComputerController, ComputerControlView } from "./computer-types.ts";
 import { redactEvidenceText } from "./task-types.ts";
 

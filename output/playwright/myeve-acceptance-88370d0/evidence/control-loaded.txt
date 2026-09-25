@@ -1,0 +1,560 @@
+### Page
+- Page URL: http://localhost:3073/manage/control
+- Page Title: Ava
+- Console: 2 errors, 61 warnings
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - button "Back to chat" [ref=e5]: Ava
+        - generic [ref=e6]:
+          - button "Goals" [ref=e7] [cursor=pointer]:
+            - img [ref=e8]
+          - button "Knowledge" [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+          - button "Results" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - button "Computer" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - button "Agents" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+          - button "Review" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - button "Channels" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+          - button "Files" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+          - button "Manage" [pressed] [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+          - button "New thread" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+      - textbox "Search threads" [ref=e39]
+      - navigation [ref=e40]:
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Today
+          - list [ref=e43]:
+            - listitem [ref=e44]:
+              - button "Design a quiet routine 1:09 PM" [ref=e45]:
+                - generic [ref=e47]: Design a quiet routine
+                - generic [ref=e48]: 1:09 PM
+              - generic [ref=e49]:
+                - button "Pin Design a quiet routine" [ref=e50] [cursor=pointer]:
+                  - img [ref=e51]
+                - button "Rename Design a quiet routine" [ref=e53] [cursor=pointer]:
+                  - img [ref=e54]
+                - button "Delete Design a quiet routine" [ref=e56] [cursor=pointer]:
+                  - img [ref=e57]
+            - listitem [ref=e59]:
+              - button "Map the account I should connect 1:09 PM" [ref=e60]:
+                - generic [ref=e62]: Map the account I should connect
+                - generic [ref=e63]: 1:09 PM
+              - generic [ref=e64]:
+                - button "Pin Map the account I should connect" [ref=e65] [cursor=pointer]:
+                  - img [ref=e66]
+                - button "Rename Map the account I should connect" [ref=e68] [cursor=pointer]:
+                  - img [ref=e69]
+                - button "Delete Map the account I should connect" [ref=e71] [cursor=pointer]:
+                  - img [ref=e72]
+            - listitem [ref=e74]:
+              - button "Find today’s real priority 1:09 PM" [ref=e75]:
+                - generic [ref=e77]: Find today’s real priority
+                - generic [ref=e78]: 1:09 PM
+              - generic [ref=e79]:
+                - button "Pin Find today’s real priority" [ref=e80] [cursor=pointer]:
+                  - img [ref=e81]
+                - button "Rename Find today’s real priority" [ref=e83] [cursor=pointer]:
+                  - img [ref=e84]
+                - button "Delete Find today’s real priority" [ref=e86] [cursor=pointer]:
+                  - img [ref=e87]
+            - listitem [ref=e89]:
+              - button "Turn an objective into a plan 1:09 PM" [ref=e90]:
+                - generic [ref=e92]: Turn an objective into a plan
+                - generic [ref=e93]: 1:09 PM
+              - generic [ref=e94]:
+                - button "Pin Turn an objective into a plan" [ref=e95] [cursor=pointer]:
+                  - img [ref=e96]
+                - button "Rename Turn an objective into a plan" [ref=e98] [cursor=pointer]:
+                  - img [ref=e99]
+                - button "Delete Turn an objective into a plan" [ref=e101] [cursor=pointer]:
+                  - img [ref=e102]
+            - listitem [ref=e104]:
+              - button "Research one decision 1:09 PM" [ref=e105]:
+                - generic [ref=e107]: Research one decision
+                - generic [ref=e108]: 1:09 PM
+              - generic [ref=e109]:
+                - button "Pin Research one decision" [ref=e110] [cursor=pointer]:
+                  - img [ref=e111]
+                - button "Rename Research one decision" [ref=e113] [cursor=pointer]:
+                  - img [ref=e114]
+                - button "Delete Research one decision" [ref=e116] [cursor=pointer]:
+                  - img [ref=e117]
+            - listitem [ref=e119]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e120]:
+                - generic [ref=e122]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e123]: 12:46 PM
+              - generic [ref=e124]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e125] [cursor=pointer]:
+                  - img [ref=e126]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e128] [cursor=pointer]:
+                  - img [ref=e129]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e131] [cursor=pointer]:
+                  - img [ref=e132]
+    - main [ref=e134]:
+      - generic [ref=e138]:
+        - generic [ref=e139]:
+          - heading "Manage" [level=1] [ref=e140]
+          - paragraph [ref=e141]: Configure what Ava knows, connects to, and handles for you.
+        - generic [ref=e143]:
+          - navigation "Manage sections" [ref=e205]:
+            - generic [ref=e206]:
+              - paragraph [ref=e207]: General
+              - list [ref=e208]:
+                - listitem [ref=e209]:
+                  - button "Getting started Setup and first useful job" [ref=e210]:
+                    - img [ref=e212]
+                    - generic [ref=e214]:
+                      - generic [ref=e215]: Getting started
+                      - generic [ref=e216]: Setup and first useful job
+                - listitem [ref=e217]:
+                  - button "Briefs & reviews Scheduled proactive delivery" [ref=e218]:
+                    - img [ref=e220]
+                    - generic [ref=e222]:
+                      - generic [ref=e223]: Briefs & reviews
+                      - generic [ref=e224]: Scheduled proactive delivery
+                - listitem [ref=e225]:
+                  - button "System Setup and service health" [ref=e226]:
+                    - img [ref=e228]
+                    - generic [ref=e230]:
+                      - generic [ref=e231]: System
+                      - generic [ref=e232]: Setup and service health
+                - listitem [ref=e233]:
+                  - button "Appearance Identity and theme" [ref=e234]:
+                    - img [ref=e236]
+                    - generic [ref=e238]:
+                      - generic [ref=e239]: Appearance
+                      - generic [ref=e240]: Identity and theme
+                - listitem [ref=e241]:
+                  - button "Your data Export, verify, and retention" [ref=e242]:
+                    - img [ref=e244]
+                    - generic [ref=e246]:
+                      - generic [ref=e247]: Your data
+                      - generic [ref=e248]: Export, verify, and retention
+                - listitem [ref=e249]:
+                  - button "Agents Role catalog and persistent Agents" [ref=e250]:
+                    - img [ref=e252]
+                    - generic [ref=e254]:
+                      - generic [ref=e255]: Agents
+                      - generic [ref=e256]: Role catalog and persistent Agents
+            - generic [ref=e257]:
+              - paragraph [ref=e258]: Automations
+              - list [ref=e259]:
+                - listitem [ref=e260]:
+                  - button "Reminders Scheduled follow-ups 0" [ref=e261]:
+                    - img [ref=e263]
+                    - generic [ref=e265]:
+                      - generic [ref=e266]: Reminders
+                      - generic [ref=e267]: Scheduled follow-ups
+                    - generic [ref=e268]: "0"
+                - listitem [ref=e269]:
+                  - button "Triggers Event-driven work 0" [ref=e270]:
+                    - img [ref=e272]
+                    - generic [ref=e274]:
+                      - generic [ref=e275]: Triggers
+                      - generic [ref=e276]: Event-driven work
+                    - generic [ref=e277]: "0"
+            - generic [ref=e278]:
+              - paragraph [ref=e279]: Channels
+              - list [ref=e280]:
+                - listitem [ref=e281]:
+                  - button "Slack Workspace messaging and reactions" [ref=e282]:
+                    - img [ref=e284]
+                    - generic [ref=e286]:
+                      - generic [ref=e287]: Slack
+                      - generic [ref=e288]: Workspace messaging and reactions
+                - listitem [ref=e289]:
+                  - button "iMessage Pairing and shared-number delivery" [ref=e290]:
+                    - img [ref=e292]
+                    - generic [ref=e294]:
+                      - generic [ref=e295]: iMessage
+                      - generic [ref=e296]: Pairing and shared-number delivery
+            - generic [ref=e297]:
+              - paragraph [ref=e298]: Knowledge & tools
+              - list [ref=e299]:
+                - listitem [ref=e300]:
+                  - button "Memory What Ava remembers Setup required" [ref=e301]:
+                    - img [ref=e303]
+                    - generic [ref=e305]:
+                      - generic [ref=e306]: Memory
+                      - generic [ref=e307]: What Ava remembers
+                    - generic "Setup required" [ref=e308]:
+                      - generic [ref=e309]: Setup required
+                - listitem [ref=e310]:
+                  - button "Connections Apps and accounts Setup required" [ref=e311]:
+                    - img [ref=e313]
+                    - generic [ref=e315]:
+                      - generic [ref=e316]: Connections
+                      - generic [ref=e317]: Apps and accounts
+                    - generic "Setup required" [ref=e318]:
+                      - generic [ref=e319]: Setup required
+                - listitem [ref=e320]:
+                  - button "Skills Reusable procedures Setup required" [ref=e321]:
+                    - img [ref=e323]
+                    - generic [ref=e325]:
+                      - generic [ref=e326]: Skills
+                      - generic [ref=e327]: Reusable procedures
+                    - generic "Setup required" [ref=e328]:
+                      - generic [ref=e329]: Setup required
+            - generic [ref=e330]:
+              - paragraph [ref=e331]: Operations
+              - list [ref=e332]:
+                - listitem [ref=e333]:
+                  - button "Routines Readiness and reviewed capabilities" [ref=e334]:
+                    - img [ref=e336]
+                    - generic [ref=e338]:
+                      - generic [ref=e339]: Routines
+                      - generic [ref=e340]: Readiness and reviewed capabilities
+                - listitem [ref=e341]:
+                  - button "Relay Owner-controlled external sharing" [ref=e342]:
+                    - img [ref=e344]
+                    - generic [ref=e346]:
+                      - generic [ref=e347]: Relay
+                      - generic [ref=e348]: Owner-controlled external sharing
+                - listitem [ref=e349]:
+                  - button "Control Center Live work and safe controls" [active] [ref=e350]:
+                    - img [ref=e352]
+                    - generic [ref=e354]:
+                      - generic [ref=e355]: Control Center
+                      - generic [ref=e356]: Live work and safe controls
+                - listitem [ref=e357]:
+                  - button "Approvals Exact-action owner decisions" [ref=e358]:
+                    - img [ref=e360]
+                    - generic [ref=e362]:
+                      - generic [ref=e363]: Approvals
+                      - generic [ref=e364]: Exact-action owner decisions
+                - listitem [ref=e365]:
+                  - button "Activity Audited tasks and evidence" [ref=e366]:
+                    - img [ref=e368]
+                    - generic [ref=e370]:
+                      - generic [ref=e371]: Activity
+                      - generic [ref=e372]: Audited tasks and evidence
+                - listitem [ref=e373]:
+                  - button "Finance Recorded receipts" [ref=e374]:
+                    - img [ref=e376]
+                    - generic [ref=e378]:
+                      - generic [ref=e379]: Finance
+                      - generic [ref=e380]: Recorded receipts
+          - generic [ref=e149]:
+            - generic [ref=e151]:
+              - heading "Control Center" [level=2] [ref=e381]
+              - paragraph [ref=e153]: Live work and safe controls
+            - generic [ref=e382]:
+              - region "Action authority" [ref=e383]:
+                - generic [ref=e384]:
+                  - heading "Action authority" [level=3] [ref=e385]
+                  - button "Refresh" [ref=e386] [cursor=pointer]
+                - paragraph [ref=e387]: See what was allowed, blocked, or left uncertain. Completed work is preserved when a later action cannot finish.
+                - paragraph [ref=e388]: No governed actions have been requested yet.
+              - generic [ref=e389]:
+                - generic [ref=e390]:
+                  - heading "Execution overview" [level=3] [ref=e391]
+                  - paragraph [ref=e392]: Supervise active work, understand why it is waiting, and stop it safely. Unknown telemetry stays unknown.
+                - textbox "Search runs" [ref=e393]
+              - tablist "Control Center views" [ref=e395]:
+                - tab "Working 1" [ref=e396]
+                - tab "Waiting 4" [ref=e397]
+                - tab "Needs You 1" [ref=e398]
+                - tab "Needs approval" [ref=e399]
+                - tab "Failed 1" [ref=e400]
+                - tab "Completed 1" [ref=e401]
+                - tab "All 8" [selected] [ref=e402]
+              - list [ref=e403]:
+                - listitem [ref=e404]:
+                  - generic [ref=e405]:
+                    - generic [ref=e406]:
+                      - generic [ref=e407]:
+                        - heading "[Local fixture] Atlas race" [level=4] [ref=e408]
+                        - generic [ref=e409]: awaiting approval
+                      - paragraph [ref=e410]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e411]: "Waiting: The previous approval is no longer actionable. Retry or cancel this Run."
+                    - generic [ref=e412]:
+                      - button "Pause" [ref=e413] [cursor=pointer]:
+                        - img [ref=e414]
+                        - text: Pause
+                      - button "Cancel" [ref=e416] [cursor=pointer]:
+                        - img [ref=e417]
+                        - text: Cancel
+                  - generic [ref=e419]:
+                    - generic [ref=e420]:
+                      - term [ref=e421]: Executor
+                      - definition [ref=e422]: Analyst
+                    - generic [ref=e423]:
+                      - term [ref=e424]: Goal
+                      - definition [ref=e425]: Launch Project Atlas
+                    - generic [ref=e426]:
+                      - term [ref=e427]: Elapsed
+                      - definition [ref=e428]: 5m
+                    - generic [ref=e429]:
+                      - term [ref=e430]: Provider / session
+                      - definition [ref=e431]:
+                        - text: eve
+                        - text: fixture-session-65e8e991-770b-4380-bf72-d1a502278b4c
+                    - generic [ref=e432]:
+                      - term [ref=e433]: Progress
+                      - definition [ref=e434]: 0/2 model steps
+                    - generic [ref=e435]:
+                      - term [ref=e436]: Cost
+                      - definition [ref=e437]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e438]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e439]:
+                  - generic [ref=e440]:
+                    - generic [ref=e441]:
+                      - generic [ref=e442]:
+                        - heading "[Local fixture] Atlas reject" [level=4] [ref=e443]
+                        - generic [ref=e444]: awaiting approval
+                      - paragraph [ref=e445]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e446]: "Waiting: The previous approval is no longer actionable. Retry or cancel this Run."
+                    - generic [ref=e447]:
+                      - button "Pause" [ref=e448] [cursor=pointer]:
+                        - img [ref=e449]
+                        - text: Pause
+                      - button "Cancel" [ref=e451] [cursor=pointer]:
+                        - img [ref=e452]
+                        - text: Cancel
+                  - generic [ref=e454]:
+                    - generic [ref=e455]:
+                      - term [ref=e456]: Executor
+                      - definition [ref=e457]: Analyst
+                    - generic [ref=e458]:
+                      - term [ref=e459]: Goal
+                      - definition [ref=e460]: Launch Project Atlas
+                    - generic [ref=e461]:
+                      - term [ref=e462]: Elapsed
+                      - definition [ref=e463]: 5m
+                    - generic [ref=e464]:
+                      - term [ref=e465]: Provider / session
+                      - definition [ref=e466]:
+                        - text: eve
+                        - text: fixture-session-7542718d-9544-443e-9ef4-e2b061888324
+                    - generic [ref=e467]:
+                      - term [ref=e468]: Progress
+                      - definition [ref=e469]: 0/2 model steps
+                    - generic [ref=e470]:
+                      - term [ref=e471]: Cost
+                      - definition [ref=e472]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e473]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e474]:
+                  - generic [ref=e475]:
+                    - generic [ref=e476]:
+                      - generic [ref=e477]:
+                        - heading "[Local fixture] Atlas approve" [level=4] [ref=e478]
+                        - generic [ref=e479]: awaiting approval
+                      - paragraph [ref=e480]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e481]: "Waiting: The previous approval is no longer actionable. Retry or cancel this Run."
+                    - generic [ref=e482]:
+                      - button "Pause" [ref=e483] [cursor=pointer]:
+                        - img [ref=e484]
+                        - text: Pause
+                      - button "Cancel" [ref=e486] [cursor=pointer]:
+                        - img [ref=e487]
+                        - text: Cancel
+                  - generic [ref=e489]:
+                    - generic [ref=e490]:
+                      - term [ref=e491]: Executor
+                      - definition [ref=e492]: Analyst
+                    - generic [ref=e493]:
+                      - term [ref=e494]: Goal
+                      - definition [ref=e495]: Launch Project Atlas
+                    - generic [ref=e496]:
+                      - term [ref=e497]: Elapsed
+                      - definition [ref=e498]: 5m
+                    - generic [ref=e499]:
+                      - term [ref=e500]: Provider / session
+                      - definition [ref=e501]:
+                        - text: eve
+                        - text: fixture-session-a5b94a9d-a654-43a3-aa2c-6839d40534b3
+                    - generic [ref=e502]:
+                      - term [ref=e503]: Progress
+                      - definition [ref=e504]: 0/2 model steps
+                    - generic [ref=e505]:
+                      - term [ref=e506]: Cost
+                      - definition [ref=e507]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e508]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e509]:
+                  - generic [ref=e511]:
+                    - generic [ref=e512]:
+                      - heading "[Local fixture] Atlas completed" [level=4] [ref=e513]
+                      - generic [ref=e514]: completed
+                    - paragraph [ref=e515]: Deterministic acceptance fixture; no model or external provider executes.
+                    - paragraph [ref=e516]: "Current: [Deterministic fixture] Atlas qualification findings: mobile drawer and backup validation need fixes."
+                  - generic [ref=e517]:
+                    - generic [ref=e518]:
+                      - term [ref=e519]: Executor
+                      - definition [ref=e520]: Analyst
+                    - generic [ref=e521]:
+                      - term [ref=e522]: Goal
+                      - definition [ref=e523]: Launch Project Atlas
+                    - generic [ref=e524]:
+                      - term [ref=e525]: Elapsed
+                      - definition [ref=e526]: 0s
+                    - generic [ref=e527]:
+                      - term [ref=e528]: Provider / session
+                      - definition [ref=e529]:
+                        - text: eve
+                        - text: fixture-session-aaeded29-4d2c-4cb5-bebb-bab65e43f408
+                    - generic [ref=e530]:
+                      - term [ref=e531]: Progress
+                      - definition [ref=e532]: 0/2 model steps
+                    - generic [ref=e533]:
+                      - term [ref=e534]: Cost
+                      - definition [ref=e535]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e536]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e537]:
+                  - generic [ref=e538]:
+                    - generic [ref=e539]:
+                      - generic [ref=e540]:
+                        - heading "[Local fixture] Atlas failed" [level=4] [ref=e541]
+                        - generic [ref=e542]: failed
+                      - paragraph [ref=e543]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e544]:
+                        - generic [ref=e545]: "Failure:"
+                        - text: Deterministic local qualification state
+                    - button "Retry in chat" [ref=e547] [cursor=pointer]:
+                      - img [ref=e548]
+                      - text: Retry in chat
+                  - generic [ref=e550]:
+                    - generic [ref=e551]:
+                      - term [ref=e552]: Executor
+                      - definition [ref=e553]: Analyst
+                    - generic [ref=e554]:
+                      - term [ref=e555]: Goal
+                      - definition [ref=e556]: Launch Project Atlas
+                    - generic [ref=e557]:
+                      - term [ref=e558]: Elapsed
+                      - definition [ref=e559]: 0s
+                    - generic [ref=e560]:
+                      - term [ref=e561]: Provider / session
+                      - definition [ref=e562]:
+                        - text: eve
+                        - text: fixture-session-d4c5ff18-0d13-4006-adbb-ca2d80a56e91
+                    - generic [ref=e563]:
+                      - term [ref=e564]: Progress
+                      - definition [ref=e565]: 0/2 model steps
+                    - generic [ref=e566]:
+                      - term [ref=e567]: Cost
+                      - definition [ref=e568]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e569]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e570]:
+                  - generic [ref=e571]:
+                    - generic [ref=e572]:
+                      - generic [ref=e573]:
+                        - heading "[Local fixture] Atlas waiting_for_owner" [level=4] [ref=e574]
+                        - generic [ref=e575]: waiting for owner
+                      - paragraph [ref=e576]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e577]: "Waiting: Deterministic local qualification state"
+                    - button "Cancel" [ref=e579] [cursor=pointer]:
+                      - img [ref=e580]
+                      - text: Cancel
+                  - generic [ref=e582]:
+                    - generic [ref=e583]:
+                      - term [ref=e584]: Executor
+                      - definition [ref=e585]: Analyst
+                    - generic [ref=e586]:
+                      - term [ref=e587]: Goal
+                      - definition [ref=e588]: Launch Project Atlas
+                    - generic [ref=e589]:
+                      - term [ref=e590]: Elapsed
+                      - definition [ref=e591]: 5m
+                    - generic [ref=e592]:
+                      - term [ref=e593]: Provider / session
+                      - definition [ref=e594]:
+                        - text: eve
+                        - text: fixture-session-401b39a8-3c3f-4791-bb3c-365bb9e11e5d
+                    - generic [ref=e595]:
+                      - term [ref=e596]: Progress
+                      - definition [ref=e597]: 0/2 model steps
+                    - generic [ref=e598]:
+                      - term [ref=e599]: Cost
+                      - definition [ref=e600]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e601]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e602]:
+                  - generic [ref=e603]:
+                    - generic [ref=e604]:
+                      - generic [ref=e605]:
+                        - heading "[Local fixture] Atlas paused" [level=4] [ref=e606]
+                        - generic [ref=e607]: paused
+                      - paragraph [ref=e608]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e609]: "Waiting: Deterministic local qualification state"
+                    - generic [ref=e610]:
+                      - button "Resume in chat" [ref=e611] [cursor=pointer]:
+                        - img [ref=e612]
+                        - text: Resume in chat
+                      - button "Cancel" [ref=e614] [cursor=pointer]:
+                        - img [ref=e615]
+                        - text: Cancel
+                  - generic [ref=e617]:
+                    - generic [ref=e618]:
+                      - term [ref=e619]: Executor
+                      - definition [ref=e620]: Analyst
+                    - generic [ref=e621]:
+                      - term [ref=e622]: Goal
+                      - definition [ref=e623]: Launch Project Atlas
+                    - generic [ref=e624]:
+                      - term [ref=e625]: Elapsed
+                      - definition [ref=e626]: 5m
+                    - generic [ref=e627]:
+                      - term [ref=e628]: Provider / session
+                      - definition [ref=e629]:
+                        - text: eve
+                        - text: fixture-session-bf2ec055-203b-4f3b-8641-38cda21d70d3
+                    - generic [ref=e630]:
+                      - term [ref=e631]: Progress
+                      - definition [ref=e632]: 0/2 model steps
+                    - generic [ref=e633]:
+                      - term [ref=e634]: Cost
+                      - definition [ref=e635]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e636]: Updated Sep 20, 1:14 PM
+                - listitem [ref=e637]:
+                  - generic [ref=e638]:
+                    - generic [ref=e639]:
+                      - generic [ref=e640]:
+                        - heading "[Local fixture] Atlas running" [level=4] [ref=e641]
+                        - generic [ref=e642]: running
+                      - paragraph [ref=e643]: Deterministic acceptance fixture; no model or external provider executes.
+                      - paragraph [ref=e644]: "Current: Delegated work started"
+                    - generic [ref=e645]:
+                      - button "Pause" [ref=e646] [cursor=pointer]:
+                        - img [ref=e647]
+                        - text: Pause
+                      - button "Cancel" [ref=e649] [cursor=pointer]:
+                        - img [ref=e650]
+                        - text: Cancel
+                  - generic [ref=e652]:
+                    - generic [ref=e653]:
+                      - term [ref=e654]: Executor
+                      - definition [ref=e655]: Analyst
+                    - generic [ref=e656]:
+                      - term [ref=e657]: Goal
+                      - definition [ref=e658]: Launch Project Atlas
+                    - generic [ref=e659]:
+                      - term [ref=e660]: Elapsed
+                      - definition [ref=e661]: 5m
+                    - generic [ref=e662]:
+                      - term [ref=e663]: Provider / session
+                      - definition [ref=e664]:
+                        - text: eve
+                        - text: fixture-session-3c4f10b6-f662-47f8-9751-7638e8e5548e
+                    - generic [ref=e665]:
+                      - term [ref=e666]: Progress
+                      - definition [ref=e667]: 0/2 model steps
+                    - generic [ref=e668]:
+                      - term [ref=e669]: Cost
+                      - definition [ref=e670]: Est. $0.00 · actual unknown
+                  - paragraph [ref=e671]: Updated Sep 20, 1:14 PM
+  - button "Open Next.js Dev Tools" [ref=e194] [cursor=pointer]:
+    - img [ref=e195]
+  - alert [ref=e198]
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L1857-L1883

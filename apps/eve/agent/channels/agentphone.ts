@@ -182,7 +182,7 @@ const unqualifiedChannel = () => defineChannel<
   },
 
   routes: [
-    POST("/eve/v1/agentphone/inbound", async (req, { send, receive }) => {
+    POST("/eve/v1/agentphone/inbound", async (req, { from, to }) => {
       const phone = await runTool(verifiedPhone()).catch(() => null);
       if (phone === null) {
         return Response.json({ error: "no phone provisioned" }, { status: 503 });
@@ -237,9 +237,7 @@ const unqualifiedChannel = () => defineChannel<
         }
 
         const cursor = await runTool(phoneCallCursor(voice.callId)).catch(() => 0);
-        const session = await receive(agentphoneVoice, {
-          message: voice.transcript,
-          target: { callId: voice.callId, from: voice.from },
+        const session = await to(agentphoneVoice, { callId: voice.callId, from: voice.from }).send(voice.transcript, {
           auth: voiceAuth(voice, phone.ownerNumber),
         });
 
@@ -341,10 +339,8 @@ const unqualifiedChannel = () => defineChannel<
       };
 
       try {
-        await send(
-          {
-            message:
-              inbound.mediaUrls.length === 0
+        await from(target).send(
+          inbound.mediaUrls.length === 0
                 ? text
                 : [
                     ...(text.length > 0 ? [{ type: "text" as const, text }] : []),
@@ -354,9 +350,8 @@ const unqualifiedChannel = () => defineChannel<
                       mediaType: "image/jpeg",
                     })),
                   ],
-            ...(context.length > 0 ? { context } : {}),
-          },
           {
+            ...(context.length > 0 ? { context } : {}),
             auth: {
               authenticator: "agentphone",
               principalType: "user",
@@ -371,7 +366,6 @@ const unqualifiedChannel = () => defineChannel<
                 role: isOwner ? "owner" : "guest",
               },
             },
-            continuationToken: target,
             state,
           },
         );
@@ -399,7 +393,7 @@ const unqualifiedChannel = () => defineChannel<
 
   // Proactive path for schedules and cross-channel hand-offs:
   // receive(agentphone, { message, target: { target } }).
-  async receive(input, { send }) {
+  async receive(input, { from }) {
     const raw = typeof input.target.target === "string" ? input.target.target : "";
     const target = normalizeNumber(raw);
     if (target === null) {
@@ -407,9 +401,8 @@ const unqualifiedChannel = () => defineChannel<
     }
     const conversationId =
       typeof input.target.conversationId === "string" ? input.target.conversationId : null;
-    return send(input.message, {
+    return from(target).send(input.message, {
       auth: input.auth,
-      continuationToken: target,
       state: {
         target,
         conversationId,
@@ -452,4 +445,4 @@ const unqualifiedChannel = () => defineChannel<
   },
 });
 
-export default blockedChannel();
+export default blockedChannel("/eve/v1/agentphone/inbound");

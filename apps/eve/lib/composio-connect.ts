@@ -168,7 +168,6 @@ function apiKey(): string {
 }
 
 async function mcpFetch(body: object, sessionId?: string, signal?: AbortSignal): Promise<Response> {
-  blockExternalWrite("composio.native_rpc");
   return fetch(MCP_URL, {
     method: "POST",
     headers: {
@@ -197,6 +196,12 @@ export async function manageConnections(
   toolkits: { name: string; action: "list" | "add" | "remove"; account_id?: string }[],
   options: { signal?: AbortSignal } = {},
 ): Promise<Record<string, unknown>> {
+  // MCP uses POST for reads too. Authorize the operation before any transport
+  // request, and keep every connection mutation on the existing blocked path.
+  if (toolkits.length === 0 || toolkits.some(({ action }) => action !== "list")) {
+    blockExternalWrite("composio.native_rpc");
+  }
+  const readOnlyToolkits = toolkits.map(({ name }) => ({ name, action: "list" }));
   const init = await mcpFetch({
     jsonrpc: "2.0",
     id: 1,
@@ -217,12 +222,13 @@ export async function manageConnections(
       jsonrpc: "2.0",
       id: 2,
       method: "tools/call",
-      params: { name: "COMPOSIO_MANAGE_CONNECTIONS", arguments: { toolkits } },
+      params: { name: "COMPOSIO_MANAGE_CONNECTIONS", arguments: { toolkits: readOnlyToolkits } },
     },
     sessionId,
     options.signal,
   );
   const message = await parseMcpBody(call);
+  if (!call.ok || message.result?.isError) throw new Error(`Composio connection-status request failed (${call.status})`);
   if (message.error) throw new Error(message.error.message ?? "MCP call failed");
   const text = message.result?.content?.find((entry) => entry.type === "text")?.text;
   if (text === undefined) throw new Error("Empty MCP tool response");
@@ -231,6 +237,6 @@ export async function manageConnections(
     error?: string | null;
     successful?: boolean;
   };
-  if (parsed.error) throw new Error(parsed.error);
+  if (parsed.error || parsed.successful === false) throw new Error(parsed.error || "Composio connection-status request failed");
   return parsed.data ?? {};
 }

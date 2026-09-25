@@ -1,0 +1,11 @@
+{
+  "algorithm": "SHA-256",
+  "files": {
+    "database-brake.json": "72d1b0cc812aca9f876f112d41b098be1245bebc824ab77f13d9b1764f52eed3",
+    "disposable-regression-summary.json": "8bb4350483b01cff734d0c7f005e1572530760efc5dc4233d7d7a54a866b5a7c",
+    "identity-metadata.json": "cc005a34e1c6b2933caa4a050c85b3910108d3b3a5ab608de204cf9b16972812",
+    "myeve-signing-sizes.json": "d5578f52784291f00a1034aa98e9b8f3450da71d49dacc7b81f422b72df1acf3",
+    "signing-sizes.json": "6b3023999eb7d51e8c5b5f96c968bff9dd7a101fff7a818ba21ae65995160236",
+    "verification.json": "16a663864f74eb5d8181b0effe3797c17af378f44882cb7442c104f35fde9c33"
+  }
+}

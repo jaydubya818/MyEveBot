@@ -1,4 +1,22 @@
 {
   "framework": "nextjs",
-  "outputDirectory": null
+  "outputDirectory": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "codex/peer-message-answers": false,
+      "codex/federation-request-deadline": false,
+      "codex/federation-final-consolidation": false,
+      "codex/myeve-relay-final": false,
+      "codex/federation-callable-tool": false,
+      "codex/federation-approval-continuation": false,
+      "fix/expired-run-action-admission": false,
+      "codex/multirun-peer-permissions": false,
+      "codex/jev-chat-release": false,
+      "codex/jev-chat-evaluation": false,
+      "codex/relay-renewal-guidance": false,
+      "codex/relay-grant-expiry-settings": false,
+      "codex/peer-conversation-ui": false
+    }
+  }
 }
