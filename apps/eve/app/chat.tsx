@@ -721,13 +721,14 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   });
   const [goalsIncluded, setGoalsIncluded] = useState(true);
   const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
+  const [engineeringIncluded, setEngineeringIncluded] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
     void fetch("/api/capabilities", { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("Capability status could not be loaded.");
-        return response.json() as Promise<{ capabilities?: CapabilityStatus[] }>;
+        return response.json() as Promise<{ capabilities?: CapabilityStatus[]; registry?: { id: string; availability: { status: string } }[] }>;
       })
       .then((body) => {
         if (body.capabilities === undefined) throw new Error("Capability status is incomplete.");
@@ -736,6 +737,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         setGoalsIncluded(included);
         const hasKnowledge = body.capabilities.find((capability) => capability.id === "knowledge")?.state !== "excluded";
         setKnowledgeIncluded(hasKnowledge);
+        setEngineeringIncluded(body.registry?.some((capability) => capability.id === "tool.engineering_work" && capability.availability.status === "available") ?? false);
         if (
           !included &&
           (window.location.pathname.startsWith("/goals") ||
@@ -1276,6 +1278,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
+            {engineeringIncluded && <a href="/work" className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-kumo-tint focus-visible:outline-2" title="Engineering Work">Work</a>}
             {goalsIncluded && <Button
               variant="ghost"
               size="sm"

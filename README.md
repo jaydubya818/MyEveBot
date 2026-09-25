@@ -10,6 +10,8 @@ Current product priorities and shipped foundations are tracked in the canonical 
 
 ## What it does
 
+An opt-in [engineering preparation pilot](docs/engineering-pilot.md) adds durable Work, versioned criteria and human controls. It is internal-only and does not yet execute repository changes or publish PRs. See the [implementation and UI verification record](docs/verification/2026-09-25-engineering-pilot/README.md) for current scope and the tested Sofie–Atlas exchange.
+
 **Chat**
 
 - **Web chat** — threads (rename/pin/delete), streaming responses, file attachments, slash-command prompts, model picker, and artifact previews.

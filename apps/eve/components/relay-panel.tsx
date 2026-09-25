@@ -91,7 +91,7 @@ export function RelayPanel() {
             "accepted",
           ].includes(r.state)
         : tab === "incoming"
-          ? r.direction === "incoming" && r.state === "incoming"
+          ? r.direction === "incoming"
           : r.state === tab,
   );
   return (

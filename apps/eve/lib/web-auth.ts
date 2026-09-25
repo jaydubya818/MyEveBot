@@ -53,7 +53,8 @@ export function webAuthConfigStatus(env: NodeJS.ProcessEnv = process.env): WebAu
 }
 
 export function webAuthRequired(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.NODE_ENV === "production";
+  // The engineering pilot exercises real owner boundaries even on a dev server.
+  return env.NODE_ENV === "production" || env.MYEVE_ENGINEERING_MODE === "dogfood";
 }
 
 function signature(encodedPayload: string, secret: string): string {

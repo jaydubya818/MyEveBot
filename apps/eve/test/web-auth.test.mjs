@@ -12,6 +12,7 @@ import {
   verifyWebSessionToken,
   WEB_SESSION_COOKIE,
   webAuthConfigStatus,
+  webAuthRequired,
   webPrincipal,
 } from "../lib/web-auth.ts";
 import { deploymentOwnerId } from "../lib/owner-identity.ts";
@@ -24,6 +25,7 @@ const productionEnv = {
 };
 
 const AUTH_ENV_KEYS = [
+  "MYEVE_ENGINEERING_MODE",
   "NODE_ENV",
   "MYEVE_ACCESS_PASSWORD",
   "MYEVE_OWNER_ID",
@@ -32,6 +34,15 @@ const AUTH_ENV_KEYS = [
   "SOFIE_OWNER_ID",
   "SOFIE_SESSION_SECRET",
 ];
+
+test("engineering dogfood uses authenticated sessions instead of development bypass", () => {
+  const env = { ...productionEnv, NODE_ENV: "development", MYEVE_ENGINEERING_MODE: "dogfood" };
+  assert.equal(webAuthRequired(env), true);
+  assert.equal(webPrincipal(new Request("http://localhost/api/engineering/work"), env), null);
+  const token = createWebSessionToken(env);
+  assert.deepEqual(webPrincipal(new Request("http://localhost/api/engineering/work", { headers: { cookie: `${WEB_SESSION_COOKIE}=${token}` } }), env), { id: "owner-jay" });
+  assert.equal(webAuthRequired({ NODE_ENV: "development" }), false);
+});
 
 function captureAuthEnv() {
   return Object.fromEntries(AUTH_ENV_KEYS.map((key) => [key, process.env[key]]));

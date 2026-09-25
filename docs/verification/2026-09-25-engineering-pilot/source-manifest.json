@@ -1,0 +1,131 @@
+{
+  "baseCommit": "67550453ce1c87dd20631ca6664ee78fad5f4e3e",
+  "branch": "codex/engineering-pilot",
+  "relayCommit": "381918e5ce6a24ecdf5ba5d74daec02663728662",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "2486bd77db76ca6d3836aee8312b744913e433adc4388ebe83897a10581ebf06"
+    },
+    {
+      "path": "apps/builder/lib/manifest.ts",
+      "sha256": "ab60a523abf682babf96b37fe20f09caef4d3105ccefcddbe92b103d58eb78f9"
+    },
+    {
+      "path": "apps/eve/.env.example",
+      "sha256": "be1bf98b38c2aa1ea7c34f250dd1552c8adba2f3e4f3d64aec36477785b285f2"
+    },
+    {
+      "path": "apps/eve/agent/tools/engineering_work.ts",
+      "sha256": "df202e31b58e0c61d040435e79b31d96c29501a3df050da9a1629bb677ff22ee"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/[id]/route.ts",
+      "sha256": "3d393ee0bbae3758bd8a4af52858f6f32ea545fb71e1b2514205048e542c6b7e"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/route.ts",
+      "sha256": "6e566b61c90d16832e1a90c8249133320bff3b274f9d5303d089a7ec9414d009"
+    },
+    {
+      "path": "apps/eve/app/chat.tsx",
+      "sha256": "e44ab15a15afb860479775acb004c05bf79438eaab19a4e70210260705823b18"
+    },
+    {
+      "path": "apps/eve/app/login/page.tsx",
+      "sha256": "85736e771e255d1a5a4a7cd9adf405ca259a07328db615d5df48b0a0a2013451"
+    },
+    {
+      "path": "apps/eve/app/work/page.tsx",
+      "sha256": "6ed388d7e230b43727d5773bba25e73093efa9953a748155f56d992aefb441ba"
+    },
+    {
+      "path": "apps/eve/components/engineering/work-dashboard.tsx",
+      "sha256": "c0d9b7a88b3cb453e00b682920fe2af42f1a6446281380a05885271896870aba"
+    },
+    {
+      "path": "apps/eve/components/relay-panel.tsx",
+      "sha256": "eca732e817404b20b25e59527f512298d391edf244aba6ed36e41c0a38ea1ecd"
+    },
+    {
+      "path": "apps/eve/lib/capability-registry.ts",
+      "sha256": "5c0be8eab160a0fdc442033ecccf94f74a8b4268ebcaca52304a32169a311102"
+    },
+    {
+      "path": "apps/eve/lib/database-schema.ts",
+      "sha256": "5a681d1f6310d70c0a63ae25e901154db3cf05cfd81b693fcacccc5a97679725"
+    },
+    {
+      "path": "apps/eve/lib/engineering/api.test.ts",
+      "sha256": "07d3bd2be157d38b1c8ee2ce174714233617b22eaa046a2ac68aa87e189b3e1f"
+    },
+    {
+      "path": "apps/eve/lib/engineering/api.ts",
+      "sha256": "6485b3dd91ccf8cf17542242dd90347233b9e2dbdbea6cb47692dcb4cf6d23db"
+    },
+    {
+      "path": "apps/eve/lib/engineering/store.ts",
+      "sha256": "234340eeddb5561a18842382cf1785c18c9a193a1086069ed509c2a0bee7f432"
+    },
+    {
+      "path": "apps/eve/lib/engineering/types.test.ts",
+      "sha256": "4e29c674d97d794cf5ce9f7f50f1831c48e58a325a6e9428577f7adbfb81a087"
+    },
+    {
+      "path": "apps/eve/lib/engineering/types.ts",
+      "sha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4"
+    },
+    {
+      "path": "apps/eve/lib/owner-data-domains.ts",
+      "sha256": "b86cc7298ed181f644933a15465fd64d08000f1b3b7bb5115ae14f9497747f78"
+    },
+    {
+      "path": "apps/eve/lib/web-auth.ts",
+      "sha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec"
+    },
+    {
+      "path": "apps/eve/migrations/0036_engineering_work.sql",
+      "sha256": "4c089e7a4000ce753e4f455046d0e2bdd56b771ed4cef7cc5366a65a20c7cd76"
+    },
+    {
+      "path": "apps/eve/migrations/0037_app_settings.sql",
+      "sha256": "492b321e56a2c19202b3cdfb94dcd17a40f80f56500b4a1c40557645be7aad4a"
+    },
+    {
+      "path": "apps/eve/scripts/executor-inventory.json",
+      "sha256": "e0f707f9488c56e55b98373ad1e4440c65b99df4cf35a619d5f34be5d960a2ac"
+    },
+    {
+      "path": "apps/eve/test/engineering-work.integration.mjs",
+      "sha256": "57ffb45a5c189ec04ba1f39d02acdbc88af08b3a7f92e791eeaaf3845c58fb46"
+    },
+    {
+      "path": "apps/eve/test/web-auth.test.mjs",
+      "sha256": "97063a3021ac4d2cacb2622e6ff3727e5eda0441659e551199c3bc1fd5d1be67"
+    },
+    {
+      "path": "docs/engineering-pilot.md",
+      "sha256": "9b42373dae722e9595484a2d6ee5d48424eb9bcc944062d09d39d08162a89b23"
+    },
+    {
+      "path": "docs/plans/2026-09-25-feat-myeve-engineering-plan.md",
+      "sha256": "63a6270294020100488430c0f423df081bc6a4352b6128def490d640c8a3e5e3"
+    },
+    {
+      "path": "docs/plans/2026-09-25-myeve-engineering-claude-review.md",
+      "sha256": "a4958139bc7db0f2210ef823d4fed2ca6215f72ebd79cb747cd6e44c0079df31"
+    },
+    {
+      "path": "docs/plans/2026-09-25-myeve-engineering-source-ledger.md",
+      "sha256": "5ede279d50e7d968984ec63749e6eb7ff507f60763051acff943b229be660647"
+    },
+    {
+      "path": "docs/plans/2026-09-25-myeve-engineering-verification.md",
+      "sha256": "0ba887ad62ec3ab4c41e16ab15f5a06afa16027429b399ba31547f725a88f1fc"
+    },
+    {
+      "path": "todos/030-ready-p1-engineering-pilot-and-peer-ui.md",
+      "sha256": "f152ef0c64d544c3b98f343fa22b78648c07a2ccaa729b7490c1f08e5a141408"
+    }
+  ]
+}

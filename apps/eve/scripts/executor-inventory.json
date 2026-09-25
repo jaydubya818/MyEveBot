@@ -2015,8 +2015,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c3b6818452234519d3a3e312db4c0ee1e237a3e07846b5a6b9748dc735839b2c"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "27dcc178fd7ce076d32faf9f8f034fde769dbecc840829282800caf034bf4bd9"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2129,9 +2129,9 @@
       "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315"
     },
     "lib/database-schema.ts": {
-      "classification": "NOT_APPLICABLE",
-      "reason": "Current migration identifier, now 0031; no effects.",
-      "sha256": "f9095d4ffbd34dcb9d85b2fe410e9474d79f0116e459393fc4f4f6c49c8364de"
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "cbf123a11381b9d1c32ccef77b77386508b4e359475f5acf5eff5f30abec3106"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2349,9 +2349,9 @@
       "sha256": "1b81a6b79e5fe6327084bcf22228327dae4400b9f88dc28a3ef4c89d6e3f14c5"
     },
     "lib/owner-data-domains.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "356de1d6f27b20990934161d588b921fdfb4e8cbbdfa03db9f982cba90d2cfb4"
+      "classification": "READ_ONLY",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "3dd654778633b6f10c7efb1296a0c6d18ff949f67745db53cd1628bf807f5dc9"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",
@@ -2650,8 +2650,8 @@
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "ca22b41a0a795172eb18676e36dc29c03688698f2c7cf3f336d88a70f7c6d98d"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -2932,6 +2932,96 @@
       "classification": "INTERNAL",
       "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
       "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2"
+    },
+    "lib/engineering/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "b677ab77d4534c44a702847dfcc612c776553ecb6a4afa64ba4737e80f1bbd1d"
+    },
+    "lib/engineering/store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899"
+    },
+    "lib/engineering/types.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4"
+    },
+    "app/api/engineering/work/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "6e566b61c90d16832e1a90c8249133320bff3b274f9d5303d089a7ec9414d009"
+    },
+    "app/api/engineering/work/[id]/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "3d393ee0bbae3758bd8a4af52858f6f32ea545fb71e1b2514205048e542c6b7e"
+    },
+    "agent/tools/engineering_work.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "c9787a48cc4403af5941d1cde0d6f2bde50bef0bd2b7e19c0f443d44876febaf"
+    },
+    "lib/engineering/contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "18d991515cb91ca43208480d524e051c764edd018b1234d0399e846d61c11337"
+    },
+    "lib/engineering/execution.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "a89971d833729687695f38b0250c28eab16f7ec0af984f1e524f9308f34938c1"
+    },
+    "lib/engineering/execution-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "caaa39f54f019b47caceb4fb870332ad6a03dc6d6833cf75537bbdd07ef04d49"
+    },
+    "lib/engineering/execution-api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "f13a3ca0d6e75bc11d5c3071064a63e10599b4cd96d052f3f3c0245f46c0bbc3"
+    },
+    "lib/engineering/executor.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "9aa8aaff95af9de6480160ae715ac332ec36e3bf06f0e0c5af0b3d58379c1f95"
+    },
+    "lib/engineering/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "c9e6f987ad6bd4401178d58a68f09b5fceb3cd2902735304aab2165983ff866f"
+    },
+    "lib/engineering/worker.ts": {
+      "classification": "ENFORCED",
+      "reason": "Durable worker with SQL lease/generation fencing, current primary-Agent and repository authority, protected evidence, exact candidate approval, unknown-write reconciliation, bounded continuation; no merge/deployment surface.",
+      "sha256": "470a271192fb4b3d73fbc003eafcb3a78b11fdfb6c4e5ab493dba588ea6c5be3"
+    },
+    "lib/engineering/model-broker.ts": {
+      "classification": "ENFORCED",
+      "reason": "Attempt-scoped HMAC, current generation/attempt/deadline, exact model and provider-feature bounds, atomic finite PostgreSQL reservations, host-only provider credential.",
+      "sha256": "bd40b8d96577782c16a1c5dca2c8ec00f453c4c0578edb49580d21a134326b27"
+    },
+    "lib/engineering/docker-executor.ts": {
+      "classification": "ENFORCED",
+      "reason": "Local isolated executor/verifier boundary: pinned image, task-owned resources, non-root restricted containers, internal or deny-all network, candidate custody before cleanup, no publication/provider/database credentials in executor.",
+      "sha256": "a420e90f5e7d06cc2e55933e2ef0de870484bb94d874296957f2b5b7c20e26d9"
+    },
+    "lib/engineering/github.ts": {
+      "classification": "ENFORCED",
+      "reason": "Trusted publication leaf: fixed GitHub origin, approved private repository, current repository/base/head and artifact checks, allowed source paths, non-force updates; invoked after durable exact-candidate/contract approval. Live provider qualification remains blocked.",
+      "sha256": "0ecd21845129297436ec2f4991960ebfee6ff8ac327cb7aea9dd7990441d1a79"
+    },
+    "app/api/engineering/intake/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "cb7f6c761f841d7ffe4024419199f99cdb6fef76e9be7df71825c1f9486300b4"
+    },
+    "app/api/engineering/work/[id]/execution/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "c7f03910ccc968934da5478c49292151b31b6adfddfecb3f32af2f769de6ab72"
     }
   }
 }
