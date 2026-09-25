@@ -1915,8 +1915,8 @@
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Static observation import keeps authored modules in one bundle; provider inspection remains call-time and read-only.",
-      "sha256": "ea85601f1f47f1d4d1b0f7ceafaaf8967043a94ee262f137fe04c3e6cbf1aa92"
+      "reason": "Authenticated owner recovery CAS and call-time provider inspection remain read-only; Foreman reconciliation rebuilds the durable action binding from issue readback and only inspects the saved Linear target. No missing or mismatched provider evidence is treated as proof of non-execution.",
+      "sha256": "3ff62c86f65b3dbe5e3f0b1f2ef607356631b25a69ea7caed7a1e4720b7da622"
     },
     "lib/activation.ts": {
       "classification": "INTERNAL",
@@ -2909,12 +2909,12 @@
     },
     "agent/lib/foreman.ts": {
       "classification": "ENFORCED",
-      "sha256": "00142f3be0525120103ec9f8fb514c8c767b433324fa2341a62b2dfaa9fd30e9",
-      "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; readback verifies content, delegate and actual agent-session startup. Tested deny, mismatch and uncertain outcomes."
+      "sha256": "fc7d0370f9b4742d5bf05d0fd8a7fbdfe30100c1a4c47ff53d099e158b83dc68",
+      "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; bounded readback verifies content, delegate and workspace while distinguishing pending, started and failed sessions. Tests cover deny, delayed readback and field mismatches."
     },
     "agent/tools/delegate_foreman_issue.ts": {
       "classification": "ENFORCED",
-      "sha256": "c27cddeb28ba92035ef8dca61e792ad6d9468d087b1e509cf00284d594c21bb5",
+      "sha256": "f346ba4cc1e092685f22258f0d87fe63a4719abf352a35fe21ffb88ee58da706",
       "reason": "Primary owner-chat only; exact issue payload enters canonical Action Gateway and guarded Linear adapter. No broad connector enablement, merge or deployment authority.",
       "disposition": "gateway"
     },
