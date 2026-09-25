@@ -19,6 +19,7 @@ describe("artifact client events", () => {
     expect(
       artifactChangeFromStreamEvent({
         type: "action.result",
+        meta: { id: crypto.randomUUID(), at: new Date().toISOString() },
         data: {
           status: "completed",
           sequence: 4,
@@ -39,6 +40,7 @@ describe("artifact client events", () => {
     expect(
       artifactChangeFromStreamEvent({
         type: "action.result",
+        meta: { id: crypto.randomUUID(), at: new Date().toISOString() },
         data: {
           status: "failed",
           sequence: 4,

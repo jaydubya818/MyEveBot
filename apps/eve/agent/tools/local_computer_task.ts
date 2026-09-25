@@ -1,4 +1,5 @@
-import type { Approval } from "eve/tools";
+import type { ApprovalPolicy } from "eve/tools/approval";
+
 import { defineDynamic,defineTool } from "eve/tools";
 import { denyUnqualifiedExecutor } from "../lib/unqualified-executor.ts";
 
@@ -9,7 +10,7 @@ localComputerConfigured
 import { toolSchema } from "../lib/effect/tool-schema";
 import { guestDenial,isGuestResolve } from "../lib/owner-gate";
 
-export const localComputerTaskApproval: Approval = (context) =>
+export const localComputerTaskApproval: ApprovalPolicy = (context) =>
   guestDenial(context) ?? "user-approval";
 
 export default defineDynamic({

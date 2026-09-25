@@ -2,6 +2,14 @@ const {test,expect}=require('@playwright/test');
 const {randomUUID}=require('node:crypto');
 const {duplicateArchive,changeArchiveJson}=require('../fixtures/owner-archives.ts');
 
+// Compile the dev-server destinations before measuring touch navigation, so
+// cold-route Fast Refresh cannot replace the document between two taps.
+test.beforeAll(async({request})=>{
+  for(const path of ['/chat','/goals','/knowledge','/results','/computer','/agents','/review','/channels','/files','/manage']) {
+    expect((await request.get(path)).ok()).toBe(true);
+  }
+});
+
 async function openDrawer(page){await page.getByRole('button',{name:/^Open (threads|sidebar)$/}).tap();await expect.poll(async()=>Math.round((await page.getByRole('complementary',{name:'App navigation'}).boundingBox()).x)).toBe(0);}
 async function attach(page,name,bytes){const choose=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Attach files',exact:true}).click();await(await choose).setFiles({name,mimeType:'text/plain',buffer:Buffer.from(bytes)});}
 
@@ -29,7 +37,7 @@ test('mobile Manage inventory is fully reachable by touch',async({browser})=>{
   await expect(page.getByRole('button',{name:/Memory What Ava remembers/})).toContainText('Setup required');
   const names=await page.getByRole('navigation',{name:'Manage sections'}).getByRole('button').evaluateAll(nodes=>nodes.map(n=>n.innerText.replace(/\s+/g,' ').trim()));
   expect(names.length).toBeGreaterThanOrEqual(19);
-  for(const name of names){await page.getByRole('navigation',{name:'Manage sections'}).getByRole('button',{name:name.trim(),exact:true}).tap();await expect(page.getByRole('button',{name:'All settings',exact:true})).toBeVisible();await page.getByRole('button',{name:'All settings',exact:true}).tap();}
+  for(const name of names){await page.getByRole('navigation',{name:'Manage sections'}).getByRole('button',{name:new RegExp('^'+name.trim().replace(/ \d+$/,'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?: \\d+)?$')}).tap();await expect(page.getByRole('button',{name:'All settings',exact:true})).toBeVisible();await page.getByRole('button',{name:'All settings',exact:true}).tap();}
   await context.close();
 });
 

@@ -1,0 +1,56 @@
+Applied 0001_runtime_core.sql
+Applied 0002_trustworthy_delegation.sql
+Applied 0003_goal_operating_system.sql
+Applied 0004_skill_control_plane.sql
+Applied 0005_skill_evals_and_outcomes.sql
+Applied 0006_outcomes_and_review_loop.sql
+Applied 0007_proactive_review_delivery.sql
+Applied 0008_persistent_agents.sql
+Applied 0009_scoped_memory_context.sql
+Applied 0010_agent_computer_runtime.sql
+Applied 0011_knowledge_provenance_core.sql
+Applied 0012_role_run_attribution.sql
+Applied 0013_colleague_first_execution.sql
+Applied 0014_persistent_browser_profiles.sql
+Applied 0015_phone_safety_controls.sql
+Applied 0016_owner_data_operations.sql
+Applied 0017_owner_file_inventory.sql
+Applied 0018_owner_knowledge_control.sql
+Applied 0019_agent_control_center.sql
+Applied 0020_canonical_approval_requests.sql
+Applied 0021_computer_control_leases.sql
+Applied 0022_live_computer_provider.sql
+Applied 0023_execution_reliability.sql
+Applied 0024_routine_owner_review.sql
+Applied 0025_action_executor_enforcement.sql
+Applied 0026_action_recovery_qualification.sql
+Applied 0027_relay_federation.sql
+Applied 0028_routine_pending_send.sql
+Applied 0029_routine_admission.sql
+Applied 0030_action_binding_reconciliation.sql
+Applied 0031_computer_template_lifecycle.sql
+Applied 0032_computer_resource_lifecycles.sql
+Applied 0033_final_lineage_bridge.sql
+Applied 0034_conversation_runs.sql
+Applied 0035_peer_permissions.sql
+PASS actual migration runner fresh and rerun
+Applied 0032_computer_resource_lifecycles.sql
+Applied 0033_final_lineage_bridge.sql
+Applied 0034_conversation_runs.sql
+Applied 0035_peer_permissions.sql
+PASS actual migration runner upgrade-empty and rerun
+Applied 0032_computer_resource_lifecycles.sql
+Applied 0033_final_lineage_bridge.sql
+Applied 0034_conversation_runs.sql
+Applied 0035_peer_permissions.sql
+PASS actual migration runner upgrade-active and rerun
+PASS 10 migration assertions; real provider calls 0
+✔ apps/eve/test/computer-resource-migration.integration.mjs (818.501417ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 1
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 823.711584

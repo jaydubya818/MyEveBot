@@ -1,5 +1,14 @@
 import { getCapabilityStatuses } from "./capabilities.ts";
 
+export const BROWSER_TOOL_CAPABILITIES: Record<string, string> = {
+  click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
+  press_key: "browser.click", scroll: "browser.click", select_option: "browser.click", set_checked: "browser.click",
+  fill: "browser.type", upload: "files.write", navigate: "browser.navigate",
+  console: "browser.read", evaluate: "browser.click", find: "browser.read", get: "browser.read",
+  network_requests: "browser.read", read: "browser.read", screenshot: "browser.read", snapshot: "browser.read",
+  tabs: "browser.read", wait_for: "browser.read",
+};
+
 export const CAPABILITY_KINDS = [
   "tool",
   "skill",
@@ -217,7 +226,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     approvalPolicy: { mode: "owner_policy" },
     evidence: { supported: true, types: ["screenshot", "log"] },
     estimatedCost: { type: "metered", unit: "sandbox minute" },
-    source: { type: "builtin", reference: "agent/extensions/browser/extension.ts" },
+    source: { type: "builtin", reference: "agent/lib/browser-action.ts" },
     keywords: ["browse", "website", "computer", "form", "research"],
   }),
   platform("computer.session.create", "Start computer sessions", "computer", "Provision an Agent-attributed isolated execution session.", {
@@ -259,23 +268,23 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   platform("browser.navigate", "Browser navigation", "browser", "Navigate the isolated browser to public web pages.", {
     feature: "browser", configuration: ["DATABASE_URL"], permissions: ["browser.navigate"],
     risk: { level: "low", categories: ["external-read"] }, dependencies: ["computer.browser"],
-    source: { type: "builtin", reference: "agent/extensions/browser/extension.ts" }, keywords: ["browser", "navigate", "url"],
+    source: { type: "builtin", reference: "agent/lib/browser-action.ts" }, keywords: ["browser", "navigate", "url"],
   }),
   platform("browser.read", "Browser reading", "browser", "Read pages and inspect browser state without submitting data.", {
     feature: "browser", configuration: ["DATABASE_URL"], permissions: ["browser.read"],
     risk: { level: "low", categories: ["external-read"] }, dependencies: ["computer.browser"],
-    source: { type: "builtin", reference: "agent/extensions/browser/extension.ts" }, keywords: ["browser", "read", "snapshot"],
+    source: { type: "builtin", reference: "agent/lib/browser-action.ts" }, keywords: ["browser", "read", "snapshot"],
   }),
   platform("browser.click", "Browser interaction", "browser", "Click and select controls in the isolated browser.", {
     feature: "browser", configuration: ["DATABASE_URL"], permissions: ["browser.click"],
     risk: { level: "high", categories: ["external-side-effect"] }, approvalPolicy: { mode: "owner_policy" },
-    dependencies: ["computer.browser"], source: { type: "builtin", reference: "agent/extensions/browser/extension.ts" },
+    dependencies: ["computer.browser"], source: { type: "builtin", reference: "agent/lib/browser-action.ts" },
     keywords: ["browser", "click", "select", "interact"],
   }),
   platform("browser.type", "Browser typing", "browser", "Type non-secret values into controls in the isolated browser.", {
     feature: "browser", configuration: ["DATABASE_URL"], permissions: ["browser.type"],
     risk: { level: "high", categories: ["external-side-effect", "data-disclosure"] }, approvalPolicy: { mode: "owner_policy" },
-    dependencies: ["computer.browser"], source: { type: "builtin", reference: "agent/extensions/browser/extension.ts" },
+    dependencies: ["computer.browser"], source: { type: "builtin", reference: "agent/lib/browser-action.ts" },
     keywords: ["browser", "type", "fill", "form"],
   }),
   platform("terminal.execute", "Sandbox terminal", "computer", "Run a bounded allowlist of read-only diagnostic commands inside the Agent's isolated Eve sandbox.", {
@@ -451,6 +460,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     source: { type: "builtin", reference: "eve:agent" },
     keywords: ["delegate", "worker", "parallel", "subagent"],
   }),
+  tool("ask_question", { description: "Ask the owner a structured question and wait for their answer.", permissions: [], keywords: ["question", "clarify"] }),
   tool("workflow", { description: "Coordinate general-purpose workers and declared specialists in a bounded workflow.", permissions: ["agents.delegate"], risk: "medium", riskCategories: ["delegated-execution"], approval: "conditional", keywords: ["workflow", "parallel", "delegate"] }),
   tool("start_task", { description: "Create a durable bounded work contract before multi-step execution or delegation.", permissions: ["agents.delegate"], risk: "medium", riskCategories: ["delegated-execution", "durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["database.neon"], keywords: ["task", "work", "delegate", "progress"] }),
   tool("complete_work", { description: "Publish an evidence-backed work result for owner review.", permissions: ["agents.delegate"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["database.neon"], evidence: { supported: true, required: true, types: ["result", "verification"] }, keywords: ["task", "complete", "result", "evidence"] }),

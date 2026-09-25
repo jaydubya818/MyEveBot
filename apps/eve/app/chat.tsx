@@ -1,7 +1,7 @@
 "use client";
 
 import type { UserContent } from "ai";
-import type { HandleMessageStreamEvent, SessionState } from "eve/client";
+import type { HandleMessageStreamEvent, ClientSessionState } from "eve/client";
 import { Client, defaultMessageReducer, isCurrentTurnBoundaryEvent } from "eve/client";
 import { useEveAgent } from "eve/react";
 import type { EveMessage, EveMessagePart } from "eve/react";
@@ -172,7 +172,7 @@ function chatKey(threadId: string): string {
 
 interface SavedChat {
   events?: readonly HandleMessageStreamEvent[];
-  session?: SessionState;
+  session?: ClientSessionState;
   /** When this device wrote the copy; lets cross-device sync spot staleness. */
   savedAt?: number;
   /**
@@ -742,11 +742,11 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             window.location.pathname.startsWith("/review"))
         ) {
           setView("chat");
-          window.history.replaceState(null, "", "/");
+          window.history.replaceState(null, "", "/chat");
         }
         if (!hasKnowledge && window.location.pathname.startsWith("/knowledge")) {
           setView("chat");
-          window.history.replaceState(null, "", "/");
+          window.history.replaceState(null, "", "/chat");
         }
         setCapabilityNotice(labels.length > 0 ? { kind: "limited", labels } : { kind: "ready" });
       })
@@ -1065,7 +1065,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   function showView(next: MainView) {
     setSidebarOpen(false);
     setView(next);
-    const path = next === "manage" ? "/manage" : next === "channels" ? "/channels" : next === "email" ? "/email" : next === "files" ? "/files" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
+    const path = next === "manage" ? "/manage" : next === "channels" ? "/channels" : next === "email" ? "/email" : next === "files" ? "/files" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/chat";
     if (window.location.pathname !== path) {
       window.history.pushState(null, "", path);
     }
@@ -1849,7 +1849,7 @@ function ChatThread({
   // unmounts (the store finishes the turn in the background).
   const liveRef = useRef<{
     events: HandleMessageStreamEvent[];
-    session: SessionState | undefined;
+    session: ClientSessionState | undefined;
     timer: ReturnType<typeof setTimeout> | undefined;
   }>({ events: [...(initialChat.events ?? [])], session: initialChat.session, timer: undefined });
 
@@ -1932,15 +1932,15 @@ function ChatThread({
   // it from the snapshot on every render and flush once the sessionId first
   // exists (right after the first stream event). A mid-turn save without the
   // sessionId would be unrecoverable - reattaching needs the id.
-  if (agent.session.sessionId !== undefined) liveRef.current.session = agent.session;
+  if (agent.session?.sessionId !== undefined) liveRef.current.session = agent.session;
   const persistedSessionId = useRef<string | undefined>(initialChat.session?.sessionId);
   useEffect(() => {
-    const sessionId = agent.session.sessionId;
+    const sessionId = agent.session?.sessionId;
     if (sessionId === undefined || persistedSessionId.current === sessionId) return;
     persistedSessionId.current = sessionId;
     persistLive();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agent.session.sessionId]);
+  }, [agent.session?.sessionId]);
 
   // Reattach to an interrupted turn: replay the session stream from the
   // events we already have, render and persist as it advances, and settle at
@@ -1954,7 +1954,7 @@ function ChatThread({
     let persistTimer: ReturnType<typeof setTimeout> | undefined;
     (async () => {
       const client = new Client({ host: window.location.origin });
-      const session = client.session(initialChat.session);
+      const session = client.sessions.attach(initialChat.session!.sessionId, { streamIndex: initialChat.session!.streamIndex });
       try {
         const collect = (event: HandleMessageStreamEvent) => {
           collected.push(event);
@@ -2201,21 +2201,22 @@ function ChatThread({
     setAttachments([]);
     const titleSource = text.length > 0 ? text : (staged[0]?.name ?? "Attachment");
     onActivity(messages.length === 0 ? toThreadTitle(titleSource) : undefined);
-    void agent.send({ message });
+    void agent.send(message);
   }
 
   async function stopTurn() {
     // During a reattached turn the agent store is idle; the session id from
     // the saved cursor targets the running turn instead.
     const sessionId = agent.session?.sessionId ?? initialChat.session?.sessionId;
-    agent.stop();
-    if (sessionId) {
+    if (!resuming) {
+      await agent.cancel().catch(() => undefined);
+    } else if (sessionId) {
       await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST" }).catch(() => undefined);
     }
   }
 
   function respondToInput(requestId: string, optionId: string) {
-    void agent.send({ inputResponses: [{ requestId, optionId }] });
+    void agent.respond([{ requestId, optionId }]);
   }
 
   function editMessage(text: string) {
@@ -2226,7 +2227,7 @@ function ChatThread({
   function retryMessage(text: string) {
     if (isBusy || text.length === 0) return;
     onActivity();
-    void agent.send({ message: text });
+    void agent.send(text);
   }
 
   /** Re-asks the last user message on the same session (fresh reply, and a

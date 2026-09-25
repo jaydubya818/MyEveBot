@@ -17,8 +17,8 @@ const nextConfig: NextConfig = {
 // Mounts the eve agent (./agent) on this app's origin: one dev server, one
 // Vercel deployment. /eve/v1/** routes to the agent service.
 // Generated services do not inherit npm's CLI PATH. Resolve the installed CLI,
-// as withEve's default does, while keeping runtime preparation out of builds.
+// as withEve's default does. Our provider prepares metadata without provisioning.
 const evePackage = createRequire(join(process.cwd(), "package.json")).resolve("eve/package.json");
 const eveCli = relative(process.cwd(), join(dirname(evePackage), "bin/eve.js")).replaceAll("\\", "/");
 const quotedEveCli = `'${eveCli.replaceAll("'", "'\\''")}'`;
-export default withEve(nextConfig, { eveBuildCommand: `node ${quotedEveCli} build --skip-sandbox-prewarm` });
+export default withEve(nextConfig, { eveBuildCommand: `node ${quotedEveCli} build` });

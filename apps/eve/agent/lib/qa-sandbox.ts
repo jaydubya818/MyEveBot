@@ -1,5 +1,5 @@
 import { defineSandbox } from "eve/sandbox";
-import { computerSandboxBackend } from "../../lib/computer-sandbox-backend.ts";
+import { computerEnvironment } from "../../lib/computer-sandbox-backend.ts";
 import { createWebSessionToken, WEB_SESSION_COOKIE, webAuthConfigStatus } from "../../lib/web-auth.ts";
 
 function deploymentHostname(env: NodeJS.ProcessEnv): string | null {
@@ -20,9 +20,8 @@ function deploymentHostname(env: NodeJS.ProcessEnv): string | null {
  * explicitly enabled Preview self-test, credentials are injected by Vercel's
  * egress proxy and never enter the sandbox process or model context.
  */
-export default defineSandbox({
-  backend: computerSandboxBackend,
-  async onSession({ use }) {
+export const environment = computerEnvironment;
+export default defineSandbox(async () => {
     const hostname = deploymentHostname(process.env);
     const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET?.trim();
     if (
@@ -31,12 +30,11 @@ export default defineSandbox({
       !bypassSecret ||
       !webAuthConfigStatus().configured
     ) {
-      await use({ networkPolicy: "deny-all" });
-      return;
+      return environment.open({ networkPolicy: "deny-all" });
     }
 
     const sessionCookie = `${WEB_SESSION_COOKIE}=${createWebSessionToken()}`;
-    await use({
+    return environment.open({
       networkPolicy: {
         allow: {
           [hostname]: [
@@ -55,5 +53,4 @@ export default defineSandbox({
         },
       },
     });
-  },
 });

@@ -5,17 +5,17 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c09b30e46570a37fbbf4adec5f24dba761059ce4a2bc78671908706b57472dd7"
+      "sha256": "cf31be25097a2c1e944326d5eb0bc413ce04688fbe8999f73ab9cfebef23e456"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
       "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "e775c05788c52dcd25e20cd31f50e53a0c11902f3f17a58ccbb5dd184b3a4e84"
+      "sha256": "be9c374aca63cbba15ccd4ac9843d047353b19831d73ac43a4e13a6f180dab31"
     },
     "agent/channels/agentphone.ts": {
       "classification": "BLOCKED",
       "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "78e746e2f038029b0882a33600e3bd00d091955739d478453d3869cad573b2ff"
+      "sha256": "e9a2c9c6ff5009f293dc7a87a7c22d614c4cc0a70f78f802ddb7bad9667da60d"
     },
     "agent/channels/email.ts": {
       "classification": "INTERNAL",
@@ -30,27 +30,27 @@
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2c653bc930cd2b86d3cffe25bc6a101730a2c509269e026cc044e717345f1066"
+      "sha256": "31d062331af7d3536a0cd4fb56cb09acab09ba465eb06e8a9f3c8c44127430c6"
     },
     "agent/channels/imessage.ts": {
       "classification": "BLOCKED",
       "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "05ce94ed19e428c3d82657a2660bbd12247b0f6fc16e0e5cf8fc0e702b362ec2"
+      "sha256": "e3a89e72e04f5255e4fbee62ce2809d484af970c6473bbd9b418a73a88df7bc5"
     },
     "agent/channels/slack.ts": {
       "classification": "BLOCKED",
       "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "b26c0d3c0c309b69aadc6cbeed81b57820f0c02f4d3bf4c3357ebb8b01f82fd2"
+      "sha256": "702dddfd12d98e01b331086a827dbe88ed176bfee35cf51634144484f9f7c40a"
     },
     "agent/channels/telegram.ts": {
       "classification": "BLOCKED",
       "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "b760ed91db5bfb9e87f9056f5a34653b1e799771a87a5be18d4ae0c67039943b"
+      "sha256": "2706042ba5a598f65ec98af5b471ca8df1e691ee0e344d1bc5e62fbf1fbb9180"
     },
     "agent/connections/agentcard.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "2825979fa38e8a7d943035578d8352a9246777c6cfcb4af98b026c405ee86943",
+      "sha256": "3e6b127e6549684b39a937386c2b7f478fe6438aad9b2b861a63f8e7c3f05524",
       "disposition": "blocked"
     },
     "agent/connections/composio.ts": {
@@ -64,137 +64,6 @@
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
       "sha256": "fa8caef35297f210b3c59f53b36fea4e29507dab5b177f4e830f58cdf49883d5",
       "disposition": "blocked"
-    },
-    "agent/extensions/browser/extension.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7ff4df526981a468d2de17ead06caff8c1981d8a3be6ab030ac664f12097bb20"
-    },
-    "agent/extensions/browser/tools/click.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "cd2d0cfcbfe7b7ff2eec790586d658a55cfbb9fc94d0e274dde7a11d7419b543",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/close.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "aa093b6db9c7dd9c536d9733a5c184c912e380edc90e362c2c1239bfdf632ef6",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/console.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/drag.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/evaluate.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "d4c1952edb4d01a09bd9de54edfbc6c9f814f7eedcfdacf89eecc51091b01f6f",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/fill.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "9b437cba6f1c187cae74beec2f9f9df709ff5f5a02b58b55ccb0636701f5c769",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/find.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "501f399d01ce5b37c9299dbcae6bd9b2719f44badff4971eb0b3ee2819b23f7c",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/get.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "e2b25294f0ec675d5d0a71a29ea9b515d91332bdd816cedb7902ab501d235a1c",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/hover.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/navigate.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "8090f51e5aea920572ae8c26b7a58fe651241d3b28ff80db07f8e1379420b952",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/network_requests.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/press_key.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "2e12c564fcd40f1ba9b25d06231e21d1b93441e68f92a8761797901f012f49af",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/read.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "f9a152ad1be8ad0a53176e2980e14899b3557b066f02c8b01b4563ff5763a791",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/screenshot.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "a282f2b04cbfb64628963060f6b95d6389125dc39609584081421328be428bc9",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/scroll.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "5c8e24828175ab47d2906634b57a7bbce9a0065152808181b8f8ec7b022e749a",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/select_option.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "4810873a068902d16720ef1805653684fe5e1abaadb22f6d492e7ed10087098f",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/set_checked.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/snapshot.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "10690206bf5cc9df7eb533640df16ad94d5a709e3982db8b127e81b38575f9c6",
-      "disposition": "gateway"
-    },
-    "agent/extensions/browser/tools/tabs.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/upload.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "eaae69827db6f3e6532fc8353e8d485c31cd09260fa48655c3096306d8c4326b",
-      "disposition": "blocked"
-    },
-    "agent/extensions/browser/tools/wait_for.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "635f2e59e9e074e573c5b78e4a7c4a24d726a7e1b77666e5674ed7a1bfeac361",
-      "disposition": "gateway"
     },
     "agent/hooks/agent-runs.ts": {
       "classification": "INTERNAL",
@@ -219,7 +88,7 @@
     "agent/hooks/raindrop.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b57621f87742dfb11ac1ae6014613d31c2cd79409ca65cd99580a1469977573c"
+      "sha256": "45061ce938301b30054837eb6af8be0a653a452fa1935fdd1501999859b31045"
     },
     "agent/hooks/skill-telemetry.ts": {
       "classification": "INTERNAL",
@@ -311,11 +180,6 @@
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
       "sha256": "5f797fdacb94e1ce313b4cf5d3527efba0cb1373c20c119fa0066452e51ad1d0"
     },
-    "agent/instrumentation.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b3e71c4d3fd4c1402604d32fbd7f7276a75c619b1b2b7a10de85fda633b36f00"
-    },
     "agent/lib/action-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
@@ -349,12 +213,12 @@
     "agent/lib/blocked-channel.ts": {
       "classification": "BLOCKED",
       "reason": "Registration exposes only a 503 admission endpoint and no response events.",
-      "sha256": "86ad310f0e0be7632cdc382c2c5d9fb5f3b8b7fe22fd55ca9e6b1a89acb5d7c6"
+      "sha256": "8507ec17edb93368c3eca31fb50c688f0b89d56e437dd4612668f104222066a5"
     },
     "agent/lib/browser-action.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
-      "sha256": "6e6e4fe6ef3f24191b0c089af1744cd844f96874ed7c6cb1bba1fd0ffd3cee39"
+      "sha256": "0c90fcbb12ad75d7a4f0cfeb5066400d715604d2a20f7911bf2937a2c8fa6e41"
     },
     "agent/lib/claim-task-specialist-tool.ts": {
       "classification": "INTERNAL",
@@ -364,7 +228,7 @@
     "agent/lib/computer-context.ts": {
       "classification": "ENFORCED",
       "reason": "Action Gateway checks capability and budget before preparation; a second consumed provider handle revalidates durable authority before ComputerSession creation. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
-      "sha256": "e90a75e78bba3a1419399a27a844707922b865ac6d220bee895cdd8291cd3cd4"
+      "sha256": "736796f1528114d974e025b64ac3c7ec967ca9f23dfa73c8fa38f43f1c8cca23"
     },
     "agent/lib/computer-use-loop.ts": {
       "classification": "INTERNAL",
@@ -529,7 +393,7 @@
     "agent/lib/owner-gate.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "3148bcfdd154d0307ee79456b418228dc388ad270c4fc7325c0735e3881675e6"
+      "sha256": "bd1d31a089f7545e39e51fe253eafc16dffbf09d0a8936e2e8d59540e3c95b90"
     },
     "agent/lib/owner.ts": {
       "classification": "INTERNAL",
@@ -544,7 +408,7 @@
     "agent/lib/qa-sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "QA uses the same guarded Computer backend; per-session network policy and opt-in brokered authentication remain outside templates.",
-      "sha256": "5a4e24f44041f68672a343de8e7f7841490acc98195f03033969084d69073f08"
+      "sha256": "a7ecaf34ea287a8abcaeb02d33de9bfa4225b3d40f77df45b92f7ed9e3480076"
     },
     "agent/lib/receipts-db.ts": {
       "classification": "INTERNAL",
@@ -559,12 +423,12 @@
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "0b9841a1475f316c180624248d3374f90354f210f0d86478c424089c8d071449"
+      "sha256": "df4fd3088a71dea320c104fb1d3ea90058037df84dbcbf7a6a26f75722431d7e"
     },
     "agent/lib/run-assigned-qa-suite-tool.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "d555f553af978d23191e6ef9ead62926756cad2a7655fcbaf42c02265a20fec6"
+      "sha256": "18a0dd1708eaec10427afc202c860e35a94a09a3c5783b5cb2d3574b8cd6532c"
     },
     "agent/lib/runs-db.ts": {
       "classification": "INTERNAL",
@@ -619,7 +483,7 @@
     "agent/lib/unqualified-executor.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "536a4df45ac2a58536cd1578f0da206c98043d97a5354b3e241e9d8ab085a4fd"
+      "sha256": "a4ff2a11d8346a7a70953865dd408a23c8f48ad8e3cd4124e7bd5d313814596f"
     },
     "agent/lib/web-client-context.ts": {
       "classification": "INTERNAL",
@@ -629,7 +493,7 @@
     "agent/lib/web-thread-delivery.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a5a6d915fc05e2cd38a4eff9ad18adced913779b631b7e17f3cb8e8968959cee"
+      "sha256": "5fcb79e4c895cffb5402cb2369a4ec29ea78a4cc65c5d64c8bd9800e1ed55c9b"
     },
     "agent/lib/webhook-signature.ts": {
       "classification": "INTERNAL",
@@ -649,7 +513,7 @@
     "agent/sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "Pure custom backend registration; no bootstrap or external build operation. Runtime creation requires the separately guarded Computer backend.",
-      "sha256": "e0f9cc04f5913221efb1edad4c413080cf1c26bda384db1cf4fb52086ad468c8"
+      "sha256": "b50d268aed9904e3960bde4a4c2d7d0d1e53db9d47bbbb1cf8aef96226b4305a"
     },
     "agent/schedules/email.ts": {
       "classification": "INTERNAL",
@@ -764,7 +628,7 @@
     "agent/subagents/functional-state/sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "9d254422063ae5bbaaa6a2f38a80d3601c87f754d0cf7f02d0c640e319e43b25"
+      "sha256": "268902fbd76737610ed9fe87ed9b33905942f9e1f22242131ad3d710d115ca9b"
     },
     "agent/subagents/functional-state/skills/assigned.ts": {
       "classification": "INTERNAL",
@@ -851,7 +715,7 @@
     "agent/subagents/trust-resilience/sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "9d254422063ae5bbaaa6a2f38a80d3601c87f754d0cf7f02d0c640e319e43b25"
+      "sha256": "268902fbd76737610ed9fe87ed9b33905942f9e1f22242131ad3d710d115ca9b"
     },
     "agent/subagents/trust-resilience/skills/assigned.ts": {
       "classification": "INTERNAL",
@@ -943,7 +807,7 @@
     "agent/subagents/ux-accessibility/sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "9d254422063ae5bbaaa6a2f38a80d3601c87f754d0cf7f02d0c640e319e43b25"
+      "sha256": "268902fbd76737610ed9fe87ed9b33905942f9e1f22242131ad3d710d115ca9b"
     },
     "agent/subagents/ux-accessibility/skills/assigned.ts": {
       "classification": "INTERNAL",
@@ -1039,7 +903,7 @@
     "agent/tools/bash.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
-      "sha256": "5336f423389e65490e3a3eb3e1f3e6efeda19a89f6dbc0c27c5bc49007e838ab"
+      "sha256": "b8de381280849ba884c2ecdf1075e4cd7981fbeb29cee4f7cf6b8d6e26ea4891"
     },
     "agent/tools/cancel_reminder.ts": {
       "classification": "INTERNAL",
@@ -1274,7 +1138,7 @@
     "agent/tools/local_computer_task.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "8ed3b24c45a46960170a8fd94ba685e0fadf39d5a4ed8842f8f77f78dbc9d67e",
+      "sha256": "7d848db0eb7c6740e1e6a4642379efb57d7b7818bdd756228cd8170cebda0935",
       "disposition": "blocked"
     },
     "agent/tools/log_receipt.ts": {
@@ -1316,7 +1180,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "5a1a3f97e9ce5176eb4392f46b107676b34e9c96d4937721610ed4bedd596935",
+      "sha256": "e40f8a2a774a9d77d411c1d099a6bf1b883aca12aaedf6750a6f2e289a6ed45f",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -1332,7 +1196,7 @@
     "agent/tools/read_file.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
-      "sha256": "49ab6e0c12199c4a85b1e5d343ffc299732b2f86162263797976e4e06d90a693"
+      "sha256": "09c40f6d391f07bf67dc580f7b80b64676ccb167487909941701c7940904e04f"
     },
     "agent/tools/record_agentcard_consent.ts": {
       "classification": "BLOCKED",
@@ -1383,10 +1247,10 @@
       "disposition": "blocked"
     },
     "agent/tools/remember.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "d637d6203f35f665c83cb5619b4b90de81c3a5d6e0758486da96f70dd5ca1261",
-      "disposition": "blocked"
+      "classification": "ENFORCED",
+      "reason": "Owner-only scoped memory writes resolve the current execution, validate scope, consume exact Action Gateway authority, persist receipts, verify the provider result, and deduplicate replay. Qualified by remember-gateway.integration.test.mjs against PostgreSQL.",
+      "sha256": "9cfc8783e40c01a32c1752354f7245e78b4916a04ac27830e1a02f6893541723",
+      "disposition": "gateway"
     },
     "agent/tools/remove_email_domain.ts": {
       "classification": "BLOCKED",
@@ -1531,12 +1395,12 @@
     "agent/tools/workflow.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b04edb8b8cc98963df5bbfcf2433489d225c2d9759ae43f47cc28de86eb2e605"
+      "sha256": "4dc227ac5e8508067ddf8b93aaf3bd70279cd0bd7b4cc8204910bd3a73257eda"
     },
     "agent/tools/write_file.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
-      "sha256": "ef38c5d46d17d5206d21a21fcc3c139c3c54eb9405409106aa75595375e00b53",
+      "sha256": "45b45ca508306b7099d4b556583d05099a791c64e516ca0eb91653741d43cfac",
       "disposition": "gateway"
     },
     "app/api/actions/[id]/recover/route.ts": {
@@ -2152,7 +2016,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "99a2d1b27983320c71745506dd1075d7a2a2c7af765a5abae7ed32931c3abadd"
+      "sha256": "f47520e5c40f6984fb9ae9c5fc06baadb812cf56835b798aa93e46b1e71bf5b2"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2217,7 +2081,7 @@
     "lib/computer-sandbox-backend.ts": {
       "classification": "ENFORCED",
       "reason": "Exclusive SDK creation requires consumed Computer Gateway authority, durable immutable ownership recorded first, and authority revalidation immediately before/after create. No adoption or retagging. Reconnect is non-resuming exact owned lookup; cached I/O rejects terminated resources. Build prewarm creates nothing.",
-      "sha256": "d50f3c276e2811c5d4944b6e1e105fcfcfdb461b358cc77de74a638d031e3c76"
+      "sha256": "1fc2a4f8d82149c35f46a2fb94ecf126623371ca3f9018a2b4d0b54f3fdfebc1"
     },
     "lib/computer-selection.ts": {
       "classification": "INTERNAL",
@@ -2487,7 +2351,7 @@
     "lib/owner-data-domains.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "4e2645ffc613a400d03c23db47c2c863b96986b235ac79cdea1469af6c44791f"
+      "sha256": "356de1d6f27b20990934161d588b921fdfb4e8cbbdfa03db9f982cba90d2cfb4"
     },
     "lib/owner-data-operations.ts": {
       "classification": "INTERNAL",
@@ -2742,7 +2606,7 @@
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "0133b775bee1cca7239db627b7d6cb743997ed1f0e9878b6bc6ccb2b145734d1"
+      "sha256": "adc569a3a18d6609319a2c2189bd6d8fb173791accf5735ce18a249b8763cca6"
     },
     "lib/threads-db.ts": {
       "classification": "INTERNAL",
@@ -2767,12 +2631,12 @@
     "lib/voice/bridge.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "57bc924fb434c01bea8d09b5e01b3f088c5fe1912e64d7822b38fcebe267e94f"
+      "sha256": "8b3447fa81c87382b8e53a78e820a64d877ab4458c7b8af44a4a415ec29de1e7"
     },
     "lib/voice/dispatch.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "3ce416d900e615be2bb9449671c00345012f9977634932e24478d6c450eaa8ec"
+      "sha256": "7a859691d94fa52d7c54cf85d0846a313cd7730f0713118fde781a130444c62a"
     },
     "lib/voice/realtime.ts": {
       "classification": "INTERNAL",
@@ -2782,7 +2646,7 @@
     "lib/voice/thread.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "92ec0e2fb260eb1298a4f1c5f8fd31084724287fa8ee28d27dede55388f2a356"
+      "sha256": "a84a3c6cda645575a3fa7d147439377eadada01225cb7993f914ed6c17e018fb"
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
@@ -2798,7 +2662,7 @@
       "classification": "ENFORCED",
       "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
       "disposition": "gateway",
-      "sha256": "1664d0701b45b7e0fb99739a70d3767cf954ae3e21bbbcbb82e21b1b002342a5"
+      "sha256": "e2144138621ec49b8f0240dd4be1c1233918899f2bf1fd1967703de370c71cd1"
     },
     "agent/hooks/owner-chat-run.ts": {
       "classification": "INTERNAL",
@@ -2823,7 +2687,7 @@
     "agent/lib/jev-chat.ts": {
       "classification": "ENFORCED",
       "reason": "Explicit direct-owner evaluation only: native approval policy, execution caller/configuration rechecks, bounded text, obvious-secret rejection, no retries or fallback. Existing Jev adapter enforces 3s timeout. No persistence/retrieval or consequential action execution.",
-      "sha256": "fefd1a45ad44c492022460eaea383af04dcabaeed7b34d49c5d9e41b496a82ac"
+      "sha256": "a6531917a90181370685042f257d8bea88b347de55b1ba2f81f3475d3f67594c"
     },
     "agent/tools/evaluate_with_jev.ts": {
       "classification": "ENFORCED",
@@ -2878,7 +2742,95 @@
     "lib/chat-session.ts": {
       "classification": "INTERNAL",
       "reason": "Pure reconciliation of persisted chat events and their stream cursor; no provider calls or side effects.",
-      "sha256": "a925e918c06a212b5b165f1cf8ee55bdc4c689685ae7e62d6ac39d599f93fda5"
+      "sha256": "348179c0e2f4a2b839110a6439901e40db92564312c5894fea58474c4d10948e"
+    },
+    "agent/tools/browser__read.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "c30c1a08a7f0fb1de94a99b3830253d06df50bb9c1d1f2590813793ddb71e3c9",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__snapshot.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "c9a2beaa8c79ce1428caa13be5ef08dd9eb6c02745c92d75da71481f311dabb3",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__get.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "7ced6e68878d8ab6b2809f16b33e6cedec2b7c61b8dff575f0f7034a464e9b90",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__press_key.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "edda7641b8a221e607651e5d06e77ddf91594a7df70fca0ed26e05729ed7ea16",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__screenshot.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "839f642f9a40837aa1fd23daad1b954c928d375855ed1d7f679a298fdfbfe08f",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__find.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "4f138b45cbf497f0ed80b8e7fc3d476279443ce17edf7ece66e07e31d9785dcd",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__select_option.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "902957f8a0cdc51e1814a165d1306cf33e5aabbe3c88c9e438d675718384d481",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__navigate.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "ff232b530b6249e60e8d63fff24163c04c6e0fa665a4f2cc5a85f1835a689e86",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__scroll.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "c284dcca6f0ccb047455799e9649fb6e715be8c692d60f8244e9355b45e45720",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__fill.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "70088728d00af426f9537f5cc253321bf722a723b4856703290612c490b55428",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__close.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "e7339e584decc390574b1966d737066fbd1a92a5f1b97faf64bdb4262f660f99",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__wait_for.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "924496a32d5a40d23d51cd00ce13c7c2e18ce877c3724cf25edcd7345d2ef94f",
+      "disposition": "gateway"
+    },
+    "agent/tools/browser__click.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
+      "sha256": "a372da4a1aeebc4d6fcca13e1474198bab4d83e2183613c45d6e4a42c9c09e3c",
+      "disposition": "gateway"
+    },
+    "agent/instrumentation/telemetry.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
+      "sha256": "2309a05829581a85ebded68084bc2d649a46e141015a78226680e0c3d0fbc808"
+    },
+    "agent/tools/ask_question.ts": {
+      "classification": "INTERNAL",
+      "reason": "Framework structured question parks for owner input; no provider access or external side effects.",
+      "sha256": "081bef1e4d88c6942d5f8e07be242a0f81e7107c56d0210399e0c31894795cd9"
     }
   }
 }

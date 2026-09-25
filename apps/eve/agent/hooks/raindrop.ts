@@ -8,7 +8,7 @@ import {
   raindrop,
   raindropEventId,
   raindropUserId,
-} from "../instrumentation";
+} from "../instrumentation/telemetry";
 
 function eventId(ctx: HookContext, turnId: string): string {
   return raindropEventId(ctx.session.id, turnId);

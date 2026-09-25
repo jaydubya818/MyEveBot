@@ -313,7 +313,7 @@ const unqualifiedChannel = () => defineChannel<
   },
 
   routes: [
-    POST("/eve/v1/imessage/inbound", async (req, { reset, send }) => {
+    POST("/eve/v1/imessage/inbound", async (req, { from }) => {
       // Capture before any I/O. If this webhook stalls before its database
       // claim while a later /new completes, the reset cutoff still knows this
       // delivery began first.
@@ -443,13 +443,11 @@ const unqualifiedChannel = () => defineChannel<
               resetRouteReceivedAtMs: routeReceivedAtMs,
             }),
           );
-          await reset({
-            continuationToken,
+          await from(continuationToken).reset({
             reason: "iMessage owner requested /new",
           });
           if (legacyToken !== continuationToken) {
-            await reset({
-              continuationToken: legacyToken,
+            await from(legacyToken).reset({
               reason: "iMessage owner requested /new",
             });
           }
@@ -525,12 +523,10 @@ const unqualifiedChannel = () => defineChannel<
 
       let sessionId: string;
       try {
-        const session = await send(
+        const session = await from(continuationToken).send(
+          message,
           {
-            message,
             context,
-          },
-          {
             auth: {
               authenticator: "imessage-router",
               principalType: "user",
@@ -548,7 +544,6 @@ const unqualifiedChannel = () => defineChannel<
             },
             // The pairing generation isolates a newly paired owner from old
             // sessions parked on approval or authorization under this handle.
-            continuationToken,
             state: {
               handle: pairing.handle,
               phone: delivery.space.phone ?? null,
@@ -590,7 +585,7 @@ const unqualifiedChannel = () => defineChannel<
   // receive(imessage, { message, target: { handle, space? }, auth }).
   // `handle` is always the paired owner's; `space` posts into a group the
   // owner has already activated instead of DMing them.
-  async receive(input, { send }) {
+  async receive(input, { from }) {
     const raw = typeof input.target.handle === "string" ? input.target.handle : "";
     const handle = normalizeHandle(raw);
     if (handle === null) {
@@ -605,9 +600,8 @@ const unqualifiedChannel = () => defineChannel<
     if (pairing === null || pairing.handle !== handle) {
       throw new Error("imessage receive target is not the currently paired owner.");
     }
-    return send(input.message, {
+    return from(imessageContinuationToken(pairing, space)).send(input.message, {
       auth: input.auth,
-      continuationToken: imessageContinuationToken(pairing, space),
       state: {
         handle,
         phone,
@@ -658,4 +652,4 @@ const unqualifiedChannel = () => defineChannel<
   },
 });
 
-export default blockedChannel();
+export default blockedChannel("/eve/v1/imessage/inbound");

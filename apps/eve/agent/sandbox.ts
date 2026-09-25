@@ -1,5 +1,6 @@
 import { defineSandbox } from "eve/sandbox";
-import { computerSandboxBackend } from "../lib/computer-sandbox-backend.ts";
+import { computerEnvironment } from "../lib/computer-sandbox-backend.ts";
 
-// No bootstrap or seed files: compilation never provisions a runtime.
-export default defineSandbox({ backend: computerSandboxBackend });
+export const environment = computerEnvironment;
+// No provider calls during compilation; live creation requires Action authority.
+export default defineSandbox(() => environment.open());

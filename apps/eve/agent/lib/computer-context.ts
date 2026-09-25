@@ -1,3 +1,4 @@
+import { computerEnvironment } from "../../lib/computer-sandbox-backend.ts";
 import type { ToolContext } from "eve/tools";
 
 import {
@@ -84,11 +85,11 @@ export async function provisionComputerSession(
 /** Eve reopens handles across steps. Only the explicit no-authority error may
  * trigger a new Gateway provisioning action; arbitrary provider errors do not. */
 export async function getComputerSandbox(ctx: ToolContext) {
-  try { return await ctx.getSandbox(); }
+  try { return await ctx.getSandbox(computerEnvironment); }
   catch (error) {
     if (!(error instanceof ComputerSandboxAuthorityRequired)) throw error;
     await provisionComputerSession(ctx);
-    return ctx.getSandbox();
+    return ctx.getSandbox(computerEnvironment);
   }
 }
 
@@ -116,7 +117,7 @@ async function provisionAuthorizedComputerSession(
   });
   try {
     if (session.status === "provisioning") await bindPreparedComputer(ownerId,session.id,input.runId!);
-    const sandbox = await ctx.getSandbox();
+    const sandbox = await ctx.getSandbox(computerEnvironment);
     const currentDomains = Array.isArray(session.networkPolicy.allowedDomains)
       ? session.networkPolicy.allowedDomains.filter((value): value is string => typeof value === "string")
       : [];

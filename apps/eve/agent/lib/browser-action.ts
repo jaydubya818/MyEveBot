@@ -52,7 +52,8 @@ export async function executeBrowserAction<T extends keyof typeof browserTools>(
       await requireComputerCapability(ctx,capabilityId);
       if(!isRead && name!=="navigate" && await currentUrl()!==authorized.target.resource)throw new Error("Browser page changed");
       const {operation:_,...bound}=parameters;
-      output=await tool.execute(bound as never,boundCtx);invoked=true;return output;
+      const execute = tool.execute as (input: Record<string, unknown>, context: typeof boundCtx) => unknown;
+      output=await execute(bound,boundCtx);invoked=true;return output;
     },
     receipt:()=>({computerSessionId:session.id,operation:name}),
     async verify(result,target) {

@@ -1,0 +1,21 @@
+
+Running 14 tests using 1 worker
+
+(node:70889) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 test/browser/blockers.spec.cjs:16:1 › mobile normal taps reach every top-level destination without an intercepting drawer (5.0s)
+  ✓   2 test/browser/blockers.spec.cjs:34:1 › mobile Manage inventory is fully reachable by touch (3.2s)
+  ✓   3 test/browser/blockers.spec.cjs:44:1 › desktop navigation and mobile keyboard focus remain usable (5.1s)
+  ✓   4 test/browser/blockers.spec.cjs:49:1 › backup rejects duplicate and secret content through the actual verification form (3.6s)
+  ✓   5 test/browser/blockers.spec.cjs:58:1 › chat upload is one durable file, survives reload, is readable and exported (12.5s)
+  ✓   6 test/browser/blockers.spec.cjs:79:1 › failed upload retains the draft and creates no phantom file or model call (1.5s)
+  ✓   7 test/browser/eve-session.spec.cjs:6:1 › durable chat creates a session, reloads, and sends a follow-up without duplicating replies (1.8s)
+  ✓   8 test/browser/eve-session.spec.cjs:17:1 › structured question resumes after the owner answers (1.8s)
+  ✓   9 test/browser/eve-session.spec.cjs:23:1 › approval survives reload and resumes the same tool call (1.7s)
+  ✓  10 test/browser/eve-session.spec.cjs:30:1 › cancel settles the running turn and permits another message (1.7s)
+  ✓  11 test/browser/peer-permissions.spec.cjs:13:31 › peer policy owner review, save, reload, revoke and mobile layout at 1440px (2.5s)
+  ✓  12 test/browser/peer-permissions.spec.cjs:13:31 › peer policy owner review, save, reload, revoke and mobile layout at 390px (1.9s)
+  ✓  13 test/browser/peer-permissions.spec.cjs:52:1 › failed save keeps owner choices and displays the actual conflict (1.4s)
+  ✓  14 test/browser/peer-permissions.spec.cjs:65:1 › missing messaging authority gives a configuration error without asking for an internal resource (1.7s)
+
+  14 passed (46.4s)

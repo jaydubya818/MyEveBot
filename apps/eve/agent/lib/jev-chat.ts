@@ -1,5 +1,6 @@
 import { z } from "zod";
-import type { ApprovalContext, ToolContext } from "eve/tools";
+import type { ApprovalContext } from "eve/tools/approval";
+import type { ToolContext } from "eve/tools";
 import { JevDecisionProvider, jevConfigured, jevMetadata } from "../../lib/decision-intelligence/jev-provider.ts";
 import { knowledgeContract, knowledgeRequest, resultSchema, safeFailure } from "../../lib/decision-intelligence/contract.ts";
 

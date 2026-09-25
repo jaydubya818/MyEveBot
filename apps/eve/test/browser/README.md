@@ -38,3 +38,32 @@ the browser-created record, never inserts a substitute file row.
 The Agent retrieval check proves authorized content readback and the canonical
 file identity/bytes in the intercepted Agent request. A grounded model answer is
 still a separate, unqualified gate.
+
+## Eve 0.66 durable-session qualification
+
+Run `eve-session.spec.cjs` only against an **isolated source copy**, using the
+same disposable database and `local-server.cjs` transport. Copy
+`test/browser/eve-session-fixture.ts` to that copy's `agent/agent.ts`, and
+`test/browser/eve-approval-fixture.ts` to its
+`agent/tools/migration_approval_probe.ts`, then restart the dev server. Never
+replace these files in a deployment checkout.
+
+The deterministic model changes only model output; the actual Eve compiler,
+session service, auth, dynamic tools, application hooks, database, React client,
+and persistence still run. The approval probe has no external effects. Run:
+
+```sh
+MYEVE_SESSION_FIXTURE=1 npx playwright test -c test/browser/playwright.config.cjs
+```
+
+The four additional scenarios cover first send, follow-up on the same session,
+reload without duplicate replies, structured questions, approval after reload,
+and a single durable cancellation followed by another message. Voice first-send,
+resume, and cancellation-during-creation are covered by `lib/voice/dispatch.test.ts`.
+Browser tests alone do not qualify a real microphone, phone call, or cloud Computer.
+
+Use `localhost` (not a numeric host) in the fixture's database URL: Next wraps
+fetch and parses Neon's derived API hostname before the test adapter runs.
+Existing schema upgrade suites have their own explicit loopback database guards.
+The mobile test warms routes to avoid development Fast Refresh replacing a
+page between taps, and tolerates asynchronous count badges in Manage labels.

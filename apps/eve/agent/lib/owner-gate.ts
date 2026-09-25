@@ -1,4 +1,5 @@
-import type { Approval, ApprovalContext } from "eve/tools";
+import type { ApprovalPolicy, ApprovalContext } from "eve/tools/approval";
+
 
 // Code-enforced owner boundary for tools. iMessage group chats admit people
 // other than the owner ("guests", labeled by agent/channels/imessage.ts with
@@ -39,12 +40,12 @@ export function isGuestResolve(ctx: AuthCarrier): boolean {
 }
 
 /**
- * Approval policy for owner-only tools: denies guest turns outright, stays
+ * ApprovalPolicy policy for owner-only tools: denies guest turns outright, stays
  * out of the way (`not-applicable`) for everyone else. Attach as
  * `approval: ownerOnly` on a `defineTool`, or compose it inside a
  * connection's approval function.
  */
-export const ownerOnly: Approval = (ctx) => {
+export const ownerOnly: ApprovalPolicy = (ctx) => {
   const denied = guestDenial(ctx);
   return denied ?? "not-applicable";
 };

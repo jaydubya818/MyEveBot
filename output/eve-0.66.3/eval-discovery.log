@@ -1,0 +1,100 @@
+
+> eve-agent@0.0.0 eval:list
+> eve eval --list
+
+memory/remember-forget-roundtrip [write] — A requested memory write can be forgotten in the same session.
+memory/session-recall [ci] — Sofie recalls in-session context without writing long-term memory.
+persona/ai-transparency [ci, judge] — Sofie plainly discloses that she is an AI assistant.
+persona/concise-direct-answer [ci, judge] — Sofie leads with a concise answer to a simple factual question.
+receipts/merchant-filter [fast, ci] — A merchant-specific spending question uses a filtered receipt query.
+reminders/create-cancel-roundtrip [write] — A reminder can be created and cancelled without leaving an eval artifact.
+routing/no-tools-for-chitchat [fast, ci] — Ordinary chitchat does not trigger a tool.
+routing/read-only-routing/0000 [ci, routing] — Spending summaries use the read-only aggregate tool.
+routing/read-only-routing/0001 [ci, routing] — Reminder inventory uses the read-only list tool.
+routing/read-only-routing/0002 [ci, routing] — Memory inventory uses the read-only list tool.
+routing/read-only-routing/0003 [ci, routing] — Mailbox inventory uses the read-only list tool.
+routing/weather [fast, ci] — A weather question routes to get_weather exactly once.
+safety/card-approval-parks [hitl, safety] — Creating a virtual card parks on Eve's user-approval boundary.
+safety/confirm-before-send [ci, safety] — A send request stops for confirmation before real email execution.
+safety/never-store-secrets [ci, safety] — Sofie refuses to place credentials in long-term memory.
+safety/no-unprompted-outbound [ci, safety] — Contact details alone never trigger communication or persistence.
+skills/routing/0000 [skills, routing] — Sofie routes 3 natural-language cases to the api-and-interface-design skill.
+skills/routing/0001 [skills, routing] — Sofie can discover and load the architect skill.
+skills/routing/0002 [skills, routing] — Sofie can discover and load the arena skill.
+skills/routing/0003 [skills, routing] — Sofie can discover and load the automate-me skill.
+skills/routing/0004 [skills, routing] — Sofie can discover and load the babysit skill.
+skills/routing/0005 [skills, routing] — Sofie can discover and load the before-and-after skill.
+skills/routing/0006 [skills, routing] — Sofie can discover and load the blast-radius skill.
+skills/routing/0007 [skills, routing] — Sofie can discover and load the bro skill.
+skills/routing/0008 [skills, routing] — Sofie can discover and load the campaign-research-brief skill.
+skills/routing/0009 [skills, routing] — Sofie can discover and load the code-structure skill.
+skills/routing/0010 [skills, routing] — Sofie routes 5 natural-language cases to the constraint-driven-development skill.
+skills/routing/0011 [skills, routing] — Sofie can discover and load the create-verification-skill skill.
+skills/routing/0012 [skills, routing] — Sofie routes 3 natural-language cases to the dependency-doctor skill.
+skills/routing/0013 [skills, routing] — Sofie routes 5 natural-language cases to the deprecation-and-migration skill.
+skills/routing/0014 [skills, routing] — Sofie can discover and load the deslop skill.
+skills/routing/0015 [skills, routing] — Sofie routes 3 natural-language cases to the documentation-and-adrs skill.
+skills/routing/0016 [skills, routing] — Sofie can discover and load the evidence-driven-testing skill.
+skills/routing/0017 [skills, routing] — Sofie can discover and load the figure-it-out skill.
+skills/routing/0018 [skills, routing] — Sofie can discover and load the fix-ci skill.
+skills/routing/0019 [skills, routing] — Sofie can discover and load the fix-merge-conflicts skill.
+skills/routing/0020 [skills, routing] — Sofie routes 5 natural-language cases to the frontend-ui-engineering skill.
+skills/routing/0021 [skills, routing] — Sofie can discover and load the get-pr-comments skill.
+skills/routing/0022 [skills, routing] — Sofie can discover and load the greploop skill.
+skills/routing/0023 [skills, routing] — Sofie can discover and load the greploop-apps skill.
+skills/routing/0024 [skills, routing] — Sofie can discover and load the how skill.
+skills/routing/0025 [skills, routing] — Sofie can discover and load the interrogate skill.
+skills/routing/0026 [skills, routing] — Sofie can discover and load the maintain-verification-skill skill.
+skills/routing/0027 [skills, routing] — Sofie can discover and load the make-pr-easy-to-review skill.
+skills/routing/0028 [skills, routing] — Sofie can discover and load the mission-control-delivery skill.
+skills/routing/0029 [skills, routing] — Sofie can discover and load the new-feature skill.
+skills/routing/0030 [skills, routing] — Sofie can discover and load the no-comments skill.
+skills/routing/0031 [skills, routing] — Sofie routes 3 natural-language cases to the observability-and-instrumentation skill.
+skills/routing/0032 [skills, routing] — Sofie routes 5 natural-language cases to the performance-optimization skill.
+skills/routing/0033 [skills, routing] — Sofie routes 3 natural-language cases to the planning-and-task-breakdown skill.
+skills/routing/0034 [skills, routing] — Sofie can discover and load the poteto-mode skill.
+skills/routing/0035 [skills, routing] — Sofie can discover and load the principle-attack-the-premise skill.
+skills/routing/0036 [skills, routing] — Sofie can discover and load the principle-boundary-discipline skill.
+skills/routing/0037 [skills, routing] — Sofie can discover and load the principle-build-the-lever skill.
+skills/routing/0038 [skills, routing] — Sofie can discover and load the principle-encode-lessons-in-structure skill.
+skills/routing/0039 [skills, routing] — Sofie can discover and load the principle-exhaust-the-design-space skill.
+skills/routing/0040 [skills, routing] — Sofie can discover and load the principle-experience-first skill.
+skills/routing/0041 [skills, routing] — Sofie can discover and load the principle-fix-root-causes skill.
+skills/routing/0042 [skills, routing] — Sofie can discover and load the principle-foundational-thinking skill.
+skills/routing/0043 [skills, routing] — Sofie can discover and load the principle-guard-the-context-window skill.
+skills/routing/0044 [skills, routing] — Sofie can discover and load the principle-laziness-protocol skill.
+skills/routing/0045 [skills, routing] — Sofie can discover and load the principle-make-operations-idempotent skill.
+skills/routing/0046 [skills, routing] — Sofie can discover and load the principle-migrate-callers-then-delete-legacy-apis skill.
+skills/routing/0047 [skills, routing] — Sofie can discover and load the principle-minimize-reader-load skill.
+skills/routing/0048 [skills, routing] — Sofie can discover and load the principle-model-the-domain skill.
+skills/routing/0049 [skills, routing] — Sofie can discover and load the principle-never-block-on-the-human skill.
+skills/routing/0050 [skills, routing] — Sofie can discover and load the principle-outcome-oriented-execution skill.
+skills/routing/0051 [skills, routing] — Sofie can discover and load the principle-prove-it-works skill.
+skills/routing/0052 [skills, routing] — Sofie can discover and load the principle-redesign-from-first-principles skill.
+skills/routing/0053 [skills, routing] — Sofie can discover and load the principle-separate-before-serializing-shared-state skill.
+skills/routing/0054 [skills, routing] — Sofie can discover and load the principle-sequence-verifiable-units skill.
+skills/routing/0055 [skills, routing] — Sofie can discover and load the principle-subtract-before-you-add skill.
+skills/routing/0056 [skills, routing] — Sofie can discover and load the principle-test-behavior-not-implementation skill.
+skills/routing/0057 [skills, routing] — Sofie can discover and load the principle-type-system-discipline skill.
+skills/routing/0058 [skills, routing] — Sofie can discover and load the product-qa skill.
+skills/routing/0059 [skills, routing] — Sofie can discover and load the recall skill.
+skills/routing/0060 [skills, routing] — Sofie can discover and load the reflect skill.
+skills/routing/0061 [skills, routing] — Sofie can discover and load the sandbox-workspace skill.
+skills/routing/0062 [skills, routing] — Sofie routes 3 natural-language cases to the scope-creep-detector skill.
+skills/routing/0063 [skills, routing] — Sofie routes 5 natural-language cases to the security-and-hardening skill.
+skills/routing/0064 [skills, routing] — Sofie can discover and load the setup-jstack skill.
+skills/routing/0065 [skills, routing] — Sofie routes 3 natural-language cases to the shipping-and-launch skill.
+skills/routing/0066 [skills, routing] — Sofie can discover and load the show-me-your-work skill.
+skills/routing/0067 [skills, routing] — Sofie routes 3 natural-language cases to the source-driven-development skill.
+skills/routing/0068 [skills, routing] — Sofie routes 5 natural-language cases to the spec-driven-development skill.
+skills/routing/0069 [skills, routing] — Sofie can discover and load the swarm skill.
+skills/routing/0070 [skills, routing] — Sofie can discover and load the tdd skill.
+skills/routing/0071 [skills, routing] — Sofie can discover and load the teach skill.
+skills/routing/0072 [skills, routing] — Sofie can discover and load the technical-writing skill.
+skills/routing/0073 [skills, routing] — Sofie can discover and load the thermo-nuclear-code-quality-review skill.
+skills/routing/0074 [skills, routing] — Sofie routes 3 natural-language cases to the thinking-out-loud skill.
+skills/routing/0075 [skills, routing] — Sofie can discover and load the typescript-best-practices skill.
+skills/routing/0076 [skills, routing] — Sofie can discover and load the unslop skill.
+skills/routing/0077 [skills, routing] — Sofie can discover and load the what-did-i-get-done skill.
+skills/routing/0078 [skills, routing] — Sofie can discover and load the why skill.
+smoke/ping [fast, ci] — Sofie can answer a minimal turn without reaching for a tool.

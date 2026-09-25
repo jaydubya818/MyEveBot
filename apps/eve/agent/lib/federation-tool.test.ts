@@ -167,16 +167,32 @@ describe("canonical Federation tool boundary", () => {
     const root=path.dirname(require.resolve("eve/package.json"));
     const lifecycle=await import(pathToFileURL(path.join(root,"dist/src/context/dynamic-tool-lifecycle.js")).href);
     const assembly=await import(pathToFileURL(path.join(root,"dist/src/context/build-dynamic-tools.js")).href);
-    const values=new Map<string,unknown>([["eve.auth",ctx.session.auth.current],["eve.sessionId","session"]]);
-    const context={get:(key:any)=>values.get(key.name),set:(key:any,value:any)=>values.set(key.name,value),setVirtualContext:(key:any,value:any)=>values.set(key.name,value)};
-    const resolvers=[{slug:"federation_request",events:tool.events,eventNames:["step.started"]}];
-    await lifecycle.dispatchDynamicToolEvent({ctx:context,resolvers,event:{type:"step.started"},messages:[]});
+    const keys=await import(pathToFileURL(path.join(root,"dist/src/context/keys.js")).href);
+    const values=new Map<string,unknown>([[keys.StaticModelReferenceKey.name,null],["eve.auth",ctx.session.auth.current],["eve.sessionId","session"]]);
+    const context={require:(key:any)=>{if(!values.has(key.name))throw new Error(`Missing fixture context: ${key.name}`);return values.get(key.name);},get:(key:any)=>values.get(key.name),set:(key:any,value:any)=>values.set(key.name,value),setVirtualContext:(key:any,value:any)=>values.set(key.name,value)};
+    const durable=await import(pathToFileURL(path.join(root,"dist/src/tools/durable-callbacks.js")).href);
+    // Vitest does not run Eve's authored-source transform. Stamp the same
+    // callback boundary here; the production build separately validates it.
+    const events={"step.started":async(event:any,ctx:any)=>{
+      const definition=await tool.events["step.started"]!(event,ctx);
+      if(!definition)return null;
+      const entry=definition as any;
+      durable.stampDurableDynamicToolCallbacks(entry,{
+        inputSchema:{closure:{},callback:()=>entry.inputSchema},
+        execute:{closure:{},callback:(_closure:any,...args:any[])=>entry.execute(...args)},
+        approvalRequest:{closure:{},callback:(_closure:any,...args:any[])=>entry.approval(...args)},
+      });
+      return entry;
+    }};
+    const resolvers=[{slug:"federation_request",events,eventNames:["step.started"]}];
+    await lifecycle.dispatchDynamicToolEvent({ctx:context,resolvers,event:{type:"step.started",data:{turnId:"turn",stepIndex:0,sequence:0}},messages:[]});
     const tools=assembly.buildDynamicTools(context);
     expect(tools.map((item:any)=>item.name)).toEqual(["federation_request"]);
     expect(typeof tools[0].execute).toBe("function");
-    expect(JSON.stringify(tools[0].inputSchema)).toContain("knowledge.query");
+    const schema=tools[0].inputSchema["~standard"].jsonSchema.input({target:"draft-07"});
+    expect(JSON.stringify(schema)).toContain("knowledge.query");
     vi.stubEnv("MYEVE_RELAY_ENABLED","false");
-    await lifecycle.dispatchDynamicToolEvent({ctx:context,resolvers,event:{type:"step.started"},messages:[]});
+    await lifecycle.dispatchDynamicToolEvent({ctx:context,resolvers,event:{type:"step.started",data:{turnId:"turn",stepIndex:1,sequence:1}},messages:[]});
     expect(assembly.buildDynamicTools(context)).toEqual([]);
   });
 });

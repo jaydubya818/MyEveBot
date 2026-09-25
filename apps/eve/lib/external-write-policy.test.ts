@@ -27,7 +27,7 @@ describe("unqualified external transports",()=>{
     const Socket=vi.fn();vi.stubGlobal("WebSocket",Socket);expect(()=>pipeVncSocket({} as never,"wss://provider.example")).toThrow();expect(Socket).not.toHaveBeenCalled();
   });
   it("admits no session and registers no outbound receive handler",async()=>{
-    const channel=blockedChannel() as unknown as {receive?:unknown;routes:{handler:()=>Promise<Response>}[]};
+    const channel=blockedChannel("/test-blocked") as unknown as {receive?:unknown;routes:{handler:()=>Promise<Response>}[]};
     expect(channel.receive).toBeUndefined();expect(channel.routes).toHaveLength(1);
     const response=await channel.routes[0]!.handler();expect(response.status).toBe(503);
   });

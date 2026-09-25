@@ -6,6 +6,7 @@ vi.mock("../../lib/action-gateway.ts", () => ({
 }));
 vi.mock("../../lib/computer-runtime.ts", () => ({ prepareComputerRuntime: f.prepare }));
 vi.mock("../../lib/computer-sandbox-backend.ts", () => ({
+  computerEnvironment: {},
   ComputerSandboxAuthorityRequired: class extends Error {},
   bindPreparedComputer: async () => {},
   withPreparedComputer: async (_prepared: unknown, _authority: unknown, _parameters: unknown, work: () => Promise<unknown>) => { await f.provider(); return work(); },

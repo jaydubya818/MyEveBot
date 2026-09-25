@@ -2,7 +2,7 @@
 // existing web channel. One eve session per voice conversation (Sofie keeps
 // context across dispatches); one turn in flight at a time.
 import type { UserContent } from "ai";
-import { Client, type HandleMessageStreamEvent } from "eve/client";
+import { Client, type ClientSession, type SendTurnOptions, type HandleMessageStreamEvent } from "eve/client";
 
 import { toUserContent, type VoiceAttachment } from "./attachments";
 import { dispatchOutcome, type DispatchOutcome } from "./bridge";
@@ -12,19 +12,12 @@ export interface DispatchResult extends DispatchOutcome {
   busy?: boolean;
 }
 
-/** Structural slice of ClientSession so tests can inject a fake. */
+/** Fixed session operations used by voice and injectable in tests. */
 export interface DispatchSession {
-  readonly state: {
-    readonly continuationToken?: string;
-    readonly sessionId?: string;
-    readonly streamIndex?: number;
-  };
-  send(input: {
-    message?: string | UserContent;
-    clientContext?: Record<string, unknown>;
-    inputResponses?: ReadonlyArray<{ requestId: string; optionId?: string; text?: string }>;
-  }): Promise<AsyncIterable<HandleMessageStreamEvent>>;
-  cancel(options?: { turnId?: string }): Promise<unknown>;
+  readonly state: ClientSession["state"];
+  send(message: string | UserContent, options?: SendTurnOptions): Promise<AsyncIterable<HandleMessageStreamEvent>>;
+  respond(responses: ReadonlyArray<{ requestId: string; optionId?: string; text?: string }>): Promise<AsyncIterable<HandleMessageStreamEvent>>;
+  cancel(): Promise<unknown>;
 }
 
 const BUSY_RESULT: DispatchResult = {
@@ -37,25 +30,26 @@ const BUSY_RESULT: DispatchResult = {
 };
 
 export class SofieDispatcher {
-  private readonly session: DispatchSession;
+  private session: DispatchSession | undefined;
+  private readonly client = new Client({ host: "" });
   private inFlight = false;
+  private cancelRequested = false;
 
-  constructor(resumeToken?: string, session?: DispatchSession) {
-    this.session =
-      session ?? (new Client({ host: "" }).session(resumeToken) as unknown as DispatchSession);
+  constructor(sessionId?: string, session?: DispatchSession) {
+    this.session = session ?? (sessionId ? this.client.sessions.attach(sessionId) : undefined);
   }
 
   get busy(): boolean {
     return this.inFlight;
   }
 
-  get continuationToken(): string | undefined {
-    return this.session.state.continuationToken;
+  get sessionId(): string | undefined {
+    return this.session?.state.sessionId;
   }
 
   dispatch(
     request: string,
-    clientContext: Record<string, unknown>,
+    clientContext: NonNullable<SendTurnOptions["clientContext"]>,
     attachments: readonly VoiceAttachment[] = [],
     onToolStarted?: (toolName: string) => void,
   ): Promise<DispatchResult> {
@@ -80,7 +74,13 @@ export class SofieDispatcher {
   async cancel(): Promise<boolean> {
     if (!this.inFlight) return false;
     try {
-      await this.session.cancel();
+      // Session creation is asynchronous in Eve's fixed-ID client. Retain a
+      // Stop request made before the first create response reaches the browser.
+      if (!this.session) {
+        this.cancelRequested = true;
+        return true;
+      }
+      await this.session?.cancel();
       return true;
     } catch {
       return false;
@@ -88,14 +88,26 @@ export class SofieDispatcher {
   }
 
   private async run(
-    payload: Parameters<DispatchSession["send"]>[0],
+    payload: { message?: string | UserContent; clientContext?: NonNullable<SendTurnOptions["clientContext"]>; inputResponses?: ReadonlyArray<{ requestId: string; optionId?: string; text?: string }> },
     onToolStarted?: (toolName: string) => void,
   ): Promise<DispatchResult> {
     if (this.inFlight) return BUSY_RESULT;
     this.inFlight = true;
+    this.cancelRequested = false;
     const events: HandleMessageStreamEvent[] = [];
     try {
-      const response = await this.session.send(payload);
+      let response: AsyncIterable<HandleMessageStreamEvent>;
+      if (payload.inputResponses) {
+        if (!this.session) throw new Error("There is no voice session awaiting input.");
+        response = await this.session.respond(payload.inputResponses);
+      } else if (this.session) {
+        response = await this.session.send(payload.message!, { clientContext: payload.clientContext });
+      } else {
+        const created = await this.client.sessions.create({ message: payload.message!, clientContext: payload.clientContext });
+        this.session = created.session;
+        response = created.response;
+        if (this.cancelRequested) await this.session.cancel();
+      }
       for await (const event of response) {
         events.push(event);
         if (event.type === "actions.requested") {

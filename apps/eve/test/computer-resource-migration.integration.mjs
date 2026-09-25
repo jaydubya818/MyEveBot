@@ -30,11 +30,11 @@ try{
         }
       }
       await import(`../scripts/migrate-database.ts?fixture=${mode}-${Date.now()}`);
-      assert.equal((await client.query('SELECT count(*) FROM sofie_schema_migrations')).rows[0].count,'33');checks++;
+      assert.equal((await client.query('SELECT count(*) FROM sofie_schema_migrations')).rows[0].count,String((await readdir(new URL('../migrations/',import.meta.url))).filter(f=>f.endsWith('.sql')).length));checks++;
       assert.equal((await client.query('SELECT count(*) FROM computer_resource_lifecycles')).rows[0].count,'0');checks++;
       if(mode==='upgrade-active'){assert.equal((await client.query("SELECT status FROM computer_sessions WHERE id='legacy'")).rows[0].status,'lost');checks++;}
       await import(`../scripts/migrate-database.ts?fixture=rerun-${mode}-${Date.now()}`);
-      assert.equal((await client.query('SELECT count(*) FROM sofie_schema_migrations')).rows[0].count,'33');checks++;
+      assert.equal((await client.query('SELECT count(*) FROM sofie_schema_migrations')).rows[0].count,String((await readdir(new URL('../migrations/',import.meta.url))).filter(f=>f.endsWith('.sql')).length));checks++;
       console.log(`PASS actual migration runner ${mode} and rerun`);
     }finally{await client.query(`DROP SCHEMA ${schema} CASCADE`);}
   }

@@ -60,7 +60,7 @@ describe("VoiceThreadWriter", () => {
     expect(saved.forkContext).toContain("hey Sofie");
     const resume = loadVoiceResume();
     expect(resume?.threadId).toBe(writer.threadId);
-    expect(resume?.continuationToken).toBe("eve:tok-1");
+    expect(resume?.sessionId).toBe("eve:tok-1");
   });
 
   it("reuses a recent thread and seeds the transcript from its events", async () => {
@@ -72,7 +72,7 @@ describe("VoiceThreadWriter", () => {
     const second = await VoiceThreadWriter.open();
     expect(second.threadId).toBe(first.threadId);
     expect(second.transcript.map((entry) => entry.text)).toEqual(["remember the milk", "noted"]);
-    expect(second.resumeToken).toBe("eve:tok-2");
+    expect(second.resumeSessionId).toBe("eve:tok-2");
   });
 
   it("starts fresh when the resume record is stale", async () => {

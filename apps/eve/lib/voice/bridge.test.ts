@@ -93,7 +93,7 @@ describe("finalReply / dispatchOutcome", () => {
 });
 
 describe("matchInputResponses", () => {
-  const approval = { requestId: "r1", prompt: "Approve?", options: [{ id: "approve", label: "Approve" }, { id: "deny", label: "Deny" }], action: { callId: "c", toolName: "pay", kind: "tool-call" as const, input: {} } };
+  const approval = { kind: "tool-approval" as const, requestId: "r1", prompt: "Approve?", options: [{ id: "approve", label: "Approve" }, { id: "deny", label: "Deny" }], action: { callId: "c", toolName: "pay", kind: "tool-call" as const, input: {} } };
   it("maps spoken yes/no to approve/deny", () => {
     expect(matchInputResponses([approval], "yeah go ahead")).toEqual([{ requestId: "r1", optionId: "approve" }]);
     expect(matchInputResponses([approval], "no, cancel that")).toEqual([{ requestId: "r1", optionId: "deny" }]);
@@ -180,6 +180,6 @@ describe("misc", () => {
     expect(typeof ctx.clientTime).toBe("string");
   });
   it("describeInputRequests reads prompts and options aloud", () => {
-    expect(describeInputRequests([{ requestId: "r", prompt: "Approve $20?", options: [{ id: "approve", label: "Approve" }, { id: "deny", label: "Deny" }], action: { callId: "c", toolName: "p", kind: "tool-call", input: {} } }])).toBe("Approve $20? (options: Approve, Deny)");
+    expect(describeInputRequests([{ kind: "tool-approval", requestId: "r", prompt: "Approve $20?", options: [{ id: "approve", label: "Approve" }, { id: "deny", label: "Deny" }], action: { callId: "c", toolName: "p", kind: "tool-call", input: {} } }])).toBe("Approve $20? (options: Approve, Deny)");
   });
 });

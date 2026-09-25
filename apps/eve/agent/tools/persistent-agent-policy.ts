@@ -5,7 +5,7 @@ import { defineDynamic,defineTool,type DynamicResolveContext,type DynamicToolEnt
 import { z } from "zod";
 
 import { effectiveCapability } from "../../lib/agents.ts";
-import { CAPABILITY_DEFINITIONS } from "../../lib/capability-registry.ts";
+import { CAPABILITY_DEFINITIONS, BROWSER_TOOL_CAPABILITIES } from "../../lib/capability-registry.ts";
 import { activeComputerAgentId } from "../../lib/computer-sessions.ts";
 import { browserDomainsForUrl } from "../../lib/computer-types.ts";
 import { executeBrowserAction } from "../lib/browser-action.ts";
@@ -17,14 +17,7 @@ const BUILTIN_CAPABILITIES: Record<string, string> = {
   write_file: "files.write", web_fetch: "web.read", web_search: "web.search",
   connection_search: "integration.composio", load_skill: "skill.authored", workflow: "specialist.functional-state",
 };
-const BROWSER_CAPABILITIES: Record<string, string> = {
-  click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
-  press_key: "browser.click", scroll: "browser.click", select_option: "browser.click", set_checked: "browser.click",
-  fill: "browser.type", upload: "files.write", navigate: "browser.navigate",
-  console: "browser.read", evaluate: "browser.click", find: "browser.read", get: "browser.read",
-  network_requests: "browser.read", read: "browser.read", screenshot: "browser.read", snapshot: "browser.read",
-  tabs: "browser.read", wait_for: "browser.read",
-};
+
 
 function policyMap(): Record<string, string> {
   const map = { ...BUILTIN_CAPABILITIES };
@@ -36,7 +29,7 @@ function policyMap(): Record<string, string> {
       map[capability.source.reference.slice("agent/tools/".length, -3)] = capability.id;
     }
   }
-  for (const [tool, capability] of Object.entries(BROWSER_CAPABILITIES)) map[`browser__${tool}`] = capability;
+  for (const [tool, capability] of Object.entries(BROWSER_TOOL_CAPABILITIES)) map[`browser__${tool}`] = capability;
   return map;
 }
 

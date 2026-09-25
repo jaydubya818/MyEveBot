@@ -44,9 +44,9 @@ export function loadVoiceResume(): VoiceResumeRecord | null {
     return {
       ...parsed,
       title: typeof parsed.title === "string" && parsed.title.length > 0 ? parsed.title : voiceThreadTitle(),
-      ...(typeof parsed.continuationToken === "string"
-        ? { continuationToken: parsed.continuationToken }
-        : { continuationToken: undefined }),
+      ...(typeof parsed.sessionId === "string"
+        ? { sessionId: parsed.sessionId }
+        : { sessionId: undefined }),
     };
   } catch {
     return null;
@@ -89,19 +89,19 @@ export class VoiceThreadWriter {
   private announced = false;
   /** Set when another writer has taken the thread over; stops all writes. */
   private retired = false;
-  readonly resumeToken: string | undefined;
+  readonly resumeSessionId: string | undefined;
 
   private constructor(
     meta: ThreadMeta,
     events: HandleMessageStreamEvent[],
     entries: TranscriptEntry[],
-    resumeToken: string | undefined,
+    resumeSessionId: string | undefined,
   ) {
     this.meta = meta;
     this.events = events;
     this.entries = entries;
     this.sequence = events.length + 1;
-    this.resumeToken = resumeToken;
+    this.resumeSessionId = resumeSessionId;
   }
 
   /**
@@ -128,7 +128,7 @@ export class VoiceThreadWriter {
             renamed: true,
             origin: "voice",
           };
-          return new VoiceThreadWriter(meta, events, transcriptFromEvents(events), resume.continuationToken);
+          return new VoiceThreadWriter(meta, events, transcriptFromEvents(events), resume.sessionId);
         }
       }
     }
@@ -173,13 +173,13 @@ export class VoiceThreadWriter {
   }
 
   /** Flush and record the resume window (called when the orb closes). */
-  finish(continuationToken?: string): void {
+  finish(sessionId?: string): void {
     this.persist();
     saveVoiceResume({
       threadId: this.meta.id,
       title: this.meta.title,
       endedAt: Date.now(),
-      ...(continuationToken !== undefined ? { continuationToken } : {}),
+      ...(sessionId !== undefined ? { sessionId } : {}),
     });
   }
 

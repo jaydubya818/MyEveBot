@@ -1,5 +1,6 @@
+import { getComputerSandbox } from "./computer-context.ts";
 import {blockExternalWrite} from "../../lib/external-write-policy.ts";
-import { runAgentBrowser } from "@agent-browser/eve/sandbox";
+import { runAgentBrowser as runBrowser } from "@agent-browser/eve/sandbox";
 import { defineTool, type ToolContext } from "eve/tools";
 import { z } from "zod";
 
@@ -7,6 +8,10 @@ import { AGENT_NAME, OWNER_NAME } from "../../lib/identity.ts";
 import { WEB_SESSION_COOKIE } from "../../lib/web-auth.ts";
 import { getTaskRun, taskOwnerFromAuth } from "../../lib/task-runs.ts";
 import type { QaSpecialistRole } from "../../lib/task-types.ts";
+
+function runAgentBrowser(ctx: ToolContext, ...args: Parameters<typeof runBrowser> extends [unknown, ...infer Rest] ? Rest : never) {
+  return runBrowser({ ...ctx, getSandbox: () => getComputerSandbox(ctx) }, ...args);
+}
 
 type CheckResult = {
   slug: string;

@@ -139,14 +139,13 @@ async function handleReaction(ctx: SlackInboundEventContext, event: SlackEvent):
     console.error("Slack reaction lookup failed.", error);
   }
 
-  await ctx.receive({
-    message: reactionMessage({
+  await ctx.send(reactionMessage({
       prompt: rule.prompt,
       emoji,
       reactorId,
       channelId: ref.channelId,
       message: resolved,
-    }),
+    }), {
     // Anchoring on the resolved thread root keeps the reply where the reaction
     // happened. When the root is unknown the anchor is omitted rather than
     // guessed at with the reacted message's own ts — that ts is a reply's in a
@@ -243,4 +242,4 @@ const unqualifiedChannel = () => slackChannel({
   },
 });
 
-export default blockedChannel();
+export default blockedChannel("/eve/v1/slack");

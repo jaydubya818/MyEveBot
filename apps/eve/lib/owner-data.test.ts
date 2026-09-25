@@ -47,6 +47,22 @@ function fixtureBundle(): OwnerDataBundle {
 }
 
 describe("owner data archives", () => {
+  it("exports real Eve transcripts without reusable continuation tokens", async () => {
+    const domain = OWNER_DATA_DOMAINS.find(domain => domain.id === "conversations")!;
+    const chat = { session: { sessionId: "session", continuationToken: "secret-session" }, events: [
+      { type: "message.completed", data: { message: "Saved answer" } },
+      { type: "session.waiting", data: { sessionId: "session", continuationToken: "secret-event" } },
+    ] };
+    const query = vi.fn().mockResolvedValueOnce([{ id: "thread", chat }]).mockResolvedValueOnce([]);
+    const exported = await domain.load({ ownerId: "owner", query });
+    const bundle = fixtureBundle(); bundle.categories.conversations = exported;
+    const archive = await createOwnerArchive(bundle);
+    expect((await validateOwnerArchive(new Uint8Array(archive))).valid).toBe(true);
+    expect(JSON.stringify(exported)).toContain("Saved answer");
+    expect(JSON.stringify(exported)).not.toContain("secret-");
+    expect(chat.session.continuationToken).toBe("secret-session");
+  });
+
   it("exports peer policy as owner-scoped non-restorable metadata without credentials", async () => {
     const domain = OWNER_DATA_DOMAINS.find(domain => domain.id === "peer_permissions")!;
     const query = vi.fn().mockResolvedValue([{ id: "permission", local_agent_id: "sofie", peer_agent_id: "atlas", policies: [], expires_at: null }]);

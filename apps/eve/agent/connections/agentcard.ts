@@ -1,5 +1,6 @@
 import { defineMcpClientConnection } from "eve/connections";
-import type { Approval } from "eve/tools";
+import type { ApprovalPolicy } from "eve/tools/approval";
+
 import { denyUnqualifiedConnection } from "../lib/unqualified-executor.ts";
 
 import {
@@ -55,7 +56,7 @@ export function agentcardNeedsApproval(toolName: string): boolean {
 }
 
 /** Owner/guest policy shared by the connection definition and direct tests. */
-export const agentcardApproval: Approval = denyUnqualifiedConnection("integration.agentcard");
+export const agentcardApproval: ApprovalPolicy = denyUnqualifiedConnection("integration.agentcard");
 
 /**
  * Eve resolves this provider once per active turn. Keeping the last bearer in

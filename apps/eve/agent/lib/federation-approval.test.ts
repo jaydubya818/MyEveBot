@@ -85,7 +85,7 @@ describe("Federation exact native approval continuation", () => {
   it("Eve's real durable input resolver consumes yes and preserves the exact original call", async () => {
     const require=createRequire(import.meta.url),root=path.dirname(require.resolve("eve/package.json"));
     const runtime=await import(pathToFileURL(path.join(root,"dist/src/harness/input-requests.js")).href);
-    const paused={history:[],state:{"eve.runtime.pendingInputBatch":{requests:[{requestId:"native-approval",options:[{id:"approve",label:"Yes"},{id:"deny",label:"No"}],action:{kind:"tool-call",callId:"original-call",toolName:"federation_request",input}}],responseMessages:[responses()[0]]}}};
+    const paused={history:[],state:{"eve.runtime.pendingInputBatch":{requests:[{kind:"tool-approval",requestId:"native-approval",options:[{id:"approve",label:"Yes"},{id:"deny",label:"No"}],action:{kind:"tool-call",callId:"original-call",toolName:"federation_request",input}}],responseMessages:[responses()[0]]}}};
     const resumed=runtime.resolvePendingInput({session:paused,stepInput:{message:"yes"}});
     expect(resumed.outcome).toBe("resolved");expect(resumed.consumedMessage).toBe(true);
     expect(federationApprovalResponses(resumed.messages)).toEqual([{callId:"original-call",input,approved:true}]);

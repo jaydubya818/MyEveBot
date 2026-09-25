@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { resolveBraintrustParent } from "./instrumentation";
+import { resolveBraintrustParent } from "./instrumentation/telemetry";
 
 describe("resolveBraintrustParent", () => {
   it("uses a configured parent before the Marketplace project", () => {

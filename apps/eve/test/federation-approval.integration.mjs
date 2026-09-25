@@ -26,11 +26,11 @@ const require=createRequire(import.meta.url),eveRoot=path.dirname(require.resolv
 const {resolvePendingInput}=await import(pathToFileURL(path.join(eveRoot,'dist/src/harness/input-requests.js')).href);
 const principal={principalId:'approval-owner',principalType:'user',attributes:{owner:'true',myeveAgentId:'approval-agent'}};
 const context=id=>({session:{id,auth:{current:principal,initiator:principal}},messages:[],channel:{},callId:id});
-const input=id=>({operation:'request',request:{target:'relay://atlas/agent',resource:'synthetic-messages',capability:'message.send',idempotencyKey:`test-${id}`,expiresAt:'2099-01-01T00:00:00Z',payload:{body:'Federation approval continuation check'}}});
+const input=id=>({operation:'request',request:{target:'relay://atlas/agent',resource:'synthetic-messages',capability:'message.send',idempotencyKey:`test-${id}`,expiresAt:new Date(Date.now()+60*60*1000).toISOString(),payload:{body:'Federation approval continuation check'}}});
 const decisionMessages=(id,value,answer='yes')=>{
  const call={type:'tool-call',toolName:'federation_request',toolCallId:id,input:value};
  const approval={type:'tool-approval-request',toolCallId:id,approvalId:`native-${id}`};
- const session={history:[],state:{'eve.runtime.pendingInputBatch':{requests:[{requestId:approval.approvalId,options:[{id:'approve',label:'Yes'},{id:'deny',label:'No'}],action:{kind:'tool-call',callId:id,toolName:'federation_request',input:value}}],responseMessages:[{role:'assistant',content:[call,approval]}]}}};
+ const session={history:[],state:{'eve.runtime.pendingInputBatch':{requests:[{kind:"tool-approval",requestId:approval.approvalId,options:[{id:'approve',label:'Yes'},{id:'deny',label:'No'}],action:{kind:'tool-call',callId:id,toolName:'federation_request',input:value}}],responseMessages:[{role:'assistant',content:[call,approval]}]}}};
  const result=resolvePendingInput({session,stepInput:{message:answer}});assert.equal(result.outcome,'resolved');return result.messages;
 };
 const definition=ctx=>tool.events['step.started']({},ctx);

@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { Readable } from "node:stream";
 import { Sandbox } from "@vercel/sandbox";
-import type { vercel } from "eve/sandbox/vercel";
-import type { SandboxSession } from "eve/sandbox";
+import { defineSandboxProvider, type SandboxProviderHandle } from "eve/sandbox/provider";
+import type { SandboxSession, SandboxNetworkPolicy } from "eve/sandbox";
 import { consumeComputerProvisionAuthority, type AuthorizedAction } from "./action-gateway.ts";
 import type { Preparation } from "./computer-template-lifecycle.ts";
 import { computerProviderCredentials } from "./computer-template-vercel.ts";
@@ -26,7 +26,11 @@ export async function bindPreparedComputer(ownerId: string, sessionId: string, r
   return grant.resource;
 }
 async function bytes(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> { return new Uint8Array(await new Response(stream).arrayBuffer()); }
-function sessionHandle(sandbox: Sandbox, row: ComputerResource): SandboxSession {
+export interface ComputerSandboxSession extends SandboxSession {
+  readonly id: string;
+  setNetworkPolicy(policy: SandboxNetworkPolicy): Promise<void>;
+}
+function sessionHandle(sandbox: Sandbox, row: ComputerResource): ComputerSandboxSession {
   const resolvePath = (path: string) => path.startsWith("/") ? path : `/workspace/${path}`;
   // Execution authorization remains in the ordinary action adapters. This check also
   // fences cached framework handles immediately when lifecycle termination begins.
@@ -34,7 +38,7 @@ function sessionHandle(sandbox: Sandbox, row: ComputerResource): SandboxSession 
     const store = new ComputerResourceStore();
     if (!await store.executable(row)) throw new Error("Computer resource is no longer executable.");
   }
-  const session: SandboxSession = {
+  const session: ComputerSandboxSession = {
     id: row.resource_name, resolvePath,
     async run(options) {
       const process = await session.spawn(options);
@@ -74,10 +78,12 @@ function sessionHandle(sandbox: Sandbox, row: ComputerResource): SandboxSession 
   };
   return session;
 }
-export const computerSandboxBackend: ReturnType<typeof vercel> = {
+type ComputerOpenOptions = { networkPolicy?: SandboxNetworkPolicy };
+type ComputerArtifact = { files: { path: string; base64: string }[] };
+export const computerSandboxBackend = {
   name: "myeve-computer-v1",
   async prewarm() { return {reused:false}; },
-  async create(input) {
+  async create(input: { sessionKey: string; existingMetadata?: { lifecycleId?: string } }) {
     const grant = grants.getStore();
     if (!grant?.resource && typeof input.existingMetadata?.lifecycleId === "string") {
       const store = new ComputerResourceStore();
@@ -90,7 +96,7 @@ export const computerSandboxBackend: ReturnType<typeof vercel> = {
       const sandbox=await findOwnedComputer(row);
       if (!sandbox || sandbox.status !== "running") throw new Error("Computer resource is not running.");
       const session=sessionHandle(sandbox,row);
-      return {session,useSessionFn:async options=>{if(options?.networkPolicy) await session.setNetworkPolicy(options.networkPolicy);return session;},captureState:async()=>({backendName:"myeve-computer-v1",sessionKey:input.sessionKey,metadata:{lifecycleId:row.id}}),shutdown:async()=>{}};
+      return {session,useSessionFn:async (options?: ComputerOpenOptions)=>{if(options?.networkPolicy) await session.setNetworkPolicy(options.networkPolicy);return session;},captureState:async()=>({backendName:"myeve-computer-v1",sessionKey:input.sessionKey,metadata:{lifecycleId:row.id}}),shutdown:async()=>{}};
     }
     if (!grant || grant.consumed || !grant.resource || grant.preparation.state !== "READY"
       || grant.authority.signal?.aborted || Date.now()>=grant.authority.expiresAt) throw new ComputerSandboxAuthorityRequired();
@@ -112,9 +118,55 @@ export const computerSandboxBackend: ReturnType<typeof vercel> = {
     await grant.revalidate();
     row = await store.activate(row,sandbox.currentSession().sessionId);
     const session = sessionHandle(sandbox,row);
-    return { session, useSessionFn:async options=>{if(options?.networkPolicy) await session.setNetworkPolicy(options.networkPolicy);return session;},
+    return { session, useSessionFn:async (options?: ComputerOpenOptions)=>{if(options?.networkPolicy) await session.setNetworkPolicy(options.networkPolicy);return session;},
       async captureState() { return { backendName:"myeve-computer-v1",sessionKey:input.sessionKey,metadata:{lifecycleId:row.id} }; },
       async shutdown() { /* Durable timeout/recovery owns termination; shutdown grants no provider authority. */ },
     };
   },
 };
+
+
+function providerHandle(sandbox: ComputerSandboxSession): SandboxProviderHandle<ComputerSandboxSession> {
+  return {
+    sandbox,
+    async onRuntimeShutdown() { /* Durable resource cleanup owns termination. */ },
+    async onSessionStop() { throw new Error("Stop Computers through the governed Computer lifecycle."); },
+    async onSessionDelete() { throw new Error("Delete Computers through the governed Computer lifecycle."); },
+  };
+}
+
+// Build preparation is metadata-only. The Action Gateway prepares and authorizes
+// each live Computer before this provider can provision or reconnect it.
+export const ComputerSandbox = defineSandboxProvider<undefined, ComputerOpenOptions, ComputerArtifact, { lifecycleId: string }, ComputerSandboxSession>({
+  name: "myeve-computer-v1",
+  environment() {
+    return {
+      async prepare(ctx) {
+        return { files: [ctx.resources.workspace, ctx.resources.skills].flatMap(tree => tree
+          ? tree.files.map(file => ({ path: `${tree.targetPath}/${file.relativePath}`, base64: Buffer.from(file.content).toString("base64") }))
+          : []) };
+      },
+      async start(ctx, options, artifact) {
+        const opened = await computerSandboxBackend.create({ sessionKey: ctx.session.id });
+        const sandbox = await opened.useSessionFn(options);
+        // Authored workspace seeds and skills are immutable build inputs. Copy
+        // them only into a newly authorized Computer, never over resumed state.
+        if (artifact.files.length) {
+          const home = await sandbox.run({ command: 'printf "%s" "$HOME"' });
+          if (home.exitCode !== 0 || !home.stdout.startsWith("/")) throw new Error("Computer home directory is unavailable.");
+          for (const file of artifact.files) {
+            const path = file.path.replace(/^\$HOME(?=\/)/, home.stdout);
+            await sandbox.writeBinaryFile({ path, content: Buffer.from(file.base64, "base64") });
+          }
+        }
+        const state = await opened.captureState();
+        return { handle: providerHandle(sandbox), state: state.metadata };
+      },
+      async resume(ctx, _artifact, state) {
+        const opened = await computerSandboxBackend.create({ sessionKey: ctx.session.id, existingMetadata: state });
+        return providerHandle(opened.session);
+      },
+    };
+  },
+});
+export const computerEnvironment = ComputerSandbox.environment();

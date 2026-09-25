@@ -20,6 +20,7 @@ try {
   await client.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('ava','sarah','primary','Ava','Research','Research',true,'active',30,600,1)");
   await client.query(await readFile(new URL("0031_computer_template_lifecycle.sql", directory), "utf8"));
   await client.query(await readFile(new URL("0032_computer_resource_lifecycles.sql", directory), "utf8"));
+  for (const name of migrations.filter(name => name > "0032_computer_resource_lifecycles.sql")) await client.query(await readFile(new URL(name, directory), "utf8"));
   assert.equal((await client.query("SELECT name FROM agents WHERE id='ava' AND owner_id='sarah'")).rows[0].name, "Ava");
   const database = { query: async (sql, params) => (await client.query(sql, params)).rows };
   const stores = [new SqlComputerTemplateStore(database)];
@@ -70,6 +71,7 @@ try {
   await client.query(`INSERT INTO task_runs(id,owner_id,kind,title,agent_id,status,max_duration_seconds,max_specialists,
     max_model_steps,max_retries_per_specialist,max_estimated_cost_usd)
     VALUES('computer-run','sarah','delegated_work','Computer fixture','ava','running',600,0,30,0,1)`);
+  await client.query("INSERT INTO task_run_sessions(task_id,session_id,role,is_current) VALUES('computer-run','fixture','orchestrator',true)");
   const action = { ownerId: "sarah", runId: "computer-run", actionKey: "cold-computer", capabilityId: "computer.session.create", actionClass: "create",
     executor: { kind: "primary-agent", agentId: "ava" }, trigger: { kind: "owner_chat", id: "fixture" }, parameters: {} };
   const allow = { evaluate: async () => ({ decision: "ALLOW", source: "fixture", reason: "fixture" }) };

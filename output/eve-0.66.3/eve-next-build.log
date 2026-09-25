@@ -1,0 +1,166 @@
+
+> eve-agent@0.0.0 build
+> npm run skills:prepare && next build --webpack
+
+
+> eve-agent@0.0.0 skills:prepare
+> node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs
+
+Normalized 0 imported skills for Eve.
+Cataloged 79 installed skills.
+▲ Next.js 16.3.5 (webpack)
+✓ Running next.config.ts took 162ms
+
+  Creating an optimized production build ...
+⚠ Compiled with warnings in 1920ms
+
+../../../../../Users/jaywest/Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../Users/jaywest/Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../Users/jaywest/Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+
+✓ Compiled successfully in 8.6s
+  Running TypeScript ...
+  Finished TypeScript in 3.9s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/86) ...
+  Generating static pages using 15 workers (21/86)
+  Generating static pages using 15 workers (42/86)
+  Generating static pages using 15 workers (64/86)
+✓ Generating static pages using 15 workers (86/86) in 1014ms
+  Finalizing page optimization ...
+  Collecting build traces ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ○ /agents
+├ ƒ /api/actions
+├ ƒ /api/actions/[id]/recover
+├ ƒ /api/actions/[id]/resolve
+├ ƒ /api/agentcard
+├ ƒ /api/agentcard/connect/start
+├ ƒ /api/agentcard/connect/verify
+├ ƒ /api/agents
+├ ƒ /api/agents/[id]
+├ ƒ /api/agents/[id]/[action]
+├ ƒ /api/agents/activity
+├ ƒ /api/approvals
+├ ƒ /api/approvals/[id]
+├ ƒ /api/artifacts
+├ ƒ /api/artifacts/[id]
+├ ƒ /api/artifacts/[id]/comments
+├ ƒ /api/artifacts/[id]/content
+├ ƒ /api/artifacts/[id]/draft
+├ ƒ /api/artifacts/[id]/restore
+├ ƒ /api/artifacts/[id]/shares
+├ ƒ /api/artifacts/[id]/shares/[shareId]
+├ ƒ /api/artifacts/[id]/versions
+├ ƒ /api/artifacts/upload
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/status
+├ ƒ /api/automations
+├ ƒ /api/capabilities
+├ ƒ /api/channels
+├ ƒ /api/channels/search
+├ ƒ /api/commands
+├ ƒ /api/computer
+├ ƒ /api/computer-profiles
+├ ƒ /api/computer-runtime
+├ ƒ /api/computer-sessions
+├ ƒ /api/computer-sessions/[id]
+├ ƒ /api/computer-sessions/[id]/actions
+├ ƒ /api/computer-sessions/[id]/artifacts/[artifactId]
+├ ƒ /api/computer-sessions/[id]/live-view
+├ ƒ /api/computer-sessions/[id]/owner-input
+├ ƒ /api/computer/ws
+├ ƒ /api/connections
+├ ƒ /api/control
+├ ƒ /api/decision-intelligence
+├ ƒ /api/email
+├ ƒ /api/email/attachments/[messageId]/[attachmentId]
+├ ƒ /api/email/domain
+├ ƒ /api/email/key
+├ ƒ /api/email/send
+├ ƒ /api/email/threads/[id]
+├ ƒ /api/features
+├ ƒ /api/files
+├ ƒ /api/files/[id]/content
+├ ƒ /api/files/upload
+├ ƒ /api/finance
+├ ƒ /api/goals
+├ ƒ /api/goals/[id]
+├ ƒ /api/goals/focus
+├ ƒ /api/imessage
+├ ƒ /api/imessage/attachment
+├ ƒ /api/imessage/pair
+├ ƒ /api/imessage/pair/verify
+├ ƒ /api/imessage/send
+├ ƒ /api/imessage/spectrum
+├ ƒ /api/imessage/transcript
+├ ƒ /api/imessage/typing
+├ ƒ /api/imessage/unpair
+├ ƒ /api/knowledge
+├ ƒ /api/knowledge/[id]
+├ ƒ /api/knowledge/relationships
+├ ƒ /api/knowledge/sources
+├ ƒ /api/memories
+├ ƒ /api/models
+├ ƒ /api/operations
+├ ƒ /api/outcomes
+├ ƒ /api/outcomes/[id]
+├ ƒ /api/owner-data
+├ ƒ /api/owner-knowledge
+├ ƒ /api/phone
+├ ƒ /api/push
+├ ƒ /api/readiness
+├ ƒ /api/relay
+├ ƒ /api/relay/artifacts/[id]
+├ ƒ /api/relay/peer-permissions
+├ ƒ /api/relay/qualification-artifacts
+├ ƒ /api/review-schedule
+├ ƒ /api/reviews
+├ ƒ /api/routines
+├ ƒ /api/routines/[id]/readiness
+├ ƒ /api/routines/[id]/run
+├ ƒ /api/shared/[token]/content
+├ ƒ /api/skills
+├ ƒ /api/slack
+├ ƒ /api/task-runs
+├ ƒ /api/task-runs/[id]
+├ ƒ /api/task-runs/[id]/artifacts/[artifactId]
+├ ƒ /api/threads
+├ ƒ /api/threads/[id]
+├ ƒ /api/threads/search
+├ ƒ /api/update-check
+├ ƒ /api/videos/[file]
+├ ƒ /api/voice/token
+├ ○ /channels
+├ ○ /chat
+├ ○ /computer
+├ ○ /email
+├ ○ /files
+├ ○ /goals
+├ ○ /icon.svg
+├ ○ /imessage
+├ ○ /knowledge
+├ ○ /login
+├ ○ /manage
+├ ƒ /manage/[section]
+├ ○ /results
+├ ○ /review
+└ ƒ /share/[token]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

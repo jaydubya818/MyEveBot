@@ -39,7 +39,7 @@ async function database(label) {
   return {name,client,db:adapter(client)};
 }
 const target={account:'owner',provider:'fixture',resource:'self'};
-function action(id,computer) {return {ownerId:'owner',runId:'run',actionKey:id,capabilityId:'tool.send_email',actionClass:'send',executor:{kind:'primary-agent',agentId:'ava'},trigger:{kind:'owner_chat'},parameters:{text:'synthetic only',recipient:'owner@example.invalid'},...(computer?{computer:{sessionId:'stale-computer',controlVersion:1}}:{})};}
+function action(id,computer) {return {ownerId:'owner',runId:'run',actionKey:id,capabilityId:'tool.send_email',actionClass:'send',executor:{kind:'primary-agent',agentId:'ava'},trigger:{kind:'owner_chat',id:'fixture'},parameters:{text:'synthetic only',recipient:'owner@example.invalid'},...(computer?{computer:{sessionId:'stale-computer',controlVersion:1}}:{})};}
 function binding(a) {return approvalBinding({taskId:a.runId,capabilityId:a.capabilityId,resource:JSON.stringify(target),action:a.actionClass,parameters:{payload:a.parameters,target,executor:a.executor,trigger:a.trigger,computer:a.computer??null}});}
 async function seedBefore20(c) {
   await c.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd)
@@ -91,6 +91,7 @@ async function snapshot(c) {const state={};for(const table of authorityTables)st
 function dump(name) {return execFileSync('/opt/homebrew/opt/postgresql@17/bin/pg_dump',['-h','127.0.0.1','-p','55442','-U',connection.user,'--schema-only','--no-owner','--no-privileges',name],{encoding:'utf8'}).split('\n').filter(l=>!l.startsWith('\\restrict')&&!l.startsWith('\\unrestrict')).join('\n');}
 async function safety(d) {
   const c=d.client;
+  await c.query("INSERT INTO task_run_sessions(task_id,session_id,role,is_current) VALUES('run','fixture','orchestrator',true) ON CONFLICT DO NOTHING");
   let calls=0;
   const requireApproval={evaluate:async()=>({decision:'REQUIRE_APPROVAL',source:'fixture',reason:'exact approval'})};
   const provider={resolveTarget:async()=>target,execute:async(p,h)=>{await consumeActionAuthority(h,p,'tool.send_email');calls++;return {};},verify:async()=>({verified:true,receipt:{}})};
@@ -113,7 +114,7 @@ async function safety(d) {
       await c.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,capability_id,agent_id,binding_hash,risk,expires_at,status,decision)
         VALUES($1,'run','owner','ava','Synthetic','send','send','tool.send_email','ava',$2,'high',now()+interval '1 hour','approved','approved')`,[approval,hash]);
       await c.query(`INSERT INTO action_requests(id,owner_id,run_id,action_key,executor,trigger,capability_id,action_class,target,parameter_hash,decision,authority_source,approval_id,status)
-        VALUES($1,'owner','run',$1,'{}','{}','tool.send_email','send','{}',$2,'REQUIRE_APPROVAL','local',$3,'awaiting_approval')`,[id,hash,approval]);
+        VALUES($1,'owner','run',$1,'{}','{"kind":"owner_chat","id":"fixture"}','tool.send_email','send','{}',$2,'REQUIRE_APPROVAL','local',$3,'awaiting_approval')`,[id,hash,approval]);
       const changes={owner:"owner_id='sarah'",run:"task_id='other-run'",class:"action_class='write'",capability:"capability_id='files.write'",decision:"decision='denied'",binding:"binding_hash='legacy:synthetic'",expiry:"expires_at=now()-interval '1 day'",status:"status='pending'"};
       if(fault==='run')await c.query(`INSERT INTO task_runs SELECT (jsonb_populate_record(NULL::task_runs,to_jsonb(r)||'{"id":"other-run"}'::jsonb)).* FROM task_runs r WHERE id='run'`);
       if(changes[fault])await c.query(`UPDATE task_approval_decisions SET ${changes[fault]} WHERE id=$1`,[approval]);
@@ -206,7 +207,7 @@ try {
   assert.equal(digest(dump(lazy.name)),digest(dump(a.name)),'qualified Lazy schema converges structurally');
   console.log('PASS: canonical-main, unreconciled feature, actual b36f016 canonical/feature reconciled origins, and Lazy Computer lineage converge; historical receipts and live bindings preserved; tampered bridge denied.');
   // A synthetic future migration checks progression beyond the canonical bridge.
-  const future={name:'0034_qualification_fixture.sql',checksum:digest('qualification only'),statements:['CREATE TABLE qualification_future(id integer PRIMARY KEY)']};
+  const future={name:'9999_qualification_fixture.sql',checksum:digest('qualification only'),statements:['CREATE TABLE qualification_future(id integer PRIMARY KEY)']};
   await runMigrations(a.db,[...migrations,future],quiet);await runMigrations(b.db,[...migrations,future],quiet);
   await runMigrations(b.db,[...migrations,future],quiet);
   assert.equal(digest(dump(a.name)),digest(dump(b.name)),'next canonical migration converges');

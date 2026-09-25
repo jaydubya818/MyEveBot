@@ -1,4 +1,5 @@
-import type { ApprovalContext, DynamicResolveContext, ToolContext } from "eve/tools";
+import type { ApprovalContext } from "eve/tools/approval";
+import type { DynamicResolveContext, ToolContext } from "eve/tools";
 import { z } from "zod";
 import { ActionBlocked, ActionGateway, consumeActionAuthority, consumeProviderAuthority, localAuthorityProvider, type ActionAdapter } from "../../lib/action-gateway.ts";
 import { approvalBinding, approvalRequestId, canonicalActionValue, decideApproval } from "../../lib/approvals.ts";

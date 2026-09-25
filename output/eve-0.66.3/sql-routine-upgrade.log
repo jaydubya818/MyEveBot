@@ -1,0 +1,12 @@
+PASS: upgrade 0025 -> 0030 preserves action identity, receipt, binding and attempt; new recovery states accepted and unknown status rejected
+✔ apps/eve/test/action-upgrade.integration.mjs (254.376333ms)
+PASS: populated current-main 0026 -> 0033; 10 state groups preserved, legacy Computer/control fenced without invented resource ownership; Federation grant and pending draft preserved; no authority backfill; nullable receipts, blocked-only null Run, deferred FK and unique live binding enforced
+✔ apps/eve/test/routine-integration-upgrade.integration.mjs (354.391084ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 360.753875

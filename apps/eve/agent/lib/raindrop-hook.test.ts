@@ -21,7 +21,7 @@ vi.mock("eve/context", () => ({
   }),
 }));
 
-vi.mock("../instrumentation", () => ({
+vi.mock("../instrumentation/telemetry", () => ({
   RAINDROP_EVENT_NAME: "sofie_agent_turn",
   RECORD_IO: true,
   raindrop: {
@@ -69,7 +69,7 @@ describe("Raindrop durable turn hook", () => {
           sequence: 0,
           turnId: "turn_0",
         },
-        meta: { at: "2026-07-29T15:00:00.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T15:00:00.000Z" },
         type: "message.received",
       },
       context,
@@ -89,7 +89,7 @@ describe("Raindrop durable turn hook", () => {
           stepIndex: 1,
           turnId: "turn_0",
         },
-        meta: { at: "2026-07-29T15:00:02.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T15:00:02.000Z" },
         type: "message.completed",
       },
       context,
@@ -109,7 +109,7 @@ describe("Raindrop durable turn hook", () => {
             outputTokens: 29,
           },
         },
-        meta: { at: "2026-07-29T15:00:02.500Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T15:00:02.500Z" },
         type: "step.completed",
       },
       context,
@@ -129,7 +129,7 @@ describe("Raindrop durable turn hook", () => {
             outputTokens: 7,
           },
         },
-        meta: { at: "2026-07-29T15:00:02.750Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T15:00:02.750Z" },
         type: "step.completed",
       },
       context,
@@ -137,7 +137,7 @@ describe("Raindrop durable turn hook", () => {
     await resumedEvents["turn.completed"]?.(
       {
         data: { sequence: 0, turnId: "turn_0" },
-        meta: { at: "2026-07-29T15:00:03.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T15:00:03.000Z" },
         type: "turn.completed",
       },
       context,
@@ -221,7 +221,7 @@ describe("Raindrop durable turn hook", () => {
           sequence: 0,
           turnId: "turn_retry",
         },
-        meta: { at: "2026-07-29T16:00:00.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T16:00:00.000Z" },
         type: "message.received",
       },
       context,
@@ -235,7 +235,7 @@ describe("Raindrop durable turn hook", () => {
           stepIndex: 0,
           turnId: "turn_retry",
         },
-        meta: { at: "2026-07-29T16:00:01.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T16:00:01.000Z" },
         type: "message.completed",
       },
       context,
@@ -247,7 +247,7 @@ describe("Raindrop durable turn hook", () => {
     await events["turn.completed"]?.(
       {
         data: { sequence: 0, turnId: "turn_retry" },
-        meta: { at: "2026-07-29T16:00:02.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T16:00:02.000Z" },
         type: "turn.completed",
       },
       context,
@@ -284,7 +284,7 @@ describe("Raindrop durable turn hook", () => {
           sequence: 0,
           turnId: "turn_unavailable",
         },
-        meta: { at: "2026-07-29T17:00:00.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T17:00:00.000Z" },
         type: "message.received",
       },
       context,
@@ -296,7 +296,7 @@ describe("Raindrop durable turn hook", () => {
     await events["turn.completed"]?.(
       {
         data: { sequence: 0, turnId: "turn_unavailable" },
-        meta: { at: "2026-07-29T17:00:02.000Z" },
+        meta: { id: crypto.randomUUID(), at: "2026-07-29T17:00:02.000Z" },
         type: "turn.completed",
       },
       context,

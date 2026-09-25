@@ -1,4 +1,4 @@
-import type { HandleMessageStreamEvent, SessionState } from "eve/client";
+import type { HandleMessageStreamEvent, ClientSessionState } from "eve/client";
 
 function stableJson(value: unknown): string {
   return JSON.stringify(value, (_key, item) =>
@@ -11,7 +11,7 @@ function stableJson(value: unknown): string {
 /** Keep a persisted transcript and its next unread stream position together. */
 export function reconcileChatSession<T extends {
   events?: readonly HandleMessageStreamEvent[];
-  session?: SessionState;
+  session?: ClientSessionState;
 }>(chat: T): T {
   if (!chat.session?.sessionId || !chat.events?.length) return chat;
   const seen = new Set<string>();
@@ -26,14 +26,12 @@ export function reconcileChatSession<T extends {
   const start = events.findLastIndex(event => event.type === "session.started");
   // A partial transcript cannot establish an absolute stream position.
   if (start < 0) return chat;
-  const waiting = events.slice(start).findLast(event => event.type === "session.waiting");
   return {
     ...chat,
     events,
     session: {
       ...chat.session,
       streamIndex: events.length - start,
-      ...(waiting?.type === "session.waiting" ? { continuationToken: waiting.data.continuationToken } : {}),
     },
   };
 }

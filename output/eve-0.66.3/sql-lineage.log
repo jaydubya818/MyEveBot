@@ -1,0 +1,14 @@
+PASS: actual Gateway + durable lifecycle: deny/budget before preparation; cold and warm; 31-second preparation authority window; provider handle replay denied; mid-preparation Agent revocation prevents session creation.
+PASS: populated 0030→0031; ten database connections converge; waiter cleanup; stale cleanup fencing; tombstone coexistence; cancelled publish denied; environment isolation.
+✔ apps/eve/test/computer-template.integration.mjs (770.711417ms)
+PASS: canonical-main, unreconciled feature, actual b36f016 canonical/feature reconciled origins, and Lazy Computer lineage converge; historical receipts and live bindings preserved; tampered bridge denied.
+PASS: two exact origins; full pg_dump structural comparison; 17 preserved state groups; thread-proven owner visibility; ambiguous rollback; historical approval/expired Computer denial; legacy Routine blocked; original ledger preserved; rerun; future migration; unknown/partial ledger and wrong-index denial. External provider calls: 0; one synthetic positive control per origin.
+✔ apps/eve/test/migration-lineage.integration.mjs (4810.982625ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4817.525792

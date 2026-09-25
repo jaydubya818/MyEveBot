@@ -19,7 +19,7 @@ export interface VoiceResumeRecord {
   threadId: string;
   title: string;
   endedAt: number;
-  continuationToken?: string;
+  sessionId?: string;
 }
 
 export interface DispatchOutcome {
