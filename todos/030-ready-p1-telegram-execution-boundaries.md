@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "029"
+issue_id: "030"
 tags: [telegram, authority, budget, qualification]
 dependencies: []
 ---
