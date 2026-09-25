@@ -20,7 +20,7 @@ describe('owner provider execution boundary',()=>{
   expect(f.settle.mock.calls[0][1]).toEqual({microUsd:1000,tokens:200});
  });
  it('strips private context and tools before the actual provider boundary',async()=>{
-  await ownerBudgetedModel(claim,'turn:0').doGenerate(options);
+  await ownerBudgetedModel(claim,'turn:0').doGenerate({...options,tools:[...options.tools,...['connection_search','workflow','ask_question'].map(name=>({type:'function' as const,name,inputSchema:{}}))]});
   const passed=f.generate.mock.calls[0][0];expect(JSON.stringify(passed)).not.toContain('PRIVATE_');expect(passed.tools.map((t:{name:string})=>t.name)).toEqual(['web_fetch']);
   expect(f.reserve).toHaveBeenCalledOnce();expect(f.settle).toHaveBeenCalledOnce();expect(f.reserve.mock.invocationCallOrder[0]).toBeLessThan(f.generate.mock.invocationCallOrder[0]);
  });
@@ -31,7 +31,7 @@ describe('owner provider execution boundary',()=>{
  it('completed retry replays without a provider call',async()=>{f.reserve.mockResolvedValue({result});expect(await ownerBudgetedModel(claim,'turn:0').doGenerate(options)).toEqual(result);expect(f.generate).not.toHaveBeenCalled();});
  it.each([null,'',false])('rejects unknown provider cost %s without exposing output',async cost=>{f.generate.mockResolvedValue({...result,providerMetadata:{gateway:{cost}}});await expect(ownerBudgetedModel(claim,'turn:0').doGenerate(options)).rejects.toThrow('usage unavailable');expect(f.unknown).toHaveBeenCalledOnce();expect(f.settle).not.toHaveBeenCalled();});
  it('retains reservation on provider failure',async()=>{f.generate.mockRejectedValue(new Error('lost response'));await expect(ownerBudgetedModel(claim,'turn:0').doGenerate(options)).rejects.toThrow();expect(f.unknown).toHaveBeenCalledOnce();});
- it('accounts a forbidden tool response but never exposes it for execution',async()=>{f.generate.mockResolvedValue({...result,content:[{type:'tool-call',toolCallId:'bad',toolName:'recall_memory',input:'{}'}]});await expect(ownerBudgetedModel(claim,'turn:0').doGenerate(options)).rejects.toThrow('out-of-scope');expect(f.settle).toHaveBeenCalledOnce();expect(f.settle.mock.calls[0][2].content).toEqual([]);});
+ it.each(['recall_memory','connection_search','workflow','ask_question'])('accounts forbidden %s but never exposes it for execution',async(toolName)=>{f.generate.mockResolvedValue({...result,content:[{type:'tool-call',toolCallId:'bad',toolName,input:'{}'}]});await expect(ownerBudgetedModel(claim,'turn:0').doGenerate(options)).rejects.toThrow('out-of-scope');expect(f.settle).toHaveBeenCalledOnce();expect(f.settle.mock.calls[0][2].content).toEqual([]);});
  it('enforces local capability denial even when the transport permits research',async()=>{f.capability.mockReturnValue({allowed:false});await expect(ownerBudgetedModel(claim,'turn:0').doGenerate(options)).rejects.toThrow('MyEve denies');expect(f.generate).not.toHaveBeenCalled();});
  it('buffers provider output until durable accounting completes',async()=>{f.settle.mockRejectedValue(new Error('database unavailable'));await expect(ownerBudgetedModel(claim,'turn:0').doStream(options)).rejects.toThrow();expect(f.unknown).toHaveBeenCalledOnce();});
  it('rejects context mutation, attachment and additional user turns',()=>{

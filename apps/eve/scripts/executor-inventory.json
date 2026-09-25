@@ -5,7 +5,7 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "568268c0cb67b55a2df44b24916c0a9888b51b905a48350d0fc6449227e31383"
+      "sha256": "f19ca5c5aa080247f647673162b040f35ae62082a498f448abbe4c23f99ec5b4"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -1180,7 +1180,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "1c9b2b41625eac7c41a5f640876ce8e693874da73d4055d8d4c7d55a856d20c6",
+      "sha256": "f709bee468062381e69286fb263ca15d3921a46bd0170bb8ada7e50e01c1d31f",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
