@@ -2981,7 +2981,7 @@
     "lib/engineering/execution.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "a89971d833729687695f38b0250c28eab16f7ec0af984f1e524f9308f34938c1"
+      "sha256": "49285393cd3388cc1958ade003c5860a1f50f571bcdc42898c9d7d8766c76c8e"
     },
     "lib/engineering/execution-store.ts": {
       "classification": "INTERNAL",
@@ -3006,7 +3006,7 @@
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
       "reason": "Durable worker with SQL lease/generation fencing, current primary-Agent and repository authority, protected evidence, exact candidate approval, unknown-write reconciliation, bounded continuation; no merge/deployment surface.",
-      "sha256": "470a271192fb4b3d73fbc003eafcb3a78b11fdfb6c4e5ab493dba588ea6c5be3"
+      "sha256": "d80d7db4df67676e9d1d869e76c368c3c0fc377dce32d68f249c0b24f0a813c4"
     },
     "lib/engineering/model-broker.ts": {
       "classification": "ENFORCED",
