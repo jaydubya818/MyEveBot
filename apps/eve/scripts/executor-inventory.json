@@ -2947,7 +2947,7 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "disposition": "gateway",
-      "sha256": "9579067b948689708544d2ac06b96eb9c0c33016658c166b96680e67de074f1c"
+      "sha256": "cceac2e5595bf3306a40baf19b01d2667f3a90fce1092db79923180a2b3b3aa7"
     },
     "agent/tools/get_factory_work_order.ts": {
       "classification": "ENFORCED",

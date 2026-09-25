@@ -3,6 +3,7 @@ import { ActionBlocked, ActionGateway } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "../lib/action-context.ts";
 import { ownerOnly } from "../lib/owner-gate.ts";
 import { factoryInput, factoryAdapter } from "../lib/myfactory.ts";
+import { requestId } from "../../lib/myfactory-protocol.mjs";
 
 export default defineTool({
   approval: ownerOnly, availableInSubagents: false, inputSchema: factoryInput,
@@ -14,7 +15,9 @@ export default defineTool({
       if (action.trigger.kind !== "owner_chat" || action.executor.kind !== "primary-agent") throw new ActionBlocked("denied", "factory_owner_chat_required");
       return await new ActionGateway().execute(action, factoryAdapter("create"), ctx.abortSignal);
     } catch (error) {
-      return { status: error instanceof ActionBlocked ? error.status : "unavailable", message: "MyFactory handoff was not confirmed. Report this result; reuse the request key when checking, never invent a successful receipt." };
+      return { status: error instanceof ActionBlocked ? error.status : "unavailable",
+        requestId: requestId("myeve", input.idempotencyKey.trim()),
+        message: "MyFactory handoff was not confirmed. Check this deterministic requestId with get_factory_work_order before retrying; it identifies the request but is not proof of creation or receipt." };
     }
   },
 });
