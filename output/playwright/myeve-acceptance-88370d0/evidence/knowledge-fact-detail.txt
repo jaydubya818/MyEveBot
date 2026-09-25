@@ -1,0 +1,127 @@
+### Page
+- Page URL: http://localhost:3073/knowledge
+- Page Title: Ava
+- Console: 2 errors, 43 warnings
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - button "Back to chat" [ref=e5]: Ava
+        - generic [ref=e6]:
+          - button "Goals" [ref=e7] [cursor=pointer]:
+            - img [ref=e8]
+          - button "Knowledge" [pressed] [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+          - button "Results" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - button "Computer" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - button "Agents" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+          - button "Review" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - button "Channels" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+          - button "Files" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+          - button "Manage" [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+          - button "New thread" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+      - textbox "Search threads" [ref=e39]
+      - navigation [ref=e40]:
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Today
+          - list [ref=e43]:
+            - listitem [ref=e44]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e45]:
+                - generic [ref=e47]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e48]: 12:46 PM
+              - generic [ref=e49]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e50] [cursor=pointer]:
+                  - img [ref=e51]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e53] [cursor=pointer]:
+                  - img [ref=e54]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e56] [cursor=pointer]:
+                  - img [ref=e57]
+    - main [ref=e126]:
+      - generic [ref=e232]:
+        - generic [ref=e234]:
+          - generic [ref=e235]:
+            - generic [ref=e236]:
+              - img [ref=e237]
+              - heading "Knowledge" [level=1] [ref=e239]
+            - paragraph [ref=e240]: What is known, why it is believed, and what remains uncertain.
+          - button "Refresh knowledge" [ref=e241] [cursor=pointer]:
+            - img [ref=e242]
+        - generic [ref=e245]:
+          - button "Decisions" [ref=e246]
+          - button "Facts" [active] [ref=e247]
+          - button "Observations" [ref=e248]
+          - button "Hypotheses" [ref=e249]
+          - button "Commitments" [ref=e250]
+          - button "Preferences" [ref=e251]
+        - generic [ref=e252]:
+          - complementary [ref=e253]:
+            - generic [ref=e254]:
+              - generic [ref=e255]:
+                - img
+                - textbox "Search knowledge" [ref=e256]:
+                  - /placeholder: Search facts
+              - combobox "Filter by status" [ref=e257]:
+                - option "All statuses" [selected]
+                - option "active"
+                - option "stale"
+                - option "superseded"
+                - option "contradicted"
+            - paragraph [ref=e258]: Durable assertions with confidence and evidence.
+            - list [ref=e259]:
+              - listitem [ref=e260]:
+                - button "active Sep 20, 2026 Project Atlas pilot launch is October 1, 2026." [ref=e261]:
+                  - generic [ref=e262]:
+                    - generic [ref=e263]: active
+                    - generic [ref=e264]: Sep 20, 2026
+                  - paragraph [ref=e265]: Project Atlas pilot launch is October 1, 2026.
+          - article [ref=e267]:
+            - generic [ref=e268]:
+              - generic [ref=e269]:
+                - generic [ref=e270]: fact
+                - generic [ref=e271]: active
+                - generic [ref=e272]: 100% confidence
+              - heading "Project Atlas pilot launch is October 1, 2026." [level=2] [ref=e273]
+            - generic [ref=e274]:
+              - generic [ref=e276]:
+                - generic [ref=e277]:
+                  - img [ref=e278]
+                  - heading "Evidence & sources" [level=3] [ref=e280]
+                - list [ref=e281]:
+                  - listitem [ref=e282]:
+                    - generic [ref=e283]:
+                      - generic [ref=e284]: supports
+                      - generic [ref=e285]: 100%
+                    - paragraph [ref=e286]: Sarah
+                    - paragraph [ref=e287]: manual · Sep 20, 2026
+                    - link "urn:myeve:acceptance:atlas-synthetic-notes" [ref=e288] [cursor=pointer]:
+                      - /url: urn:myeve:acceptance:atlas-synthetic-notes
+              - complementary [ref=e289]:
+                - generic [ref=e290]:
+                  - generic [ref=e291]:
+                    - term [ref=e292]: Date
+                    - definition [ref=e293]: Sep 20, 2026
+                  - generic [ref=e294]:
+                    - term [ref=e295]: Created by
+                    - definition [ref=e296]: owner
+                  - generic [ref=e297]:
+                    - term [ref=e298]: Related goal
+                    - definition [ref=e299]:
+                      - link "Launch Project Atlas" [ref=e300] [cursor=pointer]:
+                        - /url: /goals?goal=goal_b96e7077-00db-43dd-913c-372f69f9301e
+                  - generic [ref=e301]:
+                    - term [ref=e302]: Project reference
+                    - definition [ref=e303]: Project Atlas
+  - button "Open Next.js Dev Tools" [ref=e121] [cursor=pointer]:
+    - img [ref=e122]
+  - alert [ref=e125]
+```

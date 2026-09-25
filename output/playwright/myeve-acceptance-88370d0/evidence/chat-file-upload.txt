@@ -1,0 +1,9 @@
+### Ran Playwright code
+```js
+await (async page => { await page.getByRole("button",{name:"Back to chat",exact:true}).click(); await page.getByRole("button",{name:"Attach files",exact:true}).waitFor();const chooserPromise=page.waitForEvent("filechooser");await page.getByRole("button",{name:"Attach files",exact:true}).click();const chooser=await chooserPromise;await chooser.setFiles("/tmp/myeve-acceptance-88370d0/evidence/atlas-notes.txt");await page.waitForTimeout(700);return await page.locator("main").ariaSnapshot();})(page);
+```
+### Page
+- Page URL: http://localhost:3073/
+- Console: 2 errors, 13 warnings
+### Modal state
+- [File chooser]: can be handled by upload

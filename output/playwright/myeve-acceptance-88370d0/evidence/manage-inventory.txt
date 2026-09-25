@@ -1,0 +1,390 @@
+### Page
+- Page URL: http://localhost:3073/manage
+- Page Title: Ava
+- Console: 2 errors, 10 warnings
+### Snapshot
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - generic [ref=e4]:
+        - button "Back to chat" [ref=e5]: Ava
+        - generic [ref=e6]:
+          - button "Goals" [ref=e7] [cursor=pointer]:
+            - img [ref=e8]
+          - button "Knowledge" [ref=e10] [cursor=pointer]:
+            - img [ref=e11]
+          - button "Results" [ref=e13] [cursor=pointer]:
+            - img [ref=e14]
+          - button "Computer" [ref=e16] [cursor=pointer]:
+            - img [ref=e17]
+          - button "Agents" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+          - button "Review" [ref=e22] [cursor=pointer]:
+            - img [ref=e23]
+          - button "Channels" [ref=e25] [cursor=pointer]:
+            - img [ref=e26]
+          - button "Files" [ref=e28] [cursor=pointer]:
+            - img [ref=e29]
+          - button "Manage" [active] [pressed] [ref=e31] [cursor=pointer]:
+            - img [ref=e32]
+          - button "New thread" [ref=e34] [cursor=pointer]:
+            - img [ref=e35]
+      - textbox "Search threads" [ref=e39]
+      - navigation [ref=e40]:
+        - generic [ref=e41]:
+          - paragraph [ref=e42]: Today
+          - list [ref=e43]:
+            - listitem [ref=e44]:
+              - button "Hi Ava. I am Sarah. Help me think through la… 12:46 PM" [ref=e45]:
+                - generic [ref=e47]: Hi Ava. I am Sarah. Help me think through la…
+                - generic [ref=e48]: 12:46 PM
+              - generic [ref=e49]:
+                - button "Pin Hi Ava. I am Sarah. Help me think through la…" [ref=e50] [cursor=pointer]:
+                  - img [ref=e51]
+                - button "Rename Hi Ava. I am Sarah. Help me think through la…" [ref=e53] [cursor=pointer]:
+                  - img [ref=e54]
+                - button "Delete Hi Ava. I am Sarah. Help me think through la…" [ref=e56] [cursor=pointer]:
+                  - img [ref=e57]
+    - main [ref=e59]:
+      - generic [ref=e60]:
+        - generic [ref=e61]:
+          - heading "Manage" [level=1] [ref=e62]
+          - paragraph [ref=e63]: Configure what Ava knows, connects to, and handles for you.
+        - generic [ref=e65]:
+          - navigation "Manage sections" [ref=e66]:
+            - generic [ref=e67]:
+              - paragraph [ref=e68]: General
+              - list [ref=e69]:
+                - listitem [ref=e70]:
+                  - button "Getting started Setup and first useful job" [ref=e71]:
+                    - img [ref=e73]
+                    - generic [ref=e75]:
+                      - generic [ref=e76]: Getting started
+                      - generic [ref=e77]: Setup and first useful job
+                - listitem [ref=e78]:
+                  - button "Briefs & reviews Scheduled proactive delivery" [ref=e79]:
+                    - img [ref=e81]
+                    - generic [ref=e83]:
+                      - generic [ref=e84]: Briefs & reviews
+                      - generic [ref=e85]: Scheduled proactive delivery
+                - listitem [ref=e86]:
+                  - button "System Setup and service health" [ref=e87]:
+                    - img [ref=e89]
+                    - generic [ref=e91]:
+                      - generic [ref=e92]: System
+                      - generic [ref=e93]: Setup and service health
+                - listitem [ref=e94]:
+                  - button "Appearance Identity and theme" [ref=e95]:
+                    - img [ref=e97]
+                    - generic [ref=e99]:
+                      - generic [ref=e100]: Appearance
+                      - generic [ref=e101]: Identity and theme
+                - listitem [ref=e102]:
+                  - button "Your data Export, verify, and retention" [ref=e103]:
+                    - img [ref=e105]
+                    - generic [ref=e107]:
+                      - generic [ref=e108]: Your data
+                      - generic [ref=e109]: Export, verify, and retention
+                - listitem [ref=e110]:
+                  - button "Agents Role catalog and persistent Agents" [ref=e111]:
+                    - img [ref=e113]
+                    - generic [ref=e115]:
+                      - generic [ref=e116]: Agents
+                      - generic [ref=e117]: Role catalog and persistent Agents
+            - generic [ref=e118]:
+              - paragraph [ref=e119]: Automations
+              - list [ref=e120]:
+                - listitem [ref=e121]:
+                  - button "Reminders Scheduled follow-ups 0" [ref=e258]:
+                    - img [ref=e124]
+                    - generic [ref=e126]:
+                      - generic [ref=e127]: Reminders
+                      - generic [ref=e128]: Scheduled follow-ups
+                    - generic [ref=e259]: "0"
+                - listitem [ref=e129]:
+                  - button "Triggers Event-driven work 0" [ref=e260]:
+                    - img [ref=e132]
+                    - generic [ref=e134]:
+                      - generic [ref=e135]: Triggers
+                      - generic [ref=e136]: Event-driven work
+                    - generic [ref=e261]: "0"
+            - generic [ref=e137]:
+              - paragraph [ref=e138]: Channels
+              - list [ref=e139]:
+                - listitem [ref=e140]:
+                  - button "Slack Workspace messaging and reactions" [ref=e141]:
+                    - img [ref=e143]
+                    - generic [ref=e145]:
+                      - generic [ref=e146]: Slack
+                      - generic [ref=e147]: Workspace messaging and reactions
+                - listitem [ref=e148]:
+                  - button "iMessage Pairing and shared-number delivery" [ref=e149]:
+                    - img [ref=e151]
+                    - generic [ref=e153]:
+                      - generic [ref=e154]: iMessage
+                      - generic [ref=e155]: Pairing and shared-number delivery
+            - generic [ref=e164]:
+              - paragraph [ref=e165]: Knowledge & tools
+              - list [ref=e166]:
+                - listitem [ref=e167]:
+                  - button "Memory What Ava remembers Setup required" [ref=e262]:
+                    - img [ref=e170]
+                    - generic [ref=e172]:
+                      - generic [ref=e173]: Memory
+                      - generic [ref=e174]: What Ava remembers
+                    - generic "Setup required" [ref=e263]:
+                      - generic [ref=e264]: Setup required
+                - listitem [ref=e175]:
+                  - button "Connections Apps and accounts Setup required" [ref=e265]:
+                    - img [ref=e178]
+                    - generic [ref=e180]:
+                      - generic [ref=e181]: Connections
+                      - generic [ref=e182]: Apps and accounts
+                    - generic "Setup required" [ref=e266]:
+                      - generic [ref=e267]: Setup required
+                - listitem [ref=e183]:
+                  - button "Skills Reusable procedures Setup required" [ref=e268]:
+                    - img [ref=e186]
+                    - generic [ref=e188]:
+                      - generic [ref=e189]: Skills
+                      - generic [ref=e190]: Reusable procedures
+                    - generic "Setup required" [ref=e269]:
+                      - generic [ref=e270]: Setup required
+            - generic [ref=e191]:
+              - paragraph [ref=e192]: Operations
+              - list [ref=e193]:
+                - listitem [ref=e194]:
+                  - button "Routines Readiness and reviewed capabilities" [ref=e195]:
+                    - img [ref=e197]
+                    - generic [ref=e199]:
+                      - generic [ref=e200]: Routines
+                      - generic [ref=e201]: Readiness and reviewed capabilities
+                - listitem [ref=e202]:
+                  - button "Relay Owner-controlled external sharing" [ref=e203]:
+                    - img [ref=e205]
+                    - generic [ref=e207]:
+                      - generic [ref=e208]: Relay
+                      - generic [ref=e209]: Owner-controlled external sharing
+                - listitem [ref=e210]:
+                  - button "Control Center Live work and safe controls" [ref=e211]:
+                    - img [ref=e213]
+                    - generic [ref=e215]:
+                      - generic [ref=e216]: Control Center
+                      - generic [ref=e217]: Live work and safe controls
+                - listitem [ref=e218]:
+                  - button "Approvals Exact-action owner decisions" [ref=e219]:
+                    - img [ref=e221]
+                    - generic [ref=e223]:
+                      - generic [ref=e224]: Approvals
+                      - generic [ref=e225]: Exact-action owner decisions
+                - listitem [ref=e226]:
+                  - button "Activity Audited tasks and evidence" [ref=e227]:
+                    - img [ref=e229]
+                    - generic [ref=e231]:
+                      - generic [ref=e232]: Activity
+                      - generic [ref=e233]: Audited tasks and evidence
+                - listitem [ref=e234]:
+                  - button "Finance Recorded receipts" [ref=e235]:
+                    - img [ref=e237]
+                    - generic [ref=e239]:
+                      - generic [ref=e240]: Finance
+                      - generic [ref=e241]: Recorded receipts
+          - generic [ref=e271]:
+            - generic [ref=e273]:
+              - heading "Getting started" [level=2] [ref=e274]
+              - paragraph [ref=e275]: Setup and first useful job
+            - generic [ref=e276]:
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - generic [ref=e280]:
+                    - img [ref=e281]
+                    - generic [ref=e283]: First useful result
+                  - heading "Set the boundaries once. Then give Ava one real job." [level=2] [ref=e284]
+                  - paragraph [ref=e285]: Start with read-only work and a visible finish line. Nothing below sends, schedules, edits, or shares without the approval stated on the job.
+                - generic [ref=e286]:
+                  - paragraph [ref=e287]: 2 / 5
+                  - paragraph [ref=e288]: Setup areas ready. Risk boundaries always need your review.
+              - generic [ref=e289]:
+                - generic [ref=e291]:
+                  - heading "Setup" [level=3] [ref=e292]
+                  - paragraph [ref=e293]: Confirm the identity, access, and interruption rules that apply to every job.
+                - generic [ref=e294]:
+                  - button "Ready Identity Ava works for Sarah. Open" [ref=e295]:
+                    - generic [ref=e296]:
+                      - img [ref=e298]
+                      - generic [ref=e300]:
+                        - img [ref=e301]
+                        - text: Ready
+                    - paragraph [ref=e303]: Identity
+                    - paragraph [ref=e304]: Ava works for Sarah.
+                    - generic [ref=e305]:
+                      - text: Open
+                      - img [ref=e306]
+                  - button "Set up Accounts Connect only what a real job needs. Open" [ref=e308]:
+                    - generic [ref=e309]:
+                      - img [ref=e311]
+                      - generic [ref=e313]: Set up
+                    - paragraph [ref=e314]: Accounts
+                    - paragraph [ref=e315]: Connect only what a real job needs.
+                    - generic [ref=e316]:
+                      - text: Open
+                      - img [ref=e317]
+                  - button "Ready Browser Isolated web sessions are available. Open" [ref=e319]:
+                    - generic [ref=e320]:
+                      - img [ref=e322]
+                      - generic [ref=e324]:
+                        - img [ref=e325]
+                        - text: Ready
+                    - paragraph [ref=e327]: Browser
+                    - paragraph [ref=e328]: Isolated web sessions are available.
+                    - generic [ref=e329]:
+                      - text: Open
+                      - img [ref=e330]
+                  - button "Set up Notifications Quiet until you choose a cadence. Open" [ref=e332]:
+                    - generic [ref=e333]:
+                      - img [ref=e335]
+                      - generic [ref=e337]: Set up
+                    - paragraph [ref=e338]: Notifications
+                    - paragraph [ref=e339]: Quiet until you choose a cadence.
+                    - generic [ref=e340]:
+                      - text: Open
+                      - img [ref=e341]
+                  - button "Review Risk boundaries Review approval, activity, and risk limits. Open" [ref=e343]:
+                    - generic [ref=e344]:
+                      - img [ref=e346]
+                      - generic [ref=e348]: Review
+                    - paragraph [ref=e349]: Risk boundaries
+                    - paragraph [ref=e350]: Review approval, activity, and risk limits.
+                    - generic [ref=e351]:
+                      - text: Open
+                      - img [ref=e352]
+              - generic [ref=e354]:
+                - generic [ref=e355]:
+                  - heading "Five good first jobs" [level=3] [ref=e356]
+                  - paragraph [ref=e357]: Recommendations adapt to the access currently available. Try one before creating a routine.
+                - list [ref=e358]:
+                  - listitem [ref=e359]:
+                    - generic [ref=e360]:
+                      - generic [ref=e361]: "1"
+                      - generic [ref=e362]:
+                        - heading "Research one decision" [level=4] [ref=e363]
+                        - paragraph [ref=e364]: Compare credible public sources and turn them into a short recommendation.
+                    - generic [ref=e365]:
+                      - generic [ref=e366]:
+                        - term [ref=e367]: Access
+                        - definition [ref=e368]: Public web
+                      - generic [ref=e369]:
+                        - term [ref=e370]: Boundary
+                        - definition [ref=e371]: Read-only; do not sign in, submit forms, or contact anyone.
+                      - generic [ref=e372]:
+                        - term [ref=e373]: Done when
+                        - definition [ref=e374]: A recommendation with source links, uncertainties, and one next decision.
+                    - generic [ref=e375]:
+                      - paragraph [ref=e376]:
+                        - img [ref=e377]
+                        - text: Starts as a draft in chat
+                      - button "Try once" [ref=e379] [cursor=pointer]:
+                        - img [ref=e380]
+                        - text: Try once
+                  - listitem [ref=e382]:
+                    - generic [ref=e383]:
+                      - generic [ref=e384]: "2"
+                      - generic [ref=e385]:
+                        - heading "Turn an objective into a plan" [level=4] [ref=e386]
+                        - paragraph [ref=e387]: Convert one outcome into milestones, dependencies, and the next action.
+                    - generic [ref=e388]:
+                      - generic [ref=e389]:
+                        - term [ref=e390]: Access
+                        - definition [ref=e391]: Goals
+                      - generic [ref=e392]:
+                        - term [ref=e393]: Boundary
+                        - definition [ref=e394]: Draft first; ask before creating or changing durable records.
+                      - generic [ref=e395]:
+                        - term [ref=e396]: Done when
+                        - definition [ref=e397]: A reviewable plan with an owner, due date, risks, and first next action.
+                    - generic [ref=e398]:
+                      - paragraph [ref=e399]:
+                        - img [ref=e400]
+                        - text: Starts as a draft in chat
+                      - button "Try once" [ref=e402] [cursor=pointer]:
+                        - img [ref=e403]
+                        - text: Try once
+                  - listitem [ref=e405]:
+                    - generic [ref=e406]:
+                      - generic [ref=e407]: "3"
+                      - generic [ref=e408]:
+                        - heading "Find today’s real priority" [level=4] [ref=e409]
+                        - paragraph [ref=e410]: Review current Goals and identify the most important constraint.
+                    - generic [ref=e411]:
+                      - generic [ref=e412]:
+                        - term [ref=e413]: Access
+                        - definition [ref=e414]: Goals and recent Results
+                      - generic [ref=e415]:
+                        - term [ref=e416]: Boundary
+                        - definition [ref=e417]: Read-only analysis; do not reorder or edit work.
+                      - generic [ref=e418]:
+                        - term [ref=e419]: Done when
+                        - definition [ref=e420]: One recommended priority, the evidence behind it, and what can wait.
+                    - generic [ref=e421]:
+                      - paragraph [ref=e422]:
+                        - img [ref=e423]
+                        - text: Starts as a draft in chat
+                      - button "Try once" [ref=e425] [cursor=pointer]:
+                        - img [ref=e426]
+                        - text: Try once
+                  - listitem [ref=e428]:
+                    - generic [ref=e429]:
+                      - generic [ref=e430]: "4"
+                      - generic [ref=e431]:
+                        - heading "Map the account I should connect" [level=4] [ref=e432]
+                        - paragraph [ref=e433]: Choose the first account connection based on a real job, not a feature list.
+                    - generic [ref=e434]:
+                      - generic [ref=e435]:
+                        - term [ref=e436]: Access
+                        - definition [ref=e437]: No connected account required
+                      - generic [ref=e438]:
+                        - term [ref=e439]: Boundary
+                        - definition [ref=e440]: Do not request credentials or connect an account without approval.
+                      - generic [ref=e441]:
+                        - term [ref=e442]: Done when
+                        - definition [ref=e443]: One recommended connection, the exact access it needs, and the first safe job.
+                    - generic [ref=e444]:
+                      - paragraph [ref=e445]:
+                        - img [ref=e446]
+                        - text: Starts as a draft in chat
+                      - button "Try once" [ref=e448] [cursor=pointer]:
+                        - img [ref=e449]
+                        - text: Try once
+                  - listitem [ref=e451]:
+                    - generic [ref=e452]:
+                      - generic [ref=e453]: "5"
+                      - generic [ref=e454]:
+                        - heading "Design a quiet routine" [level=4] [ref=e455]
+                        - paragraph [ref=e456]: Specify one recurring brief without turning it on yet.
+                    - generic [ref=e457]:
+                      - generic [ref=e458]:
+                        - term [ref=e459]: Access
+                        - definition [ref=e460]: Briefs and notifications
+                      - generic [ref=e461]:
+                        - term [ref=e462]: Boundary
+                        - definition [ref=e463]: Draft only; do not schedule or notify until I approve cadence and channel.
+                      - generic [ref=e464]:
+                        - term [ref=e465]: Done when
+                        - definition [ref=e466]: A routine proposal with trigger, inputs, output, cadence, and stop condition.
+                    - generic [ref=e467]:
+                      - paragraph [ref=e468]:
+                        - img [ref=e469]
+                        - text: Starts as a draft in chat
+                      - button "Try once" [ref=e471] [cursor=pointer]:
+                        - img [ref=e472]
+                        - text: Try once
+              - paragraph [ref=e474]:
+                - strong [ref=e475]: "After a verified result:"
+                - text: open Results to run it again, save it as a reusable skill, or make it a routine. Those options appear only after completed work exists.
+  - button "Open Next.js Dev Tools" [ref=e253] [cursor=pointer]:
+    - img [ref=e254]
+  - alert [ref=e257]
+```
+### Events
+- New console entries: .playwright-cli/console-2026-09-20T19-44-00-595Z.log#L260-L314

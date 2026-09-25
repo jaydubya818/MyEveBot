@@ -1,0 +1,2892 @@
+[
+  {
+    "id": 1,
+    "title": "Purpose",
+    "request": "The goal is not simply:\n\nDo all tests pass?\n\nThe goal is:\n\nCan an owner actually use Sofie end-to-end across the complete MyEve product?\n\nExercise the visible product surfaces, create real local state through supported workflows, and verify that state appears correctly across Goals, Knowledge, Results, Review, Agents, Control Center, and other connected surfaces.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "chat-initial.txt",
+      "runtime-agent-protections.txt"
+    ],
+    "note": "Real UI, canonical runtime, APIs and isolated PostgreSQL exercised. Complete owner journey remains blocked by model authentication; this is not full qualification."
+  },
+  {
+    "id": 2,
+    "title": "Isolation",
+    "request": "Use a completely isolated local PostgreSQL database.\n\nDo not connect this local application to the shared Preview/Production database.\n\nApply:\n\n0001 \u2192 0030\n\nto the isolated database.\n\nNo shared or Production mutations.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "database-integration.log",
+      "execution-integration.log"
+    ],
+    "note": "Dedicated PostgreSQL 17 on localhost:55473; migrations 0001\u20130030. Transport rejects nonlocal database URLs. No shared database used."
+  },
+  {
+    "id": 3,
+    "title": "Qualification Identity",
+    "request": "For the comprehensive generic/distribution qualification use:\n\nOwner\nSarah\nPrimary Agent\nAva\n\nHowever, also inspect the current owner-configured local experience shown in the supplied screenshots for visual/product regression against Sofie.\n\nDo not hard-code Sarah/Ava or Jay/Sofie into generic product code.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "chat-initial.txt",
+      "files-and-result.txt",
+      "manage-content.json"
+    ],
+    "note": "Sarah/Ava configured correctly, but Results and Skills retain Sofie copy; initial Ava greeting uses male pronouns. No supplied image files were available for the Sofie visual comparison."
+  },
+  {
+    "id": 4,
+    "title": "Browser Qualification",
+    "request": "Run the actual application locally.\n\nUse browser automation for repeatable flows and visually inspect key states.\n\nTest desktop approximately:\n\n1440 \u00d7 900\n\nand mobile approximately:\n\n390 \u00d7 844.\n\nCapture evidence for meaningful states, but never capture secrets.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "mobile-goals.txt",
+      "mobile-current.png",
+      "top-desktop-sweep.txt"
+    ],
+    "note": "Headed Chrome at 1440\u00d7900 and 390\u00d7844, screenshots and real UI actions. Mobile drawer pointer blocker found."
+  },
+  {
+    "id": 5,
+    "title": "Begin With Chat",
+    "request": "Start with a normal conversation with Ava/Sofie.\n\nTest:\n\n* new thread\n* multi-turn conversation\n* reload\n* persisted thread\n* Agent identity\n* Run attribution\n* context assembly\n* model/reasoning configuration\n\nAsk the Agent to perform work that naturally feeds later product surfaces.\n\nDo not seed every surface directly through SQL.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 6,
+    "title": "GOALS \u2014 Full Product Journey",
+    "request": "Exercise the Goals surface shown in the supplied screenshot.\n\nTest all three entry paths where present:\n\nEmpty-state CTA\n\nCreate your first goal\n\nHeader CTA\n\n+ New goal\n\nConversational creation\n\nTell Sofie/Ava something equivalent to:\n\nHelp me create a goal to launch a new product in the next 90 days.\n\nVerify all paths use the canonical Goal model.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "goals-api.json.txt",
+      "goal-created.txt",
+      "goal-milestone-form.txt",
+      "mobile-goal-created.png"
+    ],
+    "note": "Three Goals persisted through UI, plus one real milestone and task. Full dependency/blocker/status/plan lifecycle was not completed."
+  },
+  {
+    "id": 7,
+    "title": "Create First Goal",
+    "request": "Using the empty-state CTA:\n\nCreate your first goal\n\ncreate a meaningful Goal.\n\nExample synthetic Goal:\n\nLaunch Project Atlas\n\nInclude:\n\n* desired outcome\n* due date\n* success criteria\n* milestones\n* dependencies\n* risks\n* next action\n\nVerify it persists.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "goal-created.txt",
+      "goals-api.json.txt"
+    ],
+    "note": "Empty-state Create first goal and header New goal create durable Goals; reload and canonical API agree."
+  },
+  {
+    "id": 8,
+    "title": "New Goal",
+    "request": "Use:\n\n+ New goal\n\nto create a second Goal.\n\nExample:\n\nImprove Customer Onboarding\n\nVerify:\n\n* creation\n* edit\n* progress\n* milestones\n* next action\n* completion/status controls\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "goal-created.txt",
+      "goals-api.json.txt"
+    ],
+    "note": "Empty-state Create first goal and header New goal create durable Goals; reload and canonical API agree."
+  },
+  {
+    "id": 9,
+    "title": "Conversational Goal Creation",
+    "request": "Create/update a Goal through chat.\n\nVerify Sofie does not create durable Goal state without appropriate owner intent/authority.\n\nVerify the resulting Goal appears on /goals.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 10,
+    "title": "Goal Detail",
+    "request": "For at least one Goal exercise:\n\n* title\n* description/outcome\n* status\n* target date\n* milestones\n* dependencies\n* risks\n* next action\n* related work\n* outcomes\n* review state\n\nVerify reload persistence.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "goals-api.json.txt",
+      "goal-created.txt",
+      "goal-milestone-form.txt",
+      "mobile-goal-created.png"
+    ],
+    "note": "Three Goals persisted through UI, plus one real milestone and task. Full dependency/blocker/status/plan lifecycle was not completed."
+  },
+  {
+    "id": 11,
+    "title": "Goal \u2192 Agent Context",
+    "request": "Ask Sofie:\n\nWhat is the most important next step for Project Atlas?\n\nVerify the response uses the canonical Goal state rather than conversation-only recollection.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 12,
+    "title": "Goal \u2192 Review",
+    "request": "Verify created Goals appear appropriately in:\n\nReview / Progress Loop\n\nincluding:\n\n* recommended focus\n* due now\n* needs attention\n* at risk\n* completed today\n* recent outcomes\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 13,
+    "title": "KNOWLEDGE \u2014 Full Taxonomy",
+    "request": "Exercise every Knowledge category visible in the supplied UI:\n\nDecisions\nFacts\nObservations\nHypotheses\nCommitments\nPreferences\n\nEach category must be tested independently.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 14,
+    "title": "Decisions",
+    "request": "Create a Decision through a supported workflow.\n\nExample:\n\nDecision:\nUse a phased launch for Project Atlas.\nRationale:\nReduce rollout risk.\nRevisit if:\nPilot adoption is below target.\n\nVerify:\n\n* appears under Decisions\n* search works\n* status filtering works\n* provenance appears\n* history appears\n* related source is visible\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 15,
+    "title": "Facts",
+    "request": "Create a Fact through normal Agent/Knowledge behavior.\n\nVerify:\n\n* Fact category\n* source\n* provenance\n* confidence/evidence where supported\n* retrieval through chat\n* search\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 16,
+    "title": "Observations",
+    "request": "Create an Observation.\n\nExample:\n\nUsers abandon onboarding most often during account setup.\n\nVerify categorization and provenance.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 17,
+    "title": "Hypotheses",
+    "request": "Create a Hypothesis.\n\nExample:\n\nReducing account-setup steps will improve onboarding completion.\n\nVerify it remains a hypothesis rather than being promoted to Fact.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 18,
+    "title": "Commitments",
+    "request": "Create a Commitment.\n\nExample:\n\nReview pilot results Friday.\n\nVerify:\n\n* category\n* date/context where supported\n* retrieval\n* Review implications where appropriate\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 19,
+    "title": "Preferences",
+    "request": "Create a Preference.\n\nExample:\n\nPrefer concise executive summaries with evidence links.\n\nVerify it appears under Preferences and affects Agent behavior only where canonical memory/context rules allow.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "knowledge-api-create.txt",
+      "knowledge-ui-taxonomy.txt",
+      "knowledge-fact-detail.txt"
+    ],
+    "note": "All six Knowledge types created through canonical Knowledge API, rendered in real UI. Source/Goal linkage present. Chat creation and behavioral use blocked; Preference later forgotten and Fact superseded."
+  },
+  {
+    "id": 20,
+    "title": "Knowledge Search",
+    "request": "For every category test:\n\n* search\n* status filters where present\n* selecting a record\n* provenance\n* history\n* related source\n* empty search result\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-ui-taxonomy.txt"
+    ],
+    "note": "All type tabs, matching/no-match/special/long query, clearing and status filter exercised. Not every requested filter combination was tested."
+  },
+  {
+    "id": 21,
+    "title": "Knowledge Correction",
+    "request": "Correct a previously stored record.\n\nVerify:\n\noriginal\n\u2192 superseded/corrected\n\u2192 provenance retained\n\nDo not silently overwrite historical evidence.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "knowledge-correction.txt",
+      "knowledge-forget.txt"
+    ],
+    "note": "Owner Data correction preserved prior Fact and created receipt; scoped Forget had cancel and typed FORGET confirmation, removed Preference, preserved other state and recorded receipt."
+  },
+  {
+    "id": 22,
+    "title": "Contradiction",
+    "request": "Create conflicting evidence.\n\nVerify MyEve represents the contradiction/staleness according to canonical Knowledge semantics.\n\nDo not simply overwrite whichever fact came first.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-correction.txt"
+    ],
+    "note": "October 1 Fact corrected to October 15, preserving superseded history. Independent conflicting-source resolution and conversational treatment were not qualified."
+  },
+  {
+    "id": 23,
+    "title": "Forget",
+    "request": "Use explicit Forget controls.\n\nVerify:\n\n* correct scope\n* owner confirmation/approval where required\n* audit\n* retrieval no longer returns forgotten content\n* unrelated Knowledge remains\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "knowledge-correction.txt",
+      "knowledge-forget.txt"
+    ],
+    "note": "Owner Data correction preserved prior Fact and created receipt; scoped Forget had cancel and typed FORGET confirmation, removed Preference, preserved other state and recorded receipt."
+  },
+  {
+    "id": 24,
+    "title": "What MyEve Knows",
+    "request": "Under Manage/Memory or the appropriate surface exercise:\n\n* search\n* source\n* last updated\n* correction\n* contradiction\n* staleness\n* Forget\n* loading\n* empty\n* error\n* success\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "knowledge-correction.txt",
+      "knowledge-forget.txt"
+    ],
+    "note": "Owner Data correction preserved prior Fact and created receipt; scoped Forget had cancel and typed FORGET confirmation, removed Preference, preserved other state and recorded receipt."
+  },
+  {
+    "id": 25,
+    "title": "RESULTS",
+    "request": "Exercise /results, currently shown empty in the supplied screenshot.\n\nCreate completed work through the product rather than inserting a Result directly.\n\nUse Goal-linked or audited Agent work.\n\nVerify completed work creates a durable Result.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "files-and-result.txt",
+      "result-actions-computer.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Canonical deterministic completion fixture persisted one Result, rendered Agent/Run provenance, accepted feedback and appeared in Review. Four reuse CTAs created bounded drafts. No model-backed research/evidence artifact or clickable Goal drilldown was qualified."
+  },
+  {
+    "id": 26,
+    "title": "Result Detail",
+    "request": "Verify Result includes where applicable:\n\n* work performed\n* status\n* Agent\n* Goal\n* evidence\n* source\n* Run\n* outcome\n* timestamps\n* receipts\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "files-and-result.txt",
+      "result-actions-computer.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Canonical deterministic completion fixture persisted one Result, rendered Agent/Run provenance, accepted feedback and appeared in Review. Four reuse CTAs created bounded drafts. No model-backed research/evidence artifact or clickable Goal drilldown was qualified."
+  },
+  {
+    "id": 27,
+    "title": "Result \u2192 Goal",
+    "request": "Verify the Result appears in the related Goal/outcome history.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "files-and-result.txt",
+      "result-actions-computer.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Canonical deterministic completion fixture persisted one Result, rendered Agent/Run provenance, accepted feedback and appeared in Review. Four reuse CTAs created bounded drafts. No model-backed research/evidence artifact or clickable Goal drilldown was qualified."
+  },
+  {
+    "id": 28,
+    "title": "Result \u2192 Review",
+    "request": "Verify completed work appears in:\n\nCompleted today\n\nand/or:\n\nRecent outcomes\n\non Review when appropriate.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "files-and-result.txt",
+      "result-actions-computer.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Canonical deterministic completion fixture persisted one Result, rendered Agent/Run provenance, accepted feedback and appeared in Review. Four reuse CTAs created bounded drafts. No model-backed research/evidence artifact or clickable Goal drilldown was qualified."
+  },
+  {
+    "id": 29,
+    "title": "Result \u2192 Reusable Work",
+    "request": "Exercise any supported action for turning useful Result work into:\n\n* Skill\n* Routine\n* reusable artifact\n\nDo not invent functionality that does not exist.\n\nReport actual behavior.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "files-and-result.txt",
+      "result-actions-computer.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Canonical deterministic completion fixture persisted one Result, rendered Agent/Run provenance, accepted feedback and appeared in Review. Four reuse CTAs created bounded drafts. No model-backed research/evidence artifact or clickable Goal drilldown was qualified."
+  },
+  {
+    "id": 30,
+    "title": "REVIEW / PROGRESS LOOP",
+    "request": "Exercise the supplied Review screen.\n\nTest:\n\nDaily\nWeekly\nGenerate brief\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 31,
+    "title": "Daily Review",
+    "request": "After Goals/Results/Knowledge exist, verify:\n\n* Recommended focus\n* Due now\n* Needs attention\n* At risk\n* Completed today\n* Recent outcomes\n\nare derived from persisted data.\n\nThe Review must not invent unsupported state.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 32,
+    "title": "Weekly Review",
+    "request": "Switch to:\n\nWeekly\n\nVerify appropriate broader summary.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 33,
+    "title": "Generate Brief",
+    "request": "Click:\n\nGenerate brief\n\nExercise the complete flow.\n\nVerify:\n\n* brief generation\n* persisted evidence/source grounding\n* no unauthorized mutations\n* useful output\n* error handling\n* repeat behavior\n\nDetermine whether the brief becomes a Result/artifact or remains a review artifact according to canonical architecture.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 34,
+    "title": "Review Is Read-Oriented",
+    "request": "Verify Review does not silently:\n\n* change Goals\n* change Preferences\n* create plans\n* mutate Skills\n\nunless the owner explicitly invokes an authorized action.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 35,
+    "title": "AGENTS",
+    "request": "Exercise the Agents screen shown in the supplied screenshot.\n\nExisting concepts include:\n\nPrimary Agent\nPersistent Agents\nRole Catalog\nSolution Packs\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "agent-created.txt",
+      "founder-created.txt",
+      "agent-form.txt"
+    ],
+    "note": "Created Analyst and Founder persistent Agents through forms. Model, reasoning, risk, limits visible. Blank save rejected; all invalid-form cases and actual Agent work not qualified."
+  },
+  {
+    "id": 36,
+    "title": "Primary Agent",
+    "request": "Inspect Sofie/Ava.\n\nVerify:\n\n* Primary badge\n* active state\n* instructions\n* model\n* reasoning\n* risk\n* notifications\n* limits\n* capabilities\n* created/updated metadata\n\nTest Edit where allowed.\n\nPrimary-Agent protections must remain enforced.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "agents-inventory.txt"
+    ],
+    "note": "Primary Ava visible. Canonical pause/archive requests rejected; no silent primary replacement."
+  },
+  {
+    "id": 37,
+    "title": "Create Agent",
+    "request": "Use:\n\n+ Create Agent\n\nCreate a synthetic persistent Agent.\n\nExample:\n\nAnalyst\n\nConfigure:\n\n* instructions\n* model\n* reasoning\n* capabilities\n* limits\n\nVerify creation.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "agent-created.txt",
+      "founder-created.txt",
+      "agent-form.txt"
+    ],
+    "note": "Created Analyst and Founder persistent Agents through forms. Model, reasoning, risk, limits visible. Blank save rejected; all invalid-form cases and actual Agent work not qualified."
+  },
+  {
+    "id": 38,
+    "title": "Persistent Agent Lifecycle",
+    "request": "Exercise:\n\n* direct chat\n* edit\n* pause\n* resume\n* duplicate\n* archive\n\nVerify Run attribution.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "agent-lifecycle.txt",
+      "roles-founder-expanded.txt",
+      "knowledge-forget.txt",
+      "computer-share-reset.txt"
+    ],
+    "note": "Pause/resume/duplicate/archive mutations exercised. Archive acts immediately without confirmation and clears detail pane although other Agents remain. Knowledge Forget, Result delete cancel, and Profile reset have separate confirmation behavior."
+  },
+  {
+    "id": 39,
+    "title": "Existing Researcher",
+    "request": "Exercise the Researcher Agent shown in the screenshot.\n\nOpen it.\n\nStart a conversation.\n\nGive it bounded research work.\n\nVerify Researcher identity and capabilities.\n\n\u2e3b",
+    "status": "NOT APPLICABLE \u2014 FRESH DATABASE",
+    "evidence": [
+      "agents-inventory.txt",
+      "roles-founder-expanded.yml"
+    ],
+    "note": "No pre-existing Researcher Agent exists in isolated bootstrap. Researcher is present in Role Catalog."
+  },
+  {
+    "id": 40,
+    "title": "ROLE CATALOG",
+    "request": "Expand every Role Pack:\n\nGeneral\nSoftware Development\nMarketing Engineering\nVerification\n\nVerify:\n\n* role count\n* descriptions\n* responsibilities\n* inputs\n* outputs\n* capabilities\n* boundaries\n* model guidance\n* verification designation\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 41,
+    "title": "Use Role",
+    "request": "Use at least:\n\nResearcher\nMarketing Engineer\nSoftware Developer or Architect\nVerification specialist\n\nthrough Use Role.\n\nVerify on-demand Role sessions.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "role-founder-ctas-verified.txt",
+      "roles-founder-expanded.yml"
+    ],
+    "note": "Researcher, Software architect, Marketing Engineer and Founder OS CTAs exercised: Role threads have empty composers; Founder OS has a bounded draft. No model work submitted; declared Verification specialists have no on-demand CTA by design."
+  },
+  {
+    "id": 42,
+    "title": "Create Agent From Role",
+    "request": "Use:\n\nCreate Agent\n\nfrom a Role.\n\nVerify:\n\n* safe prefill\n* editable form\n* no automatic creation until owner saves\n* authority not automatically broadened\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "founder-created.txt"
+    ],
+    "note": "Create Founder Agent prefilled coordinator configuration and saved persistent identity. Other individual Role-to-Agent create variants not qualified."
+  },
+  {
+    "id": 43,
+    "title": "FOUNDER OS",
+    "request": "Exercise the Founder OS Solution Pack shown in the supplied screenshot.\n\nExpand it completely.\n\nVerify the nine domains:\n\nStrategy\nTraffic\nLeads\nConversion\nSales\nOffer\nDelivery\nFinance\nSystems\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 44,
+    "title": "Founder OS Health",
+    "request": "The screenshot currently shows:\n\nUnknown\n\nfor domain health.\n\nAfter creating Goals/Knowledge/Results, determine whether health changes only when canonical evidence supports it.\n\nDo not manufacture health scores.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 45,
+    "title": "Goal Templates",
+    "request": "Exercise the Founder OS Goal Templates.\n\nAt minimum inspect:\n\nGrow Revenue\nLaunch a Product\nQuarterly Business Review\nIncrease Qualified Leads\nImprove Conversion\nImprove Sales Close Rate\nCreate / Improve Offer\nImprove Customer Delivery\nImprove Profitability\nHire a Team Member\nSystematize Operations\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 46,
+    "title": "Use Founder OS",
+    "request": "Click:\n\nUse Founder OS\n\nExercise the real workflow.\n\nVerify it does not automatically grant capabilities or create uncontrolled Agents.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "role-founder-ctas-verified.txt",
+      "roles-founder-expanded.yml"
+    ],
+    "note": "Researcher, Software architect, Marketing Engineer and Founder OS CTAs exercised: Role threads have empty composers; Founder OS has a bounded draft. No model work submitted; declared Verification specialists have no on-demand CTA by design."
+  },
+  {
+    "id": 47,
+    "title": "Create Founder Agent",
+    "request": "Click:\n\nCreate Founder Agent\n\nVerify:\n\n* form/prefill\n* expected instructions\n* expected Role/Solution Pack relationship\n* owner review\n* no automatic authority grant\n\nCreate the Agent in the isolated environment if normal product behavior supports it.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "founder-created.txt"
+    ],
+    "note": "Create Founder Agent prefilled coordinator configuration and saved persistent identity. Other individual Role-to-Agent create variants not qualified."
+  },
+  {
+    "id": 48,
+    "title": "Founder Agent Test",
+    "request": "Give the Founder Agent a bounded business problem.\n\nExample:\n\nReview Project Atlas and identify the primary constraint.\n\nVerify:\n\n* correct Agent identity\n* uses Goals/Knowledge\n* recommendation grounded in evidence\n* no unauthorized business mutation\n* Result where appropriate\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 49,
+    "title": "Founder Business Review",
+    "request": "Exercise the Founder Business Review workflow.\n\nVerify it uses current business evidence and identifies:\n\n* constraint\n* risks\n* owner decisions\n* next priorities\n\nNo invented metrics.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 50,
+    "title": "Founder Artifacts",
+    "request": "Inspect available reusable artifacts/templates.\n\nWhere supported, create one through normal workflow.\n\nVerify evidence and owner scope.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 51,
+    "title": "COMPUTER",
+    "request": "Exercise the Computer screen shown in the screenshot.\n\nTest both:\n\nProfiles\nActivity\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 52,
+    "title": "Persistent Profile",
+    "request": "Inspect the default Sofie/Ava profile.\n\nVerify:\n\n* ownership\n* generation\n* sharing state\n* provider availability\n* no desktop state\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 53,
+    "title": "Missing Provider",
+    "request": "The screenshot shows no desktop / Orgo API setup.\n\nVerify the missing-provider state is truthful and usable.\n\nDo not enter a real Orgo key.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 54,
+    "title": "Profile Sharing",
+    "request": "Using local deterministic fixtures where necessary:\n\n* choose Agent\n* grant\n* revoke\n\nVerify explicit sharing.\n\nAuthentication state must not imply authority.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "computer-share-reset.txt"
+    ],
+    "note": "Ava profile explicitly shared with Analyst and revoked through UI; grant count/state changed as expected. Live provider use unavailable."
+  },
+  {
+    "id": 55,
+    "title": "Reset Profile",
+    "request": "Exercise reset with deterministic/local provider fixture if safe.\n\nVerify:\n\n* generation advances\n* grants revoked where designed\n* clean profile semantics\n\nDo not destroy a real provider desktop.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "computer-share-reset.txt",
+      "computer-reset-review-result.txt",
+      "server.log"
+    ],
+    "note": "Reset shows explicit confirmation/cancel but confirmed owner action returns409: write path not qualified for autonomous execution. Generation remains1. No provider desktop was reset."
+  },
+  {
+    "id": 56,
+    "title": "Computer Activity",
+    "request": "Open:\n\nActivity\n\nVerify Computer sessions/actions appear when deterministic fixtures create them.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 57,
+    "title": "Live Computer UI",
+    "request": "Exercise local states:\n\nWatch\nTake Over\nReturn Control\nPause\nStop\nLOST\n\nDo not create a real Vercel Sandbox.\n\nReference the previously qualified real-provider path.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 58,
+    "title": "FILES",
+    "request": "Exercise /files, currently empty in the supplied screenshot.\n\nUse normal Chat upload behavior.\n\nUpload a safe synthetic file.\n\nVerify it appears in Files.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "file-submit.txt",
+      "files-and-result.txt",
+      "files-after-upload.png",
+      "populated-archive-audit.json"
+    ],
+    "note": "Real text-file attachment submitted in chat; Files API/UI remain empty. sendDraft sends data URL directly and never calls durable persistChatUpload. File-to-Goal/context use blocked by model auth."
+  },
+  {
+    "id": 59,
+    "title": "File Search",
+    "request": "Test:\n\n* file appears\n* search\n* metadata\n* owner scope\n* open/read\n* Agent access\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "files-and-result.txt"
+    ],
+    "note": "Files empty state and search control inspected; no populated file list because attachment persistence fails."
+  },
+  {
+    "id": 60,
+    "title": "File \u2192 Chat",
+    "request": "Ask Ava/Sofie about the uploaded file.\n\nVerify grounded retrieval.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "file-submit.txt",
+      "files-and-result.txt",
+      "files-after-upload.png",
+      "populated-archive-audit.json"
+    ],
+    "note": "Real text-file attachment submitted in chat; Files API/UI remain empty. sendDraft sends data URL directly and never calls durable persistChatUpload. File-to-Goal/context use blocked by model auth."
+  },
+  {
+    "id": 61,
+    "title": "File \u2192 Goal",
+    "request": "Where supported, use the file in Goal-related work.\n\nVerify evidence linkage.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "file-submit.txt",
+      "files-and-result.txt",
+      "files-after-upload.png",
+      "populated-archive-audit.json"
+    ],
+    "note": "Real text-file attachment submitted in chat; Files API/UI remain empty. sendDraft sends data URL directly and never calls durable persistChatUpload. File-to-Goal/context use blocked by model auth."
+  },
+  {
+    "id": 62,
+    "title": "File Security",
+    "request": "Test:\n\n* cross-owner denial\n* unauthorized Agent denial\n* path traversal\n* missing file\n* safe metadata\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 63,
+    "title": "CHANNELS",
+    "request": "Exercise the Channels screen shown in the supplied screenshot.\n\nInspect every channel:\n\nEmail\nSlack\niMessage\nBrowser Push\n\nand any additional canonical channel currently present.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "top-settled.txt",
+      "manage-content.json"
+    ],
+    "note": "Channels and settings show email/Slack/iMessage/push setup requirements. Search connected history unavailable without a connection; no external messages sent."
+  },
+  {
+    "id": 64,
+    "title": "Email",
+    "request": "Expected local state may be:\n\nSetup required\n\nVerify:\n\n* truthful setup state\n* setup action\n* no fake connection\n* search disabled/unavailable appropriately\n* no sends\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "top-settled.txt",
+      "manage-content.json"
+    ],
+    "note": "Channels and settings show email/Slack/iMessage/push setup requirements. Search connected history unavailable without a connection; no external messages sent."
+  },
+  {
+    "id": 65,
+    "title": "Slack",
+    "request": "Verify:\n\n* setup-required state\n* no fake workspace\n* provider-owned history explanation\n* no sends\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "top-settled.txt",
+      "manage-content.json"
+    ],
+    "note": "Channels and settings show email/Slack/iMessage/push setup requirements. Search connected history unavailable without a connection; no external messages sent."
+  },
+  {
+    "id": 66,
+    "title": "iMessage",
+    "request": "Verify:\n\n* router not connected\n* setup flow\n* no fake pairing\n* no sends\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "top-settled.txt",
+      "manage-content.json"
+    ],
+    "note": "Channels and settings show email/Slack/iMessage/push setup requirements. Search connected history unavailable without a connection; no external messages sent."
+  },
+  {
+    "id": 67,
+    "title": "Browser Push",
+    "request": "Verify:\n\n* no destination\n* delivery settings\n* safe unavailable state\n\nDo not request real browser push permissions unless the local test explicitly requires and can safely revoke them.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 68,
+    "title": "Search Connected History",
+    "request": "With no providers connected:\n\nverify safe empty/unavailable behavior.\n\nDo not fail the whole Channels page.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "top-settled.txt",
+      "manage-content.json"
+    ],
+    "note": "Channels and settings show email/Slack/iMessage/push setup requirements. Search connected history unavailable without a connection; no external messages sent."
+  },
+  {
+    "id": 69,
+    "title": "Recent Proactive Delivery",
+    "request": "Verify empty state.\n\nIf deterministic local Routine delivery fixtures exist, create a safe record and verify display.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 70,
+    "title": "Channel Data Controls",
+    "request": "Inspect and verify the explanations for:\n\nEmail\nSlack\niMessage\nPush\n\nmatch actual storage/retention behavior.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 71,
+    "title": "MANAGE / SETTINGS \u2014 COMPLETE WALKTHROUGH",
+    "request": "Exercise every option visible under Manage/Settings.\n\nDo not test only the sections used elsewhere.\n\nInventory the actual menu first and test every entry.\n\nThe supplied screenshot currently includes at least:\n\nGeneral\n\nGetting started\nBriefs & reviews\nSystem\nAppearance\nYour data\nAgents\n\nAutomations\n\nReminders\nTriggers\n\nChannels\n\nSlack\niMessage\n\nplus any canonical Email/Push/other channel configuration exposed elsewhere.\n\nKnowledge & Tools\n\nMemory\nConnections\nSkills\n\nOperations\n\nRoutines\nRelay\nControl Center\nApprovals\nActivity\nFinance\n\nContinue below the visible viewport and include every remaining menu item.\n\nDo not assume this list is complete.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-inventory.txt",
+      "mobile-manage-sweep.txt",
+      "settings-final-inspect.txt"
+    ],
+    "note": "All19 settled Manage entries rendered and visited on desktop/mobile. Transient Phone entry observed and route inspected; it falls back to Getting started. Provider-specific actions remain explicitly partial."
+  },
+  {
+    "id": 72,
+    "title": "Getting Started",
+    "request": "Exercise the supplied Getting Started screen.\n\nVerify:\n\nsetup progress\nIdentity\nAccounts\nBrowser\nNotifications\nRisk boundaries\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 73,
+    "title": "Five Good First Jobs",
+    "request": "Exercise every first-job card that is available.\n\nThe screenshot includes examples such as:\n\nResearch one decision\nTurn an objective into a plan\nFind today's real priority\nMap the account I should connect\n\nInventory all five.\n\nTest Try once.\n\nVerify they begin as bounded draft/chat work and do not create autonomous Routines automatically.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 74,
+    "title": "Briefs & Reviews",
+    "request": "Exercise configuration for:\n\n* Daily Brief\n* Weekly Review\n* cadence\n* delivery\n* enabled/disabled state\n* dependencies\n\nDo not enable global Routine execution merely to test configuration.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "delivery-save-verified.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Daily in-app schedule saved at09:15 America/Los_Angeles, next occurrence Sep21 09:15 PDT, persisted reload and then disabled. Weekly/quiet-hours controls inspected; full recurrence/daypart/DST matrix not executed."
+  },
+  {
+    "id": 75,
+    "title": "System",
+    "request": "Exercise:\n\n* health\n* readiness\n* configuration state\n* provider health\n* safe diagnostics\n\nNo secrets.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt"
+    ],
+    "note": "System correctly reports database ready and missing provider services; metrics not fabricated. Full outage/operations cases not all qualified."
+  },
+  {
+    "id": 76,
+    "title": "Appearance",
+    "request": "Exercise available:\n\n* identity/display settings\n* theme\n* visual preferences\n\nVerify persistence.\n\nDo not test unsupported personalization.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "theme-delivery-controls.txt",
+      "appearance-light.png"
+    ],
+    "note": "Sarah/Ava identity displayed from environment; dark theme persists reload, light theme selectable, restored System."
+  },
+  {
+    "id": 77,
+    "title": "Your Data",
+    "request": "Exercise Owner Data Center:\n\n* export\n* backup\n* completeness\n* portability\n* file inventory\n* provider metadata\n* integrity verification\n* error state\nExercise Owner Data Center completely:\n\n* export\n* backup\n* completeness status\n* portability status\n* file/artifact inventory\n* connected-app metadata\n* private Skill content where supported\n* integrity verification\n* SHA-256 verification\n* error state\n* retry/recovery\n* navigation between Owner Data and What MyEve Knows\n\nVerify provider credentials, cookies, tokens, passwords, VNC credentials, and other secrets are excluded.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 78,
+    "title": "Owner Data Error Recovery",
+    "request": "Force a deterministic local backup/export failure.\n\nVerify:\n\nerror appears\nnavigation remains usable\nowner can switch sections\nretry remains possible\n\nThe entire Manage surface must not disappear because one Owner Data API failed.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "backup-error-recovery.txt",
+      "backup-error.png"
+    ],
+    "note": "Forced inventory503 preserved Manage/navigation and What MyEve Knows; Retry recovered after fault removed."
+  },
+  {
+    "id": 79,
+    "title": "Backup Security",
+    "request": "Exercise protections for:\n\npath traversal\nduplicate archive entries\nduplicate domains\nunsupported archive version\noversized archive\narchive-bomb bounds\nentry-count limits\nsecret-bearing fields\nmalformed manifest\nintegrity mismatch\n\nExpected:\n\nFAIL CLOSED\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "archive-security-ui.txt",
+      "archive-compression-ui.txt"
+    ],
+    "note": "Duplicate ZIP entry and secret-bearing payload both accepted200. Traversal, duplicate domain, unsupported version, malformed manifest, mismatch, entry limit,26MB size and bounded high compression cases rejected."
+  },
+  {
+    "id": 80,
+    "title": "Backup Verification",
+    "request": "Create a valid local backup.\n\nVerify:\n\n* archive opens\n* manifest valid\n* domains accurately represented\n* completeness accurately represented\n* non-portable data honestly marked\n* checksum validation passes\n* archive is owner-neutral\n\nDo not claim binaries/provider authentication are backed up when they are not.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 81,
+    "title": "Restore",
+    "request": "Determine actual product state.\n\nIf Restore is not implemented:\n\nreport:\n\nNOT IMPLEMENTED / DEFERRED\n\nDo not create a fake Restore flow for qualification.\n\nIf a dry-run Restore planner exists, exercise only what actually ships.\n\n\u2e3b",
+    "status": "NOT IMPLEMENTED / DEFERRED",
+    "evidence": [
+      "backup-panel.txt"
+    ],
+    "note": "Import/restore explicitly disabled by product pending approved merge/replace and rollback semantics. Verification does not restore data."
+  },
+  {
+    "id": 82,
+    "title": "Agents \u2014 Manage Surface",
+    "request": "Exercise the Agents settings entry as well as /agents.\n\nVerify both surfaces resolve to the same canonical Agent state.\n\nNo duplicate Agent management system.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "agent-created.txt",
+      "founder-created.txt",
+      "agent-form.txt"
+    ],
+    "note": "Created Analyst and Founder persistent Agents through forms. Model, reasoning, risk, limits visible. Blank save rejected; all invalid-form cases and actual Agent work not qualified."
+  },
+  {
+    "id": 83,
+    "title": "Reminders",
+    "request": "Exercise Manage \u2192 Reminders.\n\nTest:\n\n* empty state\n* create reminder if supported\n* schedule\n* instructions\n* owner review\n* edit\n* changed schedule invalidates review where required\n* pause/disable\n* delete/cancel where supported\n\nDo not allow an unreviewed consequential Reminder to execute.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 84,
+    "title": "Reminder Reliability",
+    "request": "Using deterministic local fixtures test:\n\noccurrence identity\ndedupe\nclaim\nretry\nbackoff\nfailure\nowner review\nstale approval\n\nNo real external delivery.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 85,
+    "title": "Triggers",
+    "request": "Exercise Manage \u2192 Triggers.\n\nInventory actual supported trigger types.\n\nTest:\n\n* empty state\n* create/configure if implemented\n* enabled/disabled\n* authority\n* target Agent\n* resulting Run attribution\n\nDo not fabricate provider webhooks.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 86,
+    "title": "Trigger Authority",
+    "request": "A Trigger may initiate work.\n\nIt may not grant authority.\n\nVerify:\n\nTrigger\n\u2192 Run\n\u2192 Agent\n\u2192 Action Gateway\n\nConsequential Actions remain governed.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 87,
+    "title": "Memory",
+    "request": "Exercise Manage \u2192 Memory.\n\nThis must include both the normal Memory experience and any link into:\n\nWhat MyEve Knows\n\nTest:\n\n* memory inventory/count\n* search\n* provenance\n* correction where supported\n* Forget\n* owner scope\n* Agent scope\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 88,
+    "title": "Connections",
+    "request": "Exercise Manage \u2192 Connections.\n\nInventory every connection/integration currently available.\n\nFor each report:\n\nConfigured\nConnected\nAuthenticated account\nRead capabilities\nWrite capabilities\nQualification state\n\nusing safe metadata only.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 89,
+    "title": "Connection Empty States",
+    "request": "No connection should appear active merely because:\n\nan API credential exists\nan integration package exists\na provider is supported\n\nConnection state must reflect a real authenticated account where required.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 90,
+    "title": "Connections \u2014 Write Authority",
+    "request": "A connected provider must not imply permission to write.\n\nVerify:\n\nconnected\n\u2260\nauthorized\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 91,
+    "title": "Skills",
+    "request": "Exercise Manage \u2192 Skills.\n\nInventory all packaged Skills.\n\nTest:\n\n* list\n* details\n* capability mapping\n* routing\n* private Skills\n* disabled/unavailable Skills\n* qualification state\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-content.json"
+    ],
+    "note": "Packaged Skills catalogue/assignments/evaluation and Memory distinction inspected. Private Skill storage unavailable; no private save/evolution/provider memory behavior qualified. Sofie copy remains in assignment controls."
+  },
+  {
+    "id": 92,
+    "title": "Skill Execution",
+    "request": "Execute representative safe Skills.\n\nAt minimum cover different categories where present:\n\nresearch\nplanning\nanalysis\nGoal-related work\nKnowledge-related work\n\nNo external consequential action.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 93,
+    "title": "Skill Evolution Boundary",
+    "request": "Verify an approved Routine does not automatically inherit a newly broader Skill capability.\n\nRoutine\u2019s immutable capability ceiling remains authoritative.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-content.json"
+    ],
+    "note": "Packaged Skills catalogue/assignments/evaluation and Memory distinction inspected. Private Skill storage unavailable; no private save/evolution/provider memory behavior qualified. Sofie copy remains in assignment controls."
+  },
+  {
+    "id": 94,
+    "title": "Routines \u2014 Manage Surface",
+    "request": "Exercise Manage \u2192 Routines completely.\n\nTest all visible readiness states:\n\nREADY\nNEEDS_CONFIGURATION\nNEEDS_APPROVAL\nBLOCKED\nAUTO_PAUSED\nDISABLED\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 95,
+    "title": "Routine Details",
+    "request": "Inspect:\n\n* Agent\n* schedule\n* Routine version\n* authority\n* required capabilities\n* optional capabilities\n* provider readiness\n* budget\n* retry policy\n* last occurrence\n* next occurrence\n* admission status\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 96,
+    "title": "Run Now",
+    "request": "Global Routine execution remains disabled in normal qualification state.\n\nVerify:\n\nREADY Routine\n+\nglobal kill switch disabled\n\u2192 cannot execute\n\nThe UI and server must agree.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 97,
+    "title": "Relay",
+    "request": "Exercise Manage \u2192 Relay.\n\nTest the actual canonical Relay/Federation management surface.\n\nVerify:\n\nFederation\nDISABLED BY DEFAULT\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 98,
+    "title": "Relay Identity",
+    "request": "Inspect safe:\n\n* Relay identity\n* Agent identities\n* grants\n* capabilities\n* audit\n* connection/readiness state\n\nDo not expose credentials.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 99,
+    "title": "Relay Shared/Private Information",
+    "request": "Using deterministic local fixtures test:\n\npublished/shareable Knowledge\n\u2192 available only when explicitly shared\nprivate Knowledge\n\u2192 denied\nprivate Memory\n\u2192 denied\nprivate Goals\n\u2192 denied unless explicitly authorized\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 100,
+    "title": "Relay Double Authorization",
+    "request": "Exercise:\n\nRelay ALLOW + local ALLOW\n\u2192 allowed fixture\nRelay ALLOW + local APPROVAL\n\u2192 approval required\nRelay ALLOW + local DENY\n\u2192 denied\nRelay DENY + local ALLOW\n\u2192 denied\n\nNo external Agent required.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 101,
+    "title": "Relay Cannot Expand Routine",
+    "request": "Verify Federation/Relay cannot broaden a Routine\u2019s approved capability ceiling.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 102,
+    "title": "Control Center",
+    "request": "Exercise Manage \u2192 Control Center and any direct Control Center route.\n\nPopulate deterministic work states so every important column/state can be inspected:\n\nWorking\nWaiting\nNeeds Approval\nNeeds You\nFailed\nCompleted\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "control-loaded.txt",
+      "control-pause-cancel.txt",
+      "execution-integration.log"
+    ],
+    "note": "Eight canonical synthetic Runs populate state filters. UI Pause reaches durable paused state; Cancel and resume/retry draft controls inspected. Actual worker resumption/recovery not qualified by fixtures."
+  },
+  {
+    "id": 103,
+    "title": "Control Center Actions",
+    "request": "Exercise where applicable:\n\nPause\nResume\nCancel\nRetry\nRecover\n\nVerify server enforcement, not just UI state.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "control-loaded.txt",
+      "control-pause-cancel.txt",
+      "execution-integration.log"
+    ],
+    "note": "Eight canonical synthetic Runs populate state filters. UI Pause reaches durable paused state; Cancel and resume/retry draft controls inspected. Actual worker resumption/recovery not qualified by fixtures."
+  },
+  {
+    "id": 104,
+    "title": "Retry vs Recover",
+    "request": "Explicitly verify:\n\nRetry\nonly when previous effect definitely did not occur\nRecover\nwhen provider outcome may be unknown\n\nNo blind resend.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "control-loaded.txt",
+      "control-pause-cancel.txt",
+      "execution-integration.log"
+    ],
+    "note": "Eight canonical synthetic Runs populate state filters. UI Pause reaches durable paused state; Cancel and resume/retry draft controls inspected. Actual worker resumption/recovery not qualified by fixtures."
+  },
+  {
+    "id": 105,
+    "title": "Action History",
+    "request": "Inspect Action History.\n\nVerify it can explain:\n\n* Action\n* executor\n* trigger\n* target\n* authority\n* approval\n* attempt\n* result\n* evidence\n* recovery\n* receipt\n\nNo secret parameters.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 106,
+    "title": "Approvals",
+    "request": "Exercise Manage \u2192 Approvals.\n\nCreate deterministic local fixtures for:\n\npending\napproved\nrejected\nexpired\ninvalidated\nstale binding\nwrong owner\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "approval-deny-settled.txt",
+      "approval-two-tabs.txt",
+      "approvals-mobile.txt",
+      "execution-integration.log"
+    ],
+    "note": "Real UI approves/denies exact local fixture requests with Agent, action, effect, expiry and scope. Duplicate/racing decisions fenced. Expired/changed binding/cross-owner cases pass deterministic integration but not every state populated in Approvals UI."
+  },
+  {
+    "id": 107,
+    "title": "Approval Details",
+    "request": "Verify approval shows:\n\n* exact Action\n* safe target\n* expected effect\n* expiration\n* risk\n* cost if known\n* relevant parameter binding\n\nNo raw credentials.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "approval-deny-settled.txt",
+      "approval-two-tabs.txt",
+      "approvals-mobile.txt",
+      "execution-integration.log"
+    ],
+    "note": "Real UI approves/denies exact local fixture requests with Agent, action, effect, expiry and scope. Duplicate/racing decisions fenced. Expired/changed binding/cross-owner cases pass deterministic integration but not every state populated in Approvals UI."
+  },
+  {
+    "id": 108,
+    "title": "Approval Decision",
+    "request": "Exercise:\n\nApprove\nReject\n\nVerify exactly one decision wins.\n\nDouble click / replay must not execute twice.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "approval-deny-settled.txt",
+      "approval-two-tabs.txt",
+      "approvals-mobile.txt",
+      "execution-integration.log"
+    ],
+    "note": "Real UI approves/denies exact local fixture requests with Agent, action, effect, expiry and scope. Duplicate/racing decisions fenced. Expired/changed binding/cross-owner cases pass deterministic integration but not every state populated in Approvals UI."
+  },
+  {
+    "id": 109,
+    "title": "Approval Revocation / Invalidity",
+    "request": "Change a material bound parameter after approval.\n\nExpected:\n\nold approval invalid\nprovider calls = 0\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "approval-deny-settled.txt",
+      "approval-two-tabs.txt",
+      "approvals-mobile.txt",
+      "execution-integration.log"
+    ],
+    "note": "Real UI approves/denies exact local fixture requests with Agent, action, effect, expiry and scope. Duplicate/racing decisions fenced. Expired/changed binding/cross-owner cases pass deterministic integration but not every state populated in Approvals UI."
+  },
+  {
+    "id": 110,
+    "title": "Activity",
+    "request": "Exercise Manage \u2192 Activity.\n\nVerify the activity/audit view includes meaningful canonical events from the qualification journey.\n\nExamples:\n\nAgent created\nGoal created\nKnowledge recorded\nResult completed\napproval requested\napproval decided\nRoutine blocked\nComputer control changed\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 111,
+    "title": "Activity Filtering",
+    "request": "Exercise any:\n\n* search\n* filters\n* Agent\n* event type\n* date/time\n\navailable in the actual product.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 112,
+    "title": "Finance",
+    "request": "Exercise Manage \u2192 Finance.\n\nDetermine actual implemented functionality.\n\nDo not infer financial-account connectivity.\n\nTest:\n\n* empty/unconfigured state\n* local receipt/finance features if implemented\n* access controls\n* no fake bank connectivity\n\nIf this surface is only partial, report:\n\nPARTIAL\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 113,
+    "title": "System / Operations Health",
+    "request": "Exercise all operational surfaces exposed under System/Operations.\n\nVerify:\n\n* app health\n* database health\n* Agent runtime\n* scheduler\n* provider availability\n* Routine preflight metrics\n* Action Gateway failures\n* delivery failures\n* Computer/provider health\n\nUse local fixtures.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt"
+    ],
+    "note": "System correctly reports database ready and missing provider services; metrics not fabricated. Full outage/operations cases not all qualified."
+  },
+  {
+    "id": 114,
+    "title": "Appearance",
+    "request": "Exercise every actual Appearance setting.\n\nVerify:\n\n* persistence after reload\n* no cross-owner leakage\n* no server/client mismatch\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "theme-delivery-controls.txt",
+      "appearance-light.png"
+    ],
+    "note": "Sarah/Ava identity displayed from environment; dark theme persists reload, light theme selectable, restored System."
+  },
+  {
+    "id": 115,
+    "title": "Risk Boundaries",
+    "request": "From Getting Started or appropriate settings, exercise the Risk Boundaries configuration.\n\nInspect:\n\n* approval expectations\n* activity/risk limits\n* interruption behavior\n* consequential-action boundaries\n\nDo not weaken them to make tests pass.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "approval-deny-settled.txt",
+      "approval-two-tabs.txt",
+      "approvals-mobile.txt",
+      "execution-integration.log"
+    ],
+    "note": "Real UI approves/denies exact local fixture requests with Agent, action, effect, expiry and scope. Duplicate/racing decisions fenced. Expired/changed binding/cross-owner cases pass deterministic integration but not every state populated in Approvals UI."
+  },
+  {
+    "id": 116,
+    "title": "Identity",
+    "request": "Exercise owner/Agent identity settings exposed through Getting Started or Manage.\n\nVerify:\n\nowner identity\nprimary Agent identity\ndisplay identity\n\nremain distinct where architecture requires.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "chat-initial.txt",
+      "files-and-result.txt",
+      "manage-content.json"
+    ],
+    "note": "Sarah/Ava configured correctly, but Results and Skills retain Sofie copy; initial Ava greeting uses male pronouns. No supplied image files were available for the Sofie visual comparison."
+  },
+  {
+    "id": 117,
+    "title": "Accounts",
+    "request": "Exercise the Getting Started \u2192 Accounts setup surface.\n\nVerify missing providers are represented honestly.\n\nNo provider connection is required for local qualification.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 118,
+    "title": "Browser Setup",
+    "request": "Exercise Getting Started \u2192 Browser.\n\nVerify the UI reflects:\n\nbrowser functionality available\npersistent desktop provider not configured\n\nif that is the actual state.\n\nDo not require an Orgo key.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 119,
+    "title": "Notifications",
+    "request": "Exercise Getting Started \u2192 Notifications.\n\nVerify configuration/readiness independently from Routine work.\n\nNo notification provider should be required for local Result persistence.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 120,
+    "title": "Getting Started Progress",
+    "request": "After exercising local setup, verify the 2 / 5 or equivalent progress indicator changes only when the underlying setup state genuinely changes.\n\nDo not mark Accounts ready merely because a test visited the page.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 121,
+    "title": "Five Good First Jobs \u2014 Full Test",
+    "request": "Inventory all five cards from the actual application.\n\nFor each:\n\n1. inspect Access;\n2. inspect Boundary;\n3. inspect Done when;\n4. click Try once;\n5. verify it creates bounded work in chat;\n6. verify it does not create a Routine;\n7. verify it does not send/schedule/share without approval.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 122,
+    "title": "First Job \u2014 Research One Decision",
+    "request": "Run it.\n\nVerify:\n\n* public web/read-only boundary\n* evidence links\n* uncertainties\n* recommendation\n* no sign-in\n* no form submission\n* no external contact\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 123,
+    "title": "First Job \u2014 Turn an Objective Into a Plan",
+    "request": "Run it using a synthetic Goal.\n\nVerify:\n\n* draft plan\n* milestones\n* dependencies\n* risks\n* next action\n* owner review before durable mutation if required\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 124,
+    "title": "First Job \u2014 Find Today\u2019s Real Priority",
+    "request": "Run it after creating Goals and Results.\n\nVerify it uses persisted state.\n\nNo unsupported reprioritization mutation.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 125,
+    "title": "First Job \u2014 Map the Account I Should Connect",
+    "request": "Run with no connected providers.\n\nVerify it recommends an account/integration based on actual need.\n\nIt must not request credentials or connect anything automatically.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 126,
+    "title": "Fifth First Job",
+    "request": "Identify the actual fifth card from the application and exercise it with the same boundaries.\n\nDo not skip it because it was below the supplied screenshot.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt"
+    ],
+    "note": "All five First Jobs inspected and Try once exercised. Each created a bounded chat draft; no automatic routine created. Fifth actual job is Design a quiet routine. Execution blocked by model auth."
+  },
+  {
+    "id": 127,
+    "title": "Chat \u2192 Product State Integration",
+    "request": "This is a major acceptance requirement.\n\nUse normal chat to create or influence product state through supported flows and verify the state appears elsewhere.\n\nTest at least:\n\nChat \u2192 Goal\nChat \u2192 Knowledge\nChat \u2192 Result\nChat \u2192 approval request\nChat \u2192 Role session\nChat \u2192 first-job workflow\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 128,
+    "title": "Product State \u2192 Chat Integration",
+    "request": "Then reverse it.\n\nAsk Sofie/Ava about:\n\nGoal created through UI\nKnowledge created through UI\nResult completed elsewhere\nPreference stored\nuploaded File\n\nVerify canonical retrieval.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 129,
+    "title": "Goal \u2192 Knowledge \u2192 Result \u2192 Review Loop",
+    "request": "Exercise one complete lifecycle:\n\nCreate Goal\n   \u2193\nperform research\n   \u2193\nrecord Fact / Observation / Decision\n   \u2193\ncomplete bounded work\n   \u2193\ncreate Result\n   \u2193\nGoal outcome updates\n   \u2193\nReview reflects completed work\n\nThis is one of the most important product acceptance paths.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 130,
+    "title": "Founder OS Loop",
+    "request": "Exercise a second end-to-end lifecycle:\n\nFounder OS\n   \u2193\nselect/use Goal Template\n   \u2193\ncreate Goal\n   \u2193\nFounder Agent / relevant Role\n   \u2193\nanalyze evidence\n   \u2193\nidentify constraint\n   \u2193\nproduce artifact/recommendation\n   \u2193\nResult\n   \u2193\nReview\n\nNo invented health scores.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 131,
+    "title": "Knowledge Taxonomy Loop",
+    "request": "Create:\n\nFact\nObservation\nHypothesis\nDecision\nCommitment\nPreference\n\naround the same synthetic project.\n\nAsk Sofie:\n\nWhat do we know, what are we assuming, and what have we decided about Project Atlas?\n\nVerify she differentiates the categories.\n\nThis is a high-value semantic test.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 132,
+    "title": "Preference Behavioral Test",
+    "request": "After storing:\n\nPrefer concise executive summaries with evidence links.\n\nask for a project summary.\n\nVerify the Preference is considered if canonical context permits it.\n\nThen Forget the Preference.\n\nAsk again.\n\nVerify forgotten state is no longer retrieved.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 133,
+    "title": "Contradiction Behavioral Test",
+    "request": "Store:\n\nFact:\nPilot launch is October 1.\n\nThen introduce reliable corrected evidence:\n\nPilot launch moved to October 15.\n\nVerify Sofie does not confidently continue using October 1 without acknowledging supersession/contradiction.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 134,
+    "title": "Commitment Behavioral Test",
+    "request": "Create a Commitment with a due date.\n\nVerify it can surface in Review/Needs Attention where canonical behavior supports it.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-api-complete.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Due-dated Commitment persisted; not overdue at test date, so no missed-commitment behavior qualified."
+  },
+  {
+    "id": 135,
+    "title": "Result Evidence Test",
+    "request": "Complete research work.\n\nVerify the Result contains actual evidence references and not merely a generated summary.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 136,
+    "title": "Empty States",
+    "request": "The supplied screenshots contain many empty states.\n\nExercise every important empty state before populating it.\n\nCapture/verify at least:\n\nGoals\nKnowledge\nResults\nFiles\nChannels history\nReview\nRoutines where applicable\nApprovals\nControl Center\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "files-and-result.txt",
+      "control-loaded.txt"
+    ],
+    "note": "Important empty states visited before population; Goals/Knowledge/Agents/Results/Approvals/Control transitioned to populated state. Files transition fails; provider surfaces remain unpopulated."
+  },
+  {
+    "id": 137,
+    "title": "Populated States",
+    "request": "Then populate them through product behavior and verify the empty state transitions correctly.\n\nNo manual page refresh should be required unless the product intentionally requires one.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "files-and-result.txt",
+      "control-loaded.txt"
+    ],
+    "note": "Important empty states visited before population; Goals/Knowledge/Agents/Results/Approvals/Control transitioned to populated state. Files transition fails; provider surfaces remain unpopulated."
+  },
+  {
+    "id": 138,
+    "title": "Loading States",
+    "request": "Inject deterministic latency where test infrastructure permits.\n\nVerify meaningful loading states for:\n\nGoals\nKnowledge\nResults\nReview\nFiles\nAgents\nControl Center\n\nAvoid layout collapse.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "page-error-recovery.txt",
+      "backup-error-recovery.txt",
+      "archive-security-ui.txt"
+    ],
+    "note": "Loaders observed and Owner Data/Files503 recovery tested. Broad route-fault sweep had unsettled snapshots; those are NOT counted as passes. Raw malformed-JSON validation copy and reset error are poor owner guidance."
+  },
+  {
+    "id": 139,
+    "title": "Error States",
+    "request": "Inject deterministic errors.\n\nVerify recoverable UI for:\n\nGoals\nKnowledge\nResults\nReview brief\nFiles\nChannels\nOwner Data\nRoutines\nControl Center\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "page-error-recovery.txt",
+      "backup-error-recovery.txt",
+      "archive-security-ui.txt"
+    ],
+    "note": "Loaders observed and Owner Data/Files503 recovery tested. Broad route-fault sweep had unsettled snapshots; those are NOT counted as passes. Raw malformed-JSON validation copy and reset error are poor owner guidance."
+  },
+  {
+    "id": 140,
+    "title": "Navigation",
+    "request": "Exercise every top navigation icon visible in the supplied screenshots.\n\nVerify:\n\n* destination\n* selected state\n* tooltip/label\n* keyboard accessibility\n* browser back/forward behavior\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 141,
+    "title": "Sidebar Thread History",
+    "request": "Exercise:\n\nsearch threads\nToday\nOlder\nopen thread\nreturn to product surface\n\nVerify product navigation does not corrupt conversation selection.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "first-jobs.txt",
+      "chat-initial.txt"
+    ],
+    "note": "Multiple persisted thread entries and draft starter threads observed. Full rename/pin/delete/long-history matrix not completed."
+  },
+  {
+    "id": 142,
+    "title": "Cross-Surface Navigation",
+    "request": "Test useful transitions:\n\nGoal \u2192 related Result\nResult \u2192 evidence\nApproval \u2192 Action/Run\nControl Center \u2192 Computer\nRoutine \u2192 readiness detail\nAgent \u2192 direct chat\nFile \u2192 chat\nReview \u2192 related work\n\nwhere implemented.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 143,
+    "title": "Refresh / Deep Link",
+    "request": "Directly load important routes after authentication.\n\nAt minimum:\n\n/goals\n/knowledge\n/results\n/computer\n/agents\n/review\n/channels\n/files\n/manage\n\nplus actual:\n\n/manage/routines\n/manage/control\n/manage/approvals\n\nand other canonical Manage routes.\n\nVerify refresh works.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 144,
+    "title": "Authentication Boundary",
+    "request": "Attempt important routes unauthenticated.\n\nExpected:\n\nlogin / authentication_required\n\nNo owner data leakage.\n\n\u2e3b",
+    "status": "NOT QUALIFIED \u2014 DEVELOPMENT AUTH MODE",
+    "evidence": [
+      "contract-tests.log",
+      "unit-tests.log"
+    ],
+    "note": "Local Next development mode exempts production web auth. No production unauthenticated HTTP boundary qualification is claimed; unit/contract auth tests only."
+  },
+  {
+    "id": 145,
+    "title": "Wrong Owner",
+    "request": "Use synthetic second owner fixtures where possible.\n\nVerify cross-owner access denied for:\n\nGoals\nKnowledge\nFiles\nAgents\nRoutines\nApprovals\nComputer Profiles\nResults\nOwner Data\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "database-integration.log",
+      "execution-integration.log"
+    ],
+    "note": "Canonical runtime rejects inactive/archived/foreign Agent binding403, primary mutations400; actual wrong-owner and capability mutation races additionally exercised in isolated integration. Not every route tested over HTTP."
+  },
+  {
+    "id": 146,
+    "title": "Primary Agent Protection",
+    "request": "Attempt:\n\npause/archive/delete primary Agent\n\naccording to supported API/UI.\n\nExpected protection.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "agents-inventory.txt"
+    ],
+    "note": "Primary Ava visible. Canonical pause/archive requests rejected; no silent primary replacement."
+  },
+  {
+    "id": 147,
+    "title": "Archived Agent",
+    "request": "Archived Agent must not receive new work.\n\nExisting history remains attributed correctly.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "database-integration.log",
+      "execution-integration.log"
+    ],
+    "note": "Canonical runtime rejects inactive/archived/foreign Agent binding403, primary mutations400; actual wrong-owner and capability mutation races additionally exercised in isolated integration. Not every route tested over HTTP."
+  },
+  {
+    "id": 148,
+    "title": "Disabled Agent",
+    "request": "No primary-Agent fallback.\n\nThis is mandatory.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "database-integration.log",
+      "execution-integration.log"
+    ],
+    "note": "Canonical runtime rejects inactive/archived/foreign Agent binding403, primary mutations400; actual wrong-owner and capability mutation races additionally exercised in isolated integration. Not every route tested over HTTP."
+  },
+  {
+    "id": 149,
+    "title": "Role vs Agent",
+    "request": "Verify UI and runtime distinction:\n\nRole\nreusable expertise\nAgent\npersistent identity\n\nNo confusion in Run attribution.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "role-founder-ctas-verified.txt",
+      "roles-founder-expanded.yml"
+    ],
+    "note": "Researcher, Software architect, Marketing Engineer and Founder OS CTAs exercised: Role threads have empty composers; Founder OS has a bounded draft. No model work submitted; declared Verification specialists have no on-demand CTA by design."
+  },
+  {
+    "id": 150,
+    "title": "Solution Pack vs Authority",
+    "request": "Verify:\n\nFounder OS\nMarketing Engineering\n\nrecommend composition but do not automatically grant authority.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 151,
+    "title": "Routine vs Reminder",
+    "request": "Verify product semantics distinguish the two where both remain.\n\nDo not accidentally create two schedulers/execution models.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 152,
+    "title": "Routine vs Trigger",
+    "request": "Likewise:\n\nRoutine\nscheduled/proactive work\nTrigger\nevent-driven initiation\n\nBoth converge on canonical governed execution.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 153,
+    "title": "Result vs Activity",
+    "request": "Verify:\n\nResult\ncompleted useful work\nActivity\naudit/history\n\nThey should not be interchangeable.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 154,
+    "title": "Knowledge vs Memory",
+    "request": "Verify product and Agent behavior distinguish:\n\nKnowledge\ntyped/provenanced record\nMemory\nowner/Agent contextual memory\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-content.json"
+    ],
+    "note": "Packaged Skills catalogue/assignments/evaluation and Memory distinction inspected. Private Skill storage unavailable; no private save/evolution/provider memory behavior qualified. Sofie copy remains in assignment controls."
+  },
+  {
+    "id": 155,
+    "title": "Review vs Mutation",
+    "request": "Verify Review proposes/reflects.\n\nIt does not silently mutate plans or authority.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 156,
+    "title": "Computer vs Browser Profile",
+    "request": "Verify:\n\nComputerSession\nephemeral execution\nPersistent Browser Profile\nprovider-managed authenticated state\n\nNo authority conflation.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 157,
+    "title": "Action Gateway vs Approval Center",
+    "request": "Verify:\n\nApproval Center\nowner decision interface\nAction Gateway\nexecution enforcement boundary\n\nApproval UI alone must not be sufficient to bypass execution checks.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 158,
+    "title": "Routine Admission vs Action Gateway",
+    "request": "Verify:\n\nRoutine admission\nShould this Routine start?\nAction Gateway\nMay this exact Action happen now?\n\nBoth are exercised.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 159,
+    "title": "Relay vs Federation",
+    "request": "Inspect actual terminology.\n\nIf Relay includes more than Federation, verify the UI does not incorrectly present them as identical concepts.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Relay disabled in owner UI. Signed Relay, double authorization and private/revoked grant access covered by deterministic isolated integration only."
+  },
+  {
+    "id": 160,
+    "title": "Channel vs Connected App",
+    "request": "Verify:\nVerify the product distinguishes:\n\nChannel\nHow the owner communicates with MyEve\nConnected App\nAn external system MyEve can read from or act on\n\nExamples:\n\nTelegram\n\u2192 may be a Channel\nGmail\n\u2192 may provide connected-app capabilities and/or Email channel behavior\nSlack\n\u2192 may have both communication and connected-app semantics\n\nDo not let UI terminology obscure the authority boundary.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "top-settled.txt",
+      "manage-content.json"
+    ],
+    "note": "Channels and settings show email/Slack/iMessage/push setup requirements. Search connected history unavailable without a connection; no external messages sent."
+  },
+  {
+    "id": 161,
+    "title": "Full Settings Inventory \u2014 Mandatory",
+    "request": "Before declaring local qualification complete, dynamically inventory the actual current Manage navigation.\n\nDo not rely solely on this work order\u2019s list.\n\nProduce a table:\n\nSection\nMenu item\nRoute\nRendered\nExercised\nResult\nNotes\n\nEvery visible Manage/Settings option must have an entry.\n\nRequired rule:\n\nVisible Manage items untested = 0\n\nIf a menu item cannot be tested locally, classify it:\n\nPARTIAL \u2014 EXTERNAL PROVIDER REQUIRED\n\nwith the reason.\n\nDo not silently skip it.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "manage-inventory.txt",
+      "mobile-manage-sweep.txt",
+      "settings-final-inspect.txt"
+    ],
+    "note": "All19 settled Manage entries rendered and visited on desktop/mobile. Transient Phone entry observed and route inspected; it falls back to Getting started. Provider-specific actions remain explicitly partial."
+  },
+  {
+    "id": 162,
+    "title": "Top-Level Product Inventory \u2014 Mandatory",
+    "request": "Likewise inventory every top-level product destination/icon.\n\nBased on the supplied screenshots this includes at least:\n\nChat\nGoals\nKnowledge\nResults\nComputer\nAgents\nReview\nChannels\nFiles\nManage\n\nBut inspect the current application and include every actual destination.\n\nRequired:\n\nVisible top-level destinations untested = 0\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 163,
+    "title": "Every Button / Primary CTA",
+    "request": "For the major surfaces, inventory and exercise meaningful primary actions.\n\nExamples from the supplied UI:\n\nCreate your first goal\n+ New goal\nGenerate brief\n+ Create Agent\nOpen Agent\nEdit\nUse Role\nCreate Agent from Role\nUse Founder OS\nCreate Founder Agent\nProfiles\nActivity\nShare\nReset profile\nSet up email\nSet up Slack\nSet up iMessage\nDelivery settings\nSearch connected history\nGo to chat\nTry once\nOpen\nReview\nRun Now\nApprove\nReject\nRecover\nPause\nResume\nCancel\n\nDo not click destructive or external-provider actions blindly.\n\nWhere execution is unsafe/unavailable, verify the correct blocked/confirmation state.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "goal-created.txt",
+      "knowledge-api-create.txt",
+      "agent-created.txt",
+      "first-jobs.txt"
+    ],
+    "note": "Meaningful actions listed in CTA inventory; blank Goal disabled, invalid Knowledge data rejected, blank Agent rejected. Every visible form/button edge case not qualified."
+  },
+  {
+    "id": 164,
+    "title": "CTA Consistency",
+    "request": "Where two CTAs perform the same conceptual operation, verify they converge on the same canonical workflow.\n\nExample:\n\nCreate your first goal\n+\nNew goal\n\u2192 canonical Goal creation\n\nNo duplicate models or subtly different defaults unless intentionally designed.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "goal-created.txt",
+      "knowledge-api-create.txt",
+      "agent-created.txt",
+      "first-jobs.txt"
+    ],
+    "note": "Meaningful actions listed in CTA inventory; blank Goal disabled, invalid Knowledge data rejected, blank Agent rejected. Every visible form/button edge case not qualified."
+  },
+  {
+    "id": 165,
+    "title": "Form Validation",
+    "request": "For major forms test:\n\nempty required field\ninvalid value\nboundary value\ncancel\nsuccessful save\nreload persistence\n\nAt minimum cover:\n\nGoal\nAgent\nRoutine\nReminder\nRisk settings\nRole \u2192 Agent creation\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "goal-created.txt",
+      "knowledge-api-create.txt",
+      "agent-created.txt",
+      "first-jobs.txt"
+    ],
+    "note": "Meaningful actions listed in CTA inventory; blank Goal disabled, invalid Knowledge data rejected, blank Agent rejected. Every visible form/button edge case not qualified."
+  },
+  {
+    "id": 166,
+    "title": "Destructive Confirmation",
+    "request": "Where destructive actions exist:\n\narchive\nreset\nForget\nrevoke\ncancel\ndelete\n\nverify:\n\n* confirmation\n* exact object identity\n* safe description of effect\n* cancellation\n* successful completion\n* audit\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "agent-lifecycle.txt",
+      "roles-founder-expanded.txt",
+      "knowledge-forget.txt",
+      "computer-share-reset.txt"
+    ],
+    "note": "Pause/resume/duplicate/archive mutations exercised. Archive acts immediately without confirmation and clears detail pane although other Agents remain. Knowledge Forget, Result delete cancel, and Profile reset have separate confirmation behavior."
+  },
+  {
+    "id": 167,
+    "title": "No Accidental Double Submission",
+    "request": "Double-click representative:\n\nCreate Goal\nCreate Agent\nApprove\nRun Now\nGenerate brief\n\nExpected:\n\none logical operation\n\nwhere idempotency is required.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "approval-two-tabs.txt",
+      "approval-decisions.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Approval double-click and opposing decisions in two actual browser tabs yield one200 and one409. One durable winning decision. Review repeated generation reuses checkpoint."
+  },
+  {
+    "id": 168,
+    "title": "Browser Refresh During Mutation",
+    "request": "For a representative durable operation, refresh/reload around completion.\n\nVerify no duplicate record or corrupted state.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [],
+    "note": "Refresh during in-flight mutation and comprehensive optimistic rollback matrix not completed."
+  },
+  {
+    "id": 169,
+    "title": "Optimistic UI",
+    "request": "Where optimistic UI is used, force server rejection.\n\nVerify the UI rolls back honestly.\n\nDo not leave a Goal/Agent/approval appearing successful when persistence failed.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [],
+    "note": "Refresh during in-flight mutation and comprehensive optimistic rollback matrix not completed."
+  },
+  {
+    "id": 170,
+    "title": "Concurrent Tabs",
+    "request": "Use two local browser tabs for selected owner operations.\n\nTest representative conflicts:\n\nedit same Goal\nedit same Routine\napproval decision\nAgent state change\n\nVerify stale/concurrent updates are handled safely.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "approval-two-tabs.txt",
+      "approval-decisions.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Approval double-click and opposing decisions in two actual browser tabs yield one200 and one409. One durable winning decision. Review repeated generation reuses checkpoint."
+  },
+  {
+    "id": 171,
+    "title": "Search",
+    "request": "Exercise every major search surface that exists:\n\nthreads\nKnowledge\nFiles\nChannels history\nAgents/Roles if searchable\nControl Center\nActivity\nOwner Knowledge\n\nTest:\n\nmatching result\nno result\nspecial characters\nlong query\nclearing search\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-ui-taxonomy.txt",
+      "control-loaded.txt"
+    ],
+    "note": "Knowledge query/status/type controls exercised; Goals/Control and Files filters inspected. Full cross-surface sort/filter/search matrix not completed."
+  },
+  {
+    "id": 172,
+    "title": "Filtering",
+    "request": "Exercise all meaningful filters such as:\n\nKnowledge status\nControl Center state\nActivity type\nRoutine readiness\nApprovals status\nComputer Activity\n\nVerify filter state and counts where present.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-ui-taxonomy.txt",
+      "control-loaded.txt"
+    ],
+    "note": "Knowledge query/status/type controls exercised; Goals/Control and Files filters inspected. Full cross-surface sort/filter/search matrix not completed."
+  },
+  {
+    "id": 173,
+    "title": "Sorting",
+    "request": "If any surface offers sorting, test each supported sort.\n\nDo not invent sorting tests where no control exists.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "knowledge-ui-taxonomy.txt",
+      "control-loaded.txt"
+    ],
+    "note": "Knowledge query/status/type controls exercised; Goals/Control and Files filters inspected. Full cross-surface sort/filter/search matrix not completed."
+  },
+  {
+    "id": 174,
+    "title": "Time / Date Handling",
+    "request": "Exercise:\n\ndue dates\nschedule dates\ntimestamps\nreview computed time\ncreated/updated times\napproval expiry\n\nVerify consistent local-time display.\n\nNo accidental UTC confusion in UI.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "delivery-save-verified.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Daily in-app schedule saved at09:15 America/Los_Angeles, next occurrence Sep21 09:15 PDT, persisted reload and then disabled. Weekly/quiet-hours controls inspected; full recurrence/daypart/DST matrix not executed."
+  },
+  {
+    "id": 175,
+    "title": "Schedule Semantics",
+    "request": "For local deterministic schedules verify:\n\nexact time\ndaypart if supported\nrecurrence\nnext occurrence\ndisabled schedule\nchanged schedule\n\nNo real external execution required.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "delivery-save-verified.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Daily in-app schedule saved at09:15 America/Los_Angeles, next occurrence Sep21 09:15 PDT, persisted reload and then disabled. Weekly/quiet-hours controls inspected; full recurrence/daypart/DST matrix not executed."
+  },
+  {
+    "id": 176,
+    "title": "Timezone",
+    "request": "Verify Routine/Reminder schedule is associated with the intended owner/deployment timezone semantics.\n\nDo not hard-code machine timezone silently if product has explicit timezone handling.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "delivery-save-verified.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Daily in-app schedule saved at09:15 America/Los_Angeles, next occurrence Sep21 09:15 PDT, persisted reload and then disabled. Weekly/quiet-hours controls inspected; full recurrence/daypart/DST matrix not executed."
+  },
+  {
+    "id": 177,
+    "title": "Accessibility \u2014 Full Pass",
+    "request": "Run automated accessibility tooling against major surfaces where available.\n\nAlso manually verify:\n\ntab order\nfocus visibility\nkeyboard activation\ndialog focus trap\nescape behavior\naccessible names\nstatus text\nerror association\ndisabled-control explanation\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "axe-desktop.txt",
+      "axe-mobile.txt",
+      "computer-current.txt"
+    ],
+    "note": "Desktop axe WCAG scan found critical unnamed Computer button. Other scanned states no violations; mobile scan has timeout/loading results and is incomplete. Full keyboard/screen-reader audit not passed."
+  },
+  {
+    "id": 178,
+    "title": "Screen Reader Semantics",
+    "request": "Inspect major status components:\n\nREADY\nBLOCKED\nNeeds approval\nActive\nPrimary Agent\nUnknown\n\nThey must not rely solely on color.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "axe-desktop.txt",
+      "axe-mobile.txt",
+      "computer-current.txt"
+    ],
+    "note": "Desktop axe WCAG scan found critical unnamed Computer button. Other scanned states no violations; mobile scan has timeout/loading results and is incomplete. Full keyboard/screen-reader audit not passed."
+  },
+  {
+    "id": 179,
+    "title": "Mobile Navigation",
+    "request": "At approximately:\n\n390 \u00d7 844\n\nexercise the actual navigation, not merely screenshots.\n\nVerify access to:\n\nGoals\nKnowledge\nResults\nAgents\nReview\nFiles\nManage\nControl Center\nApprovals\nRoutines\n\naccording to mobile product design.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "mobile-goals.txt",
+      "mobile-current.png"
+    ],
+    "note": "Closed mobile drawer overflows fixed256px width; offscreen icons intercept ordinary Open threads tap. Keyboard Enter workaround required."
+  },
+  {
+    "id": 180,
+    "title": "Mobile Forms",
+    "request": "Exercise representative forms on mobile:\n\nNew Goal\nCreate Agent\nRoutine review\nApproval\n\nVerify keyboard/input behavior and no hidden buttons.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "mobile-goal-created.png",
+      "mobile-manage-sweep.txt",
+      "mobile-destinations-rest.txt"
+    ],
+    "note": "390\u00d7844 Goal create form and all19 Manage sections exercised. No horizontal document overflow in sampled pages; drawer remains blocker. Full mobile Founder/Knowledge form matrix not qualified."
+  },
+  {
+    "id": 181,
+    "title": "Mobile Founder OS",
+    "request": "Open Founder OS on mobile.\n\nVerify:\n\n* domains\n* Goal Templates\n* workflows/artifacts\n* approval boundaries\n\nremain usable without horizontal overflow.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "mobile-goal-created.png",
+      "mobile-manage-sweep.txt",
+      "mobile-destinations-rest.txt"
+    ],
+    "note": "390\u00d7844 Goal create form and all19 Manage sections exercised. No horizontal document overflow in sampled pages; drawer remains blocker. Full mobile Founder/Knowledge form matrix not qualified."
+  },
+  {
+    "id": 182,
+    "title": "Mobile Knowledge",
+    "request": "Exercise Knowledge tabs on mobile:\n\nDecisions\nFacts\nObservations\nHypotheses\nCommitments\nPreferences\n\nVerify tab navigation remains usable.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "mobile-goal-created.png",
+      "mobile-manage-sweep.txt",
+      "mobile-destinations-rest.txt"
+    ],
+    "note": "390\u00d7844 Goal create form and all19 Manage sections exercised. No horizontal document overflow in sampled pages; drawer remains blocker. Full mobile Founder/Knowledge form matrix not qualified."
+  },
+  {
+    "id": 183,
+    "title": "Mobile Computer",
+    "request": "Verify:\n\nWatch\nPause\nStop\n\nremain usable.\n\nTake Over should accurately communicate desktop-only behavior if that remains the design.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "computer-current.txt",
+      "result-feedback-review.txt",
+      "settled-top-Computer.png"
+    ],
+    "note": "Profiles/Activity views and missing Orgo setup examined. Three private profiles; no provider desktop/session created. Activity empty state truthful. Real takeover, reconnection and browser work unavailable."
+  },
+  {
+    "id": 184,
+    "title": "Responsive Manage",
+    "request": "Walk every Manage category on mobile.\n\nNo inaccessible offscreen navigation.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "mobile-goal-created.png",
+      "mobile-manage-sweep.txt",
+      "mobile-destinations-rest.txt"
+    ],
+    "note": "390\u00d7844 Goal create form and all19 Manage sections exercised. No horizontal document overflow in sampled pages; drawer remains blocker. Full mobile Founder/Knowledge form matrix not qualified."
+  },
+  {
+    "id": 185,
+    "title": "Visual Hierarchy Review",
+    "request": "While testing, record UX defects separately from functional defects.\n\nInspect:\n\n* empty space\n* overly dense cards\n* unclear hierarchy\n* duplicate concepts\n* confusing terminology\n* weak CTA priority\n* inconsistent badges\n* inconsistent status language\n\nDo not redesign during qualification unless a defect materially blocks use.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "mobile-goal-created.png",
+      "mobile-manage-sweep.txt",
+      "mobile-destinations-rest.txt"
+    ],
+    "note": "390\u00d7844 Goal create form and all19 Manage sections exercised. No horizontal document overflow in sampled pages; drawer remains blocker. Full mobile Founder/Knowledge form matrix not qualified."
+  },
+  {
+    "id": 186,
+    "title": "Supplied Screenshot \u2014 Goals",
+    "request": "Specifically compare the tested Goals experience with the supplied screenshot.\n\nCurrent screenshot shows:\n\nTurn an intention into forward motion\nCreate your first goal\n+ New goal\n\nVerify both CTAs work and the populated state becomes useful after Goal creation.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 187,
+    "title": "Supplied Screenshot \u2014 Knowledge",
+    "request": "Current screenshot shows empty:\n\nDecisions\nFacts\nObservations\nHypotheses\nCommitments\nPreferences\n\nPopulate every category through supported product behavior and verify record detail/provenance.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 188,
+    "title": "Supplied Screenshot \u2014 Results",
+    "request": "Current screenshot shows:\n\nNo completed results yet\n\nComplete real local work and prove the page transitions to a useful populated state.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 189,
+    "title": "Supplied Screenshot \u2014 Computer",
+    "request": "Current screenshot shows:\n\nSofie's private desktop\nno desktop\nOrgo API key setup\n\nVerify this is a truthful provider-unavailable state.\n\nDo not use a real Orgo credential.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 190,
+    "title": "Supplied Screenshot \u2014 Agents",
+    "request": "Current screenshot includes:\n\nSofie\nResearcher\nGeneral\nSoftware Development\nMarketing Engineering\nVerification\nFounder OS\n\nExercise every listed pack and both persistent Agents.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 191,
+    "title": "Supplied Screenshot \u2014 Founder OS",
+    "request": "Current Founder OS domain health is:\n\nUnknown\n\nfor all nine domains.\n\nAfter qualification data exists, verify each remains Unknown unless actual canonical evidence supports another state.\n\nNo synthetic health fabrication merely for UI coverage.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 192,
+    "title": "Supplied Screenshot \u2014 Review",
+    "request": "Current screenshot shows no:\n\nrecommended focus\ndue items\nattention\nrisks\ncompleted work\noutcomes\n\nAfter Goals/Knowledge/Results are created, verify Review becomes meaningfully populated from canonical evidence.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 193,
+    "title": "Supplied Screenshot \u2014 Channels",
+    "request": "Current screenshot shows all channels unconfigured.\n\nVerify that this is handled as a normal deployment state, not an application failure.\n\nTest every setup CTA up to\u2014but not through\u2014credential/external authorization.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 194,
+    "title": "Supplied Screenshot \u2014 Files",
+    "request": "Current screenshot shows:\n\nNo files yet\n\nUpload a synthetic file through the actual supported Chat path and verify this changes.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 195,
+    "title": "Supplied Screenshot \u2014 Manage",
+    "request": "Current screenshot shows:\n\n2 / 5 setup areas ready\n\nVerify this progress value is actually derived from setup state.\n\nTest every setup area and every visible menu option.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 REFERENCE IMAGES MISSING",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "top-settled.txt"
+    ],
+    "note": "Pasted requests refer to supplied screenshots, but attachments contain only text. Current screen captured; no pixel/visual regression claim against absent references."
+  },
+  {
+    "id": 196,
+    "title": "UI Copy Audit",
+    "request": "Record confusing or inaccurate copy.\n\nParticularly inspect language around:\n\nMemory\nKnowledge\nResults\nReview\nRoutines\nReminders\nTriggers\nRelay\nChannels\nConnections\nComputer\nBrowser Profiles\nRoles\nAgents\nSolution Packs\n\nDo not change terminology unless there is a concrete issue.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "chat-initial.txt",
+      "files-and-result.txt",
+      "manage-content.json"
+    ],
+    "note": "Sarah/Ava configured correctly, but Results and Skills retain Sofie copy; initial Ava greeting uses male pronouns. No supplied image files were available for the Sofie visual comparison."
+  },
+  {
+    "id": 197,
+    "title": "Product Coherence Audit",
+    "request": "At the end, answer:\n\nDoes this feel like one personal operating system, or a collection of independent engineering features?\n\nEvaluate flows between:\n\nChat\nGoals\nKnowledge\nResults\nReview\nAgents\nRoutines\nControl Center\nFiles\nChannels\n\nRecord concrete fragmentation points.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 198,
+    "title": "Dead-End Audit",
+    "request": "Identify any screen where the owner reaches a state but has no sensible next action.\n\nExamples:\n\nempty page with no CTA\nblocked Routine with no explanation\nprovider unavailable with dead setup button\nfailed work with no recovery\nKnowledge record with no source\nResult with no related Goal/evidence\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 199,
+    "title": "Circular Navigation Audit",
+    "request": "Ensure navigation doesn\u2019t bounce the owner between pages without resolution.\n\nExample:\n\nRoutine says connect Email\n\u2192 Connections\n\u2192 Connections says configure elsewhere\n\u2192 dead end\n\nRecord any such loop.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 200,
+    "title": "Terminology Consistency",
+    "request": "Verify consistent names across UI.\n\nExamples:\n\nSofie vs Agent\nRoutine vs Reminder\nResult vs Outcome\nKnowledge vs Memory\nRole vs Agent\nComputer vs Browser\nApproval vs Review\nRelay vs Federation\n\nDifferent concepts may have different names, but the same concept should not randomly change labels.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "top-desktop-sweep.txt",
+      "mobile-destinations-rest.txt",
+      "mobile-goals.txt"
+    ],
+    "note": "All10 top destinations visited at desktop/mobile; deep-link/reload persistence checked on representative surfaces. Mobile pointer blocker, reset dead end and identity drift prevent full qualification."
+  },
+  {
+    "id": 201,
+    "title": "Error Message Quality",
+    "request": "For representative failures, verify errors answer:\n\nWhat happened?\nWhat was not done?\nWhat can I do next?\n\nAvoid infrastructure jargon.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "page-error-recovery.txt",
+      "backup-error-recovery.txt",
+      "archive-security-ui.txt"
+    ],
+    "note": "Loaders observed and Owner Data/Files503 recovery tested. Broad route-fault sweep had unsettled snapshots; those are NOT counted as passes. Raw malformed-JSON validation copy and reset error are poor owner guidance."
+  },
+  {
+    "id": 202,
+    "title": "Approval Copy Quality",
+    "request": "Owner should understand exactly what approving will do.\n\nExample:\n\nSend one email to Sarah\n\nis better than:\n\nApprove action email.send\n\nInternal diagnostics may retain capability IDs.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "approval-deny-settled.txt",
+      "approval-two-tabs.txt",
+      "approvals-mobile.txt",
+      "execution-integration.log"
+    ],
+    "note": "Real UI approves/denies exact local fixture requests with Agent, action, effect, expiry and scope. Duplicate/racing decisions fenced. Expired/changed binding/cross-owner cases pass deterministic integration but not every state populated in Approvals UI."
+  },
+  {
+    "id": 203,
+    "title": "Routine Block Copy",
+    "request": "Example:\n\nConnect an email account before this Routine can run.\n\nrather than:\n\naccount_missing\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 204,
+    "title": "Provider Missing Copy",
+    "request": "Differentiate:\n\nNot configured\nNot connected\nNeeds owner authorization\nProvider unavailable\nProvider unqualified\n\nDo not collapse them into \u201cerror.\u201d\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "chat-model-failure.png",
+      "computer-reset-review-result.txt"
+    ],
+    "note": "System exposes missing providers, but chat Limited mode says Everything else remains available despite model authentication failure. Reset offered then rejected by execution policy."
+  },
+  {
+    "id": 205,
+    "title": "Unknown State",
+    "request": "Use Unknown only when evidence truly is insufficient.\n\nDo not use Unknown as a generic loading or error state.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 206,
+    "title": "Founder OS Health Semantics",
+    "request": "Explicitly verify:\n\nUnknown\n\u2260\nBad\n\u2260\nAt risk\n\nNo evidence should remain Unknown.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "roles-founder-expanded.yml",
+      "founder-created.txt"
+    ],
+    "note": "Four packs/28 displayed Role entries expanded; Founder nine domains Unknown, eleven goal templates and workflow/artifact maturity exposed. No fake live business metrics. All artifacts/business behavior not executed."
+  },
+  {
+    "id": 207,
+    "title": "Review Determinism",
+    "request": "Given the same persisted data, Review should produce the same deterministic structural state.\n\nGenerated brief content may vary if model-backed, but underlying:\n\nDue now\nNeeds attention\nAt risk\nCompleted today\n\nmust be grounded in persisted evidence.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "review-brief-complete.txt",
+      "result-feedback-review.txt"
+    ],
+    "note": "Daily/weekly deterministic reviews and persisted checkpoints exercised; repeat generation reuses period checkpoint. Goal task appears in focus; fixture Result and Helpful feedback appear in Recent outcomes. All risk, missed-commitment and model variants not completed."
+  },
+  {
+    "id": 208,
+    "title": "Agent Evidence Use",
+    "request": "For representative Agent work, verify citations/evidence are attached where product architecture requires them.\n\nNo unsupported confident claims from empty Knowledge.\n\n\u2e3b",
+    "status": "BLOCKED \u2014 MODEL AUTHENTICATION",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Canonical runtime attempted; no valid AI Gateway credentials. No successful model response or model-mediated state/context behavior is claimed."
+  },
+  {
+    "id": 209,
+    "title": "Model Failure",
+    "request": "Simulate model failure using test adapter.\n\nVerify:\n\n* Run failure state\n* no phantom Result\n* no unauthorized retry storm\n* Control Center explanation\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "chat-initial.txt",
+      "chat-model-failure.png"
+    ],
+    "note": "Missing-credential model failure observed in actual canonical chat, with retry state and persisted thread. No transient provider timeout/recovery success qualification."
+  },
+  {
+    "id": 210,
+    "title": "Model Timeout",
+    "request": "Simulate timeout.\n\nVerify bounded retry/recovery according to runtime policy.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [
+      "execution-integration.log"
+    ],
+    "note": "Distinct model timeout, live tool partial success and full cross-tab session/reconnect matrix not completed; integration fixtures do not substitute for these UI journeys."
+  },
+  {
+    "id": 211,
+    "title": "Tool Failure",
+    "request": "Simulate a safe tool failure.\n\nVerify Agent/Run state and evidence remain coherent.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [
+      "execution-integration.log"
+    ],
+    "note": "Distinct model timeout, live tool partial success and full cross-tab session/reconnect matrix not completed; integration fixtures do not substitute for these UI journeys."
+  },
+  {
+    "id": 212,
+    "title": "Partial Tool Success",
+    "request": "Simulate:\n\nread succeeds\nwrite fails\n\nVerify the product does not report the overall consequential effect as completed.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [
+      "execution-integration.log"
+    ],
+    "note": "Distinct model timeout, live tool partial success and full cross-tab session/reconnect matrix not completed; integration fixtures do not substitute for these UI journeys."
+  },
+  {
+    "id": 213,
+    "title": "Database Failure",
+    "request": "Simulate local database outage.\n\nVerify client receives stable errors, not driver details.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "database-outage.txt",
+      "database-recovery.txt"
+    ],
+    "note": "Isolated database outage/restart tested through real Goals UI and canonical API. No shared database was stopped. See evidence for observed error and recovery."
+  },
+  {
+    "id": 214,
+    "title": "Database Recovery",
+    "request": "Restore local database.\n\nVerify product can recover without requiring browser restart where reasonable.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "database-outage.txt",
+      "database-recovery.txt"
+    ],
+    "note": "Isolated database outage/restart tested through real Goals UI and canonical API. No shared database was stopped. See evidence for observed error and recovery."
+  },
+  {
+    "id": 215,
+    "title": "Invalid Session",
+    "request": "Expire/revoke authentication fixture.\n\nVerify owner is returned to authentication cleanly.\n\nNo stale owner data remains exposed.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [
+      "execution-integration.log"
+    ],
+    "note": "Distinct model timeout, live tool partial success and full cross-tab session/reconnect matrix not completed; integration fixtures do not substitute for these UI journeys."
+  },
+  {
+    "id": 216,
+    "title": "Session Across Tabs",
+    "request": "Logout in one tab.\n\nVerify other tab does not retain unauthorized server access.\n\n\u2e3b",
+    "status": "NOT TESTED",
+    "evidence": [
+      "execution-integration.log"
+    ],
+    "note": "Distinct model timeout, live tool partial success and full cross-tab session/reconnect matrix not completed; integration fixtures do not substitute for these UI journeys."
+  },
+  {
+    "id": 217,
+    "title": "Cost / Limits",
+    "request": "Exercise Agent limits with deterministic fixtures:\n\nsteps\ndeadline\ncost\nretry\n\nVerify bounded stop behavior.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 218,
+    "title": "Agent Model Configuration",
+    "request": "Change a secondary Agent\u2019s model/reasoning settings.\n\nVerify persistence and runtime selection semantics through safe fixture.\n\nDo not change primary production configuration.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "agent-created.txt"
+    ],
+    "note": "Agent model/reasoning settings persisted in Analyst form; actual configured model invocation blocked by missing credential."
+  },
+  {
+    "id": 219,
+    "title": "Agent Capability Change",
+    "request": "Remove a capability from secondary Agent.\n\nVerify subsequent work cannot use it.\n\nExisting approved Routine ceiling does not override Agent removal.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "database-integration.log",
+      "execution-integration.log"
+    ],
+    "note": "Canonical runtime rejects inactive/archived/foreign Agent binding403, primary mutations400; actual wrong-owner and capability mutation races additionally exercised in isolated integration. Not every route tested over HTTP."
+  },
+  {
+    "id": 220,
+    "title": "Agent Capability Addition",
+    "request": "Add a capability to secondary Agent.\n\nVerify an older Routine does not automatically gain it.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "runtime-agent-protections.txt",
+      "database-integration.log",
+      "execution-integration.log"
+    ],
+    "note": "Canonical runtime rejects inactive/archived/foreign Agent binding403, primary mutations400; actual wrong-owner and capability mutation races additionally exercised in isolated integration. Not every route tested over HTTP."
+  },
+  {
+    "id": 221,
+    "title": "Routine Manifest Change",
+    "request": "Modify a local test Routine to add a capability.\n\nExpected:\n\nreview invalidated\nNEEDS_APPROVAL\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 222,
+    "title": "Routine Capability Removal",
+    "request": "Remove a capability.\n\nVerify queued/future work cannot retain removed authority.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 223,
+    "title": "Routine Provider Disconnect",
+    "request": "Use deterministic availability fixture:\n\nREADY\n\u2192 provider unavailable\n\u2192 NEEDS_CONFIGURATION\n\nNo model invocation on next scheduled precheck.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 224,
+    "title": "Routine Provider Reconnect",
+    "request": "Reconnect fixture.\n\nReadiness recomputes.\n\nNo historical backlog explosion.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 225,
+    "title": "Routine Optional Delivery",
+    "request": "Make optional notification unavailable.\n\nVerify:\n\nResult persists\ndelivery skipped\nRoutine work remains completed\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 226,
+    "title": "Routine Global Kill Switch",
+    "request": "With a technically READY Routine:\n\ncanRun = false\n\nbecause global execution remains disabled.\n\nTest server enforcement.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 227,
+    "title": "Routine Run Now Race",
+    "request": "UI sees READY.\n\nBefore request, revoke required capability.\n\nServer must block.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 228,
+    "title": "Approval Race",
+    "request": "Two tabs decide same approval differently.\n\nExactly one canonical decision wins.\n\n\u2e3b",
+    "status": "PASS",
+    "evidence": [
+      "approval-two-tabs.txt",
+      "approval-decisions.txt",
+      "review-brief-complete.txt"
+    ],
+    "note": "Approval double-click and opposing decisions in two actual browser tabs yield one200 and one409. One durable winning decision. Review repeated generation reuses checkpoint."
+  },
+  {
+    "id": 229,
+    "title": "Computer Lease Race",
+    "request": "Agent and Owner race for control.\n\nExactly one valid controller state wins according to CAS semantics.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "execution-integration.log",
+      "database-integration.log"
+    ],
+    "note": "Computer lease/controller and file checksum/ownership fences exercised by deterministic integration only; live provider UI races unavailable."
+  },
+  {
+    "id": 230,
+    "title": "File Ownership Race",
+    "request": "If file sharing/grant changes while Agent reads, verify current authority at the actual access boundary.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "execution-integration.log",
+      "database-integration.log"
+    ],
+    "note": "Computer lease/controller and file checksum/ownership fences exercised by deterministic integration only; live provider UI races unavailable."
+  },
+  {
+    "id": 231,
+    "title": "Federation Grant Race",
+    "request": "Revoke Relay grant immediately before deterministic federated request execution.\n\nExpected:\n\nDENY\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Relay disabled in owner UI. Signed Relay, double authorization and private/revoked grant access covered by deterministic isolated integration only."
+  },
+  {
+    "id": 232,
+    "title": "Owner Data During Active Work",
+    "request": "Create backup while local Run/activity exists.\n\nVerify archive remains internally consistent and honestly represents active/incomplete state.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 233,
+    "title": "Audit Completeness",
+    "request": "For representative consequential lifecycle verify the audit can reconstruct:\n\nwho initiated\nwhich Agent\nwhich Run\nwhat Action\nauthority decision\napproval\nexecution\nverification\nresult\nrecovery\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 234,
+    "title": "Audit Privacy",
+    "request": "Audit should not expose:\n\nsecret\npassword\ntoken\ncookie\nsensitive typed input\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "populated-archive-audit.json",
+      "execution-integration.log"
+    ],
+    "note": "Activity/Finance/action surfaces inspected; synthetic approval and Agent audit history exported. No complete UI action\u2192provider\u2192recovery\u2192evidence lifecycle. Finance marked legacy single-owner in export."
+  },
+  {
+    "id": 235,
+    "title": "Sensitive Computer Input",
+    "request": "Using deterministic Computer fixture, type a synthetic secret during OWNER control.\n\nVerify it does not appear in:\n\nreceipts\nlogs\naudit\nscreenshots/artifacts\ndatabase summaries\n\naccording to previously qualified policy.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 236,
+    "title": "Owner Input vs Agent Input",
+    "request": "Verify owner keyboard/mouse actions are not recorded as Agent Actions.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 237,
+    "title": "Return Control",
+    "request": "After owner takeover fixture:\n\nclose owner input admission\ndrain in-flight input\nre-observe\ncheckpoint\nreconcile approvals\nreturn AGENT\n\nVerify ordering.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 238,
+    "title": "Stale Agent Action",
+    "request": "Attempt action from pre-takeover control version.\n\nExpected:\n\nDENY\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 239,
+    "title": "Computer Session Loss",
+    "request": "Simulate provider/session loss.\n\nExpected:\n\nLOST\n\nNo phantom active state.\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 240,
+    "title": "Computer Stop",
+    "request": "Stop session.\n\nExpected final controller:\n\nNONE\n\n\u2e3b",
+    "status": "PARTIAL \u2014 EXTERNAL PROVIDER REQUIRED",
+    "evidence": [
+      "manage-content.json",
+      "operations-settled.txt",
+      "execution-integration.log"
+    ],
+    "note": "Setup/unavailable/disabled state inspected where visible. Required provider connection, authorization or live execution was absent. Deterministic security fixtures are supplemental, not live UI qualification."
+  },
+  {
+    "id": 241,
+    "title": "Files + Owner Data",
+    "request": "Uploaded synthetic file should appear in Owner Data inventory.\n\nVerify archive does not falsely claim provider/binary portability beyond actual implementation.\n\n\u2e3b",
+    "status": "FAIL",
+    "evidence": [
+      "file-submit.txt",
+      "files-and-result.txt",
+      "files-after-upload.png",
+      "populated-archive-audit.json"
+    ],
+    "note": "Real text-file attachment submitted in chat; Files API/UI remain empty. sendDraft sends data URL directly and never calls durable persistChatUpload. File-to-Goal/context use blocked by model auth."
+  },
+  {
+    "id": 242,
+    "title": "Agent + Owner Data",
+    "request": "Persistent Agents should appear in owner export with safe configuration.\n\nNo credentials.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 243,
+    "title": "Routine + Owner Data",
+    "request": "Routine definitions/version/manifest/admission history should appear where current export coverage claims they do.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "operations-settled.txt",
+      "execution-integration.log",
+      "typecheck.log"
+    ],
+    "note": "Empty/disabled routine-reminder-trigger controls inspected. Routine activation disabled by canonical governance. Deterministic execution integration covers admission, versioning, revocation, Run Now race and optional delivery, but no owner UI routine execution is claimed."
+  },
+  {
+    "id": 244,
+    "title": "Computer + Owner Data",
+    "request": "Verify safe Computer/Profile metadata coverage according to current export implementation.\n\nNo cookies/provider credentials.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 245,
+    "title": "Approval + Owner Data",
+    "request": "Verify safe approval metadata coverage.\n\nNo sensitive raw parameters.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 246,
+    "title": "Relay + Owner Data",
+    "request": "Determine whether safe Relay metadata is currently exported.\n\nIf not implemented, record the gap rather than inventing it.\n\n\u2e3b",
+    "status": "NOT IMPLEMENTED / GAP",
+    "evidence": [
+      "populated-archive-audit.json"
+    ],
+    "note": "Archive has17 domains and no Relay metadata domain. No portability is invented for absent data."
+  },
+  {
+    "id": 247,
+    "title": "Results + Owner Data",
+    "request": "Verify durable Results are included where expected.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 248,
+    "title": "Chat + Owner Data",
+    "request": "Verify chat export scope and portability status.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 249,
+    "title": "Knowledge + Owner Data",
+    "request": "Verify typed Knowledge and provenance are represented correctly.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 250,
+    "title": "Goals + Owner Data",
+    "request": "Verify Goal state exports correctly.\n\n\u2e3b",
+    "status": "PARTIAL",
+    "evidence": [
+      "backup-verification.txt",
+      "backup-populated-current.txt",
+      "populated-archive-audit.json"
+    ],
+    "note": "Initial and populated archives exported; independent35 checksums each pass. Populated archive contains owner synthetic state and incomplete Runs. Correctly labels provider/binary limitations. Privacy adversarial verification separately fails; restore unavailable."
+  },
+  {
+    "id": 251,
+    "title": "Final Full Navigation Sweep",
+    "request": "After all data has been populated, revisit every top-level surface.\n\nThis is important because many bugs appear only after the product has state.\n\nRevisit:\n\nChat\nGoals\nKnowledge\nResults\nComputer\nAgents\nReview",
+    "status": "PARTIAL",
+    "evidence": [
+      "final-navigation.txt",
+      "final-navigation-settled.txt"
+    ],
+    "note": "Final populated navigation sweep captured; model/provider-created state remains unavailable and Files failed to populate."
+  }
+]

@@ -1,0 +1,5 @@
+### Error
+TimeoutError: locator.selectOption: Timeout 10000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('combobox', { name: 'Timezone', exact: true })[22m
+

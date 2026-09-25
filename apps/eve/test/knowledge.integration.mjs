@@ -50,6 +50,38 @@ integration("knowledge core preserves typed state, provenance, Goal links, relat
     assert.equal(insight.provenance.length, 1);
     assert.equal((await listKnowledge(ownerId, { kind: "decision", query: "Relay", goalId: goal.id, minConfidence: 0.5 }))[0].id, decision.id);
 
+    // Exercise the same tool handlers Sofie uses, against real isolated owner data.
+    const samples = {
+      record_fact: { statement: "Knowledge verification fact", confidence: 1 },
+      record_observation: { statement: "Knowledge verification observation", confidence: 0.7, occurrenceCount: 1 },
+      record_hypothesis: { statement: "Knowledge verification hypothesis", confidence: 0.5, testDescription: "Compare two isolated trials" },
+      record_decision: { title: "Knowledge verification decision", decision: "Use isolated test records", rationale: "Protect owner data", alternatives: [] },
+      record_commitment: { subject: "Knowledge verification", commitment: "Review the isolated test results" },
+      record_preference: { statement: "Knowledge verification preference", preferenceKey: "verification.format", preferenceValue: "brief", preferenceScope: "verification" },
+    };
+    const sessionId = `knowledge_session_${randomUUID()}`;
+    const ctx = (toolName, principalId = ownerId, role = "owner") => ({
+      toolName, session: { id: sessionId, auth: { current: { principalId, principalType: "user", attributes: { owner: "true", role } } } },
+    });
+    const saved = {};
+    for (const [name, input] of Object.entries(samples)) {
+      const tool = (await import(`../agent/tools/${name}.ts`)).default;
+      const record = await tool.execute(tool.inputSchema.parse(input), ctx(name));
+      saved[record.kind] = record;
+      assert.equal(record.provenance.length, 1, `${name} attaches conversation evidence`);
+      assert.equal(record.provenance[0].source.externalId, sessionId);
+      assert.equal((await listKnowledge(ownerId, { kind: record.kind, query: "verification", status: record.status })).some(r => r.id === record.id), true);
+      await assert.rejects(tool.execute(input, ctx(name, ownerId, "guest")), /authenticated owner scope/);
+    }
+    const inspect = (await import("../agent/tools/get_knowledge.ts")).default;
+    assert.equal((await inspect.execute({ id: saved.preference.id }, ctx("get_knowledge"))).preferenceSourceType, "explicit_user");
+    await assert.rejects(inspect.execute({ id: saved.fact.id }, ctx("get_knowledge", otherOwnerId)), /not found/);
+    const update = (await import("../agent/tools/update_knowledge_status.ts")).default;
+    assert.equal((await update.execute({ id: saved.commitment.id, status: "fulfilled" }, ctx("update_knowledge_status"))).status, "fulfilled");
+    await assert.rejects(update.execute({ id: saved.commitment.id, status: "open" }, ctx("update_knowledge_status")), /cannot move/);
+    const search = (await import("../agent/tools/search_knowledge.ts")).default;
+    assert.equal((await search.execute({ query: "verification", type: "hypothesis", limit: 25 }, ctx("search_knowledge")))[0].id, saved.hypothesis.id);
+
     const relationship = await createKnowledgeRelationship({ ownerId, subjectType: "decision", subjectId: decision.id, predicate: "affects", objectType: "goal", objectId: goal.id, confidence: 1 });
     assert.equal((await listKnowledgeRelationships(ownerId, { type: "decision", id: decision.id }))[0].id, relationship.id);
 
