@@ -8,6 +8,8 @@ Each deployment serves one owner by default for a simple security boundary. Code
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.
 
+Maintainers can delegate scoped issues to [Foreman](docs/foreman.md), which turns GitHub and Linear issues into independently reviewed draft pull requests.
+
 ## What it does
 
 **Chat**
