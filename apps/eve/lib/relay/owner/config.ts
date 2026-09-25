@@ -12,9 +12,14 @@ export function localOwnerQualification(env:NodeJS.ProcessEnv,trust:OwnerChannel
    !Number.isSafeInteger(until)||until<=Date.now()||until>Date.now()+3600000 ||
    trust?.environment!=="development"||trust.audience!=="myeve-local-qualification"||trust.mappings.length!==1)return false;
  const m=trust.mappings[0];
+ // Live Telegram sends Relay's pairing binding as its source. It may replace the
+ // harness constant only when pinned exactly, in the canonical Relay ID format.
+ const pinnedBinding=env.MYEVE_OWNER_LOCAL_SOURCE_IDENTITY;
+ const source=m.sourceIdentity==="qualification-source"||
+  (typeof pinnedBinding==="string"&&/^tgb_[0-9a-f]{32}$/.test(pinnedBinding)&&m.sourceIdentity===pinnedBinding);
  return m.enabled&&m.ownerId==="qualification-owner"&&m.agentId==="qualification-agent"&&
   m.relayAccountId==="qualification-relay"&&m.relayOwnerPrincipalId==="qualification-principal"&&
-  m.relayAgentId==="qualification-relay-agent"&&m.sourceIdentity==="qualification-source"&&
+  m.relayAgentId==="qualification-relay-agent"&&source&&
   m.allowedCapabilities?.length===1&&m.allowedCapabilities[0]==="web.read";
 }
 const mapping=z.object({relayAccountId:z.string().min(1),relayOwnerPrincipalId:z.string().min(1),relayAgentId:z.string().min(1),sourceIdentity:z.string().min(1),ownerId:z.string().min(1),agentId:z.string().min(1),enabled:z.boolean(),allowedCapabilities:z.array(z.enum(["web.search","web.read","tool.send_email"])).optional()}).strict();

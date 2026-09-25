@@ -24,6 +24,11 @@ const admin=new Pool({...connection,database:'postgres'});
 if(!(await admin.query("SELECT 1 FROM pg_database WHERE datname='owner_qualification'")).rowCount)throw new Error('Durable qualification database missing; never reset allowance automatically');
 await admin.end();
 const pool=new Pool({...connection,database:'owner_qualification'});
+// The retired Documents copy shares this cluster's system identifier, so verify
+// the served data directory and the exclusive campaign lock, not the identifier.
+const campaign=process.env.MYEVE_QUALIFICATION_CAMPAIGN_DIR??path.join(process.env.HOME,'Library/Application Support/RelayQualification/telegram-private-beta');
+if((await pool.query('SHOW data_directory')).rows[0].data_directory!==path.join(campaign,'postgres'))throw new Error('Port 55447 is not the active campaign ledger; refusing');
+try{await access(path.join(campaign,'campaign.lock','owner.json'));}catch{throw new Error('Exclusive campaign lock not held; refusing');}
 if(!(await pool.query("SELECT to_regclass('public.owner_qualification_budget') present")).rows[0].present)throw new Error('Qualification budget ledger missing; restore existing campaign');
 const canary='MYEVE_PRIVATE_CANARY_qualification_do_not_export_709b';
 await pool.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,preferred_model,status,max_steps,max_runtime_seconds,max_estimated_cost_usd)
