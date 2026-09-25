@@ -65,6 +65,12 @@ describe("read-only Foreman recovery",()=>{
     expect(request.query.trimStart()).toMatch(/^query\b/);expect(request.query).not.toMatch(/\bmutation\b/);
     expect(request.variables).toEqual({id:issue.id});
   });
+  it("reconstructs the saved action hash after Linear changes Markdown bullets",async()=>{
+    const original={...issue,description:"Update the guide.\n\nRequirements:\n- First requirement\n- Second requirement\n\n## Delivery boundary\nRepository: owner/repo."};
+    linearResponse({issues:{nodes:[{...original,description:"Update the guide.\n\nRequirements:\n\n* First requirement\n* Second requirement\n\n## Delivery boundary\n\nRepository: owner/repo."}]}});
+    const result=await recoveryStrategy("tool.delegate_foreman_issue","linear").inspect({target:foremanTarget,receipt,binding:bindingFor(original)});
+    expect(result).toMatchObject({outcome:"succeeded",evidence:{checks:{exactActionBinding:true}}});
+  });
   it("keeps recovery indeterminate when issue text differs from the durable action hash",async()=>{
     linearResponse({issues:{nodes:[{...issue,description:"Different content"}]}});
     const result=await recoveryStrategy("tool.delegate_foreman_issue","linear").inspect({target:foremanTarget,receipt,binding:bindingFor()});

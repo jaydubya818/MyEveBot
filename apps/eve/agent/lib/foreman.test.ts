@@ -36,6 +36,13 @@ describe("Foreman target and verified delegation",()=>{
       expect(await result).toMatchObject({verified:true,receipt:{status:"started",checks:{exists:true,id:true,title:true,description:true,team:true,delegate:true,workspace:true}}});
     } finally {vi.useRealTimers();}
   });
+  it("accepts Linear's Markdown bullet serialization without losing issue identity checks",async()=>{
+    const original={...params,description:"Summary of the task.\n\n- First step\n- Second step"};
+    const formatted={...issue,description:"Summary of the task.\n\n* First step\n* Second step"};
+    const request=vi.fn().mockResolvedValueOnce(account).mockResolvedValue({issues:{nodes:[formatted]}});
+    const adapter=foremanAdapter(config,request);const target=await adapter.resolveTarget(original);
+    expect(await adapter.verify(formatted,target)).toMatchObject({verified:true,receipt:{checks:{description:true}}});
+  });
   it("retries a temporarily missing issue readback",async()=>{
     vi.useFakeTimers();try {
       const request=vi.fn().mockResolvedValueOnce(account).mockResolvedValueOnce({issues:{nodes:[]}}).mockResolvedValueOnce({issues:{nodes:[issue]}});

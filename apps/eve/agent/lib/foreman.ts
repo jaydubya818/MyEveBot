@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { getToken } from "@vercel/connect";
 import { z } from "zod";
 import { consumeActionAuthority, consumeProviderAuthority, type ActionAdapter } from "../../lib/action-gateway.ts";
+import { normalizedForemanDescription } from "./foreman-description.ts";
 
 export const FOREMAN_CAPABILITY = "tool.delegate_foreman_issue";
 export const foremanInput = z.object({
@@ -32,7 +33,7 @@ function issueMatchChecks(issue:Issue|undefined,parameters:Record<string,unknown
     exists:!!issue,
     id:!!issue && issue.id===parameters.issueId,
     title:!!issue && issue.title===parameters.title,
-    description:!!issue && issue.description===parameters.description,
+    description:!!issue && normalizedForemanDescription(issue.description)===normalizedForemanDescription(String(parameters.description)),
     team:!!issue && issue.team.id===config.teamId,
     delegate:!!issue && issue.delegate?.id===config.delegateId,
   };

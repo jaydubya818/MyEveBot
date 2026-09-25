@@ -3,6 +3,7 @@ import { getToken } from "@vercel/connect";
 import { z } from "zod";
 import { db } from "../agent/lib/receipts-db.ts";
 import { inspectBoundMessage } from "../agent/lib/agentmail.ts";
+import { foremanDescriptionVariants } from "../agent/lib/foreman-description.ts";
 import { approvalBinding, canonicalActionValue, safeActionParameters } from "./approvals.ts";
 import type { ActionTarget } from "./action-gateway.ts";
 import type { ExecutionDatabase } from "./execution-types.ts";
@@ -141,9 +142,12 @@ export function recoveryStrategy(capability:string,provider:string):RecoveryStra
         if(!issue)return {outcome:"indeterminate",evidence:{reason:"provider_issue_not_visible",issueId}};
         const sessions=issue.agentSessions?.nodes??[];
         const startedSession=sessions.find(session=>typeof session.id==="string"&&["active","running","started","complete","completed","finished","succeeded"].includes(String(session.status).trim().toLowerCase()));
-        const observedPayload={issueId:issue.id,title:issue.title,description:issue.description};
-        const observedBinding=approvalBinding({taskId:binding.taskId,capabilityId:binding.capabilityId,resource:JSON.stringify(canonicalActionValue(target)),action:binding.actionClass,
-          parameters:{payload:observedPayload,target,executor:binding.executor,trigger:binding.trigger,computer:null}});
+        const exactActionBinding=foremanDescriptionVariants(issue.description).some(description=>{
+          const observedPayload={issueId:issue.id,title:issue.title,description};
+          const observedBinding=approvalBinding({taskId:binding.taskId,capabilityId:binding.capabilityId,resource:JSON.stringify(canonicalActionValue(target)),action:binding.actionClass,
+            parameters:{payload:observedPayload,target,executor:binding.executor,trigger:binding.trigger,computer:null}});
+          return observedBinding===binding.parameterHash;
+        });
         const checks={
           appIdentity:data.viewer?.id===delegateId,
           workspace:data.viewer?.organization?.id===workspaceId,
@@ -152,7 +156,7 @@ export function recoveryStrategy(capability:string,provider:string):RecoveryStra
           issueUrl:issue.url===issueUrl,
           team:issue.team?.id===teamId,
           delegate:issue.delegate?.id===delegateId,
-          exactActionBinding:observedBinding===binding.parameterHash,
+          exactActionBinding,
           foremanSession:!!startedSession,
         };
         const verified=Object.values(checks).every(Boolean);

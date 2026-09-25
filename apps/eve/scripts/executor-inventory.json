@@ -1915,8 +1915,8 @@
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner recovery CAS and call-time provider inspection remain read-only; Foreman reconciliation rebuilds the durable action binding from issue readback and only inspects the saved Linear target. No missing or mismatched provider evidence is treated as proof of non-execution.",
-      "sha256": "3ff62c86f65b3dbe5e3f0b1f2ef607356631b25a69ea7caed7a1e4720b7da622"
+      "reason": "Authenticated owner recovery CAS and call-time provider inspection remain read-only; Foreman reconciliation tests only bounded Linear list-marker variants against the exact durable action hash and saved target. No missing or mismatched provider evidence is treated as proof of non-execution.",
+      "sha256": "7070eae51732762be8514582218ac6762dfdc3b2d8886d907004acf86954d08f"
     },
     "lib/activation.ts": {
       "classification": "INTERNAL",
@@ -2907,10 +2907,15 @@
       "reason": "Reuses Eve public-network DNS and redirect guards; rechecks canonical owner Run and local web.read capability immediately before fetch.",
       "sha256": "9e68e5f82ae65e8971768be176500b7c886bdc5175bfd8be66b5c48d6939aa64"
     },
+    "agent/lib/foreman-description.ts": {
+      "classification": "NOT_APPLICABLE",
+      "sha256": "4d83ecddddc7096f18786886da7c459a0245aa96d93585ebdc290afd66d11fb5",
+      "reason": "Pure Markdown comparison and bounded list-marker and spacing reconstruction; no provider calls or writes."
+    },
     "agent/lib/foreman.ts": {
       "classification": "ENFORCED",
-      "sha256": "fc7d0370f9b4742d5bf05d0fd8a7fbdfe30100c1a4c47ff53d099e158b83dc68",
-      "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; bounded readback verifies content, delegate and workspace while distinguishing pending, started and failed sessions. Tests cover deny, delayed readback and field mismatches."
+      "sha256": "7c45788984101dbe4f95f4e6206afa84c080545679c1d8bd4f89c1f2f74ad96d",
+      "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; bounded readback verifies equivalent Markdown content, delegate and workspace while distinguishing pending, started and failed sessions. Tests cover deny, delayed readback and field mismatches."
     },
     "agent/tools/delegate_foreman_issue.ts": {
       "classification": "ENFORCED",
