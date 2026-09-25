@@ -2,6 +2,13 @@
 
 The owner can ask Sofie in web chat to create and delegate a Linear issue using relevant conversation context. `delegate_foreman_issue` uses a fixed configured workspace, team, app delegate, and repository. It returns an issue link and only reports startup when Linear has a real agent session. Foreman produces draft PRs; merge and deployment are separate owner actions.
 
+## Owner handoff and recovery
+
+- Sofie returns the Linear issue URL only after readback verification confirms the saved issue and its Foreman agent session. A session that is absent or still pending is reported as pending, never as started work.
+- Linear may normalize Markdown presentation in storage and display, such as list markers and whitespace. This does not change the issue's meaning and needs no correction.
+- If a handoff is uncertain, inspect the existing issue and its session from Control Center and reconcile from there. Do not create a replacement issue; the gateway's receipt supports reconciliation.
+- Use the **Linear issues** shortcut in Sofie's sidebar to open the configured MYE Linear workspace and find the issue.
+
 ## Setup
 
 Attach the existing Foreman Linear connector to the Sofie Vercel project without adding a webhook destination. Foreman remains the webhook receiver. Configure `FOREMAN_LINEAR_CONNECTOR`, `FOREMAN_LINEAR_WORKSPACE_ID`, `FOREMAN_LINEAR_TEAM_ID`, `FOREMAN_LINEAR_DELEGATE_ID`, and `FOREMAN_REPO`. The connector app identity and workspace are checked against these values before execution.
