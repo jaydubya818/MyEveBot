@@ -1876,7 +1876,7 @@
     "app/api/threads/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0f1b0133883dc3932badb0ba949560244351fa0a8672c4309b57fd849cea6d08"
+      "sha256": "975c1f0d0a10318ff1e67c6e03cf756ab96a6bb50ad68fd7d4aa9d58ac4eb57e"
     },
     "app/api/threads/route.ts": {
       "classification": "INTERNAL",
@@ -2603,6 +2603,11 @@
       "reason": "Types, schemas and pure validation helpers; no provider operation.",
       "sha256": "a2aed290680411ef85372657f747e36d56be488ec515836e9f5c88c990df0d84"
     },
+    "lib/thread-owner-conflict.ts": {
+      "classification": "INTERNAL",
+      "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers.",
+      "sha256": "279a736ce844106f140a4bdb4ca66b531c9e2f28c3f54f364304ad3eab2f94a9"
+    },
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
@@ -2611,7 +2616,7 @@
     "lib/threads-db.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a69bfbba85bd60f89c36bdc7fcabcdd7cde55c2bf61b73b7b2645b9ca66eed60"
+      "sha256": "dba323c10ddd2deed3dae9ebf4fcb3714e58c4318315edd4d6cece29b282047d"
     },
     "lib/utils.ts": {
       "classification": "INTERNAL",
