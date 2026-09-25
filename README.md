@@ -226,3 +226,14 @@ vercel deploy --prod --yes
 ```
 
 After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
+
+## Reporting bugs
+
+Found a problem? [Open an issue](https://github.com/jaydubya818/MyEveBot/issues/new) and include:
+
+- The affected app (e.g. `apps/eve` or `apps/builder`)
+- Expected behavior and actual behavior
+- Steps to reproduce
+- The relevant version or commit
+
+Please redact credentials and personal data from any logs or screenshots before attaching them.
