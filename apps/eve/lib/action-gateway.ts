@@ -2,10 +2,24 @@ import { ROUTINE_RELEASE } from "./routine-release.ts";
 import {ActionRecovery} from "./action-recovery.ts";
 import { randomUUID } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
-import { approvalBinding, canonicalActionValue, requestApproval, resolveApprovalPolicy, safeActionParameters, type ActionClass } from "./approvals.ts";
+import { approvalRequestId, approvalBinding, canonicalActionValue, requestApproval, resolveApprovalPolicy, safeActionParameters, type ActionClass } from "./approvals.ts";
 import { effectiveCapability, getAgent } from "./agents.ts";
 import { getCapability } from "./capability-registry.ts";
 import { type ExecutionDatabase, type RoutineConfiguration } from "./execution-types.ts";
+import { ComputerResourceStore, computerResourceEnvironment, resourceBinding, type ComputerResource, type ResourceBinding } from "./computer-resource-store.ts";
+
+export type ComputerLifecycleOperation = "stop" | "delete" | "verify";
+export interface ComputerLifecycleAuthority { readonly classification: "OWNED_RESOURCE_LIFECYCLE" }
+export interface ComputerLifecycleProvider {
+  execute(operation: ComputerLifecycleOperation, row: ComputerResource, authority: ComputerLifecycleAuthority, store: ComputerResourceStore): Promise<boolean>;
+}
+const lifecycleHandles = new WeakMap<ComputerLifecycleAuthority, { operation: ComputerLifecycleOperation; binding: string; expiresAt: number; revalidate: () => Promise<boolean> }>();
+/** Destructive-only authority cannot enter either ordinary Action Gateway handle map. */
+export async function consumeComputerLifecycleAuthority(authority: ComputerLifecycleAuthority, operation: ComputerLifecycleOperation, row: ComputerResource) {
+  const handle = lifecycleHandles.get(authority); lifecycleHandles.delete(authority);
+  if (!handle || handle.operation !== operation || handle.binding !== JSON.stringify(resourceBinding(row))
+    || Date.now() >= handle.expiresAt || !await handle.revalidate()) throw new ActionBlocked("denied", "computer_lifecycle_binding");
+}
 
 export interface ActionTarget {
   provider: string;
@@ -65,6 +79,15 @@ export async function consumeProviderAuthority(context:AuthorizedAction|undefine
   await takeAuthority(providerHandles,context,parameters,capabilityId);
 }
 
+/** The canonical provisioning grant keeps a read-only revalidator through durable binding insertion. */
+export async function consumeComputerProvisionAuthority(context: AuthorizedAction, parameters: Record<string, unknown>) {
+  const record=await takeAuthority(providerHandles,context,parameters,"computer.session.create");
+  return async () => {
+    if(context.signal?.aborted || Date.now()>=context.expiresAt) throw new ActionBlocked("denied",context.idempotencyKey);
+    await record.revalidate();
+  };
+}
+
 function frozenJson<T>(value:T):T {
   const copy=canonicalActionValue(value) as T;
   function freeze(item:unknown):void {
@@ -76,7 +99,7 @@ export class ActionBlocked extends Error {
   readonly status:"denied"|"awaiting_approval"|"result_unknown";
   readonly actionId:string;
   constructor(status: "denied" | "awaiting_approval" | "result_unknown", actionId: string) {
-    super(status === "awaiting_approval" ? "Waiting for exact-action approval." : status === "result_unknown" ? "Result needs verification before retry." : "Action is not authorized.");
+    super(actionId.startsWith("RUN_") ? `${actionId}: Execution context unavailable; new work needs fresh authority.` : status === "awaiting_approval" ? "Waiting for exact-action approval." : status === "result_unknown" ? "Result needs verification before retry." : "Action is not authorized.");
     this.status=status;this.actionId=actionId;
   }
 }
@@ -129,19 +152,75 @@ export class ActionGateway {
     executionEnabled:()=>boolean=()=>ROUTINE_RELEASE.enabled,
   ) {this.database=database;this.authority=authority;this.approvals=approvals;this.executionEnabled=executionEnabled;}
 
+  /** Entry points are authenticated owner routes, qualified Agent adapters, and deterministic recovery.
+   * Resource names are assertions only; only pre-existing durable ownership can authorize deletion. */
+  async terminateOwnedComputer(input: { binding: ResourceBinding; initiator: "owner" | "system" | "agent"; controlVersion?: number;
+    agentAuthority?: AuthorizedAction; agentParameters?: Record<string, unknown> }, provider?: ComputerLifecycleProvider) {
+    const binding = frozenJson(input.binding);
+    if (binding.environment !== computerResourceEnvironment()) throw new ActionBlocked("denied", "computer_environment");
+    const store = new ComputerResourceStore(this.database);
+    const existing = await store.exact(binding);
+    if (!existing) throw new ActionBlocked("denied", "computer_lifecycle_binding");
+    if (input.initiator === "agent") {
+      const authority = input.agentAuthority;
+      if (!authority || authority.executor?.agentId !== existing.agent_id || authority.target?.resource !== existing.resource_name
+        || authority.target.account !== existing.owner_id || authority.target.environment !== existing.environment) throw new ActionBlocked("denied", "computer_agent_binding");
+      await consumeProviderAuthority(authority, input.agentParameters ?? {}, "computer.session.stop");
+    }
+    if (existing.state === "cleaned" && input.initiator !== "system") return { verified: true, lifecycleId: existing.id, reused: true };
+    const row = await store.claim(binding, input.initiator, input.controlVersion);
+    if (!row) throw new ActionBlocked("denied", "computer_lifecycle_fenced");
+    let verified = false;
+    try {
+      if (input.initiator === "system") await store.event(row, "recovery.attempted");
+      const adapter = provider ?? (await import("./computer-resource-provider.ts")).computerResourceProvider;
+      for (const operation of ["stop", "delete", "verify"] as const) {
+        const authority: ComputerLifecycleAuthority = Object.freeze({ classification: "OWNED_RESOURCE_LIFECYCLE" });
+        lifecycleHandles.set(authority, { operation, binding: JSON.stringify(resourceBinding(row)), expiresAt: Date.now()+10_000,
+          revalidate: () => store.validClaim(row) });
+        try {
+          await store.event(row, `${operation}.requested`);
+          const result = await adapter.execute(operation, row, authority, store);
+          if (!result) throw new Error("Computer cleanup is unverified.");
+          await store.event(row, operation === "verify" ? "absence.verified" : `${operation}.completed`);
+        } finally { lifecycleHandles.delete(authority); }
+      }
+      verified = true;
+      return { verified: true, lifecycleId: row.id, reused: false };
+    } finally {
+      if (!await store.finish(row, verified)) throw new ActionBlocked("result_unknown",row.id);
+      if (!verified) await store.event(row, "cleanup.failed", "unverified");
+    }
+  }
+
   async execute<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal?: AbortSignal): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
+    return this.run(action, adapter, signal, false);
+  }
+
+  /** Persist the exact Action/approval without ever claiming or invoking its adapter. */
+  async prepare(action: ActionRequest, adapter: Pick<ActionAdapter<never>, "resolveTarget">) {
+    return this.run(action, {
+      ...adapter,
+      execute: async () => { throw new Error("Preparation cannot execute."); },
+      verify: async () => { throw new Error("Preparation cannot verify."); },
+    }, undefined, true);
+  }
+
+  private async run<Result>(action: ActionRequest, adapter: ActionAdapter<Result>, signal: AbortSignal | undefined, prepareOnly: boolean): Promise<{ actionId: string; receipt: Record<string, unknown> }> {
     action=frozenJson(action);
     if (!action.actionKey || !action.ownerId || !action.runId) throw new Error("Action identity is incomplete.");
     let target: ActionTarget;
     let decision: AuthorityDecision;
     let targetResolved=false;
-    const context = await this.database.query(`SELECT r.agent_id,r.role_id,g.updated_at::text AS agent_revision,o.id AS occurrence_id,o.claim_version,o.claimed_by,o.lease_expires_at,
+    const context = await this.database.query(`SELECT r.agent_id,r.role_id,
+        (r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>clock_timestamp())) AS run_live,(r.deadline_at<=clock_timestamp()) AS run_expired,g.updated_at::text AS agent_revision,o.id AS occurrence_id,o.claim_version,o.claimed_by,o.lease_expires_at,
         o.status AS occurrence_status,v.configuration
       FROM task_runs r JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
       LEFT JOIN execution_occurrences o ON o.owner_id=r.owner_id AND o.run_id=r.id
       LEFT JOIN execution_routine_versions v ON v.owner_id=o.owner_id AND v.routine_id=o.routine_id AND v.version=o.routine_version
       WHERE r.owner_id=$1 AND r.id=$2 AND r.agent_id=$3`, [action.ownerId,action.runId,action.executor.agentId]);
     if (!context[0]) throw new ActionBlocked("denied", "unresolved");
+    if(context[0].run_live!==true && !action.delivery)throw new ActionBlocked("denied",context[0].run_expired===true?"RUN_EXPIRED":"RUN_NOT_EXECUTABLE");
     if((context[0].role_id??null)!==(action.executor.roleId??null))throw new ActionBlocked("denied","unresolved");
     const occurrence = context[0].occurrence_id;
     if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied","routine_execution_disabled");
@@ -175,13 +254,18 @@ export class ActionGateway {
     const pending=await existingAction();
     let rows = pending.length?pending:await this.database.query(`INSERT INTO action_requests(id,owner_id,run_id,occurrence_id,action_key,executor,trigger,capability_id,
         action_class,target,parameter_hash,safe_summary,decision,authority_source,status,computer_session_id,control_version,reason_code)
-      VALUES($1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9,$10::jsonb,$11,$17::jsonb,$12,$13,$14,$15,$16,$18)
+      SELECT $1,$2,$3,$4,$5,$6::jsonb,$7::jsonb,$8,$9,$10::jsonb,$11,$17::jsonb,$12,$13,$14,$15,$16,$18
+      FROM task_runs admission WHERE admission.id=$3 AND admission.owner_id=$2
+        AND ((admission.status IN ('running','awaiting_approval') AND (admission.deadline_at IS NULL OR admission.deadline_at>clock_timestamp()))
+          OR ($19::boolean AND admission.status='completed'))
+        AND ($7::jsonb->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s
+          WHERE s.task_id=admission.id AND s.session_id=$7::jsonb->>'id' AND s.is_current))
       ON CONFLICT DO NOTHING RETURNING *`,
     [id,action.ownerId,action.runId,action.occurrence?.id??null,action.actionKey,JSON.stringify(action.executor),JSON.stringify(action.trigger),action.capabilityId,
       action.actionClass,JSON.stringify(safeActionParameters(target as unknown as Record<string,unknown>)),binding,decision.decision,decision.source,
-      decision.decision === "DENY" ? "denied" : "planned",action.computer?.sessionId??null,action.computer?.controlVersion??null,JSON.stringify(summary),reasonCode]);
+      decision.decision === "DENY" ? "denied" : "planned",action.computer?.sessionId??null,action.computer?.controlVersion??null,JSON.stringify(summary),reasonCode,Boolean(action.delivery)]);
     if(!rows.length)rows=await existingAction();
-    if(!rows.length)throw new ActionBlocked("denied","binding_claim_changed");
+    if(!rows.length)throw new ActionBlocked("denied","RUN_EXPIRED");
     const row = rows[0]!;
     const actionId = String(row.id);
     if (row.parameter_hash !== binding || decision.decision === "DENY") {
@@ -198,6 +282,8 @@ export class ActionGateway {
       row.approval_id=null;
     }
     if(row.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW")decision={...decision,decision:"REQUIRE_APPROVAL"};
+    // A preparation replay never replaces an expired approval generation.
+    if (prepareOnly && row.approval_id) throw new ActionBlocked("awaiting_approval", actionId);
     if (decision.decision === "REQUIRE_APPROVAL") {
       if(row.approval_id) {
         const expired=await this.database.query(`UPDATE action_requests a SET approval_id=NULL,status='planned',approval_generation=approval_generation+1,updated_at=now()
@@ -221,6 +307,7 @@ export class ActionGateway {
         throw new ActionBlocked("awaiting_approval",actionId);
       }
     }
+    if (prepareOnly) return {actionId, receipt: {status: "prepared"}};
     // This CAS is the transmission boundary. A crash after it is uncertain even
     // when execute never got CPU time. Safety takes precedence over availability.
     // Re-evaluate after approval lookup and immediately before the durable claim.
@@ -233,6 +320,9 @@ export class ActionGateway {
       await this.recordDenial(action.ownerId,actionId,"authority_unavailable");
       throw new ActionBlocked("denied",actionId);
     }
+    const approvalGeneration=Number(row.approval_generation??0);
+    const expectedApprovalId=approvalRequestId({ownerId:action.ownerId,taskId:action.runId,
+      requestKey:`${actionId}:${row.attempt_count??0}:${approvalGeneration}`});
     const started = await this.database.query(`WITH started AS (
       UPDATE action_requests a SET status='executing',attempt_count=attempt_count+1,updated_at=now()
       WHERE a.owner_id=$1 AND a.id=$2 AND parameter_hash=$3 AND status IN ('planned','authorized','awaiting_approval')
@@ -245,10 +335,13 @@ export class ActionGateway {
             WHERE d.id=$10 AND d.owner_id=a.owner_id AND d.run_id=a.run_id AND d.claim_version=$11 AND d.status='delivering'
               AND d.claimed_until>now() AND d.channel=$12 AND d.result_reference=$13 AND o.status='completed'
               AND routine.status='active' AND routine.version=o.routine_version))))
+        AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
         AND EXISTS(SELECT 1 FROM agents g WHERE g.owner_id=a.owner_id AND g.id=$8 AND g.status='active' AND g.updated_at=$9::timestamptz)
         AND ($4<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p
           WHERE p.id=a.approval_id AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
-            AND p.status='approved' AND p.expires_at>now()))
+            AND p.status='approved' AND p.decision='approved' AND p.expires_at>now()
+            AND p.id=$14 AND a.approval_generation=$15 AND p.agent_id=$8
+            AND p.action_class=a.action_class AND p.action=a.action_class AND p.capability_id=a.capability_id))
         AND (a.occurrence_id IS NULL OR EXISTS(SELECT 1 FROM execution_occurrences o JOIN execution_routines r ON r.owner_id=o.owner_id AND r.id=o.routine_id
           WHERE o.owner_id=a.owner_id AND o.id=a.occurrence_id AND o.status='running' AND o.claim_version=$5 AND o.claimed_by=$6
             AND o.lease_expires_at>now() AND r.status='active' AND r.version=o.routine_version))
@@ -259,7 +352,7 @@ export class ActionGateway {
       INSERT INTO action_receipts(owner_id,action_id,attempt_number,event,details)
       SELECT owner_id,id,attempt_count,'authorized',jsonb_build_object('authority',$7::text,'decision',$4::text) FROM started
     ) SELECT id FROM started`, [action.ownerId,actionId,binding,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null,decision.source,action.executor.agentId,context[0].agent_revision,
-      action.delivery?.id??null,action.delivery?.claimVersion??null,action.delivery?.channel??null,action.delivery?.resultReference??null]);
+      action.delivery?.id??null,action.delivery?.claimVersion??null,action.delivery?.channel??null,action.delivery?.resultReference??null,expectedApprovalId,approvalGeneration]);
     if (!started[0]) {
       await this.recordDenial(action.ownerId,actionId,"execution_precondition_failed");
       throw new ActionBlocked(decision.decision === "REQUIRE_APPROVAL" ? "awaiting_approval" : "denied",actionId);
@@ -274,7 +367,10 @@ export class ActionGateway {
       }
     }
     let releaseComputer = false;
-    const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+30_000,target,capabilityId:action.capabilityId,signal});
+    // Only Computer provisioning waits for bounded cold preparation. Its provider
+    // boundary still revalidates all durable authority and budget gates.
+    const authorityLifetimeMs = action.capabilityId === "computer.session.create" ? 150_000 : 30_000;
+    const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+authorityLifetimeMs,target,capabilityId:action.capabilityId,signal});
     try {
       handles.set(authorized,{binding:JSON.stringify(canonicalActionValue({parameters:action.parameters,target})),revalidate:async()=>{
         if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
@@ -284,6 +380,7 @@ export class ActionGateway {
           JOIN task_runs r ON r.owner_id=a.owner_id AND r.id=a.run_id
           JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
           WHERE a.owner_id=$1 AND a.id=$2 AND a.status='executing' AND a.parameter_hash=$3
+            AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
             AND g.status='active' AND g.updated_at=$4::timestamptz
             AND (($5::text IS NULL AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())
               AND r.model_steps<r.max_model_steps AND r.estimated_cost_usd<r.max_estimated_cost_usd)
@@ -293,7 +390,10 @@ export class ActionGateway {
                 WHERE d.id=$5 AND d.owner_id=a.owner_id AND d.run_id=a.run_id AND d.status='delivering' AND d.claim_version=$6
                   AND d.claimed_until>now() AND o.status='completed' AND routine.status='active' AND routine.version=o.routine_version)))
             AND ($7<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p WHERE p.id=a.approval_id
-              AND p.owner_id=a.owner_id AND p.binding_hash=a.parameter_hash AND p.status='approved' AND p.expires_at>now()))
+              AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
+              AND p.status='approved' AND p.decision='approved' AND p.expires_at>now()
+              AND p.id=$10 AND a.approval_generation=$11 AND p.agent_id=g.id
+              AND p.action_class=a.action_class AND p.action=a.action_class AND p.capability_id=a.capability_id))
             AND (a.occurrence_id IS NULL OR EXISTS(SELECT 1 FROM execution_occurrences o JOIN execution_routines routine
               ON routine.owner_id=o.owner_id AND routine.id=o.routine_id WHERE o.owner_id=a.owner_id AND o.id=a.occurrence_id
                 AND o.status='running' AND o.claim_version=$8 AND o.claimed_by=$9 AND o.lease_expires_at>now()
@@ -301,7 +401,7 @@ export class ActionGateway {
             AND (a.computer_session_id IS NULL OR EXISTS(SELECT 1 FROM computer_control_leases c JOIN computer_sessions s ON s.id=c.computer_session_id
               WHERE c.owner_id=a.owner_id AND c.computer_session_id=a.computer_session_id AND c.controller='AGENT'
                 AND c.version=a.control_version AND c.agent_id=g.id AND s.expires_at>now() AND s.status IN ('ready','running')))`,
-          [action.ownerId,actionId,binding,context[0].agent_revision,action.delivery?.id??null,action.delivery?.claimVersion??null,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null]);
+          [action.ownerId,actionId,binding,context[0].agent_revision,action.delivery?.id??null,action.delivery?.claimVersion??null,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null,expectedApprovalId,approvalGeneration]);
         if(!valid.length)throw new ActionBlocked("denied",actionId);
       }});
       const result = await adapter.execute(action.parameters,authorized);

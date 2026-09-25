@@ -1,5 +1,6 @@
 import { orgoForProfile } from "@/agent/lib/orgo";
 import { apiError, requireDatabase } from "@/lib/api-errors";
+import { computerApiFailure } from "@/lib/computer-api-errors";
 import {
   advanceBrowserProfileGeneration,
   ensureAllBrowserProfiles,
@@ -25,8 +26,7 @@ export async function GET(request: Request): Promise<Response> {
   try {
     return Response.json({ profiles: await ensureAllBrowserProfiles(webPrincipal(request)!.id) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Persistent browser profiles could not be listed", error);
-    return apiError(request, 503, "browser_profiles_unavailable", "Persistent browser profiles are temporarily unavailable.");
+    return computerApiFailure(request, error, { context: "Persistent browser profiles could not be listed", code: "browser_profiles_unavailable", message: "Persistent browser profiles are temporarily unavailable." });
   }
 }
 
@@ -57,6 +57,11 @@ export async function PATCH(request: Request): Promise<Response> {
     return Response.json({ profiles: await ensureAllBrowserProfiles(ownerId) });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Persistent browser profile could not be updated.";
-    return apiError(request, /not found/i.test(message) ? 404 : 409, "browser_profile_update_failed", message);
+    return computerApiFailure(request, error, {
+      context: "Persistent browser profile update failed",
+      status: /not found/i.test(message) ? 404 : 409,
+      code: /not found/i.test(message) ? "browser_profile_not_found" : "browser_profile_update_failed",
+      message: /not found/i.test(message) ? "Persistent browser profile not found." : "Persistent browser profile could not be updated safely.",
+    });
   }
 }

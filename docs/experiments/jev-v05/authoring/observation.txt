@@ -1,0 +1,80 @@
+Three moths settled on the unlit panel during tonight's count.|The observer records what happened without an explanation.|Direct counted occurrence.
+The glaze pooled at the base of this morning's test cup.|The potter is reporting the firing result.|Directly noticed condition.
+Every visitor in the last group turned left first.|The attendant watched that group enter.|Observed behavior pattern.
+The gauge rose twice while the pumps were off.|This is a reading from today's inspection, with no proposed cause.|Measured pattern.
+I found sand inside both sealed cases.|The owner opened the cases during the current inspection.|Fresh noticing.
+The first row remained empty until the final bell.|The usher reports the just-completed performance.|Observed occupancy sequence.
+The new sign drew no questions during my shift.|The attendant is reporting only that interval.|Observed absence, no claim of effectiveness.
+The watermark was visible only when I tilted the sheet.|The archivist describes today's examination.|Direct perceptual report.
+Seven returned tools had tape around their handles.|The owner just checked the return bin.|Counted material condition.
+The lower shelf vibrated when the passing train arrived.|The observer reports coincidence without causal attribution.|Observed timing relationship.
+I heard a second click after the lid closed.|The repairer records a sound from the test.|Direct sensory occurrence.
+The river surface looked darker below the bridge this afternoon.|No sample analysis has been performed.|Direct visual observation.
+Two boats waited outside the harbor while the berth was empty.|The watcher describes what was visible at noon.|Observed state, no explanation.
+The student erased the diagram before changing the answer.|The tutor records the sequence without interpreting intent.|Observed action order.
+The same room felt colder near the floor during my visit.|No explanation or general rule is proposed.|Reported sensory experience.
+The counter stopped advancing during the third crossing.|The operator reports this test's behavior.|Observed instrument event.
+I noticed no difference between the two samples under this lamp.|Only the present inspection is covered.|Limited negative observation.
+The paper curled along its unpainted edge.|The owner describes the drying sample.|Direct condition report.
+All five callers asked about the missing entrance sign.|The owner summarizes calls received today.|Observed reported-question pattern.
+The last basket contained stones as well as shells.|The field assistant has just sorted it.|Direct observed contents.
+The dog approached the quieter of the two gates.|The handler records behavior, not a preference on behalf of the owner.|Observed choice by another subject.
+The queue shortened during the rain.|The attendant records overlap without saying why.|Observed temporal pattern.
+I saw the amber light, not the green one.|The technician corrects their earlier sensory report.|Corrected observation.
+Only the outer surface warmed during the trial.|The experimenter reports sensor readings.|Measured result, not theory.
+The audience applauded before the curtain had fully risen.|The stage manager records tonight's sequence.|Observed occurrence.
+The replacement latch caught on four of ten attempts.|The repair log records today's tests.|Measured frequency.
+The printer left a blank strip along the second sheet.|The owner reports the current output.|Direct inspection result.
+The pond's edge had moved beyond yesterday's marker.|The fieldworker compares visible markers now.|Fresh measurement comparison.
+A visitor read the warning aloud and then entered anyway.|The steward describes witnessed actions.|Observed behavior without inferred motivation.
+The labels were harder for me to distinguish in the afternoon glare.|The owner reports a specific viewing experience.|Situated sensory observation.
+Both thermometers displayed the same value at dawn.|The observer records readings without certification of truth.|Direct measured coincidence.
+Nobody used the spare entrance while I watched.|The time-limited watching period is the entire evidence.|Bounded negative observation.
+The wheel hesitated once on each revolution.|The mechanic describes today's spin test.|Observed recurring behavior.
+I counted fewer nests after the storm.|The watcher reports a count difference, not a causal claim.|Measured comparison.
+The second group stayed longer at the unfinished display.|The attendant timed two groups today.|Measured behavior comparison.
+The apprentice asked for the same instruction three times.|The mentor records events without diagnosing understanding.|Observed repetition.
+The bell sounded muffled from behind the closed partition.|The owner tested listening positions.|Direct sensory result.
+The basin drained unevenly during this pour.|The craftsperson reports the trial.|Observed fluid behavior.
+The orange paint looked brown in the scan.|The archivist compares today's scan with the object.|Observed representation difference.
+One participant crossed out every suggested answer.|The facilitator reports the collected form.|Directly noticed response pattern.
+The locking pin moved even though the handle stayed still.|The operator describes a test without explaining the mechanism.|Observed correlated states.
+The birds returned to the occupied ledge before the empty one.|The watcher records sequence.|Observed animal behavior.
+The translated panel drew longer pauses in this group.|The steward timed this visit only.|Observed reading-duration pattern.
+The candle went out before the window was opened.|The owner is correcting a remembered sequence.|Observed temporal correction.
+The last two crates arrived with their orientation arrows upside down.|The receiving clerk inspected this shipment.|Direct shipment condition.
+The metal rang differently after the second strike.|The smith records a heard difference without diagnosis.|Sensory comparison.
+I saw one signature underneath the pasted correction.|The archivist describes examination under transmitted light.|Direct noticing.
+The outgoing ferry left a wake that reached the marker.|The fieldworker records a visible event.|Observed event extent.
+The helpers clustered around the only unlabeled box.|The coordinator reports witnessed behavior.|Observed spatial pattern.
+The attendance marks stopped after the interval.|The owner is describing marks on today's sheet, not claiming everyone left.|Direct evidence report.
+The sign remained wet after the surrounding wall dried.|The caretaker watched drying over the afternoon.|Observed contrast.
+The presenter skipped the example mentioned in the handout.|The attendee reports the actual presentation.|Observed omission.
+The current sample smells sharper than yesterday's.|The owner records a sensory comparison, without chemical identification.|Direct sensory observation.
+The oldest reel unwound without the crackling heard on the newer ones.|The archivist describes today's playback.|Observed comparative behavior.
+A child traced the border rather than the labeled route.|The guide watched an interaction with the map.|Observed interaction.
+The tally rose by two after one person passed.|The tester compares the counter with a witnessed passage.|Observed instrument discrepancy.
+The handle turned farther with the case empty.|The repairer describes today's paired trials.|Measured behavior without causal explanation.
+The actor paused at the word missing from the prompt sheet.|The director records rehearsal events without attributing cause.|Observed timing relationship.
+I found no imprint on the reverse of the seal.|The owner inspected that surface under magnification.|Negative observation.
+The replacement string slipped during its first tuning.|The musician reports the trial event.|Observed occurrence.
+The group gathered near the map before asking for directions.|The attendant describes sequence.|Observed behavior.
+The reflection disappeared when I moved to the aisle.|The owner reports a viewing test.|Situated perceptual result.
+The eastern patch stayed green after the rest browned.|The gardener records the visible seasonal pattern without explaining it.|Observed contrast over time.
+The courier read the fragile label after setting the crate down.|The receiver witnessed both actions.|Observed sequence.
+The thread broke beside the knot, not at it.|The craftsperson reports the inspected break.|Direct spatial observation.
+The room grew quieter after the fan stopped.|The observer records a sound change, not a general explanation.|Observed temporal comparison.
+The final visitor used the delivery door to leave.|The steward reports a witnessed exit.|Direct event report.
+I did not fail to hear the second whistle.|The owner clarifies that they heard it during the trial.|Double-negated sensory report.
+The observer wrote 'no movement' but I saw the flag twitch.|The candidate covers both the written note and the owner's contrary direct report.|Mixed evidence sources may be ambiguous.
+The screen showed 'I agree' before anyone touched it.|The tester reports displayed text, not agreement.|Observed quotation on a surface.
+'Blue is better' was what the visitor said when shown the two prints.|The owner recounts today's witnessed utterance, with no endorsement.|Observed speech rather than owner's preference.
+The caretaker called it 'perfectly dry'; my cloth came away wet.|The owner reports contrasting speech and a direct test.|Reported evidence may be treated as multi-concept.
+Apparently the quiet bell is our loudest exhibit today.|The speaker means the bell was unusually loud during today's tour, not a general ranking.|Sarcastic observation with bounded context.
+The light did not stay off when the timer ended.|The observer watched it turn on at the end of the test.|Negated observed state transition.
+That was the third missed step I saw this morning.|The speaker watched three visitors stumble on the same stair.|Observed count.
+The door opened more slowly; I cannot tell whether the hinge changed.|The candidate combines a measured result with explicit uncertainty, without proposing an explanation.|Observation with epistemic limitation.
+The other guide's group crossed the rope line twice.|The owner witnessed both crossings.|Attributed direct observation.
+The liquid reached the mark only after I tilted the vessel.|The owner is logging the just-completed handling test.|Observed conditional sequence.
+The two captions exchanged places between my visits.|The owner compared photographs from those visits without explaining the change.|Observed temporal difference.
+It happened again.|No event or prior context is supplied.|Insufficient referent for a defensible category.

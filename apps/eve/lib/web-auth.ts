@@ -1,6 +1,7 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 import { apiError } from "./api-errors.ts";
+import { deploymentOwnerId } from "./owner-identity.ts";
 
 export const WEB_SESSION_COOKIE = "myeve_session";
 export const LEGACY_WEB_SESSION_COOKIE = "sofie_session";
@@ -55,10 +56,6 @@ export function webAuthRequired(env: NodeJS.ProcessEnv = process.env): boolean {
   return env.NODE_ENV === "production";
 }
 
-function ownerId(env: NodeJS.ProcessEnv): string {
-  return configuredAlias(env, "MYEVE_OWNER_ID", "SOFIE_OWNER_ID") ?? "owner";
-}
-
 function signature(encodedPayload: string, secret: string): string {
   return createHmac("sha256", secret).update(encodedPayload).digest("base64url");
 }
@@ -88,7 +85,7 @@ export function createWebSessionToken(
   const payload: WebSessionPayload = {
     exp: issuedAt + WEB_SESSION_MAX_AGE_SECONDS,
     iat: issuedAt,
-    sub: ownerId(env),
+    sub: deploymentOwnerId(env),
     v: 1,
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
@@ -115,7 +112,7 @@ export function verifyWebSessionToken(
     const current = Math.floor(now / 1000);
     if (
       payload.v !== 1 ||
-      payload.sub !== ownerId(env) ||
+      payload.sub !== deploymentOwnerId(env) ||
       typeof payload.iat !== "number" ||
       typeof payload.exp !== "number" ||
       payload.iat > current + 60 ||
@@ -149,7 +146,7 @@ export function webPrincipal(
   request: Request,
   env: NodeJS.ProcessEnv = process.env,
 ): WebPrincipal | null {
-  if (!webAuthRequired(env)) return { id: ownerId(env) };
+  if (!webAuthRequired(env)) return { id: deploymentOwnerId(env) };
   return verifyWebSessionToken(
     cookieValue(request, WEB_SESSION_COOKIE) ?? cookieValue(request, LEGACY_WEB_SESSION_COOKIE),
     env,

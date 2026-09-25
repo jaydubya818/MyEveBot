@@ -39,7 +39,7 @@ Large QA artifacts and runtime-created skills use private Vercel Blob storage. S
 ## Important constraints
 
 1. `task_runs` is not a general task table. Its `kind`, specialist count, guardrails, and evidence completion gate encode the QA pilot.
-2. Legacy thread, reminder, webhook, receipt, and automation tables predate explicit `owner_id`. The product is currently single-owner, but new tables must scope every query by owner.
+2. Legacy thread, reminder, webhook, receipt, and automation tables predate explicit `owner_id`. The product is currently single-owner, but new tables must scope every query by owner. Owner Data marks routine/webhook and Finance exports as `single_owner_legacy`; they must not be represented as row-level multi-owner safe until their repositories are migrated.
 3. Several legacy repositories still create or alter tables at runtime. New Goal OS code must depend only on checked-in migrations.
 4. `lib/capabilities.ts` reports section availability; it does not describe individual tools, permissions, risk, evidence, or dependencies.
 5. There is no shared event ledger. Automation runs and QA milestones are useful source records but cannot power a unified activity stream alone.

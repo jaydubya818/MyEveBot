@@ -46,4 +46,3 @@ ALTER TABLE task_approval_decisions
 -- statement-breakpoint
 CREATE INDEX IF NOT EXISTS task_approval_owner_status
   ON task_approval_decisions (owner_id,status,requested_at DESC,id DESC);
-

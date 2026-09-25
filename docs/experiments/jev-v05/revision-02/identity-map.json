@@ -1,0 +1,1577 @@
+[
+  {
+    "id": "challenge_0001",
+    "source": "state",
+    "authorId": "challenge_0479"
+  },
+  {
+    "id": "challenge_0002",
+    "source": "state",
+    "authorId": "challenge_0482"
+  },
+  {
+    "id": "challenge_0003",
+    "source": "state",
+    "authorId": "challenge_0487"
+  },
+  {
+    "id": "challenge_0004",
+    "source": "evidence",
+    "authorId": "challenge_0064"
+  },
+  {
+    "id": "challenge_0005",
+    "source": "evidence",
+    "authorId": "challenge_0083"
+  },
+  {
+    "id": "challenge_0006",
+    "source": "intent",
+    "authorId": "challenge_0305"
+  },
+  {
+    "id": "challenge_0007",
+    "source": "state",
+    "authorId": "challenge_0406"
+  },
+  {
+    "id": "challenge_0008",
+    "source": "intent",
+    "authorId": "challenge_0302"
+  },
+  {
+    "id": "challenge_0009",
+    "source": "evidence",
+    "authorId": "challenge_0009"
+  },
+  {
+    "id": "challenge_0010",
+    "source": "intent",
+    "authorId": "challenge_0298"
+  },
+  {
+    "id": "challenge_0011",
+    "source": "state",
+    "authorId": "challenge_0420"
+  },
+  {
+    "id": "challenge_0012",
+    "source": "intent",
+    "authorId": "challenge_0235"
+  },
+  {
+    "id": "challenge_0013",
+    "source": "intent",
+    "authorId": "challenge_0271"
+  },
+  {
+    "id": "challenge_0014",
+    "source": "intent",
+    "authorId": "challenge_0206"
+  },
+  {
+    "id": "challenge_0015",
+    "source": "evidence",
+    "authorId": "challenge_0033"
+  },
+  {
+    "id": "challenge_0016",
+    "source": "intent",
+    "authorId": "challenge_0211"
+  },
+  {
+    "id": "challenge_0017",
+    "source": "evidence",
+    "authorId": "challenge_0006"
+  },
+  {
+    "id": "challenge_0018",
+    "source": "intent",
+    "authorId": "challenge_0272"
+  },
+  {
+    "id": "challenge_0019",
+    "source": "intent",
+    "authorId": "challenge_0267"
+  },
+  {
+    "id": "challenge_0020",
+    "source": "evidence",
+    "authorId": "challenge_0001"
+  },
+  {
+    "id": "challenge_0021",
+    "source": "state",
+    "authorId": "challenge_0450"
+  },
+  {
+    "id": "challenge_0022",
+    "source": "state",
+    "authorId": "challenge_0416"
+  },
+  {
+    "id": "challenge_0023",
+    "source": "evidence",
+    "authorId": "challenge_0079"
+  },
+  {
+    "id": "challenge_0024",
+    "source": "state",
+    "authorId": "challenge_0403"
+  },
+  {
+    "id": "challenge_0025",
+    "source": "evidence",
+    "authorId": "challenge_0069"
+  },
+  {
+    "id": "challenge_0026",
+    "source": "evidence",
+    "authorId": "challenge_0107"
+  },
+  {
+    "id": "challenge_0027",
+    "source": "evidence",
+    "authorId": "challenge_0022"
+  },
+  {
+    "id": "challenge_0028",
+    "source": "intent",
+    "authorId": "challenge_0223"
+  },
+  {
+    "id": "challenge_0029",
+    "source": "intent",
+    "authorId": "challenge_0255"
+  },
+  {
+    "id": "challenge_0030",
+    "source": "intent",
+    "authorId": "challenge_0241"
+  },
+  {
+    "id": "challenge_0031",
+    "source": "intent",
+    "authorId": "challenge_0286"
+  },
+  {
+    "id": "challenge_0032",
+    "source": "state",
+    "authorId": "challenge_0438"
+  },
+  {
+    "id": "challenge_0033",
+    "source": "intent",
+    "authorId": "challenge_0237"
+  },
+  {
+    "id": "challenge_0034",
+    "source": "evidence",
+    "authorId": "challenge_0081"
+  },
+  {
+    "id": "challenge_0035",
+    "source": "intent",
+    "authorId": "challenge_0279"
+  },
+  {
+    "id": "challenge_0036",
+    "source": "state",
+    "authorId": "challenge_0427"
+  },
+  {
+    "id": "challenge_0037",
+    "source": "evidence",
+    "authorId": "challenge_0102"
+  },
+  {
+    "id": "challenge_0038",
+    "source": "intent",
+    "authorId": "challenge_0284"
+  },
+  {
+    "id": "challenge_0039",
+    "source": "intent",
+    "authorId": "challenge_0233"
+  },
+  {
+    "id": "challenge_0040",
+    "source": "intent",
+    "authorId": "challenge_0287"
+  },
+  {
+    "id": "challenge_0041",
+    "source": "state",
+    "authorId": "challenge_0413"
+  },
+  {
+    "id": "challenge_0042",
+    "source": "state",
+    "authorId": "challenge_0474"
+  },
+  {
+    "id": "challenge_0043",
+    "source": "intent",
+    "authorId": "challenge_0259"
+  },
+  {
+    "id": "challenge_0044",
+    "source": "evidence",
+    "authorId": "challenge_0015"
+  },
+  {
+    "id": "challenge_0045",
+    "source": "intent",
+    "authorId": "challenge_0227"
+  },
+  {
+    "id": "challenge_0046",
+    "source": "evidence",
+    "authorId": "challenge_0078"
+  },
+  {
+    "id": "challenge_0047",
+    "source": "intent",
+    "authorId": "challenge_0231"
+  },
+  {
+    "id": "challenge_0048",
+    "source": "evidence",
+    "authorId": "challenge_0112"
+  },
+  {
+    "id": "challenge_0049",
+    "source": "evidence",
+    "authorId": "challenge_0058"
+  },
+  {
+    "id": "challenge_0050",
+    "source": "state",
+    "authorId": "challenge_0425"
+  },
+  {
+    "id": "challenge_0051",
+    "source": "evidence",
+    "authorId": "challenge_0048"
+  },
+  {
+    "id": "challenge_0052",
+    "source": "intent",
+    "authorId": "challenge_0217"
+  },
+  {
+    "id": "challenge_0053",
+    "source": "evidence",
+    "authorId": "challenge_0089"
+  },
+  {
+    "id": "challenge_0054",
+    "source": "evidence",
+    "authorId": "challenge_0028"
+  },
+  {
+    "id": "challenge_0055",
+    "source": "intent",
+    "authorId": "challenge_0263"
+  },
+  {
+    "id": "challenge_0056",
+    "source": "evidence",
+    "authorId": "challenge_0012"
+  },
+  {
+    "id": "challenge_0057",
+    "source": "evidence",
+    "authorId": "challenge_0053"
+  },
+  {
+    "id": "challenge_0058",
+    "source": "state",
+    "authorId": "challenge_0409"
+  },
+  {
+    "id": "challenge_0059",
+    "source": "evidence",
+    "authorId": "challenge_0123"
+  },
+  {
+    "id": "challenge_0060",
+    "source": "state",
+    "authorId": "challenge_0442"
+  },
+  {
+    "id": "challenge_0061",
+    "source": "evidence",
+    "authorId": "challenge_0062"
+  },
+  {
+    "id": "challenge_0062",
+    "source": "evidence",
+    "authorId": "challenge_0034"
+  },
+  {
+    "id": "challenge_0063",
+    "source": "intent",
+    "authorId": "challenge_0258"
+  },
+  {
+    "id": "challenge_0064",
+    "source": "evidence",
+    "authorId": "challenge_0045"
+  },
+  {
+    "id": "challenge_0065",
+    "source": "intent",
+    "authorId": "challenge_0224"
+  },
+  {
+    "id": "challenge_0066",
+    "source": "evidence",
+    "authorId": "challenge_0097"
+  },
+  {
+    "id": "challenge_0067",
+    "source": "intent",
+    "authorId": "challenge_0257"
+  },
+  {
+    "id": "challenge_0068",
+    "source": "state",
+    "authorId": "challenge_0478"
+  },
+  {
+    "id": "challenge_0069",
+    "source": "evidence",
+    "authorId": "challenge_0117"
+  },
+  {
+    "id": "challenge_0070",
+    "source": "state",
+    "authorId": "challenge_0446"
+  },
+  {
+    "id": "challenge_0071",
+    "source": "intent",
+    "authorId": "challenge_0238"
+  },
+  {
+    "id": "challenge_0072",
+    "source": "intent",
+    "authorId": "challenge_0201"
+  },
+  {
+    "id": "challenge_0073",
+    "source": "intent",
+    "authorId": "challenge_0219"
+  },
+  {
+    "id": "challenge_0074",
+    "source": "evidence",
+    "authorId": "challenge_0017"
+  },
+  {
+    "id": "challenge_0075",
+    "source": "intent",
+    "authorId": "challenge_0293"
+  },
+  {
+    "id": "challenge_0076",
+    "source": "intent",
+    "authorId": "challenge_0262"
+  },
+  {
+    "id": "challenge_0077",
+    "source": "intent",
+    "authorId": "challenge_0213"
+  },
+  {
+    "id": "challenge_0078",
+    "source": "state",
+    "authorId": "challenge_0483"
+  },
+  {
+    "id": "challenge_0079",
+    "source": "intent",
+    "authorId": "challenge_0290"
+  },
+  {
+    "id": "challenge_0080",
+    "source": "evidence",
+    "authorId": "challenge_0106"
+  },
+  {
+    "id": "challenge_0081",
+    "source": "state",
+    "authorId": "challenge_0457"
+  },
+  {
+    "id": "challenge_0082",
+    "source": "evidence",
+    "authorId": "challenge_0059"
+  },
+  {
+    "id": "challenge_0083",
+    "source": "intent",
+    "authorId": "challenge_0273"
+  },
+  {
+    "id": "challenge_0084",
+    "source": "intent",
+    "authorId": "challenge_0275"
+  },
+  {
+    "id": "challenge_0085",
+    "source": "state",
+    "authorId": "challenge_0453"
+  },
+  {
+    "id": "challenge_0086",
+    "source": "evidence",
+    "authorId": "challenge_0035"
+  },
+  {
+    "id": "challenge_0087",
+    "source": "evidence",
+    "authorId": "challenge_0084"
+  },
+  {
+    "id": "challenge_0088",
+    "source": "evidence",
+    "authorId": "challenge_0115"
+  },
+  {
+    "id": "challenge_0089",
+    "source": "evidence",
+    "authorId": "challenge_0114"
+  },
+  {
+    "id": "challenge_0090",
+    "source": "intent",
+    "authorId": "challenge_0242"
+  },
+  {
+    "id": "challenge_0091",
+    "source": "evidence",
+    "authorId": "challenge_0043"
+  },
+  {
+    "id": "challenge_0092",
+    "source": "state",
+    "authorId": "challenge_0485"
+  },
+  {
+    "id": "challenge_0093",
+    "source": "intent",
+    "authorId": "challenge_0270"
+  },
+  {
+    "id": "challenge_0094",
+    "source": "state",
+    "authorId": "challenge_0443"
+  },
+  {
+    "id": "challenge_0095",
+    "source": "evidence",
+    "authorId": "challenge_0073"
+  },
+  {
+    "id": "challenge_0096",
+    "source": "evidence",
+    "authorId": "challenge_0096"
+  },
+  {
+    "id": "challenge_0097",
+    "source": "intent",
+    "authorId": "challenge_0203"
+  },
+  {
+    "id": "challenge_0098",
+    "source": "state",
+    "authorId": "challenge_0411"
+  },
+  {
+    "id": "challenge_0099",
+    "source": "intent",
+    "authorId": "challenge_0291"
+  },
+  {
+    "id": "challenge_0100",
+    "source": "state",
+    "authorId": "challenge_0430"
+  },
+  {
+    "id": "challenge_0101",
+    "source": "intent",
+    "authorId": "challenge_0303"
+  },
+  {
+    "id": "challenge_0102",
+    "source": "state",
+    "authorId": "challenge_0486"
+  },
+  {
+    "id": "challenge_0103",
+    "source": "evidence",
+    "authorId": "challenge_0118"
+  },
+  {
+    "id": "challenge_0104",
+    "source": "intent",
+    "authorId": "challenge_0269"
+  },
+  {
+    "id": "challenge_0105",
+    "source": "evidence",
+    "authorId": "challenge_0026"
+  },
+  {
+    "id": "challenge_0106",
+    "source": "intent",
+    "authorId": "challenge_0294"
+  },
+  {
+    "id": "challenge_0107",
+    "source": "evidence",
+    "authorId": "challenge_0101"
+  },
+  {
+    "id": "challenge_0108",
+    "source": "evidence",
+    "authorId": "challenge_0076"
+  },
+  {
+    "id": "challenge_0109",
+    "source": "intent",
+    "authorId": "challenge_0285"
+  },
+  {
+    "id": "challenge_0110",
+    "source": "evidence",
+    "authorId": "challenge_0032"
+  },
+  {
+    "id": "challenge_0111",
+    "source": "evidence",
+    "authorId": "challenge_0094"
+  },
+  {
+    "id": "challenge_0112",
+    "source": "intent",
+    "authorId": "challenge_0204"
+  },
+  {
+    "id": "challenge_0113",
+    "source": "evidence",
+    "authorId": "challenge_0042"
+  },
+  {
+    "id": "challenge_0114",
+    "source": "intent",
+    "authorId": "challenge_0250"
+  },
+  {
+    "id": "challenge_0115",
+    "source": "evidence",
+    "authorId": "challenge_0024"
+  },
+  {
+    "id": "challenge_0116",
+    "source": "intent",
+    "authorId": "challenge_0282"
+  },
+  {
+    "id": "challenge_0117",
+    "source": "evidence",
+    "authorId": "challenge_0063"
+  },
+  {
+    "id": "challenge_0118",
+    "source": "intent",
+    "authorId": "challenge_0276"
+  },
+  {
+    "id": "challenge_0119",
+    "source": "state",
+    "authorId": "challenge_0410"
+  },
+  {
+    "id": "challenge_0120",
+    "source": "state",
+    "authorId": "challenge_0455"
+  },
+  {
+    "id": "challenge_0121",
+    "source": "evidence",
+    "authorId": "challenge_0113"
+  },
+  {
+    "id": "challenge_0122",
+    "source": "evidence",
+    "authorId": "challenge_0074"
+  },
+  {
+    "id": "challenge_0123",
+    "source": "state",
+    "authorId": "challenge_0447"
+  },
+  {
+    "id": "challenge_0124",
+    "source": "state",
+    "authorId": "challenge_0433"
+  },
+  {
+    "id": "challenge_0125",
+    "source": "state",
+    "authorId": "challenge_0459"
+  },
+  {
+    "id": "challenge_0126",
+    "source": "intent",
+    "authorId": "challenge_0221"
+  },
+  {
+    "id": "challenge_0127",
+    "source": "intent",
+    "authorId": "challenge_0304"
+  },
+  {
+    "id": "challenge_0128",
+    "source": "state",
+    "authorId": "challenge_0464"
+  },
+  {
+    "id": "challenge_0129",
+    "source": "evidence",
+    "authorId": "challenge_0023"
+  },
+  {
+    "id": "challenge_0130",
+    "source": "evidence",
+    "authorId": "challenge_0050"
+  },
+  {
+    "id": "challenge_0131",
+    "source": "state",
+    "authorId": "challenge_0415"
+  },
+  {
+    "id": "challenge_0132",
+    "source": "state",
+    "authorId": "challenge_0454"
+  },
+  {
+    "id": "challenge_0133",
+    "source": "intent",
+    "authorId": "challenge_0274"
+  },
+  {
+    "id": "challenge_0134",
+    "source": "intent",
+    "authorId": "challenge_0216"
+  },
+  {
+    "id": "challenge_0135",
+    "source": "state",
+    "authorId": "challenge_0475"
+  },
+  {
+    "id": "challenge_0136",
+    "source": "state",
+    "authorId": "challenge_0469"
+  },
+  {
+    "id": "challenge_0137",
+    "source": "state",
+    "authorId": "challenge_0451"
+  },
+  {
+    "id": "challenge_0138",
+    "source": "intent",
+    "authorId": "challenge_0300"
+  },
+  {
+    "id": "challenge_0139",
+    "source": "evidence",
+    "authorId": "challenge_0103"
+  },
+  {
+    "id": "challenge_0140",
+    "source": "evidence",
+    "authorId": "challenge_0052"
+  },
+  {
+    "id": "challenge_0141",
+    "source": "intent",
+    "authorId": "challenge_0278"
+  },
+  {
+    "id": "challenge_0142",
+    "source": "state",
+    "authorId": "challenge_0434"
+  },
+  {
+    "id": "challenge_0143",
+    "source": "intent",
+    "authorId": "challenge_0236"
+  },
+  {
+    "id": "challenge_0144",
+    "source": "state",
+    "authorId": "challenge_0445"
+  },
+  {
+    "id": "challenge_0145",
+    "source": "state",
+    "authorId": "challenge_0465"
+  },
+  {
+    "id": "challenge_0146",
+    "source": "state",
+    "authorId": "challenge_0456"
+  },
+  {
+    "id": "challenge_0147",
+    "source": "state",
+    "authorId": "challenge_0401"
+  },
+  {
+    "id": "challenge_0148",
+    "source": "evidence",
+    "authorId": "challenge_0008"
+  },
+  {
+    "id": "challenge_0149",
+    "source": "evidence",
+    "authorId": "challenge_0108"
+  },
+  {
+    "id": "challenge_0150",
+    "source": "evidence",
+    "authorId": "challenge_0071"
+  },
+  {
+    "id": "challenge_0151",
+    "source": "state",
+    "authorId": "challenge_0468"
+  },
+  {
+    "id": "challenge_0152",
+    "source": "intent",
+    "authorId": "challenge_0252"
+  },
+  {
+    "id": "challenge_0153",
+    "source": "intent",
+    "authorId": "challenge_0214"
+  },
+  {
+    "id": "challenge_0154",
+    "source": "intent",
+    "authorId": "challenge_0208"
+  },
+  {
+    "id": "challenge_0155",
+    "source": "evidence",
+    "authorId": "challenge_0029"
+  },
+  {
+    "id": "challenge_0156",
+    "source": "intent",
+    "authorId": "challenge_0256"
+  },
+  {
+    "id": "challenge_0157",
+    "source": "state",
+    "authorId": "challenge_0429"
+  },
+  {
+    "id": "challenge_0158",
+    "source": "evidence",
+    "authorId": "challenge_0121"
+  },
+  {
+    "id": "challenge_0159",
+    "source": "state",
+    "authorId": "challenge_0480"
+  },
+  {
+    "id": "challenge_0160",
+    "source": "intent",
+    "authorId": "challenge_0240"
+  },
+  {
+    "id": "challenge_0161",
+    "source": "evidence",
+    "authorId": "challenge_0031"
+  },
+  {
+    "id": "challenge_0162",
+    "source": "state",
+    "authorId": "challenge_0404"
+  },
+  {
+    "id": "challenge_0163",
+    "source": "intent",
+    "authorId": "challenge_0261"
+  },
+  {
+    "id": "challenge_0164",
+    "source": "state",
+    "authorId": "challenge_0467"
+  },
+  {
+    "id": "challenge_0165",
+    "source": "intent",
+    "authorId": "challenge_0209"
+  },
+  {
+    "id": "challenge_0166",
+    "source": "evidence",
+    "authorId": "challenge_0120"
+  },
+  {
+    "id": "challenge_0167",
+    "source": "evidence",
+    "authorId": "challenge_0016"
+  },
+  {
+    "id": "challenge_0168",
+    "source": "intent",
+    "authorId": "challenge_0245"
+  },
+  {
+    "id": "challenge_0169",
+    "source": "intent",
+    "authorId": "challenge_0260"
+  },
+  {
+    "id": "challenge_0170",
+    "source": "evidence",
+    "authorId": "challenge_0095"
+  },
+  {
+    "id": "challenge_0171",
+    "source": "state",
+    "authorId": "challenge_0439"
+  },
+  {
+    "id": "challenge_0172",
+    "source": "evidence",
+    "authorId": "challenge_0056"
+  },
+  {
+    "id": "challenge_0173",
+    "source": "evidence",
+    "authorId": "challenge_0011"
+  },
+  {
+    "id": "challenge_0174",
+    "source": "intent",
+    "authorId": "challenge_0226"
+  },
+  {
+    "id": "challenge_0175",
+    "source": "state",
+    "authorId": "challenge_0452"
+  },
+  {
+    "id": "challenge_0176",
+    "source": "intent",
+    "authorId": "challenge_0253"
+  },
+  {
+    "id": "challenge_0177",
+    "source": "evidence",
+    "authorId": "challenge_0116"
+  },
+  {
+    "id": "challenge_0178",
+    "source": "intent",
+    "authorId": "challenge_0202"
+  },
+  {
+    "id": "challenge_0179",
+    "source": "state",
+    "authorId": "challenge_0432"
+  },
+  {
+    "id": "challenge_0180",
+    "source": "evidence",
+    "authorId": "challenge_0122"
+  },
+  {
+    "id": "challenge_0181",
+    "source": "intent",
+    "authorId": "challenge_0295"
+  },
+  {
+    "id": "challenge_0182",
+    "source": "evidence",
+    "authorId": "challenge_0088"
+  },
+  {
+    "id": "challenge_0183",
+    "source": "intent",
+    "authorId": "challenge_0232"
+  },
+  {
+    "id": "challenge_0184",
+    "source": "evidence",
+    "authorId": "challenge_0072"
+  },
+  {
+    "id": "challenge_0185",
+    "source": "state",
+    "authorId": "challenge_0476"
+  },
+  {
+    "id": "challenge_0186",
+    "source": "state",
+    "authorId": "challenge_0484"
+  },
+  {
+    "id": "challenge_0187",
+    "source": "evidence",
+    "authorId": "challenge_0025"
+  },
+  {
+    "id": "challenge_0188",
+    "source": "evidence",
+    "authorId": "challenge_0037"
+  },
+  {
+    "id": "challenge_0189",
+    "source": "evidence",
+    "authorId": "challenge_0057"
+  },
+  {
+    "id": "challenge_0190",
+    "source": "intent",
+    "authorId": "challenge_0268"
+  },
+  {
+    "id": "challenge_0191",
+    "source": "evidence",
+    "authorId": "challenge_0109"
+  },
+  {
+    "id": "challenge_0192",
+    "source": "intent",
+    "authorId": "challenge_0264"
+  },
+  {
+    "id": "challenge_0193",
+    "source": "state",
+    "authorId": "challenge_0470"
+  },
+  {
+    "id": "challenge_0194",
+    "source": "intent",
+    "authorId": "challenge_0207"
+  },
+  {
+    "id": "challenge_0195",
+    "source": "state",
+    "authorId": "challenge_0477"
+  },
+  {
+    "id": "challenge_0196",
+    "source": "state",
+    "authorId": "challenge_0412"
+  },
+  {
+    "id": "challenge_0197",
+    "source": "evidence",
+    "authorId": "challenge_0100"
+  },
+  {
+    "id": "challenge_0198",
+    "source": "state",
+    "authorId": "challenge_0426"
+  },
+  {
+    "id": "challenge_0199",
+    "source": "intent",
+    "authorId": "challenge_0296"
+  },
+  {
+    "id": "challenge_0200",
+    "source": "evidence",
+    "authorId": "challenge_0061"
+  },
+  {
+    "id": "challenge_0201",
+    "source": "intent",
+    "authorId": "challenge_0239"
+  },
+  {
+    "id": "challenge_0202",
+    "source": "intent",
+    "authorId": "challenge_0248"
+  },
+  {
+    "id": "challenge_0203",
+    "source": "intent",
+    "authorId": "challenge_0251"
+  },
+  {
+    "id": "challenge_0204",
+    "source": "evidence",
+    "authorId": "challenge_0046"
+  },
+  {
+    "id": "challenge_0205",
+    "source": "state",
+    "authorId": "challenge_0444"
+  },
+  {
+    "id": "challenge_0206",
+    "source": "evidence",
+    "authorId": "challenge_0099"
+  },
+  {
+    "id": "challenge_0207",
+    "source": "state",
+    "authorId": "challenge_0441"
+  },
+  {
+    "id": "challenge_0208",
+    "source": "evidence",
+    "authorId": "challenge_0049"
+  },
+  {
+    "id": "challenge_0209",
+    "source": "intent",
+    "authorId": "challenge_0229"
+  },
+  {
+    "id": "challenge_0210",
+    "source": "intent",
+    "authorId": "challenge_0222"
+  },
+  {
+    "id": "challenge_0211",
+    "source": "state",
+    "authorId": "challenge_0402"
+  },
+  {
+    "id": "challenge_0212",
+    "source": "intent",
+    "authorId": "challenge_0234"
+  },
+  {
+    "id": "challenge_0213",
+    "source": "evidence",
+    "authorId": "challenge_0041"
+  },
+  {
+    "id": "challenge_0214",
+    "source": "intent",
+    "authorId": "challenge_0301"
+  },
+  {
+    "id": "challenge_0215",
+    "source": "intent",
+    "authorId": "challenge_0218"
+  },
+  {
+    "id": "challenge_0216",
+    "source": "evidence",
+    "authorId": "challenge_0055"
+  },
+  {
+    "id": "challenge_0217",
+    "source": "evidence",
+    "authorId": "challenge_0075"
+  },
+  {
+    "id": "challenge_0218",
+    "source": "intent",
+    "authorId": "challenge_0230"
+  },
+  {
+    "id": "challenge_0219",
+    "source": "evidence",
+    "authorId": "challenge_0080"
+  },
+  {
+    "id": "challenge_0220",
+    "source": "evidence",
+    "authorId": "challenge_0091"
+  },
+  {
+    "id": "challenge_0221",
+    "source": "intent",
+    "authorId": "challenge_0277"
+  },
+  {
+    "id": "challenge_0222",
+    "source": "state",
+    "authorId": "challenge_0418"
+  },
+  {
+    "id": "challenge_0223",
+    "source": "evidence",
+    "authorId": "challenge_0005"
+  },
+  {
+    "id": "challenge_0224",
+    "source": "evidence",
+    "authorId": "challenge_0030"
+  },
+  {
+    "id": "challenge_0225",
+    "source": "intent",
+    "authorId": "challenge_0246"
+  },
+  {
+    "id": "challenge_0226",
+    "source": "evidence",
+    "authorId": "challenge_0067"
+  },
+  {
+    "id": "challenge_0227",
+    "source": "evidence",
+    "authorId": "challenge_0068"
+  },
+  {
+    "id": "challenge_0228",
+    "source": "state",
+    "authorId": "challenge_0424"
+  },
+  {
+    "id": "challenge_0229",
+    "source": "evidence",
+    "authorId": "challenge_0040"
+  },
+  {
+    "id": "challenge_0230",
+    "source": "state",
+    "authorId": "challenge_0436"
+  },
+  {
+    "id": "challenge_0231",
+    "source": "state",
+    "authorId": "challenge_0431"
+  },
+  {
+    "id": "challenge_0232",
+    "source": "evidence",
+    "authorId": "challenge_0038"
+  },
+  {
+    "id": "challenge_0233",
+    "source": "state",
+    "authorId": "challenge_0463"
+  },
+  {
+    "id": "challenge_0234",
+    "source": "evidence",
+    "authorId": "challenge_0085"
+  },
+  {
+    "id": "challenge_0235",
+    "source": "state",
+    "authorId": "challenge_0471"
+  },
+  {
+    "id": "challenge_0236",
+    "source": "state",
+    "authorId": "challenge_0458"
+  },
+  {
+    "id": "challenge_0237",
+    "source": "evidence",
+    "authorId": "challenge_0003"
+  },
+  {
+    "id": "challenge_0238",
+    "source": "evidence",
+    "authorId": "challenge_0093"
+  },
+  {
+    "id": "challenge_0239",
+    "source": "evidence",
+    "authorId": "challenge_0054"
+  },
+  {
+    "id": "challenge_0240",
+    "source": "evidence",
+    "authorId": "challenge_0077"
+  },
+  {
+    "id": "challenge_0241",
+    "source": "evidence",
+    "authorId": "challenge_0087"
+  },
+  {
+    "id": "challenge_0242",
+    "source": "evidence",
+    "authorId": "challenge_0082"
+  },
+  {
+    "id": "challenge_0243",
+    "source": "state",
+    "authorId": "challenge_0461"
+  },
+  {
+    "id": "challenge_0244",
+    "source": "intent",
+    "authorId": "challenge_0249"
+  },
+  {
+    "id": "challenge_0245",
+    "source": "intent",
+    "authorId": "challenge_0220"
+  },
+  {
+    "id": "challenge_0246",
+    "source": "state",
+    "authorId": "challenge_0481"
+  },
+  {
+    "id": "challenge_0247",
+    "source": "state",
+    "authorId": "challenge_0422"
+  },
+  {
+    "id": "challenge_0248",
+    "source": "evidence",
+    "authorId": "challenge_0105"
+  },
+  {
+    "id": "challenge_0249",
+    "source": "intent",
+    "authorId": "challenge_0212"
+  },
+  {
+    "id": "challenge_0250",
+    "source": "state",
+    "authorId": "challenge_0405"
+  },
+  {
+    "id": "challenge_0251",
+    "source": "evidence",
+    "authorId": "challenge_0070"
+  },
+  {
+    "id": "challenge_0252",
+    "source": "intent",
+    "authorId": "challenge_0266"
+  },
+  {
+    "id": "challenge_0253",
+    "source": "intent",
+    "authorId": "challenge_0225"
+  },
+  {
+    "id": "challenge_0254",
+    "source": "intent",
+    "authorId": "challenge_0244"
+  },
+  {
+    "id": "challenge_0255",
+    "source": "intent",
+    "authorId": "challenge_0289"
+  },
+  {
+    "id": "challenge_0256",
+    "source": "evidence",
+    "authorId": "challenge_0119"
+  },
+  {
+    "id": "challenge_0257",
+    "source": "evidence",
+    "authorId": "challenge_0010"
+  },
+  {
+    "id": "challenge_0258",
+    "source": "evidence",
+    "authorId": "challenge_0039"
+  },
+  {
+    "id": "challenge_0259",
+    "source": "evidence",
+    "authorId": "challenge_0020"
+  },
+  {
+    "id": "challenge_0260",
+    "source": "evidence",
+    "authorId": "challenge_0007"
+  },
+  {
+    "id": "challenge_0261",
+    "source": "intent",
+    "authorId": "challenge_0228"
+  },
+  {
+    "id": "challenge_0262",
+    "source": "evidence",
+    "authorId": "challenge_0086"
+  },
+  {
+    "id": "challenge_0263",
+    "source": "state",
+    "authorId": "challenge_0419"
+  },
+  {
+    "id": "challenge_0264",
+    "source": "intent",
+    "authorId": "challenge_0243"
+  },
+  {
+    "id": "challenge_0265",
+    "source": "evidence",
+    "authorId": "challenge_0002"
+  },
+  {
+    "id": "challenge_0266",
+    "source": "evidence",
+    "authorId": "challenge_0098"
+  },
+  {
+    "id": "challenge_0267",
+    "source": "evidence",
+    "authorId": "challenge_0013"
+  },
+  {
+    "id": "challenge_0268",
+    "source": "intent",
+    "authorId": "challenge_0283"
+  },
+  {
+    "id": "challenge_0269",
+    "source": "evidence",
+    "authorId": "challenge_0104"
+  },
+  {
+    "id": "challenge_0270",
+    "source": "state",
+    "authorId": "challenge_0435"
+  },
+  {
+    "id": "challenge_0271",
+    "source": "evidence",
+    "authorId": "challenge_0066"
+  },
+  {
+    "id": "challenge_0272",
+    "source": "state",
+    "authorId": "challenge_0407"
+  },
+  {
+    "id": "challenge_0273",
+    "source": "state",
+    "authorId": "challenge_0414"
+  },
+  {
+    "id": "challenge_0274",
+    "source": "evidence",
+    "authorId": "challenge_0019"
+  },
+  {
+    "id": "challenge_0275",
+    "source": "evidence",
+    "authorId": "challenge_0060"
+  },
+  {
+    "id": "challenge_0276",
+    "source": "evidence",
+    "authorId": "challenge_0027"
+  },
+  {
+    "id": "challenge_0277",
+    "source": "intent",
+    "authorId": "challenge_0247"
+  },
+  {
+    "id": "challenge_0278",
+    "source": "evidence",
+    "authorId": "challenge_0047"
+  },
+  {
+    "id": "challenge_0279",
+    "source": "intent",
+    "authorId": "challenge_0280"
+  },
+  {
+    "id": "challenge_0280",
+    "source": "evidence",
+    "authorId": "challenge_0036"
+  },
+  {
+    "id": "challenge_0281",
+    "source": "intent",
+    "authorId": "challenge_0281"
+  },
+  {
+    "id": "challenge_0282",
+    "source": "state",
+    "authorId": "challenge_0472"
+  },
+  {
+    "id": "challenge_0283",
+    "source": "evidence",
+    "authorId": "challenge_0051"
+  },
+  {
+    "id": "challenge_0284",
+    "source": "evidence",
+    "authorId": "challenge_0044"
+  },
+  {
+    "id": "challenge_0285",
+    "source": "intent",
+    "authorId": "challenge_0297"
+  },
+  {
+    "id": "challenge_0286",
+    "source": "state",
+    "authorId": "challenge_0460"
+  },
+  {
+    "id": "challenge_0287",
+    "source": "intent",
+    "authorId": "challenge_0210"
+  },
+  {
+    "id": "challenge_0288",
+    "source": "evidence",
+    "authorId": "challenge_0004"
+  },
+  {
+    "id": "challenge_0289",
+    "source": "intent",
+    "authorId": "challenge_0254"
+  },
+  {
+    "id": "challenge_0290",
+    "source": "state",
+    "authorId": "challenge_0473"
+  },
+  {
+    "id": "challenge_0291",
+    "source": "state",
+    "authorId": "challenge_0437"
+  },
+  {
+    "id": "challenge_0292",
+    "source": "intent",
+    "authorId": "challenge_0292"
+  },
+  {
+    "id": "challenge_0293",
+    "source": "evidence",
+    "authorId": "challenge_0092"
+  },
+  {
+    "id": "challenge_0294",
+    "source": "evidence",
+    "authorId": "challenge_0090"
+  },
+  {
+    "id": "challenge_0295",
+    "source": "evidence",
+    "authorId": "challenge_0111"
+  },
+  {
+    "id": "challenge_0296",
+    "source": "evidence",
+    "authorId": "challenge_0021"
+  },
+  {
+    "id": "challenge_0297",
+    "source": "intent",
+    "authorId": "challenge_0265"
+  },
+  {
+    "id": "challenge_0298",
+    "source": "state",
+    "authorId": "challenge_0440"
+  },
+  {
+    "id": "challenge_0299",
+    "source": "state",
+    "authorId": "challenge_0448"
+  },
+  {
+    "id": "challenge_0300",
+    "source": "state",
+    "authorId": "challenge_0466"
+  },
+  {
+    "id": "challenge_0301",
+    "source": "evidence",
+    "authorId": "challenge_0018"
+  },
+  {
+    "id": "challenge_0302",
+    "source": "state",
+    "authorId": "challenge_0449"
+  },
+  {
+    "id": "challenge_0303",
+    "source": "state",
+    "authorId": "challenge_0421"
+  },
+  {
+    "id": "challenge_0304",
+    "source": "intent",
+    "authorId": "challenge_0215"
+  },
+  {
+    "id": "challenge_0305",
+    "source": "intent",
+    "authorId": "challenge_0205"
+  },
+  {
+    "id": "challenge_0306",
+    "source": "evidence",
+    "authorId": "challenge_0065"
+  },
+  {
+    "id": "challenge_0307",
+    "source": "state",
+    "authorId": "challenge_0423"
+  },
+  {
+    "id": "challenge_0308",
+    "source": "evidence",
+    "authorId": "challenge_0014"
+  },
+  {
+    "id": "challenge_0309",
+    "source": "evidence",
+    "authorId": "challenge_0110"
+  },
+  {
+    "id": "challenge_0310",
+    "source": "intent",
+    "authorId": "challenge_0299"
+  },
+  {
+    "id": "challenge_0311",
+    "source": "state",
+    "authorId": "challenge_0417"
+  },
+  {
+    "id": "challenge_0312",
+    "source": "intent",
+    "authorId": "challenge_0288"
+  },
+  {
+    "id": "challenge_0313",
+    "source": "state",
+    "authorId": "challenge_0408"
+  },
+  {
+    "id": "challenge_0314",
+    "source": "state",
+    "authorId": "challenge_0462"
+  },
+  {
+    "id": "challenge_0315",
+    "source": "state",
+    "authorId": "challenge_0428"
+  }
+]

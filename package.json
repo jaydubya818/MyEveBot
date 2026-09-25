@@ -12,10 +12,12 @@
     "db:migrate": "npm run db:migrate --workspace=eve-agent",
     "db:migrations:check": "npm run db:migrations:check --workspace=eve-agent",
     "dev": "turbo run dev",
-    "test": "node --experimental-strip-types --test apps/eve/test/*.test.mjs",
+    "test": "node --import tsx --test apps/eve/test/*.test.mjs",
     "typecheck": "turbo run typecheck"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "pg": "^8.20.0",
     "turbo": "^2.10.5"
   },
   "engines": {

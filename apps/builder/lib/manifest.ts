@@ -58,6 +58,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/complete_work.ts",
   "agent/tools/bash.ts",
   "agent/tools/discover_capabilities.ts",
+  // Resolver emits no callable tool unless Federation is explicitly configured.
+  "agent/tools/federation_request.ts",
   "agent/tools/list_agents.ts",
   "agent/tools/list_roles.ts",
   "agent/tools/list_solution_packs.ts",
@@ -84,10 +86,16 @@ export const CORE_PRUNABLE_FILES = [
 export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
   knowledge: [
     "agent/instructions/knowledge.md",
+    "agent/instructions/jev.md",
+    "agent/tools/evaluate_with_jev.ts",
     "agent/tools/record_fact.ts",
     "agent/tools/record_observation.ts",
     "agent/tools/record_decision.ts",
     "agent/tools/record_commitment.ts",
+    "agent/tools/record_hypothesis.ts",
+    "agent/tools/record_preference.ts",
+    "agent/tools/get_knowledge.ts",
+    "agent/tools/update_knowledge_status.ts",
     "agent/tools/search_knowledge.ts",
     "agent/tools/inspect_owner_knowledge.ts",
     "agent/tools/search_owner_knowledge.ts",

@@ -2,7 +2,7 @@ import { defineTool } from "eve/tools";
 import { bash } from "eve/tools/defaults";
 
 import { isAllowedTerminalCommand } from "../../lib/computer-types.ts";
-import { requireComputerCapability } from "../lib/computer-context.ts";
+import { getComputerSandbox, requireComputerCapability } from "../lib/computer-context.ts";
 
 export default defineTool({
   ...bash,
@@ -16,7 +16,7 @@ export default defineTool({
       throw new Error("Phase 6 terminal commands are limited to read-only diagnostics without shell operators, expansion, scripts, or network clients.");
     }
     const timeout = AbortSignal.timeout(session.resourceLimits.terminalTimeoutSeconds * 1000);
-    return (await ctx.getSandbox()).run({
+    return (await getComputerSandbox(ctx)).run({
       command,
       ...(typeof value.workingDirectory === "string" ? { workingDirectory: value.workingDirectory } : {}),
       abortSignal: AbortSignal.any([ctx.abortSignal, timeout]),

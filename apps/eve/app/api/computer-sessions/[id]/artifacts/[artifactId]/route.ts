@@ -1,6 +1,7 @@
 import { get } from "@vercel/blob";
 
 import { apiError, requireDatabase } from "@/lib/api-errors";
+import { computerApiFailure } from "@/lib/computer-api-errors";
 import { computerArtifactStorageKey } from "@/lib/computer-sessions";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
@@ -22,7 +23,6 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
       "X-Content-Type-Options": "nosniff",
     } });
   } catch (error) {
-    console.error("Computer artifact read failed", error);
-    return apiError(request, 503, "computer_artifact_unavailable", "Artifact is temporarily unavailable.");
+    return computerApiFailure(request, error, { context: "Computer artifact read failed", code: "computer_artifact_unavailable", message: "Artifact is temporarily unavailable." });
   }
 }

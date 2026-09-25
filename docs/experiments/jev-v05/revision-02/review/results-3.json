@@ -1,0 +1,956 @@
+{
+  "reviewerId": "revision-review-3",
+  "reviewModel": "Inherited Codex model; exact identifier unavailable",
+  "reviewedAt": "2026-09-21T04:41:22.605Z",
+  "rubricId": "knowledge-taxonomy-challenge-rubric:v1",
+  "rubricHash": "4d6e330835ead247e07425be6e2a8d37b3206254487d22334b03efa569cff78c",
+  "blindedInputHash": "f3f772a54ed531980b244be37c572e921b9bada1f2122e387d92c0020623be62",
+  "reviewedWithoutProviderOutputs": true,
+  "cases": [
+    {
+      "id": "challenge_0065",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The owner accepts responsibility for submission, conditional on the visa arriving."
+    },
+    {
+      "id": "challenge_0241",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Interprets the success indicator as merging transfer success with document availability."
+    },
+    {
+      "id": "challenge_0114",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The owner selects the two-pass option for this essay."
+    },
+    {
+      "id": "challenge_0217",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the measured difference in arrivals without explaining it."
+    },
+    {
+      "id": "challenge_0164",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Describes an existing profile setting explicitly not adopted as a personal preference."
+    },
+    {
+      "id": "challenge_0264",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The owner specifies a recurring desired review rhythm."
+    },
+    {
+      "id": "challenge_0129",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the sequence directly recorded across five calls."
+    },
+    {
+      "id": "challenge_0250",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States an established meter-channel function supported by model documentation."
+    },
+    {
+      "id": "challenge_0242",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts that expanded access would eliminate delays, an untested intervention claim."
+    },
+    {
+      "id": "challenge_0032",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports a newly seen file after the recording stopped."
+    },
+    {
+      "id": "challenge_0082",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the participant’s visible actions without attributing motives."
+    },
+    {
+      "id": "challenge_0193",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Expresses the owner’s preferred everyday desk orientation."
+    },
+    {
+      "id": "challenge_0235",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the stored booking arrangement rather than a desired lesson rhythm."
+    },
+    {
+      "id": "challenge_0045",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Selects email recovery from the release alternatives."
+    },
+    {
+      "id": "challenge_0197",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts revenue effects of an offer that has not been tested."
+    },
+    {
+      "id": "challenge_0029",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Explicitly specifies the owner’s normal study rhythm."
+    },
+    {
+      "id": "challenge_0199",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a habitual behavior claim with a future plan whose acceptance remains unresolved."
+    },
+    {
+      "id": "challenge_0239",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Offers an uncertain explanation for a heard crash."
+    },
+    {
+      "id": "challenge_0132",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Explicitly settles on the early train; the rationale explains that choice."
+    },
+    {
+      "id": "challenge_0228",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the train’s directly witnessed platform use today."
+    },
+    {
+      "id": "challenge_0265",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Interprets overlapping checkout signals as conflicting completion messages."
+    },
+    {
+      "id": "challenge_0113",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Draws a mismatch between uniform watering and differing observed drying patterns."
+    },
+    {
+      "id": "challenge_0272",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports established opening hours corroborated by standing notices."
+    },
+    {
+      "id": "challenge_0274",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports interview responses and their sequence."
+    },
+    {
+      "id": "challenge_0280",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Interprets the counting error as conflating planned spending with unplanned spending."
+    },
+    {
+      "id": "challenge_0300",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The owner explicitly approves CSV as the preferred default."
+    },
+    {
+      "id": "challenge_0106",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a coworker’s taste with submission status without isolating one target."
+    },
+    {
+      "id": "challenge_0214",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "The conditional planning line establishes neither an accepted assignment nor a completed choice."
+    },
+    {
+      "id": "challenge_0233",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Draws a practical relationship between answer placement and accidental visibility; its predictive phrasing approaches hypothesis."
+    },
+    {
+      "id": "challenge_0212",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Makes an explicit one-review format choice while retaining the usual preference."
+    },
+    {
+      "id": "challenge_0098",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the verified deployed sensor configuration."
+    },
+    {
+      "id": "challenge_0153",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Explicitly promises the customer that the fixed fee will be honored."
+    },
+    {
+      "id": "challenge_0139",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Interprets the distinction between finding an amount and understanding its payment status."
+    },
+    {
+      "id": "challenge_0146",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the settled room-plan choice to keep the desk."
+    },
+    {
+      "id": "challenge_0055",
+      "label": "commitment",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The delivery intention refers to the explicitly accepted assignment in the same exchange."
+    },
+    {
+      "id": "challenge_0023",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Synthesizes the observed gap between account creation and qualification; likely wording leaves an explanation boundary."
+    },
+    {
+      "id": "challenge_0293",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts a missed connection from timing constraints without an observed outcome."
+    },
+    {
+      "id": "challenge_0231",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the established specified capacity of the drawer."
+    },
+    {
+      "id": "challenge_0270",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports an inclusion established by ticket terms."
+    },
+    {
+      "id": "challenge_0223",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports checked results of ten exercises and the corrected error count."
+    },
+    {
+      "id": "challenge_0180",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an established delay with an uncertain explanation for it."
+    },
+    {
+      "id": "challenge_0215",
+      "label": "commitment",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The corrected attribution identifies Ana’s explicitly accepted responsibility for the call."
+    },
+    {
+      "id": "challenge_0256",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a conditional promise with a separate unaccepted cupboard wish."
+    },
+    {
+      "id": "challenge_0288",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Draws the meaning of closure from the agents’ explanations and unchanged settings."
+    },
+    {
+      "id": "challenge_0138",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines perceived trustworthiness, a cover choice, and future file preparation."
+    },
+    {
+      "id": "challenge_0004",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Offers fatigue as an unverified causal explanation for different scores."
+    },
+    {
+      "id": "challenge_0107",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Interprets what the badge signifies using the completion rule and low-score example."
+    },
+    {
+      "id": "challenge_0133",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Selects Thursday for the draft schedule without accepting leadership."
+    },
+    {
+      "id": "challenge_0240",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the measured click-count difference without a causal claim."
+    },
+    {
+      "id": "challenge_0249",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The owner explicitly accepts responsibility and assignment for building the waitlist."
+    },
+    {
+      "id": "challenge_0205",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Synthesizes the revision as earlier visibility of an unchanged approval requirement."
+    },
+    {
+      "id": "challenge_0294",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts an outcome from a proposed task assignment."
+    },
+    {
+      "id": "challenge_0287",
+      "label": "commitment",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Accepts responsibility for moving the room conditional on landlord permission."
+    },
+    {
+      "id": "challenge_0314",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Explicitly states the owner’s desired recurring morning work arrangement."
+    },
+    {
+      "id": "challenge_0125",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Interprets how advance written updates changed meeting focus; no routine is adopted."
+    },
+    {
+      "id": "challenge_0162",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports a directly encountered temporary blockage this morning."
+    },
+    {
+      "id": "challenge_0160",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Revises the selected layout for this module while retaining the usual default."
+    },
+    {
+      "id": "challenge_0277",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Expresses a desired regular routine rather than tomorrow’s plan."
+    },
+    {
+      "id": "challenge_0060",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Synthesizes product constraints and examples into intended user positioning."
+    },
+    {
+      "id": "challenge_0144",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States an established ratio in the published reading assignment."
+    },
+    {
+      "id": "challenge_0271",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Attributes causation to legal attendance without establishing that causal relationship."
+    },
+    {
+      "id": "challenge_0027",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Distinguishes successful item sharing from failed preservation of completion across devices."
+    },
+    {
+      "id": "challenge_0101",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Explicitly combines purchasing style, a renewal choice, and acceptance of payment terms."
+    },
+    {
+      "id": "challenge_0137",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Synthesizes the estimated release tradeoff before any scope choice."
+    },
+    {
+      "id": "challenge_0166",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an interpretation, an audit finding, and an approved change."
+    },
+    {
+      "id": "challenge_0283",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the board’s displayed prediction without adopting it as the speaker’s forecast."
+    },
+    {
+      "id": "challenge_0100",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports a directly inspected spelling in the current proof."
+    },
+    {
+      "id": "challenge_0018",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States a scheduled collection occurrence derived from the established calendar."
+    },
+    {
+      "id": "challenge_0118",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Explicitly selects restoration as the conditional fallback."
+    },
+    {
+      "id": "challenge_0119",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the numbering behavior witnessed in a specific test run."
+    },
+    {
+      "id": "challenge_0050",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the confirmed published weighting relationship."
+    },
+    {
+      "id": "challenge_0305",
+      "label": "decision",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Expresses the manager’s selected roster allocation; Nora has not accepted an obligation."
+    },
+    {
+      "id": "challenge_0087",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts that an untried study intervention will fix retention."
+    },
+    {
+      "id": "challenge_0130",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts future retries rather than reporting completed retries."
+    },
+    {
+      "id": "challenge_0224",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Connects two timing measures to distinguish kitchen speed from customer pickup speed."
+    },
+    {
+      "id": "challenge_0284",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Interprets repeated serial-number requests as duplication within the same process."
+    },
+    {
+      "id": "challenge_0122",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Offers an unverified cache explanation for a changed total."
+    },
+    {
+      "id": "challenge_0123",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States established plan dimensions and room counts."
+    },
+    {
+      "id": "challenge_0124",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the standing configured support routing."
+    },
+    {
+      "id": "challenge_0152",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Chooses an alert recipient for a specific exercise."
+    },
+    {
+      "id": "challenge_0015",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports attendance and motion-origin patterns without explaining their significance."
+    },
+    {
+      "id": "challenge_0081",
+      "label": "insight",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": true,
+      "rationale": "Draws the instructional implication of separating the techniques in short exercises."
+    },
+    {
+      "id": "challenge_0042",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a standing closure policy with a fresh witnessed locking event."
+    },
+    {
+      "id": "challenge_0096",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Attributes missing register entries to an unverified staff belief."
+    },
+    {
+      "id": "challenge_0111",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Predicts reader behavior after an untested story change."
+    },
+    {
+      "id": "challenge_0073",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Chooses the endpoint retention period without assigning support work."
+    },
+    {
+      "id": "challenge_0033",
+      "label": "preference",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "The owner explicitly adopts the written-first approach for future negotiations."
+    },
+    {
+      "id": "challenge_0121",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an established breakfast price with a selected dining alternative."
+    },
+    {
+      "id": "challenge_0072",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Selects the architecture for the proposal without taking a staffing obligation."
+    },
+    {
+      "id": "challenge_0063",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Chooses the order for today’s walkthrough."
+    },
+    {
+      "id": "challenge_0185",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "The speaker and intended owner of the purported default remain unresolved."
+    },
+    {
+      "id": "challenge_0066",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Interprets a whole-day-only form as erasing offered partial availability."
+    },
+    {
+      "id": "challenge_0184",
+      "label": "hypothesis",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Offers an unverified causal explanation for the transient temperature rise."
+    },
+    {
+      "id": "challenge_0025",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports hearing passenger statements, without asserting their claim is established."
+    },
+    {
+      "id": "challenge_0167",
+      "label": "insight",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Synthesizes leg and total travel variation into a distinction in predictability."
+    },
+    {
+      "id": "challenge_0253",
+      "label": "decision",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Answers the explicit color choice with green, despite the next step being a swatch order."
+    },
+    {
+      "id": "challenge_0276",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports a counted access condition for five completed tasks."
+    },
+    {
+      "id": "challenge_0009",
+      "label": "observation",
+      "confidence": "MEDIUM",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the corrected source directly shown in the camera footage."
+    },
+    {
+      "id": "challenge_0267",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports the corrected timing alignment of laughs with rests."
+    },
+    {
+      "id": "challenge_0279",
+      "label": "fact",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "States the published established exhibition opening schedule."
+    },
+    {
+      "id": "challenge_0285",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines an unattributed preference with a submission selection or plan."
+    },
+    {
+      "id": "challenge_0143",
+      "label": "decision",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Selects the rough version for this submission while retaining other drafts’ usual treatment."
+    },
+    {
+      "id": "challenge_0200",
+      "label": "observation",
+      "confidence": "HIGH",
+      "ambiguous": false,
+      "defensible": true,
+      "rubricSensitive": false,
+      "rationale": "Reports a directly noticed difference between seedling trays."
+    },
+    {
+      "id": "challenge_0292",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Explicitly combines a travel preference, an itinerary choice, and a booking commitment."
+    },
+    {
+      "id": "challenge_0195",
+      "label": null,
+      "confidence": "LOW",
+      "ambiguous": true,
+      "defensible": false,
+      "rubricSensitive": false,
+      "rationale": "Combines a measured error increase with an unverified causal diagnosis."
+    }
+  ]
+}

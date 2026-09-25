@@ -67,7 +67,14 @@ interface BrowserProfileSummary {
 interface ComputerModelState {
   model: ComputerUseModel;
   models: ComputerUseModelOption[];
-  error?: string;
+}
+
+interface ApiProblem { error?: string | { message?: string } }
+
+function apiProblemMessage(body: ApiProblem | null, fallback: string): string {
+  return typeof body?.error === "string"
+    ? body.error
+    : body?.error?.message ?? fallback;
 }
 
 /** The header button and manage tab key off this; tell them when it flips. */
@@ -119,7 +126,11 @@ export function ComputerViewer({ className }: { className?: string }) {
   const load = useCallback(async (agentId = selectedAgentId): Promise<ComputerState | null> => {
     try {
       const response = await fetch(`/api/computer${agentId ? `?agentId=${encodeURIComponent(agentId)}` : ""}`);
-      const body = (await response.json()) as ComputerState;
+      const body = (await response.json()) as ComputerState & ApiProblem;
+      if (!response.ok) {
+        setState({ enabled: true, error: apiProblemMessage(body, "Could not reach the desktop.") });
+        return null;
+      }
       setState(body);
       if (body.profile?.agentId) setSelectedAgentId(body.profile.agentId);
       return body;
@@ -255,7 +266,8 @@ export function ComputerViewer({ className }: { className?: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, agentId: state?.profile?.agentId }),
       });
-      setState((await response.json()) as ComputerState);
+      const body = (await response.json()) as ComputerState & ApiProblem;
+      setState(response.ok ? body : { enabled: true, error: apiProblemMessage(body, "Could not reach the desktop.") });
     } catch {
       setState({ enabled: true, error: "Could not reach the desktop." });
     } finally {
@@ -309,9 +321,9 @@ export function ComputerViewer({ className }: { className?: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ model }),
       });
-      const body = (await response.json()) as ComputerModelState;
+      const body = (await response.json()) as ComputerModelState & ApiProblem;
       if (!response.ok) {
-        throw new Error(body.error ?? "Could not save the model.");
+        throw new Error(apiProblemMessage(body, "Could not save the model."));
       }
       setState((current) =>
         current === null ? null : { ...current, model: body.model, models: body.models },
@@ -524,9 +536,9 @@ function KeyForm({ onSaved }: { onSaved: (state: ComputerState) => void }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ apiKey: draft.trim() }),
       });
-      const body = (await response.json()) as ComputerState & { error?: string };
+      const body = (await response.json()) as ComputerState & ApiProblem;
       if (!response.ok) {
-        setError(body.error ?? "Could not save the key.");
+        setError(apiProblemMessage(body, "Could not save the key."));
         return;
       }
       onSaved(body);

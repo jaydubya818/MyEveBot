@@ -1,6 +1,7 @@
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { getComputerSession, heartbeatComputerControl, pauseComputerSession, resumeComputerSession, returnComputerControl, stopComputerSession, takeOverComputerSession } from "@/lib/computer-sessions";
 import { ControlConflictError } from "@/lib/computer-control";
+import { computerApiFailure } from "@/lib/computer-api-errors";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -14,8 +15,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
     if (!session) return apiError(request, 404, "computer_session_not_found", "Computer session not found.");
     return Response.json({ session }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
-    console.error("Computer session read failed", error);
-    return apiError(request, 503, "computer_session_unavailable", "Computer session is temporarily unavailable.");
+    return computerApiFailure(request, error, { context: "Computer session read failed", code: "computer_session_unavailable", message: "Computer session is temporarily unavailable." });
   }
 }
 
@@ -44,9 +44,9 @@ export async function PATCH(request: Request, ctx: RouteContext): Promise<Respon
     return Response.json({ session });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Computer session could not be updated.";
-    if (/not found/i.test(message)) return apiError(request, 404, "computer_session_not_found", message);
-    if (error instanceof ControlConflictError || /cannot transition|control.*changed|lease expired|still provisioning/i.test(message)) return apiError(request, 409, "control_conflict", message);
-    if (/not supported/i.test(message)) return apiError(request, 422, "takeover_unsupported", message);
-    return apiError(request, 503, "computer_session_update_failed", "Computer session could not be updated safely.");
+    if (/not found/i.test(message)) return computerApiFailure(request, error, { context: "Computer session update target not found", status: 404, code: "computer_session_not_found", message: "Computer session not found." });
+    if (error instanceof ControlConflictError || /cannot transition|control.*changed|lease expired|still provisioning/i.test(message)) return computerApiFailure(request, error, { context: "Computer control conflict", status: 409, code: "control_conflict", message: "Computer control changed before this request could be applied." });
+    if (/not supported/i.test(message)) return computerApiFailure(request, error, { context: "Computer takeover unsupported", status: 422, code: "takeover_unsupported", message: "Human takeover is not supported for this Computer session." });
+    return computerApiFailure(request, error, { context: "Computer session update failed", code: "computer_session_update_failed", message: "Computer session could not be updated safely." });
   }
 }

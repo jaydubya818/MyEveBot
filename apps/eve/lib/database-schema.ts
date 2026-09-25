@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0029_routine_admission.sql";
+export const CURRENT_DATABASE_MIGRATION = "0035_peer_permissions.sql";

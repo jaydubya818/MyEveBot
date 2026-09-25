@@ -1,0 +1,964 @@
+{
+  "observedAt": "2026-09-20T17:41:01.118232+00:00",
+  "mode": "read-only metadata; no secret values, database rows or deployment changes",
+  "projects": {
+    "myeve": {
+      "id": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "name": "sofie-personal-agent",
+      "framework": "nextjs",
+      "rootDirectory": "apps/eve",
+      "nodeVersion": "24.x",
+      "buildCommand": null,
+      "installCommand": null,
+      "updatedAt": 1789920987588,
+      "ssoProtection": {
+        "deploymentType": "all_except_custom_domains"
+      },
+      "inspectionError": null,
+      "git": {
+        "type": "github",
+        "repo": "MyEveBot",
+        "org": "jaydubya818",
+        "productionBranch": "main"
+      },
+      "environmentNames": [
+        {
+          "key": "POSTGRES_URL_NON_POOLING",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGHOST_UNPOOLED",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_DATABASE",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGDATABASE",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGPASSWORD",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "DATABASE_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_USER",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_URL_NO_SSL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "NEON_PROJECT_ID",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGUSER",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGHOST",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "DATABASE_URL_UNPOOLED",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_PRISMA_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_HOST",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "BLOB_READ_WRITE_TOKEN",
+          "target": [
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "SUPERMEMORY_API_KEY",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "SUPERMEMORY_API_KEY",
+          "target": [
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "MYEVE_ACCESS_PASSWORD",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "MYEVE_SESSION_SECRET",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "MYEVE_OWNER_ID",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "MYEVE_ACCESS_PASSWORD",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "MYEVE_SESSION_SECRET",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "MYEVE_OWNER_ID",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "COMPOSIO_API_KEY",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "BLOB_READ_WRITE_TOKEN",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        }
+      ],
+      "targets": {
+        "production": {
+          "id": "dpl_CjbdgUWpszU2nV8srA2m2egmoKgY",
+          "url": "sofie-personal-agent-l90txxv0t-jaydubya818.vercel.app",
+          "readyState": "READY",
+          "createdAt": 1789920815133,
+          "target": "production"
+        },
+        "preview": {
+          "id": "dpl_95jNGPuqEGhuBe2QXpkcUnh8v9U7",
+          "url": "sofie-personal-agent-2fbhzhmq6-jaydubya818.vercel.app",
+          "readyState": "READY",
+          "createdAt": 1789920444595,
+          "target": null
+        }
+      },
+      "deployments": [
+        {
+          "uid": "dpl_CjbdgUWpszU2nV8srA2m2egmoKgY",
+          "url": "sofie-personal-agent-l90txxv0t-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": "production",
+          "created": 1789920815133,
+          "githubCommitSha": "1d20be474e7841871001cf592b8f523a178770e1",
+          "githubCommitRef": "main"
+        },
+        {
+          "uid": "dpl_95jNGPuqEGhuBe2QXpkcUnh8v9U7",
+          "url": "sofie-personal-agent-2fbhzhmq6-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789920444595,
+          "githubCommitSha": "60d341f9909936f03e4d72e1a7f845721ef82c46",
+          "githubCommitRef": "codex/openbot"
+        },
+        {
+          "uid": "dpl_7AjZfo1bTQHVMZCQLM4iuTCLtiaQ",
+          "url": "sofie-personal-agent-iukm29ajz-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789842736312,
+          "githubCommitSha": "e6a5440328f9ed34c883f0491de4e1190b151292",
+          "githubCommitRef": "feat/relay-federation-adapter"
+        },
+        {
+          "uid": "dpl_6U7w8e3nSW6xzPhYk7mm94Rpzy21",
+          "url": "sofie-personal-agent-gjmswlb56-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789841604258,
+          "githubCommitSha": "1d20be474e7841871001cf592b8f523a178770e1",
+          "githubCommitRef": "codex/release-integration"
+        },
+        {
+          "uid": "dpl_Dgqs7CnkJdpxtQKZZbcyrnnsrQ1g",
+          "url": "sofie-personal-agent-feklu3c4w-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789839341434,
+          "githubCommitSha": "e96fc2edee827fd6a6d50a1eca02ae30293ab9a3",
+          "githubCommitRef": "feat/relay-federation-adapter"
+        },
+        {
+          "uid": "dpl_CwW1fLESsFjnGHdFjsYT8DAzaqw2",
+          "url": "sofie-personal-agent-43tlsvmcz-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789839221350,
+          "githubCommitSha": "897659b4cb0a002b2bda81b53e73c2d909bb03c7",
+          "githubCommitRef": "feat/relay-federation-adapter"
+        },
+        {
+          "uid": "dpl_4SNdmPTi8wcpPGoGFmFFJ1B9R3dB",
+          "url": "sofie-personal-agent-g2notabz8-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789784898099,
+          "githubCommitSha": "479eeaa9eb07d3de0010670d3d3194a7fa30e6b1",
+          "githubCommitRef": "codex/browser-reliability"
+        },
+        {
+          "uid": "dpl_8vodNqG71Le2LqvwvAjD7M2B6SNB",
+          "url": "sofie-personal-agent-l3h5o8y69-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789770000549,
+          "githubCommitSha": "d6832575ab51542ff7ce8a728b6e3d3774e0ec55",
+          "githubCommitRef": "codex/browser-reliability"
+        },
+        {
+          "uid": "dpl_68KXZNPtrZFu1YAkVzQGFuNRoX9k",
+          "url": "sofie-personal-agent-58sbcmzyk-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789768149339,
+          "githubCommitSha": "c97bdf826f74e230c639b2b2f202786567da6aba",
+          "githubCommitRef": "codex/browser-reliability"
+        },
+        {
+          "uid": "dpl_5w2NRkPuE5rD15dQv35acXyyjwtE",
+          "url": "sofie-personal-agent-q92s2hwlz-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789766353627,
+          "githubCommitSha": "d8a4772fe10907407cb471ef606b578ca5d2a365",
+          "githubCommitRef": "codex/browser-reliability"
+        }
+      ],
+      "domains": [
+        {
+          "name": "sofie-personal-agent.vercel.app",
+          "gitBranch": null,
+          "customEnvironmentId": null,
+          "verified": true
+        }
+      ],
+      "productionGit": {
+        "githubCommitSha": "1d20be474e7841871001cf592b8f523a178770e1",
+        "githubCommitRef": "main"
+      }
+    },
+    "relay": {
+      "id": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK",
+      "name": "relay",
+      "framework": null,
+      "rootDirectory": null,
+      "nodeVersion": "24.x",
+      "buildCommand": null,
+      "installCommand": null,
+      "updatedAt": 1789922319152,
+      "ssoProtection": {
+        "deploymentType": "all_except_custom_domains"
+      },
+      "inspectionError": null,
+      "git": {
+        "type": "github",
+        "repo": "relay",
+        "org": "jaydubya818",
+        "productionBranch": "main"
+      },
+      "environmentNames": [
+        {
+          "key": "DATABASE_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "NEON_PROJECT_ID",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_URL_NON_POOLING",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGHOST",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_URL_NO_SSL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_PASSWORD",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "NEON_AUTH_BASE_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGHOST_UNPOOLED",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "DATABASE_URL_UNPOOLED",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_HOST",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "VITE_NEON_AUTH_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGUSER",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_USER",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_DATABASE",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "POSTGRES_PRISMA_URL",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGDATABASE",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "PGPASSWORD",
+          "target": [
+            "production",
+            "preview",
+            "development"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ADMIN_PASSWORD",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "sensitive"
+        },
+        {
+          "key": "RELAY_SESSION_SECRET",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "sensitive"
+        },
+        {
+          "key": "RELAY_ENCRYPTION_KEY",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "sensitive"
+        },
+        {
+          "key": "RELAY_ADMIN_EMAIL",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ALLOW_SIGNUP",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DEPLOYMENT_MODE",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_V2_ACTIONS_ENABLED",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DATABASE_POOL_SIZE",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DATABASE_CONNECT_TIMEOUT_MS",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DATABASE_IDLE_TIMEOUT_MS",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-private-preview",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DEPLOYMENT_MODE",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_V2_ACTIONS_ENABLED",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ALLOW_SIGNUP",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ADMIN_EMAIL",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ACCOUNT_NAME",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ADMIN_NAME",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DATABASE_POOL_SIZE",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DATABASE_CONNECT_TIMEOUT_MS",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_DATABASE_IDLE_TIMEOUT_MS",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "NEXT_PUBLIC_RELAY_URL",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ISSUER_URL",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ADMIN_PASSWORD",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "RELAY_SESSION_SECRET",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "RELAY_ENCRYPTION_KEY",
+          "target": [
+            "production"
+          ],
+          "gitBranch": null,
+          "type": "sensitive"
+        },
+        {
+          "key": "RELAY_DEPLOYMENT_MODE",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-owner-preview-qualification",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_V2_ACTIONS_ENABLED",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-owner-preview-qualification",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ALLOW_SIGNUP",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-owner-preview-qualification",
+          "type": "encrypted"
+        },
+        {
+          "key": "NEXT_PUBLIC_RELAY_URL",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-owner-preview-qualification",
+          "type": "encrypted"
+        },
+        {
+          "key": "RELAY_ISSUER_URL",
+          "target": [
+            "preview"
+          ],
+          "gitBranch": "codex/relay-owner-preview-qualification",
+          "type": "encrypted"
+        }
+      ],
+      "targets": {
+        "production": {
+          "id": "dpl_4SZwzNJ4jML9ACR2DCdWC7jLTwos",
+          "url": "relay-4j3wj2jrq-jaydubya818.vercel.app",
+          "readyState": "READY",
+          "createdAt": 1789922266714,
+          "target": "production"
+        },
+        "preview": {
+          "id": "dpl_3aa1PgPAHzpw6PSuczJDc5ifgyhr",
+          "url": "relay-lne28pb5e-jaydubya818.vercel.app",
+          "readyState": "READY",
+          "createdAt": 1789921940934,
+          "target": null
+        }
+      },
+      "deployments": [
+        {
+          "uid": "dpl_4SZwzNJ4jML9ACR2DCdWC7jLTwos",
+          "url": "relay-4j3wj2jrq-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": "production",
+          "created": 1789922266714,
+          "githubCommitSha": "7ea29b2886d2b8bad7b1a1ca1c3e8df1d39ee9ee",
+          "githubCommitRef": "main"
+        },
+        {
+          "uid": "dpl_3aa1PgPAHzpw6PSuczJDc5ifgyhr",
+          "url": "relay-lne28pb5e-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789921940934,
+          "githubCommitSha": "f8f30ccd1db769aee7751c6eef56ea09a7152290",
+          "githubCommitRef": "codex/relay-owner-preview-consolidation"
+        },
+        {
+          "uid": "dpl_787DTV4K82jzTm5L2k1GriWYTEP8",
+          "url": "relay-dt2vgcduv-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789921279318,
+          "githubCommitSha": "2405e33eca5131d846044c2c811c15126b2d39a2",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_8GCcV5W3tW6yUibicAE2xDKBqCoT",
+          "url": "relay-3gkmoh8b1-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789920988075,
+          "githubCommitSha": "de727a5f74442ec8db1dee44974ebd5bd70af446",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_6MJoya2a5y2SNkSAEnEbXaQ5Y1w3",
+          "url": "relay-e9js34mnb-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789839391453,
+          "githubCommitSha": "3cdd5671edbd385d14b4ea64b7523218d7469130",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_9pNSqSUQptf5armoorvys7pTzvjW",
+          "url": "relay-mebk7iqox-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789838747864,
+          "githubCommitSha": "ee3a5e345d8d0183724844300c614733e4b6e2fa",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_n8Qhw41kvSvbrmRfQjBLmvX5ZKAz",
+          "url": "relay-pefatdp6m-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789838522602,
+          "githubCommitSha": "122d60331c88381884c1c90dc1ec339a9e7b056f",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_EjtNHm5q5a3r9DCakqsv3gR3c3wA",
+          "url": "relay-17ovkloko-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789837183887,
+          "githubCommitSha": "122d60395ad9125463a8a13a61cd31b3a2185bff",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_7geHA5r5odBzYQagj3zNeyDsWbCs",
+          "url": "relay-o0zrtzjmm-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789836234194,
+          "githubCommitSha": "f7b5daa1b3ed5df8f950a8e03059a4f540d300ec",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        },
+        {
+          "uid": "dpl_6jdPscb1mUgUU5KgKmBr4W2z7LmF",
+          "url": "relay-gi7gwyqbj-jaydubya818.vercel.app",
+          "state": "READY",
+          "target": null,
+          "created": 1789835802895,
+          "githubCommitSha": "8d6ee6dd0602d002b6c6fefcb3f73c4e09209d65",
+          "githubCommitRef": "codex/relay-owner-preview-qualification"
+        }
+      ],
+      "domains": [
+        {
+          "name": "relay-sage-nine.vercel.app",
+          "gitBranch": null,
+          "customEnvironmentId": null,
+          "verified": true
+        }
+      ],
+      "productionGit": {
+        "githubCommitSha": "7ea29b2886d2b8bad7b1a1ca1c3e8df1d39ee9ee",
+        "githubCommitRef": "main"
+      }
+    }
+  },
+  "knownRelayStore": [
+    {
+      "id": "store_NoIIiEgH5AoDvwL5",
+      "name": "neon-cerise-car",
+      "type": "integration",
+      "status": "available",
+      "plan": {
+        "id": "free_v3",
+        "name": "Free"
+      }
+    }
+  ],
+  "storageInspectionError": null
+}

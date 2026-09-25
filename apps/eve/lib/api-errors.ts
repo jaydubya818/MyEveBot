@@ -8,13 +8,17 @@ export interface ApiErrorBody {
   };
 }
 
+export function apiRequestId(request: Request): string {
+  return request.headers.get("x-request-id")?.slice(0, 128) || randomUUID();
+}
+
 export function apiError(
   request: Request,
   status: number,
   code: string,
   message: string,
+  requestId = apiRequestId(request),
 ): Response {
-  const requestId = request.headers.get("x-request-id")?.slice(0, 128) || randomUUID();
   return Response.json(
     { error: { code, message, requestId } } satisfies ApiErrorBody,
     { status, headers: { "Cache-Control": "no-store" } },

@@ -8,12 +8,21 @@ CREATE TABLE IF NOT EXISTS chat_files (
   size_bytes bigint NOT NULL CHECK (size_bytes >= 0),
   blob_url text NOT NULL,
   blob_path text NOT NULL,
-  owner_id text NOT NULL DEFAULT 'web:owner',
+  owner_id text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
 -- statement-breakpoint
-ALTER TABLE chat_files ADD COLUMN IF NOT EXISTS owner_id text NOT NULL DEFAULT 'web:owner';
+ALTER TABLE chat_files ADD COLUMN IF NOT EXISTS owner_id text;
+
+-- statement-breakpoint
+ALTER TABLE chat_files ALTER COLUMN owner_id DROP DEFAULT;
+
+-- statement-breakpoint
+ALTER TABLE chat_files ALTER COLUMN owner_id DROP NOT NULL;
+
+-- statement-breakpoint
+UPDATE chat_files SET owner_id = NULL WHERE owner_id = 'web:owner';
 
 -- statement-breakpoint
 CREATE INDEX IF NOT EXISTS chat_files_owner_created_idx

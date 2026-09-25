@@ -1,3 +1,7 @@
+import { messageReplySettings, saveMessageReplySettings } from "./message-reply-settings.ts";
+import { settingsStore } from "../../agent/lib/settings-db.ts";
+import { grantDurationSchema } from "./grant-duration.ts";
+import { revokeFederationArtifact } from "../qualification/artifact-storage.ts";
 import { createPublicKey } from "node:crypto";
 import { z } from "zod";
 import { listKnowledge } from "../knowledge.ts";
@@ -90,6 +94,8 @@ export async function relayDashboard(store: FederationStore) {
     ),
   ]);
   return {
+    messageReplies: await messageReplySettings(store),
+    grantDuration: grantDurationSchema.catch("7d").parse(await settingsStore.getFresh(`relay-grant-duration:${store.ownerId}`)),
     enabled: true,
     origin: relayOrigin(),
     connection: connections[0] ?? null,
@@ -120,6 +126,8 @@ const commandSchema = z
       "confirm",
       "publication-status",
       "grant",
+      "grant-duration",
+      "message-replies",
       "revoke-grant",
       "rotate",
       "revoke-credential",
@@ -159,6 +167,13 @@ export async function ownerCommand(
         id,
         z.enum(["PAUSED", "REVOKED"]).parse(input),
       );
+    case "message-replies":
+      return saveMessageReplySettings(store, input);
+    case "grant-duration": {
+      const duration = grantDurationSchema.parse(input);
+      await settingsStore.set(`relay-grant-duration:${store.ownerId}`, duration);
+      return { duration };
+    }
     case "grant":
       return grantPeer(store, input);
     case "revoke-grant":
@@ -180,10 +195,7 @@ export async function ownerCommand(
     case "artifact-share":
       return artifactShare(store, id, z.string().max(255).parse(input));
     case "artifact-revoke":
-      await store.database.query(
-        "UPDATE myeve_relay_artifacts SET revoked=true WHERE owner_id=$1 AND id=$2",
-        [store.ownerId, id],
-      );
+      await revokeFederationArtifact(store,id);
       return { revoked: true };
     case "policy": {
       const mode = z.enum(["accept", "reject", "approval"]);

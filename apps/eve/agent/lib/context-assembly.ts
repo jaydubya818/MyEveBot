@@ -80,9 +80,9 @@ async function executionLinks(input: AssembleContextInput): Promise<{ goalId: st
     `SELECT r.id,r.goal_id,r.goal_task_id
      FROM task_runs r LEFT JOIN task_run_sessions s ON s.task_id=r.id
      WHERE r.owner_id=$1 AND (
-       ($2::text IS NOT NULL AND r.id=$2) OR s.session_id=$3 OR
+       ($2::text IS NOT NULL AND r.id=$2) OR (s.session_id=$3 AND s.is_current) OR
        ($4::text IS NOT NULL AND r.thread_id=$4 AND r.agent_id=$5)
-     ) ORDER BY CASE WHEN r.id=$2 THEN 0 WHEN s.session_id=$3 THEN 1 ELSE 2 END,r.updated_at DESC LIMIT 1`,
+     ) ORDER BY CASE WHEN r.id=$2 THEN 0 WHEN s.session_id=$3 AND s.is_current THEN 1 ELSE 2 END,r.updated_at DESC LIMIT 1`,
     [input.ownerId, input.runId ?? null, input.sessionId, input.threadId ?? null, input.agentId],
   ) as Row[];
   const run = runRows[0];

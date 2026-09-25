@@ -1,0 +1,18 @@
+{
+  "observationDate": "2026-09-20",
+  "provider": "Railway",
+  "workspaceId": "56a1e903-2507-4cd4-904b-9c57513046b4",
+  "plan": "HOBBY",
+  "currentUsage": 0,
+  "remainingUsageCreditBalance": 3.98,
+  "creditBalance": 3.98,
+  "existingProjects": [
+    {
+      "id": "b726c63e-f3d6-4f22-a822-19fb5f594e3f",
+      "name": "mission-control-bot",
+      "qualificationSuitability": "Unrelated production service; not reused"
+    }
+  ],
+  "newResourcesCreated": false,
+  "decision": "STOP at custody contract; existing credit is not a hard runtime/spend bound"
+}

@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import {ActionGateway} from "./admission-fixtures.mjs";
 import {ActionBlocked,consumeActionAuthority} from "../lib/action-gateway.ts";
 import {ActionRecovery} from '../lib/action-recovery.ts';
-import {approvalBinding} from '../lib/approvals.ts';
+import {approvalBinding,approvalRequestId} from '../lib/approvals.ts';
 
 export async function qualifyRecovery(client,database) {
-  const base={ownerId:'sarah',runId:'executor-test',actionKey:'recovery',capabilityId:'tool.send_email',actionClass:'send',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat'},parameters:{to:['sarah@example.test'],text:'report'}};
+  const base={ownerId:'sarah',runId:'executor-test',actionKey:'recovery',capabilityId:'tool.send_email',actionClass:'send',executor:{kind:'persistent-agent',agentId:'ava'},trigger:{kind:'owner_chat',id:'fixture-session'},parameters:{to:['sarah@example.test'],text:'report'}};
   const authority={evaluate:async()=>({decision:'ALLOW',source:'fixture',reason:'fixture'})};
   const gateway=new ActionGateway(database,authority);
   const recovery=new ActionRecovery(database);
@@ -31,16 +31,17 @@ export async function qualifyRecovery(client,database) {
   const no=await uncertain('definitely-not-executed');
   assert.equal(await recovery.recover('sarah',no,()=>({id:'fake.provider-proof',inspect:async()=>({outcome:'not_executed',evidence:{authoritativeAttemptState:'not_dispatched'}})})),'retryable');
   let approvals=0;
+  const approvalIds=[];
   const approvalStore=async input=>{
-    const id=`recovery_approval_${++approvals}`;
+    const id=approvalRequestId(input); approvalIds.push(id); approvals++;
     const binding=approvalBinding({taskId:input.taskId,capabilityId:input.capabilityId,resource:input.resource,action:input.action,parameters:input.parameters});
-    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status) VALUES($1,$2,$3,$4,'Retry approval',$5,$6,$7,'high',now()+interval '1 hour','pending')`,[id,input.taskId,input.ownerId,input.requestedBy,input.action,input.actionClass,binding]);
+    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status,agent_id,capability_id) VALUES($1,$2,$3,$4,'Retry approval',$5,$6,$7,'high',now()+interval '1 hour','pending','ava','tool.send_email')`,[id,input.taskId,input.ownerId,input.requestedBy,input.action,input.actionClass,binding]);
     return {decision:'REQUIRE_APPROVAL',approval:{id},reason:'fixture'};
   };
   const gated=new ActionGateway(database,{evaluate:async()=>({decision:'REQUIRE_APPROVAL',source:'fixture',reason:'current policy'})},approvalStore);
   const prior=writes;
   await assert.rejects(gated.execute({...base,actionKey:'definitely-not-executed',parameters:{...base.parameters,scenario:'definitely-not-executed'}},adapter));assert.equal(writes,prior);
-  await client.query("UPDATE task_approval_decisions SET status='approved' WHERE id='recovery_approval_1'");
+  await client.query("UPDATE task_approval_decisions SET status='approved',decision='approved' WHERE id=$1",[approvalIds[0]]);
   await assert.rejects(gated.execute({...base,actionKey:'definitely-not-executed',parameters:{...base.parameters,scenario:'definitely-not-executed'}},adapter));assert.equal(writes,prior+1);
 
   const unknown=await uncertain('indeterminate');

@@ -7,7 +7,7 @@ import {RoutinePendingSend} from '../lib/routine-pending-send.ts';
 import {ExecutionDelivery} from '../lib/execution-delivery.ts';
 import {ExecutionStore} from '../lib/execution-store.ts';
 import {routineConfigurationSchema} from '../lib/execution-types.ts';
-import {approvalBinding} from '../lib/approvals.ts';
+import {approvalBinding,approvalRequestId} from '../lib/approvals.ts';
 
 export async function qualifyFinalGate(client,database) {
   const store=new ExecutionStore(database,admissionFixture(database)),pending=new RoutinePendingSend(database);
@@ -36,10 +36,11 @@ export async function qualifyFinalGate(client,database) {
   await store.enqueue({ownerId:'sarah',routineId:'followup',key:'once',scheduledFor:'2026-09-18T08:00:00Z'});
   const claim=await store.claim('sarah','draft-worker');assert.equal(claim.routineId,'followup');
   let sends=0,drafts=1,approvals=0;
+  const approvalIds=[];
   const approvalStore=async input=>{
-    const id=`followup_approval_${++approvals}`;
+    const id=approvalRequestId(input); approvalIds.push(id); approvals++;
     const hash=approvalBinding({taskId:input.taskId,capabilityId:input.capabilityId,resource:input.resource,action:input.action,parameters:input.parameters});
-    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status) VALUES($1,$2,$3,$4,'Approve follow-up',$5,$6,$7,'high',now()+interval '1 hour','pending')`,[id,input.taskId,input.ownerId,input.requestedBy,input.action,input.actionClass,hash]);
+    await client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,requested_by,prompt,action,action_class,binding_hash,risk,expires_at,status,agent_id,capability_id) VALUES($1,$2,$3,$4,'Approve follow-up',$5,$6,$7,'high',now()+interval '1 hour','pending','ava','tool.send_email')`,[id,input.taskId,input.ownerId,input.requestedBy,input.action,input.actionClass,hash]);
     return {decision:'REQUIRE_APPROVAL',approval:{id},reason:'fixture'};
   };
   const gateway=new ActionGateway(database,{evaluate:async()=>({decision:'REQUIRE_APPROVAL',source:'fixture',reason:'exact send'})},approvalStore);
@@ -51,7 +52,7 @@ export async function qualifyFinalGate(client,database) {
   await assert.rejects(pending.save({...action,parameters:{...action.parameters,text:'Changed'}},id));
   await client.query('UPDATE task_runs SET thread_id=$2 WHERE id=$1',[claim.runId,'saved-research-and-draft']);
   await store.fail(claim,'approval_required');assert.equal(await store.claim('sarah','too-early'),null);
-  await client.query("UPDATE task_approval_decisions SET status='approved' WHERE id='followup_approval_1'");
+  await client.query("UPDATE task_approval_decisions SET status='approved',decision='approved' WHERE id=$1",[approvalIds[0]]);
   const race=await Promise.all([store.claim('sarah','resume-a'),store.claim('sarah','resume-b')]);
   assert.equal(race.filter(Boolean).length,1);const resumed=race.find(Boolean);
   assert.equal(resumed.runId,claim.runId);assert.equal(resumed.occurrenceId,claim.occurrenceId);
@@ -73,8 +74,8 @@ export async function qualifyFinalGate(client,database) {
   const nextStamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
   assert.equal(await recovery.resolveByOwner('sarah',id,'not_occurred',nextStamp),'retryable');
   assert.equal((await client.query('SELECT approval_id FROM action_requests WHERE id=$1',[id])).rows[0].approval_id,null);
-  await assert.rejects(pending.resume(resumed,gateway,adapter),error=>error.status==='awaiting_approval');
-  assert.equal(approvals,2);assert.equal(sends,1,'owner non-execution attestation still needs fresh approval');
+  await assert.rejects(pending.resume(resumed,gateway,adapter),error=>error.status==='denied'&&error.actionId==='RUN_NOT_EXECUTABLE');
+  assert.equal(approvals,1);assert.equal(sends,1,'terminal Run cannot admit a replacement approval after owner attestation');
   await client.query("UPDATE action_requests SET status='needs_you',updated_at=now() WHERE id=$1",[id]);
   const cancelStamp=(await client.query('SELECT updated_at::text FROM action_requests WHERE id=$1',[id])).rows[0].updated_at;
   assert.equal(await recovery.resolveByOwner('sarah',id,'cancel',cancelStamp),'cancelled');

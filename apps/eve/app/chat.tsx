@@ -43,6 +43,9 @@ import {
 } from "@phosphor-icons/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { persistChatUpload, inspectChatUploads } from "@/lib/chat-file-client";
+import type { ChatFileView } from "@/lib/files-api";
+
 import { CommandPalette } from "@/components/command-palette";
 import { ChannelsWorkspace } from "@/components/channels-workspace";
 import { ComputerWorkspace } from "@/components/computer-workspace";
@@ -402,6 +405,8 @@ interface PendingAttachment {
   mediaType: string;
   size: number;
   dataUrl: string;
+  file: File;
+  uploaded?: ChatFileView;
 }
 
 const MAX_ATTACHMENT_BYTES = 20 * 1024 * 1024;
@@ -641,6 +646,35 @@ type MainView =
 function ChatApp({ initialView }: { initialView: MainView }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!sidebarOpen || window.matchMedia("(min-width: 768px)").matches) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const drawer = sidebarRef.current;
+    const controls = () => Array.from(drawer?.querySelectorAll<HTMLElement>(
+      'button:not(:disabled), input:not(:disabled), a[href], [tabindex="0"]',
+    ) ?? []).filter((element) => element.getClientRects().length > 0);
+    controls()[0]?.focus();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setSidebarOpen(false);
+      } else if (event.key === "Tab") {
+        const items = controls();
+        const first = items[0], last = items.at(-1);
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault(); last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault(); first?.focus();
+        }
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      if (previous?.isConnected) previous.focus();
+    };
+  }, [sidebarOpen]);
   // The thread meta is kept separately from the open flag so the dialog's
   // text doesn't blank out during its closing animation.
   const [threadToDelete, setThreadToDelete] = useState<ThreadMeta | null>(null);
@@ -1029,6 +1063,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   const sections = sectionThreads(index.threads, searchQuery, contentMatchIds);
 
   function showView(next: MainView) {
+    setSidebarOpen(false);
     setView(next);
     const path = next === "manage" ? "/manage" : next === "channels" ? "/channels" : next === "email" ? "/email" : next === "files" ? "/files" : next === "results" ? "/results" : next === "computer" ? "/computer" : next === "agents" ? "/agents" : next === "goals" ? "/goals" : next === "review" ? "/review" : next === "knowledge" ? "/knowledge" : "/";
     if (window.location.pathname !== path) {
@@ -1037,6 +1072,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   }
 
   function showSystemStatus() {
+    setSidebarOpen(false);
     setView("manage");
     if (window.location.pathname !== "/manage/system") {
       window.history.pushState(null, "", "/manage/system");
@@ -1220,22 +1256,26 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       )}
 
       <aside
+        ref={sidebarRef}
+        aria-label="App navigation"
         className={cn(
-          "fixed inset-y-0 start-0 z-40 flex w-64 shrink-0 -translate-x-full flex-col border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:translate-x-0",
-          sidebarOpen && "translate-x-0",
+          "fixed inset-y-0 start-0 z-40 invisible flex w-64 shrink-0 -translate-x-full flex-col overflow-hidden border-e border-kumo-hairline bg-kumo-elevated transition-transform duration-200 md:static md:visible md:translate-x-0",
+          sidebarOpen && "visible translate-x-0",
         )}
       >
-        <div className="flex items-center justify-between px-3 py-2.5">
+        <div role="navigation" aria-label="Main destinations" className="flex flex-wrap items-center justify-between gap-1 px-3 py-2.5">
           <button
             type="button"
-            className="rounded-sm text-sm font-semibold hover:text-kumo-strong"
+            className="min-h-11 min-w-11 rounded-sm text-sm font-semibold hover:text-kumo-strong md:min-h-8"
             aria-label="Back to chat"
             title="Back to chat"
             onClick={() => showView("chat")}
           >
             {AGENT_NAME}
           </button>
-          <div className="flex items-center">
+          <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
+            className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
+          <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
             {goalsIncluded && <Button
               variant="ghost"
               size="sm"
@@ -1415,7 +1455,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
 
       {view === "channels" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full px-4 py-6 sm:px-6 lg:px-8"><ChannelsWorkspace pushStatus={push.status} onTogglePush={push.toggle} /></div>
         </main>
       ) : view === "email" ? (
@@ -1428,22 +1468,22 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         />
       ) : view === "results" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><ResultsPanel onStartPrompt={startPromptThread} /></div>
         </main>
       ) : view === "computer" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><ComputerWorkspace /></div>
         </main>
       ) : view === "knowledge" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8"><KnowledgePanel /></div>
         </main>
       ) : view === "agents" ? (
         <main className="relative h-dvh min-w-0 flex-1 overflow-y-auto">
-          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
+          <Button variant="ghost" size="sm" shape="square" icon={SidebarSimpleIcon} className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden" aria-label="Open threads" onClick={() => setSidebarOpen(true)} />
           <div className="w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8"><AgentsPanel onStartChat={startAgentChat} onUseRole={useRole} onUseSolutionPack={useSolutionPack} /></div>
         </main>
       ) : view === "review" ? (
@@ -1453,7 +1493,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             size="sm"
             shape="square"
             icon={SidebarSimpleIcon}
-            className="absolute start-2 top-2 z-20 md:hidden"
+            className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
             onClick={() => setSidebarOpen(true)}
           />
@@ -1468,7 +1508,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             size="sm"
             shape="square"
             icon={SidebarSimpleIcon}
-            className="absolute start-2 top-2 z-20 md:hidden"
+            className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
             onClick={() => setSidebarOpen(true)}
           />
@@ -1483,7 +1523,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             size="sm"
             shape="square"
             icon={SidebarSimpleIcon}
-            className="absolute start-2 top-2 z-20 md:hidden"
+            className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
             aria-label="Open threads"
             onClick={() => setSidebarOpen(true)}
           />
@@ -1778,6 +1818,9 @@ function ChatThread({
 
   // Attachments staged in the composer, sent with the next message.
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const uploadInProgress = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   // dragenter/dragleave fire for every child; count to avoid overlay flicker.
@@ -2028,19 +2071,25 @@ function ChatThread({
   }, [usageByTurn]);
 
   async function addFiles(files: Iterable<File>) {
+    if (uploadInProgress.current) return;
+    setUploadError(null);
     const additions: PendingAttachment[] = [];
     for (const file of files) {
-      if (file.size > MAX_ATTACHMENT_BYTES) continue;
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        setUploadError("Each attachment must be 20 MB or smaller.");
+        continue;
+      }
       try {
         additions.push({
           id: browserRandomId(),
+          file,
           name: file.name || "pasted-file",
           mediaType: file.type || "application/octet-stream",
           size: file.size,
           dataUrl: await readFileAsDataUrl(file),
         });
       } catch {
-        // Unreadable file (e.g. a dragged folder); skip it.
+        setUploadError("This attachment could not be read. Choose a file and try again.");
       }
     }
     if (additions.length > 0) {
@@ -2102,28 +2151,56 @@ function ChatThread({
     return () => recognitionRef.current?.stop();
   }, []);
 
-  function sendDraft() {
+  async function sendDraft() {
     const text = draft.trim();
-    if ((text.length === 0 && attachments.length === 0) || isBusy) return;
+    if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
     const staged = attachments;
+    let message: UserContent = text;
+    setUploadError(null);
+    recognitionRef.current?.stop();
+    if (staged.length > 0) {
+      uploadInProgress.current = true;
+      setUploading(true);
+      try {
+        const batch = inspectChatUploads(await Promise.allSettled(staged.map(
+          (attachment) => attachment.uploaded ?? persistChatUpload(threadId, attachment),
+        )));
+        // Preserve successful identities so retry never creates a second copy.
+        setAttachments(staged.map((attachment, index) => ({
+          ...attachment, uploaded: batch.files[index],
+        })));
+        if (!batch.complete) throw new Error("Upload incomplete");
+        const parts = await Promise.all(batch.files.map(async (file) => {
+          // Read through the same owner-authorized path used by Files. The
+          // private storage URL and credentials never enter the transcript.
+          const response = await fetch(file.contentUrl);
+          if (!response.ok) throw new Error("File unavailable");
+          const bytes = await response.blob();
+          return {
+            type: "file" as const,
+            data: await readFileAsDataUrl(new File([bytes], file.filename, { type: file.mediaType })),
+            mediaType: file.mediaType,
+            filename: file.filename,
+          };
+        }));
+        message = [
+          { type: "text", text: [text, ...batch.files.map((file) =>
+            `Attached file reference: ${file.id} (${file.contentUrl})`,
+          )].filter(Boolean).join("\n\n") },
+          ...parts,
+        ];
+      } catch {
+        setUploadError("Attachment upload or retrieval failed. Your draft is saved here; try again.");
+        return;
+      } finally {
+        uploadInProgress.current = false;
+        setUploading(false);
+      }
+    }
     setDraft("");
     setAttachments([]);
-    recognitionRef.current?.stop();
     const titleSource = text.length > 0 ? text : (staged[0]?.name ?? "Attachment");
     onActivity(messages.length === 0 ? toThreadTitle(titleSource) : undefined);
-    if (staged.length === 0) {
-      void agent.send({ message: text });
-      return;
-    }
-    const message: UserContent = [
-      ...(text.length > 0 ? [{ type: "text" as const, text }] : []),
-      ...staged.map((attachment) => ({
-        type: "file" as const,
-        data: attachment.dataUrl,
-        mediaType: attachment.mediaType,
-        filename: attachment.name,
-      })),
-    ];
     void agent.send({ message });
   }
 
@@ -2261,7 +2338,7 @@ function ChatThread({
           size="sm"
           shape="square"
           icon={SidebarSimpleIcon}
-          className="absolute start-2 top-2 z-20 md:hidden"
+          className="absolute start-2 top-2 z-20 min-h-11 min-w-11 md:hidden"
           aria-label="Open threads"
           onClick={onOpenSidebar}
         />
@@ -2400,9 +2477,11 @@ function ChatThread({
             className="rounded-xl bg-kumo-base p-2 ring ring-kumo-hairline focus-within:ring-kumo-focus/40"
             onSubmit={(event) => {
               event.preventDefault();
-              sendDraft();
+              void sendDraft();
             }}
           >
+            {uploadError && <p role="alert" className="px-2 py-1 text-sm text-kumo-danger">{uploadError}</p>}
+            {uploading && <p role="status" className="px-2 py-1 text-sm">Uploading attachments…</p>}
             {attachments.length > 0 && (
               <AttachmentGroup className="px-1 pb-2">
                 {attachments.map((attachment) => (
@@ -2423,19 +2502,20 @@ function ChatThread({
                         {formatBytes(attachment.size)}
                       </AttachmentDescription>
                     </AttachmentContent>
-                    <AttachmentActions>
+                    {!uploading && <AttachmentActions>
                       <AttachmentAction
                         aria-label={`Remove ${attachment.name}`}
                         icon={XIcon}
                         onClick={() => removeAttachment(attachment.id)}
                       />
-                    </AttachmentActions>
+                    </AttachmentActions>}
                   </Attachment>
                 ))}
               </AttachmentGroup>
             )}
             <InputArea
               ref={composerRef}
+              disabled={uploading}
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
@@ -2480,7 +2560,7 @@ function ChatThread({
                 }
                 if (event.key === "Enter" && !event.shiftKey) {
                   event.preventDefault();
-                  sendDraft();
+                  void sendDraft();
                 }
               }}
             />
@@ -2500,6 +2580,7 @@ function ChatThread({
                 variant="ghost"
                 shape="square"
                 icon={PlusIcon}
+                disabled={uploading}
                 aria-label="Attach files"
                 title="Attach files"
                 className="text-kumo-subtle"
@@ -2541,7 +2622,7 @@ function ChatThread({
                     shape="circle"
                     icon={ArrowUpIcon}
                     aria-label="Send"
-                    disabled={draft.trim().length === 0 && attachments.length === 0}
+                    disabled={uploading || (draft.trim().length === 0 && attachments.length === 0)}
                   />
                 )}
               </div>

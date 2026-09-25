@@ -24,6 +24,12 @@ V1 restore targets an empty deployment. The archive is interpreted as a snapshot
 
 The dry-run plan must resolve dependencies before applying records. Missing or incompatible dependencies must be reported before confirmation. Restored schedules, webhooks, connector credentials, and other side-effecting integrations remain disabled until the owner explicitly reconnects or enables them.
 
+Browser Profile metadata may be planned for restore only after the target provider is reconnected. Provider-managed cookies, passwords, desktop credentials, and authenticated session state are never portable. Profile grants must be reconciled against target Agents and their current capabilities before they can be recreated.
+
+Computer sessions, Browser sessions, Computer actions, control leases, control receipts, and Approval records are historical evidence only. A restore must never turn an archived approval, control lease, Run, worker claim, execution token, provider session, or checkpoint into usable authority. Any future action must pass the target deployment's current authorization and control checks as a new action.
+
+Legacy routines, webhooks, and Finance records are single-owner deployment state. Their current tables do not provide row-level multi-owner isolation. A future tenancy migration must add explicit owner scope before these domains can be advertised or restored as multi-owner data.
+
 Knowledge supersession and relationships are restored only after their referenced records exist. Provider-backed Memory is recreated through the configured provider and linked to new provider identifiers; an archived provider identifier is evidence, not a portable identity.
 
 ## Forgotten and deleted information

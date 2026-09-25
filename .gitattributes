@@ -1,0 +1,4 @@
+# Preserve byte-for-byte historical command evidence and its recorded hashes.
+# Source code retains normal whitespace validation.
+docs/federation/production-readiness/evidence/**/*.txt -whitespace
+docs/federation/production-readiness/evidence/**/*.patch -whitespace

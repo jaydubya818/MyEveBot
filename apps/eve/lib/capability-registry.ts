@@ -133,7 +133,12 @@ function platform(
 }
 
 export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
-  platform("federation.request", "Federated work request", "integration", "Request bounded work through the existing Federation boundary; never expands local authority.", {permissions:["work.request"],configuration:["MYEVE_RELAY_ENABLED"],keywords:["federation","relay"]}),
+  platform("federation.permissions.manage", "Manage peer permissions", "integration", "Authenticated owner configuration for exact peer relationships. Never callable by an Agent tool or a peer.", {
+    permissions: ["peer-policy.write"], risk: { level: "high", categories: ["authority-change"] },
+    configuration: ["DATABASE_URL"], source: { type: "builtin", reference: "app/api/relay/peer-permissions/route.ts" },
+    evidence: { supported: true, required: true, types: ["peer-permission-changed"] }, keywords: ["peer", "permission", "owner"],
+  }),
+  platform("federation.request", "Federated request", "tool", "Request bounded work through the existing Federation boundary; never expands local authority.", {permissions:["work.request"],configuration:["MYEVE_RELAY_ENABLED", "MYEVE_RELAY_ORIGIN", "DATABASE_URL"],source:{type:"builtin",reference:"agent/tools/federation_request.ts"},evidence:{supported:true,required:true,types:["relay-request-id","action-receipt"]},keywords:["federation","relay","peer","published"]}),
   platform("notification.send","Result notification","channel","Deliver an owner-approved completed result through a claimed outbox entry.",{
     permissions:["notification.send"],risk:{level:"medium",categories:["external-communication"]},
     evidence:{supported:true,required:true,types:["provider-message-id"]},
@@ -424,6 +429,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("update_review_schedule", { description: "Update an explicitly owner-approved review schedule and delivery policy.", feature: "goals", permissions: ["reviews.schedule"], risk: "medium", riskCategories: ["proactive-action", "external-communication"], approval: "always", configuration: ["DATABASE_URL", "OWNER_TIMEZONE"], dependencies: ["notification.review-delivery"], keywords: ["daily brief", "weekly review", "schedule", "timezone", "quiet hours", "delivery"] }),
   tool("record_fact", { description: "Record a durable fact with confidence and current-conversation provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["fact", "know", "confirm", "provenance"] }),
   tool("record_observation", { description: "Record a noticed pattern without promoting it to a preference.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["observation", "pattern", "noticed", "evidence"] }),
+  tool("evaluate_with_jev", { feature: "knowledge", description: "Owner-approved advisory Jev evaluation of explicitly supplied text; no Knowledge writes or authority changes.", permissions: ["model.evaluate"], risk: "medium", riskCategories: ["external-data", "metered-action"], approval: "conditional", configuration: ["MYEVE_DECISION_INTELLIGENCE_ENABLED", "AI_GATEWAY_API_KEY or VERCEL_OIDC_TOKEN"], keywords: ["jev", "classification", "decision intelligence"] }),
   tool("record_decision", { description: "Record an explicit decision with rationale, reopen condition, and provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "standing-intent"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["decision", "decide", "rationale", "revisit", "supersede"] }),
   tool("record_commitment", { description: "Record an explicit owner obligation without broad automatic extraction.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "standing-intent"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["commitment", "promise", "due", "obligation"] }),
   tool("record_hypothesis", { description: "Record an uncertain hypothesis with a test and conversation provenance.", feature: "knowledge", permissions: ["knowledge.write"], risk: "medium", riskCategories: ["durable-data", "personal-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["knowledge.structured"], keywords: ["hypothesis", "test", "uncertain"] }),
@@ -528,6 +534,12 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
+  if (definition.id === "tool.evaluate_with_jev" && env.MYEVE_DECISION_INTELLIGENCE_ENABLED !== "true") {
+    return {status: "disabled", configured: false, reason: "Jev evaluation is disabled in this deployment."};
+  }
+  if (definition.id === "federation.request" && env.MYEVE_RELAY_ENABLED !== "true") {
+    return {status: "disabled", configured: false, reason: "Federation is disabled in this deployment."};
+  }
   if (definition.feature && !enabledFeatures(env).has(definition.feature)) {
     return { status: "disabled", configured: false, reason: "Not included in this deployment." };
   }

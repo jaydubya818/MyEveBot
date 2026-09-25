@@ -1,0 +1,876 @@
+
+ RUN  v3.2.7 /private/tmp/myeve-product-acceptance-fixes/apps/eve
+
+ ❯ lib/owner-archive-security.test.ts (32 tests | 22 failed) 492ms
+   ✓ owner archive untrusted input > accepts legitimate v1 data, ordinary owner prose and token usage counts 29ms
+   × owner archive untrusted input > rejects checksum-valid duplicate data/knowledge.json 20ms
+     → promise resolved "{ valid: true, …(6) }" instead of rejecting
+   × owner archive untrusted input > rejects checksum-valid duplicate manifest.json 16ms
+     → promise resolved "{ valid: true, …(6) }" instead of rejecting
+   × owner archive untrusted input > rejects checksum-valid duplicate checksums.json 14ms
+     → promise resolved "{ valid: true, …(6) }" instead of rejecting
+   ✓ owner archive untrusted input > rejects normalized alias ./data/knowledge.json before reading data 10ms
+   ✓ owner archive untrusted input > rejects normalized alias data/./knowledge.json before reading data 9ms
+   ✓ owner archive untrusted input > rejects normalized alias data/nested/../knowledge.json before reading data 10ms
+   × owner archive untrusted input > rejects normalized alias data//knowledge.json before reading data 12ms
+     → promise resolved "{ valid: true, …(6) }" instead of rejecting
+   ✓ owner archive untrusted input > rejects noncanonical spelling DATA/knowledge.json 11ms
+   ✓ owner archive untrusted input > rejects noncanonical spelling data/%6bnowledge.json 14ms
+   ✓ owner archive untrusted input > rejects noncanonical spelling data/%256bnowledge.json 19ms
+   × owner archive untrusted input > rejects root secret concept token without echoing its value 16ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept secret without echoing its value 15ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept password without echoing its value 15ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept authorization without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept credentials without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept cookies without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept apiKey without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept access_key without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept refreshToken without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept privateKey without echoing its value 12ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept vncCredential without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects root secret concept databaseURL without echoing its value 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects nested array secrets in profile 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects nested array secrets in connections 12ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects nested array secrets in agents 13ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > rejects nested array secrets in computer_history 12ms
+     → expected false to be true // Object.is equality
+   × owner archive untrusted input > checks manifest metadata recursively too 13ms
+     → promise resolved "{ valid: true, …(6) }" instead of rejecting
+   ✓ owner archive untrusted input > does not echo malformed JSON contents 0ms
+   ✓ owner archive untrusted input > rejects too many raw entries even when all duplicate 1ms
+   ✓ owner archive untrusted input > rejects unsafe traversal and absolute paths 0ms
+   × owner archive untrusted input > rejects bounded highly compressed content before inflation 106ms
+     → expected [Function] to throw error including 'compression ratio' but got 'Unexpected end of JSON input'
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 22 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects checksum-valid duplicate data/knowledge.json
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects checksum-valid duplicate manifest.json
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects checksum-valid duplicate checksums.json
+AssertionError: promise resolved "{ valid: true, …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "domains": [
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "profile",
++       "name": "Profile & settings",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++       ],
++       "id": "conversations",
++       "name": "Conversations",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "goals",
++       "name": "Goals",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "goals",
++         "agents",
++       ],
++       "id": "knowledge",
++       "name": "Knowledge",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++         "runs",
++       ],
++       "id": "memories",
++       "name": "Memory",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "agents",
++       "name": "Agents",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++       ],
++       "id": "runs",
++       "name": "Runs & evidence",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "goals",
++         "runs",
++       ],
++       "id": "results",
++       "name": "Results",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++         "results",
++       ],
++       "id": "routines",
++       "name": "Routines & schedules",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++       ],
++       "id": "browser_profiles",
++       "name": "Browser profiles",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++       ],
++       "id": "computer_history",
++       "name": "Computer history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++         "runs",
++       ],
++       "id": "approval_history",
++       "name": "Approval history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++         "approval_history",
++       ],
++       "id": "action_history",
++       "name": "Action history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++       ],
++       "id": "skills",
++       "name": "Skills",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "conversations",
++         "runs",
++       ],
++       "id": "files",
++       "name": "Files & artifacts",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "connections",
++       "name": "Connected apps",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "finance",
++       "name": "Finance",
++       "notes": [],
++       "ownerScope": "single_owner_legacy",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++   ],
++   "exportedAt": "2026-09-20T12:00:00Z",
++   "fileCount": 36,
++   "recordCount": 17,
++   "uncompressedBytes": 15150,
++   "valid": true,
++   "version": 1,
+  }
+
+ ❯ lib/owner-archive-security.test.ts:11:211
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/22]⎯
+
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects normalized alias data//knowledge.json before reading data
+AssertionError: promise resolved "{ valid: true, …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "domains": [
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "profile",
++       "name": "Profile & settings",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++       ],
++       "id": "conversations",
++       "name": "Conversations",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "goals",
++       "name": "Goals",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "goals",
++         "agents",
++       ],
++       "id": "knowledge",
++       "name": "Knowledge",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++         "runs",
++       ],
++       "id": "memories",
++       "name": "Memory",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "agents",
++       "name": "Agents",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++       ],
++       "id": "runs",
++       "name": "Runs & evidence",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "goals",
++         "runs",
++       ],
++       "id": "results",
++       "name": "Results",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++         "results",
++       ],
++       "id": "routines",
++       "name": "Routines & schedules",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++       ],
++       "id": "browser_profiles",
++       "name": "Browser profiles",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++       ],
++       "id": "computer_history",
++       "name": "Computer history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++         "runs",
++       ],
++       "id": "approval_history",
++       "name": "Approval history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++         "approval_history",
++       ],
++       "id": "action_history",
++       "name": "Action history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++       ],
++       "id": "skills",
++       "name": "Skills",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "conversations",
++         "runs",
++       ],
++       "id": "files",
++       "name": "Files & artifacts",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "connections",
++       "name": "Connected apps",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "finance",
++       "name": "Finance",
++       "notes": [],
++       "ownerScope": "single_owner_legacy",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++   ],
++   "exportedAt": "2026-09-20T12:00:00Z",
++   "fileCount": 36,
++   "recordCount": 17,
++   "uncompressedBytes": 15150,
++   "valid": true,
++   "version": 1,
+  }
+
+ ❯ lib/owner-archive-security.test.ts:12:297
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/22]⎯
+
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept token without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept secret without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept password without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept authorization without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept credentials without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept cookies without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept apiKey without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept access_key without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept refreshToken without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept privateKey without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept vncCredential without echoing its value
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects root secret concept databaseURL without echoing its value
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ lib/owner-archive-security.test.ts:17:28
+     15|     const marker = randomUUID(); const archive = await changeArchiveJs…
+     16|     const error = await validateOwnerArchive(archive).then(() => null,…
+     17|     expect(error !== null).toBe(true); expect(error?.message.includes(…
+       |                            ^
+     18|   });
+     19|   it.each(["profile", "connections", "agents", "computer_history"])("r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/22]⎯
+
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects nested array secrets in profile
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects nested array secrets in connections
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects nested array secrets in agents
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects nested array secrets in computer_history
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ lib/owner-archive-security.test.ts:22:28
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/22]⎯
+
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > checks manifest metadata recursively too
+AssertionError: promise resolved "{ valid: true, …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "domains": [
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "profile",
++       "name": "Profile & settings",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++       ],
++       "id": "conversations",
++       "name": "Conversations",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "goals",
++       "name": "Goals",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "goals",
++         "agents",
++       ],
++       "id": "knowledge",
++       "name": "Knowledge",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++         "runs",
++       ],
++       "id": "memories",
++       "name": "Memory",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "agents",
++       "name": "Agents",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++       ],
++       "id": "runs",
++       "name": "Runs & evidence",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "goals",
++         "runs",
++       ],
++       "id": "results",
++       "name": "Results",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++         "results",
++       ],
++       "id": "routines",
++       "name": "Routines & schedules",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": true,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++       ],
++       "id": "browser_profiles",
++       "name": "Browser profiles",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++       ],
++       "id": "computer_history",
++       "name": "Computer history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "goals",
++         "runs",
++       ],
++       "id": "approval_history",
++       "name": "Approval history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++         "approval_history",
++       ],
++       "id": "action_history",
++       "name": "Action history",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "agents",
++         "runs",
++       ],
++       "id": "skills",
++       "name": "Skills",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [
++         "conversations",
++         "runs",
++       ],
++       "id": "files",
++       "name": "Files & artifacts",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "connections",
++       "name": "Connected apps",
++       "notes": [],
++       "ownerScope": "owner_scoped",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++     {
++       "completeness": "complete",
++       "dependencies": [],
++       "id": "finance",
++       "name": "Finance",
++       "notes": [],
++       "ownerScope": "single_owner_legacy",
++       "portability": "fully_restorable",
++       "recordCount": 1,
++       "required": false,
++     },
++   ],
++   "exportedAt": "2026-09-20T12:00:00Z",
++   "fileCount": 36,
++   "recordCount": 17,
++   "uncompressedBytes": 15150,
++   "valid": true,
++   "version": 1,
+  }
+
+ ❯ lib/owner-archive-security.test.ts:24:248
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/22]⎯
+
+ FAIL  lib/owner-archive-security.test.ts > owner archive untrusted input > rejects bounded highly compressed content before inflation
+AssertionError: expected [Function] to throw error including 'compression ratio' but got 'Unexpected end of JSON input'
+
+Expected: "compression ratio"
+Received: "Unexpected end of JSON input"
+
+ ❯ lib/owner-archive-security.test.ts:32:158
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/22]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  22 failed | 10 passed (32)
+   Start at  15:21:08
+   Duration  1.03s (transform 45ms, setup 0ms, collect 337ms, tests 492ms, environment 0ms, prepare 32ms)

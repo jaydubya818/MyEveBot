@@ -1,0 +1,65 @@
+I prefer the plain cover for my own notebooks.|The owner states a standing personal choice tendency.|Explicit owner preference.
+Please use metric dimensions whenever you prepare plans for me.|The owner establishes their default working convention.|Explicit way-of-working preference.
+I like explanations before instructions.|The owner describes how they want guidance presented.|Standing communication preference.
+For my visits, quiet hours suit me best.|The owner describes a general visiting preference.|Explicit personal preference.
+I would rather receive one consolidated packing list.|This applies to future trips generally, not one current selection.|Standing format preference.
+I prefer handwritten rehearsal notes to recordings.|The owner states their usual working method.|Explicit owner preference.
+When you help me sort the archive, start with dates rather than names.|The owner specifies their preferred recurring workflow.|Owner way-of-working rule.
+I dislike scented materials in my workspace.|The owner states a personal aversion.|Negative preference.
+My default is a paper map when one is available.|The owner describes a standing personal navigation preference.|Explicit default preference.
+I favor brief spoken reminders over posted notices.|The owner describes how they like to receive reminders.|Communication preference.
+Please put unfamiliar terms in a glossary for me.|The owner establishes a continuing presentation preference.|Explicit support preference.
+I prefer an unhurried visit even if it means seeing fewer rooms.|This is the owner's general visiting style.|Preference with tradeoff.
+I like to inspect the raw sketches before polished versions.|The owner describes their favored review order.|Standing workflow preference.
+Use cool lighting when setting up my worktable.|The owner is specifying their usual workspace preference.|Explicit environment preference.
+I generally prefer repairing my tools to replacing them.|No specific repair decision is being made.|Standing preference rather than completed choice.
+I would rather have uncertainty stated plainly in research notes.|The owner describes their desired writing style.|Owner communication preference.
+My preferred route includes places to sit.|The owner describes a standing accessibility-related travel preference.|Explicit route preference.
+Please group material by project when preparing my folders.|This is the owner's recurring organization preference.|Explicit organization default.
+I find numbered steps easier to follow than paragraphs.|The owner explicitly asks to adopt this as their future instruction format.|Approved owner preference based on experience.
+I prefer direct questions to hints.|The owner states how they want collaborators to communicate.|Standing interaction preference.
+I like my reference images without decorative frames.|The owner describes their normal presentation preference.|Explicit format preference.
+For my workshop bookings, mornings are preferable.|The owner sets a general scheduling preference.|Explicit schedule preference.
+I prefer descriptions that name the material before discussing style.|The owner describes their desired catalog-reading format.|Standing content-order preference.
+Keep background music off while I work.|The owner specifies a continuing workspace preference.|Explicit sensory environment preference.
+I prefer a smaller group even when a larger one costs less.|The owner states a general participation preference.|Explicit preference with tradeoff.
+Use the full place name in notes intended for me.|The owner sets a recurring writing convention.|Explicit personalization preference.
+I like to receive the agenda before arriving.|The owner describes a standing meeting preparation preference.|Explicit owner preference.
+I would rather keep annotations separate from the original image.|The owner states their preferred ongoing review method.|Workflow preference.
+Please avoid glossy paper for my reading copies.|The owner specifies a recurring material preference.|Explicit negative format preference.
+I favor examples drawn from ordinary objects.|The owner describes the teaching style that works best for them.|Explicit learning preference.
+My preference is to pause between long demonstrations.|No specific event schedule is being selected.|Standing participation preference.
+I prefer a written acknowledgment when I lend equipment.|The owner sets their normal lending workflow preference.|Explicit documentation preference.
+I like to compare alternatives side by side.|The owner describes a recurring decision-support preference.|Preference about process, not a decision.
+Use neutral colors in diagrams prepared for me.|The owner establishes a standing display preference.|Explicit visual preference.
+I prefer early notice of changes, even before the replacement plan is settled.|The owner describes their communication preference.|Standing notification preference.
+I do not want jokes in conservation reports addressed to me.|The owner states a tone preference.|Explicit negative preference.
+I like instructions that distinguish optional steps.|The owner states a recurring presentation preference.|Explicit instructional preference.
+My usual preference is a window seat.|The owner is not selecting a seat for a particular trip.|Standing preference.
+Please preserve original spelling in transcriptions I review.|The owner specifies their continuing editorial preference.|Explicit workflow preference.
+I prefer the explanation of limitations before the recommendation.|The owner establishes a report structure preference.|Standing content-order preference.
+I would rather receive measurements in a table.|The owner describes their preferred general format.|Explicit data-presentation preference.
+For my own practice, I prefer short daily sessions.|The owner describes a standing practice preference.|Personal way-of-working preference.
+I used to favor heavy tools; now I prefer lighter ones.|The owner explicitly revises a standing preference.|Changed preference remains explicit.
+I do not dislike spoken notes, but I prefer written ones.|The owner states their current relative preference.|Double-negated framing with explicit preference.
+The guide likes bright lighting; I prefer it dim.|Only the second clause is the target; the guide's remark is background.|Isolated owner preference.
+That pattern is right: make quiet hours my default.|The owner explicitly approves an observed tendency as a continuing preference.|Explicit approval prevents hidden inference.
+Use the workshop's standard page size as my default too.|The owner explicitly adopts a system default.|Approved default preference.
+I like the smaller room, but I selected the larger one for this event.|No primary clause is isolated.|Preference and decision coexist.
+She said she prefers short tours.|The owner is quoting another visitor without endorsement.|Not owner's preference.
+I always arrive before the doors open.|The owner only reports their behavior; they have not approved a preference.|Behavior alone does not establish preference.
+I would pick the quieter route if I were choosing.|No general owner preference or actual choice is explicitly established.|Conditional hypothetical choice may be ambiguous.
+I prefer this one.|The only context is a clerk asking for the owner's final selection between two tickets.|Preference wording may perform a decision.
+Fine, tiny print again, just what I love.|The owner is sarcastically objecting to unreadable print.|Implied aversion may be insufficiently explicit.
+I chose paper because I prefer to annotate by hand.|No target clause is isolated.|Decision and preference coexist.
+I prefer not to promise a delivery date.|The owner describes a general way of working; no delivery duty is accepted.|Preference about commitments.
+I have promised to bring the blue cases, though I like green better.|No target is isolated.|Promise and preference are mixed.
+Please use blue for this poster.|The owner is making the final one-time color selection, with no standing preference.|One-time decision rather than default.
+I do not want to stop using numbered steps.|The owner reaffirms their established instruction-format preference.|Negated change preserves preference.
+Someone wrote 'I prefer silence' in the visitor book.|The owner is reporting a found inscription.|Other-person quote not owner preference.
+I would rather you asked than inferred what I like.|The owner states a continuing interaction preference.|Explicit preference against inference.
+I no longer prefer the front row.|The owner explicitly withdraws a standing preference without selecting a replacement.|Preference lifecycle change.
+The standard template uses plain borders.|The owner has not adopted that template as a personal preference.|Factual default description without approval.
+From now on, send one summary, and I will review it before noon.|The candidate contains a continuing format request and a personal promise.|Mixed preference and commitment.
+Not that one.|No alternatives, speaker history, or question are supplied.|Insufficient context.
+I might like the evening session more.|The owner has not attended either session and is making a tentative prediction.|Predicted enjoyment is not settled preference.

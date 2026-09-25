@@ -86,13 +86,14 @@ export async function POST(request: Request): Promise<Response> {
       recordCount: validation.recordCount,
     });
     return Response.json({ validation }, { headers: { "Cache-Control": "no-store" } });
-  } catch (error) {
-    console.error("Owner archive validation failed", error);
+  } catch {
+    // Untrusted archive/parser errors must not leak payloads into logs.
+    console.warn("Owner archive validation failed");
     return apiError(
       request,
       400,
       "invalid_owner_archive",
-      error instanceof Error ? error.message : "The selected archive could not be verified.",
+      "The selected archive is invalid or unsafe. Export a new backup and try again.",
     );
   }
 }
