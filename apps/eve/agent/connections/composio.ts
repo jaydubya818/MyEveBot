@@ -14,5 +14,8 @@ export default defineMcpClientConnection({
   headers: {
     "x-consumer-api-key": () => process.env.COMPOSIO_API_KEY!,
   },
+  // Composio publishes this tool with a top-level `anyOf`, which Anthropic
+  // rejects when Eve exposes discovered tools on the next model request.
+  tools: { block: ["COMPOSIO_MANAGE_SKILL"] },
   approval: denyUnqualifiedConnection("integration.composio"),
 });
