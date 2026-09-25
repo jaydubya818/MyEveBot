@@ -1,3 +1,4 @@
+import { OWNER_RUNTIME_HEADER,verifyOwnerRuntime,resolveOwnerRuntime,assertOwnerRuntimeRoute } from "../../lib/relay/owner/runtime.ts";
 import { ForbiddenError, type AuthFn, localDev, vercelOidc } from "eve/channels/auth";
 import { eveChannel } from "eve/channels/eve";
 
@@ -65,7 +66,17 @@ export function ownerSession(): AuthFn<Request> {
   };
 }
 
+export function ownerChannelSession():AuthFn<Request>{
+ return async request=>{
+  const token=request.headers.get(OWNER_RUNTIME_HEADER);if(!token)return null;
+  try{const claim=verifyOwnerRuntime(token);const binding=await resolveOwnerRuntime(claim);assertOwnerRuntimeRoute(request,claim,binding);
+   return {authenticator:"myeve-owner-channel",issuer:"myeve",principalId:claim.ownerId,principalType:"user",subject:claim.ownerId,
+    attributes:{owner:"true",myeveAgentId:claim.agentId,webThreadId:claim.runId,ownerChannelOwner:claim.ownerId,ownerChannelRun:claim.runId,ownerChannelDispatch:claim.dispatchId,ownerChannelExpiry:String(claim.expiresAt),ownerChannelPurpose:claim.purpose}};
+  }catch{throw new ForbiddenError({code:"invalid_owner_channel_claim",message:"Owner channel execution authority unavailable."});}
+ };
+}
 export const eveAuth = [
+  ownerChannelSession(),
   routineSession(),
   // The browser session is the personal owner's primary route boundary.
   ownerSession(),

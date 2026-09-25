@@ -1,3 +1,4 @@
+import { ownerRuntimeFromAuth,bindOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { ensurePrimaryAgent } from "../../lib/agents.ts";
@@ -17,6 +18,12 @@ function durableTurnId(event: unknown): string {
 export default defineDynamic({
   events: {
     "turn.started": async (event, ctx) => {
+      const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+      if(ownerRuntime){
+        await bindOwnerRuntime(ownerRuntime,ctx.session.id,durableTurnId(event));
+        const assembled=await assembleContext({ownerId:ownerRuntime.ownerId,agentId:ownerRuntime.agentId,sessionId:ctx.session.id,ownerChannelRunId:ownerRuntime.runId});
+        return defineInstructions({markdown:assembled.markdown});
+      }
       const principal = ctx.session.auth.current;
       const ownerId = principal?.principalType === "user"
         ? principal.principalId

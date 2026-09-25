@@ -40,7 +40,7 @@ beforeEach(() => {
     if (sql.includes("SELECT owner_chat_run")) return [{id:"run"}];
     if (sql.includes("SELECT r.agent_id,r.role_id")) return [{agent_id:"sofie",role_id:null,run_live:true,agent_revision:"2026-01-01"}];
     if (sql.includes("INSERT INTO action_requests")) {state.action = {id:params[0],parameter_hash:params[10],executor:JSON.parse(params[5]),trigger:JSON.parse(params[6]),status:params[13],attempt_count:0}; return [state.action];}
-    if (sql.includes("WITH started AS")) return [{id:state.action.id}];
+    if (sql.includes("UPDATE action_requests a SET status='executing'")) return [{id:state.action.id}];
     if (sql.includes("SELECT a.id,a.parameter_hash")) return [state.action];
     if (sql.includes("SELECT a.id FROM action_requests")) return [{id:state.action.id}];
     if (sql.includes("SELECT id FROM changed")) return [{id:state.action.id}];

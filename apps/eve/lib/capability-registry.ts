@@ -300,6 +300,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   }),
   platform("web.read", "Web reading", "browser", "Fetch and read public web pages without interactive browser control.", {
     permissions: ["web.read"],
+    source: { type: "builtin", reference: "agent/tools/web_fetch.ts" },
     risk: { level: "low", categories: ["external-read"] },
     keywords: ["web", "read", "fetch", "research", "sources"],
   }),

@@ -16,7 +16,8 @@
       "codex/jev-chat-evaluation": false,
       "codex/relay-renewal-guidance": false,
       "codex/relay-grant-expiry-settings": false,
-      "codex/peer-conversation-ui": false
+      "codex/peer-conversation-ui": false,
+      "codex/telegram-current-integration": false
     }
   }
 }

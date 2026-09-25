@@ -1,3 +1,4 @@
+import {ownerRuntimeFromAuth} from "../../lib/relay/owner/runtime.ts";
 import {executionIdentityFromAuth,resolveExecution} from "../../lib/execution-auth.ts";
 import {routineToolAllowed} from "../../lib/routine-capabilities.ts";
 import * as browserTools from "@agent-browser/eve/tools";
@@ -55,9 +56,16 @@ async function resolvePolicy(ctx: DynamicResolveContext) {
   const activeAgentId = ownerId ? await activeComputerAgentId(ownerId, ctx.session.id) : null;
   const identity=executionIdentityFromAuth(ctx.session.auth);
   const routine=identity?await resolveExecution(identity):null;
+  const ownerChannel=ownerRuntimeFromAuth(ctx.session.auth);
   const resolved: Record<string, DynamicToolEntry<any, any>> = {};
   for (const [toolName, capabilityId] of Object.entries(TOOL_POLICY)) {
-    const decision = routine && (routine.agentId!==agent.id || (!routine.configuration.manifest?.tools.includes(toolName) || !routineToolAllowed(toolName,capabilityId,routine.configuration.authority.allowedCapabilities)))
+    // Eve's connection resolver owns this dynamic name. A second resolver
+    // cannot replace it: the runtime throws before reaching the model guard.
+    // External Runs exclude it at the provider allowlist and reject any model
+    // output naming it; their signed transport cannot invoke tools directly.
+    if(ownerChannel&&toolName==="connection_search")continue;
+    const decision = ownerChannel && !["web_search","web_fetch","send_email"].includes(toolName)
+      ? {allowed:false,reason:"External Telegram work cannot access private tools."} : routine && (routine.agentId!==agent.id || (!routine.configuration.manifest?.tools.includes(toolName) || !routineToolAllowed(toolName,capabilityId,routine.configuration.authority.allowedCapabilities)))
       ?{allowed:false,reason:"This tool is outside the reviewed Routine tool graph."}:effectiveCapability(agent, capabilityId);
     const browserName = toolName.startsWith("browser__") ? toolName.slice("browser__".length) as keyof typeof browserTools : null;
     if (decision.allowed && browserName) {

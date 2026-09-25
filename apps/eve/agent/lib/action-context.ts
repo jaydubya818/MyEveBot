@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
 import type { ToolContext } from "eve/tools";
 import { ActionBlocked, type ActionRequest } from "../../lib/action-gateway.ts";
 import { executionIdentityFromAuth, resolveExecution } from "../../lib/execution-auth.ts";
@@ -13,6 +14,8 @@ export async function toolActionRequest(
   const caller=ctx?.session?.auth.current;
   if(!caller || caller.attributes.role==="guest" || !ctx.callId) throw new ActionBlocked("denied","unresolved");
   const ownerId=caller.principalId;
+  const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+  if(ownerRuntime){const binding=await resolveOwnerRuntime(ownerRuntime);if(binding.session_id!==ctx.session.id||ownerRuntime.ownerId!==ownerId)throw new ActionBlocked("denied","unresolved");}
   const identity=executionIdentityFromAuth(ctx.session.auth);
   const occurrence=identity?await resolveExecution(identity):null;
   const agent=await resolveSessionAgent({ownerId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:caller.attributes.owner==="true"});
@@ -22,7 +25,7 @@ export async function toolActionRequest(
   if(!occurrence && (ctx.session.parent || caller.principalType!=="user" || caller.attributes.owner!=="true")) {
     throw new ActionBlocked("denied","unresolved");
   }
-  let runId=occurrence?.runId;
+  let runId=ownerRuntime?.runId??occurrence?.runId;
   if(!runId) {
     // Replays resolve their original durable Run, even after the session rolls over.
     const historical=await db().query(`SELECT a.run_id FROM action_requests a

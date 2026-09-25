@@ -1,3 +1,5 @@
+import { ownerChannelConfiguration } from "./relay/owner/config.ts";
+import { PendingActionContinuation } from "./pending-action-continuation.ts";
 import { ROUTINE_RELEASE } from "./routine-release.ts";
 import {ActionRecovery} from "./action-recovery.ts";
 import { randomUUID } from "node:crypto";
@@ -214,13 +216,18 @@ export class ActionGateway {
     let targetResolved=false;
     const context = await this.database.query(`SELECT r.agent_id,r.role_id,
         (r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>clock_timestamp())) AS run_live,(r.deadline_at<=clock_timestamp()) AS run_expired,g.updated_at::text AS agent_revision,o.id AS occurrence_id,o.claim_version,o.claimed_by,o.lease_expires_at,
-        o.status AS occurrence_status,v.configuration
+        o.status AS occurrence_status,v.configuration,owner_channel.run_id AS owner_channel_run,
+        owner_channel.work_hash AS channel_work_hash,owner_channel.request->'budget' AS channel_budget,
+        owner_channel.expires_at::text AS channel_expiry,
+        r.max_duration_seconds AS channel_runtime_limit,r.max_model_steps AS channel_step_limit,r.max_estimated_cost_usd::text AS channel_spend_limit
       FROM task_runs r JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
+      LEFT JOIN owner_channel_requests owner_channel ON owner_channel.owner_id=r.owner_id AND owner_channel.run_id=r.id
       LEFT JOIN execution_occurrences o ON o.owner_id=r.owner_id AND o.run_id=r.id
       LEFT JOIN execution_routine_versions v ON v.owner_id=o.owner_id AND v.routine_id=o.routine_id AND v.version=o.routine_version
       WHERE r.owner_id=$1 AND r.id=$2 AND r.agent_id=$3`, [action.ownerId,action.runId,action.executor.agentId]);
     if (!context[0]) throw new ActionBlocked("denied", "unresolved");
     if(context[0].run_live!==true && !action.delivery)throw new ActionBlocked("denied",context[0].run_expired===true?"RUN_EXPIRED":"RUN_NOT_EXECUTABLE");
+    if(context[0].owner_channel_run&&!ownerChannelConfiguration().enabled)throw new ActionBlocked("denied","owner_execution_disabled");
     if((context[0].role_id??null)!==(action.executor.roleId??null))throw new ActionBlocked("denied","unresolved");
     const occurrence = context[0].occurrence_id;
     if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied","routine_execution_disabled");
@@ -240,8 +247,13 @@ export class ActionGateway {
       decision = { decision: "DENY",reason: "Authority or target resolution unavailable.",source: "local",reasonCode:targetResolved?"authority_unavailable":"target_unresolved" };
     }
     const deliveryBinding=action.delivery?{id:action.delivery.id,channel:action.delivery.channel,resultReference:action.delivery.resultReference}:null;
+    const channelBinding=context[0].owner_channel_run?{
+      ownerId:action.ownerId,workHash:context[0].channel_work_hash,budget:context[0].channel_budget,
+      expiresAt:context[0].channel_expiry,runtime:context[0].channel_runtime_limit,
+      modelSteps:context[0].channel_step_limit,modelSpend:context[0].channel_spend_limit,
+    }:null;
     const binding = approvalBinding({ taskId:action.runId,capabilityId:action.capabilityId,resource:JSON.stringify(target),
-      action:action.actionClass,parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}) } });
+      action:action.actionClass,parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}),...(channelBinding?{ownerChannel:channelBinding}: {}) } });
     const id = `action_${randomUUID()}`;
     const summary=safeActionParameters(Object.fromEntries(Object.entries(action.parameters).map(([key,value])=>
       [key,/^(text|html|content|body)$/i.test(key)?"[content bound by hash]":value])));
@@ -285,6 +297,10 @@ export class ActionGateway {
     // A preparation replay never replaces an expired approval generation.
     if (prepareOnly && row.approval_id) throw new ActionBlocked("awaiting_approval", actionId);
     if (decision.decision === "REQUIRE_APPROVAL") {
+      if(row.approval_id && context[0].owner_channel_run) {
+        const [approval]=await this.database.query(`SELECT id FROM task_approval_decisions WHERE owner_id=$1 AND id=$2 AND expires_at>now()`,[action.ownerId,row.approval_id]);
+        if(!approval)throw new ActionBlocked("denied",actionId);
+      }
       if(row.approval_id) {
         const expired=await this.database.query(`UPDATE action_requests a SET approval_id=NULL,status='planned',approval_generation=approval_generation+1,updated_at=now()
           FROM task_approval_decisions p WHERE a.owner_id=$1 AND a.id=$2 AND p.id=a.approval_id
@@ -300,11 +316,18 @@ export class ActionGateway {
       if (!row.approval_id) {
         const approval = await this.approvals({ ownerId:action.ownerId,taskId:action.runId,requestedBy:action.executor.agentId,
           capabilityId:action.capabilityId,resource:JSON.stringify(target),action:action.actionClass,actionClass:action.actionClass,
-          parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}) },
+          parameters:{ payload:action.parameters,target,executor:action.executor,trigger:action.trigger,computer:action.computer??null,...(deliveryBinding?{delivery:deliveryBinding}: {}),...(channelBinding?{ownerChannel:channelBinding}: {}) },
           prompt:"Review the resolved target and exact action before execution.",forceApproval:true,requestKey:`${actionId}:${row.attempt_count}:${row.approval_generation}` });
         await this.database.query(`UPDATE action_requests SET approval_id=$3,status='awaiting_approval',updated_at=now()
           WHERE owner_id=$1 AND id=$2 AND status='planned' AND approval_id IS NULL`, [action.ownerId,actionId,approval.approval?.id??null]);
+        if (context[0].owner_channel_run || action.occurrence) {
+          await new PendingActionContinuation(this.database).save(action,actionId);
+        }
         throw new ActionBlocked("awaiting_approval",actionId);
+      }
+      if (row.status === "awaiting_approval" && (context[0].owner_channel_run || action.occurrence)) {
+        const checkpoint=new PendingActionContinuation(this.database);
+        if(context[0].owner_channel_run || !await checkpoint.get(action.ownerId,action.runId))await checkpoint.save(action,actionId);
       }
     }
     if (prepareOnly) return {actionId, receipt: {status: "prepared"}};
@@ -313,6 +336,7 @@ export class ActionGateway {
     // Re-evaluate after approval lookup and immediately before the durable claim.
     // A provider failure or a newly narrower policy can never become ALLOW.
     try {
+      if(context[0].owner_channel_run&&!ownerChannelConfiguration().enabled)throw new ActionBlocked("denied",actionId);
       if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
       const fresh=await this.authority.evaluate(action,target,(context[0].configuration as RoutineConfiguration | undefined)?.authority);
       if(fresh.decision==="DENY" || (fresh.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW")) throw new Error("Authority changed");
@@ -323,9 +347,15 @@ export class ActionGateway {
     const approvalGeneration=Number(row.approval_generation??0);
     const expectedApprovalId=approvalRequestId({ownerId:action.ownerId,taskId:action.runId,
       requestKey:`${actionId}:${row.attempt_count??0}:${approvalGeneration}`});
-    const started = await this.database.query(`WITH started AS (
+    const started = await this.database.query(`WITH channel_reservation AS (
+      UPDATE owner_channel_requests SET actions_started=actions_started+1
+      WHERE owner_id=$1 AND run_id=$16 AND revoked_at IS NULL AND expires_at>now()
+        AND NOT usage_unknown AND tokens_used<12000 AND actions_started<12 RETURNING run_id
+    ), started AS (
       UPDATE action_requests a SET status='executing',attempt_count=attempt_count+1,updated_at=now()
       WHERE a.owner_id=$1 AND a.id=$2 AND parameter_hash=$3 AND status IN ('planned','authorized','awaiting_approval')
+        AND (NOT EXISTS(SELECT 1 FROM owner_channel_requests w WHERE w.owner_id=a.owner_id AND w.run_id=a.run_id)
+          OR EXISTS(SELECT 1 FROM channel_reservation c WHERE c.run_id=a.run_id))
         AND EXISTS(SELECT 1 FROM task_runs r WHERE r.owner_id=a.owner_id AND r.id=a.run_id
           AND ((r.status IN ('running','awaiting_approval') AND $10::text IS NULL AND (r.deadline_at IS NULL OR r.deadline_at>now())
           AND r.model_steps<r.max_model_steps AND r.estimated_cost_usd<r.max_estimated_cost_usd)
@@ -336,6 +366,8 @@ export class ActionGateway {
               AND d.claimed_until>now() AND d.channel=$12 AND d.result_reference=$13 AND o.status='completed'
               AND routine.status='active' AND routine.version=o.routine_version))))
         AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
+        AND NOT EXISTS(SELECT 1 FROM owner_channel_requests w WHERE w.owner_id=a.owner_id AND w.run_id=a.run_id
+          AND (w.revoked_at IS NOT NULL OR w.expires_at<=now() OR w.usage_unknown OR w.tokens_used>=12000))
         AND EXISTS(SELECT 1 FROM agents g WHERE g.owner_id=a.owner_id AND g.id=$8 AND g.status='active' AND g.updated_at=$9::timestamptz)
         AND ($4<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p
           WHERE p.id=a.approval_id AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
@@ -352,7 +384,7 @@ export class ActionGateway {
       INSERT INTO action_receipts(owner_id,action_id,attempt_number,event,details)
       SELECT owner_id,id,attempt_count,'authorized',jsonb_build_object('authority',$7::text,'decision',$4::text) FROM started
     ) SELECT id FROM started`, [action.ownerId,actionId,binding,decision.decision,action.occurrence?.claimVersion??null,action.occurrence?.workerId??null,decision.source,action.executor.agentId,context[0].agent_revision,
-      action.delivery?.id??null,action.delivery?.claimVersion??null,action.delivery?.channel??null,action.delivery?.resultReference??null,expectedApprovalId,approvalGeneration]);
+      action.delivery?.id??null,action.delivery?.claimVersion??null,action.delivery?.channel??null,action.delivery?.resultReference??null,expectedApprovalId,approvalGeneration,action.runId]);
     if (!started[0]) {
       await this.recordDenial(action.ownerId,actionId,"execution_precondition_failed");
       throw new ActionBlocked(decision.decision === "REQUIRE_APPROVAL" ? "awaiting_approval" : "denied",actionId);
@@ -373,6 +405,7 @@ export class ActionGateway {
     const authorized:AuthorizedAction=Object.freeze({idempotencyKey:actionId,authorityId:actionId,executor:action.executor,expiresAt:Date.now()+authorityLifetimeMs,target,capabilityId:action.capabilityId,signal});
     try {
       handles.set(authorized,{binding:JSON.stringify(canonicalActionValue({parameters:action.parameters,target})),revalidate:async()=>{
+        if(context[0].owner_channel_run&&!ownerChannelConfiguration().enabled)throw new ActionBlocked("denied",actionId);
         if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied",actionId);
         const fresh=await this.authority.evaluate(action,target,(context[0].configuration as RoutineConfiguration|undefined)?.authority);
         if(fresh.decision==="DENY" || (fresh.decision==="REQUIRE_APPROVAL" && decision.decision==="ALLOW"))throw new ActionBlocked("denied",actionId);
@@ -381,6 +414,8 @@ export class ActionGateway {
           JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
           WHERE a.owner_id=$1 AND a.id=$2 AND a.status='executing' AND a.parameter_hash=$3
             AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
+            AND NOT EXISTS(SELECT 1 FROM owner_channel_requests w WHERE w.owner_id=a.owner_id AND w.run_id=a.run_id
+              AND (w.revoked_at IS NOT NULL OR w.expires_at<=now() OR w.usage_unknown OR w.tokens_used>=12000))
             AND g.status='active' AND g.updated_at=$4::timestamptz
             AND (($5::text IS NULL AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())
               AND r.model_steps<r.max_model_steps AND r.estimated_cost_usd<r.max_estimated_cost_usd)
