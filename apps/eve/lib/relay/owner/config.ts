@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { OwnerChannelTrust } from "./handoff.ts";
+import { qualificationEmailPin } from "./qualification-email.ts";
 // Local transport/control tests do not qualify model execution or live Telegram.
 export const OWNER_CHANNEL_RELEASE_QUALIFIED:boolean=false;
 // Explicit, expiring local qualification only. The reserved .invalid database
@@ -21,9 +22,13 @@ export function localOwnerQualification(env:NodeJS.ProcessEnv,trust:OwnerChannel
  const live=m.relayAccountId==="acct_qualificationrelay"&&m.relayOwnerPrincipalId==="prn_qualificationowner"&&
   m.relayAgentId==="agt_qualificationsofie"&&typeof pinnedBinding==="string"&&/^tgb_[0-9a-f]{32}$/.test(pinnedBinding)&&
   m.sourceIdentity===pinnedBinding;
- return m.enabled&&m.ownerId==="qualification-owner"&&m.agentId==="qualification-agent"&&(harness||live)&&
-  m.allowedCapabilities?.length===1&&m.allowedCapabilities[0]==="web.read";
+ const caps=m.allowedCapabilities??[];
+ const readOnly=caps.length===1&&caps[0]==="web.read";
+ // The live set may add exactly one pinned, owner-authorized email (see qualification-email.ts).
+ const withPinnedEmail=live&&caps.length===2&&caps[0]==="web.read"&&caps[1]==="tool.send_email"&&validEmailPin(env);
+ return m.enabled&&m.ownerId==="qualification-owner"&&m.agentId==="qualification-agent"&&(harness||live)&&(readOnly||withPinnedEmail);
 }
+function validEmailPin(env:NodeJS.ProcessEnv){try{return qualificationEmailPin(env)!==null;}catch{return false;}}
 const mapping=z.object({relayAccountId:z.string().min(1),relayOwnerPrincipalId:z.string().min(1),relayAgentId:z.string().min(1),sourceIdentity:z.string().min(1),ownerId:z.string().min(1),agentId:z.string().min(1),enabled:z.boolean(),allowedCapabilities:z.array(z.enum(["web.search","web.read","tool.send_email"])).optional()}).strict();
 export function ownerChannelConfiguration(env:NodeJS.ProcessEnv=process.env){
  const issues:string[]=[];let trust:OwnerChannelTrust|null=null;

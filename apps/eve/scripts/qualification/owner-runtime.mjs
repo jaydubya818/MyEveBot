@@ -10,6 +10,7 @@ import {createServer,request as httpsRequest} from 'node:https';
 import {request as httpRequest} from 'node:http';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
 import {readFile,appendFile,access,mkdtemp,rm,mkdir,writeFile} from 'node:fs/promises';
+import {readFileSync} from 'node:fs';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
@@ -21,6 +22,17 @@ if(!['research','cancel','replay','cancel-replay','budget-denied','cleanup','ser
 const serve=mode==='serve'?{
  keyId:process.env.RELAY_QUALIFICATION_KEY_ID??'',publicKeyFile:process.env.RELAY_QUALIFICATION_PUBLIC_KEY_FILE??'',
  binding:process.env.MYEVE_OWNER_LOCAL_SOURCE_IDENTITY??'',windowMs:Number(process.env.MYEVE_QUALIFICATION_WINDOW_MS??'')}:null;
+// Optional single owner-authorized email (serve only): exact draft pin file, AgentMail key
+// by Keychain reference (read into memory, never logged) and the pinned sender inbox.
+const email=serve&&process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE?(()=>{
+ const pin=JSON.parse(readFileSync(process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE,'utf8'));
+ const ref=/^keychain:([A-Za-z0-9._-]{3,100})\/([A-Za-z0-9._-]{3,100})$/.exec(process.env.MYEVE_AGENTMAIL_KEY_REF??'');
+ const inbox=process.env.MYEVE_AGENTMAIL_INBOX_ID??'';
+ if(!ref||!inbox||pin.maxSends!==1||Object.keys(pin).sort().join()!=='maxSends,recipient,subject,text')throw new Error('Email mode requires an exact pin file, a keychain AgentMail reference and a sender inbox');
+ const key=execFileSync('/usr/bin/security',['find-generic-password','-s',ref[1],'-a',ref[2],'-w'],{encoding:'utf8'}).trim();
+ if(!key)throw new Error('AgentMail reference empty');
+ return {key,inbox,env:{MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:pin.recipient,MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:pin.subject,MYEVE_OWNER_LOCAL_EMAIL_TEXT:pin.text,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:'1'}};
+})():null;
 if(serve&&(!/^[A-Za-z0-9._:-]{3,128}$/.test(serve.keyId)||!serve.publicKeyFile.startsWith('/')||!/^tgb_[0-9a-f]{32}$/.test(serve.binding)||!Number.isSafeInteger(serve.windowMs)||serve.windowMs<60000||serve.windowMs>3600000))
  throw new Error('serve requires RELAY_QUALIFICATION_KEY_ID, absolute RELAY_QUALIFICATION_PUBLIC_KEY_FILE, a tgb_ MYEVE_OWNER_LOCAL_SOURCE_IDENTITY and a 1-60 minute MYEVE_QUALIFICATION_WINDOW_MS');
 const relay=process.env.RELAY_QUALIFICATION_SOURCE??path.resolve(root,'../../../relay-telegram-channel-continuation');
@@ -51,10 +63,12 @@ const claims=JSON.parse(Buffer.from(oidc.split('.')[1],'base64url').toString());
 if(claims.project_id!=='prj_L6faw25wnFGUZtrLKBIccg8gIDLR'||claims.exp*1000<Date.now()+120000)throw new Error('Project identity unavailable');
 const signer=createLocalEd25519Signer(),secret=randomBytes(32).toString('hex');
 const trust=serve
- ?{environment:'development',audience:'myeve-local-qualification',keys:{[serve.keyId]:await readFile(serve.publicKeyFile,'utf8')},mappings:[{enabled:true,ownerId:'qualification-owner',agentId:'qualification-agent',relayAccountId:'acct_qualificationrelay',relayOwnerPrincipalId:'prn_qualificationowner',relayAgentId:'agt_qualificationsofie',sourceIdentity:serve.binding,allowedCapabilities:['web.read']}]}
+ ?{environment:'development',audience:'myeve-local-qualification',keys:{[serve.keyId]:await readFile(serve.publicKeyFile,'utf8')},mappings:[{enabled:true,ownerId:'qualification-owner',agentId:'qualification-agent',relayAccountId:'acct_qualificationrelay',relayOwnerPrincipalId:'prn_qualificationowner',relayAgentId:'agt_qualificationsofie',sourceIdentity:serve.binding,allowedCapabilities:email?['web.read','tool.send_email']:['web.read']}]}
  :{environment:'development',audience:'myeve-local-qualification',keys:{[signer.keyId]:await signer.publicKeyPem()},mappings:[{enabled:true,ownerId:'qualification-owner',agentId:'qualification-agent',relayAccountId:'qualification-relay',relayOwnerPrincipalId:'qualification-principal',relayAgentId:'qualification-relay-agent',sourceIdentity:'qualification-source',allowedCapabilities:['web.read']}]};
 const until=Date.now()+(serve?serve.windowMs:1800000);
-const env={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,NODE_ENV:'development',HOSTNAME:'127.0.0.1',PORT:'3228',MYEVE_OWNER_LOCAL_ORIGIN:'http://127.0.0.1:3228',DATABASE_URL:'postgresql://qualification:local@qualification.invalid/owner_qualification',VERCEL_OIDC_TOKEN:oidc,MYEVE_SESSION_SECRET:secret,MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:String(until),MYEVE_RELAY_OWNER_TRUST:JSON.stringify(trust),NEXT_TELEMETRY_DISABLED:'1',...(serve?{MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:serve.binding}:{})};
+const env={PATH:process.env.PATH,HOME:process.env.HOME,USER:process.env.USER,TMPDIR:process.env.TMPDIR,NODE_ENV:'development',HOSTNAME:'127.0.0.1',PORT:'3228',MYEVE_OWNER_LOCAL_ORIGIN:'http://127.0.0.1:3228',DATABASE_URL:'postgresql://qualification:local@qualification.invalid/owner_qualification',VERCEL_OIDC_TOKEN:oidc,MYEVE_SESSION_SECRET:secret,MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:String(until),MYEVE_RELAY_OWNER_TRUST:JSON.stringify(trust),NEXT_TELEMETRY_DISABLED:'1',...(serve?{MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:serve.binding}:{}),...(email?{AGENTMAIL_API_KEY:email.key,AGENTMAIL_INBOX_ID:email.inbox,...email.env}:{})};
+// The Agent may send email only in email mode; otherwise the capability is explicitly off.
+await pool.query("INSERT INTO agent_capabilities(owner_id,agent_id,capability_id,enabled) VALUES('qualification-owner','qualification-agent','tool.send_email',$1) ON CONFLICT (agent_id,capability_id) DO UPDATE SET enabled=EXCLUDED.enabled,updated_at=now()",[Boolean(email)]);
 const bootstrap=path.join(root,'scripts/qualification/owner-bootstrap.mjs');
 env.NODE_OPTIONS=`--import=${pathToFileURL(bootstrap).href}`;
 const tlsDir=await mkdtemp('/private/tmp/myeve-owner-tls-');
@@ -67,7 +81,7 @@ const proxy=createServer({key:await readFile(`${tlsDir}/key.pem`),cert},(req,res
 await new Promise(resolve=>proxy.listen(3229,'127.0.0.1',resolve));
 const child=spawn(process.execPath,[path.join(root,'../../node_modules/next/dist/bin/next'),'dev','--webpack','--hostname','127.0.0.1','--port','3228'],{cwd:root,env,stdio:['ignore','pipe','pipe']});
 const log='/private/tmp/myeve-owner-runtime.log';
-const redact=text=>text.replaceAll(oidc,'[OIDC REDACTED]').replaceAll(secret,'[SECRET REDACTED]').replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[JWT REDACTED]');
+const redact=text=>(email?text.replaceAll(email.key,'[AGENTMAIL REDACTED]'):text).replaceAll(oidc,'[OIDC REDACTED]').replaceAll(secret,'[SECRET REDACTED]').replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g,'[JWT REDACTED]');
 for(const stream of [child.stdout,child.stderr]){let pending='';stream.on('data',chunk=>{pending+=chunk;const lines=pending.split('\n');pending=lines.pop();if(lines.length)void appendFile(log,redact(lines.join('\n'))+'\n',{mode:0o600});});}
 const endpoint='https://127.0.0.1:3229/api/relay/owner-execution';
 const localTlsFetch=(url,options)=>new Promise((resolve,reject)=>{

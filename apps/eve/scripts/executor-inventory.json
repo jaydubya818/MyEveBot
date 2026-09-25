@@ -342,8 +342,8 @@
     },
     "agent/lib/email-send-adapter.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical email adapter binds account, recipients and complete payload; Action Gateway and one-use transport handle precede send.",
-      "sha256": "84e80af90a262d09dd8cc94c64486b08cd94cfcbbc4f0533c91de884f013f227"
+      "reason": "Canonical email adapter binds account, recipients and complete payload; Action Gateway and one-use transport handle precede send. In a local-qualification process it is wrapped by the single owner-authorized draft pin (or refused without one); normal processes unchanged.",
+      "sha256": "0c4202d2ab2a92c215b6c7e23f576e5caecb688454d48c94105bcec32bf6f503"
     },
     "agent/lib/gateway-models.ts": {
       "classification": "INTERNAL",
@@ -2849,8 +2849,8 @@
     },
     "lib/relay/owner/config.ts": {
       "classification": "BLOCKED",
-      "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration; local qualification admits exactly one pinned Relay identity set (harness constant source, or canonical live IDs with an exact tgb_ binding pin).",
-      "sha256": "84b4134e083b3af4b9708977abdea49369535b49dac891932c24c034497f6a63"
+      "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration; local qualification admits exactly one pinned Relay identity set (harness constant source, or canonical live IDs with an exact tgb_ binding pin); the live set may add tool.send_email only with a complete single-send email pin.",
+      "sha256": "8c259e724e5ae9539594a3a216ab2fb8759bff80bb16ec1118fbb17a1c960b78"
     },
     "lib/relay/owner/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2906,6 +2906,11 @@
       "classification": "READ_ONLY",
       "reason": "Reuses Eve public-network DNS and redirect guards; rechecks canonical owner Run and local web.read capability immediately before fetch.",
       "sha256": "9e68e5f82ae65e8971768be176500b7c886bdc5175bfd8be66b5c48d6939aa64"
+    },
+    "lib/relay/owner/qualification-email.ts": {
+      "classification": "ENFORCED",
+      "reason": "Local-qualification email pin around the canonical AgentMail adapter: exact recipient/subject/text checked before approval target resolution and again before execution; at most one attempt counted durably in action_requests; no pin refuses all email.",
+      "sha256": "3af0401740add1f6acbc203a5884f4402b9f1d51d0cda0f51b97c44e1d846232"
     }
   }
 }

@@ -21,4 +21,12 @@ describe("isolated owner qualification",()=>{
   ["expanded capabilities",{allowedCapabilities:["web.read","tool.send_email"]},binding],["real MyEve owner",{ownerId:"real-owner"},binding],
  ] as const)("denies %s",(_name,mapping,pin)=>expect(live(mapping,pin)).toBe(false));
  it("still denies the live set in a hosted runtime",()=>expect(live({},binding,{VERCEL:"1"})).toBe(false));
+ const emailPin={MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:"owner@example.test",MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:"Sofie qualification test",MYEVE_OWNER_LOCAL_EMAIL_TEXT:"Exact body.",MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:"1"};
+ const withEmail={allowedCapabilities:["web.read","tool.send_email"]};
+ it("admits send_email only for the live set with a complete single-send pin",()=>expect(live(withEmail,binding,emailPin)).toBe(true));
+ it.each([
+  ["no pin",withEmail,{}],["two sends",withEmail,{...emailPin,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:"2"}],["bad recipient",withEmail,{...emailPin,MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:"a@b.test,c@d.test"}],
+  ["email only",{allowedCapabilities:["tool.send_email"]},emailPin],["search added",{allowedCapabilities:["web.read","tool.send_email","web.search"]},emailPin],
+ ] as const)("denies email capability with %s",(_n,mapping,extra)=>expect(live(mapping as Record<string,unknown>,binding,extra as Record<string,string>)).toBe(false));
+ it("never grants email to the harness identity set",()=>expect(ownerChannelConfiguration({...environment(),...emailPin,MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],allowedCapabilities:["web.read","tool.send_email"]}]})}).enabled).toBe(false));
 });
