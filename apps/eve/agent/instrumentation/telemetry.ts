@@ -1,6 +1,4 @@
 import { trace } from "@opentelemetry/api";
-import { BraintrustExporter } from "@braintrust/otel";
-import { registerOTel } from "@vercel/otel";
 import { defineInstrumentation } from "eve/instrumentation";
 import { createHash } from "node:crypto";
 import { Raindrop } from "raindrop-ai";
@@ -63,58 +61,9 @@ export function resolveBraintrustParent(
   return `project_name:${agentName}`;
 }
 
-// Single-user agent: traces carry the owner's real messages. Braintrust export
-// is opt-in through its API key; the Marketplace integration provides both the
-// key and destination project id. Without a direct exporter, production still
-// registers Vercel's collector so a project-scoped Trace Drain can forward
-// platform spans. OTEL_RECORD_IO=false keeps span structure (timings, tokens,
-// tool names) while dropping message bodies.
-const USE_VERCEL_PRODUCTION_COLLECTOR =
-  process.env.VERCEL === "1" && process.env.VERCEL_ENV === "production";
-
+// Lifecycle events enrich the spans owned by Eve's single tracing provider.
 export default defineInstrumentation({
   tracePolicy: () => ({ emit: true, recordInputs: RECORD_IO, recordOutputs: RECORD_IO }),
-  setup: ({ agentName }) => {
-    const braintrustKey = process.env.BRAINTRUST_API_KEY ?? "";
-    const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "";
-    if (
-      braintrustKey === "" &&
-      otlpEndpoint === "" &&
-      !USE_VERCEL_PRODUCTION_COLLECTOR &&
-      raindrop === null
-    ) {
-      return;
-    }
-
-    // "auto" preserves Vercel's collector and explicit OTLP export. Avoid it
-    // for Raindrop-only local development, where it would probe localhost:4318.
-    const useAutomaticSpanProcessors =
-      USE_VERCEL_PRODUCTION_COLLECTOR || braintrustKey !== "" || otlpEndpoint !== "";
-
-    registerOTel({
-      serviceName: agentName,
-      ...(raindrop !== null
-        ? {
-            spanProcessors: [
-              ...(useAutomaticSpanProcessors ? (["auto"] as const) : []),
-              raindrop.createSpanProcessor(),
-            ],
-          }
-        : {}),
-      ...(braintrustKey !== ""
-        ? {
-            traceExporter: new BraintrustExporter({
-              parent: resolveBraintrustParent(
-                agentName,
-                process.env.BRAINTRUST_PARENT,
-                process.env.BRAINTRUST_PROJECT_ID,
-              ),
-              filterAISpans: true,
-            }),
-          }
-        : {}),
-    });
-  },
   events: {
     "model.call.started"(event) {
       if (!raindrop) return;

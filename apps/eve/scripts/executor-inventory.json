@@ -2824,8 +2824,8 @@
     },
     "agent/instrumentation/telemetry.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2309a05829581a85ebded68084bc2d649a46e141015a78226680e0c3d0fbc808"
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "2218f372e69946547ae511c9469a3031aca691d3e0ad81f97f6e9d0a0a3a502b"
     },
     "agent/tools/ask_question.ts": {
       "classification": "INTERNAL",
@@ -2912,6 +2912,26 @@
       "sha256": "c27cddeb28ba92035ef8dca61e792ad6d9468d087b1e509cf00284d594c21bb5",
       "reason": "Primary owner-chat only; exact issue payload enters canonical Action Gateway and guarded Linear adapter. No broad connector enablement, merge or deployment authority.",
       "disposition": "gateway"
+    },
+    "agent/instrumentation/braintrust.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "2e45aeec72da5c2d4006c3a1eb3e9030cb09b106c856289a7d0a5c55d0cb9ded"
+    },
+    "agent/instrumentation/otel.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "79a38b365ef8151f3e91c45a8c2e20684fd8a9474196e237be3982cd827bc8b9"
+    },
+    "agent/instrumentation/otlp.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "ac4f4e85ea6979f690ef6c9cabe7aacb33644ccff8621d041f8169d90a64b9c4"
+    },
+    "agent/instrumentation/raindrop.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2"
     }
   }
 }
