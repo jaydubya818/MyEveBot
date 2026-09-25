@@ -1,0 +1,749 @@
+{
+  "classification": "SIMULATED GitHub and executor; REAL PostgreSQL and protected Docker verifier",
+  "cases": [
+    "Concurrent admission: exactly one contract",
+    "Cross-scope denial and exclusive PostgreSQL worker lease",
+    "Candidate custody survives executor cleanup and worker-object replacement",
+    "CI failure observed automatically; fresh Run, evidence invalidation, same-PR update",
+    "Review continuation and duplicate observation suppression; immutable Result versions",
+    "Controlled auth loss blocks readiness",
+    "Human head modification / give-back reconciles head and fences prior approval",
+    "Simulated executor process loss preserves candidate custody; explicit same-executor replacement",
+    "Real PostgreSQL concurrent broker reservations cannot overspend",
+    "Uncertain external write reconciles without a duplicate publication",
+    "Iteration limit blocks continuation without a fresh contract"
+  ],
+  "trace": {
+    "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+    "contract": {
+      "issue": 1,
+      "scope": {
+        "actorId": "golden-owner",
+        "scopeId": "golden-owner",
+        "scopeKind": "personal"
+      },
+      "limits": {
+        "maxRuns": 5,
+        "maxModelRequests": 20,
+        "maxDurationSeconds": 1800
+      },
+      "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "profile": {
+        "id": "node-cli",
+        "image": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+        "checks": [
+          {
+            "id": "positive",
+            "input": "2",
+            "program": "quantity.mjs",
+            "criterionIds": [
+              "9b038f6c-f10b-4b36-9a14-3e70bddd01a4"
+            ],
+            "expectedOutput": "{\"quantity\":2}\n",
+            "expectedExitCode": 0
+          }
+        ],
+        "maxRuns": 5,
+        "version": 1,
+        "executor": "claude-code",
+        "baseBranch": "main",
+        "repository": "fixture/golden",
+        "requiredCI": [
+          "quantity-ci"
+        ],
+        "allowedPaths": [
+          "quantity.mjs"
+        ],
+        "policyVersion": 1,
+        "reviewerLogins": [
+          "human-reviewer"
+        ],
+        "maxOutputTokens": 8192,
+        "maxModelRequests": 20,
+        "privateQualification": true
+      },
+      "criteria": [
+        {
+          "id": "9b038f6c-f10b-4b36-9a14-3e70bddd01a4",
+          "method": "test",
+          "statement": "Accept positive integer quantities; reject zero, negative and fractional quantities."
+        }
+      ],
+      "deadline": "2026-09-25T22:42:02.699Z",
+      "executor": "claude-code",
+      "issueUrl": "https://github.com/fixture/golden/issues/1",
+      "budgetUsd": 5,
+      "issueBody": "Accept positive integer quantities and reject all other quantities.",
+      "objective": "Accept positive integer quantities and reject all other quantities.",
+      "humanOwner": "golden-owner",
+      "repository": "fixture/golden",
+      "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+      "policyVersion": 1,
+      "criteriaVersion": 1,
+      "definitionOfDone": [
+        "Current protected verification and CI pass",
+        "Review requirements addressed",
+        "No unresolved effects or human decisions",
+        "Current approved candidate is the draft PR head"
+      ],
+      "allowedOperations": [
+        "repository.read",
+        "sandbox.write",
+        "candidate.create",
+        "verification.request"
+      ],
+      "coordinatingAgent": "sofie",
+      "publicationPolicy": "exact-candidate-approval-then-bounded-updates",
+      "forbiddenOperations": [
+        "merge",
+        "deploy",
+        "production",
+        "repository.admin",
+        "secrets.mutate",
+        "workflows.mutate",
+        "mcp.mutate"
+      ],
+      "requiredVerification": [
+        "positive"
+      ]
+    },
+    "runs": [
+      {
+        "id": "b492173e-9813-4ca3-a824-dee81f58375b",
+        "reason": "Implement admitted issue",
+        "status": "candidate",
+        "endedAt": "2026-09-25T22:12:02.715Z",
+        "resource": "myeve-golden-b492173e-9813-4ca3-a824-dee81f58375b",
+        "attemptId": "d0cb6536-d107-4e69-b9bb-8e85c4f19659",
+        "candidate": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "startedAt": "2026-09-25T22:12:02.706Z",
+        "generation": 2,
+        "inputSnapshot": {
+          "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "files": {
+            "quantity.mjs": "console.log(0);"
+          }
+        },
+        "resourceReleasedAt": "2026-09-25T22:12:02.716Z",
+        "publicationParentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      {
+        "id": "c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+        "reason": "CI quantity-ci failed at 3e83d923094edca18f30e1d112fb4c71e3a276e2: Reject zero input with {\"error\":\"invalid_quantity\"}, newline, exit code 0.",
+        "status": "candidate",
+        "endedAt": "2026-09-25T22:12:03.137Z",
+        "resource": "myeve-golden-c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+        "attemptId": "56c3404d-722d-4f63-a266-c88adc3355da",
+        "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "parentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "startedAt": "2026-09-25T22:12:03.132Z",
+        "generation": 2,
+        "inputSnapshot": {
+          "sha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+          "files": {
+            "quantity.mjs": "// Simulated attempt 1\nlet s='';for await(const chunk of process.stdin)s+=chunk;const n=Number(s);console.log(JSON.stringify(n<0?{error:'invalid_quantity'}:{quantity:n}));\n"
+          }
+        },
+        "resourceReleasedAt": "2026-09-25T22:12:03.139Z",
+        "publicationParentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2"
+      },
+      {
+        "id": "3942f9e3-1429-4b1e-839a-1204f34d43e5",
+        "reason": "Authorized review review-1: Reject fractional quantities.. Required behavior: {\"program\":\"quantity.mjs\",\"input\":\"1.5\",\"expectedOutput\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"expectedExitCode\":0,\"id\":\"review-review-1\",\"criterionIds\":[\"9b038f6c-f10b-4b36-9a14-3e70bddd01a4\"]}",
+        "status": "candidate",
+        "endedAt": "2026-09-25T22:12:03.567Z",
+        "resource": "myeve-golden-3942f9e3-1429-4b1e-839a-1204f34d43e5",
+        "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+        "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "parentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "startedAt": "2026-09-25T22:12:03.560Z",
+        "generation": 2,
+        "inputSnapshot": {
+          "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+          "files": {
+            "quantity.mjs": "// Simulated attempt 2\nlet s='';for await(const chunk of process.stdin)s+=chunk;const n=Number(s);console.log(JSON.stringify(n<=0?{error:'invalid_quantity'}:{quantity:n}));\n"
+          }
+        },
+        "resourceReleasedAt": "2026-09-25T22:12:03.568Z",
+        "publicationParentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c"
+      }
+    ],
+    "candidates": [
+      {
+        "id": "f07b7b57-dcf1-4d9d-9265-42e18060822a",
+        "sha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "tree": "a9ef1518ad5900ef0ae1f9acaec31cffb3b0f356",
+        "runId": "b492173e-9813-4ca3-a824-dee81f58375b",
+        "commit": {
+          "date": "2026-09-25T22:12:02.000Z",
+          "name": "MyEve Engineering",
+          "email": "engineering@users.noreply.github.com",
+          "message": "MyEve Work a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7\nRun b492173e-9813-4ca3-a824-dee81f58375b\n"
+        },
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attemptId": "d0cb6536-d107-4e69-b9bb-8e85c4f19659",
+        "createdAt": "2026-09-25T22:12:02.715Z",
+        "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "repository": "fixture/golden",
+        "artifactHash": "ec78a2ea78b1782ecb77bf162caca5cb45b9494419e3a81185664814744bf6bd",
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      },
+      {
+        "id": "fe3fb547-2543-4d18-9623-4e1c60a92100",
+        "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "tree": "b422c032f21a5bc9acb83b3952a23671cc17c364",
+        "runId": "c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+        "commit": {
+          "date": "2026-09-25T22:12:03.000Z",
+          "name": "MyEve Engineering",
+          "email": "engineering@users.noreply.github.com",
+          "message": "MyEve Work a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7\nRun c9ca9d8f-3381-4b45-b314-d6ba94b734cf\n"
+        },
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attemptId": "56c3404d-722d-4f63-a266-c88adc3355da",
+        "createdAt": "2026-09-25T22:12:03.137Z",
+        "parentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "repository": "fixture/golden",
+        "artifactHash": "57997f45e9fad2e436b9aaa61a0f5f3734138819f0439958ea76b05a14b738c7",
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      },
+      {
+        "id": "a611ebf3-871f-4c14-82cf-11612ddbd399",
+        "sha": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "tree": "24ef9acad174b04402ca36bb4e9ec30f2a86bb0c",
+        "runId": "3942f9e3-1429-4b1e-839a-1204f34d43e5",
+        "commit": {
+          "date": "2026-09-25T22:12:03.000Z",
+          "name": "MyEve Engineering",
+          "email": "engineering@users.noreply.github.com",
+          "message": "MyEve Work a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7\nRun 3942f9e3-1429-4b1e-839a-1204f34d43e5\n"
+        },
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+        "createdAt": "2026-09-25T22:12:03.567Z",
+        "parentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "repository": "fixture/golden",
+        "artifactHash": "87441b14d294b0cd375c82f844c9a6d0957abee92d125076414e3a07bea37f82",
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      }
+    ],
+    "evidence": [
+      {
+        "id": "f84641c5-b606-4ac1-99b6-84d1527bcfa7",
+        "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "check": "positive",
+        "result": "STALE",
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+        "producer": "protected-supervisor",
+        "attemptId": "d0cb6536-d107-4e69-b9bb-8e85c4f19659",
+        "candidate": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "observedAt": "2026-09-25T22:12:03.087Z",
+        "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+        "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+        "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+        "criteriaVersion": 1
+      },
+      {
+        "id": "780a055e-2dfa-4840-a1e1-a0de853b6821",
+        "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "check": "positive",
+        "result": "STALE",
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+        "producer": "protected-supervisor",
+        "attemptId": "56c3404d-722d-4f63-a266-c88adc3355da",
+        "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "observedAt": "2026-09-25T22:12:03.513Z",
+        "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+        "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+        "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+        "criteriaVersion": 1
+      },
+      {
+        "id": "4fe457d0-801f-44b9-b54a-97469584a0d3",
+        "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "check": "positive",
+        "result": "PASS",
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+        "producer": "protected-supervisor",
+        "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+        "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "observedAt": "2026-09-25T22:12:03.900Z",
+        "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+        "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+        "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+        "criteriaVersion": 1
+      },
+      {
+        "id": "54886972-8a73-45c2-848d-9aa406aefed6",
+        "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "check": "review-review-1",
+        "result": "PASS",
+        "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+        "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}",
+        "producer": "protected-supervisor",
+        "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+        "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "observedAt": "2026-09-25T22:12:04.058Z",
+        "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+        "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+        "artifactHash": "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "criteriaVersion": 1
+      }
+    ],
+    "approvals": [
+      {
+        "at": "2026-09-25T22:12:03.125Z",
+        "id": "ab4774a8-6e0d-464b-b566-61ad5d14b6c5",
+        "actor": "golden-owner",
+        "candidate": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "generation": 2,
+        "boundedUpdates": true
+      }
+    ],
+    "effects": [
+      {
+        "id": "c19854b7-f8fd-4ab0-9642-1e37e68f517f",
+        "pr": 1,
+        "url": "https://github.com/fixture/golden/pull/1",
+        "status": "CONFIRMED",
+        "candidate": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+        "createdAt": "2026-09-25T22:12:03.127Z",
+        "expectedHead": null
+      },
+      {
+        "id": "932d768b-18cd-4799-8ea3-a98afbfe2029",
+        "pr": 1,
+        "url": "https://github.com/fixture/golden/pull/1",
+        "status": "CONFIRMED",
+        "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "createdAt": "2026-09-25T22:12:03.548Z",
+        "expectedHead": "3e83d923094edca18f30e1d112fb4c71e3a276e2"
+      },
+      {
+        "id": "06ff4d72-de44-489a-a940-a036f666c765",
+        "pr": 1,
+        "url": "https://github.com/fixture/golden/pull/1",
+        "status": "CONFIRMED",
+        "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "createdAt": "2026-09-25T22:12:04.096Z",
+        "expectedHead": "752caf0abfbbc86cfac60b1416d990ddbfca711c"
+      }
+    ],
+    "github": {
+      "pr": {
+        "url": "https://github.com/fixture/golden/pull/1",
+        "open": true,
+        "draft": true,
+        "number": 1
+      },
+      "head": "d761cf94d599cda6293ad24b6d79612f387e5172",
+      "checks": [
+        {
+          "id": "3",
+          "sha": "d761cf94d599cda6293ad24b6d79612f387e5172",
+          "name": "quantity-ci",
+          "result": "PASS",
+          "attempt": 3,
+          "details": "Reject zero input with {\"error\":\"invalid_quantity\"}, newline, exit code 0."
+        }
+      ],
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "reviews": [
+        {
+          "id": "review-1",
+          "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+          "body": "{\"scope\":\"within-existing-criteria\",\"criterionId\":\"9b038f6c-f10b-4b36-9a14-3e70bddd01a4\",\"instruction\":\"Reject fractional quantities.\",\"check\":{\"program\":\"quantity.mjs\",\"input\":\"1.5\",\"expectedOutput\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"expectedExitCode\":0}}",
+          "state": "CHANGES_REQUESTED",
+          "author": "human-reviewer",
+          "submittedAt": "2026-09-25T22:12:04.101Z"
+        }
+      ],
+      "authority": true,
+      "observedAt": "2026-09-25T22:12:04.101Z",
+      "repository": "fixture/golden"
+    },
+    "results": [
+      {
+        "id": "dd06ded6-2a9e-4ad0-92dc-1dd396ddd900",
+        "why": "Accept positive integer quantities and reject all other quantities.",
+        "runs": [
+          {
+            "id": "b492173e-9813-4ca3-a824-dee81f58375b",
+            "reason": "Implement admitted issue",
+            "status": "candidate",
+            "endedAt": "2026-09-25T22:12:02.715Z",
+            "resource": "myeve-golden-b492173e-9813-4ca3-a824-dee81f58375b",
+            "attemptId": "d0cb6536-d107-4e69-b9bb-8e85c4f19659",
+            "candidate": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+            "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "startedAt": "2026-09-25T22:12:02.706Z",
+            "generation": 2,
+            "inputSnapshot": {
+              "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "files": {
+                "quantity.mjs": "console.log(0);"
+              }
+            },
+            "resourceReleasedAt": "2026-09-25T22:12:02.716Z",
+            "publicationParentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "id": "c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+            "reason": "CI quantity-ci failed at 3e83d923094edca18f30e1d112fb4c71e3a276e2: Reject zero input with {\"error\":\"invalid_quantity\"}, newline, exit code 0.",
+            "status": "candidate",
+            "endedAt": "2026-09-25T22:12:03.137Z",
+            "resource": "myeve-golden-c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+            "attemptId": "56c3404d-722d-4f63-a266-c88adc3355da",
+            "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+            "parentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+            "startedAt": "2026-09-25T22:12:03.132Z",
+            "generation": 2,
+            "inputSnapshot": {
+              "sha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+              "files": {
+                "quantity.mjs": "// Simulated attempt 1\nlet s='';for await(const chunk of process.stdin)s+=chunk;const n=Number(s);console.log(JSON.stringify(n<0?{error:'invalid_quantity'}:{quantity:n}));\n"
+              }
+            },
+            "resourceReleasedAt": "2026-09-25T22:12:03.139Z",
+            "publicationParentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2"
+          }
+        ],
+        "risks": [],
+        "github": {
+          "pr": {
+            "url": "https://github.com/fixture/golden/pull/1",
+            "open": true,
+            "draft": true,
+            "number": 1
+          },
+          "head": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+          "checks": [
+            {
+              "id": "2",
+              "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+              "name": "quantity-ci",
+              "result": "PASS",
+              "attempt": 2,
+              "details": "Reject zero input with {\"error\":\"invalid_quantity\"}, newline, exit code 0."
+            }
+          ],
+          "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reviews": [],
+          "authority": true,
+          "observedAt": "2026-09-25T22:12:03.556Z",
+          "repository": "fixture/golden"
+        },
+        "changes": [
+          "quantity.mjs"
+        ],
+        "summary": "Current protected verification and GitHub checks pass; draft PR is ready for human review.",
+        "version": 1,
+        "criteria": [
+          {
+            "id": "9b038f6c-f10b-4b36-9a14-3e70bddd01a4",
+            "method": "test",
+            "statement": "Accept positive integer quantities; reject zero, negative and fractional quantities."
+          }
+        ],
+        "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "createdAt": "2026-09-25T22:12:03.556Z",
+        "objective": "Accept positive integer quantities and reject all other quantities.",
+        "limitations": [
+          "Internal dogfood only",
+          "Bounded UTF-8 Node CLI repositories",
+          "Model costs are conservative reservations; infrastructure cost excluded"
+        ],
+        "reservedUsd": 0,
+        "costCoverage": "Conservative broker reservations; infrastructure excluded",
+        "verification": [
+          {
+            "id": "780a055e-2dfa-4840-a1e1-a0de853b6821",
+            "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "check": "positive",
+            "result": "PASS",
+            "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+            "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+            "producer": "protected-supervisor",
+            "attemptId": "56c3404d-722d-4f63-a266-c88adc3355da",
+            "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+            "observedAt": "2026-09-25T22:12:03.513Z",
+            "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+            "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+            "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+            "criteriaVersion": 1
+          }
+        ],
+        "interventions": [
+          {
+            "at": "2026-09-25T22:12:03.125Z",
+            "id": "ab4774a8-6e0d-464b-b566-61ad5d14b6c5",
+            "kind": "judgment",
+            "reason": "Approved exact draft PR candidate and selected update policy"
+          }
+        ],
+        "elapsedSeconds": 1
+      },
+      {
+        "id": "ca4de33c-1648-493a-90bc-d27d450dd40d",
+        "why": "Accept positive integer quantities and reject all other quantities.",
+        "runs": [
+          {
+            "id": "b492173e-9813-4ca3-a824-dee81f58375b",
+            "reason": "Implement admitted issue",
+            "status": "candidate",
+            "endedAt": "2026-09-25T22:12:02.715Z",
+            "resource": "myeve-golden-b492173e-9813-4ca3-a824-dee81f58375b",
+            "attemptId": "d0cb6536-d107-4e69-b9bb-8e85c4f19659",
+            "candidate": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+            "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "startedAt": "2026-09-25T22:12:02.706Z",
+            "generation": 2,
+            "inputSnapshot": {
+              "sha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "files": {
+                "quantity.mjs": "console.log(0);"
+              }
+            },
+            "resourceReleasedAt": "2026-09-25T22:12:02.716Z",
+            "publicationParentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          },
+          {
+            "id": "c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+            "reason": "CI quantity-ci failed at 3e83d923094edca18f30e1d112fb4c71e3a276e2: Reject zero input with {\"error\":\"invalid_quantity\"}, newline, exit code 0.",
+            "status": "candidate",
+            "endedAt": "2026-09-25T22:12:03.137Z",
+            "resource": "myeve-golden-c9ca9d8f-3381-4b45-b314-d6ba94b734cf",
+            "attemptId": "56c3404d-722d-4f63-a266-c88adc3355da",
+            "candidate": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+            "parentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+            "startedAt": "2026-09-25T22:12:03.132Z",
+            "generation": 2,
+            "inputSnapshot": {
+              "sha": "3e83d923094edca18f30e1d112fb4c71e3a276e2",
+              "files": {
+                "quantity.mjs": "// Simulated attempt 1\nlet s='';for await(const chunk of process.stdin)s+=chunk;const n=Number(s);console.log(JSON.stringify(n<0?{error:'invalid_quantity'}:{quantity:n}));\n"
+              }
+            },
+            "resourceReleasedAt": "2026-09-25T22:12:03.139Z",
+            "publicationParentSha": "3e83d923094edca18f30e1d112fb4c71e3a276e2"
+          },
+          {
+            "id": "3942f9e3-1429-4b1e-839a-1204f34d43e5",
+            "reason": "Authorized review review-1: Reject fractional quantities.. Required behavior: {\"program\":\"quantity.mjs\",\"input\":\"1.5\",\"expectedOutput\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"expectedExitCode\":0,\"id\":\"review-review-1\",\"criterionIds\":[\"9b038f6c-f10b-4b36-9a14-3e70bddd01a4\"]}",
+            "status": "candidate",
+            "endedAt": "2026-09-25T22:12:03.567Z",
+            "resource": "myeve-golden-3942f9e3-1429-4b1e-839a-1204f34d43e5",
+            "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+            "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+            "parentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+            "startedAt": "2026-09-25T22:12:03.560Z",
+            "generation": 2,
+            "inputSnapshot": {
+              "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+              "files": {
+                "quantity.mjs": "// Simulated attempt 2\nlet s='';for await(const chunk of process.stdin)s+=chunk;const n=Number(s);console.log(JSON.stringify(n<=0?{error:'invalid_quantity'}:{quantity:n}));\n"
+              }
+            },
+            "resourceReleasedAt": "2026-09-25T22:12:03.568Z",
+            "publicationParentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c"
+          }
+        ],
+        "risks": [],
+        "github": {
+          "pr": {
+            "url": "https://github.com/fixture/golden/pull/1",
+            "open": true,
+            "draft": true,
+            "number": 1
+          },
+          "head": "d761cf94d599cda6293ad24b6d79612f387e5172",
+          "checks": [
+            {
+              "id": "3",
+              "sha": "d761cf94d599cda6293ad24b6d79612f387e5172",
+              "name": "quantity-ci",
+              "result": "PASS",
+              "attempt": 3,
+              "details": "Reject zero input with {\"error\":\"invalid_quantity\"}, newline, exit code 0."
+            }
+          ],
+          "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "reviews": [
+            {
+              "id": "review-1",
+              "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+              "body": "{\"scope\":\"within-existing-criteria\",\"criterionId\":\"9b038f6c-f10b-4b36-9a14-3e70bddd01a4\",\"instruction\":\"Reject fractional quantities.\",\"check\":{\"program\":\"quantity.mjs\",\"input\":\"1.5\",\"expectedOutput\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"expectedExitCode\":0}}",
+              "state": "CHANGES_REQUESTED",
+              "author": "human-reviewer",
+              "submittedAt": "2026-09-25T22:12:04.101Z"
+            }
+          ],
+          "authority": true,
+          "observedAt": "2026-09-25T22:12:04.101Z",
+          "repository": "fixture/golden"
+        },
+        "changes": [
+          "quantity.mjs"
+        ],
+        "summary": "Current protected verification and GitHub checks pass; draft PR is ready for human review.",
+        "version": 2,
+        "criteria": [
+          {
+            "id": "9b038f6c-f10b-4b36-9a14-3e70bddd01a4",
+            "method": "test",
+            "statement": "Accept positive integer quantities; reject zero, negative and fractional quantities."
+          }
+        ],
+        "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "createdAt": "2026-09-25T22:12:04.101Z",
+        "objective": "Accept positive integer quantities and reject all other quantities.",
+        "limitations": [
+          "Internal dogfood only",
+          "Bounded UTF-8 Node CLI repositories",
+          "Model costs are conservative reservations; infrastructure cost excluded"
+        ],
+        "reservedUsd": 0,
+        "costCoverage": "Conservative broker reservations; infrastructure excluded",
+        "verification": [
+          {
+            "id": "4fe457d0-801f-44b9-b54a-97469584a0d3",
+            "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "check": "positive",
+            "result": "PASS",
+            "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+            "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+            "producer": "protected-supervisor",
+            "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+            "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+            "observedAt": "2026-09-25T22:12:03.900Z",
+            "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+            "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+            "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+            "criteriaVersion": 1
+          },
+          {
+            "id": "54886972-8a73-45c2-848d-9aa406aefed6",
+            "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "check": "review-review-1",
+            "result": "PASS",
+            "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+            "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}",
+            "producer": "protected-supervisor",
+            "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+            "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+            "observedAt": "2026-09-25T22:12:04.058Z",
+            "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+            "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+            "artifactHash": "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+            "criteriaVersion": 1
+          }
+        ],
+        "interventions": [
+          {
+            "at": "2026-09-25T22:12:03.125Z",
+            "id": "ab4774a8-6e0d-464b-b566-61ad5d14b6c5",
+            "kind": "judgment",
+            "reason": "Approved exact draft PR candidate and selected update policy"
+          }
+        ],
+        "elapsedSeconds": 2
+      }
+    ],
+    "manifest": {
+      "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+      "objective": "Accept positive integer quantities and reject all other quantities.",
+      "lifecycle": "active",
+      "control": "agent",
+      "criteriaVersion": 1,
+      "repository": "fixture/golden",
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "candidateSha": "d761cf94d599cda6293ad24b6d79612f387e5172",
+      "prHeadSha": "d761cf94d599cda6293ad24b6d79612f387e5172",
+      "currentRun": {
+        "id": "3942f9e3-1429-4b1e-839a-1204f34d43e5",
+        "reason": "Authorized review review-1: Reject fractional quantities.. Required behavior: {\"program\":\"quantity.mjs\",\"input\":\"1.5\",\"expectedOutput\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"expectedExitCode\":0,\"id\":\"review-review-1\",\"criterionIds\":[\"9b038f6c-f10b-4b36-9a14-3e70bddd01a4\"]}",
+        "status": "candidate",
+        "endedAt": "2026-09-25T22:12:03.567Z",
+        "resource": "myeve-golden-3942f9e3-1429-4b1e-839a-1204f34d43e5",
+        "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+        "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+        "parentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+        "startedAt": "2026-09-25T22:12:03.560Z",
+        "generation": 2,
+        "inputSnapshot": {
+          "sha": "752caf0abfbbc86cfac60b1416d990ddbfca711c",
+          "files": {
+            "quantity.mjs": "// Simulated attempt 2\nlet s='';for await(const chunk of process.stdin)s+=chunk;const n=Number(s);console.log(JSON.stringify(n<=0?{error:'invalid_quantity'}:{quantity:n}));\n"
+          }
+        },
+        "resourceReleasedAt": "2026-09-25T22:12:03.568Z",
+        "publicationParentSha": "752caf0abfbbc86cfac60b1416d990ddbfca711c"
+      },
+      "evidence": [
+        {
+          "id": "4fe457d0-801f-44b9-b54a-97469584a0d3",
+          "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "check": "positive",
+          "result": "PASS",
+          "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+          "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+          "producer": "protected-supervisor",
+          "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+          "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+          "observedAt": "2026-09-25T22:12:03.900Z",
+          "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+          "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+          "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+          "criteriaVersion": 1
+        },
+        {
+          "id": "54886972-8a73-45c2-848d-9aa406aefed6",
+          "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "check": "review-review-1",
+          "result": "PASS",
+          "workId": "a08e1d8d-3a95-4f7d-8e98-277b0a1d62d7",
+          "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"error\\\":\\\"invalid_quantity\\\"}\\n\",\"stderr\":\"\"}",
+          "producer": "protected-supervisor",
+          "attemptId": "5872afbd-9248-4fe6-85b1-2dfd13d7f964",
+          "candidate": "d761cf94d599cda6293ad24b6d79612f387e5172",
+          "observedAt": "2026-09-25T22:12:04.058Z",
+          "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+          "profileHash": "88bcaef573023840b1b9c2ea6f4d21cff7a22a9f128b8c5af09b8f4143390e04",
+          "artifactHash": "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "criteriaVersion": 1
+        }
+      ],
+      "readiness": {
+        "ready": true,
+        "reasons": []
+      },
+      "status": "Ready for Review",
+      "pendingDecisions": [],
+      "unknownEffects": [],
+      "budget": {
+        "limitUsd": 5,
+        "reservedUsd": 0,
+        "coverage": "Conservative model reservations; infrastructure cost excluded"
+      },
+      "lastMeaningfulActivity": "2026-09-25T22:12:04.101Z"
+    },
+    "publications": 3,
+    "coordinationDebtEvents": 0,
+    "note": "Controlled simulation; not a live GitHub or real no-babysitting qualification."
+  },
+  "status": "PASS"
+}

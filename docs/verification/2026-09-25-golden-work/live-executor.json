@@ -1,0 +1,164 @@
+{
+  "classification": "LIVE Claude Code 2.1.282 / Gateway model; REAL isolated Docker and PostgreSQL; no GitHub publication",
+  "status": "PASS",
+  "requests": [
+    {
+      "status": 200,
+      "inputBytes": 50675
+    },
+    {
+      "status": 200,
+      "inputBytes": 51380
+    },
+    {
+      "status": 200,
+      "inputBytes": 52465
+    },
+    {
+      "status": 200,
+      "inputBytes": 53429
+    },
+    {
+      "status": 200,
+      "inputBytes": 50807
+    },
+    {
+      "status": 200,
+      "inputBytes": 52135
+    },
+    {
+      "status": 200,
+      "inputBytes": 52949
+    },
+    {
+      "status": 200,
+      "inputBytes": 54214
+    },
+    {
+      "status": 200,
+      "inputBytes": 55502
+    }
+  ],
+  "pricing": {
+    "maxInputRate": 0.0000025,
+    "outputRate": 0.00001
+  },
+  "isolation": {
+    "code": 0,
+    "output": "{\"credentials\":[],\"uid\":1000}\n"
+  },
+  "workId": "3d47a725-5265-44a6-812c-4d18ce9ef5ed",
+  "runs": [
+    {
+      "id": "332755e4-9067-4375-8516-a79903a73654",
+      "attemptId": "8ab32b1a-e5c8-4de5-b174-541f943d3fb3",
+      "reason": "Implement issue",
+      "generation": 2,
+      "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "publicationParentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "candidate",
+      "resource": "myeve-golden-332755e4-9067-4375-8516-a79903a73654",
+      "startedAt": "2026-09-25T21:54:51.890Z",
+      "candidate": "b9e0b2119359897e0df19d98b962887885781ecd"
+    },
+    {
+      "id": "df0dd0d4-84d8-4f80-97be-bda5673e57ea",
+      "attemptId": "46b1e27c-d09b-41aa-906b-c0acd7cdc5ac",
+      "reason": "Manual same-executor replacement qualification: add the source comment \"MyEve supervised candidate\" to quantity.mjs, preserving all behavior.",
+      "generation": 2,
+      "parentSha": "b9e0b2119359897e0df19d98b962887885781ecd",
+      "publicationParentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "status": "candidate",
+      "resource": "myeve-golden-df0dd0d4-84d8-4f80-97be-bda5673e57ea",
+      "startedAt": "2026-09-25T21:55:07.697Z",
+      "candidate": "3f482cd8645279ee1bded2a66f7f56bcd334875a"
+    }
+  ],
+  "candidates": [
+    {
+      "id": "bbd938fb-06a7-4943-8618-d87b6f2043f9",
+      "workId": "3d47a725-5265-44a6-812c-4d18ce9ef5ed",
+      "runId": "332755e4-9067-4375-8516-a79903a73654",
+      "attemptId": "8ab32b1a-e5c8-4de5-b174-541f943d3fb3",
+      "repository": "fixture/golden",
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sha": "b9e0b2119359897e0df19d98b962887885781ecd",
+      "tree": "416138f2daddc8b3a6f4cc19bdbbea50c6b7b963",
+      "changedPaths": [
+        "quantity.mjs"
+      ],
+      "patch": "[{\"path\":\"quantity.mjs\",\"before\":\"// Implement bounded quantity normalization here.\\n\",\"after\":\"const chunks = [];\\nfor await (const chunk of process.stdin) chunks.push(chunk);\\nconst input = Buffer.concat(chunks).toString('utf8').trim();\\n\\nconst isPositiveInteger = /^[+]?\\\\d+$/.test(input) && Number(input) > 0 && Number.isInteger(Number(input)) && Number.isSafeInteger(Number(input));\\n\\nif (isPositiveInteger) {\\n  console.log(JSON.stringify({ quantity: Number(input) }));\\n} else {\\n  console.log(JSON.stringify({ error: 'invalid_quantity' }));\\n}\\n\\nprocess.exit(0);\\n\"}]",
+      "artifactHash": "57dca69248b9fed607110b01a5f25faf073286b631daf53166aa8ab7c7351498",
+      "createdAt": "2026-09-25T21:55:06.961Z",
+      "commit": {
+        "message": "MyEve Work 3d47a725-5265-44a6-812c-4d18ce9ef5ed\nRun 332755e4-9067-4375-8516-a79903a73654\n",
+        "name": "MyEve Engineering",
+        "email": "engineering@users.noreply.github.com",
+        "date": "2026-09-25T21:55:06.000Z"
+      }
+    },
+    {
+      "id": "377b183e-c4ba-44e7-8079-967d8302c431",
+      "workId": "3d47a725-5265-44a6-812c-4d18ce9ef5ed",
+      "runId": "df0dd0d4-84d8-4f80-97be-bda5673e57ea",
+      "attemptId": "46b1e27c-d09b-41aa-906b-c0acd7cdc5ac",
+      "repository": "fixture/golden",
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "parentSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "sha": "3f482cd8645279ee1bded2a66f7f56bcd334875a",
+      "tree": "d9d73b7d30580cbf7012b7e26e6a8f99f7d1bb62",
+      "changedPaths": [
+        "quantity.mjs"
+      ],
+      "patch": "[{\"path\":\"quantity.mjs\",\"before\":\"const chunks = [];\\nfor await (const chunk of process.stdin) chunks.push(chunk);\\nconst input = Buffer.concat(chunks).toString('utf8').trim();\\n\\nconst isPositiveInteger = /^[+]?\\\\d+$/.test(input) && Number(input) > 0 && Number.isInteger(Number(input)) && Number.isSafeInteger(Number(input));\\n\\nif (isPositiveInteger) {\\n  console.log(JSON.stringify({ quantity: Number(input) }));\\n} else {\\n  console.log(JSON.stringify({ error: 'invalid_quantity' }));\\n}\\n\\nprocess.exit(0);\\n\",\"after\":\"// MyEve supervised candidate\\nconst chunks = [];\\nfor await (const chunk of process.stdin) chunks.push(chunk);\\nconst input = Buffer.concat(chunks).toString('utf8').trim();\\n\\nconst isPositiveInteger = /^[+]?\\\\d+$/.test(input) && Number(input) > 0 && Number.isInteger(Number(input)) && Number.isSafeInteger(Number(input));\\n\\nif (isPositiveInteger) {\\n  console.log(JSON.stringify({ quantity: Number(input) }));\\n} else {\\n  console.log(JSON.stringify({ error: 'invalid_quantity' }));\\n}\\n\\nprocess.exit(0);\\n\"}]",
+      "artifactHash": "b2a24826b9113e27914864fb276b47d3123169d95ce0aaabaa547eb23e138bce",
+      "createdAt": "2026-09-25T21:55:23.628Z",
+      "commit": {
+        "message": "MyEve Work 3d47a725-5265-44a6-812c-4d18ce9ef5ed\nRun df0dd0d4-84d8-4f80-97be-bda5673e57ea\n",
+        "name": "MyEve Engineering",
+        "email": "engineering@users.noreply.github.com",
+        "date": "2026-09-25T21:55:23.000Z"
+      }
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ed71fe6d-5395-474a-bf6f-909392dbfa8d",
+      "workId": "3d47a725-5265-44a6-812c-4d18ce9ef5ed",
+      "candidate": "b9e0b2119359897e0df19d98b962887885781ecd",
+      "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "criteriaVersion": 1,
+      "profileHash": "8bc69395937430ebf1bfbc2c6181d0e57a6f9339ce72a6fa272bc6144edcb5a5",
+      "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+      "check": "positive",
+      "producer": "protected-supervisor",
+      "attemptId": "8ab32b1a-e5c8-4de5-b174-541f943d3fb3",
+      "observedAt": "2026-09-25T21:55:07.661Z",
+      "result": "PASS",
+      "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+      "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed"
+    },
+    {
+      "id": "a00104df-9cd9-43db-92f5-ca7b1f62c759",
+      "workId": "3d47a725-5265-44a6-812c-4d18ce9ef5ed",
+      "candidate": "3f482cd8645279ee1bded2a66f7f56bcd334875a",
+      "base": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "criteriaVersion": 1,
+      "profileHash": "8bc69395937430ebf1bfbc2c6181d0e57a6f9339ce72a6fa272bc6144edcb5a5",
+      "environment": "myeve-golden-executor@sha256:f4cf5d653d247d013ebe3054d5333278923736832e4af11f9c350bfec2bea82c",
+      "check": "positive",
+      "producer": "protected-supervisor",
+      "attemptId": "46b1e27c-d09b-41aa-906b-c0acd7cdc5ac",
+      "observedAt": "2026-09-25T21:55:24.501Z",
+      "result": "PASS",
+      "artifact": "{\"exitCode\":0,\"stdout\":\"{\\\"quantity\\\":2}\\n\",\"stderr\":\"\"}",
+      "artifactHash": "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed"
+    }
+  ],
+  "budget": {
+    "reservedUsd": 4.031547,
+    "coverage": "Conservative model reservations; infrastructure excluded"
+  },
+  "cleanup": "PASS"
+}

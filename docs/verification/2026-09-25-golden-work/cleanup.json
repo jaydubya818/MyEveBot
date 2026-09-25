@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "observedAt": "2026-09-25T22:23:44.933281+00:00",
+  "developmentCredentialFileRemoved": true,
+  "taskPostgres": "myeve-golden-pg stopped; --rm removed its isolated container and ephemeral databases",
+  "remainingLabeledResources": {
+    "container": [],
+    "volume": [],
+    "network": []
+  },
+  "remainingNamedTaskContainers": [],
+  "listeners3101_3102_3103": [],
+  "unaccountedResources": 0,
+  "retainedAccountedArtifacts": [
+    "Local executor image myeve-golden-executor:2.1.282 retained as a rebuild/test cache; no active compute",
+    "Curated local reports, logs and screenshots",
+    "Isolated Git worktree and branch"
+  ],
+  "otherEnvironments": "Unrelated sellerfi-qualification-resumed-20260925 container and unrelated browser tab left untouched"
+}

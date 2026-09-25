@@ -1,0 +1,33 @@
+
+> eveclaw@0.0.0 typecheck
+> turbo run typecheck
+
+• turbo 2.10.5
+
+   • Packages in scope: eve-agent, eveclaw-builder
+   • Running typecheck in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+eveclaw-builder:typecheck: cache hit, replaying logs 2b614e8e9f543d15
+eveclaw-builder:typecheck: 
+eveclaw-builder:typecheck: > eveclaw-builder@0.0.0 typecheck
+eveclaw-builder:typecheck: > tsc && tsx scripts/check-manifest.ts
+eveclaw-builder:typecheck: 
+eveclaw-builder:typecheck: manifest ok: 152 prunable files, all claimed; template release 257
+eve-agent:typecheck: cache miss, executing c7b0b8e63b4b34e6
+eve-agent:typecheck: 
+eve-agent:typecheck: > eve-agent@0.0.0 typecheck
+eve-agent:typecheck: > tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts
+eve-agent:typecheck: 
+eve-agent:typecheck: capability registry ok: 144 definitions, 122 authored tools
+eve-agent:typecheck: 
+eve-agent:typecheck: > eve-agent@0.0.0 skills:validate
+eve-agent:typecheck: > node scripts/check-imported-skill-routing.mjs
+eve-agent:typecheck: 
+eve-agent:typecheck: Imported routing: 93 checks, 50/57 rank one (87.7%).
+eve-agent:typecheck: executor governance ok: 595 classified sources; UNKNOWN=0; Routine activation remains disabled
+
+ Tasks:    2 successful, 2 total
+Cached:    1 cached, 2 total
+  Time:    10.086s 
+

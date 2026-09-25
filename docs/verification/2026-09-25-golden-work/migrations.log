@@ -1,0 +1,5 @@
+
+> eve-agent@0.0.0 db:migrations:check
+> node scripts/migrate-database.ts --check
+
+Validated 41 ordered database migration(s).
