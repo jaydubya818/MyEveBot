@@ -1,3 +1,4 @@
+import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
 import { defineHook } from "eve/hooks";
 
 import {
@@ -19,10 +20,17 @@ function resultText(value: unknown): string {
 
 export default defineHook({
   events: {
+    async "compaction.requested"(_event,ctx){
+      if(ownerRuntimeFromAuth(ctx.session.auth))throw new Error("External request cannot start an unreserved compaction call.");
+    },
     async "step.started"(_event, ctx) {
+      const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+      if(ownerRuntime)await resolveOwnerRuntime(ownerRuntime);
       await assertTaskBudget(ctx.session.id);
     },
     async "step.completed"(event, ctx) {
+      const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+      if(ownerRuntime)return; // Provider boundary durably settles usage exactly once.
       await recordTaskModelStep(ctx.session.id, event.data.usage?.costUsd ?? 0);
     },
     async "subagent.called"(event, ctx) {

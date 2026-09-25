@@ -28,6 +28,7 @@ export interface AssembleContextInput {
   ownerId: string;
   agentId: string;
   sessionId: string;
+  ownerChannelRunId?: string;
   threadId?: string | null;
   goalId?: string | null;
   taskId?: string | null;
@@ -230,6 +231,24 @@ export async function assembleContext(input: AssembleContextInput): Promise<Asse
   const agent = await getAgent(input.ownerId, input.agentId);
   if (!agent) throw new Error("Agent does not belong to the current owner.");
   if (agent.status !== "active") throw new Error(`${agent.name} is ${agent.status} and cannot execute new work.`);
+  if (input.ownerChannelRunId) {
+    // External ingress never inherits owner memories, goals, skills or Agent
+    // instructions. Use the same canonical assembly ledger with explicit refs.
+    const [work]=await db().query(`SELECT w.request,w.request_id,w.run_id FROM owner_channel_requests w
+      JOIN task_runs r ON r.owner_id=w.owner_id AND r.id=w.run_id
+      WHERE w.owner_id=$1 AND w.agent_id=$2 AND w.run_id=$3 AND w.session_id=$4
+        AND w.revoked_at IS NULL AND w.expires_at>now() AND r.status='running'`,
+    [input.ownerId,input.agentId,input.ownerChannelRunId,input.sessionId]);
+    if(!work)throw new Error("External Context Assembly binding unavailable.");
+    const request=work.request as {message:string;budget:unknown};
+    const markdown=`External Telegram task. Only the admitted message and authorized public tools are in scope. Private owner context is unavailable.\n\nTask: ${request.message}\nBudget: ${JSON.stringify(request.budget)}`;
+    const sourceRefs=[`owner-work:${work.request_id}`,`run:${work.run_id}`];
+    const estimatedTokens=Math.ceil(Buffer.byteLength(markdown)/3);
+    await db().query(`INSERT INTO context_assemblies(id,owner_id,agent_id,session_id,task_run_id,memory_refs,source_refs,estimated_tokens,budget)
+      VALUES($1,$2,$3,$4,$5,'[]'::jsonb,$6::jsonb,$7,$8::jsonb)`,
+    [`context_${randomUUID()}`,input.ownerId,input.agentId,input.sessionId,input.ownerChannelRunId,JSON.stringify(sourceRefs),estimatedTokens,JSON.stringify(input.budget??DEFAULT_CONTEXT_BUDGET)]);
+    return {markdown,agent,goalId:null,taskId:null,runId:input.ownerChannelRunId,memoryRefs:[],threadSummaryRef:null,sourceRefs,estimatedTokens,excludedRefs:[],overBudget:false};
+  }
   if (input.threadId) {
     const threads = await db().query(
       `SELECT owner_id,agent_id FROM web_chat_threads WHERE id=$1 LIMIT 1`,

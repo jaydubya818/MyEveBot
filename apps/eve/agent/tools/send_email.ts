@@ -2,7 +2,6 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 import { agentMailSendAdapter } from "../lib/email-send-adapter.ts";
-import { RoutinePendingSend } from "../../lib/routine-pending-send.ts";
 import { ActionBlocked,ActionGateway } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "../lib/action-context.ts";
 import { agentName,ownerName } from "../lib/owner";
@@ -31,7 +30,6 @@ export default defineTool({
     try {return await new ActionGateway().execute(action,agentMailSendAdapter(),ctx.abortSignal);}
     catch(error) {
       if(error instanceof ActionBlocked) {
-        if(error.status==="awaiting_approval" && action.occurrence)await new RoutinePendingSend().save(action,error.actionId);
         return {status:error.status,actionId:error.actionId,message:error.message,canEscalate:false};
       }
       throw error;

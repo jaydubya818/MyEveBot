@@ -10,7 +10,7 @@ const authoredTools = (await readdir(toolDirectory))
   .map((name) => `agent/tools/${name}`)
   .sort();
 const registeredTools = CAPABILITY_DEFINITIONS.filter(
-  (capability) => capability.kind === "tool" && capability.source.reference?.startsWith("agent/tools/"),
+  (capability) => capability.source.reference?.startsWith("agent/tools/"),
 ).map((capability) => capability.source.reference!).sort();
 
 // Browser wrappers retain their existing browser.* capability identities.

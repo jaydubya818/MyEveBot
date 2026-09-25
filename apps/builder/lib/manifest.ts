@@ -54,6 +54,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/on-demand-role.ts",
   "agent/instructions/time.ts",
   "agent/schedules/operations-monitor.ts",
+  // Dormant until the explicit owner-channel release/configuration gate passes.
+  "agent/schedules/owner-channel.ts",
   "agent/tools/complete_task.ts",
   "agent/tools/complete_work.ts",
   "agent/tools/bash.ts",
@@ -81,6 +83,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/update_task.ts",
   "agent/tools/workflow.ts",
   "agent/tools/write_file.ts",
+  "agent/tools/web_fetch.ts",
 ] as const;
 
 /** Feature → the prunable files it owns. */
