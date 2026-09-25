@@ -1386,6 +1386,13 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             />
           </div>
         </div>
+        {process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
+          <a href={process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL} target="_blank" rel="noopener noreferrer"
+            className="mx-3 mb-2 flex min-h-11 items-center justify-between rounded-md border border-kumo-hairline px-3 text-sm hover:bg-kumo-tint"
+            aria-label="Open Linear workspace (opens in a new tab)">
+            <span>Linear issues</span><span aria-hidden="true">↗</span>
+          </a>
+        )}
         <div className="px-2 pb-2">
           <div className="relative">
             <Input

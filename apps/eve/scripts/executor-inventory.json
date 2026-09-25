@@ -2016,7 +2016,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b8d3f6153f74ddba0c4b650ba79776b59697c1827b12e2fa16edf4747e5d7ee0"
+      "sha256": "c3b6818452234519d3a3e312db4c0ee1e237a3e07846b5a6b9748dc735839b2c"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2901,6 +2901,17 @@
       "classification": "READ_ONLY",
       "reason": "Reuses Eve public-network DNS and redirect guards; rechecks canonical owner Run and local web.read capability immediately before fetch.",
       "sha256": "9e68e5f82ae65e8971768be176500b7c886bdc5175bfd8be66b5c48d6939aa64"
+    },
+    "agent/lib/foreman.ts": {
+      "classification": "ENFORCED",
+      "sha256": "02b6608c9f87e7da9a1bd50402e025ced656ae1123d096e1abd17ecf0ebf0ddd",
+      "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; readback verifies content, delegate and actual agent-session startup. Tested deny, mismatch and uncertain outcomes."
+    },
+    "agent/tools/delegate_foreman_issue.ts": {
+      "classification": "ENFORCED",
+      "sha256": "c27cddeb28ba92035ef8dca61e792ad6d9468d087b1e509cf00284d594c21bb5",
+      "reason": "Primary owner-chat only; exact issue payload enters canonical Action Gateway and guarded Linear adapter. No broad connector enablement, merge or deployment authority.",
+      "disposition": "gateway"
     }
   }
 }
