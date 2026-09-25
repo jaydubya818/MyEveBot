@@ -207,7 +207,15 @@ export async function deleteThread(ownerId: string, id: string): Promise<void> {
   await sql()`DELETE FROM web_chat_threads WHERE owner_id=${ownerId} AND id = ${id}`;
 }
 
-async function assertThreadOwner(ownerId: string, id: string): Promise<void> {
+export class ThreadOwnerConflictError extends Error {
+  constructor() {
+    super("Thread belongs to another owner.");
+    this.name = "ThreadOwnerConflictError";
+  }
+}
+
+export async function assertThreadOwner(ownerId: string, id: string): Promise<void> {
+  await ensureTable();
   const rows = await sql()`SELECT owner_id FROM web_chat_threads WHERE id=${id} LIMIT 1`;
-  if (rows[0] && rows[0].owner_id !== ownerId) throw new Error("Thread belongs to another owner.");
+  if (rows[0] && rows[0].owner_id !== ownerId) throw new ThreadOwnerConflictError();
 }
