@@ -1,0 +1,17 @@
+{
+  "apps/eve/agent/lib/context-assembly.test.ts": "88aeb516499eb751680345ed7303fe64c74b1062ebb79e109956997b191fa068",
+  "apps/eve/agent/lib/context-assembly.ts": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176",
+  "apps/eve/components/engineering/current-work-truth.tsx": "de55573524dca9b8208ac3a5af69a6856bade892e2dca11f54d14f8cd1802720",
+  "apps/eve/components/engineering/work-dashboard.tsx": "149c602a85582f00d2bf4a1f8c6bfbfd69cf2da053357a72f16f89c1b992f9b7",
+  "apps/eve/lib/engineering/completion-budget-plan.test.ts": "b7bd2bbb0e57539c9d422885359d9035536839ce571e9d2643c8019f059874d0",
+  "apps/eve/lib/engineering/completion-budget-plan.ts": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920",
+  "apps/eve/lib/engineering/current-truth-lines.ts": "d07f449742fb5cabff1ff5ab057030370ed1fd3555e3903302a6dd9a4755666b",
+  "apps/eve/lib/engineering/run-truth.test.ts": "98a3d998ecde0468634158a826d350b6534f8ba923d02c13fdcd70e182a66035",
+  "apps/eve/lib/engineering/run-truth.ts": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b",
+  "apps/eve/lib/engineering/worker-projection.test.ts": "cba6ac29e9b972749ae4e7f2ebf6375cb93362e8d149ed09fe4f28df1d6d1747",
+  "apps/eve/lib/engineering/worker-projection.ts": "0ed60d29d215e3df01879053c07a88085c7e0c3590f6c09fe5c0487104351541",
+  "apps/eve/scripts/executor-inventory.json": "cdd634a55907847e3084369b5c2a37e6393670f51281228079d75ab3eeeed72c",
+  "apps/eve/test/gap2b-projection.integration.mjs": "425223882d945f4ff915f4416c9671320e8d7aaac7031c4b8c9c5efc9f7f7e0e",
+  "apps/eve/test/gap2b-retained-fixture.json": "709eccbdd125961138d5db9b48ac35a95b9491024645872a55bdbd591ff88c83",
+  "apps/eve/test/work-model-ledger.integration.mjs": "d32399050a978c7d54e62eb0ae1b441323dba6d9155ba2f49839606ee51b74a9"
+}

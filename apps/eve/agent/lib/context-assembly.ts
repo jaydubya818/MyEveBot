@@ -1,3 +1,4 @@
+import { currentTruthLines } from "../../lib/engineering/current-truth-lines.ts";
 import { randomUUID } from "node:crypto";
 
 import type { ModelMessage } from "ai";
@@ -249,7 +250,7 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
     (execution || projection.nativeDevelopment)
       ? `Current Truth: ${projection.status}; control: ${projection.control}; execution revision: ${execution?.revision ?? projection.nativeDevelopment?.revision}.`
       : "Current Truth: DEGRADED. Work is saved, but no admitted execution or verified readiness exists.",
-    projection.currentRun ? `Last Run: ${projection.currentRun.id}; ${projection.currentRun.status}; generation ${projection.currentRun.generationCurrent ? "current" : "stale"}.` : "Last Run: none.",
+    ...currentTruthLines(projection),
     `Activity: ${projection.activity}; last meaningful update ${projection.lastMeaningfulActivity}.`,
     projection.lastChange ? `Last recorded change: ${projection.lastChange.kind} at ${projection.lastChange.at}; version ${projection.lastChange.version ?? "unknown"}.` : "Last recorded change: none.",
     (execution || projection.nativeDevelopment) ? `Next step: ${projection.nextStep}` : "Next step: inspect this Work and admit execution only through its authorized workflow.",

@@ -1,5 +1,7 @@
 "use client";
 
+import { CurrentWorkTruth } from "./current-work-truth";
+
 import { useEffect, useRef, useState } from "react";
 import { ExecutionDetail } from "./execution-detail";
 import { RoutingSummary, RoutingTimeline, type RoutingSnapshot } from "./routing-summary";
@@ -573,6 +575,7 @@ export function WorkDashboard() {
                       Historical native model spend: ${detail.projection.nativeRuntime.spentUsd.toFixed(6)} · Reserved: ${detail.projection.nativeRuntime.reservedUsd.toFixed(6)}
                       {detail.projection.nativeRuntime.usageUnknown && " · Usage uncertain; execution is fenced"}
                     </p>}
+                    {detail.projection && <CurrentWorkTruth projection={detail.projection} />}
                     {detail.projection?.nativeDevelopment && <p className="mt-2 break-words text-xs text-kumo-subtle">
                       Native development: {detail.projection.nativeDevelopment.label}
                       {!detail.projection.nativeDevelopment.current && " · not current for execution"}

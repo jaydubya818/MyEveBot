@@ -101,8 +101,8 @@ try {
   assert.deepEqual((await new EngineeringConversationBudget(workStore,authority).reserve(first)).result,{content:[{type:"text",text:"Current Truth"}]});
   await admitNativeWork(workStore,work.id,work.version,authority);
   const projection=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
-  assert.equal(projection.currentRun.id,(await new RoutingStore(workStore).snapshot(work.id)).runs[0].id);
-  assert.equal(projection.currentRun.startedAt,null);assert.equal(projection.readiness.ready,false);
+  assert.equal(projection.runTruth.latestRun.id,(await new RoutingStore(workStore).snapshot(work.id)).runs[0].id);
+  assert.equal(projection.runTruth.latestRun.timestampSource,"admission");assert.equal(projection.readiness.ready,false);
   const execution=request(work.id,"writer",1);await native.reserve(execution);await native.assertDispatch(execution);await native.settle(execution,2000,{content:[]});
   await native.assertSession(work.id,"writer");await assert.rejects(native.assertSession(work.id,"other"),/writer/);
   assert.equal(Number((await pool.query("SELECT spent_microusd FROM engineering_work_model_budget WHERE work_id=$1",[work.id])).rows[0].spent_microusd),3000);

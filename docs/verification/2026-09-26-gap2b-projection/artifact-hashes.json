@@ -1,0 +1,12 @@
+{
+  "README.md": "52238b3ed66b233825dc37fd93226aa683eb88ad608ad84b822e52af6780d76a",
+  "build.log": "3f52edf0716858931fadda5e8e91604264ceeb136bd2552dcfabcd0a09121322",
+  "migrations.log": "955d7a312f44b7c6ae0d5d75e00d9e6e34e60d5bbac85fe7e3c37deb13dda1ea",
+  "root-tests.log": "ec45b4c51a8d9e8573f04c17c738ab48339db55947b895a8b76f370c15327529",
+  "source-manifest.json": "00630627309bc08a32b42521bbc93fa815e1a6b968ae227ee9bfd6e3a2e6eb6a",
+  "sql-ledger.log": "79d64b57fd7e9402c922e2add5d133509e941e5653e9fc2e61ed189d8889f455",
+  "sql-projection.log": "1e4ccff261eecb80dd3108310feb3cee1206ddf7f032fe8aec740da5e2e456ab",
+  "sql-retained-clone.log": "0871a63001836eb49cbcd00e7aba52b73d213ce0c4e0d82e481baecb39112eba",
+  "typecheck.log": "8c3e74edbdae2d55905020a4e98e3afbb7c60c2096cd1fee757a96cbbe59ffa8",
+  "vitest.log": "2b0a59eca6ac777d718143a68682dd75717db4fde30259eaa2e096baad7d0c01"
+}

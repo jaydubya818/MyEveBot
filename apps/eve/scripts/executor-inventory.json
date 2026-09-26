@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner- and Agent-scoped context assembly records internal provenance. Selected Work uses the shared native projection and active scoped facts; excludes broad Memory, unrelated goals and thread summaries; grants no authority.",
-      "sha256": "4a35813c1f5bf22dc83a0072790570fe2094b6be4bbcded4a9fa67e9b5a7602f"
+      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants.",
+      "sha256": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -3142,8 +3142,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Shared immutable native result explicitly explains PARTIAL readiness limitations. Local verification never produces Ready; no effect or permission supplied.",
-      "sha256": "e67ae6a119e7e6983157706bf368e112f43919ae0549352f1c10d3846fd13ec1"
+      "reason": "Owner-scoped SELECT-only Work/native projection with current read-only authority observation; historical Run visibility never acquires writer custody.",
+      "sha256": "0ed60d29d215e3df01879053c07a88085c7e0c3590f6c09fe5c0487104351541"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3229,6 +3229,21 @@
       "classification": "ENFORCED",
       "reason": "Selected-Work model calls use common ledger before dispatch; native execution owns one canonical reservation, not a nested charge. Observation permits inspect only.",
       "sha256": "37bd22c08c930c3a3d01a622fcd4b7a7c07349bb0fce52e10139631fc1e67d8b"
+    },
+    "lib/engineering/run-truth.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure immutable Run history projection; no database, provider, grant or writer mutation.",
+      "sha256": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b"
+    },
+    "lib/engineering/current-truth-lines.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure shared Work/chat formatting of observed Current Truth; no authority creation.",
+      "sha256": "d07f449742fb5cabff1ff5ab057030370ed1fd3555e3903302a6dd9a4755666b"
+    },
+    "lib/engineering/completion-budget-plan.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure conservative completion planning; always denies productive admission and creates no balance or reservation.",
+      "sha256": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920"
     }
   }
 }

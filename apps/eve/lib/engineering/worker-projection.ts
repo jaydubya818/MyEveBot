@@ -4,6 +4,8 @@ import { ExecutionStore } from "./execution-store.ts";
 import { manifest, type Execution } from "./execution.ts";
 import { RoutingStore, routingForWorkVersion, type RoutingSnapshot } from "./routing-store.ts";
 import { WorkStore } from "./store.ts";
+import { NativeRouteAuthority } from "./native-routing.ts";
+import { projectRuns, type ObservedRunInput } from "./run-truth.ts";
 import { WorkError, type Work } from "./types.ts";
 
 type CurrentManifest = ReturnType<typeof manifest>;
@@ -36,6 +38,11 @@ export interface EngineeringWorkerProjection {
   activity: string;
   nextStep: string;
   readiness: { ready: boolean; reasons: string[] };
+  runTruth: ReturnType<typeof projectRuns>;
+  verification: { candidateSha: string | null; status: string; jobStatus: string | null; evidenceCount: number; evidenceHashes: string[] };
+  completionBudget: { ceilingUsd: number; heldUsd: number | null; remainingUsd: number | null; observed: boolean };
+  draft: { revision: number; contentHash: string; differsFromCandidate: boolean } | null;
+  /** Compatibility alias for the observed active Run; historical identity lives in runTruth. */
   currentRun: { id: string; status: string; startedAt: string | null; generationCurrent: boolean } | null;
   attention: CurrentManifest["attention"];
   pendingDecisions: string[];
@@ -100,7 +107,8 @@ function latestTime(a: string, b: string | undefined) {
 /** One owner-scoped read model for Work, Chat and the engineering_work tool.
  * It derives readiness from the existing manifest and never grants execution authority. */
 export class EngineeringWorkerProjectionStore {
-  constructor(readonly workStore: WorkStore, readonly coordinatingAgentId?: string) {}
+  constructor(readonly workStore: WorkStore, readonly coordinatingAgentId?: string,
+    readonly observeNativeAuthority = (id: string) => new NativeRouteAuthority(workStore).assertEffect(id)) {}
 
   async get(id: string): Promise<EngineeringProjectionSnapshot> {
     const work = await this.workStore.get(id);
@@ -111,7 +119,7 @@ export class EngineeringWorkerProjectionStore {
     const id = work.id;
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
-    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows] = await Promise.all([
+    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows, runRows, verificationRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
       this.workStore.database.query(
@@ -127,7 +135,7 @@ export class EngineeringWorkerProjectionStore {
       ),
       this.workStore.database.query(
         `SELECT n.decision_id,n.route_run_id,n.work_version,n.work_generation,n.criteria_version,
-                n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,
+                n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,n.draft_files,n.profile_hash,n.base_sha,
                 d.admission_authority_snapshot->'contract'->>'coordinatingAgentId' AS agent_id,
                 result.id AS native_result_id,result.proof AS native_proof,result.content_hash AS native_proof_hash,
                 result.work_generation AS native_result_generation
@@ -140,20 +148,43 @@ export class EngineeringWorkerProjectionStore {
          WHERE n.scope_id=$1 AND n.scope_kind=$2 AND n.work_id=$3`, scope,
       ),
       this.workStore.database.query(
-        `SELECT spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_native_runtime
+        `SELECT route_run_id,session_id,spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_native_runtime
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
       this.workStore.database.query(
-        `SELECT b.spent_microusd,b.reserved_microusd,b.status,
-           (b.status<>'ACTIVE' OR EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.status='USAGE_UNKNOWN')) AS usage_unknown,
-           EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED')) AS inflight
+        `SELECT b.ceiling_microusd,b.spent_microusd,b.reserved_microusd,b.status,
+           EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.scope_kind=b.scope_kind AND c.status='USAGE_UNKNOWN') AS usage_unknown,
+           EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.scope_kind=b.scope_kind AND c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED')) AS inflight
          FROM engineering_work_model_budget b
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
          UNION ALL
-         SELECT h.spent_microusd,h.reserved_microusd,'HISTORICAL_RECONCILIATION' AS status,true AS usage_unknown,h.inflight
+         SELECT h.ceiling_microusd,h.spent_microusd,h.reserved_microusd,'HISTORICAL_RECONCILIATION' AS status,h.usage_unknown,h.inflight
          FROM engineering_conversation_budget h
          WHERE h.scope_id=$1 AND h.scope_kind=$2 AND h.work_id=$3
            AND NOT EXISTS(SELECT 1 FROM engineering_work_model_budget b WHERE b.scope_id=h.scope_id AND b.scope_kind=h.scope_kind AND b.work_id=h.work_id)`,scope),
+      this.workStore.database.query(
+        `SELECT r.id,r.route,r.status,r.work_version,r.work_generation,d.admitted_at,
+                d.admission_authority_snapshot->'contract'->>'deadline' AS deadline
+         FROM engineering_route_runs r LEFT JOIN engineering_routing_decisions d
+           ON d.id=r.decision_id AND d.scope_id=r.scope_id AND d.scope_kind=r.scope_kind AND d.work_id=r.work_id
+         WHERE r.scope_id=$1 AND r.scope_kind=$2 AND r.work_id=$3`,scope),
+      this.workStore.database.query(
+        `SELECT candidate_sha,status,evidence_count FROM engineering_direct_verification_jobs
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
     ]);
+    // Optional additive capability: 0052 observations do not assume a completion hold exists.
+    const [completionFunction]=await this.workStore.database.query(
+      "SELECT to_regprocedure('engineering_completion_remaining(text,uuid)') AS present");
+    const [completionRow]=completionFunction?.present ? await this.workStore.database.query(
+      "SELECT engineering_completion_remaining($1::text,$2::uuid) AS held_microusd",
+      [this.workStore.principal.scopeId,id]) : [];
+    const accounting=conversationRows[0];
+    const ceilingUsd=Math.min(work.maxCostUsd,Number(accounting?.ceiling_microusd??work.maxCostUsd*1_000_000)/1_000_000);
+    const heldUsd=completionRow ? Number(completionRow.held_microusd)/1_000_000 : null;
+    if(heldUsd!==null && (!Number.isFinite(heldUsd) || heldUsd<0))
+      throw new WorkError("completion_projection","Completion capacity could not be observed safely.");
+    const completionBudget={ceilingUsd,heldUsd,observed:heldUsd!==null,
+      remainingUsd:heldUsd!==null && accounting?.status==="ACTIVE" && !accounting.usage_unknown
+        ? Math.max(0,ceilingUsd-Number(accounting.spent_microusd)/1_000_000-Number(accounting.reserved_microusd)/1_000_000-heldUsd) : null};
     const current = await this.workStore.get(id);
     if (current.version !== work.version || current.generation !== work.generation ||
         current.criteriaVersion !== work.criteriaVersion) {
@@ -181,7 +212,29 @@ export class EngineeringWorkerProjectionStore {
       contentHash:String(nativeRow.native_proof_hash),current:nativeProof.workVersion===work.version &&
         nativeProof.criteriaVersion===work.criteriaVersion && Number(nativeRow.native_result_generation)===work.generation} : null;
     const nativePhase = nativeRow?.phase as NonNullable<EngineeringWorkerProjection["nativeDevelopment"]>["phase"];
-    const nativeCurrent = !!nativeRow && !!admittedRoute && !!currentRouteRun &&
+    let observedRunId: string | null = null;
+    let authorityReason = "Current execution authority not established";
+    if (nativeRow && conversationRows[0]?.status==="ACTIVE" && !conversationRows[0]?.usage_unknown && !nativeRuntimeRows[0]?.usage_unknown) {
+      try { observedRunId=(await this.observeNativeAuthority(id)).runId; }
+      catch { authorityReason="Current provider, policy, Agent or admission authority unavailable"; }
+    } else if (nativeRow) authorityReason="Common Work budget requires reconciliation or current authority";
+    // Recheck Work after the asynchronous authority observation; reads never acquire custody.
+    const afterAuthority=await this.workStore.get(id);
+    if(afterAuthority.version!==work.version || afterAuthority.generation!==work.generation)
+      throw new WorkError("projection_changed","Work changed while authority was observed. Reload this snapshot.");
+    const runtime=nativeRuntimeRows[0];
+    const observedInputs: ObservedRunInput[] = runRows.map(row=>({id:String(row.id),purpose:String(row.route),status:String(row.status),
+      generation:row.work_generation==null?null:Number(row.work_generation),version:row.work_version==null?null:Number(row.work_version),
+      associatedAt:row.admitted_at?(row.admitted_at instanceof Date ? row.admitted_at.toISOString() : String(row.admitted_at)):null,
+      timestampSource:row.admitted_at?"admission":"unavailable",deadline:row.deadline?String(row.deadline):null}));
+    // Old executors retain their own immutable startedAt; updated_at is never used as creation time.
+    for(const run of execution?.runs??[]) if(!observedInputs.some(item=>item.id===run.id)) observedInputs.push({
+      id:run.id,purpose:run.reason,status:run.status,generation:run.generation,version:null,
+      associatedAt:run.startedAt,timestampSource:"execution-start",deadline:execution!.contract.deadline});
+    const runTruth=projectRuns(work,observedInputs,{runId:observedRunId,
+      writerRunId:runtime?.route_run_id?String(runtime.route_run_id):null,
+      writerSessionId:runtime?.session_id?String(runtime.session_id):null,reason:authorityReason});
+    const nativeCurrent = runTruth.activeRun?.id === currentRouteRun?.id && !!runTruth.activeRun && !!nativeRow && !!admittedRoute && !!currentRouteRun &&
       !execution && currentRouteRun.route === "DEEP_AGENT" && currentRouteRun.status === "RUNNING" &&
       nativeRow.decision_id === admittedRoute.id && nativeRow.route_run_id === currentRouteRun.id &&
       Number(nativeRow.work_version) === work.version &&
@@ -190,6 +243,24 @@ export class EngineeringWorkerProjectionStore {
       Date.now() < Date.parse(String(nativeRow.deadline)) &&
       work.lifecycle === "active" && work.control === "agent";
     const nativeCandidate = Array.isArray(nativeRow?.candidates) ? nativeRow.candidates.at(-1) : null;
+    const draft = nativeRow?.draft_files ? {revision:Number(nativeRow.revision),
+      contentHash:digest(nativeRow.draft_files),differsFromCandidate:!nativeCandidate || digest(nativeRow.draft_files)!==digest(nativeCandidate.files)} : null;
+    const candidateChecks = (Array.isArray(nativeRow?.evidence) ? nativeRow.evidence : []).filter((item: Record<string, unknown>) =>
+      item.candidate===nativeCandidate?.sha && item.attemptId===nativeCandidate?.attemptId &&
+      item.workId===work.id && item.criteriaVersion===work.criteriaVersion &&
+      item.base===nativeRow?.base_sha && item.profileHash===nativeRow?.profile_hash &&
+      item.producer==="protected-supervisor" && typeof item.artifact==="string" && digest(item.artifact)===item.artifactHash);
+    const job=verificationRows.find(row=>row.candidate_sha===nativeCandidate?.sha);
+    const proofMatches=!!nativeResult?.current && nativeResult.proof.resultRevision===nativeCandidate?.sha;
+    const verification = {candidateSha:typeof nativeCandidate?.sha==="string"?nativeCandidate.sha:null,
+      status:candidateChecks.some((item:Record<string,unknown>)=>item.result==="FAIL")?"FAIL"
+        :job?.status==="COMPLETED" && candidateChecks.length>0 && candidateChecks.length===Number(job.evidence_count) &&
+          new Set(candidateChecks.map((item:Record<string,unknown>)=>item.check)).size===candidateChecks.length &&
+          candidateChecks.every((item:Record<string,unknown>)=>item.result==="PASS") && proofMatches &&
+          nativeResult!.proof.outcome==="PARTIAL" && nativeResult!.proof.evidence.every(item=>item.state==="PASS" && item.resultRevision===nativeCandidate.sha)?"PASS"
+        :job?.status==="QUEUED" || job?.status==="RUNNING"?"PENDING":nativeCandidate?"UNKNOWN":"NOT_RUN",
+      jobStatus:job?String(job.status):null,evidenceCount:candidateChecks.length,
+      evidenceHashes:candidateChecks.map((item:Record<string,unknown>)=>String(item.artifactHash))};
     const nativeCheckUnknown = nativePhase === "VERIFICATION_FAILED" &&
       Array.isArray(nativeRow?.evidence) && nativeRow.evidence.some((item: Record<string, unknown>) =>
         item.candidate === nativeCandidate?.sha &&
@@ -230,6 +301,9 @@ export class EngineeringWorkerProjectionStore {
     const runtimeRow=nativeRuntimeRows[0];
     const nativeRuntime=runtimeRow ? {spentUsd:Number(runtimeRow.spent_microusd)/1_000_000,
       reservedUsd:Number(runtimeRow.reserved_microusd)/1_000_000,usageUnknown:!!runtimeRow.usage_unknown,inflight:!!runtimeRow.inflight} : null;
+    const commonBudgetBlocker=conversationRows[0] && conversationRows[0].status!=="ACTIVE"
+      ? {status:"Needs reconciliation",activity:`Common Work accounting is ${conversationRows[0].status}; history is retained.`,
+          nextStep:"Reconcile historical Work liabilities and obtain current authority before productive continuation. Do not reset spent or reserved amounts."} : null;
     const modelActivity=nativeRuntime?.usageUnknown
       ? {status:"Needs reconciliation",activity:"A native model call has an uncertain outcome or usage.",nextStep:"Reconcile the charged model call before another model call or source edit. Retained reservations are not refunded."}
       : nativeRuntime?.inflight
@@ -284,6 +358,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
+      runTruth, verification, draft, completionBudget,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -310,17 +385,14 @@ export class EngineeringWorkerProjectionStore {
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
-      status: truth?.status ?? routeActivity?.status ?? noExecutionStatus(work),
-      activity: truth?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: truth?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
+      status: truth?.status ?? commonBudgetBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
+      activity: truth?.activity ?? commonBudgetBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
+      nextStep: truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
       readiness: truth?.readiness ?? { ready: false, reasons: nativeResult
-        ? ["Native local verification is PARTIAL. Publication, CI, independent review and owner acceptance remain unverified."]
+        ? [`Native protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },
-      currentRun: truth?.currentRun
-        ? { id: truth.currentRun.id, status: truth.currentRun.status, startedAt: truth.currentRun.startedAt,
-          generationCurrent: truth.currentRun.generation === work.generation }
-        : currentRouteRun ? {id:currentRouteRun.id,status:currentRouteRun.status,startedAt:null,
-          generationCurrent:currentRouteRun.workGeneration===work.generation} : null,
+      currentRun: runTruth.activeRun ? {id:runTruth.activeRun.id,status:runTruth.activeRun.storedStatus,
+        startedAt:null,generationCurrent:runTruth.activeRun.generationCurrent} : null,
       attention: truth?.attention ?? null,
       pendingDecisions: truth?.pendingDecisions ?? [],
       latestResult: result

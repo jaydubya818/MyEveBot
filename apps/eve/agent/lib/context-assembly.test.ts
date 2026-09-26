@@ -157,6 +157,16 @@ describe("opt-in Engineering Work context", () => {
     await expect(assembleContext(input(current.work.id))).rejects.toThrow("different owner or Agent");
   });
 
+  it("explains historical Runs from the same formatter without claiming there was no Run",async()=>{
+    const current=fixture();const run=current.state.runs.at(-1)!;run.status="failed";
+    current.state.contract.deadline="2020-01-01T00:00:00Z";
+    mocks.getExecution.mockResolvedValue(current.state);mocks.getWork.mockResolvedValue(current.work);
+    const assembled=await assembleContext(input(current.work.id));
+    expect(assembled.markdown).toContain(`Latest Run: ${run.id}`);
+    expect(assembled.markdown).toContain("Active Run: none currently confirmed executable");
+    expect(assembled.markdown).not.toContain("Last Run: none");
+  });
+
   it("keeps the optional feature off outside dogfood mode", async () => {
     const current = await mocks.getWork();
     vi.stubEnv("MYEVE_ENGINEERING_MODE", "off");
