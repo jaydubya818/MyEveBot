@@ -93,6 +93,11 @@ import type { SolutionPack } from "@/lib/solution-packs";
 import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 import { reconcileChatSession } from "@/lib/chat-session";
+import {
+  saveThreadForCurrentOwner,
+  subscribeToThreadOwnerConflicts,
+  threadHasOwnerConflict,
+} from "@/lib/thread-owner-conflict";
 
 const THREADS_KEY = "eve-web-threads";
 const SEEN_KEY = "eve-web-threads-seen";
@@ -299,20 +304,12 @@ function threadMetaBody(meta: ThreadMeta) {
 }
 
 function putThreadToServer(meta: ThreadMeta, chat: SavedChat): void {
-  void fetch(`/api/threads/${meta.id}`, {
-    method: "PUT",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ ...threadMetaBody(meta), chat }),
-  }).catch(() => undefined);
+  void saveThreadForCurrentOwner(meta.id, { ...threadMetaBody(meta), chat });
 }
 
 /** Persists rename/pin changes without re-uploading the chat payload. */
 function putThreadMetaToServer(meta: ThreadMeta): void {
-  void fetch(`/api/threads/${meta.id}`, {
-    method: "PUT",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(threadMetaBody(meta)),
-  }).catch(() => undefined);
+  void saveThreadForCurrentOwner(meta.id, threadMetaBody(meta));
 }
 
 function deleteThreadOnServer(id: string): void {
@@ -700,6 +697,10 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   );
   // Threads with a turn still running, so background threads get a dot.
   const [busyIds, setBusyIds] = useState<ReadonlySet<string>>(() => new Set());
+  const [conflictedThreadIds, setConflictedThreadIds] = useState<ReadonlySet<string>>(() => new Set());
+  useEffect(() => subscribeToThreadOwnerConflicts((id) => {
+    setConflictedThreadIds((previous) => new Set(previous).add(id));
+  }), []);
   // Unread dots: last-seen time per thread (see loadSeenMap).
   const [seenAt, setSeenAt] = useState<Record<string, number>>(loadSeenMap);
   // First run on this device (no stored seen map): the first server sync
@@ -869,7 +870,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         if (!serverThreads) return;
         const serverIds = new Set(serverThreads.map((thread) => thread.id));
         for (const thread of indexRef.current.threads) {
-          if (serverIds.has(thread.id)) continue;
+          if (serverIds.has(thread.id) || threadHasOwnerConflict(thread.id)) continue;
           const chat = loadSavedChat(thread.id);
           if (chat?.events?.length) putThreadToServer(thread, chat);
         }
@@ -1546,8 +1547,10 @@ function ChatApp({ initialView }: { initialView: MainView }) {
         </main>
       ) : activeChat && activeChat.threadId === index.activeId ? (
         <ChatThread
-          key={`${index.activeId}:${activeChat.revision ?? 0}`}
+          key={`${index.activeId}:${activeChat.revision ?? 0}:${conflictedThreadIds.has(index.activeId)}`}
           threadId={index.activeId}
+          ownerConflict={conflictedThreadIds.has(index.activeId)}
+          onNewThread={newThread}
           agentId={index.threads.find((thread) => thread.id === index.activeId)?.agentId}
           agentName={index.threads.find((thread) => thread.id === index.activeId)?.agentName ?? AGENT_NAME}
           roleId={index.threads.find((thread) => thread.id === index.activeId)?.roleId}
@@ -1571,7 +1574,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           capabilityNotice={capabilityNotice}
           onReviewSystem={showSystemStatus}
           allowResume={
-            resumeAttemptRef.current.get(index.activeId) !==
+            !conflictedThreadIds.has(index.activeId) && resumeAttemptRef.current.get(index.activeId) !==
             (activeChat.chat.events?.length ?? 0)
           }
           onResumed={(chat) => adoptResumedChat(index.activeId, chat)}
@@ -1763,6 +1766,8 @@ function SidebarThread({
 
 function ChatThread({
   threadId,
+  ownerConflict,
+  onNewThread,
   agentId,
   agentName,
   roleId,
@@ -1787,6 +1792,8 @@ function ChatThread({
   onResumed,
 }: {
   threadId: string;
+  ownerConflict: boolean;
+  onNewThread: () => void;
   agentId?: string;
   agentName: string;
   roleId?: string;
@@ -1847,7 +1854,7 @@ function ChatThread({
   // the durable session's stream and catch up live. null means no reattach;
   // an array collects the replayed/live events until the turn settles.
   const [resumedEvents, setResumedEvents] = useState<readonly HandleMessageStreamEvent[] | null>(
-    () => (allowResume && initialChat.session?.sessionId ? [] : null),
+    () => (!ownerConflict && allowResume && initialChat.session?.sessionId ? [] : null),
   );
   const resuming = resumedEvents !== null;
 
@@ -1874,7 +1881,7 @@ function ChatThread({
       ...(roleId ? { "x-myeve-role-id": roleId } : {}),
     },
     initialEvents: initialChat.events ?? [],
-    initialSession: initialChat.session,
+    initialSession: ownerConflict ? undefined : initialChat.session,
     // Ride the selected gateway model (and reasoning effort, when set) along
     // with every turn; the agent's dynamic model resolver reads them from the
     // turn's client context. clientTime gives the agent the exact minute
@@ -2078,6 +2085,7 @@ function ChatThread({
   }, [usageByTurn]);
 
   async function addFiles(files: Iterable<File>) {
+    if (ownerConflict) return;
     if (uploadInProgress.current) return;
     setUploadError(null);
     const additions: PendingAttachment[] = [];
@@ -2159,6 +2167,7 @@ function ChatThread({
   }, []);
 
   async function sendDraft() {
+    if (ownerConflict) return;
     const text = draft.trim();
     if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
     const staged = attachments;
@@ -2223,6 +2232,7 @@ function ChatThread({
   }
 
   function respondToInput(requestId: string, optionId: string) {
+    if (ownerConflict) return;
     void agent.respond([{ requestId, optionId }]);
   }
 
@@ -2232,6 +2242,7 @@ function ChatThread({
   }
 
   function retryMessage(text: string) {
+    if (ownerConflict) return;
     if (isBusy || text.length === 0) return;
     onActivity();
     void agent.send(text);
@@ -2351,14 +2362,14 @@ function ChatThread({
           onClick={onOpenSidebar}
         />
 
-        {agentId && (
+        {agentId && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
             <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-subtle">Direct Agent conversation</span></span>
             <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-brand hover:underline">View Agent</a>
           </div>
         )}
 
-        {roleId && roleName && (
+        {roleId && roleName && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
             <span><span className="font-semibold">{roleName}</span><span className="ms-2 text-xs text-kumo-subtle">Bounded on-demand Role</span></span>
             <a href="/manage/agents" className="text-xs font-medium text-kumo-brand hover:underline">Role Catalog</a>
@@ -2366,6 +2377,16 @@ function ChatThread({
         )}
 
         <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+
+        {ownerConflict && (
+          <div role="status" className="mx-10 mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">
+            <div>
+              <p className="font-medium">Saved on this device</p>
+              <p className="text-kumo-subtle">This older conversation cannot sync or continue in the current workspace. Its local copy is preserved.</p>
+            </div>
+            <Button type="button" size="sm" variant="secondary" onClick={onNewThread}>New chat</Button>
+          </div>
+        )}
 
         <MessageScrollerProvider autoScroll>
           <MessageScroller className="flex-1">
@@ -2394,6 +2415,7 @@ function ChatThread({
                   <MessageScrollerItem key={`${message.role}-${index}`} messageId={`${message.role}-${index}`}>
                     <ChatMessage
                       message={message}
+                      readOnly={ownerConflict}
                       usage={
                         message.metadata?.turnId
                           ? usageByTurn.get(message.metadata.turnId)
@@ -2410,8 +2432,8 @@ function ChatThread({
                     />
                   </MessageScrollerItem>
                 ))}
-                <TaskRunCard threadId={threadId} />
-                {showThinking && (
+                {!ownerConflict && <TaskRunCard threadId={threadId} />}
+                {!ownerConflict && showThinking && (
                   <MessageScrollerItem messageId="thinking">
                     <Marker role="status">
                       <MarkerIcon>
@@ -2421,7 +2443,7 @@ function ChatThread({
                     </Marker>
                   </MessageScrollerItem>
                 )}
-                {agent.error && (
+                {!ownerConflict && agent.error && (
                   <MessageScrollerItem messageId="error">
                     <Bubble variant="destructive">
                       <BubbleContent>
@@ -2446,7 +2468,8 @@ function ChatThread({
           </MessageScroller>
         </MessageScrollerProvider>
 
-        <footer className="relative pb-4 pt-2">
+        {!ownerConflict && (
+          <footer className="relative pb-4 pt-2">
           {paletteOpen && (
             <div
               role="listbox"
@@ -2639,7 +2662,8 @@ function ChatThread({
           <p className="h-6 pt-2 text-center text-[11px] text-kumo-subtle">
             {threadUsage.inputTokens > 0 ? `${formatUsage(threadUsage)} this thread` : "\u00A0"}
           </p>
-        </footer>
+          </footer>
+        )}
       </div>
     </main>
   );
@@ -2938,6 +2962,7 @@ function ModelPicker({
 
 function ChatMessage({
   message,
+  readOnly,
   usage,
   busy,
   isLastUser,
@@ -2949,6 +2974,7 @@ function ChatMessage({
   onRespond,
 }: {
   message: EveMessage;
+  readOnly: boolean;
   usage?: TurnUsage;
   busy: boolean;
   isLastUser: boolean;
@@ -2969,12 +2995,12 @@ function ChatMessage({
     <Message align={align}>
       <MessageContent className="gap-2">
         {message.parts.map((part, index) => (
-          <ChatPart key={index} part={part} role={message.role} onRespond={onRespond} />
+          <ChatPart key={index} part={part} role={message.role} readOnly={readOnly} onRespond={onRespond} />
         ))}
         {message.role === "assistant" && text.length > 0 && (
           <div className={cn(actionRowClass, !assistantDone && "invisible")}>
             <CopyButton text={text} />
-            {isLastAssistant && !busy && (
+            {isLastAssistant && !busy && !readOnly && (
               <Button
                 variant="ghost"
                 size="xs"
@@ -2986,7 +3012,7 @@ function ChatMessage({
                 onClick={onRegenerate}
               />
             )}
-            {!busy && (
+            {!busy && !readOnly && (
               <Button
                 variant="ghost"
                 size="xs"
@@ -3006,27 +3032,29 @@ function ChatMessage({
         {message.role === "user" && text.length > 0 && (
           <div className={cn(actionRowClass, "justify-end", busy && "invisible")}>
             <CopyButton text={text} />
-            <Button
-              variant="ghost"
-              size="xs"
-              shape="square"
-              icon={PencilSimpleIcon}
-              aria-label="Edit and resend"
-              title={
-                isLastUser
-                  ? "Edit and resend"
-                  : "Edit and resend from here (forks into a new thread)"
-              }
-              className="text-kumo-subtle"
-              onClick={() => {
-                // Editing the last message just refills the composer; editing
-                // an earlier one forks, since sessions are append-only and the
-                // messages after it shouldn't come along.
-                if (isLastUser) onEdit(text);
-                else onFork(message, false, text);
-              }}
-            />
-            {isLastUser && (
+            {!readOnly && (
+              <Button
+                variant="ghost"
+                size="xs"
+                shape="square"
+                icon={PencilSimpleIcon}
+                aria-label="Edit and resend"
+                title={
+                  isLastUser
+                    ? "Edit and resend"
+                    : "Edit and resend from here (forks into a new thread)"
+                }
+                className="text-kumo-subtle"
+                onClick={() => {
+                  // Editing the last message just refills the composer; editing
+                  // an earlier one forks, since sessions are append-only and the
+                  // messages after it shouldn't come along.
+                  if (isLastUser) onEdit(text);
+                  else onFork(message, false, text);
+                }}
+              />
+            )}
+            {isLastUser && !readOnly && (
               <Button
                 variant="ghost"
                 size="xs"
@@ -3047,10 +3075,12 @@ function ChatMessage({
 function ChatPart({
   part,
   role,
+  readOnly,
   onRespond,
 }: {
   part: EveMessagePart;
   role: "assistant" | "user";
+  readOnly: boolean;
   onRespond: (requestId: string, optionId: string) => void;
 }) {
   switch (part.type) {
@@ -3173,6 +3203,7 @@ function ChatPart({
                               ? "primary"
                               : "secondary"
                         }
+                        disabled={readOnly}
                         onClick={() => onRespond(request.requestId, option.id)}
                       >
                         {option.label}
@@ -3216,7 +3247,7 @@ function ChatPart({
                   {part.authorization.userCode}
                 </code>
               )}
-              {part.authorization?.url && (
+              {!readOnly && part.authorization?.url && (
                 <LinkButton
                   href={part.authorization.url}
                   target="_blank"

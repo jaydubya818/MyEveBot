@@ -7,7 +7,7 @@ import { FOREMAN_CAPABILITY, foremanAdapter, foremanConfig, foremanDescription, 
 export default defineTool({
   approval: ownerOnly,
   availableInSubagents: false,
-  description: "When the owner explicitly asks to file an issue and start Foreman, create and delegate one Linear issue in the configured workspace for the configured repository. Summarize only relevant chat context, requirements, acceptance criteria, and checks. Never include secrets. This starts real coding work and a draft PR, never merge or deployment. Use this dedicated tool instead of connection_search or Composio for Foreman. Return the verified issue link; claim started only when receipt.status is started. If delegated_pending, tell the owner delegation is saved but startup is not yet confirmed. Do not retry uncertain outcomes or create a replacement issue.",
+  description: "When the owner explicitly asks to file an issue and start Foreman, create and delegate one Linear issue in the configured workspace for the configured repository. Summarize only relevant chat context, requirements, acceptance criteria, and checks. Never include secrets. This starts real coding work and a draft PR, never merge or deployment. Use this dedicated tool instead of connection_search or Composio for Foreman. Return the verified issue link; claim started only when receipt.status is started. If delegated_pending, tell the owner delegation is saved but startup is not yet confirmed. If delegated_failed, report the startup failure and do not retry. Never retry an uncertain outcome or create a replacement issue.",
   inputSchema: foremanInput,
   label: { start: () => "Send issue to Foreman" },
   async execute(input,ctx) {

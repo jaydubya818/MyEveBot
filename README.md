@@ -2,11 +2,23 @@
 
 [MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Cloudflare's [Kumo](https://github.com/cloudflare/kumo) components.
 
-Each deployment serves one owner by default for a simple security boundary. Code and data remain owner-scoped and agent-neutral so a future Relay capability plane can authorize a primary agent, specialists, and additional agents without renaming product concepts or rebuilding integrations.
+Each deployment serves one owner by default for a simple security boundary. MyEve, Relay, and MyFactory keep separate authority and state: MyEve is the owner's agent, Relay is an optional governed capability plane, and MyFactory is a local software-delivery supervisor. Connecting them is explicit and does not grant an agent permission to approve, merge, or deploy its own work.
 
 ## Finding current priorities
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.
+
+## Using MyEve, Relay, and MyFactory together
+
+Start with [the combined setup guide](docs/setup/myeve-relay-myfactory.md). It gives the setup order, configuration checklist, and a test that distinguishes a queued request from a locally received WorkOrder. MyEve chat works on its own; Relay and MyFactory are separate, opt-in connections.
+
+| Component | What it owns | Where to use it |
+| --- | --- | --- |
+| MyEve / Sofie | Owner chat, Agents, goals, and requests to connected services | Your MyEve `/chat` and `/agents` pages |
+| Relay | Scoped cross-agent capabilities, grants, and approvals | Your separately deployed Relay instance |
+| MyFactory | Local WorkOrders, coding attempts, checks, and draft-PR proposals | The Mac work desk at `http://127.0.0.1:8788` |
+
+Ask Sofie to **send a WorkOrder to MyFactory** when you want the local supervised coding path. Ask her to **delegate a Linear issue to Foreman** when you want Foreman's agent session and draft PR. They are separate paths; creating a Linear issue alone does not prove either executor started.
 
 ## Filing and following a MyEve issue with Sofie
 
@@ -89,6 +101,9 @@ Core chat, goals, reviews, agents, skills, reminders, and authenticated owner sc
 | Database-backed state | `DATABASE_URL` plus applied migrations |
 | Artifacts and file sharing | Private Vercel Blob store |
 | Connected apps | Composio or Vercel Connect credentials |
+| Foreman issue delegation | Vercel Connect Linear authorization and the `FOREMAN_*` target settings |
+| MyFactory hosted intake | A configured local host, Vercel Connect Linear authorization, and the `MYFACTORY_*` settings |
+| Relay federation | Separate Relay installation, explicit owner grants, and the disabled-by-default `MYEVE_RELAY_*` settings |
 | Email | AgentMail key or a key saved from `/email` |
 | Cloud computer | Orgo key or a key saved under Manage → Computer |
 | Local Mac control | Sofie Local MCP bridge, token, and an optional Cloudflare Access pair |
@@ -125,6 +140,9 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 | `DATABASE_URL` | Neon Postgres (threads, goals, outcomes, reviews, reminders, webhooks, receipts, push) |
 | `SUPERMEMORY_API_KEY` | Long-term memory |
 | `COMPOSIO_API_KEY` | App integrations |
+| `FOREMAN_*`, `NEXT_PUBLIC_LINEAR_WORKSPACE_URL` | Optional Sofie-to-Foreman delegation and sidebar shortcut |
+| `MYFACTORY_*` | Optional signed MyFactory WorkOrder requests and receipt verification |
+| `MYEVE_RELAY_*` | Optional, separately qualified Relay federation |
 | `BLOB_READ_WRITE_TOKEN` | Private artifacts, file sharing, and skill store |
 | `AGENTMAIL_*` | Agent inbox, custom domain, and inbound email webhook |
 | `ORGO_*` | Persistent cloud desktop and computer tasks |
@@ -205,7 +223,7 @@ Sofie runs in the existing Vercel project `sofie-personal-agent`:
 | Source repository | [jaydubya818/MyEveBot](https://github.com/jaydubya818/MyEveBot) |
 | Production branch | `main` |
 | Vercel root directory | `apps/eve` |
-| Current template release | `255` |
+| Current template release | [The checked-in release number](apps/eve/.eve-template-release) |
 
 The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. Pushes to `main` create production deployments through the Vercel Git integration. Other branches create previews.
 
