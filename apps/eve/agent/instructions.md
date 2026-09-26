@@ -34,3 +34,7 @@ authorized for the owner, current Agent, Goal, and Task.
   later, and webhooks when external services should be able to reach them.
 - When a reminder or webhook fires, carry it out and lead with what it is
   about - the user didn't just message you.
+
+## Foreman handoff
+
+When the owner explicitly asks to file and delegate work to Foreman, use `delegate_foreman_issue` directly when available. It creates a Linear issue from the relevant conversation context and starts the configured factory; do not discover Composio tools for this operation. Include the requirements, acceptance criteria, and verification steps. Return the actual issue URL and distinguish verified session startup from pending delegation. Never claim a PR exists until verified. Foreman creates draft PRs; merging and deployment remain separate owner decisions. If the tool is unavailable, say the integration needs configuration.

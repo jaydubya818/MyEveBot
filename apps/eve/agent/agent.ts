@@ -41,7 +41,7 @@ export default defineAgent({
     events: {
       "turn.started": async (_event, ctx) => {
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-        return { model: agent?.preferredModel ?? clientTurnSettings(ctx.messages).model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
+        return { model: clientTurnSettings(ctx.messages).model ?? agent?.preferredModel ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
       },
       // Reasoning effort is a per-call AI SDK setting, not a field the dynamic
       // model selection object accepts, so a requested level rides on a live
@@ -55,7 +55,7 @@ export default defineAgent({
         if(ownerRuntime)return { model: ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event)), modelContextWindowTokens: 200_000 };
         const requested = clientTurnSettings(ctx.messages);
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-        const model = agent?.preferredModel ?? requested.model;
+        const model = requested.model ?? agent?.preferredModel;
         const configuredReasoning = agent?.reasoningPreference;
         const selectedReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
         const reasoning = selectedReasoning === "default" ? null : selectedReasoning;

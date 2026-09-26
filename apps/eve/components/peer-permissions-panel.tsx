@@ -63,7 +63,7 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
       <h2 id="peer-permissions-title" className="font-semibold">Peer permissions</h2>
       <button type="button" className="rounded-md border px-3 py-2 text-sm" disabled={busy} onClick={() => edit()}>Add relationship</button>
     </div>
-    <p className="text-sm text-kumo-subtle">Choose a peer and scoped capabilities. Messaging uses the configured destination automatically. Private Knowledge is never shared. Every consequential outbound action still needs exact approval.</p>
+    <p className="text-sm text-kumo-subtle">Choose a peer and scoped capabilities. Messaging uses the configured destination automatically. Private Knowledge is never shared. Outbound messages require exact approval, except for bounded replies you enable separately.</p>
     {error && <p role="alert" className="rounded-md border p-3 text-sm">{error}</p>}
     {notice && <p role="status" className="text-sm">{notice}</p>}
     {!model && !error && <p role="status">Loading peer permissions…</p>}

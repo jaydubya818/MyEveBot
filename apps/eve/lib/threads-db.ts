@@ -167,7 +167,7 @@ export async function upsertThread(
 ): Promise<void> {
   await ensureTable();
   await assertThreadOwner(ownerId, id);
-  await sql()`
+  const rows = await sql()`
     INSERT INTO web_chat_threads (id, owner_id, agent_id, role_id, title, updated_at, pinned, renamed, origin, chat)
     VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.roleId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
             ${meta.origin ?? "web"}, ${JSON.stringify(chat)}::jsonb)
@@ -180,14 +180,19 @@ export async function upsertThread(
           agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id),
           role_id = coalesce(web_chat_threads.role_id, EXCLUDED.role_id)
       WHERE web_chat_threads.owner_id = EXCLUDED.owner_id
+    RETURNING id
   `;
+  // The preflight owner check gives a clear error for the usual case. The
+  // conflict predicate is still the final guard if another owner inserts the
+  // same id between that check and this statement.
+  if (rows.length === 0) throw new ThreadOwnerConflictError();
 }
 
 /** Updates thread metadata (rename, pin) without touching the chat payload. */
 export async function upsertThreadMeta(ownerId: string, id: string, meta: ThreadMetaRow): Promise<void> {
   await ensureTable();
   await assertThreadOwner(ownerId, id);
-  await sql()`
+  const rows = await sql()`
     INSERT INTO web_chat_threads (id, owner_id, agent_id, role_id, title, updated_at, pinned, renamed, origin)
     VALUES (${id}, ${ownerId}, ${meta.agentId ?? null}, ${meta.roleId ?? null}, ${meta.title}, ${meta.updatedAt}, ${meta.pinned}, ${meta.renamed},
             ${meta.origin ?? "web"})
@@ -199,7 +204,9 @@ export async function upsertThreadMeta(ownerId: string, id: string, meta: Thread
           agent_id = coalesce(web_chat_threads.agent_id, EXCLUDED.agent_id),
           role_id = coalesce(web_chat_threads.role_id, EXCLUDED.role_id)
       WHERE web_chat_threads.owner_id = EXCLUDED.owner_id
+    RETURNING id
   `;
+  if (rows.length === 0) throw new ThreadOwnerConflictError();
 }
 
 export async function deleteThread(ownerId: string, id: string): Promise<void> {
@@ -207,7 +214,15 @@ export async function deleteThread(ownerId: string, id: string): Promise<void> {
   await sql()`DELETE FROM web_chat_threads WHERE owner_id=${ownerId} AND id = ${id}`;
 }
 
-async function assertThreadOwner(ownerId: string, id: string): Promise<void> {
+export class ThreadOwnerConflictError extends Error {
+  constructor() {
+    super("Thread belongs to another owner.");
+    this.name = "ThreadOwnerConflictError";
+  }
+}
+
+export async function assertThreadOwner(ownerId: string, id: string): Promise<void> {
+  await ensureTable();
   const rows = await sql()`SELECT owner_id FROM web_chat_threads WHERE id=${id} LIMIT 1`;
-  if (rows[0] && rows[0].owner_id !== ownerId) throw new Error("Thread belongs to another owner.");
+  if (rows[0] && rows[0].owner_id !== ownerId) throw new ThreadOwnerConflictError();
 }

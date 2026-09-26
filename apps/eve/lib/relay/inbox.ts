@@ -1,5 +1,6 @@
 import { answerPeerMessage } from "./message-reply.ts";
 import { messageReplySettings } from "./message-reply-settings.ts";
+import { currentPeerPermission } from "./peer-permissions.ts";
 import { getAgent } from "../agents.ts";
 import { FederationStore } from "./store.ts";
 import { RelayClient, relayOrigin } from "./client.ts";
@@ -41,13 +42,58 @@ async function acknowledge(
   );
   return result;
 }
-async function processRequest(store: FederationStore, envelope: Envelope) {
+type PeerMessageAnswerer = typeof answerPeerMessage;
+function isReplyMessage(envelope: Envelope) {
+  if (envelope.capability !== "message.send") return false;
+  const request = incomingSubmission(envelope);
+  return request.capability === "message.send" && Boolean(request.payload.replyTo);
+}
+async function sendCorrelatedReply(
+  store: FederationStore,
+  envelope: Envelope,
+  body: string,
+  expectedSettings: Awaited<ReturnType<typeof messageReplySettings>>,
+) {
+  if (envelope.capability !== "message.send" || !envelope.conversationId || !body.trim()) return;
+  // An owner-enabled reply is scoped to this received request and cannot
+  // recursively answer another reply. Ordinary messages still use exact Action approval.
+  if (isReplyMessage(envelope)) return;
+  const connection = await store.connection();
+  const target = `relay://${envelope.caller.ownerId}/${envelope.caller.agentId}`;
+  const permission = await currentPeerPermission(store, connection, target, "message.send", envelope.resource);
+  if (permission.policy === "DENY") throw new Error("The peer is not configured for replies.");
+  const input = submissionSchema.parse({
+    target, capability: "message.send", resource: envelope.resource,
+    conversationId: envelope.conversationId,
+    idempotencyKey: `reply-${envelope.id}`,
+    expiresAt: new Date(Math.min(Date.now() + 10 * 60_000, Date.parse(envelope.expiresAt))).toISOString(),
+    payload: { body, replyTo: envelope.id },
+  });
+  const settings = await messageReplySettings(store);
+  if (!settings.enabled || digest(settings) !== digest(expectedSettings))
+    throw new Error("Automated reply settings changed after the answer was prepared.");
+  const submitted = await new RelayClient(connection.credential).command({ operation: "submit", input });
+  const outgoing = { ...input, id: submitted.requestId,
+    caller: { ownerId: connection.ownerId, agentId: connection.agentId },
+    target: { address: input.target }, authorizationContext: { grantId: "outgoing" } };
+  await store.database.query(`INSERT INTO myeve_relay_requests(owner_id,request_id,direction,capability,conversation_id,sender_owner_id,sender_agent_id,envelope_hash,envelope_encrypted,expires_at,state)
+    VALUES($1,$2,'outgoing',$3,$4,$5,$6,$7,$8,$9,'accepted') ON CONFLICT(owner_id,request_id) DO NOTHING`,
+    [store.ownerId, submitted.requestId, input.capability, input.conversationId, connection.ownerId,
+      connection.agentId, requestDigest(outgoing as Envelope), encryptSecret(store.ownerId, input), input.expiresAt]);
+  await store.activity("message-reply-submitted", envelope.id, { replyRequestId: submitted.requestId, peer: target });
+}
+async function processRequest(
+  store: FederationStore,
+  envelope: Envelope,
+  answerMessage: PeerMessageAnswerer = answerPeerMessage,
+) {
   const started = await store.begin(envelope.id);
   if (!started) return { requestId: envelope.id, state: "already_claimed" };
   try {
     let response: ResponseBody;
+    let replySettings: Awaited<ReturnType<typeof messageReplySettings>> | undefined;
     if (envelope.capability !== "work.request") {
-      const replySettings = envelope.capability === "message.send" ? await messageReplySettings(store) : undefined;
+      replySettings = envelope.capability === "message.send" ? await messageReplySettings(store) : undefined;
       response = await executeIncomingPermission(store, envelope, async revalidate => {
         const connection = await store.connection();
         // Relay rechecks the sender's current authority before any local effect.
@@ -55,10 +101,10 @@ async function processRequest(store: FederationStore, envelope: Envelope) {
         await revalidate();
         if (envelope.capability === "knowledge.query") return answerPublished(envelope, store.publishedReader());
         if (envelope.capability === "artifact.share") return receiveArtifact(store, envelope);
-        if (!replySettings?.enabled) return { acknowledged: true };
+        if (!replySettings?.enabled || isReplyMessage(envelope)) return { acknowledged: true };
         const agent = await getAgent(store.ownerId, connection.localAgentId, store.database);
         if (!agent) throw new Error("Receiving Agent unavailable.");
-        const answer = await answerPeerMessage({ envelope, settings: replySettings,
+        const answer = await answerMessage({ envelope, settings: replySettings,
           modelId: agent.preferredModel ?? "anthropic/claude-sonnet-5", costLimit: agent.limits.maxEstimatedCostUsd, revalidate });
         await revalidate();
         return answer;
@@ -91,8 +137,21 @@ async function processRequest(store: FederationStore, envelope: Envelope) {
           : "denied";
     // Durable local result precedes Relay acknowledgement, so failed network
     // delivery cannot run a model, local action, or artifact transfer twice.
-    await store.finish(envelope.id, state, response, state);
-    await acknowledge(store, envelope, response);
+    const reply = envelope.capability === "message.send" && response.status === "COMPLETED"
+      ? (response.result as { reply?: { body: string } })?.reply : undefined;
+    const relayResponse = reply
+      ? { status: "COMPLETED" as const, result: { acknowledged: true as const } }
+      : response;
+    await store.finish(envelope.id, state, relayResponse, state);
+    await acknowledge(store, envelope, relayResponse);
+    if (reply) {
+      try { await sendCorrelatedReply(store, envelope, reply.body, replySettings!); }
+      catch (error) {
+        await store.activity("message-reply-send-failed", envelope.id, {
+          reason: error instanceof Error ? error.message : "Unknown reply send failure",
+        });
+      }
+    }
     if (
       envelope.capability === "knowledge.query" &&
       response.status === "COMPLETED"
@@ -128,14 +187,19 @@ async function processRequest(store: FederationStore, envelope: Envelope) {
     );
   }
 }
-export async function receiveDelivery(store: FederationStore, token: string) {
+export async function receiveDelivery(
+  store: FederationStore,
+  token: string,
+  dependencies: { answerPeerMessage?: PeerMessageAnswerer } = {},
+) {
   const connection = await store.connection();
   const envelope = verifyEnvelope(token, connection);
   const { fresh, row } = await store.claim(envelope);
   if (!fresh) {
     // A claim can survive a crash before the execution CAS. Only untouched
     // incoming claims may resume; processing claims remain fenced.
-    if (row.state === "incoming") return processRequest(store, envelope);
+    if (row.state === "incoming")
+      return processRequest(store, envelope, dependencies.answerPeerMessage);
     if (row.result_encrypted) {
       const response = decryptSecret<ResponseBody>(
         store.ownerId,
@@ -145,7 +209,7 @@ export async function receiveDelivery(store: FederationStore, token: string) {
     }
     return { requestId: envelope.id, replay: true, state: row.state };
   }
-  return processRequest(store, envelope);
+  return processRequest(store, envelope, dependencies.answerPeerMessage);
 }
 export async function pollRelay(store: FederationStore) {
   await store.purge();

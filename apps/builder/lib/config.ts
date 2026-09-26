@@ -68,6 +68,9 @@ export interface AgentConfig {
     supermemoryApiKey?: string;
     composioApiKey?: string;
   };
+  /** Optional first-beta Relay pairing. The owner supplies a fingerprint
+   * obtained independently from the Relay operator. */
+  relay?: { fingerprint: string } | null;
 }
 
 export interface DeployTarget {
@@ -153,6 +156,9 @@ export function validateConfig(config: AgentConfig): string | null {
     if (config.telegram.allowedUserIds.trim().length === 0) {
       return "Telegram needs at least one allowed user id";
     }
+  }
+  if (config.relay != null && !/^[a-f0-9]{64}$/i.test(config.relay.fingerprint)) {
+    return "Relay needs the 64-character SHA-256 signing-key fingerprint from the operator";
   }
   return null;
 }

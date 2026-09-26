@@ -5,7 +5,7 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f19ca5c5aa080247f647673162b040f35ae62082a498f448abbe4c23f99ec5b4"
+      "sha256": "97f1512d4b78ebef4287189535cb6c8e8e48508d8d654932418a85e9f8b0da77"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -56,7 +56,7 @@
     "agent/connections/composio.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "158f6c6c6bc32bbdafdd37f1688a5ca7162d994879b5f331c19b700b029b8875",
+      "sha256": "113c4eb5b7777f86fd20fcecd2123361df57a628543b1d8c6afc5a24af796eb5",
       "disposition": "blocked"
     },
     "agent/connections/local-computer.ts": {
@@ -128,7 +128,7 @@
     "agent/instructions/computer-runtime.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "fefbe6cb5119655e11fec2afa3c4734bf1c79383ba295a9a7227a087a7246d48"
+      "sha256": "8937a397fb6d0d4c28517a2c062e7088515d8dc591134727012fcb52404e2eda"
     },
     "agent/instructions/computer.ts": {
       "classification": "INTERNAL",
@@ -1876,7 +1876,7 @@
     "app/api/threads/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0f1b0133883dc3932badb0ba949560244351fa0a8672c4309b57fd849cea6d08"
+      "sha256": "975c1f0d0a10318ff1e67c6e03cf756ab96a6bb50ad68fd7d4aa9d58ac4eb57e"
     },
     "app/api/threads/route.ts": {
       "classification": "INTERNAL",
@@ -1915,8 +1915,8 @@
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Static observation import keeps authored modules in one bundle; provider inspection remains call-time and read-only.",
-      "sha256": "ea85601f1f47f1d4d1b0f7ceafaaf8967043a94ee262f137fe04c3e6cbf1aa92"
+      "reason": "Authenticated owner recovery CAS and call-time provider inspection remain read-only; Foreman reconciliation tests only bounded Linear list-marker variants against the exact durable action hash and saved target. No missing or mismatched provider evidence is treated as proof of non-execution.",
+      "sha256": "7070eae51732762be8514582218ac6762dfdc3b2d8886d907004acf86954d08f"
     },
     "lib/activation.ts": {
       "classification": "INTERNAL",
@@ -2016,7 +2016,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b8d3f6153f74ddba0c4b650ba79776b59697c1827b12e2fa16edf4747e5d7ee0"
+      "sha256": "5e59217cf52eac4be9c2cd660c3b9177ae7bd43df2d3742a453019a75bb6ee66"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2425,8 +2425,8 @@
     },
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
-      "sha256": "b8acd23fd1675b1744252c8f26f21797cd779d7e4f33ea980c94aa67b7b4b985"
+      "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action. Owner-enabled correlated message replies require current reciprocal peer permission, stable reply settings and a Relay grant; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
+      "sha256": "f70cdcff21597a9161ebb75f25f9ba7d6ce224cdd6abe2439728da8feb46228b"
     },
     "lib/relay/ingress.ts": {
       "classification": "INTERNAL",
@@ -2603,6 +2603,11 @@
       "reason": "Types, schemas and pure validation helpers; no provider operation.",
       "sha256": "a2aed290680411ef85372657f747e36d56be488ec515836e9f5c88c990df0d84"
     },
+    "lib/thread-owner-conflict.ts": {
+      "classification": "INTERNAL",
+      "reason": "Client helper suppresses repeat uploads only after an explicit authenticated thread-owner conflict; it does not reassign stored data or invoke providers.",
+      "sha256": "279a736ce844106f140a4bdb4ca66b531c9e2f28c3f54f364304ad3eab2f94a9"
+    },
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
@@ -2611,7 +2616,7 @@
     "lib/threads-db.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a69bfbba85bd60f89c36bdc7fcabcdd7cde55c2bf61b73b7b2645b9ca66eed60"
+      "sha256": "dba323c10ddd2deed3dae9ebf4fcb3714e58c4318315edd4d6cece29b282047d"
     },
     "lib/utils.ts": {
       "classification": "INTERNAL",
@@ -2736,8 +2741,8 @@
     },
     "lib/relay/message-reply.ts": {
       "classification": "INTERNAL",
-      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation.",
-      "sha256": "8e9b949b6982ef68e3bef7026641a4a9a5ac52da277e938cb1428ced5a5ae09d"
+      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation. Free-only mode pins a zero-priced model and provider, verifies catalog rates and actual gateway cost, and denies paid fallback.",
+      "sha256": "ebc0b77b5f3eb1bed880a695ec9bcaa821ae92a924064e752ff9df787d72f574"
     },
     "lib/chat-session.ts": {
       "classification": "INTERNAL",
@@ -2824,8 +2829,8 @@
     },
     "agent/instrumentation/telemetry.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2309a05829581a85ebded68084bc2d649a46e141015a78226680e0c3d0fbc808"
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "2218f372e69946547ae511c9469a3031aca691d3e0ad81f97f6e9d0a0a3a502b"
     },
     "agent/tools/ask_question.ts": {
       "classification": "INTERNAL",
@@ -2887,11 +2892,6 @@
       "reason": "Immutable release gate blocks dispatch/reconciliation/cancellation schedule; at-most-once canonical dispatch; Eve 0.66 signed exact-session cancel endpoint (accepted must match session; no_active_turn never fabricates one); actual runtime qualification incomplete.",
       "sha256": "1397c8d7be32a8a759c35d038fb93f61c10d09ee1acc295b6e3617d4479a0ca2"
     },
-    "lib/relay/owner/approval-budget.ts": {
-      "classification": "ENFORCED",
-      "reason": "One-time restoration of remaining canonical Run active time from the original approval timestamp; approval retries cannot refresh the budget; real PostgreSQL continuation test.",
-      "sha256": "94a514adb458170335cb638302465605cc4778b65bb4609fcaf6b86297903076"
-    },
     "lib/relay/owner/model-budget.ts": {
       "classification": "INTERNAL",
       "reason": "Canonical Run model reservations and exactly-once usage settlement; unknown calls retain reservations across retries, restart and cancellation.",
@@ -2906,6 +2906,64 @@
       "classification": "READ_ONLY",
       "reason": "Reuses Eve public-network DNS and redirect guards; rechecks canonical owner Run and local web.read capability immediately before fetch.",
       "sha256": "9e68e5f82ae65e8971768be176500b7c886bdc5175bfd8be66b5c48d6939aa64"
+    },
+    "agent/lib/foreman-description.ts": {
+      "classification": "NOT_APPLICABLE",
+      "sha256": "4d83ecddddc7096f18786886da7c459a0245aa96d93585ebdc290afd66d11fb5",
+      "reason": "Pure Markdown comparison and bounded list-marker and spacing reconstruction; no provider calls or writes."
+    },
+    "agent/lib/foreman.ts": {
+      "classification": "ENFORCED",
+      "sha256": "7c45788984101dbe4f95f4e6206afa84c080545679c1d8bd4f89c1f2f74ad96d",
+      "reason": "Fixed configured Linear workspace/team/app identity is resolved before gateway authority; two one-use authority checks precede the sole issueCreate mutation. Deterministic issue IDs prevent duplicate creates; bounded readback verifies equivalent Markdown content, delegate and workspace while distinguishing pending, started and failed sessions. Tests cover deny, delayed readback and field mismatches."
+    },
+    "agent/tools/delegate_foreman_issue.ts": {
+      "classification": "ENFORCED",
+      "sha256": "f346ba4cc1e092685f22258f0d87fe63a4719abf352a35fe21ffb88ee58da706",
+      "reason": "Primary owner-chat only; exact issue payload enters canonical Action Gateway and guarded Linear adapter. No broad connector enablement, merge or deployment authority.",
+      "disposition": "gateway"
+    },
+    "agent/instrumentation/braintrust.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "2e45aeec72da5c2d4006c3a1eb3e9030cb09b106c856289a7d0a5c55d0cb9ded"
+    },
+    "agent/instrumentation/otel.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "79a38b365ef8151f3e91c45a8c2e20684fd8a9474196e237be3982cd827bc8b9"
+    },
+    "agent/instrumentation/otlp.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "ac4f4e85ea6979f690ef6c9cabe7aacb33644ccff8621d041f8169d90a64b9c4"
+    },
+    "agent/instrumentation/raindrop.ts": {
+      "classification": "INTERNAL",
+      "reason": "Declares existing telemetry destinations under Eve-owned tracing; retains privacy ceiling and configured endpoints. No owner action execution. Production startup and telemetry privacy regression tests cover this integration.",
+      "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2"
+    },
+    "agent/tools/create_factory_work_order.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "disposition": "gateway",
+      "sha256": "cceac2e5595bf3306a40baf19b01d2667f3a90fce1092db79923180a2b3b3aa7"
+    },
+    "agent/tools/get_factory_work_order.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "disposition": "gateway",
+      "sha256": "4b28255d2fcc0ccfa1c834ec00764e8808bf23f93fbb57cf230343ca946ddc95"
+    },
+    "agent/lib/myfactory.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+    },
+    "lib/relay/owner/approval-budget.ts": {
+      "classification": "ENFORCED",
+      "reason": "One-time restoration of remaining canonical Run active time from the original approval timestamp; approval retries cannot refresh the budget; real PostgreSQL continuation test.",
+      "sha256": "94a514adb458170335cb638302465605cc4778b65bb4609fcaf6b86297903076"
     },
     "lib/relay/owner/qualification-email.ts": {
       "classification": "ENFORCED",
