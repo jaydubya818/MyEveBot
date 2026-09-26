@@ -1,12 +1,13 @@
 /** Operator-only first-beta provisioning. Never expose this command as an HTTP route. */
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFile, stat } from "node:fs/promises";
-import { homedir } from "node:os";
+import { chmod, mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { homedir, tmpdir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
+import { parseEnv } from "node:util";
 
 import { buildEnv } from "../lib/deploy-env";
-import { assembleDeployment, templateInfo } from "../lib/assemble";
+import { assembleDeployment, templateInfo, templateRoot } from "../lib/assemble";
 import { requiredKeys, validateConfig, type AgentConfig } from "../lib/config";
 import { reserveEnvironment, updateEnvironment, type ManagedEnvironment, type ManagedEnvironmentRegistry } from "../lib/managed-environment";
 import { readManagedRegistry, withManagedRegistry } from "../lib/managed-registry-file";
@@ -132,6 +133,32 @@ async function ownerReadiness(origin: string, password: string): Promise<{ ready
   return { ready: report.overall === "ready" && missing.length === 0, checks: missing };
 }
 
+async function migrateDedicatedDatabase(environment: ManagedEnvironment, teamSlug: string): Promise<void> {
+  const directory = await mkdtemp(join(tmpdir(), "myeve-managed-env-"));
+  const filename = join(directory, "production.env");
+  try {
+    const pulled = spawnSync("npx", ["--yes", "vercel@60.1.3", "env", "pull", filename,
+      "--environment", "production", "--project", environment.projectId!,
+      "--scope", teamSlug, "--yes"], { encoding: "utf8", timeout: 120_000 });
+    if (pulled.status !== 0) throw new Error("Could not retrieve the dedicated Eve database environment.");
+    await chmod(filename, 0o600);
+    const vars = parseEnv(await readFile(filename, "utf8"));
+    if (vars.MYEVE_MANAGED_ENVIRONMENT_ID !== environment.id ||
+        vars.EVE_PROJECT_NAME !== environment.projectName ||
+        vars.MYEVE_OWNER_ID !== environment.ownerId || !vars.DATABASE_URL) {
+      throw new Error("Dedicated database environment identity did not match the registry.");
+    }
+    const root = await templateRoot();
+    const migrated = spawnSync(process.execPath, ["scripts/migrate-database.ts"], {
+      cwd: root, encoding: "utf8", timeout: 300_000,
+      env: { ...process.env, DATABASE_URL: vars.DATABASE_URL },
+    });
+    if (migrated.status !== 0) throw new Error("Managed Eve database migration failed; inspect the dedicated database before retry.");
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
 function current(registry: ManagedEnvironmentRegistry, id: string): ManagedEnvironment {
   const environment = registry.environments.find((item) => item.id === id);
   if (!environment) throw new Error("Managed environment disappeared from registry.");
@@ -236,7 +263,7 @@ async function provision(path: string): Promise<void> {
       const deploymentId = environment.deploymentId!;
       const projectName = environment.projectName;
       let deployment = await getDeploymentStatus(token, input.teamId, deploymentId);
-      for (let attempt = 0; attempt < 40 && deployment.readyState !== "READY"; attempt++) {
+      for (let attempt = 0; attempt < 180 && deployment.readyState !== "READY"; attempt++) {
         if (deployment.readyState === "ERROR" || deployment.readyState === "CANCELED") {
           throw new Error("Managed Eve deployment failed; inspect Vercel build logs.");
         }
@@ -244,6 +271,7 @@ async function provision(path: string): Promise<void> {
         deployment = await getDeploymentStatus(token, input.teamId, deploymentId);
       }
       if (deployment.readyState !== "READY") throw new Error("Managed Eve deployment did not become ready.");
+      await migrateDedicatedDatabase(environment, input.teamSlug);
       const alias = deployment.aliases.find((value) => value === `${projectName}.vercel.app`) ??
         [...deployment.aliases].sort((a, b) => a.length - b.length)[0];
       if (!alias) throw new Error("Managed Eve has no production alias.");
