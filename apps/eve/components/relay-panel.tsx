@@ -458,7 +458,7 @@ export function RelayPanel() {
           </section>
           <section className={section}>
             <h2 className="font-semibold">Replies to peer messages</h2>
-            <p className="text-sm text-kumo-subtle">Allow your Agent to answer authorized peer messages using only the profile below and the incoming message. Private Knowledge, memory, chat history, and tools are excluded. Each message permits one model call, at most 600 output tokens and a conservative $0.25 estimated cost limit. Existing peer permissions and approvals still apply. Model authentication must be configured in the receiving service.</p>
+            <p className="text-sm text-kumo-subtle">Allow one bounded reply to an authorized incoming message. Replies use only the profile below and that message; private Knowledge, memory, chat history, and tools are excluded. Enabling this permits a reply without a separate Action approval, but requires an exact peer permission and a reciprocal Relay message grant. Replies to replies are not automatic. Each message permits one model call, at most 600 output tokens and a conservative $0.25 estimated cost limit. Model authentication must be configured in the receiving service.</p>
             <form key={JSON.stringify(data.messageReplies)} className="grid gap-2" onSubmit={(e) => {
               const f = form(e); void act("message-replies", { enabled: f.enabled === "on", publicProfile: f.publicProfile });
             }}>
