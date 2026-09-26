@@ -7,7 +7,7 @@
     "dev": "next dev --port 3100",
     "start": "next start",
     "typecheck": "tsc && tsx scripts/check-manifest.ts",
-    "test": "node --import tsx --test lib/relay-trust.test.ts"
+    "test": "node --import tsx --test lib/*.test.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
