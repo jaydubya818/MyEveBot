@@ -224,7 +224,7 @@ async function provision(path: string): Promise<void> {
       const files = await assembleDeployment(input.config);
       const deployment = await createDeployment(token, input.teamId, environment.projectName, files);
       registry = updateEnvironment(registry, id, {
-        state: "deployed", deploymentId: deployment.id, templateSha: input.sourceSha,
+        state: "deployed", deploymentId: deployment.id, templateSha: input.sourceSha, error: null,
       });
       await checkpoint(registry);
     }
@@ -267,9 +267,37 @@ async function provision(path: string): Promise<void> {
   });
 }
 
+async function recoverFailedDeployment(id: string, expectedDeploymentId: string): Promise<void> {
+  const token = await vercelToken();
+  const teamId = requiredEnvironment("MYEVE_CONTROL_TEAM_ID");
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    const environment = current(registry, id);
+    if (environment.state !== "deployed" || environment.deploymentId !== expectedDeploymentId ||
+        !environment.projectId) throw new Error("Recovery requires the exact failed deployment and project.");
+    const marker = await managedProjectMarker(token, teamId, environment.projectId);
+    if (marker !== id) throw new Error("Project no longer belongs to this managed environment.");
+    const deployment = await getDeploymentStatus(token, teamId, expectedDeploymentId);
+    if (deployment.readyState !== "ERROR" && deployment.readyState !== "CANCELED") {
+      throw new Error("Only a confirmed failed deployment can be recovered.");
+    }
+    registry = updateEnvironment(registry, id, { state: "failed", error: `Deployment ${expectedDeploymentId} ${deployment.readyState}` });
+    await checkpoint(registry);
+    registry = updateEnvironment(registry, id, {
+      state: "configured", deploymentId: null, templateSha: null,
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: id, state: "configured", failedDeploymentId: expectedDeploymentId }));
+    return { registry, result: undefined };
+  });
+}
+
 async function main(): Promise<void> {
   const [command, argument] = process.argv.slice(2);
   if (command === "provision" && argument) return provision(argument);
+  if (command === "recover-failed-deployment" && argument && process.argv[4]) {
+    return recoverFailedDeployment(argument, process.argv[4]);
+  }
   if (command === "status") {
     const registry = await readManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"));
     console.log(JSON.stringify(registry.environments.map((environment) => ({
@@ -279,7 +307,7 @@ async function main(): Promise<void> {
     })), null, 2));
     return;
   }
-  throw new Error("Usage: node --import tsx scripts/managed-eve.ts provision /absolute/private/config.json | status");
+  throw new Error("Usage: managed-eve.ts provision /absolute/private/config.json | status | recover-failed-deployment ENVIRONMENT_ID DEPLOYMENT_ID");
 }
 
 main().catch((error: unknown) => {
