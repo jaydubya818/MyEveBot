@@ -35,6 +35,8 @@ Never put the operator token, Vercel token, invite encryption key, or tester pas
 5. `POST /api/managed/environments/{id}/health` with the admin bearer token. This checks the exact recorded project ID, the budget and spend record, and the Eve health endpoint. Investigate any non-200 result before inviting another tester.
 6. The owner signs in, opens Manage → Your data, downloads the archive, and retains it. The operator checks the archive and records its filename, byte size, SHA-256, and owner confirmation through `POST /api/managed/environments/{id}/export`. The archive is never uploaded to the control plane.
 
+If the invitation was sent to the wrong person or may have leaked before claim, send `DELETE /api/managed/invites` with the admin bearer token and `{ "id": "<returned-invitation-id>" }`. The link then stops resolving and cannot be claimed. A claimed invitation cannot be revoked; pause or retire its environment through the governed lifecycle instead.
+
 `POST /api/managed/environments/{id}/lifecycle` with `{ "action": "pause" }` or `{ "action": "resume" }` operates only on the project ID bound to that managed environment. Resume requires the paused state. A project-state API error requires manual inspection before retrying.
 
 `POST /api/managed/environments/{id}/upgrade` upgrades only a ready, builder-owned project whose Vercel project ID matches the environment record. It preserves Eve secrets and storage connections. The response is a deployment ID, not proof of a healthy upgrade. Poll `POST /api/managed/environments/{id}/deployment` until the new deployment passes the Eve health check and returns `ready`. If the upgrade route reports an uncertain state, inspect the exact project and deployment in Vercel before retrying.

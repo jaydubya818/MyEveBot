@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { after, test } from "node:test";
 import { managedDb } from "./db";
-import { claimManagedInvite, issueManagedInvite, lookupManagedInvite } from "./invites";
+import { claimManagedInvite, issueManagedInvite, lookupManagedInvite, revokeManagedInvite } from "./invites";
 
 const enabled = Boolean(process.env.MANAGED_EVE_TEST_DATABASE_URL);
 
@@ -45,6 +45,12 @@ test("a disposable database enforces invite reservations and single use", { skip
   );
   const replacement = await invite(expiringEmail);
   assert.equal(replacement.email, expiringEmail);
+  assert.equal(await revokeManagedInvite(replacement.id), true);
+  assert.equal(await revokeManagedInvite(replacement.id), false);
+  const revokedToken = new URL(replacement.url).searchParams.get("invite")!;
+  assert.equal(await lookupManagedInvite(revokedToken), null);
+  await assert.rejects(claimManagedInvite({ token: revokedToken, ownerName: "Owner", agentName: "Eve" }), /already used/);
+  assert.equal(await revokeManagedInvite(first.id), false);
 });
 
 after(async () => {

@@ -3,6 +3,7 @@ import { inTransaction, managedDb } from "./db";
 import { managedProjectName, normalizeInviteEmail } from "./state";
 
 export interface ManagedInvite {
+  id: string;
   url: string;
   email: string;
   expiresAt: string;
@@ -83,7 +84,19 @@ export async function issueManagedInvite(input: {
       [id, email, hashToken(token), encryptedRelayInvite, input.monthlyModelBudgetUsd, expiresAt],
     );
   });
-  return { url: `${new URL(input.builderOrigin).origin}/join?invite=${token}`, email, expiresAt };
+  return { id, url: `${new URL(input.builderOrigin).origin}/join?invite=${token}`, email, expiresAt };
+}
+
+export async function revokeManagedInvite(id: string): Promise<boolean> {
+  if (!/^inv_[a-f0-9]{24}$/.test(id)) return false;
+  return inTransaction(async (client) => {
+    await client.query("SELECT pg_advisory_xact_lock(670101)");
+    const result = await client.query(
+      "UPDATE managed_beta_invites SET revoked_at=now() WHERE id=$1 AND claimed_at IS NULL AND revoked_at IS NULL RETURNING id",
+      [id],
+    );
+    return result.rowCount === 1;
+  });
 }
 
 export async function lookupManagedInvite(token: string): Promise<{
