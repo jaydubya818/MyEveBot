@@ -1379,6 +1379,20 @@ export function BuilderWizard() {
                         : "registration failed — check the bot token"}
                     </li>
                   )}
+                  {relayEnabled && (
+                    <li>
+                      • Relay key pinned. After accepting your separate Relay invite, open{" "}
+                      <a
+                        href={`https://${phase.url}/manage/relay`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="underline hover:text-gray-12"
+                      >
+                        Manage → Relay
+                      </a>{" "}
+                      and connect with your invited account. Sharing stays private until you approve exact access.
+                    </li>
+                  )}
                   <li>• Web access uses the password you chose during setup.</li>
                   <li>• Vercel Deployment Protection can add a second access gate.</li>
                 </ul>
