@@ -526,6 +526,15 @@ export async function latestProductionDeploymentId(
   return body.deployments?.[0]?.uid ?? null;
 }
 
+/** Any deployment, including failed and preview deployments, blocks empty-project recovery. */
+export async function projectHasDeployments(token: string, teamId: string | null, projectId: string): Promise<boolean> {
+  const body = await api<{ deployments?: { uid: string }[] }>(
+    `/v6/deployments?projectId=${encodeURIComponent(projectId)}&limit=1`,
+    { token, teamId, stage: "project" },
+  );
+  return (body.deployments?.length ?? 0) > 0;
+}
+
 interface DeploymentFileTreeEntry {
   name: string;
   type: string;

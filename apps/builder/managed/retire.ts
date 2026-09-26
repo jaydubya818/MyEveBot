@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { getProject, listStores, type StorageStore } from "@/lib/vercel-api";
+import { getProject, listStores, projectHasDeployments, type StorageStore } from "@/lib/vercel-api";
 import { managedDb } from "./db";
 import { transitionEnvironment } from "./environments";
 import { managedProjectName } from "./state";
@@ -129,6 +129,52 @@ export async function retireManagedEve(input: {
   if (await getProject(token, teamId, row.project_name)) throw new Error("Project deletion could not be verified");
   if (!row.project_deleted_at) await recordStep(row.id, "project_deleted_at", "project_deletion_verified");
   await transitionEnvironment({ id: row.id, from: "retiring", to: "retired", kind: "retirement_complete" });
+  await managedDb().query("UPDATE managed_eve_environments SET retired_at=now(),updated_at=now() WHERE id=$1 AND state='retired'", [row.id]);
+  return { id: row.id, state: "retired" };
+}
+
+/** Recover only a failed provisioning attempt that never deployed or connected storage. */
+export async function recoverFailedEmptyProject(input: {
+  id: string;
+  confirmProjectName: string;
+}): Promise<{ id: string; state: "retired" }> {
+  if (process.env.MANAGED_EVE_RETIREMENT_ENABLED !== "true") throw new Error("Managed retirement is not enabled");
+  const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
+  if (!token) throw new Error("Operator deployment access is unavailable");
+  const result = await managedDb().query<RetirementRow & { deployment_id: string | null; public_url: string | null }>(
+    `SELECT id,state,project_name,project_id,database_store_id,blob_store_id,deployment_id,public_url,
+            last_export_verified_at,database_deleted_at,project_deleted_at
+     FROM managed_eve_environments WHERE id=$1`, [input.id],
+  );
+  const row = result.rows[0];
+  if (!row || !["failed", "retiring"].includes(row.state) ||
+      row.project_name !== managedProjectName(input.id) || input.confirmProjectName !== row.project_name ||
+      row.database_store_id || row.blob_store_id || row.deployment_id || row.public_url) {
+    throw new Error("Failed provisioning is not an empty project; inspect resources before recovery");
+  }
+  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  const project = await getProject(token, teamId, row.project_name);
+  if (project && (!row.project_id || project.id !== row.project_id || project.hasGitRepository)) {
+    throw new Error("Failed project identity could not be verified");
+  }
+  if (!project && row.state === "failed" && row.project_id) {
+    throw new Error("Project disappeared before recovery began");
+  }
+  if (project && await projectHasDeployments(token, teamId, project.id)) {
+    throw new Error("A deployment exists; use the checked export and retirement path");
+  }
+  const stores = await listStores(token, teamId);
+  if (stores.some((store) => store.connections.some((connection) => connection.projectId === row.project_id) ||
+      store.name.startsWith(row.project_name.slice(0, 16)))) {
+    throw new Error("A possible managed storage resource exists; inspect before recovery");
+  }
+  if (row.state === "failed") {
+    await transitionEnvironment({ id: row.id, from: "failed", to: "retiring", kind: "empty_project_recovery_started" });
+  }
+  if (project) await deleteVercelResource(`/v9/projects/${encodeURIComponent(project.id)}`, token, teamId);
+  if (await getProject(token, teamId, row.project_name)) throw new Error("Failed project deletion could not be verified");
+  if (!row.project_deleted_at) await recordStep(row.id, "project_deleted_at", "empty_project_deletion_verified");
+  await transitionEnvironment({ id: row.id, from: "retiring", to: "retired", kind: "empty_project_recovery_complete" });
   await managedDb().query("UPDATE managed_eve_environments SET retired_at=now(),updated_at=now() WHERE id=$1 AND state='retired'", [row.id]);
   return { id: row.id, state: "retired" };
 }

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, it } from "node:test";
 import { managedDb } from "./db";
-import { retireManagedEve } from "./retire";
+import { recoverFailedEmptyProject, retireManagedEve } from "./retire";
 import { managedProjectName } from "./state";
 
 const enabled = Boolean(process.env.MANAGED_EVE_TEST_DATABASE_URL);
@@ -83,6 +83,61 @@ it("retires only the bound paused project and dedicated Neon store after export"
     assert.equal(result.rows[0]?.state, "retired");
     assert.ok(result.rows[0]?.database_deleted_at);
     assert.ok(result.rows[0]?.project_deleted_at);
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
+it("recovers only an undeployed failed project once", { skip: !enabled }, async () => {
+  process.env.MANAGED_EVE_DATABASE_URL = process.env.MANAGED_EVE_TEST_DATABASE_URL;
+  process.env.MANAGED_EVE_RETIREMENT_ENABLED = "true";
+  process.env.MANAGED_EVE_VERCEL_TOKEN = "disposable-test-token";
+  const suffix = randomUUID().replaceAll("-", "").slice(0, 24);
+  const id = `env_${suffix}`;
+  const inviteId = `inv_${suffix}`;
+  const projectName = managedProjectName(id);
+  const projectId = `prj_${suffix}`;
+  await managedDb().query(
+    "INSERT INTO managed_beta_invites (id,email,token_hash,monthly_model_budget_usd,expires_at,claimed_at) VALUES ($1,$2,$3,5,now()+interval '1 day',now())",
+    [inviteId, `recover-${suffix}@example.test`, "f".repeat(40) + suffix],
+  );
+  await managedDb().query(
+    `INSERT INTO managed_eve_environments
+      (id,invite_id,email,owner_name,agent_name,project_name,project_id,state,monthly_model_budget_usd)
+     VALUES ($1,$2,$3,'Owner','Eve',$4,$5,'failed',5)`,
+    [id, inviteId, `recover-${suffix}@example.test`, projectName, projectId],
+  );
+  let projectExists = true;
+  let deployments = false;
+  let deletions = 0;
+  globalThis.fetch = async (input, init) => {
+    const url = new URL(String(input));
+    const method = init?.method ?? "GET";
+    if (method === "GET" && url.pathname === `/v9/projects/${projectName}`) {
+      return projectExists ? Response.json({ id: projectId, name: projectName, link: null })
+        : Response.json({ error: { message: "Not found" } }, { status: 404 });
+    }
+    if (method === "GET" && url.pathname === "/v6/deployments") {
+      return Response.json({ deployments: deployments ? [{ uid: "dpl_untracked" }] : [] });
+    }
+    if (method === "GET" && url.pathname === "/v1/storage/stores") return Response.json({ stores: [] });
+    if (method === "DELETE" && url.pathname === `/v9/projects/${projectId}`) {
+      projectExists = false;
+      deletions++;
+      return new Response(null, { status: 204 });
+    }
+    throw new Error(`Unexpected Vercel request: ${method} ${url.pathname}`);
+  };
+  try {
+    deployments = true;
+    await assert.rejects(recoverFailedEmptyProject({ id, confirmProjectName: projectName }), /deployment exists/);
+    assert.equal(deletions, 0);
+    deployments = false;
+    await assert.rejects(recoverFailedEmptyProject({ id, confirmProjectName: "wrong-project" }), /empty project/);
+    assert.deepEqual(await recoverFailedEmptyProject({ id, confirmProjectName: projectName }), { id, state: "retired" });
+    assert.equal(deletions, 1);
+    await assert.rejects(recoverFailedEmptyProject({ id, confirmProjectName: projectName }), /empty project/);
+    assert.equal(deletions, 1);
   } finally {
     globalThis.fetch = previousFetch;
   }
