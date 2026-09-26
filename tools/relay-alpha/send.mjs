@@ -36,16 +36,18 @@ const sent = await command({ operation: 'submit', input: {
 if (!sent.requestId) throw new Error('Relay did not return a request ID.');
 console.log(JSON.stringify({ requestId: sent.requestId, conversationId, status: sent.status }));
 const deadline = Date.now() + 10 * 60_000;
+let finished = false;
 while (Date.now() < deadline) {
   const result = await command({ operation: 'get', requestId: sent.requestId });
   if (['COMPLETED', 'REJECTED', 'CANCELED', 'EXPIRED'].includes(result.status)) {
+    finished = true;
     console.log(JSON.stringify({ requestId: sent.requestId, status: result.status, result: result.result }));
     if (result.status !== 'COMPLETED' || !result.result?.reply?.body) process.exitCode = 1;
     break;
   }
   await new Promise(resolve => setTimeout(resolve, 5000));
 }
-if (Date.now() >= deadline) {
+if (!finished) {
   console.error(`No completed reply before expiry: ${sent.requestId}`);
   process.exitCode = 1;
 }
