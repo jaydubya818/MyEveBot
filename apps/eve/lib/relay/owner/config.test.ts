@@ -7,4 +7,26 @@ describe("isolated owner qualification",()=>{
  it("admits only the explicit isolated fixture",()=>expect(ownerChannelConfiguration(environment()).enabled).toBe(true));
  it.each([{VERCEL:"1"},{VERCEL_URL:"preview.vercel.app"},{HOSTNAME:"0.0.0.0"},{MYEVE_OWNER_LOCAL_ORIGIN:"https://preview.vercel.app"},{DATABASE_URL:"postgresql://owner@production.invalid/db"},{MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:"0"},{MYEVE_OWNER_LOCAL_QUALIFICATION_UNTIL:String(Date.now()+7200000)}])("denies non-fixture environment %j",override=>expect(ownerChannelConfiguration({...environment(),...override}).enabled).toBe(false));
  it.each([{ownerId:"real-owner"},{allowedCapabilities:["web.read","tool.send_email"]},{sourceIdentity:"another-source"}])("denies expanded mapping %j",override=>expect(ownerChannelConfiguration({...environment(),MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],...override}]})}).enabled).toBe(false));
+ const binding="tgb_0123456789abcdef0123456789abcdef";
+ const liveIds={relayAccountId:"acct_qualificationrelay",relayOwnerPrincipalId:"prn_qualificationowner",relayAgentId:"agt_qualificationsofie"};
+ const live=(mapping:Record<string,unknown>,pin:string|null=binding,extra:Record<string,string>={})=>ownerChannelConfiguration({...environment(),...extra,...(pin===null?{}:{MYEVE_OWNER_LOCAL_SOURCE_IDENTITY:pin}),MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],...liveIds,sourceIdentity:binding,...mapping}]})}).enabled;
+ it("admits the live Relay identity set only with the exactly pinned binding source",()=>expect(live({})).toBe(true));
+ it.each([
+  ["no pin",{},null],["other pin",{},"tgb_ffffffffffffffffffffffffffffffff"],["malformed short",{sourceIdentity:"tgb_short"},"tgb_short"],
+  ["uppercase",{sourceIdentity:"tgb_0123456789ABCDEF0123456789ABCDEF"},"tgb_0123456789ABCDEF0123456789ABCDEF"],
+  ["wrong prefix",{sourceIdentity:"acct_0123456789abcdef0123456789abcdef"},"acct_0123456789abcdef0123456789abcdef"],
+  ["live ids with harness source",{sourceIdentity:"qualification-source"},binding],
+  ["harness ids with live source",{relayAccountId:"qualification-relay",relayOwnerPrincipalId:"qualification-principal",relayAgentId:"qualification-relay-agent"},binding],
+  ["mixed account",{relayAccountId:"qualification-relay"},binding],["other Relay agent",{relayAgentId:"agt_sofieproduction"},binding],
+  ["expanded capabilities",{allowedCapabilities:["web.read","tool.send_email"]},binding],["real MyEve owner",{ownerId:"real-owner"},binding],
+ ] as const)("denies %s",(_name,mapping,pin)=>expect(live(mapping,pin)).toBe(false));
+ it("still denies the live set in a hosted runtime",()=>expect(live({},binding,{VERCEL:"1"})).toBe(false));
+ const emailPin={MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:"owner@example.test",MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:"Sofie qualification test",MYEVE_OWNER_LOCAL_EMAIL_TEXT:"Exact body.",MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:"1"};
+ const withEmail={allowedCapabilities:["web.read","tool.send_email"]};
+ it("admits send_email only for the live set with a complete single-send pin",()=>expect(live(withEmail,binding,emailPin)).toBe(true));
+ it.each([
+  ["no pin",withEmail,{}],["two sends",withEmail,{...emailPin,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:"2"}],["bad recipient",withEmail,{...emailPin,MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:"a@b.test,c@d.test"}],
+  ["email only",{allowedCapabilities:["tool.send_email"]},emailPin],["search added",{allowedCapabilities:["web.read","tool.send_email","web.search"]},emailPin],
+ ] as const)("denies email capability with %s",(_n,mapping,extra)=>expect(live(mapping as Record<string,unknown>,binding,extra as Record<string,string>)).toBe(false));
+ it("never grants email to the harness identity set",()=>expect(ownerChannelConfiguration({...environment(),...emailPin,MYEVE_RELAY_OWNER_TRUST:JSON.stringify({...trust,mappings:[{...trust.mappings[0],allowedCapabilities:["web.read","tool.send_email"]}]})}).enabled).toBe(false));
 });

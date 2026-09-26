@@ -5,7 +5,7 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "84407bc0caf5d48ec8a80833d4062cc36b2ff466f3a13c71206fdf10a1d116b0"
+      "sha256": "97f1512d4b78ebef4287189535cb6c8e8e48508d8d654932418a85e9f8b0da77"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -98,7 +98,7 @@
     "agent/hooks/task-ledger.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f60c19d555f969af3100b69462aa2f776b817672edc05eaa937371751e6da786"
+      "sha256": "7d9e21d0dd114c980bb268a4f087b5197d06f7e47c6db6f84a294ec8f872aef6"
     },
     "agent/instructions/agentcard.ts": {
       "classification": "INTERNAL",
@@ -183,7 +183,7 @@
     "agent/lib/action-context.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dd7577ca07aa5f4b5cc25687676b312e9ec74f0c3cebae609e99e9b17add6812"
+      "sha256": "92fbcd01bfd38798e9c141f93b8e7fb2f0561d7e7fb6e2310edf818a24b1b715"
     },
     "agent/lib/agentmail.ts": {
       "classification": "ENFORCED",
@@ -342,8 +342,8 @@
     },
     "agent/lib/email-send-adapter.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical email adapter binds account, recipients and complete payload; Action Gateway and one-use transport handle precede send.",
-      "sha256": "84e80af90a262d09dd8cc94c64486b08cd94cfcbbc4f0533c91de884f013f227"
+      "reason": "Canonical email adapter binds account, recipients and complete payload; Action Gateway and one-use transport handle precede send. In a local-qualification process it is wrapped by the single owner-authorized draft pin (or refused without one); normal processes unchanged.",
+      "sha256": "0c4202d2ab2a92c215b6c7e23f576e5caecb688454d48c94105bcec32bf6f503"
     },
     "agent/lib/gateway-models.ts": {
       "classification": "INTERNAL",
@@ -513,7 +513,7 @@
     "agent/sandbox.ts": {
       "classification": "INTERNAL",
       "reason": "Pure custom backend registration; no bootstrap or external build operation. Runtime creation requires the separately guarded Computer backend.",
-      "sha256": "b50d268aed9904e3960bde4a4c2d7d0d1e53db9d47bbbb1cf8aef96226b4305a"
+      "sha256": "7d4ad47ae3f36f5cad907c756c8baca8255cbcb3bb1785ecb93a30979737b8dc"
     },
     "agent/schedules/email.ts": {
       "classification": "INTERNAL",
@@ -1180,7 +1180,7 @@
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "1c9b2b41625eac7c41a5f640876ce8e693874da73d4055d8d4c7d55a856d20c6",
+      "sha256": "f709bee468062381e69286fb263ca15d3921a46bd0170bb8ada7e50e01c1d31f",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -1911,7 +1911,7 @@
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
       "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption.",
-      "sha256": "00ccc457cda1caeaee249e88954fffa5132b6218bb308bcd13ad514034882e24"
+      "sha256": "bcc096e86730d9166d65814855aff53a41527449e2a260eb25e2607e133e5579"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -2850,12 +2850,12 @@
     "lib/pending-action-continuation.ts": {
       "classification": "ENFORCED",
       "reason": "Private immutable checkpoint references canonical Action/Run; owner/Agent/executor binding; execution only via Action Gateway.",
-      "sha256": "bf2f73dd5dca0abfc0cb9ed791da3303ed3640a1530859e20cefa2eef5eb7c11"
+      "sha256": "ed6425a85407063bf17dcd421069cf2497d8b71b0258e831c46833a213678ef5"
     },
     "lib/relay/owner/config.ts": {
       "classification": "BLOCKED",
-      "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration.",
-      "sha256": "fc24c7f42bfa86d7b67216e1069e3fefc9be71bb19d8555ad4da02efe8e7ff3f"
+      "reason": "Immutable false owner-channel release gate overrides environment activation; explicit strict mapping configuration; local qualification admits exactly one pinned Relay identity set (harness constant source, or canonical live IDs with an exact tgb_ binding pin); the live set may add tool.send_email only with a complete single-send email pin.",
+      "sha256": "8c259e724e5ae9539594a3a216ab2fb8759bff80bb16ec1118fbb17a1c960b78"
     },
     "lib/relay/owner/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2865,7 +2865,7 @@
     "lib/relay/owner/control.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical exact approval and recovery decisions; owner/Agent/source checks; saved Action resumes through Gateway and canonical Outcome completion.",
-      "sha256": "89209aff488b10b4a41a683b0346c2b2ce29793a66bb1df83b1b20283f0d4854"
+      "sha256": "34525913e28fe886d1ff4968fb47e2fd80cc339db45a4455c4162d952b647d9a"
     },
     "lib/relay/owner/handoff.ts": {
       "classification": "ENFORCED",
@@ -2889,8 +2889,8 @@
     },
     "lib/relay/owner/worker.ts": {
       "classification": "BLOCKED",
-      "reason": "Immutable release gate blocks dispatch/reconciliation/cancellation schedule; at-most-once canonical dispatch and existing Eve client; actual runtime qualification incomplete.",
-      "sha256": "bccb86876597ccd1e4198af1728ac69694dd5428aba5a66eb22f83ffbc5b3a73"
+      "reason": "Immutable release gate blocks dispatch/reconciliation/cancellation schedule; at-most-once canonical dispatch; Eve 0.66 signed exact-session cancel endpoint (accepted must match session; no_active_turn never fabricates one); actual runtime qualification incomplete.",
+      "sha256": "1397c8d7be32a8a759c35d038fb93f61c10d09ee1acc295b6e3617d4479a0ca2"
     },
     "lib/relay/owner/model-budget.ts": {
       "classification": "INTERNAL",
@@ -2900,7 +2900,7 @@
     "lib/relay/owner/model.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-only provider boundary: exact local authority, scoped prompt/tools, conservative durable reservation, one provider invocation and accounting before output. Release gate remains false; actual runtime qualification pending.",
-      "sha256": "6f7af8e32e1e8b721f8e96f4d82f3c311039e61d1534e343862c01c8c112aa72"
+      "sha256": "3e78d3b704e66d74a30db2680f5a58530651d5a6c000dd59efec208c1b7047b8"
     },
     "agent/tools/web_fetch.ts": {
       "classification": "READ_ONLY",
@@ -2959,6 +2959,16 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+    },
+    "lib/relay/owner/approval-budget.ts": {
+      "classification": "ENFORCED",
+      "reason": "One-time restoration of remaining canonical Run active time from the original approval timestamp; approval retries cannot refresh the budget; real PostgreSQL continuation test.",
+      "sha256": "94a514adb458170335cb638302465605cc4778b65bb4609fcaf6b86297903076"
+    },
+    "lib/relay/owner/qualification-email.ts": {
+      "classification": "ENFORCED",
+      "reason": "Local-qualification email pin around the canonical AgentMail adapter: exact recipient/subject/text checked before approval target resolution and again before execution; at most one attempt counted durably in action_requests; no pin refuses all email.",
+      "sha256": "3af0401740add1f6acbc203a5884f4402b9f1d51d0cda0f51b97c44e1d846232"
     }
   }
 }

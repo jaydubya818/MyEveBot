@@ -50,7 +50,9 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": async (_event, ctx) => {
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
-        if(ownerRuntime)return ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event));
+        // Context metadata matches the canonical model selection; the separate
+        // owner model boundary still enforces the 12,000-token task ceiling.
+        if(ownerRuntime)return { model: ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event)), modelContextWindowTokens: 200_000 };
         const requested = clientTurnSettings(ctx.messages);
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
         const model = requested.model ?? agent?.preferredModel;
