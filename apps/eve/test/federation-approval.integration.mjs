@@ -6,18 +6,18 @@ import {Client} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import tool from '../agent/tools/federation_request.ts';
 import {randomUUID} from 'node:crypto';
-import {executeIncomingPermission, correlatedReply} from '../lib/relay/incoming-permissions.ts';
+import {executeIncomingPermission, correlatedReply, claimCorrelatedReply} from '../lib/relay/incoming-permissions.ts';
 import {decideApproval} from '../lib/approvals.ts';
 import {savePeerPermission} from '../lib/relay/peer-permissions.ts';
 import {FederationStore} from '../lib/relay/store.ts';
-import {encryptSecret} from '../lib/relay/transport.ts';
+import {encryptSecret, requestDigest} from '../lib/relay/transport.ts';
 
 // Existing loopback database supplies schema shapes only. Every test row and
 // sequence is connection-local TEMP state, discarded on rollback/disconnect.
 const url=new URL(process.env.FEDERATION_TEST_DATABASE_URL??'');
-assert(['127.0.0.1','localhost'].includes(url.hostname));assert.equal(url.port,'55439');assert.equal(url.pathname,'/myeve_combined_v1');
+assert(['127.0.0.1','localhost'].includes(url.hostname));assert(['55439','55468','55470'].includes(url.port));assert.equal(url.pathname,'/myeve_combined_v1');
 const client=new Client({connectionString:url.href,ssl:false});await client.connect();
-const tables=['agents','agent_capabilities','agent_runs','task_runs','task_run_sessions','task_approval_decisions','task_transitions','task_milestones','task_specialists','task_acceptance_checks','task_artifacts','outcomes','eve_events','action_requests','action_receipts','execution_occurrences','execution_routine_versions','execution_routines','review_deliveries','computer_control_leases','computer_sessions','myeve_relay_connections','myeve_relay_requests','myeve_peer_permissions','myeve_peer_action_bindings','myeve_relay_activity','web_chat_threads'];
+const tables=['agents','agent_capabilities','agent_runs','task_runs','task_run_sessions','task_approval_decisions','task_transitions','task_milestones','task_specialists','task_acceptance_checks','task_artifacts','outcomes','eve_events','action_requests','action_receipts','execution_occurrences','execution_routine_versions','execution_routines','review_deliveries','computer_control_leases','computer_sessions','myeve_relay_connections','myeve_relay_requests','myeve_relay_reply_claims','myeve_peer_permissions','myeve_peer_action_bindings','myeve_relay_activity','web_chat_threads'];
 const fetchBefore=globalThis.fetch,neonBefore=neonConfig.fetchFunction;
 let sends=0,checks=0,relayStatus="ACTIVE";const submitted=[];
 process.env.DATABASE_URL='postgresql://fixture@approval-test.invalid/postgres';
@@ -227,10 +227,10 @@ try{
  await check('incoming unsolicited messages require exact approval; revocation blocks continuation',async()=>{
   await client.query("UPDATE myeve_peer_permissions SET policies=policies || $1::jsonb,revision=revision+1 WHERE id='permission'",[JSON.stringify([{capability:'message.receive',resource:'synthetic-messages',policy:'REQUIRE_APPROVAL',recordTypes:[],topics:[]}])]);
   const store=new FederationStore('approval-owner');let effects=0;
-  const incoming=async id=>{
-   const envelope={id,protocol:'relay.federation',version:'1.0',caller:{ownerId:'atlas',agentId:'agent'},target:{ownerId:'relay-owner',agentId:'relay-sofie',address:'relay://owner/sofie'},capability:'message.send',resource:'synthetic-messages',createdAt:new Date().toISOString(),expiresAt:'2099-01-01T00:00:00Z',idempotencyKey:id,payload:{body:'Incoming fixture'},publication:null,authorizationContext:{grantId:'fixture',policyDecisionId:'fixture',localAuthorizationRequired:true}};
+  const incoming=async(id,conversationId,replyTo)=>{
+   const envelope={id,protocol:'relay.federation',version:'1.0',caller:{ownerId:'atlas',agentId:'agent'},target:{ownerId:'relay-owner',agentId:'relay-sofie',address:'relay://owner/sofie'},capability:'message.send',resource:'synthetic-messages',createdAt:new Date().toISOString(),expiresAt:'2099-01-01T00:00:00Z',idempotencyKey:id,payload:{body:'Incoming fixture',...(replyTo?{replyTo}:{})},...(conversationId?{conversationId}:{}),publication:null,authorizationContext:{grantId:'fixture',policyDecisionId:'fixture',localAuthorizationRequired:true}};
    await client.query("INSERT INTO task_runs(id,owner_id,kind,title,status,agent_id,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd) VALUES($1,'approval-owner','delegated_work','Incoming fixture','running','approval-agent',300,1,1,0,0.01)",[id]);
-   await client.query("INSERT INTO myeve_relay_requests(owner_id,request_id,direction,capability,sender_owner_id,sender_agent_id,envelope_hash,envelope_encrypted,local_run_id,expires_at) VALUES('approval-owner',$1,'incoming','message.send','atlas','agent','fixture',$2,$1,'2099-01-01')",[id,encryptSecret('approval-owner',envelope)]);
+   await client.query("INSERT INTO myeve_relay_requests(owner_id,request_id,direction,capability,conversation_id,sender_owner_id,sender_agent_id,envelope_hash,envelope_encrypted,local_run_id,expires_at) VALUES('approval-owner',$1,'incoming','message.send',$2,'atlas','agent',$3,$4,$1,'2099-01-01')",[id,conversationId??null,requestDigest(envelope),encryptSecret('approval-owner',envelope)]);
    return envelope;
   };
   const effect=async()=>{effects++;return {acknowledged:true};};
@@ -243,15 +243,29 @@ try{
   await client.query("UPDATE myeve_peer_permissions SET revoked_at=now(),revision=revision+1 WHERE id='permission'");
   assert.equal((await executeIncomingPermission(store,second,effect)).status,'REJECTED');assert.equal(effects,1);
   await client.query("UPDATE myeve_peer_permissions SET revoked_at=NULL,revision=revision+1 WHERE id='permission'");
-  const reply=await incoming('incoming-reply');reply.conversationId='exact-thread';reply.payload.replyTo='parent-message';
+  const reply=await incoming('incoming-reply','exact-thread','parent-message');
   const original={...input('parent').request,conversationId:'exact-thread'};
   await client.query("INSERT INTO myeve_relay_requests(owner_id,request_id,direction,capability,conversation_id,sender_owner_id,sender_agent_id,envelope_hash,envelope_encrypted,expires_at,state) VALUES('approval-owner','parent-message','outgoing','message.send','exact-thread','relay-owner','relay-sofie','fixture',$1,'2099-01-01','completed')",[encryptSecret(store.ownerId,original)]);
   assert.equal(await correlatedReply(store,reply),true);
   assert.equal(await correlatedReply(store,{...reply,caller:{ownerId:'atlas',agentId:'spoof'}}),false);
   assert.equal(await correlatedReply(store,{...reply,conversationId:'other-thread'}),false);
+  await client.query("UPDATE myeve_relay_requests SET expires_at=now()-interval '1 second' WHERE owner_id=$1 AND request_id='parent-message'",[store.ownerId]);
+  assert.equal(await correlatedReply(store,reply),false);
+  await client.query("UPDATE myeve_relay_requests SET expires_at='2099-01-01' WHERE owner_id=$1 AND request_id='parent-message'",[store.ownerId]);
   const beforeApprovals=(await client.query('SELECT count(*)::int n FROM task_approval_decisions')).rows[0].n;
   assert.equal((await executeIncomingPermission(store,reply,effect)).status,'COMPLETED');assert.equal(effects,2);
   assert.equal((await client.query('SELECT count(*)::int n FROM task_approval_decisions')).rows[0].n,beforeApprovals);
+  assert.equal(await claimCorrelatedReply(store,reply),true,'the same signed request can resume its claim');
+  const nextReply=await incoming('incoming-reply-again','exact-thread','parent-message');
+  assert.equal(await claimCorrelatedReply(store,nextReply),false,'a new request cannot reuse the approval exception');
+  assert.equal((await executeIncomingPermission(store,nextReply,effect)).status,'REQUIRE_APPROVAL');
+  assert.equal(effects,2);
+  assert.equal((await client.query('SELECT count(*)::int n FROM myeve_relay_reply_claims')).rows[0].n,1);
+  const secondApproval=(await client.query('SELECT p.id,p.binding_hash FROM task_approval_decisions p JOIN action_requests a ON a.approval_id=p.id WHERE a.action_key=$1',[nextReply.id])).rows[0];
+  await decideApproval({ownerId:store.ownerId,id:secondApproval.id,bindingHash:secondApproval.binding_hash,decision:'approved',decidedBy:store.ownerId});
+  assert.equal((await executeIncomingPermission(store,nextReply,effect)).status,'COMPLETED');
+  assert.equal(effects,3,'the second request executes only after its own exact approval');
+  assert.equal((await client.query('SELECT count(*)::int n FROM myeve_relay_reply_claims')).rows[0].n,1);
  });
  console.log(`Targeted SQL approval continuation: ${checks} passed; mocked Relay sends=${sends}; live Relay effects=0; qualified data unchanged.`);
 }finally{globalThis.fetch=fetchBefore;neonConfig.fetchFunction=neonBefore;await client.query('ROLLBACK');await client.end();}

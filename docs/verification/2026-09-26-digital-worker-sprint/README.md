@@ -1,0 +1,41 @@
+# Digital Worker sprint checkpoint — 2026-09-26
+
+This is a checkpoint for `codex/golden-work`, not an M1–M7 or Execution Router qualification. The [implementation plan](../../plans/2026-09-25-digital-worker-mvp.md) defines the exit gates. The user-supplied documents are requirements, not evidence of implementation.
+
+## Observed locally
+
+- The isolated `golden_ui` fixture is running authenticated Work and Chat at `http://localhost:3103` with fixture password `golden-ui-qualification`. It uses disposable PostgreSQL 17 and simulated GitHub/executor observations. After a fresh database restart, Work displayed the synthetic result as **Waiting** with **No current protected observation**; Chat displayed the selected routing Work's `PROPOSED: Human` reason and **no route admitted** at desktop and phone width. Browser captures: [protected evidence not run](evidence-not-run.png), [Chat after restart](chat-after-restart.png), [phone-width Chat](chat-mobile.png), and [Work route](work-route.png). The fixture's local checks are identified as `simulation-local`; no protected verifier or live publication is claimed.
+- The Chat UI keeps the Work selector available after the thread is persistently bound to the primary Agent. It refuses to send with a selected Work if that Agent identity cannot be checked, and offers a clear action. A server-side model-step guard now requires a same-turn, same-owner, same-Work-version context assembly receipt before a selected-Work turn reaches the model. This closes a previously silent failure mode in Eve's dynamic instruction resolver. Unit and isolated PostgreSQL tests passed; a fresh live model/UI turn has **not** passed.
+- One owner-scoped Worker projection now supplies Work, Chat status, Sofie's `engineering_work` tool, and assembled Context from the same persisted Work/Run/Result/route state. Work-scoped facts reuse canonical Knowledge and provenance; fact save/search requires the authenticated selected Work and its same-turn primary-Agent context receipt. General Knowledge search, correction, source/provenance and relationship paths exclude Work-linked facts and Work-only evidence. Later selected-Work context includes a bounded set of active sourced facts. Isolated PostgreSQL tests covered restart, owner/Agent scope, concurrent correction, cross-Work denial, and the general Knowledge boundary. A live Sofie use of these facts remains **NOT_RUN**.
+- Route admission now checks current owner/scope, Work and criteria version, policy, context, budget, provider qualification and competing writer before atomically recording admission and one queued Run. It has no production authority-facts caller or dispatch integration; no route was admitted in this fixture.
+- Candidate custody now recomputes Work/Run/attempt/base/parent, changed paths and patch, artifact hash, Git tree and commit SHA before retention. After executor loss, an unverified candidate preserves the resource and fences both Continue and Give Back from queuing another attempt. A durably retained candidate's cleanup is retried after restart. Simulated PostgreSQL/Docker recovery and focused tamper/regression tests passed before the local Docker daemon stopped; a real executor process-loss qualification and an operator reconciliation path remain **NOT_RUN**.
+- The Golden GitHub intake requires the owner-approved base SHA and an exact reviewed five-file manifest before Work creation. The manifest cannot be filled from this environment because the private repository credential is absent. No draft PR or live CI/review continuation was run.
+- Telegram outbound notification now rechecks the dedicated bot, private chat, owner and provider authority at the transport boundary. This is a component pass; the Telegram webhook/owner conversation was not run live.
+- Versioned engineering Role/JStack/Mode composition, a scoped learning candidate contract, and a portable experience capsule contract have focused tests. M6 also has an owner-scoped durable `DRAFT_UNVERIFIED` store and owner-data export. It cannot qualify or promote a suggestion without Work-bound feedback, independent evidence and exact owner review. M7 has an [authority audit](m7-authority-audit.md); no trusted capsule export/import writer exists.
+- MyFactory signed intake observation and Relay direct-reply correlation have bounded local tests. MyFactory has no trusted Work-to-request binding or remote candidate/evidence/usage/stop contract. Relay now allows one atomic approval-free reply claim per outgoing message; a second reply needs its own exact approval. The updated isolated PostgreSQL approval test passed 28 checks. Relay still has no live Atlas identity or reciprocal running-peer trace.
+
+## Checks run on this combined tree
+
+- `npm test`: 1,265 passed, 40 skipped across 164 test files.
+- `npm run db:migrations:check`: 46 ordered migrations. Disposable PostgreSQL 17 integration passed Work, Worker projection, selected-Work context, engineering Knowledge, M6 draft staging, routing proposal and route admission.
+- Telegram transport tests passed with `node --import tsx --test test/telegram-channel.test.mjs`; the corrected fixture candidate/readiness test passed.
+- `npm run typecheck` passed TypeScript, the 146-definition capability registry, imported-skill routing checks, and executor governance. The reviewed inventory classifies 618 TypeScript sources with zero unknown entries; this is source-level checking, not a live provider qualification.
+
+The attempted bounded live selected-Work Sofie turn was rejected by automatic approval review because it would send Work context and a prompt to the configured model provider without explicit approval of that payload and destination, with possible external data transfer and cost. We did not retry through the browser or another route. The read-only UI checks above do not establish that Sofie replies.
+
+## Qualification status
+
+| Gate | Status | Principal remaining proof |
+|---|---|---|
+| M1 persistent worker and direct development | PARTIAL | Projection and Work-scoped Knowledge have component/SQL passes; Sofie-owned live inspect/edit/test/debug, protected candidate, restart and proof of Work are NOT_RUN. |
+| M2 isolated coding executor | PARTIAL | Exact candidate custody and simulated loss fencing pass; fresh-provider recovery, operator reconciliation and protected qualification are NOT_RUN. |
+| M3 GitHub follow-through | BLOCKED | Publisher App key and reviewed base-file manifest are absent; live draft PR → failed post-publication CI → fix → independent changes-request review → fix → Ready is NOT_RUN. |
+| M4 MyFactory | PARTIAL | Signed intake/readback only; no qualified hosted run/stop/candidate/evidence/usage or multi-WorkOrder trace. |
+| M5 Relay and Atlas | PARTIAL | Correlation, exact permission, and one-reply claim pass locally; live two-way Sofie↔Atlas with exact grants and running peers is NOT_RUN. |
+| M6 learning | DRAFT ONLY | Unverified candidates persist in owner scope; trusted Work-bound feedback, independent qualification, exact owner review, promotion and later-work retrieval are NOT_RUN. |
+| M7 portable experience | CONTRACT ONLY | No trusted owner-reviewed export/import, revocation, immutable source catalog or second-worker demonstration. |
+| ER1 router | PARTIAL | Proposal/UI and atomic admission service; no trusted authority-facts caller, admitted productive route, pre-effect recheck or agent/UI live parity. |
+| ER2 Deep Agents spike | EXPERIMENT ONLY | Virtual boundary tests; no real Deep Agents provider, model, shell/MCP/subagent isolation or process-kill/resume result. |
+| ER3–ER6 | NOT_RUN | Depend on the respective earlier provider, publication, handoff and learning gates. |
+
+No zero-intervention, no-duplicate-effect, no-leak or live-readiness claim follows from component tests. The current local fixture is suitable for inspecting Work and Chat state, not for demonstrating completed autonomous engineering.

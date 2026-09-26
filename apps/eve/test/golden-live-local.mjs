@@ -6,6 +6,7 @@ import { existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
 import { Client, Pool } from 'pg';
 import { loadMigrations, runMigrations } from '../scripts/migration-runner.ts';
+import { approvedBaseSchema, GOLDEN_QUALIFICATION_BASE_SHA } from '../lib/engineering/base-preflight.ts';
 
 if (process.env.GOLDEN_LIVE_LOCAL !== '1' || process.env.VERCEL_ENV === 'production')
   throw Error('Explicit non-production local qualification opt-in is required.');
@@ -20,11 +21,17 @@ await mkdir(directory, {recursive:true,mode:0o700});
 let config;
 if (existsSync(configFile)) config=JSON.parse(await readFile(configFile,'utf8'));
 else {
+  const manifestFile=process.env.GOLDEN_APPROVED_BASE_MANIFEST;
+  if(!manifestFile?.startsWith('/'))
+    throw Error('A reviewed, absolute-path GOLDEN_APPROVED_BASE_MANIFEST is required before starting the live fixture.');
+  const approvedBase=approvedBaseSchema.parse(JSON.parse(await readFile(manifestFile,'utf8')));
+  if(approvedBase.sha!==GOLDEN_QUALIFICATION_BASE_SHA)
+    throw Error('The approved fixture manifest must pin the owner-approved base revision.');
   const appId=Number(process.env.GOLDEN_GITHUB_APP_ID),installationId=Number(process.env.GOLDEN_GITHUB_INSTALLATION_ID);
   if (!Number.isSafeInteger(appId)||appId<1||!Number.isSafeInteger(installationId)||installationId<1)
     throw Error('Exact non-secret GitHub App ID and installation ID are required.');
   const criterionId=randomUUID();
-  config={mode:'isolated-dogfood',ownerId,agentId,
+  config={mode:'isolated-dogfood',ownerId,agentId,approvedBase,
     objective:'Implement quantity.mjs for issue #1: read one quantity from stdin and return JSON for positive safe integers; reject zero, negative and fractional values, ignoring surrounding whitespace.',
     criteria:[{id:criterionId,method:'test',statement:'quantity.mjs returns a single JSON line for positive safe integers and invalid_quantity for zero, negative and fractional input; surrounding whitespace is ignored.'}],
     profile:{id:'quantity-cli',version:1,repository:'jaydubya818/myeve-golden-work-qual',privateQualification:true,baseBranch:'main',
@@ -41,6 +48,8 @@ else {
 }
 if(config.profile.repository!=='jaydubya818/myeve-golden-work-qual'||config.githubApp?.keychainService!=='myeve-golden-work-publisher')
   throw Error('Qualification profile changed repository or credential boundary.');
+if(!config.approvedBase || approvedBaseSchema.parse(config.approvedBase).sha!==GOLDEN_QUALIFICATION_BASE_SHA)
+  throw Error('The existing live fixture config lacks the reviewed owner-approved base manifest.');
 const content=await readFile(developmentFile,'utf8');
 const match=/^VERCEL_OIDC_TOKEN=(.*)$/m.exec(content);
 if(!match)throw Error('Development-only Gateway credential is unavailable.');

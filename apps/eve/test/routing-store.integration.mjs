@@ -33,7 +33,7 @@ try {
       },
     };
     const migrations = await loadMigrations();
-    assert.equal(migrations.at(-1)?.name, "0042_engineering_routing.sql");
+    assert(migrations.some(migration => migration.name === "0042_engineering_routing.sql"));
     await runMigrations(database, migrations);
     await runMigrations(database, migrations);
   } finally {

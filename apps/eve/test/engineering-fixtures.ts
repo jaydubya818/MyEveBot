@@ -14,7 +14,7 @@ export function fixture() {
   const state=initialExecution(contract,work.generation);
   const run=queueRun(state,work,"initial",contract.baseSha);
   const candidate=createCandidate(contract,run,{sha:contract.baseSha,files:{"quantity.mjs":"console.log(0);"}},{"quantity.mjs":"console.log(2);"});
-  run.status="candidate";run.candidate=candidate.sha;state.candidates.push(candidate);state.phase="observing";
+  run.status="candidate";run.candidate=candidate.sha;run.resourceReleasedAt=nowIso();state.candidates.push(candidate);state.phase="observing";
   state.approval={id:randomUUID(),candidate:candidate.sha,actor:work.scopeId,generation:work.generation,at:nowIso(),boundedUpdates:true};
   state.effects.push({id:randomUUID(),candidate:candidate.sha,expectedHead:null,status:"CONFIRMED",createdAt:nowIso()});
   const artifact="protected output comparison";

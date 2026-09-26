@@ -4,8 +4,7 @@ import { boundedJson } from "../relay/client.ts";
 import { WorkStore } from "./store.ts";
 import { WorkError } from "./types.ts";
 import { ExecutionStore } from "./execution-store.ts";
-import { RoutingStore, routingForWorkVersion } from "./routing-store.ts";
-import { manifest } from "./execution.ts";
+import { EngineeringWorkerProjectionStore } from "./worker-projection.ts";
 
 export function engineeringPrincipal(request: Request) {
   // Internal qualification only until business identity and execution are qualified.
@@ -48,23 +47,25 @@ export async function handleWorkRequest(request: Request, id?: string) {
     if (id) z.string().uuid().parse(id);
     if (request.method === "GET") {
       const executions = new ExecutionStore(store);
-      const selectedWork = id ? await store.get(id) : null;
-      const state = id ? await executions.get(id) : null;
-      const items = id ? [] : await store.list();
+      const projections = new EngineeringWorkerProjectionStore(store);
+      const selected = id ? await projections.get(id) : null;
+      const items = id ? [] : await projections.list();
       return Response.json(
         id
           ? {
-              work: selectedWork,
+              work: selected!.work,
               events: await store.events(id),
               criteriaHistory: await store.criteriaHistory(id),
-              execution: state,
-              manifest: state ? manifest(selectedWork!,state) : null,
-              executionHistory: state ? await executions.history(id) : [],
-              routing: routingForWorkVersion(await new RoutingStore(store).snapshot(id), selectedWork!.version),
+              execution: selected!.execution,
+              manifest: selected!.manifest,
+              projection: selected!.projection,
+              executionHistory: selected!.execution ? await executions.history(id) : [],
+              routing: selected!.routing,
             }
           : {
-              work: items,
-              manifests: await Promise.all(items.map(async work=>{const value=await executions.get(work.id);return value?manifest(work,value):null;})),
+              work: items.map(item => item.work),
+              manifests: items.map(item => item.manifest),
+              projections: items.map(item => item.projection),
               execution: {
                 available: !!process.env.MYEVE_ENGINEERING_CONFIG && process.env.VERCEL_ENV !== "production",
                 reason:

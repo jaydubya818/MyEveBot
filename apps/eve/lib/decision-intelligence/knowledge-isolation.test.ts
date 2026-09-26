@@ -14,7 +14,7 @@ vi.mock("../../agent/lib/receipts-db.ts", () => {
       );
       database.rows.set(String(row.id), row);
       database.writes.push(sql);
-      return [];
+      return [row];
     }
     if (sql.includes("FROM knowledge_records k")) {
       const row = database.rows.get(String(values[1]));

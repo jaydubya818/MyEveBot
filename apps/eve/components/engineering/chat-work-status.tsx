@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 
 import type { manifest } from "@/lib/engineering/execution";
+import type { EngineeringWorkerProjection } from "@/lib/engineering/worker-projection";
 import type { Work } from "@/lib/engineering/types";
 
 type WorkManifest = ReturnType<typeof manifest>;
-type WorkList = { work: Work[]; manifests: (WorkManifest | null)[] };
-type WorkItem = { work: Work; manifest: WorkManifest | null };
+type WorkList = { work: Work[]; manifests: (WorkManifest | null)[]; projections?: EngineeringWorkerProjection[] };
+type WorkItem = { work: Work; manifest: WorkManifest | null; projection: EngineeringWorkerProjection | null };
 type Snapshot = {
   activeCount: number;
   pending: WorkItem[];
@@ -19,24 +20,29 @@ function summarize(body: WorkList): Snapshot {
   const manifests = new Map(
     body.manifests.filter((item): item is WorkManifest => item !== null).map((item) => [item.workId, item]),
   );
+  const projections = new Map((body.projections ?? []).map(item => [item.workId, item]));
   const active = body.work
     .filter((work) => work.lifecycle === "active")
-    .map((work) => ({ work, manifest: manifests.get(work.id) ?? null }));
-  const pending = active.filter((item) => (item.manifest?.pendingDecisions.length ?? 0) > 0);
+    .map((work) => ({ work, manifest: manifests.get(work.id) ?? null, projection: projections.get(work.id) ?? null }));
+  const pending = active.filter((item) => (item.projection?.pendingDecisions.length ?? item.manifest?.pendingDecisions.length ?? 0) > 0);
   const latest = active.toSorted((a, b) => {
-    const aTime = Date.parse(a.manifest?.lastMeaningfulActivity ?? a.work.updatedAt);
-    const bTime = Date.parse(b.manifest?.lastMeaningfulActivity ?? b.work.updatedAt);
+    const aTime = Date.parse(a.projection?.lastMeaningfulActivity ?? a.manifest?.lastMeaningfulActivity ?? a.work.updatedAt);
+    const bTime = Date.parse(b.projection?.lastMeaningfulActivity ?? b.manifest?.lastMeaningfulActivity ?? b.work.updatedAt);
     return bTime - aTime;
   })[0] ?? null;
   return {
     activeCount: active.length,
     pending,
     latest,
-    latestAt: latest?.manifest?.lastMeaningfulActivity ?? latest?.work.updatedAt ?? null,
+    latestAt: latest?.projection?.lastMeaningfulActivity ?? latest?.manifest?.lastMeaningfulActivity ?? latest?.work.updatedAt ?? null,
   };
 }
 
 function activity(item: WorkItem): string {
+  if (item.projection) {
+    if (item.projection.pendingDecisions.length > 0) return item.projection.pendingDecisions[0];
+    return item.projection.activity;
+  }
   const current = item.manifest;
   if (!current) return item.work.control === "paused" ? "Paused before execution" : "Work prepared";
   if (current.pendingDecisions.length > 0) return current.pendingDecisions[0];
@@ -138,7 +144,7 @@ export function ChatWorkStatus() {
           </div>
           {pending && (
             <a href={`/work?id=${encodeURIComponent(pending.work.id)}&tab=Decisions`} className="mt-1 block break-words font-medium text-kumo-default underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">
-              {pending.manifest?.attention?.reconciliation ? "Reconcile" : "Review"} {pending.work.title}
+              {(pending.projection?.attention ?? pending.manifest?.attention)?.reconciliation ? "Reconcile" : "Review"} {pending.work.title}
             </a>
           )}
           {snapshot.latest && (
@@ -148,15 +154,15 @@ export function ChatWorkStatus() {
                 {snapshot.latest.work.title}
               </a>
               <p className="mt-1 line-clamp-2 break-words text-kumo-subtle">{activity(snapshot.latest)}</p>
-              {snapshot.latest.manifest?.nextStep && (
+              {(snapshot.latest.projection?.nextStep ?? snapshot.latest.manifest?.nextStep) && (
                 <p className="mt-2 line-clamp-2 break-words text-kumo-subtle">
-                  <span className="font-medium text-kumo-default">Next:</span> {snapshot.latest.manifest.nextStep}
+                  <span className="font-medium text-kumo-default">Next:</span> {snapshot.latest.projection?.nextStep ?? snapshot.latest.manifest?.nextStep}
                 </p>
               )}
-              {snapshot.latest.manifest?.repositoryObservation.status !== undefined &&
-                snapshot.latest.manifest.repositoryObservation.status !== "fresh" && (
+              {(snapshot.latest.projection?.repositoryObservation ?? snapshot.latest.manifest?.repositoryObservation)?.status !== undefined &&
+                (snapshot.latest.projection?.repositoryObservation ?? snapshot.latest.manifest?.repositoryObservation)?.status !== "fresh" && (
                   <p className="mt-2 text-kumo-warning">
-                    Repository observation {snapshot.latest.manifest.repositoryObservation.status}.
+                    Repository observation {(snapshot.latest.projection?.repositoryObservation ?? snapshot.latest.manifest?.repositoryObservation)?.status}.
                   </p>
                 )}
               {snapshot.latestAt && Number.isFinite(Date.parse(snapshot.latestAt)) && (

@@ -18,6 +18,8 @@ The trusted publisher now supports a GitHub App private key read from macOS Keyc
 
 The first Run has an explicit, recorded `parse-int-fraction` fault instruction. Its first candidate is meant to pass limited protected checks but fail the real post-publication `quantity-ci` on fractional input. The later Run must inspect and correct that failure. This is intentional qualification fault injection, not evidence that the model organically made that mistake. A profile without this flag uses ordinary issue execution.
 
+The later M3 preflight implementation pins the owner-approved base SHA in code and requires a separately reviewed, exact five-file SHA-256 manifest in the runtime config before Work is created. The private repository is not locally cloned here, `gh` authentication is invalid, and the App Keychain credential is not present; the exact file hashes have **not** been independently retrieved or entered. This gate therefore remains blocked until the read-only manifest proposal is obtained, reviewed, and supplied to the local harness.
+
 Development-only Gateway OIDC credentials were pulled into a mode-600 temporary file. No production database or customer repository was used. The App registration and Keychain import are waiting for the account owner's GitHub identity confirmation. The identity prompt and generated private-key download must be completed by the account owner; the project provides a Swift Keychain importer that verifies readback before deleting the downloaded PEM.
 
 ## Checks completed so far

@@ -5,7 +5,7 @@ import { submissionSchema, type Submission } from "./contracts.ts";
 import { currentPeerPermission, bindPeerAction, PeerPermissionError } from "./peer-permissions.ts";
 import { FederationStore } from "./store.ts";
 import { messageReplySettings, type MessageReplySettings } from "./message-reply-settings.ts";
-import { digest } from "./transport.ts";
+import { digest, requestDigest } from "./transport.ts";
 import { decryptSecret, type Envelope } from "./transport.ts";
 
 export function incomingSubmission(envelope: Envelope): Submission {
@@ -38,11 +38,34 @@ export async function correlatedReply(store: FederationStore, envelope: Envelope
   if (request.capability !== "message.send" || !request.payload.replyTo || !envelope.conversationId) return false;
   const [parent] = await store.database.query(`SELECT envelope_encrypted FROM myeve_relay_requests WHERE owner_id=$1 AND request_id=$2
     AND direction='outgoing' AND capability='message.send' AND sender_owner_id=$3 AND sender_agent_id=$4
-    AND conversation_id=$5 AND state IN ('accepted','completed')`,
+    AND conversation_id=$5 AND state IN ('accepted','completed') AND expires_at>now()`,
   [store.ownerId, request.payload.replyTo, envelope.target.ownerId, envelope.target.agentId, envelope.conversationId]);
   if (!parent) return false;
   const original = submissionSchema.safeParse(decryptSecret(store.ownerId, parent.envelope_encrypted));
   return original.success && original.data.capability === "message.send" && original.data.target === `relay://${envelope.caller.ownerId}/${envelope.caller.agentId}` && original.data.conversationId === envelope.conversationId;
+}
+
+/** Atomically bind the approval exception to one signed reply request. */
+export async function claimCorrelatedReply(store: FederationStore, envelope: Envelope) {
+  if (!await correlatedReply(store, envelope)) return false;
+  const request = incomingSubmission(envelope);
+  if (request.capability !== "message.send" || !request.payload.replyTo) return false;
+  const rows = await store.database.query(`INSERT INTO myeve_relay_reply_claims(owner_id,parent_request_id,reply_request_id)
+    SELECT parent.owner_id,parent.request_id,child.request_id
+    FROM myeve_relay_requests parent
+    JOIN myeve_relay_requests child ON child.owner_id=parent.owner_id AND child.request_id=$3
+    WHERE parent.owner_id=$1 AND parent.request_id=$2 AND parent.direction='outgoing'
+      AND parent.capability='message.send' AND parent.sender_owner_id=$4 AND parent.sender_agent_id=$5
+      AND parent.conversation_id=$6 AND parent.state IN ('accepted','completed') AND parent.expires_at>now()
+      AND child.direction='incoming' AND child.capability='message.send'
+      AND child.sender_owner_id=$7 AND child.sender_agent_id=$8 AND child.conversation_id=$6
+      AND child.envelope_hash=$9 AND child.expires_at>now()
+    ON CONFLICT(owner_id,parent_request_id) DO UPDATE SET reply_request_id=EXCLUDED.reply_request_id
+      WHERE myeve_relay_reply_claims.reply_request_id=EXCLUDED.reply_request_id
+    RETURNING reply_request_id`,
+  [store.ownerId, request.payload.replyTo, envelope.id, envelope.target.ownerId, envelope.target.agentId,
+    envelope.conversationId, envelope.caller.ownerId, envelope.caller.agentId, requestDigest(envelope)]);
+  return rows[0]?.reply_request_id === envelope.id;
 }
 
 export async function executeIncomingPermission<T>(store: FederationStore, envelope: Envelope, effect: (revalidate: () => Promise<void>) => Promise<T>, replySettings?: MessageReplySettings) {
@@ -64,7 +87,7 @@ export async function executeIncomingPermission<T>(store: FederationStore, envel
       const current = await incomingPeerPermission(store, envelope, initial.row!.revision);
       if (replySettings && digest(await messageReplySettings(store)) !== digest(replySettings)) throw new PeerPermissionError("PEER_REPLY_SETTINGS_CHANGED", "Message reply settings changed; review this request again.");
       await bindPeerAction(store, stableRunId, envelope.id, current.row!, current.request);
-      const reply = await correlatedReply(store, envelope);
+      const reply = current.policy === "REQUIRE_APPROVAL" && await claimCorrelatedReply(store, envelope);
       return localAuthorityProvider.evaluate(action, target, {
         allowedCapabilities: ["federation.request"], maximumRisk: "low",
         allowedTargets: [{ capabilityId: "federation.request", provider: "relay", account: current.connection.agentId,

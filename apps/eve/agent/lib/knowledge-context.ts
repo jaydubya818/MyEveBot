@@ -1,5 +1,7 @@
 import type { ToolContext } from "eve/tools";
 
+import { db } from "./receipts-db.ts";
+import { assertEngineeringKnowledgeWorkBinding } from "./engineering-knowledge-binding.ts";
 import { createKnowledgeSource, type CreateKnowledgeInput } from "../../lib/knowledge.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
 import {resolveSessionAgent} from "./session-settings.ts";
@@ -26,7 +28,17 @@ export async function knowledgeActor(ctx: ToolContext): Promise<Pick<CreateKnowl
   return { ownerId, createdByType: "agent", createdById: agent.id };
 }
 
-export async function currentConversationProvenance(ctx: ToolContext, ownerId: string) {
+export async function currentConversationProvenance(ctx: ToolContext, ownerId: string, engineeringWorkId?: string) {
+  if (engineeringWorkId) {
+    await assertEngineeringKnowledgeWorkBinding(ctx, ownerId, engineeringWorkId);
+    const linked = await db().query(`SELECT s.id FROM knowledge_sources s
+      JOIN engineering_work_knowledge work_link ON work_link.scope_id=s.owner_id
+        AND work_link.scope_kind='personal' AND work_link.source_id=s.id
+      WHERE s.owner_id=$1 AND s.provider='eve' AND s.external_id=$2
+        AND work_link.work_id=$3 LIMIT 1`,
+      [ownerId, ctx.session.id, engineeringWorkId]);
+    if (linked[0]) return [{ sourceId: String(linked[0].id), relation: "mentioned_in" as const, confidence: 1 }];
+  }
   const rawThreadId = ctx.session.auth.current?.attributes.webThreadId;
   const threadId = typeof rawThreadId === "string" ? rawThreadId : undefined;
   const source = await createKnowledgeSource({

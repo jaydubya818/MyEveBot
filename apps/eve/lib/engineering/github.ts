@@ -27,7 +27,7 @@ function treeObjects(files: Record<string,string>) {
   }
   return {sha:tree(""),objects};
 }
-export function createCandidate(contract: WorkContract, run: EngineeringRun, base: RepositorySnapshot, files: Record<string,string>): Candidate {
+function candidateMaterial(contract: WorkContract, base: RepositorySnapshot, files: Record<string,string>) {
   const paths = [...new Set([...Object.keys(base.files),...Object.keys(files)])].filter(p=>base.files[p]!==files[p]).sort();
   if (!paths.length || paths.some(p=>!contract.profile.allowedPaths.includes(p)) || Object.keys(files).length>200 ||
     Buffer.byteLength(JSON.stringify(files))>500000 || Object.values(files).some(v=>v.includes("\0")))
@@ -35,12 +35,36 @@ export function createCandidate(contract: WorkContract, run: EngineeringRun, bas
   if (paths.some(p=>/-----BEGIN [A-Z ]*PRIVATE KEY-----|\b(?:gh[pousr]_[A-Za-z0-9]{20,}|AKIA[A-Z0-9]{16}|sk-[A-Za-z0-9]{24,})/.test(files[p]??"")))
     throw new WorkError("secret_detected", "Candidate contains a potential credential and cannot be published.");
   const tree = treeObjects(files).sha;
-  const commit = {message:`MyEve Work ${contract.workId}\nRun ${run.id}\n`,name:"MyEve Engineering",email:"engineering@users.noreply.github.com",date:new Date(Math.floor(Date.now()/1000)*1000).toISOString()};
-  const author = `${commit.name} <${commit.email}> ${Math.floor(Date.parse(commit.date)/1000)} +0000`;
-  const sha = objectSha("commit",`tree ${tree}\nparent ${run.publicationParentSha}\nauthor ${author}\ncommitter ${author}\n\n${commit.message}`);
   const patch = JSON.stringify(paths.map(path=>({path,before:base.files[path]??null,after:files[path]??null})));
+  return {paths,tree,patch};
+}
+function candidateCommitSha(tree: string, parentSha: string, commit: Candidate["commit"]) {
+  const timestamp=Date.parse(commit.date);
+  if (!Number.isFinite(timestamp) || new Date(timestamp).toISOString()!==commit.date || timestamp%1000!==0)
+    throw new WorkError("candidate_denied", "Candidate commit date is invalid.");
+  const author = `${commit.name} <${commit.email}> ${Math.floor(timestamp/1000)} +0000`;
+  return objectSha("commit",`tree ${tree}\nparent ${parentSha}\nauthor ${author}\ncommitter ${author}\n\n${commit.message}`);
+}
+export function createCandidate(contract: WorkContract, run: EngineeringRun, base: RepositorySnapshot, files: Record<string,string>): Candidate {
+  const {paths,tree,patch}=candidateMaterial(contract,base,files);
+  const commit = {message:`MyEve Work ${contract.workId}\nRun ${run.id}\n`,name:"MyEve Engineering",email:"engineering@users.noreply.github.com",date:new Date(Math.floor(Date.now()/1000)*1000).toISOString()};
+  const sha = candidateCommitSha(tree,run.publicationParentSha,commit);
   return {id:randomUUID(),workId:contract.workId,runId:run.id,attemptId:run.attemptId,repository:contract.repository,baseSha:contract.baseSha,
     parentSha:run.publicationParentSha,sha,tree,files,changedPaths:paths,patch,artifactHash:digest({files,patch}),createdAt:nowIso(),commit};
+}
+/** Recompute identity before a candidate enters durable custody or protected verification. */
+export function assertCandidateIdentity(contract: WorkContract, run: EngineeringRun, base: RepositorySnapshot, candidate: Candidate) {
+  const {paths,tree,patch}=candidateMaterial(contract,base,candidate.files);
+  const expectedCommit={message:`MyEve Work ${contract.workId}\nRun ${run.id}\n`,name:"MyEve Engineering",email:"engineering@users.noreply.github.com"};
+  if (base.sha!==run.parentSha || candidate.workId!==contract.workId || candidate.runId!==run.id ||
+    candidate.attemptId!==run.attemptId || candidate.repository!==contract.repository ||
+    candidate.baseSha!==contract.baseSha || candidate.parentSha!==run.publicationParentSha ||
+    candidate.tree!==tree || candidate.patch!==patch || JSON.stringify(candidate.changedPaths)!==JSON.stringify(paths) ||
+    candidate.artifactHash!==digest({files:candidate.files,patch}) ||
+    candidate.commit.message!==expectedCommit.message || candidate.commit.name!==expectedCommit.name ||
+    candidate.commit.email!==expectedCommit.email ||
+    candidate.sha!==candidateCommitSha(tree,run.publicationParentSha,candidate.commit))
+    throw new WorkError("candidate_denied", "Candidate identity does not match the exact Work, Run, source and commit.");
 }
 export function workBranch(workId: string) { return `myeve/work-${workId}`; }
 

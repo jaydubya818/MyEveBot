@@ -33,6 +33,13 @@ describe("Golden Work readiness",()=>{
     expect(manifest(f.work,f.state)).toMatchObject({status:"Paused",pendingDecisions:[],attention:null});
     f.work.control="human";
     expect(manifest(f.work,f.state)).toMatchObject({status:"In your hands",pendingDecisions:[],attention:null});
+    // A takeover can precede worker reconciliation. The old publication
+    // decision must stop appearing as a current owner request immediately.
+    f.state.phase="approval";
+    expect(manifest(f.work,f.state)).toMatchObject({status:"In your hands",pendingDecisions:[],attention:null});
+    f.work.control="agent";
+    f.work.generation++;
+    expect(manifest(f.work,f.state)).toMatchObject({pendingDecisions:[],attention:null});
   });
   it("binds attention and verification to current candidate, revision and observation",()=>{
     const f=fixture();f.state.phase="approval";f.state.approval=null;

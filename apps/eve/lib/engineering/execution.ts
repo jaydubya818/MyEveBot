@@ -21,6 +21,7 @@ export interface EngineeringRun {
   resource: string; startedAt: string; endedAt?: string; candidate?: string;
   inputSnapshot?: {sha:string;files:Record<string,string>};
   resourceReleasedAt?: string;
+  custodyUnresolved?: boolean;
 }
 export interface ExternalEffect {
   id: string; candidate: string; expectedHead: string | null;
@@ -121,7 +122,8 @@ export function manifest(work: Work, state: Execution) {
     : repositoryAgeMs > 60000 || !state.truth?.authority ? "stale" as const : "fresh" as const;
   const unknownEffects = state.effects.filter(e => e.status === "UNKNOWN" || e.status === "PREPARED");
   const publicationNeedsReconciliation = state.phase === "publishing" && unknownEffects.length > 0 && state.blockers.length > 0;
-  const pendingDecisions = state.phase === "approval"
+  const canRequestDecision = work.lifecycle === "active" && work.control === "agent" && work.generation === state.generation;
+  const pendingDecisions = !canRequestDecision ? [] : state.phase === "approval"
     ? ["Approve exact candidate publication and bounded in-scope updates"]
     : state.phase === "needs_you" ? state.blockers.length ? state.blockers : ["Execution needs human review."]
     : publicationNeedsReconciliation ? [`Publication outcome is unconfirmed. ${state.blockers[0]}`] : [];
@@ -145,6 +147,7 @@ export function manifest(work: Work, state: Execution) {
     : work.control === "human" ? "Finish your changes, then give Work back to Sofie for fresh verification."
     : work.control === "paused" ? "Resume Work when you want Sofie to continue."
     : work.control === "stopping" ? "Wait for the active attempt and resources to stop."
+    : work.generation !== state.generation ? "Control changed; reconcile the current Work and execution before requesting a decision."
     : state.phase === "approval" ? "Review the candidate and current evidence, then decide on exact draft PR publication."
     : state.phase === "needs_you" ? "Inspect the blocker and reconcile it before any fresh attempt."
     : state.phase === "stopped" ? "Publication is stopped. Take over or explicitly continue with a fresh attempt."

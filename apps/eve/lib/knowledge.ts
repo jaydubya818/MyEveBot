@@ -27,6 +27,14 @@ import {
 
 type Row = Record<string, unknown>;
 
+// Engineering Work facts share the canonical table, but their reads and
+// mutations require the selected-Work binding in EngineeringKnowledgeStore.
+const genericKnowledgeOnly = `NOT EXISTS (
+  SELECT 1 FROM engineering_work_knowledge work_link
+  WHERE work_link.scope_id=k.owner_id AND work_link.scope_kind='personal'
+    AND work_link.knowledge_id=k.id
+)`;
+
 function text(value: unknown): string { return typeof value === "string" ? value : String(value ?? ""); }
 function nullableText(value: unknown): string | null { return value === null || value === undefined ? null : text(value); }
 function number(value: unknown): number { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : 0; }
@@ -86,10 +94,16 @@ export async function createKnowledgeSource(input: CreateSourceInput): Promise<K
      VALUES ($1,$2,$3,$4,$5,$6,$7,COALESCE($8::timestamptz,now()),$9,$10)
      ON CONFLICT (owner_id, provider, external_id) WHERE provider IS NOT NULL AND external_id IS NOT NULL
      DO UPDATE SET reference_uri=COALESCE(EXCLUDED.reference_uri,knowledge_sources.reference_uri), author=COALESCE(EXCLUDED.author,knowledge_sources.author), captured_at=GREATEST(EXCLUDED.captured_at,knowledge_sources.captured_at)
+     WHERE NOT EXISTS (
+       SELECT 1 FROM engineering_work_knowledge work_link
+       WHERE work_link.scope_id=knowledge_sources.owner_id AND work_link.scope_kind='personal'
+         AND work_link.source_id=knowledge_sources.id
+     )
      RETURNING *`,
     [id, input.ownerId, input.sourceType, input.provider ?? null, input.externalId ?? null, input.referenceUri ?? null, input.author ?? null, input.capturedAt ?? null, input.contentHash ?? null, input.snapshotRef ?? null],
   ) as Row[];
-  return sourceView(rows[0]!);
+  if (rows[0]) return sourceView(rows[0]);
+  throw new Error("Knowledge source is unavailable for generic use.");
 }
 
 export interface ProvenanceInput { sourceId: string; relation: ProvenanceRelation; confidence?: number; }
@@ -112,7 +126,7 @@ async function assertOwnedReference(ownerId: string, table: "goals" | "agents", 
   if (!rows[0]) throw new Error(`${label} not found for this owner.`);
 }
 
-async function assertCreateInput(input: CreateKnowledgeInput): Promise<{ confidence: number; status: string }> {
+async function assertCreateInput(input: CreateKnowledgeInput): Promise<{ confidence: number; status: string; supersededStatus?: string }> {
   if (!KNOWLEDGE_KINDS.includes(input.kind)) throw new Error("Unknown knowledge type.");
   if (!ORIGIN_TYPES.includes(input.createdByType)) throw new Error("Unknown knowledge origin.");
   const confidence = input.confidence ?? 1;
@@ -132,16 +146,20 @@ async function assertCreateInput(input: CreateKnowledgeInput): Promise<{ confide
     if (!input.preferenceKey?.trim() || input.preferenceValue === undefined || !input.preferenceScope?.trim() || !input.preferenceSourceType || !PREFERENCE_SOURCE_TYPES.includes(input.preferenceSourceType)) throw new Error("A preference requires key, value, scope, and a valid source type.");
     if (input.preferenceSourceType === "approved_observation") {
       if (!input.preferenceSourceId) throw new Error("An approved observation preference requires its observation ID.");
-      const rows = await db().query(`SELECT id FROM knowledge_records WHERE owner_id=$1 AND id=$2 AND kind='observation' LIMIT 1`, [input.ownerId, input.preferenceSourceId]) as Row[];
+      const rows = await db().query(`SELECT k.id FROM knowledge_records k WHERE k.owner_id=$1 AND k.id=$2
+        AND k.kind='observation' AND ${genericKnowledgeOnly} LIMIT 1`, [input.ownerId, input.preferenceSourceId]) as Row[];
       if (!rows[0]) throw new Error("Approved observation not found for this owner.");
     }
   }
   if (input.kind === "insight" && !input.generatedAt) throw new Error("An insight requires generatedAt.");
+  let supersededStatus: string | undefined;
   if (input.supersedesId) {
-    const rows = await db().query(`SELECT kind,status FROM knowledge_records WHERE owner_id=$1 AND id=$2 LIMIT 1`, [input.ownerId, input.supersedesId]) as Row[];
+    const rows = await db().query(`SELECT k.kind,k.status FROM knowledge_records k
+      WHERE k.owner_id=$1 AND k.id=$2 AND ${genericKnowledgeOnly} LIMIT 1`, [input.ownerId, input.supersedesId]) as Row[];
     if (!rows[0]) throw new Error("Superseded knowledge not found for this owner.");
     if (text(rows[0].kind) !== input.kind) throw new Error("Knowledge may only supersede the same type.");
     if (!canTransitionKnowledge(input.kind, text(rows[0].status), "superseded")) throw new Error("The earlier record cannot be superseded from its current status.");
+    supersededStatus = text(rows[0].status);
   }
   for (const link of input.provenance ?? []) {
     if (!PROVENANCE_RELATIONS.includes(link.relation)) throw new Error("Unknown provenance relation.");
@@ -149,11 +167,11 @@ async function assertCreateInput(input: CreateKnowledgeInput): Promise<{ confide
     const source = await db().query(`SELECT id FROM knowledge_sources WHERE owner_id=$1 AND id=$2 LIMIT 1`, [input.ownerId, link.sourceId]) as Row[];
     if (!source[0]) throw new Error("Provenance source not found for this owner.");
   }
-  return { confidence, status };
+  return { confidence, status, supersededStatus };
 }
 
 export async function createKnowledge(input: CreateKnowledgeInput): Promise<KnowledgeRecordView> {
-  const { confidence, status } = await assertCreateInput(input);
+  const { confidence, status, supersededStatus } = await assertCreateInput(input);
   const id = `knowledge_${randomUUID()}`;
   const columns = ["id", "owner_id", "kind", "statement", "confidence", "status", "created_by_type"];
   const values: unknown[] = [id, input.ownerId, input.kind, clean(input.statement), confidence, status, input.createdByType];
@@ -172,16 +190,34 @@ export async function createKnowledge(input: CreateKnowledgeInput): Promise<Know
   };
   for (const [column, value] of Object.entries(optional)) if (value !== undefined) { columns.push(column); values.push(value); }
   const placeholders = values.map((_, index) => `$${index + 1}${columns[index] === "alternatives" || columns[index] === "preference_value" ? "::jsonb" : ""}`);
-  const insert = `INSERT INTO knowledge_records (${columns.join(",")}) VALUES (${placeholders.join(",")})`;
+  let insert = `INSERT INTO knowledge_records (${columns.join(",")}) VALUES (${placeholders.join(",")}) RETURNING id`;
+  if (input.supersedesId) {
+    const previousIdParameter = `$${values.length + 1}`;
+    const previousStatusParameter = `$${values.length + 2}`;
+    values.push(input.supersedesId, supersededStatus);
+    insert = `WITH predecessor AS MATERIALIZED (
+      SELECT k.id FROM knowledge_records k
+      WHERE k.owner_id=$2 AND k.kind=$3 AND k.id=${previousIdParameter}
+        AND k.status=${previousStatusParameter} AND ${genericKnowledgeOnly}
+      FOR UPDATE OF k
+    ), retired AS (
+      UPDATE knowledge_records k SET status='superseded',
+        active=CASE WHEN k.kind='preference' THEN false ELSE k.active END,updated_at=now()
+      FROM predecessor p WHERE k.owner_id=$2 AND k.id=p.id
+        AND k.status=${previousStatusParameter} AND ${genericKnowledgeOnly}
+      RETURNING k.id
+    ) INSERT INTO knowledge_records (${columns.join(",")})
+      SELECT ${placeholders.join(",")} FROM retired RETURNING id`;
+  }
   const sql = db();
-  await sql.transaction((transaction) => [
+  const results = await sql.transaction((transaction) => [
     transaction.query(insert, values),
-    ...(input.supersedesId ? [transaction.query(`UPDATE knowledge_records SET status='superseded',active=CASE WHEN kind='preference' THEN false ELSE active END,updated_at=now() WHERE owner_id=$1 AND id=$2`, [input.ownerId, input.supersedesId])] : []),
     ...(input.provenance ?? []).map((link) => transaction.query(
       `INSERT INTO knowledge_provenance_links (id,owner_id,knowledge_id,source_id,relation,confidence) VALUES ($1,$2,$3,$4,$5,$6)`,
       [`provenance_${randomUUID()}`, input.ownerId, id, link.sourceId, link.relation, link.confidence ?? 1],
     )),
   ]);
+  if (!(results[0] as Row[])[0]) throw new Error("Superseded knowledge is no longer available in owner Knowledge.");
   return (await getKnowledge(input.ownerId, id))!;
 }
 
@@ -190,12 +226,18 @@ export async function addKnowledgeProvenance(ownerId: string, knowledgeId: strin
   const confidence = input.confidence ?? 1;
   if (!validConfidence(confidence)) throw new Error("Provenance confidence must be between 0 and 1.");
   const [claim, source] = await Promise.all([
-    db().query(`SELECT id FROM knowledge_records WHERE owner_id=$1 AND id=$2 LIMIT 1`, [ownerId, knowledgeId]) as Promise<Row[]>,
+    db().query(`SELECT k.id FROM knowledge_records k WHERE k.owner_id=$1 AND k.id=$2
+      AND ${genericKnowledgeOnly} LIMIT 1`, [ownerId, knowledgeId]) as Promise<Row[]>,
     db().query(`SELECT id FROM knowledge_sources WHERE owner_id=$1 AND id=$2 LIMIT 1`, [ownerId, input.sourceId]) as Promise<Row[]>,
   ]);
   if (!claim[0]) throw new Error("Knowledge record not found for this owner.");
   if (!source[0]) throw new Error("Provenance source not found for this owner.");
-  await db().query(`INSERT INTO knowledge_provenance_links (id,owner_id,knowledge_id,source_id,relation,confidence) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (owner_id,knowledge_id,source_id,relation) DO UPDATE SET confidence=EXCLUDED.confidence`, [`provenance_${randomUUID()}`, ownerId, knowledgeId, input.sourceId, input.relation, confidence]);
+  const rows = await db().query(`INSERT INTO knowledge_provenance_links (id,owner_id,knowledge_id,source_id,relation,confidence)
+    SELECT $1,$2,$3,$4,$5,$6 FROM knowledge_records k
+    WHERE k.owner_id=$2 AND k.id=$3 AND ${genericKnowledgeOnly}
+    ON CONFLICT (owner_id,knowledge_id,source_id,relation) DO UPDATE SET confidence=EXCLUDED.confidence
+    RETURNING id`, [`provenance_${randomUUID()}`, ownerId, knowledgeId, input.sourceId, input.relation, confidence]) as Row[];
+  if (!rows[0]) throw new Error("Knowledge record not found for this owner.");
 }
 
 export interface KnowledgeFilters { kind?: KnowledgeKind; status?: string; goalId?: string; minConfidence?: number; from?: string; to?: string; query?: string; limit?: number; }
@@ -203,7 +245,7 @@ export interface KnowledgeFilters { kind?: KnowledgeKind; status?: string; goalI
 export async function listKnowledge(ownerId: string, filters: KnowledgeFilters = {}): Promise<KnowledgeRecordView[]> {
   if (filters.kind && !KNOWLEDGE_KINDS.includes(filters.kind)) throw new Error("Unknown knowledge type.");
   if (filters.minConfidence !== undefined && !validConfidence(filters.minConfidence)) throw new Error("Minimum confidence must be between 0 and 1.");
-  const conditions = ["k.owner_id=$1"];
+  const conditions = ["k.owner_id=$1", genericKnowledgeOnly];
   const values: unknown[] = [ownerId];
   const add = (sql: string, value: unknown) => { values.push(value); conditions.push(sql.replace("?", `$${values.length}`)); };
   if (filters.kind) add("k.kind=?", filters.kind);
@@ -226,7 +268,8 @@ export async function listKnowledge(ownerId: string, filters: KnowledgeFilters =
 export async function getKnowledge(ownerId: string, id: string): Promise<KnowledgeRecordView | null> {
   const rows = await db().query(
     `SELECT k.*,g.title AS goal_title,(SELECT newer.id FROM knowledge_records newer WHERE newer.owner_id=k.owner_id AND newer.supersedes_id=k.id ORDER BY newer.created_at DESC LIMIT 1) AS superseded_by_id
-     FROM knowledge_records k LEFT JOIN goals g ON g.owner_id=k.owner_id AND g.id=k.goal_id WHERE k.owner_id=$1 AND k.id=$2 LIMIT 1`,
+     FROM knowledge_records k LEFT JOIN goals g ON g.owner_id=k.owner_id AND g.id=k.goal_id
+     WHERE k.owner_id=$1 AND k.id=$2 AND ${genericKnowledgeOnly} LIMIT 1`,
     [ownerId, id],
   ) as Row[];
   if (!rows[0]) return null;
@@ -245,14 +288,18 @@ export async function transitionKnowledge(ownerId: string, id: string, status: K
   const current = await getKnowledge(ownerId, id);
   if (!current) throw new Error("Knowledge record not found.");
   if (!canTransitionKnowledge(current.kind, current.status, status)) throw new Error(`A ${current.status} ${current.kind} cannot move to ${status}.`);
-  await db().query(`UPDATE knowledge_records SET status=$3,fulfilled_at=CASE WHEN kind='commitment' AND $3='fulfilled' THEN COALESCE(fulfilled_at,now()) ELSE fulfilled_at END,active=CASE WHEN kind='preference' THEN $3='active' ELSE active END,updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, id, status]);
+  const rows = await db().query(`UPDATE knowledge_records k SET status=$3,fulfilled_at=CASE WHEN kind='commitment' AND $3='fulfilled' THEN COALESCE(fulfilled_at,now()) ELSE fulfilled_at END,active=CASE WHEN kind='preference' THEN $3='active' ELSE active END,updated_at=now()
+    WHERE k.owner_id=$1 AND k.id=$2 AND ${genericKnowledgeOnly} RETURNING k.id`, [ownerId, id, status]) as Row[];
+  if (!rows[0]) throw new Error("Knowledge record not found.");
   return (await getKnowledge(ownerId, id))!;
 }
 
 async function assertRelationshipEntity(ownerId: string, type: RelationshipEntityType, id: string): Promise<void> {
   if (["person", "organization", "project"].includes(type)) return;
   const table = type === "source" ? "knowledge_sources" : type === "goal" ? "goals" : type === "agent" ? "agents" : "knowledge_records";
-  const rows = await db().query(`SELECT ${table === "knowledge_records" ? "kind" : "id"} FROM ${table} WHERE owner_id=$1 AND id=$2 LIMIT 1`, [ownerId, id]) as Row[];
+  const rows = await db().query(table === "knowledge_records"
+    ? `SELECT k.kind FROM knowledge_records k WHERE k.owner_id=$1 AND k.id=$2 AND ${genericKnowledgeOnly} LIMIT 1`
+    : `SELECT id FROM ${table} WHERE owner_id=$1 AND id=$2 LIMIT 1`, [ownerId, id]) as Row[];
   if (!rows[0] || (table === "knowledge_records" && text(rows[0].kind) !== type)) throw new Error(`${type} relationship endpoint not found for this owner.`);
 }
 
@@ -272,11 +319,29 @@ function relationshipView(row: Row): KnowledgeRelationshipView {
 }
 
 export async function listKnowledgeRelationships(ownerId: string, entity?: { type: RelationshipEntityType; id: string }): Promise<KnowledgeRelationshipView[]> {
-  const rows = await db().query(entity ? `SELECT * FROM knowledge_relationships WHERE owner_id=$1 AND ((subject_type=$2 AND subject_id=$3) OR (object_type=$2 AND object_id=$3)) ORDER BY updated_at DESC` : `SELECT * FROM knowledge_relationships WHERE owner_id=$1 ORDER BY updated_at DESC LIMIT 200`, entity ? [ownerId, entity.type, entity.id] : [ownerId]) as Row[];
+  const visible = `NOT EXISTS (
+    SELECT 1 FROM engineering_work_knowledge work_link
+    WHERE work_link.scope_id=r.owner_id AND work_link.scope_kind='personal'
+      AND work_link.knowledge_id IN (r.subject_id,r.object_id)
+  )`;
+  const rows = await db().query(entity
+    ? `SELECT r.* FROM knowledge_relationships r WHERE r.owner_id=$1 AND ${visible}
+       AND ((r.subject_type=$2 AND r.subject_id=$3) OR (r.object_type=$2 AND r.object_id=$3)) ORDER BY r.updated_at DESC`
+    : `SELECT r.* FROM knowledge_relationships r WHERE r.owner_id=$1 AND ${visible} ORDER BY r.updated_at DESC LIMIT 200`,
+    entity ? [ownerId, entity.type, entity.id] : [ownerId]) as Row[];
   return rows.map(relationshipView);
 }
 
 export async function listKnowledgeSources(ownerId: string, limit = 100): Promise<KnowledgeSourceView[]> {
-  const rows = await db().query(`SELECT * FROM knowledge_sources WHERE owner_id=$1 ORDER BY captured_at DESC,id DESC LIMIT $2`, [ownerId, Math.min(200, Math.max(1, limit))]) as Row[];
+  const rows = await db().query(`SELECT s.* FROM knowledge_sources s WHERE s.owner_id=$1
+    AND (NOT EXISTS (
+      SELECT 1 FROM engineering_work_knowledge work_link
+      WHERE work_link.scope_id=s.owner_id AND work_link.scope_kind='personal' AND work_link.source_id=s.id
+    ) OR EXISTS (
+      SELECT 1 FROM knowledge_provenance_links p
+      JOIN knowledge_records k ON k.owner_id=p.owner_id AND k.id=p.knowledge_id
+      WHERE p.owner_id=s.owner_id AND p.source_id=s.id AND ${genericKnowledgeOnly}
+    ))
+    ORDER BY s.captured_at DESC,s.id DESC LIMIT $2`, [ownerId, Math.min(200, Math.max(1, limit))]) as Row[];
   return rows.map(sourceView);
 }

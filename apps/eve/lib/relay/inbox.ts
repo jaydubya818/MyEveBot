@@ -18,6 +18,7 @@ import { approvalBinding, canonicalActionValue, decideApproval } from "../approv
 import { bindPeerAction, effectivePeerPermission, PeerPermissionError, requireEffectivePermission } from "./peer-permissions.ts";
 import { digest } from "./transport.ts";
 import { correlatedReply, executeIncomingPermission, incomingPeerPermission, incomingSubmission } from "./incoming-permissions.ts";
+import { projectPeerMessageResult } from "./message-result.ts";
 
 type ResponseBody = {
   status: "ACCEPTED" | "REJECTED" | "REQUIRE_APPROVAL" | "COMPLETED";
@@ -342,9 +343,12 @@ export async function getExternalResult(
   const input = submissionSchema.parse(decryptSecret(store.ownerId, row.envelope_encrypted));
   requireEffectivePermission(await effectivePeerPermission(store, connection, input));
   const client = new RelayClient(connection.credential);
-  const response = await client.command({ operation: "get", requestId });
+  const rawResponse = await client.command({ operation: "get", requestId });
   // Do not release content after an owner revokes access during retrieval.
   requireEffectivePermission(await effectivePeerPermission(store, await store.connection(), input));
+  const response = input.capability === "message.send"
+    ? projectPeerMessageResult(rawResponse, requestId, input.target)
+    : rawResponse;
   if (response.status === "COMPLETED") {
     await store.database.query(
       "UPDATE myeve_relay_requests SET state='completed',result_encrypted=$3 WHERE owner_id=$1 AND request_id=$2",

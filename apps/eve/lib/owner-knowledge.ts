@@ -211,7 +211,11 @@ function memoryQuery(ownerId: string, filters: OwnerKnowledgeFilters, fetchLimit
 
 function knowledgeQuery(ownerId: string, filters: OwnerKnowledgeFilters, fetchLimit: number): { sql: string; values: unknown[] } | null {
   if (filters.type === "memory" || (filters.scope && filters.scope !== "owner")) return null;
-  const conditions = ["k.owner_id=$1"];
+  const conditions = ["k.owner_id=$1", `NOT EXISTS (
+    SELECT 1 FROM engineering_work_knowledge work_link
+    WHERE work_link.scope_id=k.owner_id AND work_link.scope_kind='personal'
+      AND work_link.knowledge_id=k.id
+  )`];
   const values: unknown[] = [ownerId];
   if (filters.recordId) addCondition(conditions, values, "k.id=?", filters.recordId);
   if (filters.type) addCondition(conditions, values, "k.kind=?", filters.type);

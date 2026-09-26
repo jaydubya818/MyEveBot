@@ -56,17 +56,29 @@ export interface PersistedRoutingDecision {
   providerId: string | null;
   providerVersion: string | null;
   status: "PROPOSED" | "ADMITTED" | "STALE";
+  admission: {
+    reason: string;
+    policyId: string;
+    policyVersion: number;
+    request: { route: ExecutionRoute; requiredOperations: string[]; resourceRefs: string[] };
+    contextHash: string;
+    authorityHash: string;
+    admittedAt: string;
+  } | null;
   createdAt: string;
 }
 export interface RoutingSnapshot {
   decision: PersistedRoutingDecision | null;
   transitions: {
     id: string; fromRoute: ExecutionRoute; toRoute: ExecutionRoute;
-    reason: string; trigger: string; createdAt: string;
+    reason: string; trigger: string; decisionId: string | null;
+    contextSnapshotRef: string | null; authoritySnapshotRef: string | null;
+    createdAt: string;
   }[];
   runs: {
     id: string; route: ExecutionRoute; providerId: string | null;
-    providerVersion: string | null; status: string; updatedAt: string;
+    providerVersion: string | null; status: string; decisionId: string | null;
+    workVersion: number | null; workGeneration: number | null; updatedAt: string;
   }[];
 }
 
@@ -93,6 +105,15 @@ function decision(row: Record<string, any>, currentWorkVersion: number, active: 
     providerId: row.provider_id,
     providerVersion: row.provider_version,
     status: Number(row.work_version) !== currentWorkVersion || !active ? "STALE" : row.status,
+    admission: row.status === "ADMITTED" ? {
+      reason: row.admission_reason,
+      policyId: row.admission_policy_id,
+      policyVersion: Number(row.admission_policy_version),
+      request: row.admission_request,
+      contextHash: row.admission_context_hash,
+      authorityHash: row.admission_authority_hash,
+      admittedAt: iso(row.admitted_at),
+    } : null,
     createdAt: iso(row.created_at),
   };
 }
@@ -122,13 +143,13 @@ export class RoutingStore {
          WHERE w.scope_id=$1 AND w.scope_kind=$2 AND w.id=$3`, scope,
       ),
       this.workStore.database.query(
-        `SELECT id,from_route,to_route,reason,trigger,created_at
+        `SELECT id,from_route,to_route,reason,trigger,decision_id,context_snapshot_ref,authority_snapshot_ref,created_at
          FROM engineering_route_transitions
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
          ORDER BY created_at DESC,id DESC LIMIT 100`, scope,
       ),
       this.workStore.database.query(
-        `SELECT id,route,provider_id,provider_version,status,updated_at
+        `SELECT id,route,provider_id,provider_version,status,decision_id,work_version,work_generation,updated_at
          FROM engineering_route_runs
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
          ORDER BY updated_at DESC,id DESC LIMIT 100`, scope,
@@ -139,11 +160,16 @@ export class RoutingStore {
       decision: current ? decision(current, Number(current.current_work_version), current.current_lifecycle === "active") : null,
       transitions: transitionRows.map(row => ({
         id: row.id, fromRoute: row.from_route, toRoute: row.to_route,
-        reason: row.reason, trigger: row.trigger, createdAt: iso(row.created_at),
+        reason: row.reason, trigger: row.trigger, decisionId: row.decision_id,
+        contextSnapshotRef: row.context_snapshot_ref, authoritySnapshotRef: row.authority_snapshot_ref,
+        createdAt: iso(row.created_at),
       })),
       runs: runRows.map(row => ({
         id: row.id, route: row.route, providerId: row.provider_id,
-        providerVersion: row.provider_version, status: row.status, updatedAt: iso(row.updated_at),
+        providerVersion: row.provider_version, status: row.status, decisionId: row.decision_id,
+        workVersion: row.work_version === null ? null : Number(row.work_version),
+        workGeneration: row.work_generation === null ? null : Number(row.work_generation),
+        updatedAt: iso(row.updated_at),
       })),
     };
   }

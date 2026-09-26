@@ -9,10 +9,12 @@ import { githubAppTokenProvider } from "./github-app.ts";
 import { DockerClaudeExecutor, DockerProtectedVerifier } from "./docker-executor.ts";
 import { EngineeringWorker } from "./worker.ts";
 import { getAgent } from "../agents.ts";
+import { approvedBaseSchema, preflightApprovedBase } from "./base-preflight.ts";
 
 export const runtimeSchema=z.object({
   mode:z.literal("isolated-dogfood"), ownerId:z.string().min(1),agentId:z.string().min(1),
   objective:z.string().min(1).max(4000),criteria:criteriaSchema,profile:profileSchema,
+  approvedBase:approvedBaseSchema,
   brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
@@ -21,7 +23,9 @@ export async function engineeringConfig() {
   if(process.env.MYEVE_ENGINEERING_MODE!=="dogfood"||process.env.VERCEL_ENV==="production")throw new WorkError("engineering_disabled","Golden Work is restricted to an isolated dogfood runtime.",404);
   const file=process.env.MYEVE_ENGINEERING_CONFIG;
   if(!file?.startsWith("/"))throw new WorkError("engineering_setup","An approved qualification repository profile is required before execution.");
-  return runtimeSchema.parse(JSON.parse(await readFile(file,"utf8")));
+  const parsed=runtimeSchema.safeParse(JSON.parse(await readFile(file,"utf8")));
+  if(!parsed.success)throw new WorkError("engineering_setup","The qualification profile or reviewed base manifest is incomplete.",503);
+  return parsed.data;
 }
 export async function engineeringRuntime(principal:WorkPrincipal,store=new WorkStore(principal)) {
   const config=await engineeringConfig();
@@ -39,6 +43,7 @@ export async function intakeIssue(principal:WorkPrincipal,value:unknown) {
   const input=intakeSchema.parse(value),runtime=await engineeringRuntime(principal),{config}=runtime;
   if(!await runtime.authorityCurrent())throw new WorkError("agent_authority","An active owner-bound primary Agent is required.",403);
   const issue=await runtime.github.issue(input.issue),snapshot=await runtime.github.snapshot(config.profile.baseBranch);
+  preflightApprovedBase(config.profile,config.approvedBase,snapshot,input.issue);
   const created=await runtime.store.create({title:`Issue #${issue.number}: ${config.objective.slice(0,110)}`,objective:config.objective,repository:config.profile.repository,
     criteria:config.criteria,maxCostUsd:input.maxCostUsd,maxDurationSeconds:input.maxDurationSeconds,idempotencyKey:input.idempotencyKey});
   if(await runtime.execution.get(created.work.id))return {work:await runtime.store.get(created.work.id),created:false};

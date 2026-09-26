@@ -726,6 +726,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   const [goalsIncluded, setGoalsIncluded] = useState(true);
   const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
   const [engineeringIncluded, setEngineeringIncluded] = useState(false);
+  const [primaryAgentId, setPrimaryAgentId] = useState<string | null>(null);
+  const [primaryAgentError, setPrimaryAgentError] = useState(false);
+  const [primaryAgentRetry, setPrimaryAgentRetry] = useState(0);
   // Deliberately page-local: a Work choice is explicit for each chat thread
   // and must not silently return after a reload or enter saved chat history.
   const [engineeringWorkByThread, setEngineeringWorkByThread] = useState<Record<string, ChatEngineeringWork>>({});
@@ -844,10 +847,31 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   // page, so the first message does not pay the backend's cold-start cost.
   useEffect(() => {
     void fetch("/eve/v1/info").catch(() => undefined);
-    // Canonical initialization creates the configured primary Agent exactly
-    // once for new and upgraded deployments; subsequent calls are read-only.
-    void fetch("/api/agents").catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setPrimaryAgentError(false);
+    // A normal chat is persistently bound to the primary Agent after its
+    // first turn. Resolve that identity before offering per-turn Work binding.
+    void fetch("/api/agents", { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Primary Agent is unavailable.");
+        return response.json() as Promise<{ agents?: { id: string; isPrimary: boolean; status: string }[] }>;
+      })
+      .then((body) => {
+        const primary = body.agents?.find((agent) => agent.isPrimary && agent.status === "active" && typeof agent.id === "string");
+        if (!primary) throw new Error("Primary Agent is unavailable.");
+        if (!controller.signal.aborted) setPrimaryAgentId(primary.id);
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) {
+          setPrimaryAgentId(null);
+          setPrimaryAgentError(true);
+        }
+      });
+    return () => controller.abort();
+  }, [primaryAgentRetry]);
 
   // Put every installed and saved skill one "/" away.
   useEffect(() => {
@@ -1571,6 +1595,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           roleId={index.threads.find((thread) => thread.id === index.activeId)?.roleId}
           roleName={index.threads.find((thread) => thread.id === index.activeId)?.roleName}
           engineeringIncluded={engineeringIncluded}
+          primaryAgentId={primaryAgentId}
+          primaryAgentError={primaryAgentError}
+          onRetryPrimaryAgent={() => setPrimaryAgentRetry((value) => value + 1)}
           engineeringWork={engineeringWorkByThread[index.activeId] ?? null}
           onEngineeringWorkChange={(work) => setEngineeringWorkByThread((current) => {
             const next = { ...current };
@@ -1796,6 +1823,9 @@ function ChatThread({
   roleId,
   roleName,
   engineeringIncluded,
+  primaryAgentId,
+  primaryAgentError,
+  onRetryPrimaryAgent,
   engineeringWork,
   onEngineeringWorkChange,
   initialChat: savedInitialChat,
@@ -1825,6 +1855,9 @@ function ChatThread({
   roleId?: string;
   roleName?: string;
   engineeringIncluded: boolean;
+  primaryAgentId: string | null;
+  primaryAgentError: boolean;
+  onRetryPrimaryAgent: () => void;
   engineeringWork: ChatEngineeringWork | null;
   onEngineeringWorkChange: (work: ChatEngineeringWork | null) => void;
   initialChat: SavedChat;
@@ -1852,7 +1885,9 @@ function ChatThread({
 }) {
   const [initialChat] = useState(() => reconcileChatSession(savedInitialChat));
   const activeLabel = roleName ?? agentName;
-  const canSelectEngineeringWork = engineeringIncluded && !agentId && !roleId && !ownerConflict;
+  const canSelectEngineeringWork = engineeringIncluded && primaryAgentId !== null &&
+    (!agentId || agentId === primaryAgentId) && !roleId && !ownerConflict;
+  const [workBindingError, setWorkBindingError] = useState<string | null>(null);
   const [draft, setDraft] = useState(initialDraft ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
@@ -1925,6 +1960,8 @@ function ChatThread({
       for (const name of Object.keys(headers)) {
         if (name.toLowerCase() === "x-myeve-engineering-work-id") delete headers[name];
       }
+      if (engineeringWork && !canSelectEngineeringWork)
+        throw new Error("Selected Work cannot be bound to this Agent.");
       if (canSelectEngineeringWork && engineeringWork) headers["x-myeve-engineering-work-id"] = engineeringWork.id;
       return {
         ...input,
@@ -2206,6 +2243,11 @@ function ChatThread({
 
   async function sendDraft() {
     if (ownerConflict || uiOnlyFixture) return;
+    if (engineeringWork && !canSelectEngineeringWork) {
+      setWorkBindingError("Selected Work cannot be bound to Sofie right now. Retry Agent identity or clear the selection.");
+      return;
+    }
+    setWorkBindingError(null);
     const text = draft.trim();
     if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
     const staged = attachments;
@@ -2400,7 +2442,7 @@ function ChatThread({
           onClick={onOpenSidebar}
         />
 
-        {agentId && !ownerConflict && (
+        {agentId && agentId !== primaryAgentId && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
             <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-subtle">Direct Agent conversation</span></span>
             <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-brand hover:underline">View Agent</a>
@@ -2427,7 +2469,13 @@ function ChatThread({
           </div>
         )}
 
-        {canSelectEngineeringWork && <ChatWorkSelector selected={engineeringWork} onSelect={onEngineeringWorkChange} />}
+        {engineeringIncluded && !roleId && !ownerConflict && primaryAgentId === null && (
+          <div role={primaryAgentError ? "alert" : "status"} className="mx-10 mt-3 rounded-xl border border-kumo-hairline px-3 py-2 text-xs text-kumo-subtle">
+            {primaryAgentError ? "Sofie identity could not be checked. Work context is unavailable." : "Checking Sofie identity before enabling Work context…"}
+            {primaryAgentError && <button type="button" className="ms-2 font-medium text-kumo-brand underline" onClick={onRetryPrimaryAgent}>Retry</button>}
+          </div>
+        )}
+        {canSelectEngineeringWork && <ChatWorkSelector selected={engineeringWork} onSelect={(work) => { setWorkBindingError(null); onEngineeringWorkChange(work); }} />}
 
         {ownerConflict && (
           <div role="status" className="mx-10 mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">
@@ -2452,7 +2500,7 @@ function ChatThread({
                         ? "This fixture is for inspecting Work and route explanations. Chat requires a live model connection."
                         : roleId && roleName
                         ? `Give ${roleName} one bounded assignment. This uses the primary Agent's runtime and does not create a persistent identity.`
-                        : agentId
+                        : agentId && agentId !== primaryAgentId
                         ? `${agentName} can use only the capabilities assigned on its Agent record.`
                         : capabilityNotice.kind === "ready"
                         ? "Ask me anything — I have your memory, a browser, and all your connected apps."
@@ -2563,6 +2611,15 @@ function ChatThread({
               void sendDraft();
             }}
           >
+            {workBindingError && (
+              <div role="alert" className="flex items-center gap-3 px-2 py-1 text-sm text-kumo-danger">
+                <span>{workBindingError}</span>
+                <button type="button" className="font-medium underline" onClick={() => {
+                  onEngineeringWorkChange(null);
+                  setWorkBindingError(null);
+                }}>Clear Work</button>
+              </div>
+            )}
             {uploadError && <p role="alert" className="px-2 py-1 text-sm text-kumo-danger">{uploadError}</p>}
             {uploading && <p role="status" className="px-2 py-1 text-sm">Uploading attachments…</p>}
             {attachments.length > 0 && (

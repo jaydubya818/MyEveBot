@@ -3,9 +3,23 @@ import { getCapability } from "./capability-registry.ts";
 import type { NotificationProvider } from "./execution-delivery.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { deploymentOwnerId } from "./routine-review.ts";
-import { ActionBlocked,ActionGateway,consumeActionAuthority } from "./action-gateway.ts";
+import { ActionBlocked,ActionGateway,consumeActionAuthority,consumeProviderAuthority } from "./action-gateway.ts";
 
 const MESSAGE="Your routine completed. Open MyEve to review the result.";
+
+/** The exact owner, private DM and bot must still be configured at the send leaf. */
+export function telegramRoutineSendAllowed(input:{ownerId:string;chatId:string;botToken:string},env:NodeJS.ProcessEnv=process.env,configuredOwnerId:string=deploymentOwnerId()):boolean {
+  const currentChatId=env.TELEGRAM_PROACTIVE_CHAT_ID?.trim();
+  const currentBotToken=env.TELEGRAM_BOT_TOKEN?.trim();
+  const allowed=(env.TELEGRAM_ALLOWED_USER_IDS??"").split(",").map(id=>id.trim());
+  return input.ownerId===configuredOwnerId
+    && /^[1-9]\d{0,18}$/.test(input.chatId)
+    && currentChatId===input.chatId
+    && !!currentBotToken
+    && currentBotToken===input.botToken
+    && allowed.includes(input.chatId);
+}
+
 export const routineNotificationProvider:NotificationProvider={
   async deliver(delivery) {
     const rows=await db().query(`SELECT r.agent_id FROM task_runs r JOIN web_chat_threads t ON t.owner_id=r.owner_id
@@ -18,7 +32,7 @@ export const routineNotificationProvider:NotificationProvider={
     if(delivery.channel==="push")return {status:"definitely_failed",retryable:false};
     const token=process.env.TELEGRAM_BOT_TOKEN?.trim();
     const chatId=process.env.TELEGRAM_PROACTIVE_CHAT_ID?.trim();
-    const allowed=(process.env.TELEGRAM_ALLOWED_USER_IDS??"").split(",").map(id=>id.trim());
+    const target={ownerId:delivery.ownerId,chatId:chatId??"",botToken:token??""};
     try {
       await new ActionGateway().execute({ownerId:delivery.ownerId,runId:delivery.runId,actionKey:`delivery:${delivery.id}`,
         capabilityId:"notification.send",actionClass:"send",executor:{kind:"system",agentId:String(rows[0].agent_id)},
@@ -26,12 +40,14 @@ export const routineNotificationProvider:NotificationProvider={
         delivery:{id:delivery.id,claimVersion:delivery.version,channel:delivery.channel,resultReference:delivery.resultReference}},
       {
         async resolveTarget() {
-          if(delivery.ownerId!==deploymentOwnerId() || !token || !chatId || !allowed.includes(chatId))throw new Error("Notification target unavailable");
-          return {provider:"telegram",account:delivery.ownerId,resource:chatId};
+          if(!telegramRoutineSendAllowed(target))throw new Error("Notification target unavailable");
+          return {provider:"telegram",account:delivery.ownerId,resource:target.chatId};
         },
         async execute(parameters,context) {
           await consumeActionAuthority(context,parameters,"notification.send");
-          const response=await fetch(`https://api.telegram.org/bot${token}/sendMessage`,{
+          await consumeProviderAuthority(context,parameters,"notification.send");
+          if(context.target.resource!==target.chatId || !telegramRoutineSendAllowed(target))throw new Error("Notification target changed before send");
+          const response=await fetch(`https://api.telegram.org/bot${target.botToken}/sendMessage`,{
             method:"POST",headers:{"content-type":"application/json"},signal:AbortSignal.timeout(15_000),
             body:JSON.stringify({chat_id:context.target.resource,text:MESSAGE}),
           });

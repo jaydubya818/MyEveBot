@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { digest, profileSchema, shaSchema } from "./contract.ts";
 import { invalidateEvidence, latestCandidate, nowIso, queueRun, readiness, type Execution, type GitHubTruth } from "./execution.ts";
-import { workBranch, type EngineeringGitHub, type RepositorySnapshot } from "./github.ts";
+import { assertCandidateIdentity, workBranch, type EngineeringGitHub, type RepositorySnapshot } from "./github.ts";
 import type { Executor, ProtectedVerifier } from "./executor.ts";
 import type { ExecutionStore } from "./execution-store.ts";
 import { WorkError } from "./types.ts";
@@ -67,6 +67,8 @@ export class EngineeringWorker {
           state.humanHandoffGeneration=work.lifecycle==="active"&&work.control==="human"?work.generation:null;
         }
         else {
+          if(state.runs.some(run=>run.custodyUnresolved&&!run.resourceReleasedAt))
+            throw new WorkError("candidate_custody","An interrupted executor resource has no retained candidate. Reconcile its contents before a fresh attempt.");
           if(!await this.authorityCurrent())throw new WorkError("agent_authority","The coordinating Agent is no longer active in this owner scope.");
           if(work.criteriaVersion!==state.contract.criteriaVersion||state.contract.profileHash!==this.profileCurrent())throw new Error("The current criteria or profile requires a new contract.");
           const truth=await this.github.observe(state.contract,workBranch(id));
@@ -81,9 +83,17 @@ export class EngineeringWorker {
           state.interventions.push({id:randomUUID(),kind:"judgment",reason:"Human gave back control",at:nowIso()});
         }
         await save("writer_fenced");
-        for(const run of state.runs.filter(r=>r.status==="stopped"&&!r.resourceReleasedAt)){await this.executor.cleanup(run);run.resourceReleasedAt=nowIso();}
-        await save("fenced_resources_released");return;
+        const releasable=state.runs.filter(r=>!r.custodyUnresolved&&!r.resourceReleasedAt&&
+          (r.status==="stopped" || (r.candidate&&state.candidates.some(candidate=>candidate.sha===r.candidate&&candidate.runId===r.id))));
+        for(const run of releasable){await this.executor.cleanup(run);run.resourceReleasedAt=nowIso();}
+        if(releasable.length)await save("fenced_resources_released");return;
       }
+      // A crash or cleanup error after candidate_retained leaves an idempotent
+      // cleanup debt. Only a candidate already present in durable state qualifies.
+      const retainedResources=state.runs.filter(run=>run.candidate&&!run.resourceReleasedAt&&
+        state.candidates.some(candidate=>candidate.sha===run.candidate&&candidate.runId===run.id));
+      for(const run of retainedResources){await this.executor.cleanup(run);run.resourceReleasedAt=nowIso();}
+      if(retainedResources.length)await save("retained_resources_released");
       // An owner-declined candidate is intentionally stopped. Profile expiry or a
       // disabled Agent must not turn that recorded decision into a new request.
       if(state.phase==="stopped")return;
@@ -111,6 +121,7 @@ export class EngineeringWorker {
         if(observed==="running")return;
         if(observed==="lost"||observed==="failed")throw new WorkError("executor_lost","Executor stopped without a qualified candidate. Work remains durable; select a fresh instance of the same executor.");
         const candidate=await this.executor.collectCandidate(state.contract,run,snapshot);
+        assertCandidateIdentity(state.contract,run,snapshot,candidate);
         await this.executor.collectUsage(run);
         invalidateEvidence(state);state.candidates.push(candidate);run.status="candidate";run.candidate=candidate.sha;run.endedAt=nowIso();state.phase="verifying";
         // Candidate custody precedes destruction of every replaceable executor resource.
@@ -189,8 +200,11 @@ export class EngineeringWorker {
       }
       try {
         await this.store.save(work,state,"needs_human_review",claim.token);
-        for(const run of state.runs.filter(r=>r.status==="failed"&&!r.resourceReleasedAt)){await this.executor.cleanup(run);run.resourceReleasedAt=nowIso();}
-        await this.store.save(work,state,"failed_resources_released",claim.token);
+        // Failed collection has not established custody. Keep the only possible
+        // copy until an operator reconciles the volume; a new attempt is fenced.
+        const releasable=state.runs.filter(r=>r.status==="failed"&&r.candidate&&!r.resourceReleasedAt);
+        for(const run of releasable){await this.executor.cleanup(run);run.resourceReleasedAt=nowIso();}
+        if(releasable.length)await this.store.save(work,state,"failed_resources_released",claim.token);
       } catch { /* Newer control/worker state wins; deterministic resource names remain in the manifest for reconciliation. */ }
     } finally {clearInterval(heartbeat);await this.store.release(id,claim.token);}
   }
@@ -199,12 +213,21 @@ export class EngineeringWorker {
     return candidate?{sha:candidate.sha,files:candidate.files}:this.github.snapshot(sha);
   }
   private async retainInterruptedCandidate(state:Execution,run:Execution["runs"][number]) {
-    if(!run.inputSnapshot||run.candidate)return;
+    if(run.candidate)return;
+    if(!run.inputSnapshot) {
+      if(run.status==="running") {
+        run.custodyUnresolved=true;
+        state.blockers.push("Interrupted attempt has no admissible candidate: the source snapshot is unavailable.");
+      }
+      return;
+    }
     try {
       const candidate=await this.executor.collectCandidate(state.contract,run,run.inputSnapshot);
+      assertCandidateIdentity(state.contract,run,run.inputSnapshot,candidate);
       invalidateEvidence(state);state.candidates.push(candidate);run.candidate=candidate.sha;
     } catch(error) {
       // No returned candidate is claimed. Invalid/no-change output cannot become authoritative evidence.
+      run.custodyUnresolved=true;
       state.blockers.push(`Interrupted attempt has no admissible candidate: ${error instanceof Error?error.message:"unavailable"}`);
     }
   }
@@ -212,6 +235,8 @@ export class EngineeringWorker {
     const work=await this.store.workStore.get(id),state=await this.store.get(id);
     if(!await this.authorityCurrent())throw new Error("Current coordinating Agent authority is required.");
     if(!state||state.revision!==revision||work.control!=="agent"||work.generation!==state.generation||state.effects.some(e=>["PREPARED","UNKNOWN"].includes(e.status)))throw new Error("Current agent control, generation and reconciled external effects are required.");
+    if(state.runs.some(run=>run.custodyUnresolved&&!run.resourceReleasedAt))
+      throw new WorkError("candidate_custody","An interrupted executor resource has no retained candidate. Reconcile its contents before a fresh attempt.");
     if(state.contract.profileHash!==this.profileCurrent()||work.criteriaVersion!==state.contract.criteriaVersion)throw new Error("Contract authority changed; continuation denied.");
     const truth=await this.github.observe(state.contract,workBranch(id));
     assertCurrentRepository(state,truth);

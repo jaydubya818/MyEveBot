@@ -1,9 +1,8 @@
 import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
 import { WorkStore } from "../../lib/engineering/store.ts";
-import { RoutingStore, routingForWorkVersion } from "../../lib/engineering/routing-store.ts";
 import { ExecutionStore } from "../../lib/engineering/execution-store.ts";
-import { manifest } from "../../lib/engineering/execution.ts";
+import { EngineeringWorkerProjectionStore } from "../../lib/engineering/worker-projection.ts";
 import {
   createWorkSchema,
   criteriaSchema,
@@ -86,20 +85,24 @@ export default defineDynamic({
             actorId: current.principalId,
             scopeKind: "personal",
           });
+          const projections = new EngineeringWorkerProjectionStore(store);
           if (input.operation === "list") {
-            const items=await store.list();const execution=new ExecutionStore(store);
-            return {work:await Promise.all(items.map(async work=>{const state=await execution.get(work.id);return {work,manifest:state?manifest(work,state):null};}))};
+            const items = await projections.list();
+            return { work: items.map(item => ({ work: item.work, manifest: item.manifest, projection: item.projection })) };
           }
           if (input.operation === "get") {
-            const work=await store.get(input.workId!), executions=new ExecutionStore(store), state=await executions.get(input.workId!);
+            const snapshot = await projections.get(input.workId!);
+            const { work, execution: state } = snapshot;
+            const executions = new ExecutionStore(store);
             return {
               work,
-              manifest:state?manifest(work,state):null,
+              manifest: snapshot.manifest,
+              projection: snapshot.projection,
               results:state?.results??[],
               runs:state?.runs??[],
               evidence:state?.evidence.map(({id,check,result,candidate,criteriaVersion,profileHash,producer,observedAt,artifactHash})=>({id,check,result,candidate,criteriaVersion,profileHash,producer,observedAt,artifactHash}))??[],
               executionHistory:state?await executions.history(input.workId!):[],
-              routing: routingForWorkVersion(await new RoutingStore(store).snapshot(input.workId!), work.version),
+              routing: snapshot.routing,
               events: await store.events(input.workId!),
               criteriaHistory: await store.criteriaHistory(input.workId!),
             };

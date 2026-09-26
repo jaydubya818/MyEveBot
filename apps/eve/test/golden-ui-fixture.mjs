@@ -11,6 +11,7 @@ import {RoutingStore} from '../lib/engineering/routing-store.ts';
 import {EngineeringWorker} from '../lib/engineering/worker.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {nowIso} from '../lib/engineering/execution.ts';
+import {syntheticCandidate} from './golden-ui-candidate.mjs';
 
 if(process.env.GOLDEN_UI_FIXTURE!=='1')throw Error('Explicit simulated browser fixture opt-in required');
 const liveChat=process.env.GOLDEN_UI_LIVE_CHAT==='1';
@@ -26,26 +27,36 @@ const name='golden_ui',port=3103,sqlPort=3102;
 const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55468/postgres'});await admin.connect();if(!reuse)await admin.query(`CREATE DATABASE ${name}`);await admin.end();
 const pool=new Pool({connectionString:'postgresql://postgres@127.0.0.1:55468/'+name});const client=await pool.connect();
 await runMigrations({query:async(q,p)=>(await client.query(q,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const s of statements)await client.query(s.sql,s.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}},await loadMigrations());client.release();
-const trace=JSON.parse(await readFile('/private/tmp/myeve-golden-simulation-report.json','utf8')).trace;
+const trace=reuse?null:JSON.parse(await readFile('/private/tmp/myeve-golden-simulation-report.json','utf8')).trace;
 const principal={scopeId:'golden-owner',actorId:'golden-owner',scopeKind:'personal'},database={query:async(q,p)=>(await pool.query(q,p)).rows};
 const store=new WorkStore(principal,database),execution=new ExecutionStore(store),workers=[];
 const ids=reuse?JSON.parse(await readFile('/private/tmp/myeve-golden-ui-ids.json','utf8')):{};
 function attachWorker(work,contract,initialHead,initialPr){
   let head=initialHead,pr=initialPr;
-  const provider={async observe(){return {...trace.github,observedAt:nowIso(),head,pr,reviews:[],checks:head?[{id:'1',name:'quantity-ci',sha:head,attempt:1,result:'PASS',details:'Explicit browser simulation'}]:[]};},
-    async publish(_contract,candidate){head=candidate.sha;pr={number:2,url:'https://github.com/fixture/golden/pull/2',draft:true,open:true};return pr;},async snapshot(){throw Error('UI fixture executor unavailable');}};
+  const provider={async observe(){return {observedAt:nowIso(),authority:true,repository:contract.repository,baseSha:contract.baseSha,head,pr,
+    reviews:[],checks:head?[{id:'1',name:'quantity-ci',sha:head,attempt:1,result:'PASS',details:'SIMULATED CI for browser fixture'}]:[]};},
+    async publish(){throw Error('UI fixture does not publish candidates.');},async snapshot(){throw Error('UI fixture executor unavailable');}};
   workers.push({id:work.id,worker:new EngineeringWorker(execution,provider,{async requestStop(){},async cleanup(){}},{},()=>digest(contract.profile),async()=>true)});
 }
 if(!reuse){
 for(const kind of ['ready','approval']) {
-  const {work}=await store.create({title:kind==='ready'?'Golden Work · review-ready simulation':'Golden Work · publication decision simulation',objective:trace.contract.objective,repository:trace.contract.repository,criteria:trace.contract.criteria,maxCostUsd:5,maxDurationSeconds:3600,idempotencyKey:randomUUID()});ids[kind]=work.id;
+  const {work}=await store.create({title:kind==='ready'?'Golden Work · local result simulation':'Golden Work · verification pending simulation',objective:trace.contract.objective,repository:trace.contract.repository,criteria:trace.contract.criteria,maxCostUsd:5,maxDurationSeconds:3600,idempotencyKey:randomUUID()});ids[kind]=work.id;
   const contract={...trace.contract,workId:work.id,scope:principal,deadline:new Date(Date.now()+3600000).toISOString()};await execution.admit(work,contract);
-  const state=await execution.get(work.id);Object.assign(state,{qualificationMode:'simulation',phase:kind==='ready'?'ready':'approval',runs:trace.runs,candidates:[],evidence:trace.evidence,approval:kind==='ready'?trace.approvals[0]:null,effects:kind==='ready'?trace.effects:[],truth:trace.github,results:kind==='ready'?trace.results:[],addressedReviews:['review-1'],reviewChecks:[]});
-  // Full retained candidates are reconstructed from protected fixture artifacts, not fabricated provider receipts.
-  for(const c of trace.candidates)state.candidates.push({...c,workId:work.id,files:{'quantity.mjs':'// UI fixture; candidate artifact remains in integration trace'},patch:JSON.stringify([{path:'quantity.mjs',before:'unvalidated',after:'validated positive integer quantity'}])});
-  state.evidence=state.evidence.map(e=>({...e,workId:work.id}));
-  if(kind==='approval'){state.runs=state.runs.slice(0,1);state.candidates=state.candidates.slice(0,1);state.evidence=state.evidence.filter(e=>e.candidate===state.candidates[0].sha).map(e=>({...e,result:'PASS'}));}
-  const head=kind==='ready'?state.candidates.at(-1).sha:null,pr=kind==='ready'?trace.github.pr:null;
+  const state=await execution.get(work.id);
+  const {run,candidate,localChecks}=await syntheticCandidate(contract,state.generation);
+  const pr=kind==='ready'?{number:1,url:'https://github.com/fixture/golden/pull/1',draft:true,open:true}:null;
+  const head=pr?candidate.sha:null;
+  const truth={observedAt:nowIso(),authority:true,repository:contract.repository,baseSha:contract.baseSha,head,pr,
+    checks:head?[{id:'1',name:'quantity-ci',sha:head,attempt:1,result:'PASS',details:'SIMULATED CI for browser fixture'}]:[],reviews:[]};
+  const results=pr?[{id:randomUUID(),version:1,createdAt:nowIso(),candidate:candidate.sha,
+    summary:'Synthetic candidate passed local host checks only. Protected verification and live publication have not run.',
+    objective:work.objective,criteria:work.criteria,changes:candidate.changedPaths,why:work.objective,
+    verification:localChecks,github:truth,runs:[run],
+    limitations:['Browser fixture only: local host checks are not protected evidence; no live GitHub publication, CI, reviewer or coding executor.'],risks:[],interventions:[],
+    reservedUsd:0,costCoverage:'No provider cost; browser fixture only',elapsedSeconds:0}]:[];
+  Object.assign(state,{qualificationMode:'simulation',phase:'observing',runs:[run],candidates:[candidate],
+    evidence:[],approval:null,effects:[],truth,results,addressedReviews:[],reviewChecks:[],
+    blockers:['SIMULATED local host checks only. Protected verification and live publication have not run.']});
   await execution.save(await store.get(work.id),state,'browser_fixture_seed');
   attachWorker(work,contract,head,pr);
 }
@@ -76,8 +87,9 @@ await new RoutingStore(store).recordProposal(routeWork.id,{
 }else{
   for(const kind of ['ready','approval']){
     const work=await store.get(ids[kind]),state=await execution.get(work.id);
-    const contract={...trace.contract,workId:work.id,scope:principal,deadline:new Date(Date.now()+3600000).toISOString()};
-    attachWorker(work,contract,state.truth?.head??null,state.truth?.pr??null);
+    // Reuse the contract pinned in this database. The simulation report may be
+    // regenerated between fixture restarts with fresh criterion IDs/profile hash.
+    attachWorker(work,state.contract,state.truth?.head??null,state.truth?.pr??null);
   }
 }
 const neonUrl='postgresql://fixture:isolated@ep-golden.neon.tech/golden_ui';

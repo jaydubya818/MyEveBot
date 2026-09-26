@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ExecutionDetail } from "./execution-detail";
 import { RoutingSummary, RoutingTimeline, type RoutingSnapshot } from "./routing-summary";
 import type { Execution, manifest } from "../../lib/engineering/execution";
+import type { EngineeringWorkerProjection } from "../../lib/engineering/worker-projection";
 import type {
   Criterion,
   Work,
@@ -25,6 +26,7 @@ type Detail = {
   criteriaHistory: CriteriaRevision[];
   execution: Execution | null;
   manifest: ReturnType<typeof manifest> | null;
+  projection?: EngineeringWorkerProjection;
   executionHistory: {revision:number;kind:string;actor_id:string;created_at:string}[];
   routing?: RoutingSnapshot | null;
 };
@@ -65,6 +67,7 @@ export function WorkDashboard() {
   const [query, setQuery] = useState("");
   const [executionReason, setExecutionReason] = useState("");
   const [manifests,setManifests]=useState<ReturnType<typeof manifest>[]>([]);
+  const [projections,setProjections]=useState<EngineeringWorkerProjection[]>([]);
   const [executionAvailable,setExecutionAvailable]=useState(false);
   const [intake,setIntake]=useState(false);
   const [statusFilter,setStatusFilter]=useState("");
@@ -80,6 +83,7 @@ export function WorkDashboard() {
     if (request !== summaryRequest.current) return;
     setItems(data.work);
     setManifests((data.manifests??[]).filter(Boolean));
+    setProjections(data.projections ?? []);
     setExecutionAvailable(data.execution.available);
     setExecutionReason(data.execution.reason);
     setSummaryStale(false);
@@ -126,6 +130,10 @@ export function WorkDashboard() {
           ...current.filter((item) => item.workId !== id),
           ...(data.manifest ? [data.manifest] : []),
         ]);
+        setProjections((current) => [
+          ...current.filter((item) => item.workId !== id),
+          ...(data.projection ? [data.projection] : []),
+        ]);
         setDetailStale(false);
       } catch {
         if (!disposed && selection.current === version) setDetailStale(true);
@@ -167,6 +175,10 @@ export function WorkDashboard() {
         setItems((current) =>
           current.map((item) => (item.id === data.work.id ? data.work : item)),
         );
+        setProjections((current) => [
+          ...current.filter((item) => item.workId !== id),
+          ...(data.projection ? [data.projection] : []),
+        ]);
         requestAnimationFrame(() => {
           heading.current?.focus();
           if (new URL(window.location.href).searchParams.get("tab") === "Decisions")
@@ -259,9 +271,12 @@ export function WorkDashboard() {
       setBusy(false);
     }
   }
+  const statusFor = (work: Work) => projections.find(item => item.workId === work.id)?.status
+    ?? manifests.find(item => item.workId === work.id)?.status ?? status(work);
   const visible = items.filter((w) =>
-    `${w.title} ${w.repository}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter||manifests.find(m=>m.workId===w.id)?.status===statusFilter),
+    `${w.title} ${w.repository}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter||statusFor(w)===statusFilter),
   );
+  const statuses = items.map(statusFor);
   const selectedWorkId = openingId ?? failedOpenId ?? detail?.work.id;
   const openingTitle = items.find((item) => item.id === openingId)?.title ?? "selected Work";
   const failedTitle = items.find((item) => item.id === failedOpenId)?.title ?? "selected Work";
@@ -323,7 +338,7 @@ export function WorkDashboard() {
             New Work
           </button></div>
         </div>
-        {manifests.length>0&&<nav aria-label="Work status" className="flex flex-wrap gap-2">{["Working","Waiting","Needs You","Ready for Review","In your hands","Paused","Stopped","Failed"].filter(name=>manifests.some(m=>m.status===name)||statusFilter===name).map(name=><button key={name} className={button} aria-pressed={statusFilter===name} onClick={()=>setStatusFilter(statusFilter===name?"":name)}>{name} · {manifests.filter(m=>m.status===name).length}</button>)}</nav>}
+        {items.length>0&&<nav aria-label="Work status" className="flex flex-wrap gap-2">{["Working","Waiting","Waiting for admission","Needs You","Ready for Review","In your hands","You have control","Paused","Stopping","Stopped","Needs setup","Accepted","Cancelled","Failed","Superseded"].filter(name=>statuses.includes(name)||statusFilter===name).map(name=><button key={name} className={button} aria-pressed={statusFilter===name} onClick={()=>setStatusFilter(statusFilter===name?"":name)}>{name} · {statuses.filter(value=>value===name).length}</button>)}</nav>}
         {summaryStale && <p role="status" className="rounded-lg border border-amber-500/40 p-3 text-sm">Work totals could not be refreshed. Open a Work item to recheck its current state before acting.</p>}
         {intake&&<form className="grid gap-4 rounded-xl border border-kumo-line p-5 sm:grid-cols-3" onSubmit={delegate} aria-label="Delegate GitHub issue"><label className={label}>Issue number<input className={field} type="number" name="issue" min="1" required/></label><label className={label}>Maximum model cost (USD)<input className={field} name="budget" type="number" min="0.1" max="20" step="0.1" defaultValue="5" required/></label><label className={label}>Deadline (minutes)<input className={field} name="minutes" type="number" min="5" max="60" defaultValue="30" required/></label><p className="text-sm text-kumo-subtle sm:col-span-3">Uses the owner-configured private qualification repository, acceptance criteria and protected checks. Publication requires a separate exact-candidate approval.</p><button className={primary} disabled={busy}>Admit Work</button></form>}
         {error && (
@@ -382,7 +397,10 @@ export function WorkDashboard() {
                 </div>
               ) : (
                 visible.map((w) => {
+                  const currentProjection = projections.find((item) => item.workId === w.id);
                   const currentManifest = manifests.find((item) => item.workId === w.id);
+                  const pendingCount = currentProjection?.pendingDecisions.length ?? currentManifest?.pendingDecisions.length ?? 0;
+                  const nextStep = currentProjection?.nextStep ?? currentManifest?.nextStep;
                   return (
                     <button
                       key={w.id}
@@ -393,8 +411,8 @@ export function WorkDashboard() {
                     >
                       <span className="block break-words font-medium">{w.title}</span>
                       <span className="mt-1 block break-all text-xs text-kumo-subtle">{w.repository}</span>
-                      <span className="mt-3 block text-xs">{currentManifest?.status ?? status(w)}{currentManifest?.pendingDecisions.length ? ` · ${currentManifest.pendingDecisions.length} decision${currentManifest.pendingDecisions.length === 1 ? "" : "s"} waiting` : ""}</span>
-                      {currentManifest?.nextStep && <span className="mt-1 line-clamp-2 break-words text-xs text-kumo-subtle">Next: {currentManifest.nextStep}</span>}
+                      <span className="mt-3 block text-xs">{currentProjection?.status ?? currentManifest?.status ?? status(w)}{pendingCount ? ` · ${pendingCount} decision${pendingCount === 1 ? "" : "s"} waiting` : ""}</span>
+                      {nextStep && <span className="mt-1 line-clamp-2 break-words text-xs text-kumo-subtle">Next: {nextStep}</span>}
                     </button>
                   );
                 })
@@ -511,7 +529,7 @@ export function WorkDashboard() {
                 <div className="space-y-6">
                   <div>
                     <p className="mb-2 text-sm text-kumo-subtle">
-                      {detail.manifest?.status??status(detail.work)} · Version {detail.work.version}
+                      {detail.projection?.status ?? detail.manifest?.status ?? status(detail.work)} · Version {detail.work.version}
                     </p>
                     <h2
                       ref={heading}
@@ -529,9 +547,10 @@ export function WorkDashboard() {
                       {detail.work.maxDurationSeconds / 60} minutes active
                       runtime
                     </p>
-                    {(detail.manifest?.pendingDecisions.length ?? 0) > 0 && (
+                    {detail.projection && <p className="mt-2 text-xs text-kumo-subtle">Next: {detail.projection.nextStep} Last update: <time dateTime={detail.projection.lastMeaningfulActivity}>{new Date(detail.projection.lastMeaningfulActivity).toLocaleString()}</time>.</p>}
+                    {(detail.projection?.pendingDecisions.length ?? detail.manifest?.pendingDecisions.length ?? 0) > 0 && (
                       <a href="#engineering-execution" className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-kumo-warning/50 px-4 text-sm font-medium text-kumo-default">
-                        {detail.manifest?.attention?.reconciliation ? "Review reconciliation" : "Review decision"} · {detail.manifest?.pendingDecisions.length} waiting
+                        {(detail.projection?.attention ?? detail.manifest?.attention)?.reconciliation ? "Review reconciliation" : "Review decision"} · {detail.projection?.pendingDecisions.length ?? detail.manifest?.pendingDecisions.length} waiting
                       </a>
                     )}
                   </div>
