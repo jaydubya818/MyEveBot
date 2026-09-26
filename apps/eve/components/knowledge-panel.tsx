@@ -57,8 +57,8 @@ function Detail({ record, onOpen }: { record: KnowledgeRecordView; onOpen: (id: 
           {record.rationale && <section><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Rationale</h3><p className="mt-2 whitespace-pre-wrap text-sm leading-6">{record.rationale}</p></section>}
           {record.alternatives.length > 0 && <section className="mt-6"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Alternatives considered</h3><ul className="mt-2 space-y-2 text-sm">{record.alternatives.map((alternative) => <li key={alternative} className="flex gap-2"><span className="text-kumo-subtle">—</span><span>{alternative}</span></li>)}</ul></section>}
           {record.reopenCondition && <section className="mt-6 rounded-xl border border-kumo-hairline bg-kumo-tint p-4"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Reopen when</h3><p className="mt-1.5 text-sm leading-6">{record.reopenCondition}</p></section>}
-          {record.testDescription && <section className="mt-6"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Test</h3><p className="mt-2 text-sm leading-6">{record.testDescription}</p>{record.decisionTrigger && <p className="mt-2 text-xs text-kumo-subtle">Decision trigger: {record.decisionTrigger}</p>}</section>}
-          {record.kind === "preference" && <section className="mt-6 grid gap-3 rounded-xl border border-kumo-hairline p-4 text-sm"><div><span className="text-kumo-subtle">Value</span><p className="mt-1 font-mono text-xs">{JSON.stringify(record.preferenceValue)}</p></div><div className="flex flex-wrap gap-4"><span>Scope: {record.preferenceScope}</span><span>Origin: {record.preferenceSourceType?.replaceAll("_", " ")}</span></div></section>}
+          {(record.testDescription || record.decisionTrigger) && <section className="mt-6"><h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-kumo-subtle">Test</h3>{record.testDescription && <p className="mt-2 text-sm leading-6">{record.testDescription}</p>}{record.decisionTrigger && <p className="mt-2 text-xs text-kumo-subtle">Decision trigger: {record.decisionTrigger}</p>}</section>}
+          {record.kind === "preference" && <section className="mt-6 grid gap-3 rounded-xl border border-kumo-hairline p-4 text-sm"><div><span className="text-kumo-subtle">Value</span><p className="mt-1 break-all font-mono text-xs">{JSON.stringify(record.preferenceValue)}</p></div><div className="flex flex-wrap gap-4"><span>Scope: {record.preferenceScope}</span><span>Origin: {record.preferenceSourceType?.replaceAll("_", " ")}</span></div></section>}
           <section className="mt-7 border-t border-kumo-hairline pt-5">
             <div className="flex items-center gap-2"><LinkIcon className="size-4 text-kumo-subtle" /><h3 className="text-sm font-semibold">Evidence & sources</h3></div>
             {record.provenance.length === 0 ? <p className="mt-3 text-sm text-kumo-subtle">No source is attached yet. Treat this record cautiously until its origin is documented.</p> : <ol className="mt-3 space-y-3">{record.provenance.map((link) => <li key={link.id} className="rounded-xl border border-kumo-hairline p-3"><div className="flex flex-wrap items-center gap-2 text-xs"><span className="font-medium capitalize">{link.relation.replaceAll("_", " ")}</span><span className="text-kumo-subtle">{Math.round(link.confidence * 100)}%</span></div><p className="mt-1.5 text-sm">{link.source.author ?? link.source.provider ?? "Recorded source"}</p><p className="mt-1 text-xs capitalize text-kumo-subtle">{link.source.sourceType} · {date(link.source.capturedAt)}</p>{link.source.referenceUri && <a className="mt-2 inline-block max-w-full truncate text-xs text-kumo-link hover:underline" href={link.source.referenceUri}>{link.source.referenceUri}</a>}</li>)}</ol>}
@@ -89,15 +89,19 @@ export function KnowledgePanel() {
   const load = useCallback(() => setRevision((value) => value + 1), []);
 
   useEffect(() => {
+    if (initialized) return;
     const controller = new AbortController();
     const id = new URLSearchParams(window.location.search).get("knowledge");
     if (!id) { setInitialized(true); return; }
+    setDetailError(null);
     void requestJson<{ record: KnowledgeRecordView }>(`/api/knowledge/${encodeURIComponent(id)}`, controller.signal)
-      .then(({ record }) => { setTab(record.kind); setSelectedId(record.id); })
-      .catch((reason) => { if (!controller.signal.aborted) setDetailError(reason instanceof Error ? reason.message : "This record could not be loaded."); })
-      .finally(() => { if (!controller.signal.aborted) setInitialized(true); });
+      .then(({ record }) => {
+        if (controller.signal.aborted) return;
+        setTab(record.kind); setSelectedId(record.id); setInitialized(true);
+      })
+      .catch((reason) => { if (!controller.signal.aborted) setDetailError(reason instanceof Error ? reason.message : "This record could not be loaded."); });
     return () => controller.abort();
-  }, []);
+  }, [initialized, revision]);
 
   useEffect(() => {
     if (!initialized) return;
@@ -141,6 +145,8 @@ export function KnowledgePanel() {
   }
 
   function changeTab(kind: KnowledgeKind) {
+    if (kind === tab && initialized) return;
+    setInitialized(true);
     setTab(kind); setStatus(""); setQuery(""); setRecords(null); setSelectedId(null); setDetail(null); setDetailError(null);
     const url = new URL(window.location.href);
     url.searchParams.delete("knowledge");
@@ -153,7 +159,7 @@ export function KnowledgePanel() {
     <div className="grid gap-5 lg:grid-cols-[320px_minmax(0,1fr)]">
       <aside><div className="grid grid-cols-[minmax(0,1fr)_120px] gap-2"><div className="relative"><MagnifyingGlassIcon className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-kumo-subtle" /><Input aria-label="Search knowledge" value={query} placeholder={`Search ${tabInfo.label.toLowerCase()}`} className="w-full ps-9" onChange={(event) => setQuery(event.target.value)} /></div><select aria-label="Filter by status" className="h-9 rounded-lg border border-kumo-hairline bg-kumo-elevated px-2 text-xs capitalize" value={status} onChange={(event) => setStatus(event.target.value)}><option value="">All statuses</option>{KNOWLEDGE_STATUSES[tab].map((value) => <option key={value} value={value}>{value.replaceAll("_", " ")}</option>)}</select></div><p className="mt-3 text-xs leading-5 text-kumo-subtle">{tabInfo.description}</p>
         {error && <div role="alert" className="mt-4 rounded-xl border border-kumo-danger/25 bg-kumo-danger/10 p-3 text-sm text-kumo-danger">{error}</div>}
-        {records === null ? <div className="flex justify-center py-12"><Loader /></div> : records.length === 0 ? <div className="mt-5 rounded-xl border border-dashed border-kumo-hairline p-5 text-center"><p className="text-sm font-medium">No {tabInfo.label.toLowerCase()} found</p><p className="mt-1 text-xs leading-5 text-kumo-subtle">Ask Sofie to record a {tabInfo.id}. Saved records appear here with their sources.</p></div> : <ul className="mt-4 space-y-2">{records.map((record) => <li key={record.id}><button type="button" className={cn("w-full rounded-xl border border-kumo-hairline bg-kumo-elevated p-3 text-start transition-colors hover:bg-kumo-tint", selectedId === record.id && "border-kumo-line bg-kumo-tint")} onClick={() => select(record.id)}><div className="flex items-center justify-between gap-2"><Status value={record.status} /><span className="text-[11px] text-kumo-subtle">{date(record.decidedAt ?? record.createdAt)}</span></div><p className="mt-2 line-clamp-2 text-sm font-medium"><RecordTitle record={record} /></p>{record.title && <p className="mt-1 line-clamp-2 text-xs leading-5 text-kumo-subtle">{record.statement}</p>}</button></li>)}</ul>}
+        {error || (!initialized && detailError) ? null : records === null ? <div className="flex justify-center py-12"><Loader /></div> : records.length === 0 ? <div className="mt-5 rounded-xl border border-dashed border-kumo-hairline p-5 text-center"><p className="text-sm font-medium">No {tabInfo.label.toLowerCase()} found</p><p className="mt-1 text-xs leading-5 text-kumo-subtle">Ask Sofie to record a {tabInfo.id}. Saved records appear here with their sources.</p></div> : <ul className="mt-4 space-y-2">{records.map((record) => <li key={record.id}><button type="button" className={cn("w-full rounded-xl border border-kumo-hairline bg-kumo-elevated p-3 text-start transition-colors hover:bg-kumo-tint", selectedId === record.id && "border-kumo-line bg-kumo-tint")} onClick={() => select(record.id)}><div className="flex items-center justify-between gap-2"><Status value={record.status} /><span className="text-[11px] text-kumo-subtle">{date(record.decidedAt ?? record.createdAt)}</span></div><p className="mt-2 line-clamp-2 text-sm font-medium"><RecordTitle record={record} /></p>{record.title && <p className="mt-1 line-clamp-2 text-xs leading-5 text-kumo-subtle">{record.statement}</p>}</button></li>)}</ul>}
       </aside>
       <div>{detailError ? <div role="alert" className="rounded-xl border border-kumo-danger/25 p-5"><p>{detailError}</p><Button variant="outline" size="sm" onClick={load}>Retry</Button></div> : selectedId && detail === null ? <div className="flex min-h-64 items-center justify-center rounded-2xl border border-kumo-hairline"><Loader /></div> : detail ? <Detail record={detail} onOpen={select} /> : <div className="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-kumo-hairline p-8 text-center"><div><BrainIcon className="mx-auto size-6 text-kumo-subtle" /><p className="mt-3 text-sm font-medium">Select a record</p><p className="mt-1 text-xs text-kumo-subtle">Its provenance and history will appear here.</p></div></div>}</div>
     </div>
