@@ -1,6 +1,6 @@
 # Relay + managed MyEve + MyFactory first beta
 
-Status: **GUIDED HANDOFF PREPARED; INVITATION NOT YET ISSUED** (September 26, 2026). First tester: `orchis.ai.agent@gmail.com`. MyEve operates an isolated Eve for this tester. BYO Vercel remains an advanced option. The managed lifecycle contract and acceptance gates are in [managed-eve-first-beta.md](managed-eve-first-beta.md).
+Status: **GUIDED HANDOFF PREPARED; INVITATION NOT YET ISSUED** (September 26, 2026). MyEve operates an isolated Eve for the first tester. The exact tester email belongs only in the protected operator registry and invitation, never this Git packet. BYO Vercel remains an advanced option. The managed lifecycle contract and acceptance gates are in [managed-eve-first-beta.md](managed-eve-first-beta.md).
 
 | First-user gate | Evidence now | Decision |
 | --- | --- | --- |
