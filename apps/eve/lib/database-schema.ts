@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0039_app_settings.sql";
+export const CURRENT_DATABASE_MIGRATION = "0040_relay_message_delegations.sql";

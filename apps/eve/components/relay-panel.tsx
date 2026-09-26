@@ -376,7 +376,7 @@ export function RelayPanel() {
                   resource: f.resource,
                   conditions: {
                     expiresAt: grantExpiry(f.duration),
-                    rateLimit: { calls: 10, windowSeconds: 60 },
+                    rateLimit: { calls: 10, windowSeconds: f.capability === "message.send" ? 3600 : 60 },
                     allowedTopics: [],
                     approvalRequired: false,
                     ...(f.capability === "work.request"
@@ -438,7 +438,7 @@ export function RelayPanel() {
                   {grantDurationOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
                 </select>
               </label>
-              <p className="text-sm text-kumo-subtle">Review the peer, capability, resource, and expiry before granting access. A never-expiring grant remains active until revoked.</p>
+              <p className="text-sm text-kumo-subtle">Review the peer, capability, resource, and expiry before granting access. Message grants allow at most 10 sends per hour. A never-expiring grant remains active until revoked.</p>
               <button className={control} disabled={busy}>
                 Create grant
               </button>

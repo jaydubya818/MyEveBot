@@ -38,6 +38,8 @@ function fixture() {
     }];
     if (sql.includes("SET status='paused'")) { status = "paused"; order.push("fence"); return []; }
     if (sql.startsWith("SELECT id FROM myeve_relay_grants")) return grantStatus === "revoked" ? [] : [{ id: "grant-one" }];
+    if (sql.startsWith("SELECT credential_encrypted,expires_at FROM myeve_relay_message_delegations")) return [];
+    if (sql.startsWith("DELETE FROM myeve_relay_message_delegations")) return [];
     if (sql.includes("SET status='revoked' WHERE owner_id=$1 AND id=$2")) {
       grantStatus = "revoked"; order.push("grant-recorded"); return [];
     }

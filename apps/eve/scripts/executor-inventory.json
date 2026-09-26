@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Current migration identifier, now 0039; no effects.",
-      "sha256": "a6c05cc6508077b69ccd8a405c037d947790a920a7630e0acade9f0dbd8c3788"
+      "reason": "Current migration identifier, now 0040; no effects.",
+      "sha256": "6fd7d93d4887ecfcbdca2479f73302ff5d294a1e3982790bf369cfa46494fd97"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2415,8 +2415,8 @@
     },
     "lib/relay/client.ts": {
       "classification": "ENFORCED",
-      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Qualification delta: Explicit opt-in fixed HTTPS Relay origin; separate owner session and Agent credentials, bounded responses, no redirects; callers enforce owner or signed request policy. Hosting review: origin-scoped server ingress header only after existing target/source trust checks; redirect denial and canonical credentials/proofs unchanged. Covered by ingress.test.ts.",
-      "sha256": "765ca7e925f3e3c22514d865ddae473076f836f3145dec3de3f0be971cdbce26"
+      "reason": "Explicit opt-in fixed HTTPS Relay origin; separate owner cookie, Agent bearer, and scoped message-delegation bearer paths with bounded responses and redirect denial. Callers enforce owner or signed request policy; Relay independently narrows delegated grant operations. Ingress origin pinning and credential preservation are covered by ingress.test.ts.",
+      "sha256": "36e46f966f122216aa0bb1d805a1aace88dc95c676cffbadd587bc95cee3c783"
     },
     "lib/relay/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -2440,8 +2440,8 @@
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated owner operations enroll, publish, grant, and revoke; retirement locally fences access before disabling the exact Relay Agent and credentials.",
-      "sha256": "e5315a5190ce632330e36cd635889cf093ca1344bf2107ac6d00547a590ff22e"
+      "reason": "Authenticated owner operations enroll and publish; message grants use an encrypted, exact-Agent and peer-bound seven-day Relay delegation with hourly rate limit, while other grants retain owner-cookie authority. Revocation and retirement fence local access and revoke saved delegations before disabling Agent credentials.",
+      "sha256": "757d33cf4d503224be27efc07eb51f11313e030b33b7d13171ca633b3299b0d2"
     },
     "lib/relay/projection.ts": {
       "classification": "READ_ONLY",
