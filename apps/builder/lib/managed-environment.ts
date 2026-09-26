@@ -30,6 +30,10 @@ export interface ManagedEnvironment {
   aiGatewayBudgetUsd: number | null;
   lastHealthCheckAt: string | null;
   lastExportSha256: string | null;
+  lastExportAt?: string | null;
+  lastExportSource?: "control-plane" | "owner-provided" | null;
+  relayRetiredAt?: string | null;
+  deletionAuthorizationSha256?: string | null;
   deletedAt: string | null;
   error: string | null;
   createdAt: string;
@@ -90,6 +94,10 @@ export function newManagedEnvironment(input: {
     aiGatewayBudgetUsd: null,
     lastHealthCheckAt: null,
     lastExportSha256: null,
+    lastExportAt: null,
+    lastExportSource: null,
+    relayRetiredAt: null,
+    deletionAuthorizationSha256: null,
     deletedAt: null,
     error: null,
     createdAt: now,

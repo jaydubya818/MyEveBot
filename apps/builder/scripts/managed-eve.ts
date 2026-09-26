@@ -1,12 +1,13 @@
 /** Operator-only first-beta provisioning. Never expose this command as an HTTP route. */
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { parseEnv } from "node:util";
 
 import { buildEnv } from "../lib/deploy-env";
+import { assertDeletionAuthorization, type DeletionPermit } from "../lib/managed-delete";
 import { assembleDeployment, templateInfo, templateRoot } from "../lib/assemble";
 import { requiredKeys, validateConfig, type AgentConfig } from "../lib/config";
 import { reserveEnvironment, updateEnvironment, type ManagedEnvironment, type ManagedEnvironmentRegistry } from "../lib/managed-environment";
@@ -111,7 +112,7 @@ async function existingOrCreateStore(
     : provisionNeonDatabase(token, teamId, name);
 }
 
-async function ownerReadiness(origin: string, password: string): Promise<{ ready: boolean; checks: string[] }> {
+async function ownerSessionCookie(origin: string, password: string): Promise<string> {
   const login = await fetch(`${origin}/api/auth/login`, {
     method: "POST", redirect: "manual", signal: AbortSignal.timeout(15_000),
     headers: { "Content-Type": "application/json", Origin: origin },
@@ -119,6 +120,11 @@ async function ownerReadiness(origin: string, password: string): Promise<{ ready
   });
   const cookie = login.headers.get("set-cookie")?.split(";")[0];
   if (!login.ok || !cookie) throw new Error("Managed Eve owner sign-in failed.");
+  return cookie;
+}
+
+async function ownerReadiness(origin: string, password: string): Promise<{ ready: boolean; checks: string[] }> {
+  const cookie = await ownerSessionCookie(origin, password);
   const response = await fetch(`${origin}/api/readiness?fresh=1`, {
     redirect: "manual", signal: AbortSignal.timeout(30_000), headers: { Cookie: cookie },
   });
@@ -526,21 +532,66 @@ async function recordExport(configPath: string, archivePath: string): Promise<vo
     });
     const cookie = login.headers.get("set-cookie")?.split(";")[0];
     if (!login.ok || !cookie) throw new Error("Owner sign-in failed before archive verification.");
-    const form = new FormData();
-    form.set("archive", new File([new Uint8Array(archive)], "owner-backup.zip", { type: "application/zip" }));
-    const response = await fetch(`${environment.origin}/api/owner-data`, {
-      method: "POST", redirect: "manual", signal: AbortSignal.timeout(30_000),
-      headers: { Cookie: cookie, Origin: environment.origin }, body: form,
-    });
-    if (!response.ok) throw new Error("Managed Eve rejected the owner archive.");
-    const result = await response.json() as { validation?: { version?: unknown; fileCount?: unknown } };
-    if (result.validation?.version !== 1 || typeof result.validation.fileCount !== "number") {
-      throw new Error("Managed Eve did not return a valid archive-verification receipt.");
-    }
+    const verifiedFiles = await verifyOwnerArchive(environment.origin, cookie, archive);
     const sha256 = createHash("sha256").update(archive).digest("hex");
-    registry = updateEnvironment(registry, environment.id, { lastExportSha256: sha256 });
+    registry = updateEnvironment(registry, environment.id, {
+      lastExportSha256: sha256, lastExportAt: new Date().toISOString(), lastExportSource: "owner-provided",
+    });
     await checkpoint(registry);
-    console.log(JSON.stringify({ environmentId: environment.id, sha256, verifiedFiles: result.validation.fileCount }));
+    console.log(JSON.stringify({ environmentId: environment.id, sha256, verifiedFiles }));
+    return { registry, result: undefined };
+  });
+}
+
+async function verifyOwnerArchive(origin: string, cookie: string, archive: Buffer): Promise<number> {
+  const form = new FormData();
+  form.set("archive", new File([new Uint8Array(archive)], "owner-backup.zip", { type: "application/zip" }));
+  const response = await fetch(`${origin}/api/owner-data`, {
+    method: "POST", redirect: "manual", signal: AbortSignal.timeout(30_000),
+    headers: { Cookie: cookie, Origin: origin }, body: form,
+  });
+  if (!response.ok) throw new Error("Managed Eve rejected the owner archive.");
+  const result = await response.json() as { validation?: { version?: unknown; fileCount?: unknown } };
+  if (result.validation?.version !== 1 || typeof result.validation.fileCount !== "number") {
+    throw new Error("Managed Eve did not return a valid archive-verification receipt.");
+  }
+  return result.validation.fileCount;
+}
+
+async function exportOwnerArchive(configPath: string, outputPath: string): Promise<void> {
+  const input = JSON.parse(await readFile(await privateFile(configPath), "utf8")) as ProvisionFile;
+  if (!isAbsolute(outputPath)) throw new Error("Archive output path must be absolute.");
+  const output = resolve(outputPath);
+  const parent = await stat(dirname(output));
+  if (!parent.isDirectory() || (parent.mode & 0o077) !== 0 ||
+      !relative(process.cwd(), output).startsWith("..")) {
+    throw new Error("Archive output must be outside the checkout in an owner-only directory.");
+  }
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    const environment = registry.environments.find((item) => item.email === input.email.toLowerCase());
+    if (!environment || environment.projectName !== input.config.projectName || !environment.origin ||
+        !["healthy", "active"].includes(environment.state)) {
+      throw new Error("Export requires the exact reachable managed Eve.");
+    }
+    const cookie = await ownerSessionCookie(environment.origin, input.config.accessPassword);
+    const response = await fetch(`${environment.origin}/api/owner-data?download=1`, {
+      redirect: "manual", signal: AbortSignal.timeout(60_000), headers: { Cookie: cookie },
+    });
+    if (!response.ok || response.headers.get("content-type") !== "application/zip" ||
+        Number(response.headers.get("content-length") || "0") > 25_000_000) {
+      throw new Error("Managed Eve owner archive download failed.");
+    }
+    const archive = Buffer.from(await response.arrayBuffer());
+    if (archive.length === 0 || archive.length > 25_000_000) throw new Error("Owner archive size is invalid.");
+    const verifiedFiles = await verifyOwnerArchive(environment.origin, cookie, archive);
+    await writeFile(output, archive, { mode: 0o600, flag: "wx" });
+    const sha256 = createHash("sha256").update(archive).digest("hex");
+    registry = updateEnvironment(registry, environment.id, {
+      lastExportSha256: sha256, lastExportAt: new Date().toISOString(), lastExportSource: "control-plane",
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: environment.id, path: output, sha256, verifiedFiles }));
     return { registry, result: undefined };
   });
 }
@@ -591,6 +642,99 @@ async function resume(id: string, configPath: string): Promise<void> {
     });
     await checkpoint(registry);
     console.log(JSON.stringify({ environmentId: id, state: "healthy", projectId: environment.projectId }));
+    return { registry, result: undefined };
+  });
+}
+
+async function deleteManaged(configPath: string, permitPath: string, archivePath: string): Promise<void> {
+  const input = JSON.parse(await readFile(await privateFile(configPath), "utf8")) as ProvisionFile;
+  const permitBytes = await readFile(await privateFile(permitPath));
+  const permit = JSON.parse(permitBytes.toString("utf8")) as DeletionPermit;
+  const permitSha256 = createHash("sha256").update(permitBytes).digest("hex");
+  const archive = await readFile(await privateFile(archivePath));
+  const token = await vercelToken();
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    let environment = current(registry, permit.environmentId);
+    assertDeletionAuthorization({ permit, permitSha256,
+      archiveSha256: createHash("sha256").update(archive).digest("hex"),
+      ownerEmail: input.email, projectName: input.config.projectName, environment });
+    const origin = environment.origin!;
+    const project = await getProject(token, input.teamId, permit.projectId);
+    if (project && await managedProjectMarker(token, input.teamId, permit.projectId) !== environment.id) {
+      throw new Error("Project ownership marker changed; deletion stopped.");
+    }
+    if (!project && environment.state !== "deleting") {
+      throw new Error("Project disappeared before the Control Plane began deletion.");
+    }
+    if (!environment.relayRetiredAt) {
+      if (!project || environment.state === "paused") {
+        throw new Error("Eve must be reachable to revoke Relay before project pause or deletion.");
+      }
+      const cookie = await ownerSessionCookie(origin, input.config.accessPassword);
+      const retire = await fetch(`${origin}/api/relay`, {
+        method: "POST", redirect: "manual", signal: AbortSignal.timeout(30_000),
+        headers: { "Content-Type": "application/json", Cookie: cookie, Origin: origin },
+        body: JSON.stringify({ operation: "retire" }),
+      });
+      const result = await retire.json() as { result?: { retired?: unknown } };
+      if (!retire.ok || result.result?.retired !== true) {
+        throw new Error("Eve did not confirm Relay Agent retirement; deletion stopped.");
+      }
+      const dashboard = await fetch(`${origin}/api/relay`, {
+        redirect: "manual", signal: AbortSignal.timeout(30_000), headers: { Cookie: cookie },
+      });
+      const state = await dashboard.json() as {
+        connection?: { status?: unknown } | null; grants?: { status?: unknown }[];
+      };
+      if (!dashboard.ok || (state.connection && state.connection.status !== "revoked") ||
+          !Array.isArray(state.grants) || state.grants.some((grant) => grant.status !== "revoked")) {
+        throw new Error("Relay retirement verification failed; deletion stopped.");
+      }
+      registry = updateEnvironment(registry, environment.id, { relayRetiredAt: new Date().toISOString() });
+      await checkpoint(registry);
+    }
+    environment = current(registry, permit.environmentId);
+    if (environment.state !== "deleting") {
+      if (project && environment.state !== "paused") await setProjectPaused(token, input.teamId, permit.projectId, true);
+      registry = updateEnvironment(registry, environment.id, {
+        state: "deleting",
+        deletionAuthorizationSha256: permitSha256,
+      });
+      await checkpoint(registry);
+    }
+    if (project) await deleteProject(token, input.teamId, permit.projectId);
+    if (await getProject(token, input.teamId, permit.projectId)) throw new Error("Vercel project still exists after deletion.");
+    const stores = await listStores(token, input.teamId);
+    for (const [id, name, kind] of [
+      [permit.databaseStoreId, storeName(environment.projectName, "db"), "integration"],
+      ...(permit.blobStoreId ? [[permit.blobStoreId, storeName(environment.projectName, "blob"), "blob"]] : []),
+    ] as [string, string, "integration" | "blob"][]) {
+      const store = stores.find((item) => item.id === id);
+      if (!store) continue;
+      if (store.name !== name || store.kind !== kind) throw new Error("Dedicated storage identity changed; deletion stopped.");
+      const args = kind === "blob"
+        ? ["blob", "delete-store", id, "--scope", input.teamSlug]
+        : ["integration-resource", "remove", id, "--json", "--yes", "--scope", input.teamSlug];
+      const removed = spawnSync("npx", ["--yes", "vercel@60.1.3", ...args], {
+        encoding: "utf8", timeout: 120_000,
+      });
+      if (removed.status !== 0) throw new Error(`Dedicated ${kind} store deletion failed; retry exact environment.`);
+    }
+    const remaining = await listStores(token, input.teamId);
+    if (remaining.some((item) => item.id === permit.databaseStoreId || item.id === permit.blobStoreId)) {
+      throw new Error("Dedicated storage is still listed after deletion.");
+    }
+    environment = current(registry, permit.environmentId);
+    if (environment.lastDatabaseBackupPath) await rm(environment.lastDatabaseBackupPath, { force: true });
+    registry = updateEnvironment(registry, environment.id, {
+      state: "deleted", deletedAt: new Date().toISOString(), origin: null,
+      lastDatabaseBackupPath: null,
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: environment.id, state: "deleted",
+      projectId: permit.projectId, databaseStoreId: permit.databaseStoreId,
+      blobStoreId: permit.blobStoreId, archiveSha256: permit.archiveSha256 }));
     return { registry, result: undefined };
   });
 }
@@ -658,8 +802,12 @@ async function main(): Promise<void> {
   if (command === "monitor" && argument) return monitor(argument);
   if (command === "upgrade" && argument) return upgrade(argument);
   if (command === "record-export" && argument && process.argv[4]) return recordExport(argument, process.argv[4]);
+  if (command === "export" && argument && process.argv[4]) return exportOwnerArchive(argument, process.argv[4]);
   if (command === "pause" && argument && process.argv[4]) return pause(argument, process.argv[4]);
   if (command === "resume" && argument && process.argv[4]) return resume(argument, process.argv[4]);
+  if (command === "delete" && argument && process.argv[4] && process.argv[5]) {
+    return deleteManaged(argument, process.argv[4], process.argv[5]);
+  }
   if (command === "cleanup-rehearsal" && argument && process.argv[4] && process.argv[5]) {
     return cleanupRehearsal(argument, process.argv[4], process.argv[5]);
   }
@@ -672,7 +820,7 @@ async function main(): Promise<void> {
     })), null, 2));
     return;
   }
-  throw new Error("Usage: managed-eve.ts provision CONFIG | upgrade CONFIG | monitor CONFIG | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | cleanup-rehearsal ID PROJECT_ID DB_STORE_ID | status | recover-failed-deployment ID DEPLOYMENT_ID");
+  throw new Error("Usage: managed-eve.ts provision CONFIG | upgrade CONFIG | monitor CONFIG | export CONFIG NEW_ARCHIVE | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | delete CONFIG PERMIT ARCHIVE | cleanup-rehearsal ID PROJECT_ID DB_STORE_ID | status | recover-failed-deployment ID DEPLOYMENT_ID");
 }
 
 main().catch((error: unknown) => {
