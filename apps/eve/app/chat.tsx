@@ -2414,7 +2414,7 @@ function ChatThread({
           </div>
         )}
 
-        <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+        {!uiOnlyFixture && <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />}
 
         {process.env.NEXT_PUBLIC_GOLDEN_UI_MODE && (
           <div role="status" className="mx-10 mt-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">
@@ -2448,7 +2448,9 @@ function ChatThread({
                     <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{activeLabel}</p>
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
-                      {roleId && roleName
+                      {uiOnlyFixture
+                        ? "This fixture is for inspecting Work and route explanations. Chat requires a live model connection."
+                        : roleId && roleName
                         ? `Give ${roleName} one bounded assignment. This uses the primary Agent's runtime and does not create a persistent identity.`
                         : agentId
                         ? `${agentName} can use only the capabilities assigned on its Agent record.`
@@ -2668,9 +2670,9 @@ function ChatThread({
                 onClick={() => fileInputRef.current?.click()}
               />
               <div className="ms-auto flex items-center gap-1">
-                <ReasoningPicker reasoning={reasoning} onSelect={onReasoningChange} />
-                <ModelPicker model={model} models={models} onSelect={onModelChange} />
-                {speechSupported && (
+                {!uiOnlyFixture && <ReasoningPicker reasoning={reasoning} onSelect={onReasoningChange} />}
+                {!uiOnlyFixture && <ModelPicker model={model} models={models} onSelect={onModelChange} />}
+                {!uiOnlyFixture && speechSupported && (
                   <Button
                     type="button"
                     variant="ghost"
