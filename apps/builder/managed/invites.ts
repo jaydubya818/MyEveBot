@@ -61,7 +61,10 @@ export async function issueManagedInvite(input: {
       throw new Error("MANAGED_EVE_MAX_ACTIVE must be between 1 and 100");
     }
     const count = await client.query<{ total: string }>(
-      "SELECT count(*)::text AS total FROM managed_eve_environments WHERE state <> 'retired'",
+      `SELECT (
+         (SELECT count(*) FROM managed_eve_environments WHERE state <> 'retired') +
+         (SELECT count(*) FROM managed_beta_invites WHERE claimed_at IS NULL AND revoked_at IS NULL AND expires_at > now())
+       )::text AS total`,
     );
     if (Number(count.rows[0]?.total ?? 0) >= activeLimit) throw new Error("Managed beta capacity reached");
     const existing = await client.query(
@@ -112,12 +115,21 @@ export async function claimManagedInvite(input: {
   const agentName = input.agentName.trim();
   if (!ownerName || ownerName.length > 100 || !agentName || agentName.length > 100) throw new Error("Enter a name for yourself and your Eve");
   return inTransaction(async (client) => {
+    await client.query("SELECT pg_advisory_xact_lock(670101)");
     const invite = await client.query<{ id: string; email: string; monthly_model_budget_usd: string }>(
       "SELECT id,email,monthly_model_budget_usd FROM managed_beta_invites WHERE token_hash=$1 AND claimed_at IS NULL AND revoked_at IS NULL AND expires_at > now() FOR UPDATE",
       [hashToken(input.token)],
     );
     const row = invite.rows[0];
     if (!row) throw new Error("Invitation is invalid, expired, or already used");
+    const activeLimit = Number(process.env.MANAGED_EVE_MAX_ACTIVE ?? "5");
+    if (!Number.isSafeInteger(activeLimit) || activeLimit < 1 || activeLimit > 100) {
+      throw new Error("MANAGED_EVE_MAX_ACTIVE must be between 1 and 100");
+    }
+    const active = await client.query<{ total: string }>(
+      "SELECT count(*)::text AS total FROM managed_eve_environments WHERE state <> 'retired'",
+    );
+    if (Number(active.rows[0]?.total ?? 0) >= activeLimit) throw new Error("Managed beta capacity reached");
     const environmentId = `env_${randomUUID().replaceAll("-", "").slice(0, 24)}`;
     const projectName = managedProjectName(environmentId);
     await client.query(
