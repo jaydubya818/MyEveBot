@@ -5,6 +5,7 @@ import { digest, makeContract, profileSchema } from "./contract.ts";
 import { WorkStore } from "./store.ts";
 import { ExecutionStore } from "./execution-store.ts";
 import { GitHubAdapter } from "./github.ts";
+import { githubAppTokenProvider } from "./github-app.ts";
 import { DockerClaudeExecutor, DockerProtectedVerifier } from "./docker-executor.ts";
 import { EngineeringWorker } from "./worker.ts";
 import { getAgent } from "../agents.ts";
@@ -13,6 +14,8 @@ export const runtimeSchema=z.object({
   mode:z.literal("isolated-dogfood"), ownerId:z.string().min(1),agentId:z.string().min(1),
   objective:z.string().min(1).max(4000),criteria:criteriaSchema,profile:profileSchema,
   brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
+  githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
+    keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
 }).strict();
 export async function engineeringConfig() {
   if(process.env.MYEVE_ENGINEERING_MODE!=="dogfood"||process.env.VERCEL_ENV==="production")throw new WorkError("engineering_disabled","Golden Work is restricted to an isolated dogfood runtime.",404);
@@ -24,7 +27,9 @@ export async function engineeringRuntime(principal:WorkPrincipal,store=new WorkS
   const config=await engineeringConfig();
   if(principal.scopeKind!=="personal"||principal.scopeId!==config.ownerId||principal.actorId!==config.ownerId)throw new WorkError("engineering_scope","This qualification profile belongs to another owner.",403);
   const authorityCurrent=async()=>{const agent=await getAgent(principal.scopeId,config.agentId,store.database);return !!agent&&agent.isPrimary&&agent.status==="active";};
-  const github=new GitHubAdapter(config.profile.repository,process.env.MYEVE_ENGINEERING_GITHUB_TOKEN??"");
+  const github=new GitHubAdapter(config.profile.repository,config.githubApp ? githubAppTokenProvider({
+    ...config.githubApp,repository:config.profile.repository,
+  }) : process.env.MYEVE_ENGINEERING_GITHUB_TOKEN??"");
   const execution=new ExecutionStore(store);
   const worker=new EngineeringWorker(execution,github,new DockerClaudeExecutor({brokerPort:config.brokerPort,brokerSecret:process.env.MYEVE_ENGINEERING_BROKER_SECRET??"",model:config.model}),new DockerProtectedVerifier(),()=>digest(config.profile),authorityCurrent);
   return {config,store,execution,github,worker,authorityCurrent};

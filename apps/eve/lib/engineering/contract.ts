@@ -26,6 +26,7 @@ export const profileSchema = z.object({
   maxRuns: z.number().int().min(1).max(8),
   maxModelRequests: z.number().int().min(1).max(30),
   maxOutputTokens: z.number().int().min(256).max(8192),
+  qualificationFirstRunFault: z.literal("parse-int-fraction").optional(),
 }).strict();
 export type RepositoryProfile = z.infer<typeof profileSchema>;
 export interface WorkContract {

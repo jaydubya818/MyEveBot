@@ -56,7 +56,10 @@ export class EngineeringWorker {
       if(state.phase==="queued") {
         const truth=await this.github.observe(state.contract,workBranch(id));state.truth=truth;
         if(!truth.authority || truth.baseSha!==state.contract.baseSha)throw new Error("Repository authority or base changed before execution.");
-        queueRun(state,work,"Implement admitted issue",truth.head??state.contract.baseSha);await save("run_queued");return;
+        const reason=state.contract.profile.qualificationFirstRunFault==="parse-int-fraction"
+          ? "Qualification fault injection: on the first candidate, use parseInt for positive quantity parsing, leaving fractional input incorrectly accepted. Do not edit tests or CI. This deliberately exercises real CI failure and the next Run must fix the full accepted criteria."
+          : "Implement admitted issue";
+        queueRun(state,work,reason,truth.head??state.contract.baseSha);await save("run_queued");return;
       }
       const run=state.runs.at(-1);
       if(state.phase==="executing") {

@@ -2976,7 +2976,7 @@
     "lib/engineering/contract.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "18d991515cb91ca43208480d524e051c764edd018b1234d0399e846d61c11337"
+      "sha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e"
     },
     "lib/engineering/execution.ts": {
       "classification": "INTERNAL",
@@ -3001,12 +3001,12 @@
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "c9e6f987ad6bd4401178d58a68f09b5fceb3cd2902735304aab2165983ff866f"
+      "sha256": "f970258470d77529258d7f79cf74d52f53d386c64c8a3ff92ee8bcf6441de752"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
       "reason": "Durable worker with SQL lease/generation fencing, current primary-Agent and repository authority, protected evidence, exact candidate approval, unknown-write reconciliation, bounded continuation; no merge/deployment surface.",
-      "sha256": "d80d7db4df67676e9d1d869e76c368c3c0fc377dce32d68f249c0b24f0a813c4"
+      "sha256": "083ff5d220bb7e363c2783415ab418e34f6281558c5a4ac68fc082362a048a18"
     },
     "lib/engineering/model-broker.ts": {
       "classification": "ENFORCED",
@@ -3021,7 +3021,7 @@
     "lib/engineering/github.ts": {
       "classification": "ENFORCED",
       "reason": "Trusted publication leaf: fixed GitHub origin, approved private repository, current repository/base/head and artifact checks, allowed source paths, non-force updates; invoked after durable exact-candidate/contract approval. Live provider qualification remains blocked.",
-      "sha256": "0ecd21845129297436ec2f4991960ebfee6ff8ac327cb7aea9dd7990441d1a79"
+      "sha256": "e2deedc910550ccd7134cf33a879c30c6688775f461e0a23139a1ad5def45947"
     },
     "app/api/engineering/intake/route.ts": {
       "classification": "INTERNAL",
@@ -3032,6 +3032,11 @@
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
       "sha256": "c7f03910ccc968934da5478c49292151b31b6adfddfecb3f32af2f769de6ab72"
+    },
+    "lib/engineering/github-app.ts": {
+      "classification": "ENFORCED",
+      "reason": "Trusted local dogfood publisher reads the exact App private key from macOS Keychain in memory, signs a short-lived App JWT and requests an installation token restricted to the configured single repository and minimal permissions. No executor receives this credential.",
+      "sha256": "99b1e9cd47e3c584423167e77ebcba24ac52675b9e8b41e00e3546d57a93a2a2"
     }
   }
 }

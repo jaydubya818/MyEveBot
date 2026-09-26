@@ -46,13 +46,14 @@ export function workBranch(workId: string) { return `myeve/work-${workId}`; }
 
 /** This client exposes no merge, deployment, workflow, secret or repository-admin operation. */
 export class GitHubAdapter implements EngineeringGitHub {
-  constructor(readonly repository: string, private readonly token: string, private readonly request: typeof fetch = fetch) {
+  constructor(readonly repository: string, private readonly token: string | (() => Promise<string>), private readonly request: typeof fetch = fetch) {
     if (!/^[\w.-]+\/[\w.-]+$/.test(repository) || !token) throw new Error("An explicit qualification repository and publication credential are required.");
   }
   private async api(path: string, body?: unknown, method?: string): Promise<any> {
+    const token = typeof this.token === "string" ? this.token : await this.token();
     const response = await this.request(`https://api.github.com/repos/${this.repository}${path?`/${path}`:""}`,{
       method:method??(body?"POST":"GET"),redirect:"error",signal:AbortSignal.timeout(10000),
-      headers:{authorization:`Bearer ${this.token}`,accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","content-type":"application/json"},
+      headers:{authorization:`Bearer ${token}`,accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28","content-type":"application/json"},
       ...(body?{body:JSON.stringify(body)}:{})});
     if (response.status===404 && !body) return null;
     if (!response.ok) throw new WorkError("github_unavailable",`GitHub returned ${response.status}; repository state requires reconciliation.`);

@@ -62,6 +62,12 @@ Build `apps/eve/scripts/engineering/Dockerfile`, inspect its actual digest and p
 
 The runtime requires `MYEVE_ENGINEERING_MODE=dogfood`, a private absolute-path `MYEVE_ENGINEERING_CONFIG` file matching `runtimeSchema`, the exact synthetic owner/active primary Agent, `MYEVE_ENGINEERING_GITHUB_TOKEN` only in trusted server/worker processes, a dedicated `MYEVE_ENGINEERING_BROKER_SECRET`, and model Gateway authentication only in the trusted worker. Do not put credentials in the profile or the executor image/workspace.
 
+For the approved local GitHub App qualification, the config's `githubApp` object supplies the non-secret App ID, installation ID, Keychain service and Keychain account. The trusted host reads the App PEM from macOS Keychain into memory, signs a short-lived JWT, and requests an installation token restricted to the one configured repository and explicit read/write permissions. Token/key values are never written to Work, the executor or logs. The static token setting above remains a local compatibility path for earlier fixtures; the live approved run uses the App path.
+
+`test/golden-live-local.mjs` is an explicit-opt-in local harness for `jaydubya818/myeve-golden-work-qual`. It starts task-owned loopback PostgreSQL/Next/worker processes, and only loads the Vercel **development** OIDC value into the trusted worker. The repo has a pre-existing `quantity-ci` check and 11 tests. The harness's recorded `parse-int-fraction` first-Run fault deliberately leaves fractional parsing wrong so GitHub CI can fail on a real published revision; the next Run must repair it. The protected first-Run checks intentionally omit that fractional case; CI remains mandatory for readiness. This is a disclosed fault injection, not an unexplained coding failure.
+
+The GitHub App private key can be imported with `swift scripts/engineering/import-github-app-key.swift /path/to/downloaded-key.pem` from `apps/eve`. The importer verifies Keychain readback and only then removes the downloaded PEM. It does not pass the key through shell arguments. GitHub installation tokens expire; the trusted runtime refreshes them before expiry. This local harness is not a hosted worker or organization boundary.
+
 The worker requires `MYEVE_ENGINEERING_DATABASE_URL` to identify its own loopback `golden_*` database. It ignores ambient `DATABASE_URL` for worker storage and refuses a Vercel Production environment. Run `node scripts/engineering-worker-supervisor.mjs` from `apps/eve`. The browser/server uses its separately configured isolated SQL connection. The included browser fixture provides a loopback Neon protocol bridge solely for tests.
 
 From `apps/eve`:
@@ -78,4 +84,4 @@ npm run db:migrations:check
 
 ## Required completion gate
 
-An approved disposable private GitHub repository with an existing CI workflow and independent reviewer identity is still required. The final live run must prove actual issue intake/publication/CI failure/review continuation, process restart, auth loss, event delay/duplicates, browser disconnection and terminal readiness without manual orchestration. No merge or production deployment is authorized by local test success.
+The approved disposable private GitHub repository, existing `quantity-ci` workflow and independent owner reviewer are now identified. The publisher App registration, installation and local key import must finish before the final live run. That run must prove actual issue intake/publication/CI failure/review continuation, process restart, auth loss, event delay/duplicates, browser disconnection and terminal readiness without manual orchestration. No merge or production deployment is authorized by local test success.
