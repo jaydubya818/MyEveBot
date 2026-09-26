@@ -107,6 +107,12 @@ try {
   await native.assertSession(work.id,"writer");await assert.rejects(native.assertSession(work.id,"other"),/writer/);
   assert.equal(Number((await pool.query("SELECT spent_microusd FROM engineering_work_model_budget WHERE work_id=$1",[work.id])).rows[0].spent_microusd),3000);
   await assert.rejects(pool.query("INSERT INTO engineering_native_model_calls(scope_id,scope_kind,work_id,step_key,request_hash,model_id,reserved_microusd,status) VALUES($1,'personal',$2,'bypass:0',$3,'anthropic/claude-sonnet-5',1,'INFLIGHT')",[owner,work.id,'a'.repeat(64)]),/immutable/);
+  await pool.query("UPDATE engineering_routing_decisions SET admission_authority_snapshot=jsonb_set(admission_authority_snapshot,'{contract,deadline}',to_jsonb('2000-01-01T00:00:00.000Z'::text)) WHERE work_id=$1",[work.id]);
+  await assert.rejects(native.reserve(request(work.id,'writer',3)),/deadline|expired/);
+  const expiredObserver=request(work.id,'expired-observer',2);await budget.reserve(expiredObserver);await budget.assertDispatch(expiredObserver);await budget.settle(expiredObserver,1000,{content:[]});
+  await assert.rejects(native.reserve(request(work.id,'writer',4)),/deadline|expired/);
+  assert.equal((await pool.query("SELECT admission_authority_snapshot#>>'{contract,deadline}' AS deadline FROM engineering_routing_decisions WHERE work_id=$1",[work.id])).rows[0].deadline,'2000-01-01T00:00:00.000Z');
+  console.log('PASS: expired productive admission stays expired after separately budgeted read-only recovery');
   for(const opponent of ["conversation","native"]){
     const w=await prepare(opponent);if(opponent==="native")await admitNativeWork(workStore,w.id,w.version,authority);
     const a={...request(w.id,"a"),microUsd:2000000},b={...request(w.id,"b"),microUsd:2000000};
