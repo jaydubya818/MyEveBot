@@ -129,6 +129,17 @@ describe("experimental harness boundary", () => {
     await expect(stoppedAfterRestart.tools.writeFile({ path: "src/quantity.mjs", content: "again", operationId: randomUUID(), expectedRevision: 1 })).rejects.toThrow("stopped");
   });
 
+  it("restores a newly created approved file without permitting missing source files", async () => {
+    const input = fixture();
+    input.readablePaths = [...input.readablePaths, "src/new.mjs"];
+    input.writablePaths = [...input.writablePaths, "src/new.mjs"];
+    const { tools, host } = createExperimentalHarnessBoundary(input, allow);
+    await tools.writeFile({ path: "src/new.mjs", content: "new file", operationId: randomUUID(), expectedRevision: 0 });
+    const restored = createExperimentalHarnessBoundary(input, allow, host.checkpoint());
+    expect(await restored.tools.readFile("src/new.mjs")).toBe("new file");
+    expect(restored.host.candidate()).toEqual(host.candidate());
+  });
+
   it("rejects corrupted, cross-Work, over-budget, and out-of-scope inputs", () => {
     const input = fixture();
     const { host } = createExperimentalHarnessBoundary(input, allow);

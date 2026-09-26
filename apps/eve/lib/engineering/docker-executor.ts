@@ -34,6 +34,11 @@ export function volumeCustodyState(run:EngineeringRun,result:{code:number;out:st
   return cleanupResourceState(run,"volume",run.resource,result);
 }
 type CleanupResource = "container"|"network"|"volume";
+/** Docker Engine uses both forms across versions; neither a generic error nor a different name proves absence. */
+export function isMissingDockerVolume(name:string,error:string):boolean {
+  const escaped=name.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  return new RegExp(`(?:^|\\n)(?:Error(?: response from daemon)?: )?(?:No such volume:\\s*${escaped}|get ${escaped}: no such volume)\\s*$`,"i").test(error);
+}
 /** Cleanup may only treat an exact Docker not-found response as absence.
  * A daemon outage, name collision, or missing ownership label leaves the Run fenced. */
 export function cleanupResourceState(run:EngineeringRun,kind:CleanupResource,name:string,
@@ -47,7 +52,7 @@ export function cleanupResourceState(run:EngineeringRun,kind:CleanupResource,nam
     const missing=kind==="container" ? new RegExp(`No such (?:object|container):\\s*${escaped}(?:\\s|$)`,"i")
       : kind==="volume" ? new RegExp(`No such volume:\\s*${escaped}(?:\\s|$)`,"i")
       : new RegExp(`(?:No such network:\\s*${escaped}|network\\s+${escaped}\\s+not found)(?:\\s|$)`,"i");
-    if(!missing.test(result.err))
+    if(!(kind==="volume" ? isMissingDockerVolume(name,result.err) : missing.test(result.err)))
       throw new Error("Docker resource state is unavailable; cleanup remains unresolved.");
     return "absent";
   }
@@ -74,7 +79,7 @@ function verifierContainer(name:string,result:DockerResult):Record<string,any>|n
 }
 function verifierVolume(name:string,result:DockerResult):boolean {
   if (result.code) {
-    if (new RegExp(`No such volume:\\s*${name}(?:\\s|$)`,"i").test(result.err)) return false;
+    if (isMissingDockerVolume(name,result.err)) return false;
     throw new Error("Verifier volume state is unavailable; outcome needs reconciliation.");
   }
   let record:Record<string,any>;
@@ -97,7 +102,9 @@ export function protectedCheckResult(name:string,observed:DockerResult,inspected
 }
 async function volume(image:string,name:string,files:Record<string,string>) {
   await checked(["volume","create","--label","myeve.golden=true",name]);
-  await checked(["run","--rm","--network=none",...limits,"--user=1000:1000","--mount",`type=volume,src=${name},dst=/work`,"-i",image,"node","-e",init],JSON.stringify(files));
+  // Only this fixed initializer runs as root: a fresh named volume is root-owned.
+  // Candidate code runs as UID 1000; protected checks use a read-only mount.
+  await checked(["run","--rm","--network=none",...limits,"--user=0:0","--mount",`type=volume,src=${name},dst=/work`,"-i",image,"node","-e",init],JSON.stringify(files));
 }
 
 export class DockerClaudeExecutor implements Executor {
@@ -209,7 +216,7 @@ export class DockerProtectedVerifier implements ProtectedVerifier {
         let result:Evidence["result"]="UNKNOWN", artifact="";
         try {
           // Candidate executes in a separate deny-network process. The trusted host compares output.
-          const observed=await docker(["run","--name",container,"--label","myeve.golden=true","--network=none",...limits,
+          const observed=await docker(["run","--name",container,"--label","myeve.golden=true","--network=none",...limits,"--user=1000:1000",
             "--mount",`type=volume,src=${name},dst=/work,readonly`,"--workdir=/work","-i",image,"node",check.program],check.input,10000);
           artifact=JSON.stringify({exitCode:observed.code,stdout:observed.out,stderr:observed.err});
           result=protectedCheckResult(container,observed,

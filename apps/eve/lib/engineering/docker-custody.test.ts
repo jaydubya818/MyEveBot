@@ -1,6 +1,6 @@
 import { describe,expect,it } from "vitest";
 import { fixture } from "../../test/engineering-fixtures.ts";
-import { cleanupResourceState,containerCustodyState,volumeCustodyState } from "./docker-executor.ts";
+import { cleanupResourceState,containerCustodyState,volumeCustodyState,isMissingDockerVolume } from "./docker-executor.ts";
 
 describe("Docker custody inspection",()=>{
   const run=fixture().run;
@@ -32,12 +32,23 @@ describe("Docker custody inspection",()=>{
       ["container",`${run.resource}-model`,`Error: No such object: ${run.resource}-model`],
       ["network",run.resource,`Error response from daemon: network ${run.resource} not found`],
       ["volume",run.resource,`Error: No such volume: ${run.resource}`],
+      ["volume",run.resource,`Error response from daemon: get ${run.resource}: no such volume`],
     ] as const) {
       expect(cleanupResourceState(run,kind,name,{code:1,out:"",err:error})).toBe("absent");
       expect(()=>cleanupResourceState(run,kind,name,{code:1,out:"",err:"Cannot connect to the Docker daemon"})).toThrow(/unavailable/);
       expect(()=>cleanupResourceState(run,kind,name,{code:1,out:"",err:error.replace(name,"different-resource")})).toThrow(/unavailable/);
       expect(()=>cleanupResourceState(run,kind,name,{code:1,out:"",err:error.replace(name,`${name}-other`)})).toThrow(/unavailable/);
     }
+  });
+
+  it("accepts only the exact Docker volume not-found diagnostic",()=>{
+    const name="myeve-golden-verify-11111111-1111-4111-8111-111111111111";
+    expect(isMissingDockerVolume(name,`Error response from daemon: get ${name}: no such volume\n`)).toBe(true);
+    expect(isMissingDockerVolume(name,`Error: No such volume: ${name}`)).toBe(true);
+    expect(isMissingDockerVolume(name,`Error response from daemon: get ${name}-other: no such volume`)).toBe(false);
+    expect(isMissingDockerVolume(name,`get ${name}: permission denied`)).toBe(false);
+    expect(isMissingDockerVolume(name,"Cannot connect to the Docker daemon")).toBe(false);
+    expect(isMissingDockerVolume(name,`get ${name}: no such volume; daemon unavailable`)).toBe(false);
   });
 
   it("requires an owned exact resource before removal",()=>{

@@ -3015,8 +3015,8 @@
     },
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
-      "reason": "Local isolated executor/verifier boundary: pinned image, task-owned resources, non-root restricted containers and deny-all check network. Protected checks require exact owned container exit evidence; ambiguous prior resources or cleanup fail closed for reconciliation. No publisher or database credential enters the executor.",
-      "sha256": "c893c6f08c550d4b4c80d3a188670a903073888d493514622cfd5855a61120a5"
+      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows.",
+      "sha256": "50b0019b2939b15cc7cd87b9baedc8c220aa1bdd2654cf3bdb12209ee6a09d08"
     },
     "lib/engineering/github.ts": {
       "classification": "ENFORCED",
@@ -3107,8 +3107,8 @@
     },
     "lib/digital-worker/experimental-harness-boundary.ts": {
       "classification": "INTERNAL",
-      "reason": "Unregistered ER2 experiment with guarded virtual in-memory files; no host filesystem, shell, network, provider call, or grant.",
-      "sha256": "77529f2f4de6d506078c19cf62273c0c4a834f703f179d5c5997ba81454567ce"
+      "reason": "Unregistered ER2 virtual workspace with current per-file guards, revision/idempotency receipts and Stop fencing. Checkpoint restore preserves approved newly created files while denying missing original files and modified read-only files. No host filesystem, shell, network, provider call or grant in this module.",
+      "sha256": "cb8b16db8f826cc677ce4d5d280e0f4fdf1e10105ddc21f91e85d43ee940e340"
     },
     "lib/digital-worker/learning.ts": {
       "classification": "NOT_APPLICABLE",

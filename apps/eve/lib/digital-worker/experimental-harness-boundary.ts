@@ -176,8 +176,8 @@ export function createExperimentalHarnessBoundary(
         parsed.generation !== input.generation)
       throw new Error("Checkpoint does not match the current Work and generation.");
     files = selectedFiles(parsed.files, readable);
-    if (files.size !== initialFiles.size || [...files].some(([path, content]) =>
-      !initialFiles.has(path) || (!writable.has(path) && initialFiles.get(path) !== content)))
+    if ([...initialFiles.keys()].some(path => !files.has(path)) ||
+        [...files].some(([path, content]) => !writable.has(path) && initialFiles.get(path) !== content))
       throw new Error("Checkpoint changed a file outside the selected write set.");
     revision = parsed.revision;
     stopped = parsed.stopped;

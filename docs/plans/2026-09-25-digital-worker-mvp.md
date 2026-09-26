@@ -16,6 +16,8 @@ implementation_authorized: true
 
 **Latest implementation checkpoint:** [The 2026-09-26 sprint record](../verification/2026-09-26-digital-worker-sprint/README.md) tracks the new Work/Chat projection, scoped Knowledge, candidate custody, Relay reply claim, draft learning store, router admission and UI checks against every M1–M7 and ER gate. It remains a partial qualification; use that record for current completed versus remaining status. The inventory below intentionally describes the source at planning time.
 
+**Resumed implementation (2026-09-26):** The source worktree disappeared during execution and was restored from `0a74624` into `codex/digital-worker-mvp`. [The real-SDK ER2 record](../verification/2026-09-26-deepagents-spike/README.md) adds a pinned isolated Deep Agents provider, actual SIGKILL recovery and real Docker FAIL→repair→PASS checks with scripted model output. The decision is **ADAPT / NOT QUALIFIED**; trusted production admission, live Sofie behavior, MCP/subagents and cost/cancellation gates remain open. It does not close M1, ER1/ER2 or authorize later gated milestones.
+
 ## 1. Working boundary and decisions
 
 The first user is one personal, durable Agent: Sofie, acting as a Software Engineer. MyEve owns her identity, Work, context, authority, decisions, and Results. A model session, coding executor, MyFactory run, or Relay peer is replaceable execution or context (§§1–5, 219–243). An organization edition requires separately qualified identity, membership, and memory isolation; a textual `organization` scope is not a substitute for those checks. Keep the [EP02 organization delta](2026-09-25-ep02-organization-delta.md) open.
