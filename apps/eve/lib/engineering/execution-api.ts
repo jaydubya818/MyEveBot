@@ -7,6 +7,7 @@ import { ExecutionStore } from "./execution-store.ts";
 import { WorkStore } from "./store.ts";
 const commandSchema=z.discriminatedUnion("operation",[
   z.object({operation:z.literal("approve"),revision:z.number().int().positive(),candidate:z.string().regex(/^[a-f0-9]{40}$/),boundedUpdates:z.boolean()}).strict(),
+  z.object({operation:z.literal("decline"),revision:z.number().int().positive(),candidate:z.string().regex(/^[a-f0-9]{40}$/)}).strict(),
   z.object({operation:z.literal("continue"),revision:z.number().int().positive()}).strict(),
 ]);
 export async function handleExecutionRequest(request:Request,id?:string) {
@@ -16,7 +17,11 @@ export async function handleExecutionRequest(request:Request,id?:string) {
     if(!id)return Response.json(await intakeIssue(principal,value),{headers});
     z.string().uuid().parse(id);const input=commandSchema.parse(value);
     // Recording an owner's decision needs no GitHub credential; publication still revalidates at its own boundary.
-    const state=input.operation==="approve"?await new ExecutionStore(new WorkStore(principal)).approve(id,input.revision,input.candidate,input.boundedUpdates):await (await engineeringRuntime(principal)).worker.continue(id,input.revision);
+    const state=input.operation==="approve"
+      ? await new ExecutionStore(new WorkStore(principal)).approve(id,input.revision,input.candidate,input.boundedUpdates)
+      : input.operation==="decline"
+        ? await new ExecutionStore(new WorkStore(principal)).decline(id,input.revision,input.candidate)
+        : await (await engineeringRuntime(principal)).worker.continue(id,input.revision);
     return Response.json({execution:state},{headers});
   } catch(error) {
     if(error instanceof WorkError)return Response.json({error:error.message,code:error.code},{status:error.status,headers});

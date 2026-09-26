@@ -38,7 +38,7 @@ export interface OwnerKnowledgeView {
   staleReasons: string[];
   eligibleForContext: string[];
   usedInRuns: number;
-  remoteAvailability: "available" | "not_applicable" | "provider_unavailable";
+  remoteAvailability: "available" | "not_applicable" | "provider_unavailable" | "reconciliation_required";
 }
 
 export interface OwnerKnowledgeFilters {

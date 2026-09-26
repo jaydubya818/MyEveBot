@@ -27,6 +27,10 @@ export interface ExternalEffect {
   status: "PREPARED" | "UNKNOWN" | "CONFIRMED" | "DENIED";
   createdAt: string; pr?: number; url?: string; reason?: string;
 }
+/** Exact GitHub branch custody accepted after an observed owner takeover and Give Back. */
+export interface HandoffBaseline {
+  generation: number; head: string | null; prNumber: number | null; recordedAt: string;
+}
 export interface GitHubTruth {
   observedAt: string; authority: boolean; repository: string; baseSha: string;
   head: string | null; pr: { number: number; url: string; draft: boolean; open: boolean } | null;
@@ -48,6 +52,7 @@ export interface Execution {
   runs: EngineeringRun[]; candidates: Candidate[]; evidence: Evidence[]; effects: ExternalEffect[];
   approval: { id: string; candidate: string; actor: string; generation: number; at: string; boundedUpdates: boolean } | null;
   truth: GitHubTruth | null; addressedReviews: string[]; handledEvents: string[];
+  humanHandoffGeneration?: number | null; handoffBaseline?: HandoffBaseline | null;
   reviewChecks: { reviewId: string; check: WorkContract["profile"]["checks"][number] }[];
   results: ResultVersion[]; interventions: Intervention[]; blockers: string[];
   reservedUsd: number; modelRequests: number; lastActivity: string;
@@ -55,7 +60,7 @@ export interface Execution {
 export const nowIso = () => new Date().toISOString();
 export function initialExecution(contract: WorkContract, generation: number): Execution {
   return { qualificationMode:"live", contract, revision: 1, generation, phase: "queued", runs: [], candidates: [], evidence: [], effects: [], approval: null,
-    truth: null, addressedReviews: [], handledEvents: [], reviewChecks: [], results: [], interventions: [], blockers: [], reservedUsd: 0, modelRequests: 0, lastActivity: nowIso() };
+    truth: null, humanHandoffGeneration: null, handoffBaseline: null, addressedReviews: [], handledEvents: [], reviewChecks: [], results: [], interventions: [], blockers: [], reservedUsd: 0, modelRequests: 0, lastActivity: nowIso() };
 }
 export function latestCandidate(state: Execution) { return state.candidates.at(-1) ?? null; }
 export function invalidateEvidence(state: Execution) {
@@ -108,15 +113,87 @@ export function readiness(work: Work, state: Execution, now = Date.now()) {
 }
 export function manifest(work: Work, state: Execution) {
   const decision = readiness(work, state);
+  const candidate = latestCandidate(state);
+  const repositoryObservedAt = state.truth?.observedAt ?? null;
+  const repositoryAgeMs = repositoryObservedAt ? Date.now() - Date.parse(repositoryObservedAt) : Number.POSITIVE_INFINITY;
+  const repositoryObservation = !Number.isFinite(repositoryAgeMs) || repositoryAgeMs < -5000
+    ? "unknown" as const
+    : repositoryAgeMs > 60000 || !state.truth?.authority ? "stale" as const : "fresh" as const;
+  const unknownEffects = state.effects.filter(e => e.status === "UNKNOWN" || e.status === "PREPARED");
+  const publicationNeedsReconciliation = state.phase === "publishing" && unknownEffects.length > 0 && state.blockers.length > 0;
+  const pendingDecisions = state.phase === "approval"
+    ? ["Approve exact candidate publication and bounded in-scope updates"]
+    : state.phase === "needs_you" ? state.blockers.length ? state.blockers : ["Execution needs human review."]
+    : publicationNeedsReconciliation ? [`Publication outcome is unconfirmed. ${state.blockers[0]}`] : [];
+  const verification = [...state.contract.profile.checks, ...state.reviewChecks.map(item => item.check)].map(check => {
+    const observations = state.evidence.filter(e => e.check === check.id && e.workId === work.id);
+    const current = observations.filter(e => e.candidate === candidate?.sha && e.criteriaVersion === work.criteriaVersion &&
+      e.profileHash === state.contract.profileHash && e.base === state.contract.baseSha &&
+      e.producer === "protected-supervisor" && e.artifactHash === digest(e.artifact)).at(-1);
+    return { check: check.id, criterionIds: check.criterionIds, result: current?.result ?? (observations.length ? "STALE" as const : "NOT_RUN" as const),
+      observedAt: current?.observedAt ?? null, producer: current?.producer ?? null };
+  });
+  const status = work.lifecycle !== "active" ? work.lifecycle[0].toUpperCase() + work.lifecycle.slice(1)
+    : work.control === "human" ? "In your hands"
+    : work.control === "paused" ? "Paused"
+    : work.control === "stopping" ? "Stopping"
+    : state.phase === "stopped" ? "Stopped"
+    : decision.ready ? "Ready for Review"
+    : pendingDecisions.length ? "Needs You"
+    : ["executing","verifying","queued"].includes(state.phase) ? "Working" : "Waiting";
+  const nextStep = work.lifecycle !== "active" ? "Review the retained Result and Work history."
+    : work.control === "human" ? "Finish your changes, then give Work back to Sofie for fresh verification."
+    : work.control === "paused" ? "Resume Work when you want Sofie to continue."
+    : work.control === "stopping" ? "Wait for the active attempt and resources to stop."
+    : state.phase === "approval" ? "Review the candidate and current evidence, then decide on exact draft PR publication."
+    : state.phase === "needs_you" ? "Inspect the blocker and reconcile it before any fresh attempt."
+    : state.phase === "stopped" ? "Publication is stopped. Take over or explicitly continue with a fresh attempt."
+    : state.phase === "queued" ? "Observe repository authority and start the bounded run."
+    : state.phase === "executing" ? "Collect a candidate from the current run."
+    : state.phase === "verifying" ? "Run independent protected verification for the current candidate."
+    : publicationNeedsReconciliation ? "Inspect the recorded publication effect and current GitHub state. Do not approve or retry publication until the external state is reconciled."
+    : state.phase === "publishing" ? "Reconcile or complete the approved draft PR publication."
+    : state.phase === "observing" ? "Observe current CI and reviewer state."
+    : decision.ready ? "Review the evidence-backed draft PR and Result."
+    : "Refresh current repository state and inspect the remaining readiness reasons.";
+  const currentRun = state.runs.at(-1) ?? null;
+  const activity = state.blockers.at(-1) ?? (state.phase === "ready" ? "Protected verification and current CI were reconciled."
+    : state.phase === "approval" ? "Candidate verified; exact publication decision requested."
+    : state.phase === "verifying" ? "Candidate retained; protected verification is in progress."
+    : currentRun?.status === "running" ? "Bounded execution is running."
+    : currentRun?.status === "queued" ? "A bounded execution attempt is queued."
+    : state.phase === "observing" ? "Observing current CI and reviewer state."
+    : "Work state updated.");
+  const attention = pendingDecisions.length ? {
+    id: `${state.phase}:${state.revision}:${candidate?.sha ?? "none"}`,
+    kind: state.phase === "approval" ? "publication" as const : "exception" as const,
+    reason: pendingDecisions[0],
+    workVersion: work.version,
+    executionRevision: state.revision,
+    criteriaVersion: work.criteriaVersion,
+    candidateSha: candidate?.sha ?? null,
+    expiresAt: state.contract.deadline,
+    reconciliation: publicationNeedsReconciliation ? {
+      effects: unknownEffects.map(e => ({ id: e.id, status: e.status, candidate: e.candidate,
+        expectedHead: e.expectedHead, pr: e.pr ?? null, reason: e.reason ?? null, createdAt: e.createdAt })),
+      blockers: [...state.blockers],
+      observation: { status: repositoryObservation, observedAt: repositoryObservedAt,
+        repository: state.truth?.repository ?? null, baseSha: state.truth?.baseSha ?? null,
+        head: state.truth?.head ?? null, pr: state.truth?.pr ?? null, authority: state.truth?.authority ?? false },
+    } : null,
+    options: state.phase === "approval"
+      ? ["Review and approve this exact candidate", "Decline publication", "Take over", "Stop"]
+      : publicationNeedsReconciliation ? ["Inspect effect and repository state", "Escalate for manual reconciliation"]
+      : ["Inspect and reconcile", "Take over", "Stop"],
+  } : null;
   return { workId: work.id, objective: work.objective, lifecycle: work.lifecycle, control: work.control,
     criteriaVersion: work.criteriaVersion, repository: work.repository, baseSha: state.contract.baseSha,
-    candidateSha: latestCandidate(state)?.sha ?? null, prHeadSha: state.truth?.head ?? null, currentRun: state.runs.at(-1) ?? null,
-    evidence: state.evidence.filter(e => e.candidate === latestCandidate(state)?.sha), readiness: decision,
-    status: work.lifecycle === "failed" ? "Failed" : decision.ready ? "Ready for Review" :
-      state.phase === "needs_you" || state.phase === "approval" || work.control !== "agent" ? "Needs You" :
-      ["executing","verifying","queued"].includes(state.phase) ? "Working" : "Waiting",
-    pendingDecisions: state.phase === "approval" ? ["Approve exact candidate publication and bounded in-scope updates"] : state.phase === "needs_you" ? state.blockers : [],
-    unknownEffects: state.effects.filter(e => ["UNKNOWN","PREPARED"].includes(e.status)),
+    candidateSha: candidate?.sha ?? null, prHeadSha: state.truth?.head ?? null, currentRun,
+    evidence: state.evidence.filter(e => e.candidate === candidate?.sha), verification, readiness: decision,
+    status, activity, nextStep, pendingDecisions, attention,
+    source: "durable-engineering-execution" as const,
+    repositoryObservation: { status: repositoryObservation, observedAt: repositoryObservedAt, maxAgeSeconds: 60 },
+    unknownEffects,
     budget: { limitUsd: state.contract.budgetUsd, reservedUsd: state.reservedUsd, coverage: "Conservative model reservations; infrastructure cost excluded" },
     lastMeaningfulActivity: state.lastActivity };
 }

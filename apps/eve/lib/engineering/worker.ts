@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { digest, profileSchema } from "./contract.ts";
-import { invalidateEvidence, latestCandidate, nowIso, queueRun, readiness, type Execution } from "./execution.ts";
+import { digest, profileSchema, shaSchema } from "./contract.ts";
+import { invalidateEvidence, latestCandidate, nowIso, queueRun, readiness, type Execution, type GitHubTruth } from "./execution.ts";
 import { workBranch, type EngineeringGitHub, type RepositorySnapshot } from "./github.ts";
 import type { Executor, ProtectedVerifier } from "./executor.ts";
 import type { ExecutionStore } from "./execution-store.ts";
@@ -18,6 +18,31 @@ export function boundedReview(state:Execution,review:NonNullable<Execution["trut
   return {instruction:input.instruction,check:{...input.check,id:`review-${review.id}`,criterionIds:[input.criterionId]}};
 }
 
+function assertCurrentRepository(state:Execution,truth:GitHubTruth) {
+  const observedAge=Date.now()-Date.parse(truth.observedAt);
+  if(!truth.authority||truth.repository!==state.contract.repository||truth.baseSha!==state.contract.baseSha||
+    !Number.isFinite(observedAge)||observedAge < -5000||observedAge > 60000||
+    (truth.head!==null&&!shaSchema.safeParse(truth.head).success)||
+    (truth.pr!==null&&(!truth.head||!truth.pr.open||!truth.pr.draft||!Number.isSafeInteger(truth.pr.number)||truth.pr.number<1)))
+    throw new WorkError("repository_changed","The repository, base or Work branch changed; reconcile it before continuing.");
+}
+
+function confirmedPublication(state:Execution) {
+  return state.effects.filter(effect=>effect.status==="CONFIRMED").at(-1)??null;
+}
+
+function matchesConfirmedPublication(state:Execution,truth:GitHubTruth) {
+  const published=confirmedPublication(state);
+  return published
+    ? published.pr!==undefined&&truth.head===published.candidate&&truth.pr?.number===published.pr
+    : truth.head===null&&truth.pr===null;
+}
+
+function matchesPublishedPr(state:Execution,truth:GitHubTruth) {
+  const published=confirmedPublication(state);
+  return published ? published.pr!==undefined&&truth.pr?.number===published.pr : truth.pr===null;
+}
+
 /** Repeated ticks resume persisted phases. The UI and model are never the worker clock. */
 export class EngineeringWorker {
   constructor(readonly store:ExecutionStore,readonly github:EngineeringGitHub,readonly executor:Executor,readonly verifier:ProtectedVerifier,
@@ -29,7 +54,6 @@ export class EngineeringWorker {
     try {
       const save=async(kind:string)=>{if(leaseError)throw leaseError;const work=await this.store.workStore.get(id);await this.store.save(work,state,kind,claim.token);};
       let work=await this.store.workStore.get(id);
-      if(!await this.authorityCurrent())throw new WorkError("agent_authority","The coordinating Agent is no longer active in this owner scope.");
       if (work.generation!==state.generation || work.control!=="agent" || work.lifecycle!=="active") {
         for(const run of state.runs.filter(r=>r.status==="queued"||r.status==="running")) {
           await this.executor.requestStop(run);
@@ -37,11 +61,21 @@ export class EngineeringWorker {
           run.status="stopped";run.endedAt=nowIso();
         }
         invalidateEvidence(state);state.generation=work.generation;state.approval=null;
-        if(work.control!=="agent"||work.lifecycle!=="active")state.phase="stopped";
+        if(work.control!=="agent"||work.lifecycle!=="active") {
+          state.phase="stopped";
+          state.handoffBaseline=null;
+          state.humanHandoffGeneration=work.lifecycle==="active"&&work.control==="human"?work.generation:null;
+        }
         else {
+          if(!await this.authorityCurrent())throw new WorkError("agent_authority","The coordinating Agent is no longer active in this owner scope.");
           if(work.criteriaVersion!==state.contract.criteriaVersion||state.contract.profileHash!==this.profileCurrent())throw new Error("The current criteria or profile requires a new contract.");
           const truth=await this.github.observe(state.contract,workBranch(id));
-          if(!truth.authority||truth.baseSha!==state.contract.baseSha)throw new Error("Repository authority or base changed during human takeover.");
+          assertCurrentRepository(state,truth);
+          const humanHandoff=typeof state.humanHandoffGeneration==="number"&&work.generation===state.humanHandoffGeneration+1;
+          if(humanHandoff ? !matchesPublishedPr(state,truth) : !matchesConfirmedPublication(state,truth))
+            throw new WorkError("repository_changed","The Work branch or PR changed outside the authorized handoff; reconcile it before continuing.");
+          state.handoffBaseline=humanHandoff?{generation:work.generation,head:truth.head,prNumber:truth.pr?.number??null,recordedAt:nowIso()}:null;
+          state.humanHandoffGeneration=null;
           state.truth=truth;state.blockers=[];
           queueRun(state,work,"Human gave back Work; preserve and reverify the reconciled branch",truth.head??latestCandidate(state)?.sha??state.contract.baseSha);
           state.interventions.push({id:randomUUID(),kind:"judgment",reason:"Human gave back control",at:nowIso()});
@@ -50,9 +84,13 @@ export class EngineeringWorker {
         for(const run of state.runs.filter(r=>r.status==="stopped"&&!r.resourceReleasedAt)){await this.executor.cleanup(run);run.resourceReleasedAt=nowIso();}
         await save("fenced_resources_released");return;
       }
+      // An owner-declined candidate is intentionally stopped. Profile expiry or a
+      // disabled Agent must not turn that recorded decision into a new request.
+      if(state.phase==="stopped")return;
+      if(!await this.authorityCurrent())throw new WorkError("agent_authority","The coordinating Agent is no longer active in this owner scope.");
       if (state.contract.profileHash!==this.profileCurrent() || work.criteriaVersion!==state.contract.criteriaVersion || Date.now()>=Date.parse(state.contract.deadline))
         throw new WorkError("authority_changed","The criteria, profile, policy or deadline no longer matches this contract.");
-      if(state.phase==="stopped"||state.phase==="needs_you"||state.phase==="approval")return;
+      if(state.phase==="needs_you"||state.phase==="approval")return;
       if(state.phase==="queued") {
         const truth=await this.github.observe(state.contract,workBranch(id));state.truth=truth;
         if(!truth.authority || truth.baseSha!==state.contract.baseSha)throw new Error("Repository authority or base changed before execution.");
@@ -98,7 +136,7 @@ export class EngineeringWorker {
         const pending=state.effects.find(e=>["UNKNOWN","PREPARED"].includes(e.status));
         if(pending) {
           if(truth.authority&&truth.head===pending.candidate&&truth.pr?.draft&&truth.pr.open) {
-            pending.status="CONFIRMED";pending.pr=truth.pr.number;pending.url=truth.pr.url;state.phase="observing";state.blockers=[];await save("publication_reconciled");return;
+            pending.status="CONFIRMED";pending.pr=truth.pr.number;pending.url=truth.pr.url;state.phase="observing";state.blockers=[];state.handoffBaseline=null;await save("publication_reconciled");return;
           }
           state.phase="needs_you";state.blockers=["EXTERNAL STATE UNKNOWN: publication could not be confirmed. No write was retried."];await save("external_state_unknown");return;
         }
@@ -112,7 +150,7 @@ export class EngineeringWorker {
         // Re-read local fence after the durable effect record and before the first external write.
         const current=await this.store.workStore.get(id);if(current.generation!==work.generation||current.control!=="agent"||!await this.authorityCurrent())throw new Error("Publication writer was fenced.");
         const pr=await this.github.publish(state.contract,candidate,workBranch(id),truth.head);
-        Object.assign(effect,{status:"CONFIRMED",pr:pr.number,url:pr.url});state.phase="observing";await save("publication_confirmed");return;
+        Object.assign(effect,{status:"CONFIRMED",pr:pr.number,url:pr.url});state.phase="observing";state.handoffBaseline=null;await save("publication_confirmed");return;
       }
       if(state.phase==="observing"||state.phase==="ready") {
         const previousPhase=state.phase,previousTruth=digest({...state.truth,observedAt:null});
@@ -173,13 +211,18 @@ export class EngineeringWorker {
   async continue(id:string,revision:number) {
     const work=await this.store.workStore.get(id),state=await this.store.get(id);
     if(!await this.authorityCurrent())throw new Error("Current coordinating Agent authority is required.");
-    if(!state||state.revision!==revision||work.control!=="agent"||state.effects.some(e=>["PREPARED","UNKNOWN"].includes(e.status)))throw new Error("Current agent control and reconciled external effects are required.");
+    if(!state||state.revision!==revision||work.control!=="agent"||work.generation!==state.generation||state.effects.some(e=>["PREPARED","UNKNOWN"].includes(e.status)))throw new Error("Current agent control, generation and reconciled external effects are required.");
     if(state.contract.profileHash!==this.profileCurrent()||work.criteriaVersion!==state.contract.criteriaVersion)throw new Error("Contract authority changed; continuation denied.");
     const truth=await this.github.observe(state.contract,workBranch(id));
+    assertCurrentRepository(state,truth);
+    const handoff=state.handoffBaseline;
+    const matchesHandoff=handoff?.generation===work.generation&&handoff.head===truth.head&&handoff.prNumber===(truth.pr?.number??null);
+    if(!matchesConfirmedPublication(state,truth)&&!matchesHandoff)
+      throw new WorkError("repository_changed","The repository, base or Work branch changed; reconcile it before continuing.");
     for(const run of state.runs.filter(r=>["running","queued"].includes(r.status))) {await this.executor.requestStop(run);run.status="stopped";run.endedAt=nowIso();}
     invalidateEvidence(state);state.generation=work.generation;state.truth=truth;state.blockers=[];state.approval=null;
-    queueRun(state,work,"Human gave back Work or selected a fresh instance; preserve the reconciled branch",truth.head??latestCandidate(state)?.sha??state.contract.baseSha);
-    state.interventions.push({id:randomUUID(),kind:"judgment",reason:"Explicit human continuation / same-executor replacement",at:nowIso()});
+    queueRun(state,work,"Owner selected a fresh attempt; preserve the reconciled branch",truth.head??latestCandidate(state)?.sha??state.contract.baseSha);
+    state.interventions.push({id:randomUUID(),kind:"judgment",reason:"Explicit owner continuation / same-executor replacement",at:nowIso()});
     return this.store.save(work,state,"human_continuation");
   }
 }

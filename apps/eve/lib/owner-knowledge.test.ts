@@ -16,7 +16,7 @@ import { correctOwnerKnowledge, forgetOwnerKnowledge, searchOwnerKnowledge } fro
 const now = "2026-09-18T12:00:00.000Z";
 const memoryRow = {
   id: "memory_owner", owner_id: "owner-a", scope_type: "owner", scope_id: "owner-a",
-  content: "Prefers concise explanations", provider_id: "remote_1", source_type: "explicit", source_id: "thread_1",
+  content: "Prefers concise explanations", provider: "supermemory", provider_id: "remote_1", source_type: "explicit", source_id: "thread_1",
   status: "active", confidence: 1, created_at: now, updated_at: now, last_confirmed_at: now,
   used_in_runs: 2,
 };
@@ -59,6 +59,30 @@ describe("owner knowledge projection", () => {
     expect(memorySql).toContain("m.scope_type='goal'");
     expect(memoryParams).toEqual(expect.arrayContaining(["owner-a", "agent_researcher", "goal_launch"]));
     expect(memoryParams).not.toContain("agent_finance");
+  });
+
+  it("distinguishes local-only Memory from an uncertain remote write even when a provider key is configured", async () => {
+    const query = vi.fn(async (sql: string) => sql.includes("FROM memory_records") ? [
+      { ...memoryRow, id: "memory_local", provider: "local", provider_id: null },
+      { ...memoryRow, id: "memory_uncertain", provider: "supermemory_unknown", provider_id: null },
+      { ...memoryRow, id: "memory_legacy_uncertain", provider: "supermemory", provider_id: null },
+    ] : []);
+    const result = await searchOwnerKnowledge("owner-a", { type: "memory" }, query, true);
+    const availability = Object.fromEntries(result.items.map((item) => [item.id, item.remoteAvailability]));
+
+    expect(availability).toEqual({
+      memory_local: "not_applicable",
+      memory_uncertain: "reconciliation_required",
+      memory_legacy_uncertain: "reconciliation_required",
+    });
+  });
+
+  it("labels an Agent-run Memory as derived rather than an explicit owner statement", async () => {
+    const query = vi.fn(async (sql: string) => sql.includes("FROM memory_records") ? [
+      { ...memoryRow, source_type: "run", source_id: "occurrence_1" },
+    ] : []);
+    const result = await searchOwnerKnowledge("owner-a", { type: "memory" }, query);
+    expect(result.items[0]?.source).toMatchObject({ type: "run", id: "occurrence_1", label: "Agent run" });
   });
 
   it("bounds pagination and never retrieves an unbounded corpus", async () => {
@@ -123,6 +147,18 @@ describe("owner knowledge mutations", () => {
     const result = await forgetOwnerKnowledge({ ownerId: "owner-a", repository: "memory", id: "memory_owner" });
     expect(result.receipt.result).toBe("partially_completed");
     expect(mocks.operation).toHaveBeenCalledWith(expect.objectContaining({ type: "memory_forgotten", status: "partially_completed" }));
+  });
+
+  it("records a reconciliation requirement when an uncertain remote copy cannot be forgotten", async () => {
+    mocks.deleteMemory.mockResolvedValue({ found: true, deleted: false, remoteDeleted: false, remoteDeletionVerified: false });
+
+    const result = await forgetOwnerKnowledge({ ownerId: "owner-a", repository: "memory", id: "memory_uncertain" });
+    expect(result.receipt).toMatchObject({ result: "failed", remoteDeleted: false, remoteDeletionVerified: false, canonicalMetadataRemoved: false });
+    expect(mocks.operation).toHaveBeenCalledWith(expect.objectContaining({
+      type: "memory_forgotten",
+      status: "failed",
+      errorSummary: expect.stringMatching(/copy may exist.*Reconciliation is required/),
+    }));
   });
 
   it("deletes Knowledge relationships transactionally before the canonical record", async () => {

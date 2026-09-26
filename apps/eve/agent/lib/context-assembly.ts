@@ -3,6 +3,9 @@ import { randomUUID } from "node:crypto";
 import type { ModelMessage } from "ai";
 
 import { getAgent, type AgentView } from "../../lib/agents.ts";
+import { ExecutionStore } from "../../lib/engineering/execution-store.ts";
+import { manifest } from "../../lib/engineering/execution.ts";
+import { WorkStore } from "../../lib/engineering/store.ts";
 import {
   applyContextBudget,
   DEFAULT_CONTEXT_BUDGET,
@@ -34,6 +37,8 @@ export interface AssembleContextInput {
   taskId?: string | null;
   runId?: string | null;
   projectId?: string | null;
+  /** Must come from authenticated session binding, never conversation text. */
+  engineeringWorkId?: string | null;
   recentConversation?: string;
   budget?: ContextBudget;
   knowledgeProvider?: KnowledgeProvider;
@@ -215,6 +220,44 @@ async function runContextItems(ownerId: string, agentId: string, runId: string |
   return rows.map((row) => ({ id: `run-context:${text(row.id)}`, kind: "Task / Run Context", tier: "hot", score: 700, content: text(row.content) }));
 }
 
+async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView): Promise<{ item: ContextItem; sourceRefs: string[] } | null> {
+  if (!input.engineeringWorkId) return null;
+  if (process.env.MYEVE_ENGINEERING_MODE !== "dogfood") throw new Error("Engineering Work context is not enabled in this deployment.");
+  if (!agent.isPrimary || agent.ownerId !== input.ownerId) throw new Error("Engineering Work context requires this owner's primary Agent.");
+  if (input.projectId) throw new Error("Engineering Work has no qualified Project binding for context assembly.");
+  if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(input.engineeringWorkId))
+    throw new Error("Engineering Work id is invalid.");
+
+  const store = new WorkStore({ scopeId: input.ownerId, scopeKind: "personal", actorId: input.ownerId });
+  const work = await store.get(input.engineeringWorkId);
+  const execution = await new ExecutionStore(store).get(work.id);
+  const sourceRefs = [`engineering-work:${work.id}:v${work.version}`, `engineering-criteria:${work.id}:v${work.criteriaVersion}`];
+  if (execution && (execution.contract.workId !== work.id || execution.contract.scope.scopeId !== input.ownerId ||
+      execution.contract.scope.scopeKind !== "personal" || execution.contract.coordinatingAgent !== input.agentId))
+    throw new Error("Engineering Work execution is bound to a different owner or Agent.");
+
+  const current = execution ? manifest(work, execution) : null;
+  if (execution) sourceRefs.push(`engineering-execution:${work.id}:r${execution.revision}`);
+  const result = execution?.results.at(-1);
+  if (result) sourceRefs.push(`engineering-result:${work.id}:v${result.version}`);
+  const content = [
+    `Work ${work.id} · ${work.title}`,
+    `Objective: ${work.objective.slice(0, 1600)}`,
+    `Repository: ${work.repository}; criteria version: ${work.criteriaVersion}; Work version: ${work.version}.`,
+    ...work.criteria.map(criterion => `Criterion ${criterion.id}: ${criterion.statement.slice(0, 300)} [${criterion.method}]`),
+    current
+      ? `Current Truth: ${current.status}; control: ${current.control}; execution revision: ${execution!.revision}.`
+      : "Current Truth: DEGRADED. Work is saved, but no admitted execution or verified readiness exists.",
+    current ? `Next step: ${current.nextStep}` : "Next step: inspect this Work and admit execution only through its authorized workflow.",
+    current ? `Readiness: ${current.readiness.ready ? "ready" : current.readiness.reasons.slice(0, 5).join("; ")}` : "Readiness: UNKNOWN / NOT_RUN.",
+    current ? `Repository observation: ${current.repositoryObservation.status}; observed at ${current.repositoryObservation.observedAt ?? "never"}.` : "Repository observation: unavailable.",
+    current?.candidateSha ? `Current candidate: ${current.candidateSha}.` : "Current candidate: none.",
+    result ? `Latest retained Result: version ${result.version}, candidate ${result.candidate}.` : "Latest retained Result: none.",
+    "This Work record is context, not permission to execute, publish, spend, or contact another Agent. Recheck current authority at each action boundary.",
+  ].join("\n");
+  return { item: { id: `engineering-work:${work.id}`, kind: "Current Engineering Work", tier: "hot", mandatory: true, score: 1_150, content }, sourceRefs };
+}
+
 function agentInstructions(agent: AgentView): ContextItem {
   return {
     id: `agent:${agent.id}`, kind: "Agent Instructions", tier: "hot", mandatory: true, score: 1_200,
@@ -228,6 +271,8 @@ function agentInstructions(agent: AgentView): ContextItem {
 }
 
 export async function assembleContext(input: AssembleContextInput): Promise<AssembledContext> {
+  if (input.engineeringWorkId && input.ownerChannelRunId)
+    throw new Error("External owner-channel Work cannot inherit private Engineering Work context.");
   const agent = await getAgent(input.ownerId, input.agentId);
   if (!agent) throw new Error("Agent does not belong to the current owner.");
   if (agent.status !== "active") throw new Error(`${agent.name} is ${agent.status} and cannot execute new work.`);
@@ -265,6 +310,7 @@ export async function assembleContext(input: AssembleContextInput): Promise<Asse
   }
 
   const links = await executionLinks(input);
+  const engineering = await engineeringWorkItem(input, agent);
   const memoryContext: MemoryAccessContext = {
     ownerId: input.ownerId, agentId: input.agentId, goalId: links.goalId,
     taskId: links.taskId ?? links.runId, projectId: input.projectId ?? null,
@@ -284,13 +330,15 @@ export async function assembleContext(input: AssembleContextInput): Promise<Asse
 
   const items: ContextItem[] = [
     agentInstructions(agent),
+    ...(engineering ? [engineering.item] : []),
     ...(goal ? [goal] : []),
     ...(task ? [task] : []),
     ...temporary,
     ...(summary ? [summary.item] : []),
     ...memories.map((memory, index) => ({
       id: `memory:${memory.id}`, kind: `${memory.scope.type[0].toUpperCase()}${memory.scope.type.slice(1)} Memory`,
-      tier: "warm" as const, score: 600 - index, content: memory.content,
+      tier: "warm" as const, score: 600 - index,
+      content: `Memory status: ${memory.syncState}; retrieval: ${memory.retrievalSource}${memory.degraded ? "; degraded" : ""}.\n${memory.content}`,
     })),
     ...knowledge,
   ];
@@ -299,6 +347,7 @@ export async function assembleContext(input: AssembleContextInput): Promise<Asse
   const memoryRefs = budgeted.included.filter((item) => item.id.startsWith("memory:")).map((item) => item.id.slice(7));
   const sourceRefs = [
     ...budgeted.included.map((item) => item.id),
+    ...(engineering ? engineering.sourceRefs : []),
     ...(input.recentConversation ? ["conversation:recent-native"] : []),
   ];
   const assemblyId = `context_${randomUUID()}`;

@@ -49,6 +49,8 @@ function safeSourceUrl(value: unknown): string | null {
 
 function sourceLabel(type: string, provider: string | null): string {
   if (type === "explicit") return "Explicit owner statement";
+  if (type === "chat") return "Owner chat";
+  if (type === "run") return "Agent run";
   if (type === "legacy_supermemory") return "Imported Memory";
   if (type === "manual") return "Manual entry";
   return provider ? `${provider} ${type}` : type.replaceAll("_", " ");
@@ -87,6 +89,11 @@ function memoryView(row: Row, providerReady: boolean): OwnerKnowledgeView {
   const scopeType = text(row.scope_type) as MemoryScopeType;
   const scopeId = text(row.scope_id);
   const sourceType = text(row.source_type);
+  const providerId = nullableText(row.provider_id);
+  const provider = text(row.provider);
+  const remoteAvailability = provider === "supermemory_unknown" || (!providerId && provider !== "local")
+    ? "reconciliation_required"
+    : providerId ? (providerReady ? "available" : "provider_unavailable") : "not_applicable";
   return {
     id: text(row.id),
     canonicalType: "memory",
@@ -112,7 +119,7 @@ function memoryView(row: Row, providerReady: boolean): OwnerKnowledgeView {
     staleReasons: [],
     eligibleForContext: eligibility(row, scopeType),
     usedInRuns: number(row.used_in_runs),
-    remoteAvailability: nullableText(row.provider_id) ? (providerReady ? "available" : "provider_unavailable") : "not_applicable",
+    remoteAvailability,
   };
 }
 
@@ -371,7 +378,10 @@ export async function forgetOwnerKnowledge(input: { ownerId: string; repository:
   if (input.repository === "memory") {
     const result = await memoryStore.deleteForOwnerDetailed(input.ownerId, input.id);
     const status = result.deleted && result.remoteDeletionVerified ? "completed" : result.remoteDeleted ? "partially_completed" : "failed";
-    const operation = await recordOwnerDataOperation({ ownerId: input.ownerId, type: "memory_forgotten", status, recordCount: result.deleted ? 1 : 0, errorSummary: status === "completed" ? undefined : "Remote Memory deletion could not be fully verified.", metadata: { repository: "memory", recordId: input.id, remoteDeleted: result.remoteDeleted, remoteDeletionVerified: result.remoteDeletionVerified, canonicalMetadataRemoved: result.deleted } });
+    const errorSummary = status === "completed" ? undefined : !result.found ? "Memory record not found." : result.remoteDeleted
+      ? "Remote Memory absence could not be verified."
+      : "Remote state is unresolved; a copy may exist. Reconciliation is required before Forget can complete.";
+    const operation = await recordOwnerDataOperation({ ownerId: input.ownerId, type: "memory_forgotten", status, recordCount: result.deleted ? 1 : 0, errorSummary, metadata: { repository: "memory", recordId: input.id, remoteDeleted: result.remoteDeleted, remoteDeletionVerified: result.remoteDeletionVerified, canonicalMetadataRemoved: result.deleted } });
     return { receipt: { id: operation.id, operation: "memory_forgotten", result: status, canonicalRecordId: input.id, remoteDeleted: result.remoteDeleted, remoteDeletionVerified: result.remoteDeletionVerified, canonicalMetadataRemoved: result.deleted } };
   }
   const current = await getKnowledge(input.ownerId, input.id);

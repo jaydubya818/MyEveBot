@@ -51,6 +51,7 @@ import { ChannelsWorkspace } from "@/components/channels-workspace";
 import { ComputerWorkspace } from "@/components/computer-workspace";
 import { EmailClient } from "@/components/email-client";
 import { FilesPage } from "@/components/files-page";
+import { ChatWorkStatus } from "@/components/engineering/chat-work-status";
 import {
   CapabilityNotice,
   type CapabilityNoticeState,
@@ -1279,7 +1280,6 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
-            {engineeringIncluded && <a href="/work" className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-kumo-tint focus-visible:outline-2" title="Engineering Work">Work</a>}
             {goalsIncluded && <Button
               variant="ghost"
               size="sm"
@@ -1390,6 +1390,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
             />
           </div>
         </div>
+        {engineeringIncluded && <ChatWorkStatus />}
         {process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
           <a href={process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL} target="_blank" rel="noopener noreferrer"
             className="mx-3 mb-2 flex min-h-11 items-center justify-between rounded-md border border-kumo-hairline px-3 text-sm hover:bg-kumo-tint"

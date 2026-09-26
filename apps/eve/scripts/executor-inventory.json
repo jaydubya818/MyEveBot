@@ -173,7 +173,7 @@
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c8c038363642ade73888891d052a1ab0be460b1b1e49397e2a73b7d2d4e69d79"
+      "sha256": "e0eb6fbd225c25e9fb55fdd774a583e5c90e58b7db8ae3fd2ae93983e86e3433"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -238,7 +238,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "67bbbc0780c6cc48effded9d80e8cd45de1fd83410e62d96b2d492ed322a6cdc"
+      "sha256": "f06d2c9d34c72d44a05eb48988b73c6fab0c1a5180c96eccf6c8bb41d4ae16bb"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -372,8 +372,8 @@
     },
     "agent/lib/memory-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "bc343b0346f5e704415e0ede6a89f675657b0bef8788900b09512f87a26331d6"
+      "reason": "Scoped Memory helper reached through owner-authenticated routes or the remember Action Gateway adapter; local rows remain available during provider failure, uncertain remote writes stay marked, and remote deletion requires verification.",
+      "sha256": "0c131f4069019d6d770c7624773164400e8e5d80ebc853d211b51855cd6957b2"
     },
     "agent/lib/memory-tool-context.ts": {
       "classification": "INTERNAL",
@@ -1249,7 +1249,7 @@
     "agent/tools/remember.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-only scoped memory writes resolve the current execution, validate scope, consume exact Action Gateway authority, persist receipts, verify the provider result, and deduplicate replay. Qualified by remember-gateway.integration.test.mjs against PostgreSQL.",
-      "sha256": "9cfc8783e40c01a32c1752354f7245e78b4916a04ac27830e1a02f6893541723",
+      "sha256": "60304791ee82fe04cc3de632a942d5d8e757c5d136fee6bd426a905c446394ad",
       "disposition": "gateway"
     },
     "agent/tools/remove_email_domain.ts": {
@@ -2371,12 +2371,12 @@
     "lib/owner-knowledge-types.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure display constants; no imports, storage, credentials or execution.",
-      "sha256": "e3b3539fc57eb237d89e22c00c4cc815866c4e3855200b5d847483897513125f"
+      "sha256": "3370dd49f53557fe927474751583d087219162d7594dc76c0c7fe1bb7811cbce"
     },
     "lib/owner-knowledge.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing owner-scoped Knowledge repository unchanged except re-exporting pure client display constants.",
-      "sha256": "278d55e64a70e6fd64d017e67d944bade062178ba9c0b2a1cdec5fba78d6057f"
+      "reason": "Owner-scoped Knowledge projection labels trusted Memory source types and sync uncertainty; repository reads retain owner filtering and grant no external write authority.",
+      "sha256": "f1155c8841b55ab3854a3b4cad46b04497a5bdfb20739cb56ae33efd5e63bc2a"
     },
     "lib/phone-auth.ts": {
       "classification": "INTERNAL",
@@ -2971,7 +2971,7 @@
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "c9787a48cc4403af5941d1cde0d6f2bde50bef0bd2b7e19c0f443d44876febaf"
+      "sha256": "63542aae08eb62d4ba21abb3b4b5bbff7e7cc0ca8d4faf7c9b852c9968a43529"
     },
     "lib/engineering/contract.ts": {
       "classification": "INTERNAL",
@@ -2981,17 +2981,17 @@
     "lib/engineering/execution.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "49285393cd3388cc1958ade003c5860a1f50f571bcdc42898c9d7d8766c76c8e"
+      "sha256": "d6eb57f9f20938553f9b15f17eee9788ebe085eee54824deedde471c12f7b265"
     },
     "lib/engineering/execution-store.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "caaa39f54f019b47caceb4fb870332ad6a03dc6d6833cf75537bbdd07ef04d49"
+      "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d"
     },
     "lib/engineering/execution-api.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "f13a3ca0d6e75bc11d5c3071064a63e10599b4cd96d052f3f3c0245f46c0bbc3"
+      "sha256": "95ead89adaa842fd37d487e7f8b859cb751d79df3f8380031ba97074cfcb15fc"
     },
     "lib/engineering/executor.ts": {
       "classification": "INTERNAL",
@@ -3006,7 +3006,7 @@
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
       "reason": "Durable worker with SQL lease/generation fencing, current primary-Agent and repository authority, protected evidence, exact candidate approval, unknown-write reconciliation, bounded continuation; no merge/deployment surface.",
-      "sha256": "083ff5d220bb7e363c2783415ab418e34f6281558c5a4ac68fc082362a048a18"
+      "sha256": "36f91beb1394d5cfed28ec3faf2fa9aa7907a75cc722e1524b13521cc35d27a0"
     },
     "lib/engineering/model-broker.ts": {
       "classification": "ENFORCED",
@@ -3054,6 +3054,21 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+    },
+    "lib/digital-worker/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
+      "sha256": "98fa464cad26794b1f001980d707ab76a4dbf5f831d88606a9ef1c07d16729c4"
+    },
+    "lib/digital-worker/packs.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
+      "sha256": "049c01fc85819b1df69da943138ef9b9c27adb60f361a939535316a1820661cd"
+    },
+    "lib/digital-worker/routing.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
+      "sha256": "c09e39897dbd08da07fd1fe9559b410d0f0cba380160b6eedc01098337d88e0e"
     }
   }
 }

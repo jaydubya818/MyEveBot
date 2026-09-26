@@ -83,4 +83,16 @@ export class ExecutionStore {
     state.interventions.push({id:state.approval.id,kind:"judgment",reason:"Approved exact draft PR candidate and selected update policy",at:nowIso()});
     return this.save(work,state,"publication_approved");
   }
+  async decline(id: string, revision: number, candidate: string) {
+    const work = await this.workStore.get(id), state = await this.get(id);
+    if (!state || state.revision !== revision || state.phase !== "approval" || state.candidates.at(-1)?.sha !== candidate ||
+      work.generation !== state.generation || work.control !== "agent" || work.lifecycle !== "active" ||
+      work.criteriaVersion !== state.contract.criteriaVersion)
+      throw new WorkError("decision_changed", "The candidate or Work changed. Reload before deciding.");
+    state.phase = "stopped";
+    state.approval = null;
+    state.blockers = ["The owner declined publication of this candidate."];
+    state.interventions.push({ id: randomUUID(), kind: "judgment", reason: "Declined exact draft PR candidate", at: nowIso() });
+    return this.save(work, state, "publication_declined");
+  }
 }

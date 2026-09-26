@@ -24,6 +24,7 @@ type Detail = {
   criteriaHistory: CriteriaRevision[];
   execution: Execution | null;
   manifest: ReturnType<typeof manifest> | null;
+  executionHistory: {revision:number;kind:string;actor_id:string;created_at:string}[];
 };
 async function api(path = "", init?: RequestInit) {
   const response = await fetch(`/api/engineering/work${path}`, {
@@ -48,7 +49,9 @@ function status(work: Work) {
 export function WorkDashboard() {
   const [items, setItems] = useState<Work[]>([]);
   const [detail, setDetail] = useState<Detail | null>(null);
+  const [detailStale, setDetailStale] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [summaryStale, setSummaryStale] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -64,27 +67,48 @@ export function WorkDashboard() {
   const intakeKey=useRef("");
   const createKey = useRef("");
   const selection = useRef(0);
+  const summaryRequest = useRef(0);
   const heading = useRef<HTMLHeadingElement>(null);
 
   async function refresh() {
+    const request = ++summaryRequest.current;
     const data = await api();
+    if (request !== summaryRequest.current) return;
     setItems(data.work);
     setManifests((data.manifests??[]).filter(Boolean));
     setExecutionAvailable(data.execution.available);
     setExecutionReason(data.execution.reason);
+    setSummaryStale(false);
     setLoading(false);
   }
   useEffect(() => {
     void refresh().catch((e) => {
       setError(e.message);
+      setSummaryStale(true);
       setLoading(false);
     });
+    const id = new URL(window.location.href).searchParams.get("id");
+    if (id && /^[0-9a-f-]{36}$/i.test(id)) void open(id);
   }, []);
+  useEffect(() => {
+    const refreshVisible = () => {
+      if (document.visibilityState === "visible" && !busy)
+        void refresh().catch(() => setSummaryStale(true));
+    };
+    const timer = window.setInterval(refreshVisible, 15000);
+    window.addEventListener("focus", refreshVisible);
+    document.addEventListener("visibilitychange", refreshVisible);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshVisible);
+      document.removeEventListener("visibilitychange", refreshVisible);
+    };
+  }, [busy]);
   useEffect(()=>{
     if(!detail?.execution || busy || criteriaEdit)return;
     const id=detail.work.id,version=selection.current;
-    const timer=setInterval(()=>{void api(`/${id}`).then(data=>{if(selection.current===version){setDetail(data);if(data.manifest)setManifests(current=>current.map(m=>m.workId===id?data.manifest:m));}}).catch(()=>{
-      if(selection.current===version)setDetail(current=>current?.manifest?{...current,manifest:{...current.manifest,status:"Waiting",readiness:{ready:false,reasons:["Current state could not be refreshed; readiness is unconfirmed."]}}}:current);
+    const timer=setInterval(()=>{void api(`/${id}`).then(data=>{if(selection.current===version){setDetail(data);setDetailStale(false);if(data.manifest)setManifests(current=>current.map(m=>m.workId===id?data.manifest:m));}}).catch(()=>{
+      if(selection.current===version)setDetailStale(true);
     });},5000);
     return ()=>clearInterval(timer);
   },[detail?.work.id,!!detail?.execution,busy,criteriaEdit]);
@@ -101,15 +125,24 @@ export function WorkDashboard() {
     setCreating(false);
     setCriteriaEdit(false);
     setConfirmCancel(false);
+    setDetailStale(true);
     setBusy(true);
     try {
       const data = await api(`/${id}`);
       if (version === selection.current) {
         setDetail(data);
+        setDetailStale(false);
         setItems((current) =>
           current.map((item) => (item.id === data.work.id ? data.work : item)),
         );
-        requestAnimationFrame(() => heading.current?.focus());
+        requestAnimationFrame(() => {
+          heading.current?.focus();
+          if (new URL(window.location.href).searchParams.get("tab") === "Decisions")
+            requestAnimationFrame(() => document.getElementById("engineering-execution")?.scrollIntoView({ block: "start" }));
+        });
+        const url = new URL(window.location.href);
+        url.searchParams.set("id", id);
+        window.history.replaceState(null, "", url);
       }
     } catch (e) {
       if (version === selection.current) setError((e as Error).message);
@@ -118,7 +151,9 @@ export function WorkDashboard() {
     }
   }
   async function mutate(id: string, command: WorkCommand) {
+    const version = ++selection.current;
     setBusy(true);
+    setDetailStale(true);
     setError("");
     setNotice("");
     try {
@@ -127,7 +162,11 @@ export function WorkDashboard() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(command),
       });
-      setDetail(await api(`/${id}`));
+      const updated = await api(`/${id}`);
+      if (selection.current === version) {
+        setDetail(updated);
+        setDetailStale(false);
+      }
       await refresh();
       setCriteriaEdit(false);
       setConfirmCancel(false);
@@ -238,7 +277,8 @@ export function WorkDashboard() {
             New Work
           </button></div>
         </div>
-        <nav aria-label="Work status" className="flex flex-wrap gap-2">{["Working","Waiting","Needs You","Ready for Review","Failed"].map(name=><button key={name} className={button} aria-pressed={statusFilter===name} onClick={()=>setStatusFilter(statusFilter===name?"":name)}>{name} · {manifests.filter(m=>m.status===name).length}</button>)}</nav>
+        {manifests.length>0&&<nav aria-label="Work status" className="flex flex-wrap gap-2">{["Working","Waiting","Needs You","Ready for Review","In your hands","Paused","Stopped","Failed"].filter(name=>manifests.some(m=>m.status===name)||statusFilter===name).map(name=><button key={name} className={button} aria-pressed={statusFilter===name} onClick={()=>setStatusFilter(statusFilter===name?"":name)}>{name} · {manifests.filter(m=>m.status===name).length}</button>)}</nav>}
+        {summaryStale && <p role="status" className="rounded-lg border border-amber-500/40 p-3 text-sm">Work totals could not be refreshed. Open a Work item to recheck its current state before acting.</p>}
         {intake&&<form className="grid gap-4 rounded-xl border border-kumo-line p-5 sm:grid-cols-3" onSubmit={delegate} aria-label="Delegate GitHub issue"><label className={label}>Issue number<input className={field} type="number" name="issue" min="1" required/></label><label className={label}>Maximum model cost (USD)<input className={field} name="budget" type="number" min="0.1" max="20" step="0.1" defaultValue="5" required/></label><label className={label}>Deadline (minutes)<input className={field} name="minutes" type="number" min="5" max="60" defaultValue="30" required/></label><p className="text-sm text-kumo-subtle sm:col-span-3">Uses the owner-configured private qualification repository, acceptance criteria and protected checks. Publication requires a separate exact-candidate approval.</p><button className={primary} disabled={busy}>Admit Work</button></form>}
         {error && (
           <div
@@ -278,7 +318,7 @@ export function WorkDashboard() {
           <p role="status">Loading Work…</p>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[310px_minmax(0,1fr)]">
-            <section aria-label="Work list" className="min-w-0 space-y-3">
+            <section aria-label="Work list" className={`min-w-0 space-y-3 ${detail||creating?"order-last lg:order-none":""}`}>
               <label className="sr-only" htmlFor="search-work">
                 Find Work
               </label>
@@ -319,7 +359,7 @@ export function WorkDashboard() {
             </section>
             <section
               aria-label="Work detail"
-              className="min-w-0 rounded-2xl border border-kumo-line p-5 md:p-7"
+              className={`min-w-0 rounded-2xl border border-kumo-line p-5 md:p-7 ${detail||creating?"order-first lg:order-none":""}`}
             >
               {creating ? (
                 <form onSubmit={create} className="space-y-5">
@@ -435,6 +475,11 @@ export function WorkDashboard() {
                       {detail.work.maxDurationSeconds / 60} minutes active
                       runtime
                     </p>
+                    {(detail.manifest?.pendingDecisions.length ?? 0) > 0 && (
+                      <a href="#engineering-execution" className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-kumo-warning/50 px-4 text-sm font-medium text-kumo-default">
+                        {detail.manifest?.attention?.reconciliation ? "Review reconciliation" : "Review decision"} · {detail.manifest?.pendingDecisions.length} waiting
+                      </a>
+                    )}
                   </div>
                   <section>
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
@@ -526,7 +571,8 @@ export function WorkDashboard() {
                       </ol>
                     )}
                   </section>
-                  {detail.execution&&detail.manifest?<ExecutionDetail state={detail.execution} current={detail.manifest} onReload={()=>open(detail.work.id)}/>:<section className="rounded-xl border border-kumo-line p-4">
+                  {detailStale&&<p role="alert" className="mb-4 rounded-lg border border-amber-500/50 p-3 text-sm">Current Work detail could not be refreshed. Decisions and control are paused until a successful reload.</p>}
+                  {detail.execution&&detail.manifest?<ExecutionDetail state={detail.execution} current={detail.manifest} history={detail.executionHistory??[]} canAct={!detailStale} canContinue={executionAvailable&&!detailStale} onReload={()=>open(detail.work.id)}/>:<section className="rounded-xl border border-kumo-line p-4">
                     <h3 className="font-semibold">Evidence & readiness</h3>
                     <p className="mt-2 text-sm text-kumo-subtle">
                       Not ready for review. No qualified executor or verified
@@ -576,7 +622,7 @@ export function WorkDashboard() {
                   )}
                   <section className="space-y-3">
                     <h3 className="font-semibold">Control</h3>
-                    <div className="flex flex-wrap gap-2">
+                    <fieldset disabled={busy||detailStale} className="flex flex-wrap gap-2">
                       {detail.work.lifecycle === "active" ? (
                         <>
                           {detail.work.control !== "paused" && (
@@ -643,7 +689,7 @@ export function WorkDashboard() {
                           Reopen paused
                         </button>
                       )}
-                    </div>
+                    </fieldset>
                     {confirmCancel && (
                       <div
                         role="group"
@@ -652,7 +698,7 @@ export function WorkDashboard() {
                       >
                         <p>
                           Cancel this Work? Its criteria and history will be
-                          retained. No execution is currently attached.
+                          retained. {detail.execution ? "The current executor will be fenced. Check Activity to confirm resource cleanup." : "No execution is currently attached."}
                         </p>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button
