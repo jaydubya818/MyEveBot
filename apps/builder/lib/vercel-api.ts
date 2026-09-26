@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { DeployFile } from "./assemble";
 
 // Minimal typed client for the slice of the Vercel REST API the deploy
@@ -368,12 +369,52 @@ export interface CreatedDeployment {
   readyState: string;
 }
 
+async function uploadDeploymentFiles(
+  token: string,
+  teamId: string | null,
+  files: DeployFile[],
+): Promise<Array<{ file: string; sha: string; size: number }>> {
+  const unique = new Map<string, Buffer>();
+  const references = files.map((entry) => {
+    const bytes = Buffer.from(entry.data, "base64");
+    const sha = createHash("sha1").update(bytes).digest("hex");
+    if (!unique.has(sha)) unique.set(sha, bytes);
+    return { file: entry.file, sha, size: bytes.length };
+  });
+  const uploads = [...unique.entries()];
+  const endpoint = new URL(`${API}/v2/files`);
+  if (teamId) endpoint.searchParams.set("teamId", teamId);
+  let next = 0;
+  async function worker(): Promise<void> {
+    while (next < uploads.length) {
+      const [sha, bytes] = uploads[next++];
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/octet-stream",
+          "x-vercel-digest": sha,
+        },
+        body: new Uint8Array(bytes),
+      });
+      if (!response.ok) {
+        throw new VercelApiError("deploy", `Vercel file upload failed (${response.status})`, response.status);
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(16, uploads.length) }, () => worker()));
+  return references;
+}
+
 export async function createDeployment(
   token: string,
   teamId: string | null,
   projectName: string,
   files: DeployFile[],
 ): Promise<CreatedDeployment> {
+  // Inline base64 exceeds Vercel's deployment request limit for the Eve
+  // template. Upload content-addressed files first, then send only references.
+  const uploadedFiles = await uploadDeploymentFiles(token, teamId, files);
   const deployment = await api<{
     id: string;
     url: string;
@@ -389,7 +430,7 @@ export async function createDeployment(
       name: projectName,
       project: projectName,
       target: "production",
-      files,
+      files: uploadedFiles,
       projectSettings: { framework: "nextjs" },
     },
     stage: "deploy",
