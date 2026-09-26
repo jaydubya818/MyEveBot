@@ -144,9 +144,10 @@ async function provision(path: string): Promise<void> {
   const problem = validateConfig(input.config);
   if (problem) throw new Error(problem);
   exactSourceSha(input.sourceSha);
-  if (input.config.postgres.mode !== "create" || input.config.blob.mode !== "create" ||
-      !requiredKeys(input.config.features).blob || !input.config.relay) {
-    throw new Error("Managed beta requires new database and Blob stores plus Relay pairing.");
+  const needsBlob = requiredKeys(input.config.features).blob;
+  if (input.config.postgres.mode !== "create" ||
+      (needsBlob && input.config.blob.mode !== "create") || !input.config.relay) {
+    throw new Error("Managed beta requires a new database, a new Blob store for file features, and Relay pairing.");
   }
   process.env.BUILDER_RELAY_ORIGIN = requiredEnvironment("BUILDER_RELAY_ORIGIN");
   const relay = await resolveBetaRelayTrust(input.config.relay.fingerprint);
@@ -183,7 +184,7 @@ async function provision(path: string): Promise<void> {
         await checkpoint(registry);
       }
       environment = current(registry, id);
-      if (!environment.blobStoreId) {
+      if (needsBlob && !environment.blobStoreId) {
         const blobStoreId = await existingOrCreateStore(token, input.teamId, storeName(environment.projectName, "blob"), "blob");
         registry = updateEnvironment(registry, id, { blobStoreId });
         await checkpoint(registry);
@@ -191,9 +192,11 @@ async function provision(path: string): Promise<void> {
       environment = current(registry, id);
       let keys = await listProjectEnvKeys(token, input.teamId, projectId);
       if (!keys.includes("DATABASE_URL")) await connectStoreToProject(token, input.teamId, environment.databaseStoreId!, projectId);
-      if (!keys.includes("BLOB_READ_WRITE_TOKEN")) await connectStoreToProject(token, input.teamId, environment.blobStoreId!, projectId);
+      if (needsBlob && !keys.includes("BLOB_READ_WRITE_TOKEN")) {
+        await connectStoreToProject(token, input.teamId, environment.blobStoreId!, projectId);
+      }
       keys = await listProjectEnvKeys(token, input.teamId, projectId);
-      assertRequiredProjectEnvKeys(keys, ["DATABASE_URL", "BLOB_READ_WRITE_TOKEN"]);
+      assertRequiredProjectEnvKeys(keys, needsBlob ? ["DATABASE_URL", "BLOB_READ_WRITE_TOKEN"] : ["DATABASE_URL"]);
       registry = updateEnvironment(registry, id, { state: "storage_created" });
       await checkpoint(registry);
     }
