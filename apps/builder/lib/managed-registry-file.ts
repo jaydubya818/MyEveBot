@@ -71,7 +71,10 @@ async function read(path: string): Promise<ManagedEnvironmentRegistry> {
 /** One-operator atomic file registry. The lock prevents concurrent CLI writes. */
 export async function withManagedRegistry<T>(
   filename: string,
-  work: (registry: ManagedEnvironmentRegistry) => Promise<{ registry: ManagedEnvironmentRegistry; result: T }>,
+  work: (
+    registry: ManagedEnvironmentRegistry,
+    checkpoint: (registry: ManagedEnvironmentRegistry) => Promise<void>,
+  ) => Promise<{ registry: ManagedEnvironmentRegistry; result: T }>,
 ): Promise<T> {
   const path = outsideCheckout(filename);
   await mkdir(dirname(path), { recursive: true, mode: 0o700 });
@@ -83,25 +86,29 @@ export async function withManagedRegistry<T>(
       throw error;
     });
   try {
-    const before = await read(path);
-    const { registry, result } = await work(before);
-    parseRegistry(registry);
-    const temporary = `${path}.${process.pid}.tmp`;
-    try {
-      try { await copyFile(path, `${path}.bak`); } catch (error) {
-        if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
-      }
-      const file = await open(temporary, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
+    let current = await read(path);
+    const checkpoint = async (registry: ManagedEnvironmentRegistry): Promise<void> => {
+      parseRegistry(registry);
+      const temporary = `${path}.${process.pid}.tmp`;
       try {
-        await file.writeFile(`${JSON.stringify(registry, null, 2)}\n`);
-        await file.sync();
+        try { await copyFile(path, `${path}.bak`); } catch (error) {
+          if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
+        }
+        const file = await open(temporary, constants.O_CREAT | constants.O_EXCL | constants.O_WRONLY, 0o600);
+        try {
+          await file.writeFile(`${JSON.stringify(registry, null, 2)}\n`);
+          await file.sync();
+        } finally {
+          await file.close();
+        }
+        await rename(temporary, path);
+        current = registry;
       } finally {
-        await file.close();
+        await rm(temporary, { force: true });
       }
-      await rename(temporary, path);
-    } finally {
-      await rm(temporary, { force: true });
-    }
+    };
+    const { registry, result } = await work(current, checkpoint);
+    if (registry !== current) await checkpoint(registry);
     return result;
   } finally {
     await lock.close();

@@ -62,7 +62,8 @@ test("registry is private, atomic, backed up, and rejects concurrent mutations",
     const blocked = withManagedRegistry(file, async (registry) => {
       entered();
       await held;
-      return { registry, result: null };
+      return { registry: updateEnvironment(registry, registry.environments[0]!.id,
+        { state: "project_created", projectId: "prj_one" }, fixed), result: null };
     });
     await acquired;
     await assert.rejects(withManagedRegistry(file, async (registry) => ({ registry, result: null })), /locked/);
@@ -70,6 +71,22 @@ test("registry is private, atomic, backed up, and rejects concurrent mutations",
     await blocked;
     assert.equal((await first).environments.length, 1);
     assert.equal(JSON.parse(await readFile(`${file}.bak`, "utf8")).environments.length, 1);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test("a remote-stage checkpoint survives a later failure", async () => {
+  const dir = await mkdtemp(join(tmpdir(), "myeve-managed-checkpoint-"));
+  const file = join(dir, "registry.json");
+  try {
+    await assert.rejects(withManagedRegistry(file, async (registry, checkpoint) => {
+      await checkpoint(reserveEnvironment(registry, {
+        email: "tester@example.com", projectName: "eve-beta-1", now: fixed,
+      }));
+      throw new Error("provider unavailable");
+    }), /provider unavailable/);
+    assert.equal((await readManagedRegistry(file)).environments.length, 1);
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

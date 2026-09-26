@@ -24,7 +24,7 @@ export class VercelApiError extends Error {
 interface RequestOptions {
   token: string;
   teamId?: string | null;
-  method?: "GET" | "POST" | "DELETE";
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
   stage: DeployStage;
 }
@@ -90,13 +90,25 @@ export async function createProject(
   token: string,
   teamId: string | null,
   name: string,
+  managedEnvironmentId?: string,
 ): Promise<CreatedProject> {
   try {
     const project = await api<{ id: string; name: string }>("/v11/projects", {
       token,
       teamId,
       method: "POST",
-      body: { name, framework: "nextjs" },
+      body: {
+        name,
+        framework: "nextjs",
+        ...(managedEnvironmentId ? {
+          environmentVariables: [{
+            key: "MYEVE_MANAGED_ENVIRONMENT_ID",
+            value: managedEnvironmentId,
+            type: "plain",
+            target: ["production", "preview", "development"],
+          }],
+        } : {}),
+      },
       stage: "project",
     });
     return { id: project.id, name: project.name, existed: false };
@@ -110,6 +122,20 @@ export async function createProject(
       return { id: existing.id, name: existing.name, existed: true };
     }
     throw error;
+  }
+}
+
+/** Production aliases remain public; generated deployment and preview URLs require Vercel auth. */
+export async function setStandardProtection(token: string, teamId: string | null, projectId: string): Promise<void> {
+  const project = await api<{ ssoProtection?: { deploymentType?: string } }>(
+    `/v9/projects/${encodeURIComponent(projectId)}`,
+    {
+      token, teamId, method: "PATCH", stage: "project",
+      body: { ssoProtection: { deploymentType: "prod_deployment_urls_and_all_previews" } },
+    },
+  );
+  if (project.ssoProtection?.deploymentType !== "prod_deployment_urls_and_all_previews") {
+    throw new VercelApiError("project", "Vercel did not confirm Standard Protection.");
   }
 }
 
@@ -255,6 +281,20 @@ export async function listProjectEnvKeys(
     stage,
   });
   return (body.envs ?? []).map((entry) => entry.key);
+}
+
+/** Non-secret project-creation marker used to recover after a CLI interruption. */
+export async function managedProjectMarker(
+  token: string,
+  teamId: string | null,
+  projectId: string,
+): Promise<string | null> {
+  const body = await api<{ envs?: { key: string; value?: unknown }[] }>(
+    `/v10/projects/${encodeURIComponent(projectId)}/env`,
+    { token, teamId, stage: "project" },
+  );
+  const marker = body.envs?.find((entry) => entry.key === "MYEVE_MANAGED_ENVIRONMENT_ID");
+  return typeof marker?.value === "string" ? marker.value : null;
 }
 
 export function assertRequiredProjectEnvKeys(
