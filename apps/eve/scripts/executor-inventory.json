@@ -2425,8 +2425,8 @@
     },
     "lib/relay/inbox.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
-      "sha256": "b8acd23fd1675b1744252c8f26f21797cd779d7e4f33ea980c94aa67b7b4b985"
+      "reason": "Signed owner/Agent-target verification and durable claims; outgoing requires current permission revision plus executing exact Action. Owner-enabled correlated message replies require current reciprocal peer permission, stable reply settings and a Relay grant; incoming uses current peer policy and canonical Action Gateway; result release rechecks authority.",
+      "sha256": "f70cdcff21597a9161ebb75f25f9ba7d6ce224cdd6abe2439728da8feb46228b"
     },
     "lib/relay/ingress.ts": {
       "classification": "INTERNAL",
