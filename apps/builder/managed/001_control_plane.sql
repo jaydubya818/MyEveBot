@@ -16,7 +16,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS managed_beta_invites_active_email_idx
 CREATE TABLE IF NOT EXISTS managed_eve_environments (
   id text PRIMARY KEY,
   invite_id text NOT NULL UNIQUE REFERENCES managed_beta_invites(id),
-  email text NOT NULL UNIQUE,
+  email text NOT NULL,
   owner_name text NOT NULL,
   agent_name text NOT NULL,
   project_name text NOT NULL UNIQUE,
@@ -39,6 +39,9 @@ CREATE TABLE IF NOT EXISTS managed_eve_environments (
 );
 
 CREATE INDEX IF NOT EXISTS managed_eve_environments_state_idx ON managed_eve_environments (state);
+
+CREATE UNIQUE INDEX IF NOT EXISTS managed_eve_environments_active_email_idx
+  ON managed_eve_environments (lower(email)) WHERE state <> 'retired';
 
 CREATE TABLE IF NOT EXISTS managed_eve_events (
   id text PRIMARY KEY,

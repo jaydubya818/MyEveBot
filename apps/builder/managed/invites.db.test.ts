@@ -33,6 +33,18 @@ test("a disposable database enforces invite reservations and single use", { skip
     [firstEmail, secondEmail],
   );
   assert.equal(result.rows[0]?.total, "2");
+  await managedDb().query(
+    "UPDATE managed_eve_environments SET state='retired' WHERE email IN ($1,$2)",
+    [firstEmail, secondEmail],
+  );
+  const expiringEmail = `expired-${suffix}@example.test`;
+  await invite(expiringEmail);
+  await managedDb().query(
+    "UPDATE managed_beta_invites SET expires_at=now()-interval '1 minute' WHERE email=$1 AND claimed_at IS NULL",
+    [expiringEmail],
+  );
+  const replacement = await invite(expiringEmail);
+  assert.equal(replacement.email, expiringEmail);
 });
 
 after(async () => {

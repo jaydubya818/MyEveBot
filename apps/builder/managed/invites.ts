@@ -56,6 +56,9 @@ export async function issueManagedInvite(input: {
   await inTransaction(async (client) => {
     // Serialize admission checks across concurrent operator requests.
     await client.query("SELECT pg_advisory_xact_lock(670101)");
+    await client.query(
+      "UPDATE managed_beta_invites SET revoked_at=now() WHERE claimed_at IS NULL AND revoked_at IS NULL AND expires_at <= now()",
+    );
     const activeLimit = Number(process.env.MANAGED_EVE_MAX_ACTIVE ?? "5");
     if (!Number.isSafeInteger(activeLimit) || activeLimit < 1 || activeLimit > 100) {
       throw new Error("MANAGED_EVE_MAX_ACTIVE must be between 1 and 100");
