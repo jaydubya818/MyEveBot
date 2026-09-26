@@ -42,7 +42,7 @@ const ALLOWED_TRANSITIONS: Record<ManagedEnvironmentState, readonly ManagedEnvir
   storage_created: ["configured", "failed"],
   configured: ["deployed", "failed"],
   deployed: ["healthy", "failed"],
-  healthy: ["active", "paused", "failed"],
+  healthy: ["active", "paused", "deleting", "failed"],
   active: ["paused", "deleting", "failed"],
   paused: ["healthy", "active", "deleting", "failed"],
   deleting: ["deleted", "failed"],

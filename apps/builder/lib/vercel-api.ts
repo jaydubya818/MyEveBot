@@ -488,6 +488,13 @@ export async function getProject(
   }
 }
 
+/** Delete only after the caller verifies the exact managed project marker. */
+export async function deleteProject(token: string, teamId: string, projectId: string): Promise<void> {
+  await api(`/v9/projects/${encodeURIComponent(projectId)}`, {
+    token, teamId, method: "DELETE", stage: "project",
+  });
+}
+
 /** The most recent READY production deployment of a project, or null. */
 export async function latestProductionDeploymentId(
   token: string,

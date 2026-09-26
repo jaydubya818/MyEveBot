@@ -13,7 +13,7 @@ import { readManagedRegistry, withManagedRegistry } from "../lib/managed-registr
 import { resolveBetaRelayTrust } from "../lib/relay-trust";
 import {
   assertRequiredProjectEnvKeys, connectStoreToProject, createBlobStore, createDeployment,
-  createProject, getDeploymentStatus, listProjectEnvKeys, listStores,
+  createProject, deleteProject, getDeploymentStatus, getProject, listProjectEnvKeys, listStores,
   managedProjectMarker, provisionNeonDatabase, setStandardProtection, upsertEnv,
   setProjectPaused,
 } from "../lib/vercel-api";
@@ -417,6 +417,60 @@ async function resume(id: string, configPath: string): Promise<void> {
   });
 }
 
+async function cleanupRehearsal(id: string, expectedProjectId: string, expectedStoreId: string): Promise<void> {
+  const token = await vercelToken();
+  const teamId = requiredEnvironment("MYEVE_CONTROL_TEAM_ID");
+  const teamSlug = requiredEnvironment("MYEVE_CONTROL_TEAM_SLUG");
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    let environment = current(registry, id);
+    if (!environment.email.endsWith("@example.invalid") || environment.relayAccountId ||
+        environment.relayAgentId || environment.blobStoreId ||
+        environment.projectId !== expectedProjectId || environment.databaseStoreId !== expectedStoreId ||
+        !environment.lastExportSha256 || !["healthy", "paused", "deleting"].includes(environment.state)) {
+      throw new Error("Cleanup is restricted to an exact unpaired, exported synthetic rehearsal.");
+    }
+    const existingProject = await getProject(token, teamId, expectedProjectId);
+    if (existingProject) {
+      if (await managedProjectMarker(token, teamId, expectedProjectId) !== id) {
+        throw new Error("Project no longer belongs to this managed rehearsal.");
+      }
+      if (environment.state !== "paused" && environment.state !== "deleting") {
+        await setProjectPaused(token, teamId, expectedProjectId, true);
+      }
+    }
+    if (environment.state !== "deleting") {
+      registry = updateEnvironment(registry, id, { state: "deleting" });
+      await checkpoint(registry);
+    }
+    if (existingProject) await deleteProject(token, teamId, expectedProjectId);
+    if (await getProject(token, teamId, expectedProjectId)) {
+      throw new Error("Disposable Vercel project still exists after deletion.");
+    }
+    const stores = await listStores(token, teamId);
+    const store = stores.find((item) => item.id === expectedStoreId);
+    if (store) {
+      if (store.kind !== "integration" || store.name !== storeName(environment.projectName, "db")) {
+        throw new Error("Disposable database store identity changed; cleanup stopped.");
+      }
+      const child = spawnSync("npx", ["--yes", "vercel@60.1.3", "integration-resource", "remove",
+        expectedStoreId, "--json", "--yes", "--scope", teamSlug], { encoding: "utf8", timeout: 120_000 });
+      if (child.status !== 0) throw new Error("Vercel did not delete the dedicated rehearsal database.");
+    }
+    if ((await listStores(token, teamId)).some((item) => item.id === expectedStoreId)) {
+      throw new Error("Disposable database is still listed after deletion.");
+    }
+    environment = current(registry, id);
+    registry = updateEnvironment(registry, id, {
+      state: "deleted", deletedAt: new Date().toISOString(), origin: null,
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: id, state: "deleted", projectId: expectedProjectId,
+      databaseStoreId: expectedStoreId, exportSha256: environment.lastExportSha256 }));
+    return { registry, result: undefined };
+  });
+}
+
 async function main(): Promise<void> {
   const [command, argument] = process.argv.slice(2);
   if (command === "provision" && argument) return provision(argument);
@@ -427,6 +481,9 @@ async function main(): Promise<void> {
   if (command === "record-export" && argument && process.argv[4]) return recordExport(argument, process.argv[4]);
   if (command === "pause" && argument && process.argv[4]) return pause(argument, process.argv[4]);
   if (command === "resume" && argument && process.argv[4]) return resume(argument, process.argv[4]);
+  if (command === "cleanup-rehearsal" && argument && process.argv[4] && process.argv[5]) {
+    return cleanupRehearsal(argument, process.argv[4], process.argv[5]);
+  }
   if (command === "status") {
     const registry = await readManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"));
     console.log(JSON.stringify(registry.environments.map((environment) => ({
@@ -436,7 +493,7 @@ async function main(): Promise<void> {
     })), null, 2));
     return;
   }
-  throw new Error("Usage: managed-eve.ts provision CONFIG | monitor CONFIG | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | status | recover-failed-deployment ID DEPLOYMENT_ID");
+  throw new Error("Usage: managed-eve.ts provision CONFIG | monitor CONFIG | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | cleanup-rehearsal ID PROJECT_ID DB_STORE_ID | status | recover-failed-deployment ID DEPLOYMENT_ID");
 }
 
 main().catch((error: unknown) => {
