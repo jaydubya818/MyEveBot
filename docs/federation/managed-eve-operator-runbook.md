@@ -19,9 +19,11 @@ export MYEVE_CONTROL_TEAM_SLUG='jaydubya818'
 node --import tsx apps/builder/scripts/managed-eve.ts status
 node --import tsx apps/builder/scripts/managed-eve.ts monitor '/absolute/private/tester-provision.json'
 node --import tsx apps/builder/scripts/managed-eve.ts upgrade '/absolute/private/tester-provision.json'
+node --import tsx apps/builder/scripts/managed-eve.ts export '/absolute/private/tester-provision.json' '/absolute/private/new-owner-archive.zip'
 node --import tsx apps/builder/scripts/managed-eve.ts record-export '/absolute/private/tester-provision.json' '/absolute/private/owner-archive.zip'
 node --import tsx apps/builder/scripts/managed-eve.ts pause ENVIRONMENT_ID PROJECT_ID
 node --import tsx apps/builder/scripts/managed-eve.ts resume ENVIRONMENT_ID '/absolute/private/tester-provision.json'
+node --import tsx apps/builder/scripts/managed-eve.ts delete '/absolute/private/tester-provision.json' '/absolute/private/owner-delete-permit.json' '/absolute/private/new-owner-archive.zip'
 ```
 
 `provision` additionally needs `BUILDER_RELAY_ORIGIN` and `MYEVE_CONTROL_BUILDER_ORIGIN`; the Relay origin must present the configured signing-key fingerprint. A failed deployment is never silently replaced: inspect the exact Vercel deployment, then use `recover-failed-deployment ENVIRONMENT_ID DEPLOYMENT_ID` only when its provider state is `ERROR` or `CANCELED`.
@@ -32,6 +34,10 @@ The $20/month AI Gateway project budget is soft at the crossing request. Check V
 
 ## Export, revocation, and deletion
 
-Owner archive: Eve **Manage → Your data → Backup & recovery**. The owner can download at any time; verify the archive through `record-export` before considering deletion. Archive completeness excludes credentials and may exclude referenced binary content. No import promise is made.
+Owner archive: Eve **Manage → Your data → Backup & recovery**. The owner can download at any time. `record-export` checks an owner-provided archive but does not establish which Eve generated it. Before deletion, `export` fetches a new archive from the exact authenticated managed Eve, asks Eve to verify it, and records its SHA-256 and time. Deliver that archive to the owner through an agreed secure channel. Archive completeness excludes credentials and may exclude referenced binary content. No import promise is made.
 
-The CLI's `cleanup-rehearsal` is deliberately restricted to an unpaired `@example.invalid` Eve after a verified export. There is **no general customer delete command yet**. For a real owner removal request, first freeze access, revoke Relay Agent credentials and grants in Relay, export and verify the owner's archive, then plan exact project and storage removal with an explicit owner-authorized retention notice. Do not use the synthetic cleanup command or delete only the Vercel project for a real owner. Record a non-secret tombstone after verifying every provider resource is gone. This unfinished lifecycle is a guided-beta limitation.
+The general `delete` command requires a separate 0600 permit after the owner's explicit authorization and a separately communicated retention notice. Its JSON fields are `environmentId`, lower-case `email`, exact `projectId`, exact `databaseStoreId`, exact `blobStoreId` or `null`, the SHA-256 of the newly generated archive, an ISO `approvedAt` within seven days, `ownerArchiveDelivered: true`, and `confirmation: "DELETE <environmentId>"`. The matching Control Plane export must be under 24 hours old. Prepare this file only after the owner approves the exact deletion and receives the archive; the boolean is an operator attestation, not cryptographic proof of delivery. Do not execute deletion for a real owner based on a test permit.
+
+Deletion signs into the exact Eve, fences local Relay access, revokes its grants, disables its Relay Agent, revokes credentials, verifies local retirement, pauses the Vercel project, removes the exact identity-marked project and dedicated stores, verifies their absence, removes the Control Plane database backup, and records a non-secret tombstone. A partial failure stays in `deleting` and resumes only with the identical permit file. If the saved Relay owner session expired, have the owner reconnect Relay before starting; deletion stops before provider removal. Retained owner/archive copies follow the communicated retention notice. The $1 unpaired disposable rehearsal passed this entire path and its former URL returned 404. Retirement of a *paired* hosted Agent has focused tests, but no real paired-owner deletion has been performed.
+
+`cleanup-rehearsal` remains restricted to an unpaired `@example.invalid` Eve and must not be used for a customer. Never delete only the Vercel project and assume its connected storage is gone.
