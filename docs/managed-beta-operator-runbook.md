@@ -2,7 +2,7 @@
 
 ## Current release state
 
-Managed provisioning is disabled by default. Keep it disabled until the live qualification gates in `managed-beta-control-plane.md` pass. The public `/beta` page explains the managed path and keeps the existing BYO Vercel Builder available as an advanced path.
+Managed provisioning is disabled by default. The disposable managed Eve lifecycle passed live qualification on September 26, 2026: dedicated project and Neon store, $1 project model budget, migrations, owner sign-in, model response, upgrade, owner archive download and verification, pause, and deletion of the exact project and store. Keep production provisioning disabled until Relay pairing and production control-plane configuration pass the remaining gates in `managed-beta-control-plane.md`. The managed `/beta` page is still in the draft PR; the public page has the existing BYO path.
 
 ## Control-plane setup
 
@@ -41,7 +41,7 @@ Never put the operator token, Vercel token, invite encryption key, or tester pas
 
 The daily Vercel cron calls `GET /api/managed/monitor` with `Authorization: Bearer <CRON_SECRET>`. The endpoint is inert while provisioning is disabled. Once enabled, it checks ready Eves for project identity, model budget, and health, and advances deployments still awaiting verification. It records an alert for each failure and returns HTTP 503 when an environment needs attention. Inspect the environment and its event log; the cron is not an automatic repair mechanism. Vercel cron is best effort, so also check the latest health timestamps in the operator view.
 
-After the owner has downloaded and checked an archive, pause the exact environment and confirm its Vercel project is paused. For a disposable live qualification environment, set `MANAGED_EVE_RETIREMENT_ENABLED=true` and call `POST /api/managed/environments/{id}/retire` with the admin bearer token and the exact JSON below. The export must have been verified within 24 hours. The endpoint checks the recorded project identity, dedicated Neon ownership and connections, then disconnects and deletes that Neon resource, deletes the project, verifies both disappear, and records each step. If a step fails, inspect the recorded IDs and Vercel resources before retrying the same environment; the `retiring` state supports resumption. Keep the retirement switch off for tester environments until that disposable test is complete.
+After the owner has downloaded and checked an archive, pause the exact environment and confirm its Vercel project is paused. The disposable live retirement test passed on September 26, 2026. Set `MANAGED_EVE_RETIREMENT_ENABLED=true` only in an operator environment where deletion is authorized, and call `POST /api/managed/environments/{id}/retire` with the admin bearer token and the exact JSON below. The export must have been verified within 24 hours. The endpoint checks the recorded project identity, dedicated Neon ownership and connections, then disconnects and deletes that Neon resource, deletes the project, verifies both disappear, and records each step. If a step fails, inspect the recorded IDs and Vercel resources before retrying the same environment; the `retiring` state supports resumption.
 
 ```json
 {
@@ -57,7 +57,7 @@ After the owner has downloaded and checked an archive, pause the exact environme
 - A managed Eve has **no binary-producing features** in the first profile because the current owner archive does not include binary file contents. Do not turn those features on until export coverage is complete.
 - AI Gateway's project budget is a soft cap for the request that crosses it. Set a separate Vercel team infrastructure spend limit and monitor both. A project budget applies to project OIDC requests; verify the deployed Eve actually uses that identity with a model call before launch.
 - Do not run a blind retry after a provisioning failure. The record may already own a project or Neon store. Compare recorded IDs with Vercel resources, then recover the exact environment.
-- Do not retire a real tester environment before the disposable live qualification proves both the Vercel project and dedicated Neon resource are gone. Keep `MANAGED_EVE_RETIREMENT_ENABLED` unset until then.
+- The disposable live retirement test confirmed both the Vercel project and dedicated Neon resource were gone. Keep `MANAGED_EVE_RETIREMENT_ENABLED` unset in production until a real tester has a checked export and has explicitly requested deletion.
 - Do not represent Relay registration or agent conversation as complete until a live Ava/Sofie exchange and one approved memory share have been observed. Denied unauthorized sharing must also be observed.
 
 ## Qualification before invitations

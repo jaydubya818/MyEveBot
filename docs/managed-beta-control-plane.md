@@ -10,7 +10,7 @@ Every managed Eve has a distinct Vercel project, Neon database, application cred
 
 The Builder hosts a small operator control plane with a separate database and an operator-only API. Records are durable: invitation, email, single-use token hash, environment ID, project and storage IDs, deployment ID, current template release, state, timestamps, and an append-only event log. No access passwords, Vercel tokens, Relay credentials, or database URLs are stored in these records.
 
-The first control-plane slice issues private invitation links, provisions one isolated project, lists environments, checks project identity and health, verifies the AI budget, upgrades a ready Eve from the Builder template, pauses or resumes a ready Eve, and records an operator-checked owner export hash. A failed operation remains visible with its stage. A daily authenticated monitor checks active environments. Scoped retirement deletes the bound dedicated Neon resource and Vercel project only after a recent checked export and exact operator confirmation. These paths have local tests but still need live qualification before the first tester is invited. Invitation revocation remains to be implemented.
+The first control-plane slice issues private invitation links, provisions one isolated project, lists environments, checks project identity and health, verifies the AI budget, upgrades a ready Eve from the Builder template, pauses or resumes a ready Eve, and records an operator-checked owner export hash. A failed operation remains visible with its stage. A daily authenticated monitor checks active environments. Scoped retirement deletes the bound dedicated Neon resource and Vercel project only after a recent checked export and exact operator confirmation. The disposable project lifecycle has passed live qualification; Relay pairing, production configuration, and invitation revocation remain open.
 
 The private invitation is the only link sent to a tester. It is a bearer link sent to the invited email; possession of the link grants access to that setup. It presents the Relay signup invitation and Eve setup with live readiness checks. The invite token stays out of agent chat, and the page sends no referrer to Relay. The operator pins Relay's production signing key before any Eve is paired. A failed key check stops provisioning before project mutation.
 
@@ -22,8 +22,8 @@ Eve already provides an owner-authenticated archive download under Manage → Yo
 
 ## Release gates
 
-1. A local disposable control-plane database passes invite replay, wrong-email, concurrent provisioning, isolation, upgrade, and deletion tests.
-2. A live managed test Eve is provisioned in a dedicated project and database, then monitored, upgraded without credential rotation, exported, and retired.
+1. A local disposable control-plane database passes invite replay, wrong-email, concurrent provisioning, isolation, upgrade, and deletion tests. The existing invite and retirement database tests pass; the full concurrent-provisioning and wrong-email scenarios still need explicit qualification.
+2. A live managed test Eve is provisioned in a dedicated project and database, then monitored, upgraded while retaining its credential, exported, and retired. This passed on September 26, 2026, including a real model response and verification that the exact Vercel project and Neon store disappeared.
 3. Relay's beta-invite migration and current deployment are live. The approved key fingerprint is pinned by the operator; the tester never types it.
 4. A real tester completes one-link onboarding and a model-written Eve/Sofie exchange with an explicitly approved memory share and a denied unauthorized share.
 
