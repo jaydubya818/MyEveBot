@@ -43,10 +43,14 @@ export async function issueManagedInvite(input: {
   email: string;
   relayInviteUrl: string;
   builderOrigin: string;
+  monthlyModelBudgetUsd: number;
 }): Promise<ManagedInvite> {
   const email = normalizeInviteEmail(input.email);
   const token = randomBytes(32).toString("base64url");
   const encryptedRelayInvite = encryptRelayInvite(input.relayInviteUrl);
+  if (!Number.isFinite(input.monthlyModelBudgetUsd) || input.monthlyModelBudgetUsd <= 0 || input.monthlyModelBudgetUsd > 1000) {
+    throw new Error("A valid model budget is required");
+  }
   const id = `inv_${randomUUID().replaceAll("-", "").slice(0, 24)}`;
   const expiresAt = new Date(Date.now() + 7 * 86400_000).toISOString();
   await inTransaction(async (client) => {
@@ -66,8 +70,8 @@ export async function issueManagedInvite(input: {
     );
     if (existing.rowCount) throw new Error("This tester already has a managed Eve");
     await client.query(
-      "INSERT INTO managed_beta_invites (id,email,token_hash,relay_invite_ciphertext,expires_at) VALUES ($1,$2,$3,$4,$5)",
-      [id, email, hashToken(token), encryptedRelayInvite, expiresAt],
+      "INSERT INTO managed_beta_invites (id,email,token_hash,relay_invite_ciphertext,monthly_model_budget_usd,expires_at) VALUES ($1,$2,$3,$4,$5,$6)",
+      [id, email, hashToken(token), encryptedRelayInvite, input.monthlyModelBudgetUsd, expiresAt],
     );
   });
   return { url: `${new URL(input.builderOrigin).origin}/join?invite=${token}`, email, expiresAt };
@@ -102,18 +106,14 @@ export async function claimManagedInvite(input: {
   token: string;
   ownerName: string;
   agentName: string;
-  monthlyModelBudgetUsd: number;
-}): Promise<{ environmentId: string; projectName: string }> {
+}): Promise<{ environmentId: string; projectName: string; monthlyModelBudgetUsd: number }> {
   if (!/^[A-Za-z0-9_-]{43}$/.test(input.token)) throw new Error("Invalid invitation");
   const ownerName = input.ownerName.trim();
   const agentName = input.agentName.trim();
   if (!ownerName || ownerName.length > 100 || !agentName || agentName.length > 100) throw new Error("Enter a name for yourself and your Eve");
-  if (!Number.isFinite(input.monthlyModelBudgetUsd) || input.monthlyModelBudgetUsd <= 0 || input.monthlyModelBudgetUsd > 1000) {
-    throw new Error("A valid model budget is required");
-  }
   return inTransaction(async (client) => {
-    const invite = await client.query<{ id: string; email: string }>(
-      "SELECT id,email FROM managed_beta_invites WHERE token_hash=$1 AND claimed_at IS NULL AND revoked_at IS NULL AND expires_at > now() FOR UPDATE",
+    const invite = await client.query<{ id: string; email: string; monthly_model_budget_usd: string }>(
+      "SELECT id,email,monthly_model_budget_usd FROM managed_beta_invites WHERE token_hash=$1 AND claimed_at IS NULL AND revoked_at IS NULL AND expires_at > now() FOR UPDATE",
       [hashToken(input.token)],
     );
     const row = invite.rows[0];
@@ -122,13 +122,13 @@ export async function claimManagedInvite(input: {
     const projectName = managedProjectName(environmentId);
     await client.query(
       "INSERT INTO managed_eve_environments (id,invite_id,email,owner_name,agent_name,project_name,state,monthly_model_budget_usd) VALUES ($1,$2,$3,$4,$5,$6,'approved',$7)",
-      [environmentId, row.id, row.email, ownerName, agentName, projectName, input.monthlyModelBudgetUsd],
+      [environmentId, row.id, row.email, ownerName, agentName, projectName, row.monthly_model_budget_usd],
     );
     await client.query("UPDATE managed_beta_invites SET claimed_at=now() WHERE id=$1", [row.id]);
     await client.query(
       "INSERT INTO managed_eve_events (id,environment_id,kind) VALUES ($1,$2,'invite_claimed')",
       [`evt_${randomUUID().replaceAll("-", "").slice(0, 24)}`, environmentId],
     );
-    return { environmentId, projectName };
+    return { environmentId, projectName, monthlyModelBudgetUsd: Number(row.monthly_model_budget_usd) };
   });
 }

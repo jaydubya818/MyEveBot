@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS managed_beta_invites (
   email text NOT NULL,
   token_hash text NOT NULL UNIQUE,
   relay_invite_ciphertext text,
+  monthly_model_budget_usd numeric(10,2) NOT NULL CHECK (monthly_model_budget_usd > 0),
   expires_at timestamptz NOT NULL,
   claimed_at timestamptz,
   revoked_at timestamptz,

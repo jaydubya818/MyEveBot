@@ -8,7 +8,7 @@ import type { NextConfig } from "next";
 // matter: without them tracing would drag apps/eve's node_modules, build
 // output, and — critically — .env.local (real secrets) into the builder's
 // deployment.
-const TEMPLATE_ROUTES = ["/api/deploy", "/api/update", "/api/template-version"] as const;
+const TEMPLATE_ROUTES = ["/api/deploy", "/api/update", "/api/template-version", "/api/managed/join"] as const;
 
 // Keep this as an allowlist instead of tracing the whole sibling workspace.
 // Eve's local runtime creates linked dependency trees under `.eve/`; Turbopack
