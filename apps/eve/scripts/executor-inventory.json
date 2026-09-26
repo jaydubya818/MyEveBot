@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Current migration identifier, now 0031; no effects.",
-      "sha256": "f9095d4ffbd34dcb9d85b2fe410e9474d79f0116e459393fc4f4f6c49c8364de"
+      "reason": "Current migration identifier, now 0039; no effects.",
+      "sha256": "a6c05cc6508077b69ccd8a405c037d947790a920a7630e0acade9f0dbd8c3788"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",

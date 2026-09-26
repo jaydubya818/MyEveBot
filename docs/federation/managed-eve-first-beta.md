@@ -1,12 +1,12 @@
 # Managed Eve: first beta release contract
 
-Decision (September 26, 2026): MyEve operates one isolated Eve environment per tester. BYO Vercel remains an advanced option. Relay and MyFactory remain shared governed services, with separate per-Eve identities, credentials, and authorization.
+Decision (September 26, 2026): MyEve operates one isolated Eve environment per tester. BYO Vercel remains an advanced option. Relay and MyFactory remain shared governed services, with separate per-Eve identities, credentials, and authorization. This is the product contract; [the operator runbook](managed-eve-operator-runbook.md) identifies which first-beta lifecycle operations are implemented and which still require manual handling.
 
 ## Smallest shippable control plane
 
 For the first guided beta, the Control Plane may be operator-only. The tester should receive a working Eve URL and sign-in, not a Vercel-token form. The operator interface may be a CLI initially, but its registry must be durable and auditable; a local spreadsheet or one-off Vercel project is not a control plane. No public provisioning endpoint may accept an operator Vercel credential from an unauthenticated tester.
 
-The registry owns one stable environment ID per tester. It records the invited Relay account ID, Eve owner ID, project/deployment IDs, dedicated database and Blob store IDs, template SHA/release, Relay Agent identity and key version, lifecycle state, budget policy, last health check, export status, and deletion receipt. It stores **no** plaintext password, token, database URL, or signing private key. Only the control plane can mutate this mapping; all mutations require an operator identity and an idempotency key. Email is kept in the protected registry, never the Git release packet.
+The registry owns one stable environment ID per tester. It records the invited Relay account ID, Eve owner ID, project/deployment IDs, dedicated database and Blob store IDs, template SHA/release, Relay Agent identity and key version, lifecycle state, budget policy, last health check, export status, and deletion receipt. It stores **no** plaintext password, token, database URL, or signing private key. Only the operator CLI can mutate this mapping in the first beta; its lock and exact resource IDs protect retries. A future multi-operator service needs authenticated operators and explicit idempotency keys. Email is kept in the protected registry, never the Git release packet.
 
 Provisioning runs as a resumable state machine: `reserved → project_created → storage_created → configured → deployed → healthy → active`. Every resource is tagged with the environment ID. A retry discovers resources by exact ID before creating anything. Failure leaves a visible state and cleanup action. An existing project is never silently adopted or overwritten. The new Eve gets one Vercel project, one dedicated database, one dedicated Blob store when file features are enabled, and newly generated session, Relay, webhook, and storage credentials. No data store or credential is shared with Jay's Eve or another tester's Eve. The owner is linked to the exact Relay identity, and Relay grants default to none.
 
@@ -26,4 +26,4 @@ Deletion is two-stage: disable the Eve and revoke Relay identity/credentials fir
 4. Relay invitation creates a distinct account for the exact tester email; the tester's Eve registers its own Agent key and gets only explicit grants. Hosted message/reply, shared Knowledge, private denial, and revocation all pass.
 5. MyFactory remains on the tester's Mac and disposable repository. The approved Linear team, local host health, signed receipt, duplicate suppression, and one reviewed draft PR pass before claiming the three-product beta journey.
 
-Until these gates pass, Relay may be in production, but the managed Eve invitation is **not ready to send**.
+For the current Orchis status and unsatisfied gates, use [the release packet](first-beta-release-packet.md). Do not report untested hosted exchange, customer deletion, or tester-Mac Factory work as passed.
