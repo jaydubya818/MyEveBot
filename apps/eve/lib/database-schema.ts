@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0049_telegram_owner_receipts.sql";
+export const CURRENT_DATABASE_MIGRATION = "0050_engineering_native_runtime.sql";

@@ -1,3 +1,5 @@
+import { proofOfWorkSchema, type ProofOfWork } from "../digital-worker/contracts.ts";
+import { digest } from "./contract.ts";
 import { ExecutionStore } from "./execution-store.ts";
 import { manifest, type Execution } from "./execution.ts";
 import { RoutingStore, routingForWorkVersion, type RoutingSnapshot } from "./routing-store.ts";
@@ -38,6 +40,8 @@ export interface EngineeringWorkerProjection {
   attention: CurrentManifest["attention"];
   pendingDecisions: string[];
   latestResult: { id: string; version: number; summary: string; candidate: string; createdAt: string } | null;
+  nativeRuntime?: {spentUsd:number;reservedUsd:number;usageUnknown:boolean;inflight:boolean}|null;
+  nativeResult?: {id:string;proof:ProofOfWork;contentHash:string;current:boolean}|null;
   nativeDevelopment: {
     phase: "DRAFT" | "VERIFICATION_REQUESTED" | "VERIFICATION_FAILED" | "VERIFICATION_PASSED";
     label: string;
@@ -106,7 +110,7 @@ export class EngineeringWorkerProjectionStore {
     const id = work.id;
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
-    const [execution, route, eventRows, historyRows, nativeRows] = await Promise.all([
+    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
       this.workStore.database.query(
@@ -123,12 +127,20 @@ export class EngineeringWorkerProjectionStore {
       this.workStore.database.query(
         `SELECT n.decision_id,n.route_run_id,n.work_version,n.work_generation,n.criteria_version,
                 n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,
-                d.admission_authority_snapshot->'contract'->>'coordinatingAgentId' AS agent_id
+                d.admission_authority_snapshot->'contract'->>'coordinatingAgentId' AS agent_id,
+                result.id AS native_result_id,result.proof AS native_proof,result.content_hash AS native_proof_hash,
+                result.work_generation AS native_result_generation
          FROM engineering_direct_workspaces n
          JOIN engineering_routing_decisions d ON d.id=n.decision_id AND d.scope_id=n.scope_id
            AND d.scope_kind=n.scope_kind AND d.work_id=n.work_id
+         LEFT JOIN LATERAL (SELECT * FROM engineering_native_results p
+           WHERE p.scope_id=n.scope_id AND p.scope_kind=n.scope_kind AND p.work_id=n.work_id
+           ORDER BY p.created_at DESC,p.id DESC LIMIT 1) result ON true
          WHERE n.scope_id=$1 AND n.scope_kind=$2 AND n.work_id=$3`, scope,
       ),
+      this.workStore.database.query(
+        `SELECT spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_native_runtime
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
     ]);
     const current = await this.workStore.get(id);
     if (current.version !== work.version || current.generation !== work.generation ||
@@ -150,6 +162,12 @@ export class EngineeringWorkerProjectionStore {
     const nativeRow = nativeRows[0] ?? null;
     if (nativeRow && this.coordinatingAgentId && nativeRow.agent_id !== this.coordinatingAgentId)
       throw new WorkError("projection_binding", "Native development is bound to a different Agent.", 403);
+    const nativeProof=nativeRow?.native_proof ? proofOfWorkSchema.parse(nativeRow.native_proof) : null;
+    if (nativeProof && digest(nativeProof)!==nativeRow.native_proof_hash)
+      throw new WorkError("native_result_integrity","The retained native result failed its integrity check.",503);
+    const nativeResult=nativeProof ? {id:String(nativeRow.native_result_id),proof:nativeProof,
+      contentHash:String(nativeRow.native_proof_hash),current:nativeProof.workVersion===work.version &&
+        nativeProof.criteriaVersion===work.criteriaVersion && Number(nativeRow.native_result_generation)===work.generation} : null;
     const nativePhase = nativeRow?.phase as NonNullable<EngineeringWorkerProjection["nativeDevelopment"]>["phase"];
     const nativeCurrent = !!nativeRow && !!admittedRoute && !!currentRouteRun &&
       !execution && currentRouteRun.route === "DEEP_AGENT" && currentRouteRun.status === "RUNNING" &&
@@ -197,10 +215,17 @@ export class EngineeringWorkerProjectionStore {
       ? { status: "Needs reconciliation", activity: "The retained native draft is no longer current for this Work or deadline.",
           nextStep: "Recheck Work, route and deadline before another candidate or verification attempt." }
       : null;
+    const runtimeRow=nativeRuntimeRows[0];
+    const nativeRuntime=runtimeRow ? {spentUsd:Number(runtimeRow.spent_microusd)/1_000_000,
+      reservedUsd:Number(runtimeRow.reserved_microusd)/1_000_000,usageUnknown:!!runtimeRow.usage_unknown,inflight:!!runtimeRow.inflight} : null;
+    const modelActivity=nativeRuntime?.usageUnknown
+      ? {status:"Needs reconciliation",activity:"A native model call has an uncertain outcome or usage.",nextStep:"Reconcile the charged model call before another model call or source edit. Retained reservations are not refunded."}
+      : nativeRuntime?.inflight
+        ? {status:"Working",activity:"A native model call holds a durable budget reservation.",nextStep:"Wait for the model outcome. An interrupted call must be reconciled before retry."} : null;
     const routeActivity = !execution && work.lifecycle === "active" && work.control === "agent"
       ? admittedRoute
         ? currentRouteRun
-          ? nativeActivity ?? staleNativeActivity ?? {
+          ? modelActivity ?? nativeActivity ?? staleNativeActivity ?? {
               status: currentRouteRun.status === "QUEUED" ? "Queued"
                 : currentRouteRun.status === "RUNNING" ? "Working"
                 : currentRouteRun.status === "COMPLETED" ? "Needs verification"
@@ -285,8 +310,12 @@ export class EngineeringWorkerProjectionStore {
       pendingDecisions: truth?.pendingDecisions ?? [],
       latestResult: result
         ? { id: result.id, version: result.version, summary: result.summary, candidate: result.candidate, createdAt: result.createdAt }
-        : null,
+        : nativeResult ? {id:nativeResult.id,version:nativeResult.proof.workVersion,
+          summary:`Native development: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
+          candidate:nativeResult.proof.resultRevision??"",createdAt:nativeResult.proof.createdAt} : null,
       nativeDevelopment,
+      nativeResult,
+      nativeRuntime,
       routing: routing.decision
         ? { decisionId: routing.decision.id, status: routing.decision.status, selectedRoute: routing.decision.selectedRoute,
           reason: routing.decision.reason, providerId: routing.decision.providerId }
@@ -299,7 +328,7 @@ export class EngineeringWorkerProjectionStore {
         readAt: new Date().toISOString(),
         workRef: `engineering-work:${work.id}:v${work.version}`,
         executionRef: execution ? `engineering-execution:${work.id}:r${execution.revision}` : null,
-        resultRef: result ? `engineering-result:${work.id}:v${result.version}` : null,
+        resultRef: result ? `engineering-result:${work.id}:v${result.version}` : nativeResult ? `native-result:${nativeResult.id}` : null,
         routingRef: routing.decision ? `engineering-route-decision:${routing.decision.id}` : null,
       },
     };

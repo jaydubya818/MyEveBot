@@ -2,6 +2,8 @@
 
 **Decision: ADAPT. Release/provider qualification: NOT QUALIFIED.**
 
+**Subsequent checkpoint:** [Native host implementation and live qualification](../2026-09-26-native-host/README.md) now provides concrete trusted admission, durable spend/session custody, immutable results, native process-loss checks and a real synthetic model→Docker failure→repair→pass trace. The user authorized that bounded live test; its total conservative allocation was $0.686839 of $2. The historical matrix below describes this earlier Deep Agents checkpoint. Authenticated Eve chat and the experimental SDK's own live host/MCP/subagent/cancellation qualification remain open.
+
 The source worktree named in the implementation request disappeared during this session. Its committed starting revision `0a74624` was restored into `codex/digital-worker-mvp` at `/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve`. The original main checkout's unrelated edits were preserved. This record extends the earlier sprint checkpoint; it does not replace its open gates.
 
 ## Implemented

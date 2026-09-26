@@ -1,3 +1,4 @@
+import { nativeQualificationSchema } from "./native-qualification.ts";
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
 import { criteriaSchema, WorkError, type WorkPrincipal } from "./types.ts";
@@ -16,6 +17,7 @@ export const runtimeSchema=z.object({
   objective:z.string().min(1).max(4000),criteria:criteriaSchema,profile:profileSchema,
   approvedBase:approvedBaseSchema,
   brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
+  nativeQualification:nativeQualificationSchema.optional(),
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
 }).strict();

@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "568268c0cb67b55a2df44b24916c0a9888b51b905a48350d0fc6449227e31383"
+      "reason": "Selected primary-Agent Work routes to the native budget-enforcing model only after persisted native admission; model and effect leaves independently recheck current authority.",
+      "sha256": "84d1de930543df2c133045856baed905c0b6787b8d30de1116bfffd9ae1b3b7a"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Static latest-migration marker; no executor, I/O, or authority decision.",
-      "sha256": "2b3cbd4a1b2bccd059ae567c92f655bcd3e42f1a5a48e05ecc00c03f8eb66eb8"
+      "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
+      "sha256": "90cd409f87113532201346a66a5c6215a3b69e25f0b1f6c2b6149c79bcae27f5"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3000,8 +3000,8 @@
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Bounded dogfood config and separately approved base validation before Work intake; provider effects terminate at inventoried leaves.",
-      "sha256": "eb0fce397feeb22312809805cb4eadb1b805b0f79f7fb8b59e61a5a0c4d99f54"
+      "reason": "Isolated dogfood server configuration accepts operator-reviewed qualification; API/model inputs cannot qualify a provider. Existing provider leaf guards remain required.",
+      "sha256": "b086c301571535ebb39364244bbd3c36fbe6518fbc3475edd5d0ef8ed514658e"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3137,13 +3137,13 @@
     },
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
-      "reason": "Trusted current Work-policy checks and SQL CAS record route admission/queued run; no provider dispatch, downstream recheck required.",
-      "sha256": "ad566dbe7232f09d60108b018968734aa7bb4915c19a3d5689a3cef99d1176f3"
+      "reason": "Trusted server snapshot binds Agent revision and Work generation; SQL CAS admits current scoped Work without provider execution.",
+      "sha256": "3d56b003d117c0a6488c4f3835d08551c9104587a98602ee20c95a749a3c2470"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped Work/execution/route/native-draft read model with revision, currentness and coordinating-Agent binding checks; SELECT only, no readiness grant or provider effect.",
-      "sha256": "af266b23ca05e6842c73d6d6610ad1f473cf68b3d83a96dfc00b36e9e31d947f"
+      "reason": "Scoped shared projection includes hash-verified immutable proof, conservative spend and explicit uncertain-call state. Historical evidence grants no execution or readiness.",
+      "sha256": "45715aabee9c6bebc85255f5ddccb5ca79b500fa7f36afe5b15eef51f5de2eea"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3151,29 +3151,69 @@
       "sha256": "dea9632c11719392c56b43bc8ce3bf8f2ced8ce0966d099e791c99cf21b42f0a"
     },
     "agent/tools/engineering_direct.ts": {
-      "classification": "INTERNAL",
-      "reason": "Owner-bound primary-Agent tool requires selected Work, DEEP_AGENT route admission and current authority; edits and candidate submission remain scoped DB state, with no publication or verifier control exposed to the model.",
-      "sha256": "742781b9f3938c6d5036ba2d087100454e4ae9552e5b82c16bdb18ea24533974"
+      "classification": "ENFORCED",
+      "reason": "Owner-selected primary-Agent Work only; strict operation schema, current route/policy and writer-session checks, narrowing ActionGateway target and one-use action/provider handles precede mutations. Reads require current scope; separate verifier owns evidence. No publication or Ready authority.",
+      "sha256": "0e006e855ef12de8a968ac56021e6e4ddcbd798a95de4c1f8c1311cc756e9053"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
-      "reason": "Scoped native draft/candidate custody is fenced by Work revision and admitted DEEP_AGENT route. Protected evidence requires a server-owned live candidate/revision lease and persists only under Work/run/route CAS; no publication path is exposed.",
-      "sha256": "003d690a55dab57ef69ea8692d090e6f5215b857ffadd744d50ff94a7c83e40e"
+      "reason": "Native effects require current Work, route, generation, revision and bound Agent revision; native admissions require trusted host rechecks. Independent verifier custody and SQL CAS fence evidence.",
+      "sha256": "7b93bc8aff5648fd69a2976d0632cf882c6d1cb4982fd8ed49bb262a03d2c58f"
     },
     "lib/engineering/direct-verification-driver.ts": {
       "classification": "ENFORCED",
-      "reason": "Server-only protected verifier claims an exact frozen candidate under a finite SQL lease and admitted DEEP_AGENT Work. Docker resource ownership is inspected before explicit interrupted-attempt retry; unknown outcomes remain recovery-required, and evidence custody is fenced by the lease.",
-      "sha256": "ca35714704ef1319f66effeeeaedab4bb246fae0eb3e05425da9b2a041612370"
+      "reason": "Independent protected verification claim/lease and exact resource reconciliation. Docker absence matching uses the shared exact-name parser; ambiguous resources require reconciliation.",
+      "sha256": "08c425b5dc38fcd7b22b9f775d430afa813a6c9ca1a105404d32605317d26903"
     },
     "scripts/engineering-direct-verifier.ts": {
       "classification": "ENFORCED",
-      "reason": "Standalone protected-verification worker is restricted to dogfood mode and an isolated loopback golden database. It rechecks the active primary Agent, consumes only retained admitted DEEP_AGENT candidates through the leased driver, and requires exact Docker resource reconciliation for retry; no model or publisher credential is supplied.",
-      "sha256": "b3d2510b25ca49a165f9583cb47e2b7acb385d1471436ffbd1aa7778d4f007a5"
+      "reason": "Isolated loopback dogfood verifier rechecks native authority before execution and retains immutable independent proof. Restart reconciles existing evidence without rerunning a candidate; exact resource checks gate retry.",
+      "sha256": "1a8c37888e66775c2192ae9bdb5a6afbda55fbef7fcb2deaf139a60b058853f8"
     },
     "lib/telegram-owner-receipts.ts": {
       "classification": "INTERNAL",
       "reason": "Owner/bot/chat/message and payload-hash scoped SQL claims record one inbound turn and one reply attempt. Ambiguous dispatch/reply states remain durable and deny replay; this module never contacts Telegram or grants a model/tool capability.",
       "sha256": "08de60977f4dc328ed48904a55413e4012aeb9a6da9e568c61f1e91526f17f8e"
+    },
+    "app/api/engineering/work/[id]/native/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Delegates to authenticated same-origin owner admission; no dispatch or caller-supplied authority.",
+      "sha256": "f5c02fd1ff0837fb2f9e343a240c60beda638d1b22fdbacbe02da47150cd50b3"
+    },
+    "lib/engineering/native-api.ts": {
+      "classification": "ENFORCED",
+      "reason": "Same-origin authenticated owner input accepts only Work version, obtains trusted facts, and records bounded admission without dispatch.",
+      "sha256": "3293b935dc6019d497485badd2f80f800dfbeba325d87fe49260bc0c19e0d9d9"
+    },
+    "lib/engineering/native-input.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict discriminated operation schemas within provider-compatible object envelope. Mutation revisions required; no authority fields accepted.",
+      "sha256": "9f9113f536788326ee3ae015db0d3fd1379159984dbf0e0625c6dad1a4485ce1"
+    },
+    "lib/engineering/native-model-budget.ts": {
+      "classification": "ENFORCED",
+      "reason": "Durable single-session writer and atomic bounded reservations before model calls. Exact replay only; unknown outcomes retain allowance and block calls/effects. Current Work/Agent/route/deadline rechecked.",
+      "sha256": "ec7ba60ccf32eff05f740174fcaeb356581bee05c80e06226f68b5bdfe89066a"
+    },
+    "lib/engineering/native-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Current authority, current pricing and durable reservation precede one model call. Only bounded text and native tool; no fallbacks or provider tools. Settle costs before exposure; unknown outcomes block retries.",
+      "sha256": "6171ebcc0bc808be9520397205b7ab0e34aeb7f4e46a0465aa73013fe3c142da"
+    },
+    "lib/engineering/native-qualification.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict independent operator qualification schema for provider/model/profile/scope/evidence; no activation or effects.",
+      "sha256": "b0045e346ae0439565e3629952ee9e0b26c992d2b618c538dacc71c75da82289"
+    },
+    "lib/engineering/native-results.ts": {
+      "classification": "ENFORCED",
+      "reason": "Immutable proof requires completed independent custody at exact candidate/profile/criteria/revision with artifact hashes. Local pass remains PARTIAL with explicit publication and cost limitations.",
+      "sha256": "6c96909f441075e6ee4aed70444a85c6030f54d1df1020d92d24e9f3ade64275"
+    },
+    "lib/engineering/native-routing.ts": {
+      "classification": "ENFORCED",
+      "reason": "Concrete host rereads owner Work, primary Agent, operator qualification, policy, budget and writer state. Persisted binding and original deadline rechecked; owner selection cannot qualify providers.",
+      "sha256": "57ffacb97d084ed63aff8f9344602b2886f6e9acce8f352caf2c93e10d055da8"
     }
   }
 }

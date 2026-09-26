@@ -200,6 +200,22 @@ export function WorkDashboard() {
       }
     }
   }
+  async function admitNative() {
+    if (!detail) return;
+    const id=detail.work.id, expectedWorkVersion=detail.work.version;
+    const version=++selection.current;
+    setBusy(true);setError("");setNotice("");setDetailStale(true);
+    try {
+      await api(`/${id}/native`, {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({expectedWorkVersion})});
+      const updated=await api(`/${id}`);
+      if (selection.current===version) {
+        setDetail(updated);setDetailStale(false);
+        setNotice("Native development admitted. Open this Work in Sofie chat to begin. Publication remains a separate decision.");
+      }
+      await refresh();
+    } catch (e) { if (selection.current===version) setError((e as Error).message); }
+    finally { if (selection.current===version) setBusy(false); }
+  }
   async function mutate(id: string, command: WorkCommand) {
     const version = ++selection.current;
     setBusy(true);
@@ -548,6 +564,10 @@ export function WorkDashboard() {
                       runtime
                     </p>
                     {detail.projection && <p className="mt-2 text-xs text-kumo-subtle">Next: {detail.projection.nextStep} Last update: <time dateTime={detail.projection.lastMeaningfulActivity}>{new Date(detail.projection.lastMeaningfulActivity).toLocaleString()}</time>.</p>}
+                    {detail.projection?.nativeRuntime && <p className="mt-2 text-xs text-kumo-subtle">
+                      Native model spend: ${detail.projection.nativeRuntime.spentUsd.toFixed(6)} · Reserved: ${detail.projection.nativeRuntime.reservedUsd.toFixed(6)}
+                      {detail.projection.nativeRuntime.usageUnknown && " · Usage uncertain; execution is fenced"}
+                    </p>}
                     {detail.projection?.nativeDevelopment && <p className="mt-2 break-words text-xs text-kumo-subtle">
                       Native development: {detail.projection.nativeDevelopment.label}
                       {!detail.projection.nativeDevelopment.current && " · not current for execution"}
@@ -560,7 +580,25 @@ export function WorkDashboard() {
                       </a>
                     )}
                   </div>
+                  {detail.projection?.nativeResult && (
+                    <section className="grid gap-3 rounded-xl border border-kumo-line p-4" aria-label="Native Proof of Work">
+                      <h3 className="font-semibold">Native Proof of Work</h3>
+                      <p className="text-sm">{detail.projection.nativeResult.proof.outcome} · Candidate <code>{detail.projection.nativeResult.proof.resultRevision?.slice(0,12)}</code>
+                        {!detail.projection.nativeResult.current && " · historical Work revision"}</p>
+                      <ul className="grid gap-2 text-sm">{detail.projection.nativeResult.proof.evidence.map(item=>(
+                        <li key={item.criterionId}>{detail.work.criteria.find(criterion=>criterion.id===item.criterionId)?.statement??item.criterionId}: {item.state} · {item.producer}</li>
+                      ))}</ul>
+                      {detail.projection.nativeResult.proof.limitations.map(item=><p key={item} className="text-xs text-kumo-subtle">{item}</p>)}
+                      <p className="break-all text-xs text-kumo-subtle">Immutable result {detail.projection.nativeResult.id} · sha256:{detail.projection.nativeResult.contentHash}</p>
+                    </section>
+                  )}
                   <RoutingSummary routing={detail.routing} stale={detailStale} />
+                  {!detail.execution && detail.work.lifecycle==="active" && detail.work.control==="agent" && detail.routing?.decision?.status!=="ADMITTED" && (
+                    <div className="grid gap-2">
+                      <button className={button} disabled={busy || detailStale} onClick={()=>void admitNative()}>Admit native development</button>
+                      <p className="text-xs text-kumo-subtle">Checks the current owner, Agent, Work limits and provider qualification before reserving one writer. No model or repository action starts here.</p>
+                    </div>
+                  )}
                   <section>
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="font-semibold">
@@ -655,9 +693,9 @@ export function WorkDashboard() {
                   {detail.execution&&detail.manifest?<ExecutionDetail state={detail.execution} current={detail.manifest} history={detail.executionHistory??[]} canAct={!detailStale} canContinue={executionAvailable&&!detailStale} onReload={()=>open(detail.work.id)}/>:<section className="rounded-xl border border-kumo-line p-4">
                     <h3 className="font-semibold">Evidence & readiness</h3>
                     <p className="mt-2 text-sm text-kumo-subtle">
-                      Not ready for review. No qualified executor or verified
-                      candidate is attached. A description of success does not
-                      count as evidence.
+                      {detail.projection?.nativeResult
+                        ? "Local check results are recorded above. Publication, CI, review and acceptance remain unverified."
+                        : "Not ready for review. No qualified executor or verified candidate is attached. A description of success does not count as evidence."}
                     </p>
                   </section>}
                   {detail.criteriaHistory?.length > 1 && (

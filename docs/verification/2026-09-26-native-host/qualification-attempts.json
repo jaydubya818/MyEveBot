@@ -1,0 +1,127 @@
+{
+  "priorAttempts": [
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": null,
+      "attemptBudgetUsd": null,
+      "usage": {
+        "spent_microusd": "104482",
+        "reserved_microusd": "0",
+        "usage_unknown": false,
+        "calls_started": 12
+      },
+      "error": "Expected values to be strictly equal:\n\n'NOT_RUN' !== 'PASS'\n"
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.104482,
+      "attemptBudgetUsd": 1.895518,
+      "usage": {
+        "spent_microusd": "100134",
+        "reserved_microusd": "0",
+        "usage_unknown": false,
+        "calls_started": 12
+      },
+      "error": "Expected values to be strictly equal:\n\n'NOT_RUN' !== 'PASS'\n"
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.20461600000000002,
+      "attemptBudgetUsd": 1.7953839999999999,
+      "usage": {
+        "spent_microusd": "98209",
+        "reserved_microusd": "0",
+        "usage_unknown": false,
+        "calls_started": 12
+      },
+      "error": "Expected values to be strictly equal:\n\n'NOT_RUN' !== 'PASS'\n"
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.302825,
+      "attemptBudgetUsd": 1.697175,
+      "usage": {
+        "spent_microusd": "14650",
+        "reserved_microusd": "0",
+        "usage_unknown": false,
+        "calls_started": 3
+      },
+      "error": "Native fixture action failed: Result needs verification before retry."
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.317475,
+      "attemptBudgetUsd": 1.682525,
+      "usage": {
+        "spent_microusd": "0",
+        "reserved_microusd": "75556",
+        "usage_unknown": true,
+        "calls_started": 1
+      },
+      "error": "tools.0.custom.input_schema.type: Field required"
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.393031,
+      "attemptBudgetUsd": 1.6069689999999999,
+      "usage": {
+        "spent_microusd": "0",
+        "reserved_microusd": "75636",
+        "usage_unknown": true,
+        "calls_started": 1
+      },
+      "error": "tools.0.custom.input_schema: input_schema does not support oneOf, allOf, or anyOf at the top level"
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.468667,
+      "attemptBudgetUsd": 1.531333,
+      "usage": {
+        "spent_microusd": "18688",
+        "reserved_microusd": "0",
+        "usage_unknown": false,
+        "calls_started": 3
+      },
+      "error": "[\n  {\n    \"code\": \"invalid_type\",\n    \"expected\": \"object\",\n    \"path\": [\n      \"request\"\n    ],\n    \"message\": \"Invalid input: expected object, received undefined\"\n  },\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"rawInvalidInput\"\n    ],\n    \"path\": [],\n    \"message\": \"Unrecognized key: \\\"rawInvalidInput\\\"\"\n  }\n]"
+    },
+    {
+      "kind": "synthetic-native-model-and-docker",
+      "model": "anthropic/claude-sonnet-5",
+      "status": "FAILED",
+      "priorSpendUsd": 0.487355,
+      "attemptBudgetUsd": 1.512645,
+      "usage": {
+        "spent_microusd": "128148",
+        "reserved_microusd": "0",
+        "usage_unknown": false,
+        "calls_started": 12
+      },
+      "error": "Expected values to be strictly equal:\n\n'NOT_RUN' !== 'PASS'\n"
+    }
+  ],
+  "successfulAttempt": {
+    "status": "PASS",
+    "usage": {
+      "spent_microusd": "71336",
+      "reserved_microusd": "0",
+      "usage_unknown": false,
+      "calls_started": 8
+    }
+  },
+  "totalAllocatedUsd": 0.686839,
+  "policy": "Unknown reservations count in full against the $2 test allowance; no refund or retry of the uncertain Work."
+}

@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { digest, type RepositoryProfile } from "./contract.ts";
 import { DirectDevelopmentStore, type DirectProtectedVerifier,
   type DirectVerificationClaim, type DirectWorkspace } from "./direct-development.ts";
-import { docker } from "./docker-executor.ts";
+import { docker, isMissingDockerVolume } from "./docker-executor.ts";
 import type { Candidate, Evidence } from "./execution.ts";
 import { WorkError } from "./types.ts";
 
@@ -67,7 +67,7 @@ export class DockerVerificationResourceInspector implements VerificationResource
         const absent=resource.kind==="container"
           ? new RegExp(`No such (?:object|container):\\s*${escaped}(?:\\s|$)`,"i")
           : new RegExp(`No such volume:\\s*${escaped}(?:\\s|$)`,"i");
-        if (!absent.test(result.err)) throw new Error("Verifier resource state is unavailable; retry remains fenced.");
+        if (!(resource.kind==="volume" ? isMissingDockerVolume(resource.name,result.err) : absent.test(result.err))) throw new Error("Verifier resource state is unavailable; retry remains fenced.");
         continue;
       }
       let object:Record<string,any>;

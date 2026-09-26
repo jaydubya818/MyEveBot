@@ -24,6 +24,8 @@ const authoritySnapshotSchema = z.object({
   contract: digitalWorkContractSchema,
   context: contextPackageSchema,
   facts: routeFactsSchema,
+  binding: z.object({agentId:z.string().min(1),agentRevision:z.string().min(1).max(100),
+    configurationHash:z.string().regex(/^[a-f0-9]{64}$/),workGeneration:z.number().int().positive()}).strict().optional(),
 }).strict();
 
 /** Implementations must read current server-side Work policy, context, spend and provider evidence.
@@ -110,7 +112,7 @@ export class RouteAdmissionService {
       throw new WorkError("route_provider_changed", "The proposed provider no longer matches current qualification.");
 
     const admissionReason = "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.";
-    const authoritySnapshot = { contract, facts };
+    const authoritySnapshot = { contract, facts, ...(snapshot.binding ? { binding: snapshot.binding } : {}) };
     const decisionId = input.decisionId;
     const transitionId = randomUUID();
     const runId = randomUUID();
@@ -122,6 +124,9 @@ export class RouteAdmissionService {
          WHERE w.scope_id=$1 AND w.scope_kind=$2 AND w.id=$3
            AND w.version=$4 AND w.criteria_version=$5
            AND w.lifecycle='active' AND w.control='agent'
+           AND ($25::text IS NULL OR (w.generation=$27 AND EXISTS (SELECT 1 FROM agents a
+             WHERE a.owner_id=w.scope_id AND a.id=$25 AND a.status='active' AND a.is_primary=true
+               AND a.updated_at::text=$26::text)))
            AND w.max_cost_usd >= $10
            AND $11::timestamptz > clock_timestamp()
            AND $11::timestamptz <= clock_timestamp() + w.max_duration_seconds * interval '1 second'
@@ -179,6 +184,7 @@ export class RouteAdmissionService {
         admissionReason, facts.routePolicy.id, facts.routePolicy.version, JSON.stringify(input.request),
         JSON.stringify(context), JSON.stringify(authoritySnapshot),
         digest(context), digest(authoritySnapshot), transitionId, runId,
+        snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null,
       ],
     );
     if (!rows.length)

@@ -45,3 +45,17 @@ Read the approved plan, sprint checkpoint, native boundary and repository instru
 - [x] Updated source executor audit after reviewing effect boundaries and denial regressions.
 - [ ] Live provider, authenticated Sofie/Work, production host, MCP/subagents, usage and remote cancellation qualification.
 - Details: docs/verification/2026-09-26-deepagents-spike/README.md. Broad acceptance criteria stay open; no milestone-completion claim.
+
+### 2026-09-26 — Concrete native host and live synthetic model
+- [x] Trusted native route caller, fresh effect authority, strict API/tool inputs and single writer session.
+- [x] Durable model reservations, current pricing, exact replay and uncertain-call fencing.
+- [x] Immutable independent Proof of Work with explicit local-only evidence/cost limits; Work UI and shared Chat projection.
+- [x] Real model/Docker failed candidate then repaired passing candidate in eight calls; successful run $0.071336, all attempts conservatively $0.686839 of $2.
+- [x] Actual SIGKILL before/after native model-result custody; completed results replay, incomplete calls stay fenced.
+- [x] App 1,294 pass/40 skip; root 151 pass; four real-PG integrations, type/governance checks and 50-migration manifest pass.
+- [x] Local authenticated desktop/mobile UI: denied admission, retained proof and uncertainty states.
+- [x] Recovered read-only GitHub access and retrieved the pinned five-file base manifest proposal.
+- [ ] Authenticated Eve chat/native repository journey and full restart/parity qualification.
+- [ ] Operator-approved source/runtime qualification; publisher App credential still absent.
+- [ ] Deep Agents live host/MCP/subagents/cancellation and later milestone gates remain open.
+- Details: docs/verification/2026-09-26-native-host/README.md. Broad acceptance criteria remain open.

@@ -1,0 +1,106 @@
+{
+  "baseCommit": "23d992e",
+  "branch": "codex/digital-worker-mvp",
+  "files": [
+    {
+      "path": "apps/eve/agent/agent.ts",
+      "sha256": "84d1de930543df2c133045856baed905c0b6787b8d30de1116bfffd9ae1b3b7a"
+    },
+    {
+      "path": "apps/eve/agent/tools/engineering_direct.ts",
+      "sha256": "0e006e855ef12de8a968ac56021e6e4ddcbd798a95de4c1f8c1311cc756e9053"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/[id]/native/route.ts",
+      "sha256": "f5c02fd1ff0837fb2f9e343a240c60beda638d1b22fdbacbe02da47150cd50b3"
+    },
+    {
+      "path": "apps/eve/components/engineering/work-dashboard.tsx",
+      "sha256": "d7e0bb900a856a60b0cd00326e474cf6780f463a4bdab9563b82b52f6e8a1e65"
+    },
+    {
+      "path": "apps/eve/lib/database-schema.ts",
+      "sha256": "90cd409f87113532201346a66a5c6215a3b69e25f0b1f6c2b6149c79bcae27f5"
+    },
+    {
+      "path": "apps/eve/lib/engineering/direct-development.ts",
+      "sha256": "7b93bc8aff5648fd69a2976d0632cf882c6d1cb4982fd8ed49bb262a03d2c58f"
+    },
+    {
+      "path": "apps/eve/lib/engineering/direct-verification-driver.ts",
+      "sha256": "08c425b5dc38fcd7b22b9f775d430afa813a6c9ca1a105404d32605317d26903"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-api.test.ts",
+      "sha256": "efa65282413e7ab0fd91d24da8774f72efa9e22124a0948cdf81d98a3fa56ae4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-api.ts",
+      "sha256": "3293b935dc6019d497485badd2f80f800dfbeba325d87fe49260bc0c19e0d9d9"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-input.ts",
+      "sha256": "9f9113f536788326ee3ae015db0d3fd1379159984dbf0e0625c6dad1a4485ce1"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-model-budget.ts",
+      "sha256": "ec7ba60ccf32eff05f740174fcaeb356581bee05c80e06226f68b5bdfe89066a"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-model.test.ts",
+      "sha256": "77a0a059cd33dc7bcd5b523f13f82c47cc5b9cb9c997bb0a387a28a51bd6e9e8"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-model.ts",
+      "sha256": "6171ebcc0bc808be9520397205b7ab0e34aeb7f4e46a0465aa73013fe3c142da"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-qualification.ts",
+      "sha256": "b0045e346ae0439565e3629952ee9e0b26c992d2b618c538dacc71c75da82289"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-results.ts",
+      "sha256": "6c96909f441075e6ee4aed70444a85c6030f54d1df1020d92d24e9f3ade64275"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-routing.ts",
+      "sha256": "57ffacb97d084ed63aff8f9344602b2886f6e9acce8f352caf2c93e10d055da8"
+    },
+    {
+      "path": "apps/eve/lib/engineering/route-admission.ts",
+      "sha256": "3d56b003d117c0a6488c4f3835d08551c9104587a98602ee20c95a749a3c2470"
+    },
+    {
+      "path": "apps/eve/lib/engineering/runtime.ts",
+      "sha256": "b086c301571535ebb39364244bbd3c36fbe6518fbc3475edd5d0ef8ed514658e"
+    },
+    {
+      "path": "apps/eve/lib/engineering/worker-projection.ts",
+      "sha256": "45715aabee9c6bebc85255f5ddccb5ca79b500fa7f36afe5b15eef51f5de2eea"
+    },
+    {
+      "path": "apps/eve/migrations/0050_engineering_native_runtime.sql",
+      "sha256": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+    },
+    {
+      "path": "apps/eve/scripts/engineering-direct-verifier.ts",
+      "sha256": "1a8c37888e66775c2192ae9bdb5a6afbda55fbef7fcb2deaf139a60b058853f8"
+    },
+    {
+      "path": "apps/eve/scripts/executor-inventory.json",
+      "sha256": "b64fbfa7132318fe060547b94f403b92c65aa71ad9569bc341b6e577469f7e09"
+    },
+    {
+      "path": "apps/eve/test/engineering-native-host.integration.mjs",
+      "sha256": "126755c531c79494cedb771fde9d7b890f0c970f53ce9d2c0c4f93fc751426f4"
+    },
+    {
+      "path": "apps/eve/test/engineering-native-live.mjs",
+      "sha256": "d3e6fb34c101c05d0e574e515f9ab1e99cf79cb07b9137b432ca7ac4a3cf7c1b"
+    },
+    {
+      "path": "apps/eve/test/native-process-fixture.mjs",
+      "sha256": "4b82793954b60378a541a11772a524b2cc7dc2847bdef1bdab04f7b851747032"
+    }
+  ]
+}

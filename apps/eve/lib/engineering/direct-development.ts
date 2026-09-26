@@ -96,7 +96,7 @@ export class DirectDevelopmentStore {
   constructor(
     readonly workStore: WorkStore,
     readonly config: { profile: RepositoryProfile; approvedBase: ApprovedBase;
-      objective: string; criteria: Work["criteria"]; agentId: string; issueNumber: number },
+      objective: string; criteria: Work["criteria"]; agentId: string; issueNumber: number; assertCurrentAuthority?: (id:string)=>Promise<unknown> },
   ) { assertOwner(workStore); }
 
   private scope(id: string) {
@@ -150,6 +150,10 @@ export class DirectDevelopmentStore {
       authority.contract.scope.kind !== "personal" || authority.contract.scope.id !== this.workStore.principal.scopeId ||
       authority.contract.workId !== id || authority.contract.workVersion !== Number(row.work_version))
       throw new WorkError("direct_admission_scope", "The admitted route does not authorize this Agent, repository and operation set.", 403);
+    if (row.admission_authority_snapshot.binding) {
+      if (!this.config.assertCurrentAuthority) throw new WorkError("direct_host_required", "The bound native admission requires its trusted runtime host.", 403);
+      await this.config.assertCurrentAuthority(id);
+    }
     return row;
   }
 
@@ -178,6 +182,10 @@ export class DirectDevelopmentStore {
            AND r.id=$8 AND r.status='QUEUED' AND r.route='DEEP_AGENT'
            AND d.id=$9 AND d.status='ADMITTED' AND d.selected_route='DEEP_AGENT'
            AND d.work_version=w.version
+           AND (NOT (d.admission_authority_snapshot ? 'binding') OR EXISTS (
+             SELECT 1 FROM agents a WHERE a.owner_id=w.scope_id AND a.status='active' AND a.is_primary
+               AND a.id=d.admission_authority_snapshot->'binding'->>'agentId'
+               AND a.updated_at::text=d.admission_authority_snapshot->'binding'->>'agentRevision'))
          FOR UPDATE OF w,r,d
        ), created AS (
          INSERT INTO engineering_direct_workspaces
@@ -212,6 +220,7 @@ export class DirectDevelopmentStore {
     if (!value || value.revision !== expectedRevision || !this.current(work,value) ||
         !["DRAFT","VERIFICATION_FAILED"].includes(value.phase))
       throw new WorkError("direct_changed", "Direct Work, control, deadline, or draft changed. Reload before editing.");
+    await this.requireAdmission(id);
     return value;
   }
 
@@ -233,7 +242,11 @@ export class DirectDevelopmentStore {
            AND r.status='RUNNING' AND r.decision_id=d.decision_id)
          AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
            WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
-             AND decision.selected_route='DEEP_AGENT')
+             AND decision.selected_route='DEEP_AGENT'
+             AND (NOT (decision.admission_authority_snapshot ? 'binding') OR EXISTS (
+               SELECT 1 FROM agents a WHERE a.owner_id=d.scope_id AND a.status='active' AND a.is_primary
+                 AND a.id=decision.admission_authority_snapshot->'binding'->>'agentId'
+                 AND a.updated_at::text=decision.admission_authority_snapshot->'binding'->>'agentRevision')))
        RETURNING d.*`,
       [...this.scope(id), value.revision, value.workVersion, value.workGeneration,
         operation, data.plan ?? value.plan, JSON.stringify(data.files ?? value.draftFiles), digest(this.config.profile)]);
@@ -288,7 +301,11 @@ export class DirectDevelopmentStore {
            AND r.status='RUNNING' AND r.decision_id=d.decision_id)
          AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
            WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
-             AND decision.selected_route='DEEP_AGENT')
+             AND decision.selected_route='DEEP_AGENT'
+             AND (NOT (decision.admission_authority_snapshot ? 'binding') OR EXISTS (
+               SELECT 1 FROM agents a WHERE a.owner_id=d.scope_id AND a.status='active' AND a.is_primary
+                 AND a.id=decision.admission_authority_snapshot->'binding'->>'agentId'
+                 AND a.updated_at::text=decision.admission_authority_snapshot->'binding'->>'agentRevision')))
        RETURNING d.*`,
       [...this.scope(id), value.revision, value.workVersion, value.workGeneration,
         JSON.stringify([candidate]), digest(this.config.profile), this.config.profile.maxRuns]);
@@ -333,6 +350,7 @@ export class DirectDevelopmentStore {
           check.producer!=="protected-supervisor" || check.artifactHash!==digest(check.artifact) ||
           !["PASS","FAIL","UNKNOWN"].includes(check.result)))
       throw new WorkError("direct_evidence_denied", "Protected evidence did not bind to the frozen candidate and profile.");
+    await this.requireAdmission(id);
     const passed=checks.every(check=>check.result==="PASS");
     const [row]=await this.workStore.database.query(
       `UPDATE engineering_direct_workspaces d SET evidence=d.evidence || $7::jsonb,
@@ -354,7 +372,11 @@ export class DirectDevelopmentStore {
            AND r.status='RUNNING' AND r.decision_id=d.decision_id)
          AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
            WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
-             AND decision.selected_route='DEEP_AGENT')
+             AND decision.selected_route='DEEP_AGENT'
+             AND (NOT (decision.admission_authority_snapshot ? 'binding') OR EXISTS (
+               SELECT 1 FROM agents a WHERE a.owner_id=d.scope_id AND a.status='active' AND a.is_primary
+                 AND a.id=decision.admission_authority_snapshot->'binding'->>'agentId'
+                 AND a.updated_at::text=decision.admission_authority_snapshot->'binding'->>'agentRevision')))
        RETURNING d.*`,
       [...this.scope(id),value.revision,value.workVersion,value.workGeneration,
         JSON.stringify(checks),passed?"VERIFICATION_PASSED":"VERIFICATION_FAILED",
