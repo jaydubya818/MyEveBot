@@ -74,7 +74,8 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
     });
     const routing = await new RoutingStore(this.store).snapshot(work.id);
     const [budget] = await this.store.database.query(
-      `SELECT reserved_microusd,spent_microusd,usage_unknown FROM engineering_native_runtime WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,
+      `SELECT reserved_microusd,spent_microusd,(status<>'ACTIVE' OR EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.scope_id=b.scope_id AND c.scope_kind=b.scope_kind AND c.work_id=b.work_id AND c.purpose='NATIVE_EXECUTION' AND c.status='USAGE_UNKNOWN')) AS usage_unknown
+       FROM engineering_work_model_budget b WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,
       [principal.scopeId,principal.scopeKind,work.id]);
     const remaining=Math.max(0,contract.budgetUsd-Number(budget?.reserved_microusd??0)/1_000_000-Number(budget?.spent_microusd??0)/1_000_000);
     const facts = routeFactsSchema.parse({

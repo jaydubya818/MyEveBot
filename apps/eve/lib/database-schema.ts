@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0051_engineering_conversation_budget.sql";
+export const CURRENT_DATABASE_MIGRATION = "0052_work_model_ledger.sql";

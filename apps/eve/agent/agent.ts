@@ -41,10 +41,8 @@ export default defineAgent({
   // starts early enough even when the selected model supports a larger one.
   model: defineDynamic({
     events: {
-      "turn.started": async (_event, ctx) => {
-        const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-        return { model: agent?.preferredModel ?? clientTurnSettings(ctx.messages).model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
-      },
+      // Resolve only at step.started: no serialized unbudgeted model selection may
+      // be reused for selected-Work compaction or other auxiliary model work.
       // Reasoning effort is a per-call AI SDK setting, not a field the dynamic
       // model selection object accepts, so a requested level rides on a live
       // gateway model wrapped with default settings. Live models are only
@@ -52,6 +50,8 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": async (_event, ctx) => {
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+        if(ownerRuntime && ctx.session.auth.current?.attributes.myeveEngineeringWorkId!==undefined)
+          throw new Error("Owner-channel and selected-Work spending authorities cannot be mixed.");
         if(ownerRuntime)return ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event));
         const requested = clientTurnSettings(ctx.messages);
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });

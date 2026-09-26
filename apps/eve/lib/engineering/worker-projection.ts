@@ -36,11 +36,11 @@ export interface EngineeringWorkerProjection {
   activity: string;
   nextStep: string;
   readiness: { ready: boolean; reasons: string[] };
-  currentRun: { id: string; status: string; startedAt: string; generationCurrent: boolean } | null;
+  currentRun: { id: string; status: string; startedAt: string | null; generationCurrent: boolean } | null;
   attention: CurrentManifest["attention"];
   pendingDecisions: string[];
   latestResult: { id: string; version: number; summary: string; candidate: string; createdAt: string } | null;
-  conversationRuntime?: {spentUsd:number;reservedUsd:number;usageUnknown:boolean;inflight:boolean}|null;
+  conversationRuntime?: {spentUsd:number;reservedUsd:number;usageUnknown:boolean;inflight:boolean;status:string}|null;
   nativeRuntime?: {spentUsd:number;reservedUsd:number;usageUnknown:boolean;inflight:boolean}|null;
   nativeResult?: {id:string;proof:ProofOfWork;contentHash:string;current:boolean}|null;
   nativeDevelopment: {
@@ -143,8 +143,16 @@ export class EngineeringWorkerProjectionStore {
         `SELECT spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_native_runtime
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
       this.workStore.database.query(
-        `SELECT spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_conversation_budget
-         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
+        `SELECT b.spent_microusd,b.reserved_microusd,b.status,
+           (b.status<>'ACTIVE' OR EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.status='USAGE_UNKNOWN')) AS usage_unknown,
+           EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED')) AS inflight
+         FROM engineering_work_model_budget b
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
+         UNION ALL
+         SELECT h.spent_microusd,h.reserved_microusd,'HISTORICAL_RECONCILIATION' AS status,true AS usage_unknown,h.inflight
+         FROM engineering_conversation_budget h
+         WHERE h.scope_id=$1 AND h.scope_kind=$2 AND h.work_id=$3
+           AND NOT EXISTS(SELECT 1 FROM engineering_work_model_budget b WHERE b.scope_id=h.scope_id AND b.scope_kind=h.scope_kind AND b.work_id=h.work_id)`,scope),
     ]);
     const current = await this.workStore.get(id);
     if (current.version !== work.version || current.generation !== work.generation ||
@@ -311,7 +319,8 @@ export class EngineeringWorkerProjectionStore {
       currentRun: truth?.currentRun
         ? { id: truth.currentRun.id, status: truth.currentRun.status, startedAt: truth.currentRun.startedAt,
           generationCurrent: truth.currentRun.generation === work.generation }
-        : null,
+        : currentRouteRun ? {id:currentRouteRun.id,status:currentRouteRun.status,startedAt:null,
+          generationCurrent:currentRouteRun.workGeneration===work.generation} : null,
       attention: truth?.attention ?? null,
       pendingDecisions: truth?.pendingDecisions ?? [],
       latestResult: result
@@ -322,7 +331,7 @@ export class EngineeringWorkerProjectionStore {
       nativeDevelopment,
       nativeResult,
       nativeRuntime,
-      conversationRuntime: conversationRows[0] ? {spentUsd:Number(conversationRows[0].spent_microusd)/1_000_000,
+      conversationRuntime: conversationRows[0] ? {status:String(conversationRows[0].status),spentUsd:Number(conversationRows[0].spent_microusd)/1_000_000,
         reservedUsd:Number(conversationRows[0].reserved_microusd)/1_000_000,usageUnknown:Boolean(conversationRows[0].usage_unknown),inflight:Boolean(conversationRows[0].inflight)} : null,
       routing: routing.decision
         ? { decisionId: routing.decision.id, status: routing.decision.status, selectedRoute: routing.decision.selectedRoute,

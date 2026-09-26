@@ -7,7 +7,7 @@ function fixture(){
   const events:string[]=[];reserve.mockImplementation(async()=>{events.push("reserve");return null});settle.mockImplementation(async()=>{events.push("settle")});
   const model=engineeringConversationModel({store:{} as never,workId:"work",sessionId:"s",stepKey:"s:turn:0",modelId:"anthropic/claude-sonnet-5",productive:false},{
     authority:{readConfig:async()=>({model:"claude-sonnet-5",nativeQualification:{modelId:"anthropic/claude-sonnet-5",expiresAt:new Date(Date.now()+60000).toISOString()},profile:{maxOutputTokens:1024,maxModelRequests:5}})} as never,
-    budget:{reserve,settle,unknown,assertDispatch:async()=>{}} as never,phase:async()=>"observation",
+    budget:{reserve,settle,unknown,assertOutput:async()=>{},assertDispatch:async()=>{}} as never,phase:async()=>"observation",
     catalog:async()=>({models:[{id:"anthropic/claude-sonnet-5",pricing:{input:"0.000003",output:"0.000015"}}]}) as never,
     model:()=>({doGenerate:async (o:unknown)=>{events.push("dispatch");return provider(o)}}) as never});
   return {model,reserve,settle,unknown,provider,events};
