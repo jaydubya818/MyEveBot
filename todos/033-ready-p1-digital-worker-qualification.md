@@ -59,3 +59,19 @@ Read the approved plan, sprint checkpoint, native boundary and repository instru
 - [ ] Operator-approved source/runtime qualification; publisher App credential still absent.
 - [ ] Deep Agents live host/MCP/subagents/cancellation and later milestone gates remain open.
 - Details: docs/verification/2026-09-26-native-host/README.md. Broad acceptance criteria remain open.
+
+### Authenticated native tranche — incomplete / blocked
+- [x] Fetch and pin 3dfee3e; document concurrent migration conflict.
+- [x] Implement Current Truth and Role/Pack/mode wiring without changing authority boundaries; live parity remains open.
+- [ ] Real authenticated chat, repository/context fixture and independent verifier.
+- [ ] Session/application/verifier restarts and desktop/mobile states.
+- [x] Fresh suites/build/security checks and evidence dossier.
+- [ ] ER2 inspection and publisher App requirements; neither enabled.
+- The proposed pre-admission budget/session redesign was rejected by automatic approval review before execution. Existing native budget/session guards remain intact.
+
+- [x] Shared native Current Truth, Work-scoped context, Role/JStack/mode composition and explicit PARTIAL regression.
+- [x] Fresh app 1,296 pass/40 skip, root 151 pass, five PG integrations, type/governance/migrations and final build.
+- [x] Offline authenticated Work/Chat desktop/mobile navigation and saved-Work app restart; no live candidate/result UI claim.
+- [ ] Pre-admission conversation budget, read-only fresh-session recovery, live authenticated model/tool journey and behavior comparison.
+- External fixture-to-model transmission was separately rejected before launch; current-tranche provider spend is $0. Specific approval request and exact data are in docs/verification/2026-09-26-authenticated-sofie-native/live-transmission-approval.md.
+- Full current evidence and FAIL/not-run gates: docs/verification/2026-09-26-authenticated-sofie-native/README.md. No additional milestone is qualified.

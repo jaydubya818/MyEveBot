@@ -172,8 +172,8 @@
     },
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2fd609008ba123735081779e074b84f9407f4213c7af3f5cfea9df809bdd4ca1"
+      "reason": "Authenticated selected Work instructions request fresh engineering_direct inspect and distinguish native PARTIAL from readiness; instructions grant no effects.",
+      "sha256": "82c063971cf8e0c4a1becc0ba111a625f753f4b1d174a309dfe2870fae7994aa"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner- and Agent-bound context, bounded sourced Work facts, and durable assembly refs; no provider mutation or execution grant.",
-      "sha256": "bdb01b3829f3b26f36e6cd1e9caa33f16ee07ae9ea4d731bc91c939d6679f9fb"
+      "reason": "Owner- and Agent-scoped context assembly records internal provenance. Selected Work uses the shared native projection and active scoped facts; excludes broad Memory, unrelated goals and thread summaries; grants no authority.",
+      "sha256": "1e8cca5fe58a1110b49f505a753ad9c67a91494c606fec23cd5b7ec37a53647d"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -3000,8 +3000,8 @@
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Isolated dogfood server configuration accepts operator-reviewed qualification; API/model inputs cannot qualify a provider. Existing provider leaf guards remain required.",
-      "sha256": "b086c301571535ebb39364244bbd3c36fbe6518fbc3475edd5d0ef8ed514658e"
+      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged.",
+      "sha256": "fd102b7ca1b602dce7fd58cda48dc9382785ee02a33c4a3c9a27ad891138b9e7"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3142,8 +3142,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Scoped shared projection includes hash-verified immutable proof, conservative spend and explicit uncertain-call state. Historical evidence grants no execution or readiness.",
-      "sha256": "45715aabee9c6bebc85255f5ddccb5ca79b500fa7f36afe5b15eef51f5de2eea"
+      "reason": "Shared immutable native result explicitly explains PARTIAL readiness limitations. Local verification never produces Ready; no effect or permission supplied.",
+      "sha256": "9ff2eb4df2a5f390f00b64af40ad57855783242bdebc2962b4ffe9edac1c1dce"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3152,8 +3152,8 @@
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-selected primary-Agent Work only; strict operation schema, current route/policy and writer-session checks, narrowing ActionGateway target and one-use action/provider handles precede mutations. Reads require current scope; separate verifier owns evidence. No publication or Ready authority.",
-      "sha256": "0e006e855ef12de8a968ac56021e6e4ddcbd798a95de4c1f8c1311cc756e9053"
+      "reason": "Existing authenticated owner/selected Work, Action Gateway, native session/route and revision checks unchanged. Inspect additionally reads shared UI truth, scoped active knowledge and behavior-only manifests; no writer or spend relaxation.",
+      "sha256": "a17cb1c9bbce70e67de9090b965e45aa88957e5e88ccd436eefd018bc264a91e"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3212,8 +3212,13 @@
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
-      "reason": "Concrete host rereads owner Work, primary Agent, operator qualification, policy, budget and writer state. Persisted binding and original deadline rechecked; owner selection cannot qualify providers.",
-      "sha256": "57ffacb97d084ed63aff8f9344602b2886f6e9acce8f352caf2c93e10d055da8"
+      "reason": "Fresh native owner/Agent/policy/qualification/budget/writer checks unchanged. Contract records actual Software Engineer/JStack/mode versions; composition does not alter policy, resources, operations, owner or budget.",
+      "sha256": "0728c78d536871cf44ae60430fe19f3ed38d6027681f18216e85879eeae3a00f"
+    },
+    "lib/engineering/native-behavior.ts": {
+      "classification": "INTERNAL",
+      "reason": "Composes existing versioned role/pack/mode guidance only; contains no grants, providers, effect dispatch or budget values.",
+      "sha256": "b4509c08d422ebb773f8016998856843566d810da79974896e9740568f78bafa"
     }
   }
 }

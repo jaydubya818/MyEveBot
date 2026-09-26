@@ -68,6 +68,14 @@ try {
   config.nativeQualification={provider:NATIVE_PROVIDER,modelId:"anthropic/claude-sonnet-5",scopeId:owner,
     profileHash:nativeProfileHash(config),evidenceRef:"fixture-only:synthetic-host-checks",qualifiedAt:new Date(Date.now()-1000).toISOString(),
     expiresAt:new Date(Date.now()+600000).toISOString()};
+  const normal=await authority.read(work);
+  config.nativeMode="potato";
+  const potato=await authority.read(work);
+  assert.equal(normal.contract.composition.mode.id,"normal-mode");
+  assert.equal(potato.contract.composition.mode.id,"potato-mode");
+  for(const key of ["scope","humanOwnerId","coordinatingAgentId","allowedOperations","resourceRefs","budgetUsd","allowedRoutes","policyVersion"])
+    assert.deepEqual(normal.contract[key],potato.contract[key]);
+  config.nativeMode="normal";
   const receipt=await admitNativeWork(workStore,work.id,work.version,authority);
   assert.equal(receipt.status,"QUEUED");
   assert.equal((await admitNativeWork(workStore,work.id,work.version,authority)).alreadyAdmitted,true);
@@ -87,6 +95,7 @@ try {
   await assert.rejects(budget.reserve({...winning,requestHash:digest("changed")}),/changed/);
   await assert.rejects(budget.reserve({...input,stepKey:"native-session:turn:2",sessionId:"another-session"}),/writer session/);
   await budget.assertSession(work.id,input.sessionId);
+  await assert.rejects(budget.reserve({...input,stepKey:"native-session:over-budget:3",microUsd:2000001}),/budget/);
   const [ledger]=await pool.query(`SELECT * FROM engineering_native_runtime WHERE work_id=$1`,[work.id]).then(result=>result.rows);
   assert.equal(Number(ledger.calls_started),1);assert.equal(Number(ledger.spent_microusd),120000);assert.equal(Number(ledger.reserved_microusd),0);
 
@@ -98,6 +107,7 @@ try {
   workspace=await direct.plan(work.id,workspace.revision,"Implement the bounded parser and request independent checks.");
   workspace=await direct.write(work.id,workspace.revision,"quantity.mjs","console.log(1);\n");
   const submitted=await direct.submit(work.id,workspace.revision);
+  await assert.rejects(new NativeResultStore(direct).retain(work.id),/independently checked/);
   const verifier={verify:async(contract,candidate)=>profile.checks.map(check=>{
     const artifact={stdout:"1\n",stderr:"",exitCode:0};
     return {workId:work.id,candidate:candidate.sha,base:source.sha,criteriaVersion:work.criteriaVersion,
@@ -109,7 +119,12 @@ try {
   assert.equal(retained.proof.resultRevision,submitted.candidate.sha);assert.equal(retained.proof.outcome,"PARTIAL");
   const freshDirect=new DirectDevelopmentStore(new WorkStore(workStore.principal,database),directConfig);
   assert.equal((await new NativeResultStore(freshDirect).retain(work.id)).id,retained.id);
-  assert.equal((await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection.nativeResult.id,retained.id);
+  const truth=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(truth.nativeResult.id,retained.id);
+  // Successful local verification must never satisfy the Ready contract.
+  assert.equal(truth.readiness.ready,false);assert.notEqual(truth.status,"Ready for Review");
+  assert.match(truth.readiness.reasons.join(" "),/PARTIAL.*Publication/);
+  assert.equal(truth.nativeResult.proof.outcome,"PARTIAL");
   await assert.rejects(pool.query("UPDATE engineering_native_results SET proof='{}' WHERE id=$1",[retained.id]),/immutable/);
   await assert.rejects(pool.query("DELETE FROM engineering_native_results WHERE id=$1",[retained.id]),/immutable/);
 

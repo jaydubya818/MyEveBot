@@ -1,3 +1,4 @@
+import { nativeBehavior } from "./native-behavior.ts";
 import { digitalWorkContractSchema, contextPackageSchema, type RoutingProfile } from "../digital-worker/contracts.ts";
 import { decideExecutionRoute, routeFactsSchema } from "../digital-worker/routing.ts";
 import { digest } from "./contract.ts";
@@ -60,7 +61,7 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
       deadline: new Date(now + Math.min(work.maxDurationSeconds, agent.limits.maxRuntimeSeconds) * 1000).toISOString(),
       policyVersion: config.profile.policyVersion, routePolicy: { id: policy.id, version: policy.version },
       allowedRoutes: ["DEEP_AGENT"], routingProfile: profile,
-      composition: { role: { id: "engineering", version: 1 }, capabilityPacks: [{ id: "native-development", version: 1 }], mode: { id: "isolated-dogfood", version: 1 } },
+      composition: nativeBehavior(config.nativeMode).composition,
       definitionOfDone: ["Frozen candidate independently verified against all current criteria", "Publication and acceptance require separate authority"],
     });
     const context = contextPackageSchema.parse({

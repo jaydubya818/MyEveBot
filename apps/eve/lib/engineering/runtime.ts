@@ -18,6 +18,7 @@ export const runtimeSchema=z.object({
   approvedBase:approvedBaseSchema,
   brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
   nativeQualification:nativeQualificationSchema.optional(),
+  nativeMode:z.enum(["normal","potato"]).default("normal"),
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
 }).strict();

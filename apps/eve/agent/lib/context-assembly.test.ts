@@ -79,6 +79,13 @@ describe("opt-in Engineering Work context", () => {
     expect(assembled.sourceRefs).toContain("knowledge-source:source_ci");
   });
 
+  it("does not retrieve owner-wide memory or unrelated thread summaries for selected Work",async()=>{
+    const current=await mocks.getWork();
+    await assembleContext({...input(current.id),threadId:"selected-work-chat"});
+    expect(mocks.memorySearch).not.toHaveBeenCalled();
+    expect(mocks.query.mock.calls.some(([sql])=>String(sql).includes("FROM thread_summaries"))).toBe(false);
+  });
+
   it("uses only the persisted routing decision for route explanations", async () => {
     const current = await mocks.getWork();
     mocks.getRouting.mockResolvedValue({ decision: {

@@ -1,0 +1,87 @@
+Browser tab: 2, Title: "Sofie", URL: "http://localhost:3108/work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d".
+1 AXWebArea Sofie, URL: localhost:3108/work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d
+	2 container
+		3 link Description: MyEve / Work, Value: localhost:3108/work
+		4 container Engineering navigation
+			5 link Description: Chat, Value: localhost:3108/chat
+			6 link Description: Agent connections, Value: localhost:3108/manage/relay
+			7 link Description: Settings, Value: localhost:3108/manage
+		8 text ENGINEERING · INTERNAL PILOT
+		9 heading Work, with a clear finish., Value: 1
+			10 text Work, with a clear finish.
+		11 text Define the outcome, keep its history, and inspect the evidence.
+		13 button Delegate issue
+		12 button New Work
+		14 container Work status
+			15 checkbox Waiting for admission · 1, Value: 0
+				16 text Waiting for admission
+				17 text  · 
+				18 text 1
+			19 checkbox Paused · 1, Value: 0
+				20 text Paused
+				21 text  · 
+				22 text 1
+		23 container Work list
+			24 text Find Work
+			25 text field (settable) Find Work, ID: search-work
+			26 checkbox Value: 0, Unrelated private fixture fixture/unrelated Paused Next: Review the Work contract, then resume when ready. No execution has started.
+				27 text Unrelated private fixture
+				28 text fixture/unrelated
+				29 text Paused
+				30 text Next: 
+				31 text Review the Work contract, then resume when ready. No execution has started.
+			32 checkbox Value: 1, Authenticated Sofie quantity parser jaydubya818/myeve-golden-work-qual Waiting for admission Next: Execution cannot start until a qualified route and current authority are available.
+				33 text Authenticated Sofie quantity parser
+				34 text jaydubya818/myeve-golden-work-qual
+				35 text Waiting for admission
+				36 text Next: 
+				37 text Execution cannot start until a qualified route and current authority are available.
+		38 container Work detail
+			39 container
+				40 text Waiting for admission  · Version  2
+			41 heading Authenticated Sofie quantity parser, Value: 2
+				42 text Authenticated Sofie quantity parser
+			43 text Implement the approved quantity CLI and verify it independently.
+			44 container
+				45 text jaydubya818/myeve-golden-work-qual  · $ 1.30  ceiling · 60  minutes active runtime
+			46 container
+				47 text Next:  Execution cannot start until a qualified route and current authority are available.  Last update:  9/26/2026, 2:12:51 PM .
+			48 container Execution routing
+				49 heading Execution strategy, Value: 3
+					50 text Execution strategy
+				51 text No route selected.
+			52 button Admit native development
+			53 text Checks the current owner, Agent, Work limits and provider qualification before reserving one writer. No model or repository action starts here.
+			54 container
+				55 heading Acceptance criteria v1, Value: 3
+					56 text Acceptance criteria v 1
+				57 button Revise criteria
+				58 content list
+					59 container
+						60 text 1 . Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:"invalid_quantity"}. Follow the approved Node ESM fixture contract. Protected test required
+			61 container
+				62 heading Evidence & readiness, Value: 3
+					63 text Evidence & readiness
+				64 text Not ready for review. No qualified executor or verified candidate is attached. A description of success does not count as evidence.
+			65 container
+				66 heading Control, Value: 3
+					67 text Control
+				68 button Stop
+				69 button Take over
+				70 button Cancel Work
+			71 container
+				72 heading Activity, Value: 3
+					73 text Activity
+				74 content list
+					75 container
+						76 text resume · v 2 9/26/2026, 2:12:51 PM
+					77 container
+						78 text Work created · v 1 9/26/2026, 2:12:51 PM
+				79 container Route transitions
+					80 heading Route changes, Value: 4
+						81 text Route changes
+					82 text No route changes recorded.
+	83 pop up button (collapsed) Description: Open Next.js Dev Tools, ID: next-logo, Secondary Actions: Expand
+		84 image
+
+The focused UI element is 41 heading Authenticated Sofie quantity parser, Value: 2

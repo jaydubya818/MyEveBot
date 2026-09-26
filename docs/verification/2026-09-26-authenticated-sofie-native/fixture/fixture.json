@@ -1,0 +1,13 @@
+{
+  "databaseURL": "postgresql://postgres@127.0.0.1:55468/golden_auth_127447eb80f3",
+  "owner": "authenticated-native-fixture",
+  "agentId": "auth-native-sofie",
+  "workId": "fb5a3dd2-e601-404c-8321-81f44ac2973d",
+  "unrelatedWorkId": "f6054728-d46e-480b-809b-80a4c5aa6c9c",
+  "facts": {
+    "stale": "knowledge_8ef893b6-b8bf-44e1-8b5d-4042eca882a9",
+    "current": "knowledge_de1be0c4-8d43-4e54-87d7-04be23e4b330",
+    "decision": "knowledge_0b507132-22e3-49c4-8c85-c78aa37bfd3e",
+    "excluded": "knowledge_6d6c6683-7049-4c14-b398-7a6bd5a9b4c2"
+  }
+}

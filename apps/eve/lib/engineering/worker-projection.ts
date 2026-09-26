@@ -301,7 +301,9 @@ export class EngineeringWorkerProjectionStore {
       status: truth?.status ?? routeActivity?.status ?? noExecutionStatus(work),
       activity: truth?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
       nextStep: truth?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
-      readiness: truth?.readiness ?? { ready: false, reasons: ["No independently verified, current Result exists."] },
+      readiness: truth?.readiness ?? { ready: false, reasons: nativeResult
+        ? ["Native local verification is PARTIAL. Publication, CI, independent review and owner acceptance remain unverified."]
+        : ["No independently verified, current Result exists."] },
       currentRun: truth?.currentRun
         ? { id: truth.currentRun.id, status: truth.currentRun.status, startedAt: truth.currentRun.startedAt,
           generationCurrent: truth.currentRun.generation === work.generation }

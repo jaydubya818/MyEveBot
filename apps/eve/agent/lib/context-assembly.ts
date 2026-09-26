@@ -241,20 +241,25 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
     `Repository: ${work.repository}; criteria version: ${work.criteriaVersion}; Work version: ${work.version}.`,
     projection.workContract
       ? `Work Contract: agent ${projection.workContract.coordinatingAgentId}; base ${projection.workContract.baseSha}; profile ${projection.workContract.profileId} v${projection.workContract.profileVersion}; policy v${projection.workContract.policyVersion}; deadline ${projection.workContract.deadline}; budget $${projection.workContract.budgetUsd}.`
-      : "Work Contract: none admitted.",
+      : projection.authoritySummary.admitted
+        ? `Native Work Contract: persisted admission ${projection.source.routingRef}. The exact action boundary must recheck its current limits and authority.`
+        : "Work Contract: none admitted.",
     `Authority summary: execution ${projection.authoritySummary.admitted ? "admitted" : "not admitted"}; generation ${projection.authoritySummary.generationCurrent ? "current" : "not current"}; deadline ${projection.authoritySummary.deadlineCurrent ? "current" : "expired or unavailable"}. Fresh authority is required at every action boundary.`,
     ...work.criteria.map(criterion => `Criterion ${criterion.id}: ${criterion.statement.slice(0, 300)} [${criterion.method}]`),
-    execution
-      ? `Current Truth: ${projection.status}; control: ${projection.control}; execution revision: ${execution.revision}.`
+    (execution || projection.nativeDevelopment)
+      ? `Current Truth: ${projection.status}; control: ${projection.control}; execution revision: ${execution?.revision ?? projection.nativeDevelopment?.revision}.`
       : "Current Truth: DEGRADED. Work is saved, but no admitted execution or verified readiness exists.",
     projection.currentRun ? `Last Run: ${projection.currentRun.id}; ${projection.currentRun.status}; generation ${projection.currentRun.generationCurrent ? "current" : "stale"}.` : "Last Run: none.",
     `Activity: ${projection.activity}; last meaningful update ${projection.lastMeaningfulActivity}.`,
     projection.lastChange ? `Last recorded change: ${projection.lastChange.kind} at ${projection.lastChange.at}; version ${projection.lastChange.version ?? "unknown"}.` : "Last recorded change: none.",
-    execution ? `Next step: ${projection.nextStep}` : "Next step: inspect this Work and admit execution only through its authorized workflow.",
-    execution ? `Readiness: ${projection.readiness.ready ? "ready" : projection.readiness.reasons.slice(0, 5).join("; ")}` : "Readiness: UNKNOWN / NOT_RUN.",
+    (execution || projection.nativeDevelopment) ? `Next step: ${projection.nextStep}` : "Next step: inspect this Work and admit execution only through its authorized workflow.",
+    (execution || projection.nativeDevelopment) ? `Readiness: ${projection.readiness.ready ? "ready" : projection.readiness.reasons.slice(0, 5).join("; ")}` : "Readiness: UNKNOWN / NOT_RUN.",
     projection.attention ? `Needs You: ${projection.attention.reason}; decision ${projection.attention.id}.` : "Needs You: no current decision recorded.",
     projection.repositoryObservation ? `Repository observation: ${projection.repositoryObservation.status}; observed at ${projection.repositoryObservation.observedAt ?? "never"}.` : "Repository observation: unavailable.",
-    execution?.candidates.at(-1)?.sha ? `Current candidate: ${execution.candidates.at(-1)!.sha}.` : "Current candidate: none.",
+    (execution?.candidates.at(-1)?.sha ?? projection.nativeDevelopment?.candidateSha)
+      ? `Current candidate: ${execution?.candidates.at(-1)?.sha ?? projection.nativeDevelopment?.candidateSha}.` : "Current candidate: none.",
+    projection.nativeResult ? `Native immutable Proof of Work ${projection.nativeResult.id}: ${JSON.stringify(projection.nativeResult.proof)}. Hash ${projection.nativeResult.contentHash}.` : "",
+    projection.nativeRuntime ? `Native model accounting: ${JSON.stringify(projection.nativeRuntime)}.` : "",
     projection.latestResult ? `Latest retained Result: version ${projection.latestResult.version}, candidate ${projection.latestResult.candidate}; ${projection.latestResult.summary}.` : "Latest retained Result: none.",
     routing.decision
       ? `Routing decision ${routing.decision.id}: ${routing.decision.status} ${routing.decision.selectedRoute}; provider ${routing.decision.providerId ?? "none"}${routing.decision.providerVersion ? ` v${routing.decision.providerVersion}` : ""}; Work version ${routing.decision.workVersion}. Reason: ${routing.decision.reason}. Routes listed in proposal (unverified unless admitted): ${routing.decision.eligibleRoutes.join(", ") || "none"}. Rejected: ${routing.decision.rejectedRoutes.map(item => `${item.route}: ${item.reason}`).join("; ") || "none"}. A proposed or stale route does not authorize execution; an admitted route still requires fresh action-boundary authority.`
@@ -318,22 +323,22 @@ export async function assembleContext(input: AssembleContextInput): Promise<Asse
     throw new Error("Project scope is unavailable until a Project authorization provider is installed.");
   }
 
-  const links = await executionLinks(input);
+  const links = input.engineeringWorkId ? {goalId:null,taskId:null,runId:null} : await executionLinks(input);
   const engineering = await engineeringWorkItem(input, agent);
   const memoryContext: MemoryAccessContext = {
     ownerId: input.ownerId, agentId: input.agentId, goalId: links.goalId,
     taskId: links.taskId ?? links.runId, projectId: input.projectId ?? null,
   };
   const query = input.recentConversation?.trim() || "current goals, preferences, and active work";
-  const knowledgePromise = input.knowledgeProvider
+  const knowledgePromise = !input.engineeringWorkId && input.knowledgeProvider
     ? input.knowledgeProvider.context({ ownerId: input.ownerId, agentId: input.agentId, query }).catch(() => [])
     : Promise.resolve([]);
   const [goal, task, summary, temporary, memories, knowledge] = await Promise.all([
     goalItem(input.ownerId, links.goalId),
     taskItem(input.ownerId, links.taskId, links.runId),
-    summaryItem(input.ownerId, input.threadId),
+    input.engineeringWorkId ? Promise.resolve(null) : summaryItem(input.ownerId, input.threadId),
     runContextItems(input.ownerId, input.agentId, links.runId),
-    withTimeout(memoryStore.search(query.slice(-500), memoryContext), MEMORY_CONTEXT_TIMEOUT_MS, "Scoped memory retrieval").catch(() => []),
+    input.engineeringWorkId ? Promise.resolve([]) : withTimeout(memoryStore.search(query.slice(-500), memoryContext), MEMORY_CONTEXT_TIMEOUT_MS, "Scoped memory retrieval").catch(() => []),
     knowledgePromise,
   ]);
 

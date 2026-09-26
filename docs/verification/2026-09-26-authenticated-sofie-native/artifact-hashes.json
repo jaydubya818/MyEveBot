@@ -1,0 +1,142 @@
+[
+  {
+    "path": "README.md",
+    "sha256": "9c41c12296b13809e1c10de3f074b03d5b60ef42ccba4b362182e4c93675b03a"
+  },
+  {
+    "path": "authenticated-chat.md",
+    "sha256": "1b34ef1b1d76fd04c1660e3694df3a4b47da3712f7b214a6c090ccc888ed0d2e"
+  },
+  {
+    "path": "behavior-and-context.md",
+    "sha256": "cecf8e335c366aa70c9040706d1da0f21e972ae53c5a457d745fdcfe3e882514"
+  },
+  {
+    "path": "browser/desktop-chat.png",
+    "sha256": "480b1dec448a110bc7c1273a976a2832c983e37af17ae3c39ae93d66f7524286"
+  },
+  {
+    "path": "browser/desktop-work-after-restart.png",
+    "sha256": "605d5aa1383ba7d101554611b4fd7f8c7863f48ef57586a2ef6a52515f4e6e70"
+  },
+  {
+    "path": "browser/desktop-work.png",
+    "sha256": "605d5aa1383ba7d101554611b4fd7f8c7863f48ef57586a2ef6a52515f4e6e70"
+  },
+  {
+    "path": "browser/mobile-chat.png",
+    "sha256": "e407cd457fcd340c723284395855dd548a46472ddbb69c9ef8b9e52b4eefca56"
+  },
+  {
+    "path": "browser/mobile-work.png",
+    "sha256": "0e401d23ce886abcc5235e6e30b0e194fd3385424a8793ae886e5d369a282494"
+  },
+  {
+    "path": "browser/work-after-restart.txt",
+    "sha256": "31d917bc6a6715f71c2174cffbaafdfd3839630767e6f00ee7d8a98fb7d22ef0"
+  },
+  {
+    "path": "browser/work-before-restart.txt",
+    "sha256": "31d917bc6a6715f71c2174cffbaafdfd3839630767e6f00ee7d8a98fb7d22ef0"
+  },
+  {
+    "path": "browser-and-restarts.md",
+    "sha256": "9e37b7f8925d0a9e0aee6a3c05230251246096d49137c103b59c60c37dc6c2d5"
+  },
+  {
+    "path": "fixture/approved-base-manifest.json",
+    "sha256": "20f710d3f00a74271e4c3d26dd1aa1719b7543d19e641c3b5cf8752f6e8b478d"
+  },
+  {
+    "path": "fixture/config.json",
+    "sha256": "16ea1be02998aebff007b5764f1e147067a0e1b3db273cb2c5a520cbd1f75c6e"
+  },
+  {
+    "path": "fixture/fixture.json",
+    "sha256": "1f0c1eee09b48b082f5ecbf3a6e109e677a4d27360d9e78ff529283e19aef97c"
+  },
+  {
+    "path": "fixture/seed.mjs",
+    "sha256": "46459ad02edf5977ea04230e8166bb05d3cf2c78cccb0d6d7efb06ff5c7dc396"
+  },
+  {
+    "path": "fixture/source.json",
+    "sha256": "756832c64c0b110dce0707bcac77fef8ee5af2a52434f11780cddc0dd43ecd59"
+  },
+  {
+    "path": "limitations-and-next.md",
+    "sha256": "ca37bb0474f694ac89cebc1e19344290e36e3c976bf8d5003e8e92459897d547"
+  },
+  {
+    "path": "live-transmission-approval.md",
+    "sha256": "d78c43dc2aed59d88c21c923d9f606870b7b0cd00291eac1281c8f14533866e7"
+  },
+  {
+    "path": "logs/app-tests.log",
+    "sha256": "4f08d6108740fbffbc13d36598689b1ba7321d578873343f4803da4e708ece71"
+  },
+  {
+    "path": "logs/direct.log",
+    "sha256": "9efdf3a9300933d14ae21c1471deeb54bac15313371b1d0c9d5fbca1b6ae9b24"
+  },
+  {
+    "path": "logs/final-build.log",
+    "sha256": "9fd06d5ce1cc32b1747f4b7f7e6f68db5426b48d25abd18664aac91ee7994065"
+  },
+  {
+    "path": "logs/final-focused.log",
+    "sha256": "8719e711d58b8da4a027b595d3df3b945cb8e50e6a93502cae6ce27d042d7ec9"
+  },
+  {
+    "path": "logs/final-governance.log",
+    "sha256": "1bb913692aa4db129eac76df8620c559af27e5f1e2494637d5580861bd2d0701"
+  },
+  {
+    "path": "logs/host.log",
+    "sha256": "4ed90b133164db8898c4c2eeee1fbf0c7cffb347456c4ecd0b0997adfe2281eb"
+  },
+  {
+    "path": "logs/knowledge.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "logs/migrations.log",
+    "sha256": "e67b78c06c1f77eb9a127d9b6a31067f11568840a22c73288c73766d47d8f7ef"
+  },
+  {
+    "path": "logs/root-tests.log",
+    "sha256": "9a129fc0c724ebba0377b6659cda3b6de94eaaec299288119fe56b526f95e0b8"
+  },
+  {
+    "path": "logs/routing.log",
+    "sha256": "3334ecd699120e7abd727ea01d58b53c03c73512a8447c2f32b8babeafae2199"
+  },
+  {
+    "path": "logs/typecheck.log",
+    "sha256": "eacab58b42809e174767390c44e17da20eb43e88a35fa6e09e36b63998e155b2"
+  },
+  {
+    "path": "logs/verifier.log",
+    "sha256": "7001c2c7498176ddf0696e1cb6b9a95e71e53b1708bb184d2170ddde8e20dfe5"
+  },
+  {
+    "path": "remaining-er2-gaps.md",
+    "sha256": "6dca15547178382af09b4b459aff000763d447ad2347ac6bd967aa8a03a36366"
+  },
+  {
+    "path": "source-manifest.json",
+    "sha256": "461883d8de9de76205e52751fb39a3b85517446c6ddeb42cf36e43da20681ba1"
+  },
+  {
+    "path": "spend-accounting.json",
+    "sha256": "acc27375b8a490c5d445ea949b9a2f2d73b11f179937fc893cc0c62362bf5335"
+  },
+  {
+    "path": "sql-results.json",
+    "sha256": "cb2fa407d7c17be8e8b6638642bf9ad8bb126ba306b59d5bfb3fb6cd4b7820c9"
+  },
+  {
+    "path": "test-results.json",
+    "sha256": "4330fbb0634e2ae9518fb161f76529ee470ef7e7763b5e6d4d22eb29489d0e68"
+  }
+]

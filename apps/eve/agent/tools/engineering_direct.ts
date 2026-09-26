@@ -1,3 +1,6 @@
+import { nativeBehavior } from "../../lib/engineering/native-behavior.ts";
+import { EngineeringWorkerProjectionStore } from "../../lib/engineering/worker-projection.ts";
+import { EngineeringKnowledgeStore } from "../../lib/engineering/knowledge.ts";
 import { NativeModelBudget } from "../../lib/engineering/native-model-budget.ts";
 import { ActionGateway, localAuthorityProvider, consumeActionAuthority, consumeProviderAuthority } from "../../lib/action-gateway.ts";
 import { toolActionRequest } from "../lib/action-context.ts";
@@ -62,8 +65,9 @@ export default defineDynamic({
           });
           if (input.operation==="inspect") {
             const inspected=await service.inspect(selected);
-            return {work:{id:inspected.work.id,version:inspected.work.version,
-              control:inspected.work.control,lifecycle:inspected.work.lifecycle},
+            const truth=await new EngineeringWorkerProjectionStore(runtime.store,agent.id).get(selected);
+            const facts=await new EngineeringKnowledgeStore(runtime.store).list(selected,{status:"active",limit:5});
+            return {work:truth.work,projection:truth.projection,routing:truth.routing,facts,behavior:nativeBehavior(runtime.config.nativeMode),
               ...summary(inspected.workspace,inspected.current)};
           }
           if (input.operation==="read") {

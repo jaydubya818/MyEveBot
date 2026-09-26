@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve
+
+ ✓ lib/engineering/native-behavior.test.ts (1 test) 1ms
+ ✓ agent/lib/context-assembly.test.ts (11 tests) 11ms
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  14:25:02
+   Duration  372ms (transform 85ms, setup 0ms, collect 156ms, tests 12ms, environment 0ms, prepare 77ms)
+

@@ -1,0 +1,94 @@
+{
+  "date": "2026-09-26",
+  "checks": [
+    {
+      "name": "app-tests",
+      "command": "cd apps/eve && npx vitest run",
+      "exitCode": 0,
+      "result": "1296 passed, 40 skipped; 166 files passed, 3 skipped",
+      "log": "logs/app-tests.log"
+    },
+    {
+      "name": "root-tests",
+      "command": "npm test",
+      "exitCode": 0,
+      "result": "151 passed",
+      "log": "logs/root-tests.log"
+    },
+    {
+      "name": "host",
+      "command": "node --import tsx apps/eve/test/engineering-native-host.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS, real PostgreSQL and SIGKILL; synthetic model/verifier fixture",
+      "log": "logs/host.log"
+    },
+    {
+      "name": "routing",
+      "command": "node --import tsx apps/eve/test/route-admission.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "log": "logs/routing.log"
+    },
+    {
+      "name": "direct",
+      "command": "node --import tsx apps/eve/test/engineering-direct.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "log": "logs/direct.log"
+    },
+    {
+      "name": "verifier",
+      "command": "node --import tsx apps/eve/test/engineering-direct-verifier.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "log": "logs/verifier.log"
+    },
+    {
+      "name": "knowledge",
+      "command": "cd apps/eve && node --import tsx test/engineering-knowledge.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS, silent exit 0",
+      "log": "logs/knowledge.log"
+    },
+    {
+      "name": "migrations",
+      "command": "npm run db:migrations:check --workspace=eve-agent",
+      "exitCode": 0,
+      "result": "50 ordered",
+      "log": "logs/migrations.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck --workspace=eve-agent",
+      "exitCode": 0,
+      "result": "PASS: tsc, registry, skills, governance",
+      "log": "logs/typecheck.log"
+    },
+    {
+      "name": "final-focused",
+      "command": "cd apps/eve && npx vitest run agent/lib/context-assembly.test.ts lib/engineering/native-behavior.test.ts",
+      "exitCode": 0,
+      "result": "12 passed",
+      "log": "logs/final-focused.log"
+    },
+    {
+      "name": "final-build",
+      "command": "cd apps/eve && npx next build --webpack",
+      "exitCode": 0,
+      "result": "PASS, warnings in log",
+      "log": "logs/final-build.log"
+    },
+    {
+      "name": "final-governance",
+      "command": "cd apps/eve && node --import tsx scripts/check-executor-governance.ts",
+      "exitCode": 0,
+      "result": "632 classified sources; UNKNOWN=0",
+      "log": "logs/final-governance.log"
+    }
+  ],
+  "notes": [
+    "Knowledge integration initially invoked from repository root failed module alias resolution before testing; rerun from apps/eve passed.",
+    "Read-only SQL observation initially referenced a nonexistent derived field; corrected to existing schema and rerun successfully.",
+    "No direct service test is counted as authenticated chat evidence."
+  ]
+}

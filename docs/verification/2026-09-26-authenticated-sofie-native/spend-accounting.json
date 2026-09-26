@@ -1,0 +1,13 @@
+{
+  "currency": "USD",
+  "originalAllowance": 2,
+  "priorConfirmedAndConservativeAllocation": 0.686839,
+  "currentTrancheLiveCalls": 0,
+  "currentTrancheSpend": 0,
+  "maximumRemaining": 1.313161,
+  "fixtureWorkCeiling": 1.3,
+  "candidateSha": null,
+  "evidenceHash": null,
+  "resultHash": null,
+  "note": "No live authenticated provider launch executed. Prior allocation is retained, not re-counted as fresh qualification."
+}

@@ -20,6 +20,8 @@ implementation_authorized: true
 
 **Native host checkpoint (2026-09-26):** [The native qualification record](../verification/2026-09-26-native-host/README.md) adds concrete trusted admission, durable model budgeting/session custody, guarded native edits, immutable protected Proof of Work and shared UI state. A real synthetic model→Docker FAIL→repair→PASS trace and native SIGKILL custody tests passed. Authenticated Eve chat qualification and later milestone gates remain open; this is not full M1/ER1/ER2 completion. Read-only GitHub access recovered and a five-file manifest proposal is retained; the publisher App key is still absent.
 
+**Authenticated Sofie checkpoint (2026-09-26):** [The new dossier](../verification/2026-09-26-authenticated-sofie-native/README.md) records native context/projection and Role/JStack/mode wiring, 1,296 passing app tests, 151 root tests, five PostgreSQL integrations and a passing build. Offline authenticated desktop/mobile navigation and saved-Work app restart pass. The live model launch was blocked; pre-admission budget and fresh-session read-only recovery remain open. **M1/ER1 NOT QUALIFIED; ER2 and GitHub publication BLOCKED.**
+
 ## 1. Working boundary and decisions
 
 The first user is one personal, durable Agent: Sofie, acting as a Software Engineer. MyEve owns her identity, Work, context, authority, decisions, and Results. A model session, coding executor, MyFactory run, or Relay peer is replaceable execution or context (§§1–5, 219–243). An organization edition requires separately qualified identity, membership, and memory isolation; a textual `organization` scope is not a substitute for those checks. Keep the [EP02 organization delta](2026-09-25-ep02-organization-delta.md) open.
