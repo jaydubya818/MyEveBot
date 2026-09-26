@@ -2016,7 +2016,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "27dcc178fd7ce076d32faf9f8f034fde769dbecc840829282800caf034bf4bd9"
+      "sha256": "68d8d0512976f36b7fc7bfc95cc195916d5cfc039aa11899cba37c5f7f20ae41"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3037,6 +3037,23 @@
       "classification": "ENFORCED",
       "reason": "Trusted local dogfood publisher reads the exact App private key from macOS Keychain in memory, signs a short-lived App JWT and requests an installation token restricted to the configured single repository and minimal permissions. No executor receives this credential.",
       "sha256": "99b1e9cd47e3c584423167e77ebcba24ac52675b9e8b41e00e3546d57a93a2a2"
+    },
+    "agent/tools/create_factory_work_order.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "disposition": "gateway",
+      "sha256": "cceac2e5595bf3306a40baf19b01d2667f3a90fce1092db79923180a2b3b3aa7"
+    },
+    "agent/tools/get_factory_work_order.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "disposition": "gateway",
+      "sha256": "4b28255d2fcc0ccfa1c834ec00764e8808bf23f93fbb57cf230343ca946ddc95"
+    },
+    "agent/lib/myfactory.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
+      "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
     }
   }
 }
