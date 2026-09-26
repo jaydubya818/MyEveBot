@@ -1,8 +1,23 @@
 import { createHash, createPublicKey } from "node:crypto";
+import { isIP } from "node:net";
 
-// The first beta has one operator-controlled, public Relay origin. Do not
-// accept a caller-provided URL: the Builder must not become a fetch proxy.
-export const BETA_RELAY_ORIGIN = "https://relay-sage-nine.vercel.app";
+// The operator configures one public Relay origin for this Builder deployment.
+// The wizard never accepts a caller-provided URL.
+function betaRelayOrigin(input: string | undefined): string {
+  if (!input) throw new Error("Builder Relay origin is not configured.");
+  let url: URL;
+  try {
+    url = new URL(input);
+  } catch {
+    throw new Error("Builder Relay origin must be an exact public HTTPS origin.");
+  }
+  if (
+    url.protocol !== "https:" || url.origin !== input || url.username || url.password ||
+    isIP(url.hostname) !== 0 || url.hostname === "localhost" ||
+    url.hostname.endsWith(".local") || url.hostname.endsWith(".internal")
+  ) throw new Error("Builder Relay origin must be an exact public HTTPS origin.");
+  return url.origin;
+}
 
 export interface ResolvedRelayTrust {
   origin: string;
@@ -14,15 +29,22 @@ export interface ResolvedRelayTrust {
 export async function resolveBetaRelayTrust(
   expectedFingerprint: string,
   fetcher: typeof fetch = fetch,
+  configuredOrigin: string | undefined = process.env.BUILDER_RELAY_ORIGIN,
 ): Promise<ResolvedRelayTrust> {
   if (!/^[a-f0-9]{64}$/i.test(expectedFingerprint)) {
     throw new Error("Enter the Relay signing-key fingerprint supplied by the operator.");
   }
-  const response = await fetcher(`${BETA_RELAY_ORIGIN}/api/federation/trust`, {
-    cache: "no-store",
-    redirect: "error",
-    signal: AbortSignal.timeout(10000),
-  });
+  const origin = betaRelayOrigin(configuredOrigin);
+  let response: Response;
+  try {
+    response = await fetcher(`${origin}/api/federation/trust`, {
+      cache: "no-store",
+      redirect: "error",
+      signal: AbortSignal.timeout(10000),
+    });
+  } catch {
+    throw new Error("Relay pairing is unavailable. The operator must make its trust endpoint public before beta setup.");
+  }
   if (!response.ok) throw new Error("Relay pairing is unavailable. Try again after the operator enables beta federation.");
   const body = await response.text();
   if (body.length > 16384) throw new Error("Relay returned oversized trust material.");
@@ -30,7 +52,7 @@ export async function resolveBetaRelayTrust(
   if (!parsed || typeof parsed !== "object") throw new Error("Relay returned invalid trust material.");
   const value = parsed as Record<string, unknown>;
   if (
-    value.origin !== BETA_RELAY_ORIGIN ||
+    value.origin !== origin ||
     typeof value.keyId !== "string" || !/^[\w.-]{1,128}$/.test(value.keyId) ||
     typeof value.keyVersion !== "string" || !/^[\w.-]{1,128}$/.test(value.keyVersion) ||
     typeof value.publicKey !== "string" || value.publicKey.length > 8192
@@ -49,7 +71,7 @@ export async function resolveBetaRelayTrust(
     throw new Error("Relay signing key does not match the operator-approved fingerprint. Deployment stopped before changing your Vercel project.");
   }
   return {
-    origin: BETA_RELAY_ORIGIN,
+    origin,
     keyId: value.keyId,
     keyVersion: value.keyVersion,
     publicKey: publicKey.export({ type: "spki", format: "pem" }).toString(),
