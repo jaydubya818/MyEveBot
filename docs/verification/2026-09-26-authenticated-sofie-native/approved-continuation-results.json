@@ -1,0 +1,84 @@
+{
+  "startingHead": "fc9d52c9499671759f08fda455e78159067186eb",
+  "originMain": "834e31c9bda9a4acb8b9f0238042ad3a37797a35",
+  "runtimeUnchanged": true,
+  "tests": [
+    {
+      "name": "app-tests",
+      "command": "cd apps/eve && npx vitest run",
+      "exitCode": 0,
+      "result": "1296 passed, 40 skipped",
+      "log": "approved-continuation-logs/app-tests.log"
+    },
+    {
+      "name": "root-tests",
+      "command": "npm test",
+      "exitCode": 0,
+      "result": "151 passed",
+      "log": "approved-continuation-logs/root-tests.log"
+    },
+    {
+      "name": "host",
+      "command": "cd apps/eve && node --import tsx test/engineering-native-host.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS: isolated PG and real SIGKILL; synthetic model",
+      "log": "approved-continuation-logs/host.log"
+    },
+    {
+      "name": "routing",
+      "command": "cd apps/eve && node --import tsx test/route-admission.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "log": "approved-continuation-logs/routing.log"
+    },
+    {
+      "name": "direct",
+      "command": "cd apps/eve && node --import tsx test/engineering-direct.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "log": "approved-continuation-logs/direct.log"
+    },
+    {
+      "name": "verifier",
+      "command": "cd apps/eve && node --import tsx test/engineering-direct-verifier.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS",
+      "log": "approved-continuation-logs/verifier.log"
+    },
+    {
+      "name": "knowledge",
+      "command": "cd apps/eve && node --import tsx test/engineering-knowledge.integration.mjs",
+      "exitCode": 0,
+      "result": "PASS, silent exit 0",
+      "log": "approved-continuation-logs/knowledge.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck --workspace=eve-agent",
+      "exitCode": 0,
+      "result": "PASS: type, capability, skill, executor governance",
+      "log": "approved-continuation-logs/typecheck.log"
+    },
+    {
+      "name": "migrations",
+      "command": "npm run db:migrations:check --workspace=eve-agent",
+      "exitCode": 0,
+      "result": "PASS: 50",
+      "log": "approved-continuation-logs/migrations.log"
+    },
+    {
+      "name": "build",
+      "command": "cd apps/eve && npx next build --webpack",
+      "exitCode": 0,
+      "result": "PASS; dependency warnings in log",
+      "log": "approved-continuation-logs/build.log"
+    }
+  ],
+  "liveCalls": 0,
+  "additionalSpendUsd": 0,
+  "authorizedAdditionalCeilingUsd": 1.313161,
+  "migrationApplied": false,
+  "liveQualification": "FAIL_NOT_RUN",
+  "m1Er1": "NOT_QUALIFIED",
+  "er2": "BLOCKED_NOT_STARTED"
+}

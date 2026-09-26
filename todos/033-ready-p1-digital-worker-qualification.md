@@ -75,3 +75,9 @@ Read the approved plan, sprint checkpoint, native boundary and repository instru
 - [ ] Pre-admission conversation budget, read-only fresh-session recovery, live authenticated model/tool journey and behavior comparison.
 - External fixture-to-model transmission was separately rejected before launch; current-tranche provider spend is $0. Specific approval request and exact data are in docs/verification/2026-09-26-authenticated-sofie-native/live-transmission-approval.md.
 - Full current evidence and FAIL/not-run gates: docs/verification/2026-09-26-authenticated-sofie-native/README.md. No additional milestone is qualified.
+
+### Approved live continuation — separate implementation review blocked
+- [x] Explicit owner approval recorded for exact Anthropic/Vercel fixture payload and $1.313161 additional ceiling.
+- [x] Source pinned to fc9d52c; runtime remains unchanged after automatic approval review rejected the additive budget/recovery implementation.
+- [ ] Implement the concrete conversation-budget-proposal.md after implementation-level approval; preserve every existing native guard.
+- [ ] Run the authenticated journey. No provider call/spend occurred in this continuation; ER2 remains blocked and was not started.

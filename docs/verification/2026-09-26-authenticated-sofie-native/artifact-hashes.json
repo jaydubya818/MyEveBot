@@ -1,7 +1,59 @@
 [
   {
     "path": "README.md",
-    "sha256": "9c41c12296b13809e1c10de3f074b03d5b60ef42ccba4b362182e4c93675b03a"
+    "sha256": "3d2743bdfaedbb992c12f757ee0989e3695d793187cf665797c89cd9b6ae2df7"
+  },
+  {
+    "path": "approved-continuation-logs/app-tests.log",
+    "sha256": "16851ff66697fd2d7a0ff669edb63a2a614b5f4ff40ad0056f19d6f1b14d32aa"
+  },
+  {
+    "path": "approved-continuation-logs/build.log",
+    "sha256": "5e3fc82f947b98fdd07f2582c7ee3307289d92b792ec3dfeeb38b005632e2eb2"
+  },
+  {
+    "path": "approved-continuation-logs/direct.log",
+    "sha256": "9efdf3a9300933d14ae21c1471deeb54bac15313371b1d0c9d5fbca1b6ae9b24"
+  },
+  {
+    "path": "approved-continuation-logs/host.log",
+    "sha256": "4ed90b133164db8898c4c2eeee1fbf0c7cffb347456c4ecd0b0997adfe2281eb"
+  },
+  {
+    "path": "approved-continuation-logs/knowledge.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "approved-continuation-logs/migrations.log",
+    "sha256": "6327298ada7fac60035f169c3df8ad7a4b98778e48107ecac01257a85e5071f7"
+  },
+  {
+    "path": "approved-continuation-logs/root-tests.log",
+    "sha256": "583ab6a3fd8e56a0a454eae665e5ce7f655715f6db77ceb21c6650d9f8557a6b"
+  },
+  {
+    "path": "approved-continuation-logs/routing.log",
+    "sha256": "3334ecd699120e7abd727ea01d58b53c03c73512a8447c2f32b8babeafae2199"
+  },
+  {
+    "path": "approved-continuation-logs/typecheck.log",
+    "sha256": "eacab58b42809e174767390c44e17da20eb43e88a35fa6e09e36b63998e155b2"
+  },
+  {
+    "path": "approved-continuation-logs/verifier.log",
+    "sha256": "7001c2c7498176ddf0696e1cb6b9a95e71e53b1708bb184d2170ddde8e20dfe5"
+  },
+  {
+    "path": "approved-continuation-results.json",
+    "sha256": "4e46848b7eca45c5b3026ab4d4aee36a4018682ee1b89d96b14bddfa00d57411"
+  },
+  {
+    "path": "approved-continuation-sql.json",
+    "sha256": "d6624cde9ecd7412551fa8d6a3b0ae998198d5a83095adf28e2775fd33dd5ee9"
+  },
+  {
+    "path": "approved-continuation.md",
+    "sha256": "411539212a13a2d86a017508d7e8564200cc75d00d28e655c3faa4e5dfe0fa4b"
   },
   {
     "path": "authenticated-chat.md",
@@ -44,6 +96,10 @@
     "sha256": "9e37b7f8925d0a9e0aee6a3c05230251246096d49137c103b59c60c37dc6c2d5"
   },
   {
+    "path": "conversation-budget-proposal.md",
+    "sha256": "ebf23760484a8824682326c3dd18471f2b09f93f61672126dd8b62e4c3e0648d"
+  },
+  {
     "path": "fixture/approved-base-manifest.json",
     "sha256": "20f710d3f00a74271e4c3d26dd1aa1719b7543d19e641c3b5cf8752f6e8b478d"
   },
@@ -69,7 +125,7 @@
   },
   {
     "path": "live-transmission-approval.md",
-    "sha256": "d78c43dc2aed59d88c21c923d9f606870b7b0cd00291eac1281c8f14533866e7"
+    "sha256": "be64238b0220617ca28b32d062dc292e52db2fb93aadb142f2242673c85ae3b7"
   },
   {
     "path": "logs/app-tests.log",

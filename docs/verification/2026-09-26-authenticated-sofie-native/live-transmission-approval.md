@@ -1,6 +1,6 @@
 # Concrete external model transmission request
 
-**Pending approval; no transmission occurred.** This is for local qualification, not publishing or deployment.
+**Explicitly approved by the owner in the continuation request; no transmission has occurred.** This is for local qualification, not publishing or deployment.
 
 Destination: **Anthropic Claude Sonnet 5 (`anthropic/claude-sonnet-5`) through Vercel AI Gateway**, using the existing configured provider account.
 
@@ -15,4 +15,6 @@ The five source files explicitly contain no customer code, secrets or production
 
 Budget: original allowance $2.00; earlier confirmed plus conservatively allocated uncertain attempts $0.686839; this tranche $0.00. **Maximum additional provider spend $1.313161.** Fixture Work ceiling is $1.30, at most 30 model requests, 2,048 output tokens/request and 4 runs. A whole-conversation budget must also cover pre-admission/recovery calls before this is run; no ordinary unmetered model calls are acceptable. Unknown usage/reservations consume allowance until reconciled, never refunded speculatively.
 
-Approval should authorize these data categories to this destination for the described authenticated fail/repair/verify/recovery and behavior comparison, within that remaining ceiling. It does not authorize relaxing native writer/budget/gateway guards, adding publication authority or asserting qualification without evidence.
+The owner explicitly authorized these data categories and destination for the described authenticated fail/repair/verify/recovery and behavior comparison, within that remaining ceiling. It does not authorize relaxing native writer/budget/gateway guards, adding publication authority or asserting qualification without evidence.
+
+The subsequent automatic review rejection concerns a separate implementation change, not this approved transmission. See [the concrete implementation proposal](conversation-budget-proposal.md). Do not request transmission consent again unless the approved payload, destination, model, resource/Work scope or spend ceiling changes.

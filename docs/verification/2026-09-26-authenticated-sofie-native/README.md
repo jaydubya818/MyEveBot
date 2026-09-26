@@ -2,6 +2,8 @@
 
 **M1/ER1 NOT QUALIFIED. ER2 BLOCKED. GitHub publication BLOCKED.**
 
+**Latest continuation:** Exact live transmission is now approved. A separate automatic review blocked the additive conversation-budget implementation before execution. Runtime code is unchanged; new provider spend remains $0. See [current continuation](approved-continuation.md) and [the implementation proposal](conversation-budget-proposal.md). Earlier references below to transmission approval describe the preceding checkpoint.
+
 This tranche starts at `3dfee3e130d610570ebda56ec98c3dba6136abee` on `codex/digital-worker-mvp`. Prior [native-host qualification](../2026-09-26-native-host/README.md) is preserved and is not represented as a new authenticated journey. No provider call or publication occurred in this tranche.
 
 ## Implemented and checked
