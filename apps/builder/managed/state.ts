@@ -1,5 +1,5 @@
 export const MANAGED_EVE_STATES = [
-  "requested", "approved", "provisioning", "deploying", "verifying",
+  "requested", "approved", "provisioning", "upgrading", "deploying", "verifying",
   "ready", "paused", "failed", "retiring", "retired",
 ] as const;
 
@@ -9,9 +9,10 @@ const transitions: Record<ManagedEveState, readonly ManagedEveState[]> = {
   requested: ["approved", "retired"],
   approved: ["provisioning", "retired"],
   provisioning: ["deploying", "failed"],
+  upgrading: ["deploying", "failed"],
   deploying: ["verifying", "failed"],
   verifying: ["ready", "failed"],
-  ready: ["paused", "deploying", "retiring", "failed"],
+  ready: ["paused", "upgrading", "retiring", "failed"],
   paused: ["ready", "deploying", "retiring"],
   failed: ["approved", "provisioning", "deploying", "verifying", "retiring"],
   retiring: ["retired", "failed"],

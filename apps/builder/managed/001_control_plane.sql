@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS managed_eve_environments (
   deployment_id text,
   public_url text,
   template_release integer,
-  state text NOT NULL CHECK (state IN ('requested','approved','provisioning','deploying','verifying','ready','paused','failed','retiring','retired')),
+  state text NOT NULL CHECK (state IN ('requested','approved','provisioning','upgrading','deploying','verifying','ready','paused','failed','retiring','retired')),
   monthly_model_budget_usd numeric(10,2) NOT NULL CHECK (monthly_model_budget_usd >= 1),
   last_health_at timestamptz,
   last_health_status text,

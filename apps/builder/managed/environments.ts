@@ -36,9 +36,28 @@ export async function recordProvisionedDeployment(input: {
   if (result.rowCount !== 1) throw new Error("Managed Eve deployment state changed");
 }
 
+export async function recordUpgradeDeployment(input: {
+  id: string;
+  projectId: string;
+  deploymentId: string;
+  templateRelease: number;
+}): Promise<void> {
+  await inTransaction(async (client) => {
+    const updated = await client.query(
+      "UPDATE managed_eve_environments SET deployment_id=$1,template_release=$2,state='deploying',last_health_status='pending',updated_at=now() WHERE id=$3 AND project_id=$4 AND state='upgrading'",
+      [input.deploymentId, input.templateRelease, input.id, input.projectId],
+    );
+    if (updated.rowCount !== 1) throw new Error("Managed Eve upgrade state changed; inspect deployment before retrying");
+    await client.query(
+      "INSERT INTO managed_eve_events (id,environment_id,kind,detail) VALUES ($1,$2,'upgrade_deployment_created',$3)",
+      [`evt_${randomUUID().replaceAll("-", "").slice(0, 24)}`, input.id, JSON.stringify({ deploymentId: input.deploymentId, templateRelease: input.templateRelease })],
+    );
+  });
+}
+
 export async function markProvisionFailure(id: string, stage: string, summary: string): Promise<void> {
   await managedDb().query(
-    "UPDATE managed_eve_environments SET state='failed',last_error_stage=$1,last_error_summary=$2,updated_at=now() WHERE id=$3 AND state IN ('provisioning','deploying','verifying')",
+    "UPDATE managed_eve_environments SET state='failed',last_error_stage=$1,last_error_summary=$2,updated_at=now() WHERE id=$3 AND state IN ('provisioning','upgrading','deploying','verifying')",
     [stage.slice(0, 80), summary.slice(0, 500), id],
   );
 }

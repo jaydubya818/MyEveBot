@@ -40,6 +40,7 @@ interface UpdateRequest {
   teamId?: unknown;
   action?: unknown; // "projects" | "inspect" | "update"
   projectName?: unknown;
+  expectedProjectId?: unknown;
 }
 
 /** Exact path match, else any depth-tolerant suffix match. */
@@ -201,6 +202,9 @@ export async function POST(request: Request): Promise<Response> {
       return Response.json({ error: "Missing project name" }, { status: 400 });
     }
     const agent = await readDeployedAgent(token, teamId, body.projectName.trim());
+    if (typeof body.expectedProjectId === "string" && agent.projectId !== body.expectedProjectId) {
+      throw new InspectError("Project identity changed; update aborted.", 409);
+    }
 
     if (action === "inspect") {
       return Response.json({

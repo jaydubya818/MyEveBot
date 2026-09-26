@@ -35,6 +35,8 @@ Never put the operator token, Vercel token, invite encryption key, or tester pas
 
 `POST /api/managed/environments/{id}/lifecycle` with `{ "action": "pause" }` or `{ "action": "resume" }` operates only on the project ID bound to that managed environment. Resume requires the paused state. A project-state API error requires manual inspection before retrying.
 
+`POST /api/managed/environments/{id}/upgrade` upgrades only a ready, builder-owned project whose Vercel project ID matches the environment record. It preserves Eve secrets and storage connections. The response is a deployment ID, not proof of a healthy upgrade. Poll `POST /api/managed/environments/{id}/deployment` until the new deployment passes the Eve health check and returns `ready`. If the upgrade route reports an uncertain state, inspect the exact project and deployment in Vercel before retrying.
+
 ## Release and incident gates
 
 - A managed Eve has **no binary-producing features** in the first profile because the current owner archive does not include binary file contents. Do not turn those features on until export coverage is complete.
