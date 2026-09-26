@@ -173,8 +173,18 @@ async function backupDedicatedDatabase(environment: ManagedEnvironment, teamSlug
     await mkdir(directory, { recursive: true, mode: 0o700 });
     const path = join(directory, `${environment.id}-${randomUUID()}.dump`);
     const executable = "/opt/homebrew/opt/libpq/bin";
+    const database = new URL(url);
+    const databaseEnv = {
+      ...process.env,
+      PGHOST: database.hostname,
+      PGPORT: database.port || "5432",
+      PGUSER: decodeURIComponent(database.username),
+      PGPASSWORD: decodeURIComponent(database.password),
+      PGDATABASE: decodeURIComponent(database.pathname.slice(1)),
+      PGSSLMODE: database.searchParams.get("sslmode") || "require",
+    };
     const dumped = spawnSync(join(executable, "pg_dump"), ["--format=custom", "--file", path], {
-      encoding: "utf8", timeout: 300_000, env: { ...process.env, PGDATABASE: url },
+      encoding: "utf8", timeout: 300_000, env: databaseEnv,
     });
     if (dumped.status !== 0) {
       await rm(path, { force: true });
