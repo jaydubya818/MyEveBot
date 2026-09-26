@@ -43,9 +43,9 @@
       "sha256": "702dddfd12d98e01b331086a827dbe88ed176bfee35cf51634144484f9f7c40a"
     },
     "agent/channels/telegram.ts": {
-      "classification": "BLOCKED",
-      "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "e40286237c8774979a92374ce718a6ab0d08dbc20fef4a0f4def16e51f57a3ba"
+      "classification": "ENFORCED",
+      "reason": "The mounted production/default channel remains blocked/503. The separately exported local qualification adapter requires process and supplied-env opt-in, non-hosted runtime, exact owner/bot/private-chat identity and webhook authentication; a bounded provider reply follows durable inbound/reply claims and requires matching provider message evidence. Unknown outcomes do not resend.",
+      "sha256": "57ccd28c3de624359f44ed2c22731aaa4c11b8dc7685a315814de06afccce2af"
     },
     "agent/connections/agentcard.ts": {
       "classification": "BLOCKED",
@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Static latest-migration marker; no executor, I/O, or authority decision.",
-      "sha256": "73e7a8c2c2015b20fea6ae109c4b23922a384012f62b996bd3265a6cae245384"
+      "sha256": "2b3cbd4a1b2bccd059ae567c92f655bcd3e42f1a5a48e05ecc00c03f8eb66eb8"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3015,8 +3015,8 @@
     },
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
-      "reason": "Local isolated executor/verifier boundary: pinned image, task-owned resources, non-root restricted containers, internal or deny-all network, candidate custody before cleanup, no publication/provider/database credentials in executor.",
-      "sha256": "19d5a9e11cac8e38bea45ef0a9cc074b57822582b81d96ad94754b5bf1f01fb2"
+      "reason": "Local isolated executor/verifier boundary: pinned image, task-owned resources, non-root restricted containers and deny-all check network. Protected checks require exact owned container exit evidence; ambiguous prior resources or cleanup fail closed for reconciliation. No publisher or database credential enters the executor.",
+      "sha256": "c893c6f08c550d4b4c80d3a188670a903073888d493514622cfd5855a61120a5"
     },
     "lib/engineering/github.ts": {
       "classification": "ENFORCED",
@@ -3142,8 +3142,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped Work/execution/route read model with revision and Agent-binding checks; no grant or effect.",
-      "sha256": "a3385318e540d6507e898b8dfae6000e1d03c8915538a790683facf62a03f93a"
+      "reason": "Owner-scoped Work/execution/route/native-draft read model with revision, currentness and coordinating-Agent binding checks; SELECT only, no readiness grant or provider effect.",
+      "sha256": "af266b23ca05e6842c73d6d6610ad1f473cf68b3d83a96dfc00b36e9e31d947f"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3157,8 +3157,23 @@
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
-      "reason": "Scoped native draft/candidate custody is fenced by Work revision and admitted DEEP_AGENT route; protected verifier receives the frozen candidate only after a route recheck, and evidence persists under Work/run CAS with no publication path.",
-      "sha256": "c2b82f88f868f32be8821f71c9678bfef240cda629e78df07721b72d87b26577"
+      "reason": "Scoped native draft/candidate custody is fenced by Work revision and admitted DEEP_AGENT route. Protected evidence requires a server-owned live candidate/revision lease and persists only under Work/run/route CAS; no publication path is exposed.",
+      "sha256": "003d690a55dab57ef69ea8692d090e6f5215b857ffadd744d50ff94a7c83e40e"
+    },
+    "lib/engineering/direct-verification-driver.ts": {
+      "classification": "ENFORCED",
+      "reason": "Server-only protected verifier claims an exact frozen candidate under a finite SQL lease and admitted DEEP_AGENT Work. Docker resource ownership is inspected before explicit interrupted-attempt retry; unknown outcomes remain recovery-required, and evidence custody is fenced by the lease.",
+      "sha256": "ca35714704ef1319f66effeeeaedab4bb246fae0eb3e05425da9b2a041612370"
+    },
+    "scripts/engineering-direct-verifier.ts": {
+      "classification": "ENFORCED",
+      "reason": "Standalone protected-verification worker is restricted to dogfood mode and an isolated loopback golden database. It rechecks the active primary Agent, consumes only retained admitted DEEP_AGENT candidates through the leased driver, and requires exact Docker resource reconciliation for retry; no model or publisher credential is supplied.",
+      "sha256": "b3d2510b25ca49a165f9583cb47e2b7acb385d1471436ffbd1aa7778d4f007a5"
+    },
+    "lib/telegram-owner-receipts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner/bot/chat/message and payload-hash scoped SQL claims record one inbound turn and one reply attempt. Ambiguous dispatch/reply states remain durable and deny replay; this module never contacts Telegram or grants a model/tool capability.",
+      "sha256": "08de60977f4dc328ed48904a55413e4012aeb9a6da9e568c61f1e91526f17f8e"
     }
   }
 }

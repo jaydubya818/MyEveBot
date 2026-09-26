@@ -5,21 +5,25 @@ import path from 'node:path';
 import {Client} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import tool from '../agent/tools/federation_request.ts';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,generateKeyPairSync,sign} from 'node:crypto';
 import {executeIncomingPermission, correlatedReply, claimCorrelatedReply} from '../lib/relay/incoming-permissions.ts';
 import {decideApproval} from '../lib/approvals.ts';
 import {savePeerPermission} from '../lib/relay/peer-permissions.ts';
 import {FederationStore} from '../lib/relay/store.ts';
+import {receiveDelivery,decideExternalWork,getExternalResult} from '../lib/relay/inbox.ts';
 import {encryptSecret, requestDigest} from '../lib/relay/transport.ts';
+import {qualificationEnabled} from '../lib/qualification/client.ts';
 
 // Existing loopback database supplies schema shapes only. Every test row and
 // sequence is connection-local TEMP state, discarded on rollback/disconnect.
 const url=new URL(process.env.FEDERATION_TEST_DATABASE_URL??'');
-assert(['127.0.0.1','localhost'].includes(url.hostname));assert(['55439','55468','55470'].includes(url.port));assert.equal(url.pathname,'/myeve_combined_v1');
+assert(['127.0.0.1','localhost'].includes(url.hostname));assert(['55439','55468','55470'].includes(url.port));assert(['/myeve_combined_v1','/golden_ui'].includes(url.pathname));
+assert.equal(qualificationEnabled(),false,'Synthetic Relay test must not use an external qualification controller.');
+assert.equal(Boolean(process.env.MYEVE_RELAY_INGRESS_SECRETS),false,'Synthetic Relay test must not read deployment ingress credentials.');
 const client=new Client({connectionString:url.href,ssl:false});await client.connect();
-const tables=['agents','agent_capabilities','agent_runs','task_runs','task_run_sessions','task_approval_decisions','task_transitions','task_milestones','task_specialists','task_acceptance_checks','task_artifacts','outcomes','eve_events','action_requests','action_receipts','execution_occurrences','execution_routine_versions','execution_routines','review_deliveries','computer_control_leases','computer_sessions','myeve_relay_connections','myeve_relay_requests','myeve_relay_reply_claims','myeve_peer_permissions','myeve_peer_action_bindings','myeve_relay_activity','web_chat_threads'];
+const tables=['agents','agent_capabilities','agent_runs','task_runs','task_run_sessions','task_approval_decisions','task_transitions','task_milestones','task_specialists','task_acceptance_checks','task_artifacts','outcomes','eve_events','action_requests','action_receipts','execution_occurrences','execution_routine_versions','execution_routines','review_deliveries','computer_control_leases','computer_sessions','myeve_relay_connections','myeve_relay_requests','myeve_relay_reply_claims','myeve_peer_permissions','myeve_peer_action_bindings','myeve_relay_activity','web_chat_threads','app_settings'];
 const fetchBefore=globalThis.fetch,neonBefore=neonConfig.fetchFunction;
-let sends=0,checks=0,relayStatus="ACTIVE";const submitted=[];
+let sends=0,checks=0,relayStatus="ACTIVE",reciprocalMessages=0;const submitted=[];
 process.env.DATABASE_URL='postgresql://fixture@approval-test.invalid/postgres';
 process.env.MYEVE_RELAY_ENABLED='true';process.env.MYEVE_RELAY_ORIGIN='https://relay.example';process.env.MYEVE_RELAY_ENCRYPTION_KEY='a'.repeat(64);
 const require=createRequire(import.meta.url),eveRoot=path.dirname(require.resolve('eve/package.json'));
@@ -267,5 +271,119 @@ try{
   assert.equal(effects,3,'the second request executes only after its own exact approval');
   assert.equal((await client.query('SELECT count(*)::int n FROM myeve_relay_reply_claims')).rows[0].n,1);
  });
- console.log(`Targeted SQL approval continuation: ${checks} passed; mocked Relay sends=${sends}; live Relay effects=0; qualified data unchanged.`);
+ await check('synthetic Sofie and Atlas exchange authenticated, correlated messages in both directions',async()=>{
+  const signing=generateKeyPairSync('ed25519');
+  const publicKey=signing.publicKey.export({type:'spki',format:'pem'}).toString();
+  await client.query("UPDATE myeve_relay_connections SET relay_owner_id='owner',relay_agent_id='sofie',issuer='https://relay.example',signing_key_id='fixture-pin',signing_public_key=$1 WHERE owner_id='approval-owner'",[publicKey]);
+  await client.query("UPDATE myeve_peer_permissions SET local_relay_account_id='owner',local_relay_agent_id='sofie' WHERE owner_id='approval-owner' AND id='permission'");
+  await client.query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('atlas-agent','atlas-owner','atlas','Atlas','Test','Synthetic public messages',true,'active',30,900,2)");
+  await client.query(`INSERT INTO myeve_relay_connections(owner_id,local_agent_id,relay_owner_id,relay_agent_id,address,issuer,signing_key_id,signing_public_key,agent_credential_encrypted,owner_session_encrypted)
+    VALUES('atlas-owner','atlas-agent','atlas','agent','relay://atlas/agent','https://relay.example','fixture-pin',$1,$2,$3)`,[publicKey,encryptSecret('atlas-owner','fixture-atlas'),encryptSecret('atlas-owner','fixture-atlas-owner')]);
+  await client.query(`INSERT INTO myeve_peer_permissions(id,owner_id,local_agent_id,relay_origin,local_relay_account_id,local_relay_agent_id,peer_account_id,peer_agent_id,display_name,policies,mutation_id,mutation_hash)
+    VALUES('permission-atlas','atlas-owner','atlas-agent','https://relay.example','atlas','agent','owner','sofie','Sofie',$1,'initial','initial')`,[JSON.stringify(['message.send','message.receive'].map(capability=>({capability,resource:'synthetic-messages',policy:'REQUIRE_APPROVAL',recordTypes:[],topics:[]})))]);
+  const identities={
+   'fixture-agent':{ownerId:'owner',agentId:'sofie',address:'relay://owner/sofie'},
+   'fixture-atlas':{ownerId:'atlas',agentId:'agent',address:'relay://atlas/agent'},
+  };
+  const granted=new Set(['fixture-agent>relay://atlas/agent','fixture-atlas>relay://owner/sofie']);
+  const relayRequests=new Map();let requestNumber=0;
+  const signedDelivery=envelope=>{
+   const header=Buffer.from(JSON.stringify({alg:'EdDSA',typ:'relay-federation+jwt',kid:'fixture-pin'})).toString('base64url');
+   const claims=Buffer.from(JSON.stringify({iss:'https://relay.example',aud:envelope.target.address,jti:envelope.id,iat:Math.floor(Date.now()/1000),exp:Math.floor(Date.now()/1000)+45,envelope})).toString('base64url');
+   const material=`${header}.${claims}`;
+   return `${material}.${sign(null,Buffer.from(material),signing.privateKey).toString('base64url')}`;
+  };
+  const previousFetch=globalThis.fetch;
+  globalThis.fetch=async(url,options)=>{
+   assert.equal(String(url),'https://relay.example/api/v2/federation');
+   const credential=String(options.headers.authorization).replace(/^Bearer /,'');
+   const caller=identities[credential];assert.ok(caller,'unknown synthetic Relay credential');
+   const command=JSON.parse(options.body);
+   if(command.operation==='authority.inspect'){
+    const active=granted.has(`${credential}>${command.input.target}`) && command.input.capability==='message.send' && command.input.resource==='synthetic-messages';
+    return Response.json({authorized:active,status:active?'ACTIVE':'REVOKED',expiresAt:active?'2099-01-01T00:00:00Z':null,approvalRequired:true,observedAt:new Date().toISOString(),executionRecheckRequired:true});
+   }
+   if(command.operation==='submit'){
+    const input=command.input,key=`${credential}>${input.target}`;
+    if(!granted.has(key)||input.capability!=='message.send'||input.resource!=='synthetic-messages')return Response.json({error:'denied'},{status:403});
+    const [,ownerId,agentId]=/^relay:\/\/([^/]+)\/([^/]+)$/.exec(input.target)??[];
+    assert.ok(ownerId&&agentId);
+    const id=`synthetic-peer-${++requestNumber}`;
+    const envelope={id,protocol:'relay.federation',version:'1.0',caller:{ownerId:caller.ownerId,agentId:caller.agentId},target:{ownerId,agentId,address:input.target},capability:'message.send',resource:input.resource,createdAt:new Date().toISOString(),expiresAt:input.expiresAt,idempotencyKey:input.idempotencyKey,payload:input.payload,...(input.conversationId?{conversationId:input.conversationId}:{}),publication:null,authorizationContext:{grantId:key,policyDecisionId:`decision-${id}`,localAuthorizationRequired:true}};
+    relayRequests.set(id,{sender:credential,recipient:input.target,envelope,token:signedDelivery(envelope),status:'QUEUED'});
+    return Response.json({requestId:id,status:'QUEUED'});
+   }
+   const record=relayRequests.get(command.requestId);assert.ok(record,'unknown synthetic request');
+   if(command.operation==='respond'){
+    assert.equal(caller.address,record.recipient);
+    if(!granted.has(`${record.sender}>${record.recipient}`))return Response.json({error:'revoked'},{status:403});
+    record.status=command.input.status;record.result=command.input.result;
+    return Response.json({requestId:command.requestId,status:record.status});
+   }
+   if(command.operation==='get'){
+    assert.equal(credential,record.sender);
+    return Response.json({requestId:command.requestId,status:record.status,...(record.result?{result:record.result}:{})});
+   }
+   throw Error(`Unexpected synthetic Relay operation ${command.operation}`);
+  };
+  try{
+   const sofieStore=new FederationStore('approval-owner'),atlasStore=new FederationStore('atlas-owner');
+   const send=async({ownerId,agentId,id,target,conversationId,body,replyTo})=>{
+    const current={principalId:ownerId,principalType:'user',attributes:{owner:'true',myeveAgentId:agentId}};
+    const ctx={session:{id,auth:{current,initiator:current}},messages:[],channel:{},callId:id};
+    const value={operation:'request',request:{target,resource:'synthetic-messages',capability:'message.send',idempotencyKey:id,expiresAt:new Date(Date.now()+3600000).toISOString(),conversationId,payload:{body,...(replyTo?{replyTo}:{})}}};
+    const initial=await definition(ctx);
+    assert.equal(await initial.approval({...ctx,toolName:'federation_request',toolInput:value,approvedTools:new Set(['federation_request'])}),'user-approval');
+    const resumed=await definition({...ctx,messages:decisionMessages(id,value)});
+    assert.equal(await resumed.approval({...ctx,toolName:'federation_request',toolInput:value,approvedTools:new Set(['federation_request'])}),'approved');
+    const result=await resumed.execute(value,ctx);
+    assert.equal(result.response?.status,'QUEUED',JSON.stringify(result));
+    return result.response.requestId;
+   };
+   const deliver=async(store,requestId,needsApproval)=>{
+    const token=relayRequests.get(requestId).token;
+    const received=await receiveDelivery(store,token);
+    assert.equal(received.state,needsApproval?'needs_approval':'completed');
+    if(needsApproval){
+     const approved=await decideExternalWork(store,requestId,true);
+     assert.equal(approved.state,'completed');
+    }
+    return token;
+   };
+   const first=await send({ownerId:'approval-owner',agentId:'approval-agent',id:'sofie-question',target:'relay://atlas/agent',conversationId:'sofie-thread',body:'What can Atlas share about this synthetic task?'});
+   const originalToken=await deliver(atlasStore,first,true);
+   const originalActions=(await client.query("SELECT count(*)::int n FROM action_requests WHERE owner_id='atlas-owner'")).rows[0].n;
+   assert.equal((await receiveDelivery(atlasStore,originalToken)).replay,true);
+   assert.equal((await client.query("SELECT count(*)::int n FROM action_requests WHERE owner_id='atlas-owner'")).rows[0].n,originalActions);
+   const altered={...relayRequests.get(first).envelope,payload:{body:'Changed after signing'}};
+   await assert.rejects(receiveDelivery(atlasStore,signedDelivery(altered)),/changed its content/);
+   const atlasReply=await send({ownerId:'atlas-owner',agentId:'atlas-agent',id:'atlas-answer',target:'relay://owner/sofie',conversationId:'sofie-thread',body:'Atlas can review the synthetic acceptance checks.',replyTo:first});
+   await deliver(sofieStore,atlasReply,false);
+   const sofieResult=await getExternalResult(sofieStore,first);
+   assert.deepEqual(sofieResult.replies.map(({replyTo,peer,body})=>({replyTo,peer,body})),[{replyTo:first,peer:'relay://atlas/agent',body:'Atlas can review the synthetic acceptance checks.'}]);
+   assert.match(sofieResult.replies[0].provenance,/Authenticated peer message/);
+   const second=await send({ownerId:'atlas-owner',agentId:'atlas-agent',id:'atlas-question',target:'relay://owner/sofie',conversationId:'atlas-thread',body:'What can Sofie share about owner control?'});
+   await deliver(sofieStore,second,true);
+   const sofieReply=await send({ownerId:'approval-owner',agentId:'approval-agent',id:'sofie-answer',target:'relay://atlas/agent',conversationId:'atlas-thread',body:'Sofie keeps the owner in control of the synthetic Work.',replyTo:second});
+   await deliver(atlasStore,sofieReply,false);
+   const atlasResult=await getExternalResult(atlasStore,second);
+   assert.deepEqual(atlasResult.replies.map(({replyTo,peer,body})=>({replyTo,peer,body})),[{replyTo:second,peer:'relay://owner/sofie',body:'Sofie keeps the owner in control of the synthetic Work.'}]);
+   assert.match(atlasResult.replies[0].provenance,/Authenticated peer message/);
+   const duplicateReply=await send({ownerId:'approval-owner',agentId:'approval-agent',id:'sofie-second-answer',target:'relay://atlas/agent',conversationId:'atlas-thread',body:'A second reply needs its own incoming approval.',replyTo:second});
+   await deliver(atlasStore,duplicateReply,true);
+   assert.equal((await client.query("SELECT count(*)::int n FROM myeve_relay_reply_claims WHERE owner_id='atlas-owner' AND parent_request_id=$1",[second])).rows[0].n,1);
+   granted.delete('fixture-agent>relay://atlas/agent');
+   const beforeRevoked=requestNumber;
+   const beforeApprovals=(await client.query("SELECT count(*)::int n FROM task_approval_decisions WHERE owner_id='approval-owner'")).rows[0].n;
+   const deniedCtx=context('sofie-revoked');const deniedValue={operation:'request',request:{target:'relay://atlas/agent',resource:'synthetic-messages',capability:'message.send',idempotencyKey:'sofie-revoked',expiresAt:new Date(Date.now()+3600000).toISOString(),payload:{body:'Must not send'}}};
+   const denied=await definition(deniedCtx);
+   assert.equal(await denied.approval({...deniedCtx,toolName:'federation_request',toolInput:deniedValue}),'denied');
+   assert.equal(requestNumber,beforeRevoked,'revoked exact grant cannot create a new Relay request');
+   assert.equal((await client.query("SELECT count(*)::int n FROM task_approval_decisions WHERE owner_id='approval-owner'")).rows[0].n,beforeApprovals);
+   await assert.rejects(getExternalResult(sofieStore,first),/current authority|Relay authorization/i);
+   assert.equal(relayRequests.size,5);
+   reciprocalMessages=requestNumber;
+  }finally{globalThis.fetch=previousFetch;}
+ });
+ console.log(`Targeted SQL approval continuation: ${checks} passed; approval-test sends=${sends}; signed synthetic reciprocal messages=${reciprocalMessages}; live Relay effects=0; qualified data unchanged.`);
 }finally{globalThis.fetch=fetchBefore;neonConfig.fetchFunction=neonBefore;await client.query('ROLLBACK');await client.end();}

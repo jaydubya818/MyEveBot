@@ -548,6 +548,12 @@ export function WorkDashboard() {
                       runtime
                     </p>
                     {detail.projection && <p className="mt-2 text-xs text-kumo-subtle">Next: {detail.projection.nextStep} Last update: <time dateTime={detail.projection.lastMeaningfulActivity}>{new Date(detail.projection.lastMeaningfulActivity).toLocaleString()}</time>.</p>}
+                    {detail.projection?.nativeDevelopment && <p className="mt-2 break-words text-xs text-kumo-subtle">
+                      Native development: {detail.projection.nativeDevelopment.label}
+                      {!detail.projection.nativeDevelopment.current && " · not current for execution"}
+                      {detail.projection.nativeDevelopment.candidateSha &&
+                        ` · candidate ${detail.projection.nativeDevelopment.candidateSha.slice(0, 12)}`}
+                    </p>}
                     {(detail.projection?.pendingDecisions.length ?? detail.manifest?.pendingDecisions.length ?? 0) > 0 && (
                       <a href="#engineering-execution" className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-kumo-warning/50 px-4 text-sm font-medium text-kumo-default">
                         {(detail.projection?.attention ?? detail.manifest?.attention)?.reconciliation ? "Review reconciliation" : "Review decision"} · {detail.projection?.pendingDecisions.length ?? detail.manifest?.pendingDecisions.length} waiting

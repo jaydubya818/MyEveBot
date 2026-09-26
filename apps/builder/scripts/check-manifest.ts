@@ -70,6 +70,17 @@ if (!coreFiles.has("agent/schedules/operations-monitor.ts")) {
   process.exit(1);
 }
 
+// The native development tool is core so local dogfood has it, but the
+// template must never expose it merely because a generated agent has Work.
+const nativeToolPath = "agent/tools/engineering_direct.ts";
+const nativeToolSource = await readFile(path.join(eveRoot, nativeToolPath), "utf8");
+if (!coreFiles.has(nativeToolPath) ||
+    !/process\.env\.MYEVE_ENGINEERING_MODE\s*!==\s*["']dogfood["']/.test(nativeToolSource) ||
+    !nativeToolSource.includes("engineeringRuntime({")) {
+  console.error(`${nativeToolPath} must remain core and explicitly dogfood-gated.`);
+  process.exit(1);
+}
+
 for (const file of ownerKnowledgeTools) {
   if (!knowledgeFiles.has(file) || coreFiles.has(file)) {
     console.error(`${file} must ship with knowledge and be pruned without it.`);

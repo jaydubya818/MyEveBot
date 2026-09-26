@@ -5,9 +5,11 @@ import { loadMigrations, runMigrations } from "../scripts/migration-runner.ts";
 import { manifestForSnapshot } from "../lib/engineering/base-preflight.ts";
 import { digest, profileSchema } from "../lib/engineering/contract.ts";
 import { DirectDevelopmentStore } from "../lib/engineering/direct-development.ts";
+import { DirectVerificationDriver } from "../lib/engineering/direct-verification-driver.ts";
 import { RouteAdmissionService } from "../lib/engineering/route-admission.ts";
 import { RoutingStore } from "../lib/engineering/routing-store.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
+import { EngineeringWorkerProjectionStore } from "../lib/engineering/worker-projection.ts";
 
 const url=new URL(process.env.ENGINEERING_TEST_ADMIN_URL??"postgresql://postgres@127.0.0.1:55468/postgres");
 assert.equal(url.hostname,"127.0.0.1");
@@ -114,7 +116,13 @@ try {
   assert.equal(competingOpens.filter(result=>result.status==="rejected").length,1);
   const opened=competingOpens.find(result=>result.status==="fulfilled").value;
   assert.equal(opened.phase,"DRAFT");
+  let projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.status,"Working");
+  assert.equal(projected.nativeDevelopment.phase,"DRAFT");
+  assert.equal(projected.nativeDevelopment.current,true);
+  assert.equal(projected.authoritySummary.deadlineCurrent,true);
   assert.equal(opened.routeRunId,admission.runId);
+  await assert.rejects(new EngineeringWorkerProjectionStore(workStore,"other-agent").get(work.id),/different Agent/);
   assert.deepEqual(Object.keys(opened.sourceFiles).sort(),Object.keys(source.files).sort());
   assert.equal((await direct.read(work.id,"README.md")).content,source.files["README.md"]);
   await assert.rejects(direct.open(work.id,source),/already has a writer/);
@@ -127,6 +135,10 @@ try {
   await assert.rejects(direct.write(work.id,planned.revision,"quantity.mjs","stale"),/changed/);
   const {candidate,workspace:submitted}=await direct.submit(work.id,write.revision);
   assert.equal(submitted.phase,"VERIFICATION_REQUESTED");
+  projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.status,"Needs verification");
+  assert.equal(projected.nativeDevelopment.candidateSha,candidate.sha);
+  assert.equal(projected.readiness.ready,false);
   assert.deepEqual(candidate.changedPaths,["quantity.mjs"]);
   assert.equal(candidate.files["README.md"],source.files["README.md"]);
   assert.equal((await new DirectDevelopmentStore(new WorkStore(principal,database),config).inspect(work.id))
@@ -142,33 +154,58 @@ try {
       observedAt:new Date().toISOString(),result,artifact,artifactHash:digest(artifact)}];
   };
   await pool.query("UPDATE engineering_route_runs SET status='BLOCKED' WHERE id=$1",[opened.routeRunId]);
+  projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.status,"Needs reconciliation");
+  assert.equal(projected.nativeDevelopment.current,false);
   let verifierCalled=false;
-  await assert.rejects(direct.verifyRequested(work.id,{verify:async()=>{verifierCalled=true;return [];}}),
+  await assert.rejects(new DirectVerificationDriver(direct,{verify:async()=>{verifierCalled=true;return [];}}).run(work.id),
     /current admitted DEEP_AGENT route/);
   assert.equal(verifierCalled,false);
   await pool.query("UPDATE engineering_route_runs SET status='RUNNING' WHERE id=$1",[opened.routeRunId]);
-  await assert.rejects(direct.verifyRequested(work.id,{verify:async(_contract,frozen)=>
-    evidenceFor(frozen,"PASS").map(item=>({...item,candidate:"c".repeat(40)}))}),/did not bind/);
+  await assert.rejects(new DirectVerificationDriver(direct,{verify:async(_contract,frozen)=>
+    evidenceFor(frozen,"PASS").map(item=>({...item,candidate:"c".repeat(40)}))}).run(work.id),/did not bind/);
   assert.equal((await direct.inspect(work.id)).workspace.phase,"VERIFICATION_REQUESTED");
-  const failed=await direct.verifyRequested(work.id,{verify:async(_contract,frozen)=>evidenceFor(frozen,"FAIL")});
+  const retry=new DirectVerificationDriver(direct,{verify:async(_contract,frozen)=>evidenceFor(frozen,"FAIL")});
+  assert.equal((await retry.inspectJob(work.id,candidate.sha)).status,"RECOVERY_REQUIRED");
+  await retry.retryAfterResourceCheck(work.id,candidate.sha,{resourcesAbsent:async()=>true});
+  assert.equal((await retry.run(work.id)).status,"COMPLETED");
+  const failed={workspace:(await direct.inspect(work.id)).workspace};
   assert.equal(failed.workspace.phase,"VERIFICATION_FAILED");
+  projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.status,"Needs revision");
+  await pool.query(`UPDATE engineering_direct_workspaces
+    SET evidence=jsonb_set(evidence,'{0,result}','"UNKNOWN"'::jsonb)
+    WHERE work_id=$1`,[work.id]);
+  projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.status,"Needs reconciliation");
+  await pool.query(`UPDATE engineering_direct_workspaces
+    SET evidence=jsonb_set(evidence,'{0,result}','"FAIL"'::jsonb)
+    WHERE work_id=$1`,[work.id]);
   const fixed=await direct.write(work.id,failed.workspace.revision,"quantity.mjs",
     "const text=require('fs').readFileSync(0,'utf8').trim();process.stdout.write(text+'\\n');\n");
   const replacement=await direct.submit(work.id,fixed.revision);
   assert.notEqual(replacement.candidate.sha,candidate.sha);
-  const passed=await direct.verifyRequested(work.id,{verify:async(_contract,frozen)=>evidenceFor(frozen,"PASS")});
+  const passingDriver=new DirectVerificationDriver(direct,{verify:async(_contract,frozen)=>evidenceFor(frozen,"PASS")});
+  assert.equal((await passingDriver.run(work.id)).status,"COMPLETED");
+  const passed={workspace:(await direct.inspect(work.id)).workspace};
   assert.equal(passed.workspace.phase,"VERIFICATION_PASSED");
+  projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.status,"Verified candidate");
+  assert.equal(projected.readiness.ready,false);
   assert.equal(passed.workspace.evidence[0].candidate,candidate.sha);
   assert.equal(passed.workspace.evidence[1].candidate,replacement.candidate.sha);
   assert.equal((await new RoutingStore(workStore).snapshot(work.id)).runs[0].status,"RUNNING");
 
   await workStore.change(work.id,{operation:"pause",expectedVersion:work.version});
   assert.equal((await direct.inspect(work.id)).current,false);
+  await pool.query("UPDATE engineering_direct_workspaces SET deadline=clock_timestamp()-interval '1 second' WHERE work_id=$1",[work.id]);
+  projected=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
+  assert.equal(projected.authoritySummary.deadlineCurrent,false);
   await assert.rejects(direct.plan(work.id,passed.workspace.revision,"No more work"),/changed/);
   console.log("M1 direct: admitted native writer, path/revision fences, durable candidate, independent exact evidence, owner and control isolation passed");
 } finally {
   await pool?.end();
   url.pathname="/postgres";
-  await admin.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
+  await admin.query(`DROP DATABASE IF EXISTS ${name}`);
   await admin.end();
 }

@@ -45,6 +45,11 @@ export type DirectVerificationContract = Pick<WorkContract,
 export interface DirectProtectedVerifier {
   verify(contract: DirectVerificationContract, candidate: Candidate): Promise<Evidence[]>;
 }
+export interface DirectVerificationClaim {
+  token: string;
+  candidateSha: string;
+  workspaceRevision: number;
+}
 
 function assertOwner(store: WorkStore) {
   const principal = store.principal;
@@ -226,6 +231,9 @@ export class DirectDevelopmentStore {
            AND w.lifecycle='active' AND w.control='agent')
          AND EXISTS (SELECT 1 FROM engineering_route_runs r WHERE r.id=d.route_run_id
            AND r.status='RUNNING' AND r.decision_id=d.decision_id)
+         AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
+           WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
+             AND decision.selected_route='DEEP_AGENT')
        RETURNING d.*`,
       [...this.scope(id), value.revision, value.workVersion, value.workGeneration,
         operation, data.plan ?? value.plan, JSON.stringify(data.files ?? value.draftFiles), digest(this.config.profile)]);
@@ -278,6 +286,9 @@ export class DirectDevelopmentStore {
            AND w.lifecycle='active' AND w.control='agent')
          AND EXISTS (SELECT 1 FROM engineering_route_runs r WHERE r.id=d.route_run_id
            AND r.status='RUNNING' AND r.decision_id=d.decision_id)
+         AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
+           WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
+             AND decision.selected_route='DEEP_AGENT')
        RETURNING d.*`,
       [...this.scope(id), value.revision, value.workVersion, value.workGeneration,
         JSON.stringify([candidate]), digest(this.config.profile), this.config.profile.maxRuns]);
@@ -287,7 +298,7 @@ export class DirectDevelopmentStore {
 
   /** Supervisor-only. The Agent tool does not expose this method or accept
    * evidence as input. A changed Work or candidate cannot receive a PASS. */
-  async verifyRequested(id: string, verifier: DirectProtectedVerifier) {
+  async verifyRequested(id: string, verifier: DirectProtectedVerifier, claim: DirectVerificationClaim) {
     const {work,workspace:value}=await this.inspect(id);
     if (!value || value.phase!=="VERIFICATION_REQUESTED" || !this.current(work,value))
       throw new WorkError("direct_verification_changed", "No current frozen candidate is awaiting protected verification.");
@@ -296,6 +307,15 @@ export class DirectDevelopmentStore {
       throw new WorkError("direct_verification_changed", "The direct writer was fenced before protected verification.");
     const candidate=value.candidates.at(-1);
     if (!candidate) throw new WorkError("direct_candidate_missing", "The frozen candidate is missing.");
+    if (claim.candidateSha!==candidate.sha || claim.workspaceRevision!==value.revision)
+      throw new WorkError("direct_verification_claim", "The verifier claim is for another candidate or draft revision.",403);
+    const [currentClaim]=await this.workStore.database.query(
+      `SELECT 1 FROM engineering_direct_verification_jobs
+       WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
+         AND candidate_sha=$4 AND workspace_revision=$5 AND lease_token=$6::uuid
+         AND status='RUNNING' AND lease_until>clock_timestamp()`,
+      [...this.scope(id),candidate.sha,value.revision,claim.token]);
+    if (!currentClaim) throw new WorkError("direct_verification_claim", "A current server-owned verification lease is required.",403);
     const contract=candidateContract(value,this.config.profile);
     const run:EngineeringRun={id:value.routeRunId,attemptId:candidate.attemptId,
       reason:"Sofie native direct development",generation:value.workGeneration,parentSha:value.baseSha,
@@ -321,16 +341,24 @@ export class DirectDevelopmentStore {
          AND d.work_version=$5 AND d.work_generation=$6 AND d.profile_hash=$9
          AND d.phase='VERIFICATION_REQUESTED' AND d.deadline>clock_timestamp()
          AND d.candidates->-1->>'sha'=$10
+         AND EXISTS (SELECT 1 FROM engineering_direct_verification_jobs j
+           WHERE j.scope_id=d.scope_id AND j.scope_kind=d.scope_kind AND j.work_id=d.work_id
+             AND j.candidate_sha=$10 AND j.workspace_revision=d.revision
+             AND j.status='RUNNING' AND j.lease_token=$11::uuid
+             AND j.lease_until>clock_timestamp())
          AND EXISTS (SELECT 1 FROM engineering_work w WHERE w.scope_id=d.scope_id
            AND w.scope_kind=d.scope_kind AND w.id=d.work_id AND w.version=d.work_version
            AND w.generation=d.work_generation AND w.criteria_version=d.criteria_version
            AND w.lifecycle='active' AND w.control='agent')
          AND EXISTS (SELECT 1 FROM engineering_route_runs r WHERE r.id=d.route_run_id
            AND r.status='RUNNING' AND r.decision_id=d.decision_id)
+         AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
+           WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
+             AND decision.selected_route='DEEP_AGENT')
        RETURNING d.*`,
       [...this.scope(id),value.revision,value.workVersion,value.workGeneration,
         JSON.stringify(checks),passed?"VERIFICATION_PASSED":"VERIFICATION_FAILED",
-        digest(this.config.profile),candidate.sha]);
+        digest(this.config.profile),candidate.sha,claim.token]);
     if (!row) throw new WorkError("direct_verification_changed", "Work or candidate changed while verification ran; evidence was not attached.");
     return {candidate, evidence:checks,workspace:workspace(row)};
   }

@@ -38,6 +38,15 @@ export interface EngineeringWorkerProjection {
   attention: CurrentManifest["attention"];
   pendingDecisions: string[];
   latestResult: { id: string; version: number; summary: string; candidate: string; createdAt: string } | null;
+  nativeDevelopment: {
+    phase: "DRAFT" | "VERIFICATION_REQUESTED" | "VERIFICATION_FAILED" | "VERIFICATION_PASSED";
+    label: string;
+    revision: number;
+    candidateSha: string | null;
+    evidenceCount: number;
+    current: boolean;
+    updatedAt: string;
+  } | null;
   routing: {
     decisionId: string; status: "PROPOSED" | "ADMITTED" | "STALE";
     selectedRoute: string; reason: string; providerId: string | null;
@@ -97,7 +106,7 @@ export class EngineeringWorkerProjectionStore {
     const id = work.id;
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
-    const [execution, route, eventRows, historyRows] = await Promise.all([
+    const [execution, route, eventRows, historyRows, nativeRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
       this.workStore.database.query(
@@ -110,6 +119,15 @@ export class EngineeringWorkerProjectionStore {
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
          ORDER BY revision DESC LIMIT 1`,
         scope,
+      ),
+      this.workStore.database.query(
+        `SELECT n.decision_id,n.route_run_id,n.work_version,n.work_generation,n.criteria_version,
+                n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,
+                d.admission_authority_snapshot->'contract'->>'coordinatingAgentId' AS agent_id
+         FROM engineering_direct_workspaces n
+         JOIN engineering_routing_decisions d ON d.id=n.decision_id AND d.scope_id=n.scope_id
+           AND d.scope_kind=n.scope_kind AND d.work_id=n.work_id
+         WHERE n.scope_id=$1 AND n.scope_kind=$2 AND n.work_id=$3`, scope,
       ),
     ]);
     const current = await this.workStore.get(id);
@@ -129,10 +147,60 @@ export class EngineeringWorkerProjectionStore {
     const currentRouteRun = admittedRoute ? routing.runs.find(run =>
       run.decisionId === admittedRoute.id && run.workVersion === work.version &&
       run.workGeneration === work.generation) ?? null : null;
+    const nativeRow = nativeRows[0] ?? null;
+    if (nativeRow && this.coordinatingAgentId && nativeRow.agent_id !== this.coordinatingAgentId)
+      throw new WorkError("projection_binding", "Native development is bound to a different Agent.", 403);
+    const nativePhase = nativeRow?.phase as NonNullable<EngineeringWorkerProjection["nativeDevelopment"]>["phase"];
+    const nativeCurrent = !!nativeRow && !!admittedRoute && !!currentRouteRun &&
+      !execution && currentRouteRun.route === "DEEP_AGENT" && currentRouteRun.status === "RUNNING" &&
+      nativeRow.decision_id === admittedRoute.id && nativeRow.route_run_id === currentRouteRun.id &&
+      Number(nativeRow.work_version) === work.version &&
+      Number(nativeRow.work_generation) === work.generation &&
+      Number(nativeRow.criteria_version) === work.criteriaVersion &&
+      Date.now() < Date.parse(String(nativeRow.deadline)) &&
+      work.lifecycle === "active" && work.control === "agent";
+    const nativeCandidate = Array.isArray(nativeRow?.candidates) ? nativeRow.candidates.at(-1) : null;
+    const nativeCheckUnknown = nativePhase === "VERIFICATION_FAILED" &&
+      Array.isArray(nativeRow?.evidence) && nativeRow.evidence.some((item: Record<string, unknown>) =>
+        item.candidate === nativeCandidate?.sha &&
+        !["PASS", "FAIL"].includes(String(item.result)));
+    const nativeDevelopment: EngineeringWorkerProjection["nativeDevelopment"] = nativeRow ? {
+      phase: nativePhase,
+      label: nativePhase === "VERIFICATION_REQUESTED" ? "Candidate awaiting protected checks"
+        : nativePhase === "VERIFICATION_FAILED" ? nativeCheckUnknown
+          ? "Checks inconclusive; reconcile the outcome" : "Checks failed; revision needed"
+        : nativePhase === "VERIFICATION_PASSED" ? "Candidate checks passed; Work not Ready"
+        : "Draft in progress",
+      revision: Number(nativeRow.revision),
+      candidateSha: typeof nativeCandidate?.sha === "string" ? nativeCandidate.sha : null,
+      evidenceCount: Array.isArray(nativeRow.evidence) ? nativeRow.evidence.length : 0,
+      current: nativeCurrent,
+      updatedAt: nativeRow.updated_at instanceof Date
+        ? nativeRow.updated_at.toISOString() : String(nativeRow.updated_at),
+    } : null;
+    const nativeActivity = nativeCurrent ? nativePhase === "VERIFICATION_REQUESTED"
+      ? { status: "Needs verification", activity: "Sofie retained a frozen candidate awaiting independent checks.",
+          nextStep: "Run protected checks on the exact candidate. Work is not ready." }
+      : nativePhase === "VERIFICATION_FAILED"
+        ? nativeCheckUnknown
+          ? { status: "Needs reconciliation", activity: "A protected check had no confirmed candidate outcome.",
+              nextStep: "Inspect the check evidence and reconcile verifier resources before another attempt." }
+          : { status: "Needs revision", activity: "Protected checks failed for the retained candidate.",
+              nextStep: "Sofie can inspect the check evidence, revise the draft, and submit a new candidate." }
+        : nativePhase === "VERIFICATION_PASSED"
+          ? { status: "Verified candidate", activity: "Protected checks passed for the retained candidate.",
+              nextStep: "Review publication and current evidence before any Ready decision." }
+          : { status: "Working", activity: "Sofie has an owner-scoped native draft for this Work.",
+              nextStep: "Sofie can inspect approved files, edit the draft, and submit a frozen candidate." }
+      : null;
+    const staleNativeActivity = nativeRow && currentRouteRun?.id === nativeRow.route_run_id && !nativeCurrent
+      ? { status: "Needs reconciliation", activity: "The retained native draft is no longer current for this Work or deadline.",
+          nextStep: "Recheck Work, route and deadline before another candidate or verification attempt." }
+      : null;
     const routeActivity = !execution && work.lifecycle === "active" && work.control === "agent"
       ? admittedRoute
         ? currentRouteRun
-          ? {
+          ? nativeActivity ?? staleNativeActivity ?? {
               status: currentRouteRun.status === "QUEUED" ? "Queued"
                 : currentRouteRun.status === "RUNNING" ? "Working"
                 : currentRouteRun.status === "COMPLETED" ? "Needs verification"
@@ -170,11 +238,14 @@ export class EngineeringWorkerProjectionStore {
         actorId: lastExecutionEvent.actor_id === null ? null : String(lastExecutionEvent.actor_id),
         version: Number(lastExecutionEvent.revision) },
       result && { kind: "result", at: result.createdAt, actorId: null, version: result.version },
+      nativeDevelopment && { kind: `native:${nativeDevelopment.phase.toLowerCase()}`,
+        at: nativeDevelopment.updatedAt, actorId: null, version: nativeDevelopment.revision },
       routing.transitions[0] && { kind: `route:${routing.transitions[0].trigger}`, at: routing.transitions[0].createdAt,
         actorId: null, version: null },
     ].filter((change): change is NonNullable<typeof change> => !!change);
     const lastChange = changes.sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0] ?? null;
-    const lastMeaningfulActivity = latestTime(latestTime(work.updatedAt, execution?.lastActivity), lastChange?.at);
+    const lastMeaningfulActivity = latestTime(
+      latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
       workId: work.id,
       title: work.title,
@@ -196,14 +267,16 @@ export class EngineeringWorkerProjectionStore {
         admitted: !!execution || !!admittedRoute,
         generationCurrent: execution ? execution.generation === work.generation
           : !!currentRouteRun && work.control === "agent",
-        deadlineCurrent: !!execution && Date.now() < Date.parse(execution.contract.deadline),
+        deadlineCurrent: execution
+          ? Date.now() < Date.parse(execution.contract.deadline)
+          : !!nativeRow && !!admittedRoute && Date.now() < Date.parse(String(nativeRow.deadline)),
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
       status: truth?.status ?? routeActivity?.status ?? noExecutionStatus(work),
       activity: truth?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
       nextStep: truth?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
-      readiness: truth?.readiness ?? { ready: false, reasons: ["No admitted execution or verified current evidence exists."] },
+      readiness: truth?.readiness ?? { ready: false, reasons: ["No independently verified, current Result exists."] },
       currentRun: truth?.currentRun
         ? { id: truth.currentRun.id, status: truth.currentRun.status, startedAt: truth.currentRun.startedAt,
           generationCurrent: truth.currentRun.generation === work.generation }
@@ -213,6 +286,7 @@ export class EngineeringWorkerProjectionStore {
       latestResult: result
         ? { id: result.id, version: result.version, summary: result.summary, candidate: result.candidate, createdAt: result.createdAt }
         : null,
+      nativeDevelopment,
       routing: routing.decision
         ? { decisionId: routing.decision.id, status: routing.decision.status, selectedRoute: routing.decision.selectedRoute,
           reason: routing.decision.reason, providerId: routing.decision.providerId }

@@ -51,6 +51,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/delegation.ts",
   "agent/instructions/installed-skills.ts",
   "agent/instructions/persistent-agent.ts",
+  "agent/instructions/persistent-agent.test.ts",
   "agent/instructions/on-demand-role.ts",
   "agent/instructions/time.ts",
   "agent/schedules/operations-monitor.ts",
@@ -69,6 +70,8 @@ export const CORE_PRUNABLE_FILES = [
   "agent/tools/federation_request.ts",
   // Internal engineering tool stays inert unless its explicit edition gate is enabled.
   "agent/tools/engineering_work.ts",
+  // Native development has the same dogfood gate, plus admission/owner checks.
+  "agent/tools/engineering_direct.ts",
   "agent/tools/list_agents.ts",
   "agent/tools/list_roles.ts",
   "agent/tools/list_solution_packs.ts",
@@ -97,6 +100,7 @@ export const FEATURE_FILES: Record<FeatureId, readonly string[]> = {
   knowledge: [
     "agent/instructions/knowledge.md",
     "agent/instructions/jev.md",
+    "agent/tools/engineering-knowledge-tools.test.ts",
     "agent/tools/evaluate_with_jev.ts",
     "agent/tools/record_fact.ts",
     "agent/tools/record_observation.ts",

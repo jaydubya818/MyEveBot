@@ -127,6 +127,12 @@ export function ChatWorkSelector({
           <p><span className="font-medium text-kumo-default">Status:</span> {visibleRoute.projection.status}</p>
           <p className="mt-1 break-words"><span className="font-medium text-kumo-default">Next:</span> {visibleRoute.projection.nextStep}</p>
           {visibleRoute.projection.pendingDecisions.length > 0 && <p className="mt-1 text-kumo-warning">Needs You: {visibleRoute.projection.pendingDecisions.length}</p>}
+          {visibleRoute.projection.nativeDevelopment && <p className="mt-1 break-words">
+            Native development: {visibleRoute.projection.nativeDevelopment.label}
+            {!visibleRoute.projection.nativeDevelopment.current && " · not current for execution"}
+            {visibleRoute.projection.nativeDevelopment.candidateSha &&
+              ` · candidate ${visibleRoute.projection.nativeDevelopment.candidateSha.slice(0, 12)}`}
+          </p>}
         </div>}
         {visibleRoute?.kind === "loading" ? <p role="status">Loading route status…</p> : visibleRoute?.kind === "error" ? <div role="alert" className="flex flex-wrap items-center justify-between gap-2 text-kumo-warning"><span>{visibleRoute.message}</span><button type="button" className="min-h-9 font-medium underline underline-offset-2" onClick={() => setRouteRetry((value) => value + 1)}>Retry route status</button></div> : visibleRoute?.kind === "ready" && visibleRoute.routing.decision ? <>
           <p className="font-medium text-kumo-default">{visibleRoute.routing.decision.status === "PROPOSED" ? "Proposed" : visibleRoute.routing.decision.status === "STALE" ? "Stale recommendation" : "Admitted"}: {routeLabel(visibleRoute.routing.decision.selectedRoute)}</p>

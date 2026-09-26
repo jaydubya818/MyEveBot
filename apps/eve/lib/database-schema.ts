@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0047_engineering_direct.sql";
+export const CURRENT_DATABASE_MIGRATION = "0049_telegram_owner_receipts.sql";

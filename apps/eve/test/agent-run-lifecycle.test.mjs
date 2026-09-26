@@ -16,6 +16,7 @@ test("persistent Agent runs use Eve's durable turn id", async () => {
 
 test("chat runtime failures expose an actionable retry", async () => {
   const source = await readFile(new URL("../app/chat.tsx", import.meta.url), "utf8");
-  assert.match(source, /Retry request/);
-  assert.match(source, /onClick=\{regenerateLastReply\}/);
+  assert.match(source, /onRetry=\{retryMessage\}/);
+  assert.match(source, /aria-label="Retry"/);
+  assert.match(source, /onClick=\{\(\) => onRetry\(text\)\}/);
 });

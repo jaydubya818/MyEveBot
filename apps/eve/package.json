@@ -11,6 +11,7 @@
     "build": "npm run skills:prepare && next build",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.ts",
     "db:migrations:check": "node scripts/migrate-database.ts --check",
+    "engineering:direct-verifier": "node --import tsx scripts/engineering-direct-verifier.ts",
     "dev": "next dev",
     "eval": "eve eval",
     "eval:ci": "eve eval --tag ci --strict --junit .eve/junit.xml",

@@ -58,6 +58,43 @@ export function cleanupResourceState(run:EngineeringRun,kind:CleanupResource,nam
   if(!owned)throw new Error("Docker resource ownership is not established; cleanup remains unresolved.");
   return "present";
 }
+type DockerResult = {code:number;out:string;err:string};
+function verifierContainer(name:string,result:DockerResult):Record<string,any>|null {
+  if (result.code) {
+    // Verifier names only contain a candidate UUID and profile check id.
+    if (new RegExp(`No such (?:object|container):\\s*${name}(?:\\s|$)`,"i").test(result.err)) return null;
+    throw new Error("Verifier container state is unavailable; outcome needs reconciliation.");
+  }
+  let record:Record<string,any>;
+  try { record=JSON.parse(result.out); }
+  catch { throw new Error("Verifier container inspection is invalid; outcome needs reconciliation."); }
+  if (record.Name!==`/${name}` || record.Config?.Labels?.["myeve.golden"]!=="true")
+    throw new Error("Verifier container ownership is unknown; outcome needs reconciliation.");
+  return record;
+}
+function verifierVolume(name:string,result:DockerResult):boolean {
+  if (result.code) {
+    if (new RegExp(`No such volume:\\s*${name}(?:\\s|$)`,"i").test(result.err)) return false;
+    throw new Error("Verifier volume state is unavailable; outcome needs reconciliation.");
+  }
+  let record:Record<string,any>;
+  try { record=JSON.parse(result.out); }
+  catch { throw new Error("Verifier volume inspection is invalid; outcome needs reconciliation."); }
+  if (record.Name!==name || record.Labels?.["myeve.golden"]!=="true")
+    throw new Error("Verifier volume ownership is unknown; outcome needs reconciliation.");
+  return true;
+}
+/** Docker CLI exit status alone is not candidate evidence: 125 can mean the
+ * daemon never created a container. Require exact owned container exit state. */
+export function protectedCheckResult(name:string,observed:DockerResult,inspected:DockerResult,
+  expectedExitCode:number,expectedOutput:string):"PASS"|"FAIL" {
+  const container=verifierContainer(name,inspected);
+  if (!container || container.State?.Running!==false ||
+      !Number.isInteger(container.State?.ExitCode) ||
+      container.State.ExitCode!==observed.code)
+    throw new Error("Verifier container exit is unconfirmed; outcome needs reconciliation.");
+  return container.State.ExitCode===expectedExitCode && observed.out===expectedOutput?"PASS":"FAIL";
+}
 async function volume(image:string,name:string,files:Record<string,string>) {
   await checked(["volume","create","--label","myeve.golden=true",name]);
   await checked(["run","--rm","--network=none",...limits,"--user=1000:1000","--mount",`type=volume,src=${name},dst=/work`,"-i",image,"node","-e",init],JSON.stringify(files));
@@ -154,9 +191,18 @@ export class DockerProtectedVerifier implements ProtectedVerifier {
   async verify(contract:Pick<WorkContract,"workId"|"baseSha"|"criteriaVersion"|"profileHash"|"profile">,candidate:Candidate):Promise<Evidence[]> {
     const name=`myeve-golden-verify-${candidate.id}`,image=contract.profile.image;
     const evidence:Evidence[]=[];
+    let initializedVolume=false;
     try {
-      // Reconcile deterministic verifier names after an interrupted worker before rebuilding its read-only volume.
-      for(const check of contract.profile.checks) {const stale=await docker(["inspect",`${name}-${check.id}`]);if(!stale.code)await checked(["rm","-f",`${name}-${check.id}`]);}
+      // An interrupted verifier may still own these deterministic resources.
+      // Never remove or overwrite them without explicit recovery.
+      for(const check of contract.profile.checks) {
+        if (verifierContainer(`${name}-${check.id}`,
+          await docker(["container","inspect","--format","{{json .}}",`${name}-${check.id}`])))
+          throw new Error("A prior verifier container needs reconciliation.");
+      }
+      if (verifierVolume(name,await docker(["volume","inspect","--format","{{json .}}",name])))
+        throw new Error("A prior verifier volume needs reconciliation.");
+      initializedVolume=true;
       await volume(image,name,candidate.files);
       for(const check of contract.profile.checks) {
         const container=`${name}-${check.id}`;
@@ -166,14 +212,31 @@ export class DockerProtectedVerifier implements ProtectedVerifier {
           const observed=await docker(["run","--name",container,"--label","myeve.golden=true","--network=none",...limits,
             "--mount",`type=volume,src=${name},dst=/work,readonly`,"--workdir=/work","-i",image,"node",check.program],check.input,10000);
           artifact=JSON.stringify({exitCode:observed.code,stdout:observed.out,stderr:observed.err});
-          result=observed.code===check.expectedExitCode&&observed.out===check.expectedOutput?"PASS":"FAIL";
+          result=protectedCheckResult(container,observed,
+            await docker(["container","inspect","--format","{{json .}}",container]),
+            check.expectedExitCode,check.expectedOutput);
         } catch(error) { artifact=String(error); }
-        finally { const exists=await docker(["inspect",container]);if(!exists.code)await checked(["rm","-f",container]); }
+        finally {
+          const exists=verifierContainer(container,
+            await docker(["container","inspect","--format","{{json .}}",container]));
+          if (exists) {
+            await checked(["rm","-f",container]);
+            if (verifierContainer(container,
+              await docker(["container","inspect","--format","{{json .}}",container])))
+              throw new Error("Verifier container cleanup is unconfirmed.");
+          }
+        }
         evidence.push({id:randomUUID(),workId:contract.workId,candidate:candidate.sha,base:contract.baseSha,
           criteriaVersion:contract.criteriaVersion,profileHash:contract.profileHash,environment:image,check:check.id,
           producer:"protected-supervisor",attemptId:candidate.attemptId,observedAt:nowIso(),result,artifact,artifactHash:digest(artifact)});
       }
-    } finally { const exists=await docker(["volume","inspect",name]);if(!exists.code)await checked(["volume","rm",name]); }
+    } finally {
+      if (initializedVolume && verifierVolume(name,await docker(["volume","inspect","--format","{{json .}}",name]))) {
+        await checked(["volume","rm",name]);
+        if (verifierVolume(name,await docker(["volume","inspect","--format","{{json .}}",name])))
+          throw new Error("Verifier volume cleanup is unconfirmed.");
+      }
+    }
     return evidence;
   }
 }
