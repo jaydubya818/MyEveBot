@@ -1,9 +1,10 @@
 import webpush from "web-push";
-import { randomBytes } from "node:crypto";
+import { generateKeyPairSync, randomBytes } from "node:crypto";
 
 import { assembleDeployment, templateFiles, templateInfo } from "@/lib/assemble";
 import { requiredKeys, validateConfig, type AgentConfig, type DeployTarget } from "@/lib/config";
 import { validCron } from "@/lib/schedule-codegen";
+import { resolveBetaRelayTrust, type ResolvedRelayTrust } from "@/lib/relay-trust";
 import {
   assertRequiredProjectEnvKeys,
   connectStoreToProject,
@@ -42,7 +43,7 @@ interface UpdateStamps {
   builderUrl: string;
 }
 
-function buildEnv(config: AgentConfig, stamps: UpdateStamps): EnvVar[] {
+function buildEnv(config: AgentConfig, stamps: UpdateStamps, relay: ResolvedRelayTrust | null = null): EnvVar[] {
   const vapid = webpush.generateVAPIDKeys();
   const vars: EnvVar[] = [
     { key: "OWNER_NAME", value: config.ownerName.trim() },
@@ -95,6 +96,19 @@ function buildEnv(config: AgentConfig, stamps: UpdateStamps): EnvVar[] {
         vars.push({ key: "TELEGRAM_PROACTIVE_CHAT_ID", value: proactiveChatId });
       }
     }
+  }
+  if (relay) {
+    const artifactKey = generateKeyPairSync("ed25519").privateKey
+      .export({ type: "pkcs8", format: "pem" }).toString();
+    vars.push(
+      { key: "MYEVE_RELAY_ENABLED", value: "true" },
+      { key: "MYEVE_RELAY_ORIGIN", value: relay.origin },
+      { key: "MYEVE_RELAY_KEY_ID", value: relay.keyId },
+      { key: "MYEVE_RELAY_KEY_VERSION", value: relay.keyVersion },
+      { key: "MYEVE_RELAY_PUBLIC_KEY", value: relay.publicKey },
+      { key: "MYEVE_RELAY_ENCRYPTION_KEY", value: randomBytes(32).toString("hex") },
+      { key: "MYEVE_RELAY_ARTIFACT_PRIVATE_KEY", value: artifactKey },
+    );
   }
   return vars;
 }
@@ -191,6 +205,11 @@ export async function POST(request: Request): Promise<Response> {
   if (body.dryRun === true) {
     const files = await templateFiles(config.features);
     const envKeys = buildEnv(config, stamps).map((entry) => entry.key);
+    if (config.relay) envKeys.push(
+      "MYEVE_RELAY_ENABLED", "MYEVE_RELAY_ORIGIN", "MYEVE_RELAY_KEY_ID",
+      "MYEVE_RELAY_KEY_VERSION", "MYEVE_RELAY_PUBLIC_KEY",
+      "MYEVE_RELAY_ENCRYPTION_KEY", "MYEVE_RELAY_ARTIFACT_PRIVATE_KEY",
+    );
     if (config.postgres.mode === "create") envKeys.push("DATABASE_URL (new Neon database)");
     if (config.postgres.mode === "connect") envKeys.push("DATABASE_URL (from connected database)");
     if (requiredKeys(config.features).blob && config.blob.mode !== "manual") {
@@ -208,7 +227,19 @@ export async function POST(request: Request): Promise<Response> {
   const teamId = target.teamId ?? null;
 
   try {
+    // Resolve and verify trust before creating or changing a project. A URL
+    // lookup alone never authorizes a signing key; the owner enters its
+    // independently supplied fingerprint in the wizard.
+    const relay = config.relay
+      ? await resolveBetaRelayTrust(config.relay.fingerprint)
+      : null;
     const project = await createProject(token, teamId, config.projectName);
+    if (project.existed && relay) {
+      return Response.json({
+        error: "Relay pairing is available only for a new MyEve project in this beta. An existing project needs a separate key-preserving migration.",
+        stage: "relay",
+      }, { status: 409 });
+    }
     // Nothing has been mutated yet on the existing-project path (createProject
     // only reads it), so this is a safe place to stop and ask.
     if (project.existed && body.confirmExisting !== true) {
@@ -221,7 +252,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     await connectStorage(token, teamId, project.id, project.name, config);
-    let env = buildEnv(config, stamps);
+    let env = buildEnv(config, stamps, relay);
     if (project.existed) {
       // Redeploying into an existing agent: keep its VAPID key pair so the
       // browser push subscriptions signed against the old public key survive.
@@ -240,7 +271,7 @@ export async function POST(request: Request): Promise<Response> {
     const persistedEnvKeys = await listProjectEnvKeys(token, teamId, project.id, "env");
     assertRequiredProjectEnvKeys(
       persistedEnvKeys,
-      buildEnv(config, stamps).map((entry) => entry.key),
+      buildEnv(config, stamps, relay).map((entry) => entry.key),
     );
     const files = await assembleDeployment(config);
     const deployment = await createDeployment(token, teamId, project.name, files);
