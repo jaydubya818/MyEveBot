@@ -7,6 +7,7 @@ import {spawn} from 'node:child_process';
 import {loadMigrations,runMigrations} from '../scripts/migration-runner.ts';
 import {WorkStore} from '../lib/engineering/store.ts';
 import {ExecutionStore} from '../lib/engineering/execution-store.ts';
+import {RoutingStore} from '../lib/engineering/routing-store.ts';
 import {EngineeringWorker} from '../lib/engineering/worker.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {nowIso} from '../lib/engineering/execution.ts';
@@ -33,6 +34,30 @@ for(const kind of ['ready','approval']) {
   await execution.save(await store.get(work.id),state,'browser_fixture_seed');
   workers.push({id:work.id,worker:new EngineeringWorker(execution,provider,{async requestStop(){},async cleanup(){}},{},()=>digest(contract.profile),async()=>true)});
 }
+// Advisory router fixture only. No Sofie policy caller, route admission, or provider execution runs here.
+const {work:routeWork}=await store.create({
+  title:'Routing decision · local UI fixture',
+  objective:'Inspect the Execution Router explanation and its Work-version staleness in the local UI.',
+  repository:'fixture/golden',
+  criteria:[{id:randomUUID(),statement:'Show why the local fixture recommends owner review.',method:'human'}],
+  maxCostUsd:1,maxDurationSeconds:120,idempotencyKey:randomUUID(),
+});
+ids.route=routeWork.id;
+await new RoutingStore(store).recordProposal(routeWork.id,{
+  expectedWorkVersion:routeWork.version,selectedRoute:'HUMAN',source:'RULE',
+  reason:'This local fixture has no qualified coding provider. Owner review is the only safe recommendation.',
+  profile:{profileVersion:1,workShape:'bounded UI inspection',decomposition:'single Work',interaction:'owner review',parallelism:'none',verification:'visual',duration:'short',ambiguity:'low',externalExpertise:'none',humanJudgment:'required',risk:'bounded'},
+  eligibleRoutes:['HUMAN'],
+  rejectedRoutes:[
+    {route:'DIRECT',reason:'The fixture does not authorize direct Sofie engineering.'},
+    {route:'DEEP_AGENT',reason:'No Deep Agents harness is qualified in this fixture.'},
+    {route:'EXECUTOR',reason:'The simulated executor is not admitted for this Work.'},
+    {route:'MYFACTORY',reason:'No MyFactory execution adapter is connected.'},
+    {route:'RELAY',reason:'No Atlas peer request is qualified in this fixture.'},
+  ],
+  constraints:['Recommendation only; no execution route has been admitted.','GitHub and executor behavior is simulated.'],
+  providerId:null,providerVersion:null,
+});
 const neonUrl='postgresql://fixture:isolated@ep-golden.neon.tech/golden_ui';
 const sqlServer=createServer(async(req,res)=>{
   if(req.url!=='/sql'||req.method!=='POST'||req.headers['neon-connection-string']!==neonUrl){res.writeHead(403).end();return;}
