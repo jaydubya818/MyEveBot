@@ -25,6 +25,8 @@ function parseRegistry(value: unknown): ManagedEnvironmentRegistry {
   const registry = value as ManagedEnvironmentRegistry;
   const ids = new Set<string>();
   const projects = new Set<string>();
+  const emails = new Set<string>();
+  const resourceIds = new Set<string>();
   for (const environment of registry.environments) {
     if (!environment || typeof environment.id !== "string" ||
         typeof environment.email !== "string" ||
@@ -33,11 +35,22 @@ function parseRegistry(value: unknown): ManagedEnvironmentRegistry {
       throw new Error("Managed registry contains an invalid environment.");
     }
     if (ids.has(environment.id) ||
-        (environment.state !== "deleted" && projects.has(environment.projectName))) {
+        (environment.state !== "deleted" &&
+          (projects.has(environment.projectName) || emails.has(environment.email)))) {
       throw new Error("Managed registry contains duplicate environment identities.");
     }
     ids.add(environment.id);
-    if (environment.state !== "deleted") projects.add(environment.projectName);
+    if (environment.state !== "deleted") {
+      projects.add(environment.projectName);
+      emails.add(environment.email);
+      for (const key of ["projectId", "databaseStoreId", "blobStoreId", "deploymentId", "relayAgentId"] as const) {
+        const value = environment[key];
+        if (value !== null) {
+          if (resourceIds.has(`${key}:${value}`)) throw new Error("Managed registry shares a resource between environments.");
+          resourceIds.add(`${key}:${value}`);
+        }
+      }
+    }
   }
   return registry;
 }

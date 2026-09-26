@@ -34,6 +34,17 @@ test("activation requires isolated provenance, health, and a model budget", () =
   assert.throws(() => updateEnvironment(registry, environment.id, { ownerId: "someone-else" } as never));
 });
 
+test("a second Eve cannot claim another Eve's project or database", () => {
+  const first = newManagedEnvironment({ email: "one@example.com", projectName: "eve-one", now: fixed });
+  const second = newManagedEnvironment({ email: "two@example.com", projectName: "eve-two", now: fixed });
+  let registry: ManagedEnvironmentRegistry = { version: 1, environments: [first, second] };
+  registry = updateEnvironment(registry, first.id, { state: "project_created", projectId: "prj_one" }, fixed);
+  assert.throws(() => updateEnvironment(registry, second.id, { state: "project_created", projectId: "prj_one" }), /already assigned/);
+  registry = updateEnvironment(registry, second.id, { state: "project_created", projectId: "prj_two" }, fixed);
+  registry = updateEnvironment(registry, first.id, { state: "storage_created", databaseStoreId: "store_one" }, fixed);
+  assert.throws(() => updateEnvironment(registry, second.id, { state: "storage_created", databaseStoreId: "store_one" }), /already assigned/);
+});
+
 test("registry is private, atomic, backed up, and rejects concurrent mutations", async () => {
   const dir = await mkdtemp(join(tmpdir(), "myeve-managed-registry-"));
   const file = join(dir, "registry.json");

@@ -116,6 +116,14 @@ export function updateEnvironment(
     throw new Error(`Invalid managed environment transition: ${current.state} → ${patch.state}.`);
   }
   const next = { ...current, ...patch, updatedAt: now.toISOString() };
+  for (const other of registry.environments) {
+    if (other.id === id || other.state === "deleted") continue;
+    for (const key of ["projectId", "databaseStoreId", "blobStoreId", "deploymentId", "relayAgentId"] as const) {
+      if (next[key] !== null && next[key] === other[key]) {
+        throw new Error(`Managed environment ${key} is already assigned.`);
+      }
+    }
+  }
   if (next.state === "project_created" && !next.projectId) throw new Error("Project ID required.");
   if (next.state === "storage_created" && (!next.projectId || !next.databaseStoreId)) {
     throw new Error("Dedicated project and database IDs required.");
