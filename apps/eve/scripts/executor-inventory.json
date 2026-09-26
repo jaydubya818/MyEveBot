@@ -5,7 +5,7 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "568268c0cb67b55a2df44b24916c0a9888b51b905a48350d0fc6449227e31383"
+      "sha256": "84407bc0caf5d48ec8a80833d4062cc36b2ff466f3a13c71206fdf10a1d116b0"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -2741,8 +2741,8 @@
     },
     "lib/relay/message-reply.ts": {
       "classification": "INTERNAL",
-      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation.",
-      "sha256": "8e9b949b6982ef68e3bef7026641a4a9a5ac52da277e938cb1428ced5a5ae09d"
+      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation. Free-only mode pins a zero-priced model and provider, verifies catalog rates and actual gateway cost, and denies paid fallback.",
+      "sha256": "ebc0b77b5f3eb1bed880a695ec9bcaa821ae92a924064e752ff9df787d72f574"
     },
     "lib/chat-session.ts": {
       "classification": "INTERNAL",
