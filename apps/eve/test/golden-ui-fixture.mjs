@@ -13,13 +13,30 @@ import {digest} from '../lib/engineering/contract.ts';
 import {nowIso} from '../lib/engineering/execution.ts';
 
 if(process.env.GOLDEN_UI_FIXTURE!=='1')throw Error('Explicit simulated browser fixture opt-in required');
+const liveChat=process.env.GOLDEN_UI_LIVE_CHAT==='1';
+if(liveChat&&!process.env.VERCEL_OIDC_TOKEN)throw Error('Live chat fixture requires a fresh VERCEL_OIDC_TOKEN');
+if(liveChat){
+  let expiresAt;
+  try{expiresAt=JSON.parse(Buffer.from(process.env.VERCEL_OIDC_TOKEN.split('.')[1],'base64url').toString()).exp;}
+  catch{throw Error('Live chat fixture requires a valid VERCEL_OIDC_TOKEN');}
+  if(typeof expiresAt!=='number'||expiresAt*1000<=Date.now()+60_000)throw Error('Live chat fixture requires a non-expired VERCEL_OIDC_TOKEN');
+}
+const reuse=process.env.GOLDEN_UI_REUSE==='1';
 const name='golden_ui',port=3103,sqlPort=3102;
-const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55468/postgres'});await admin.connect();await admin.query(`CREATE DATABASE ${name}`);await admin.end();
+const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55468/postgres'});await admin.connect();if(!reuse)await admin.query(`CREATE DATABASE ${name}`);await admin.end();
 const pool=new Pool({connectionString:'postgresql://postgres@127.0.0.1:55468/'+name});const client=await pool.connect();
 await runMigrations({query:async(q,p)=>(await client.query(q,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const s of statements)await client.query(s.sql,s.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}},await loadMigrations());client.release();
 const trace=JSON.parse(await readFile('/private/tmp/myeve-golden-simulation-report.json','utf8')).trace;
 const principal={scopeId:'golden-owner',actorId:'golden-owner',scopeKind:'personal'},database={query:async(q,p)=>(await pool.query(q,p)).rows};
-const store=new WorkStore(principal,database),execution=new ExecutionStore(store),workers=[];const ids={};
+const store=new WorkStore(principal,database),execution=new ExecutionStore(store),workers=[];
+const ids=reuse?JSON.parse(await readFile('/private/tmp/myeve-golden-ui-ids.json','utf8')):{};
+function attachWorker(work,contract,initialHead,initialPr){
+  let head=initialHead,pr=initialPr;
+  const provider={async observe(){return {...trace.github,observedAt:nowIso(),head,pr,reviews:[],checks:head?[{id:'1',name:'quantity-ci',sha:head,attempt:1,result:'PASS',details:'Explicit browser simulation'}]:[]};},
+    async publish(_contract,candidate){head=candidate.sha;pr={number:2,url:'https://github.com/fixture/golden/pull/2',draft:true,open:true};return pr;},async snapshot(){throw Error('UI fixture executor unavailable');}};
+  workers.push({id:work.id,worker:new EngineeringWorker(execution,provider,{async requestStop(){},async cleanup(){}},{},()=>digest(contract.profile),async()=>true)});
+}
+if(!reuse){
 for(const kind of ['ready','approval']) {
   const {work}=await store.create({title:kind==='ready'?'Golden Work · review-ready simulation':'Golden Work · publication decision simulation',objective:trace.contract.objective,repository:trace.contract.repository,criteria:trace.contract.criteria,maxCostUsd:5,maxDurationSeconds:3600,idempotencyKey:randomUUID()});ids[kind]=work.id;
   const contract={...trace.contract,workId:work.id,scope:principal,deadline:new Date(Date.now()+3600000).toISOString()};await execution.admit(work,contract);
@@ -28,11 +45,9 @@ for(const kind of ['ready','approval']) {
   for(const c of trace.candidates)state.candidates.push({...c,workId:work.id,files:{'quantity.mjs':'// UI fixture; candidate artifact remains in integration trace'},patch:JSON.stringify([{path:'quantity.mjs',before:'unvalidated',after:'validated positive integer quantity'}])});
   state.evidence=state.evidence.map(e=>({...e,workId:work.id}));
   if(kind==='approval'){state.runs=state.runs.slice(0,1);state.candidates=state.candidates.slice(0,1);state.evidence=state.evidence.filter(e=>e.candidate===state.candidates[0].sha).map(e=>({...e,result:'PASS'}));}
-  let head=kind==='ready'?state.candidates.at(-1).sha:null,pr=kind==='ready'?trace.github.pr:null;
-  const provider={async observe(){return {...trace.github,observedAt:nowIso(),head,pr,reviews:[],checks:head?[{id:'1',name:'quantity-ci',sha:head,attempt:1,result:'PASS',details:'Explicit browser simulation'}]:[]};},
-    async publish(_contract,candidate){head=candidate.sha;pr={number:2,url:'https://github.com/fixture/golden/pull/2',draft:true,open:true};return pr;},async snapshot(){throw Error('UI fixture executor unavailable');}};
+  const head=kind==='ready'?state.candidates.at(-1).sha:null,pr=kind==='ready'?trace.github.pr:null;
   await execution.save(await store.get(work.id),state,'browser_fixture_seed');
-  workers.push({id:work.id,worker:new EngineeringWorker(execution,provider,{async requestStop(){},async cleanup(){}},{},()=>digest(contract.profile),async()=>true)});
+  attachWorker(work,contract,head,pr);
 }
 // Advisory router fixture only. No Sofie policy caller, route admission, or provider execution runs here.
 const {work:routeWork}=await store.create({
@@ -58,6 +73,13 @@ await new RoutingStore(store).recordProposal(routeWork.id,{
   constraints:['Recommendation only; no execution route has been admitted.','GitHub and executor behavior is simulated.'],
   providerId:null,providerVersion:null,
 });
+}else{
+  for(const kind of ['ready','approval']){
+    const work=await store.get(ids[kind]),state=await execution.get(work.id);
+    const contract={...trace.contract,workId:work.id,scope:principal,deadline:new Date(Date.now()+3600000).toISOString()};
+    attachWorker(work,contract,state.truth?.head??null,state.truth?.pr??null);
+  }
+}
 const neonUrl='postgresql://fixture:isolated@ep-golden.neon.tech/golden_ui';
 const sqlServer=createServer(async(req,res)=>{
   if(req.url!=='/sql'||req.method!=='POST'||req.headers['neon-connection-string']!==neonUrl){res.writeHead(403).end();return;}
@@ -72,7 +94,9 @@ await writeFile(preload,`const original=globalThis.fetch;globalThis.fetch=(input
 await writeFile('/private/tmp/myeve-golden-ui-ids.json',JSON.stringify(ids));
 const next=spawn(process.execPath,['../../node_modules/next/dist/bin/next','dev','--webpack','--hostname','127.0.0.1','--port',String(port)],{
   cwd:new URL('..',import.meta.url).pathname,stdio:'inherit',env:{PATH:process.env.PATH,HOME:process.env.HOME,NODE_ENV:'development',NEXT_TELEMETRY_DISABLED:'1',MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_OWNER_ID:principal.scopeId,
-    MYEVE_ACCESS_PASSWORD:'golden-ui-qualification',MYEVE_SESSION_SECRET:'golden-fixture-session-secret-not-production-2026',DATABASE_URL:neonUrl,NODE_OPTIONS:`--import ${preload}`}});
+    MYEVE_ACCESS_PASSWORD:'golden-ui-qualification',MYEVE_SESSION_SECRET:'golden-fixture-session-secret-not-production-2026',DATABASE_URL:neonUrl,NODE_OPTIONS:`--import ${preload}`,
+    NEXT_PUBLIC_GOLDEN_UI_MODE:liveChat?'live-chat':'ui-only',
+    ...(liveChat?{VERCEL_OIDC_TOKEN:process.env.VERCEL_OIDC_TOKEN}:{})}});
 let busy=false;const timer=setInterval(async()=>{if(busy)return;busy=true;try{for(const {id,worker} of workers)await worker.tick(id);}finally{busy=false;}},2000);
-console.log('SIMULATED Golden Work browser fixture',JSON.stringify({url:`http://127.0.0.1:${port}/work`,ids}));
+console.log('SIMULATED Golden Work browser fixture',JSON.stringify({url:`http://localhost:${port}/work`,chat:liveChat?'live model connection enabled':'unavailable',ids}));
 process.on('SIGTERM',()=>{clearInterval(timer);next.kill('SIGTERM');sqlServer.close(()=>void pool.end());});

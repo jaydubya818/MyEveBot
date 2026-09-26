@@ -95,6 +95,7 @@ import type { SolutionPack } from "@/lib/solution-packs";
 import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 import { reconcileChatSession } from "@/lib/chat-session";
+import { latestTurnFailed } from "@/app/chat-turn-failure";
 import {
   saveThreadForCurrentOwner,
   subscribeToThreadOwnerConflicts,
@@ -2056,6 +2057,8 @@ function ChatThread({
     for (const event of events) projected = reducer.reduce(projected, event);
     return projected.messages;
   }, [agent.data.messages, events, resumedEvents]);
+  const failedTurn = useMemo(() => latestTurnFailed(events), [events]);
+  const uiOnlyFixture = process.env.NEXT_PUBLIC_GOLDEN_UI_MODE === "ui-only";
 
   // Backfill titles for threads restored from storage (e.g. the migrated
   // pre-threads chat) whose meta still has the placeholder title.
@@ -2202,7 +2205,7 @@ function ChatThread({
   }, []);
 
   async function sendDraft() {
-    if (ownerConflict) return;
+    if (ownerConflict || uiOnlyFixture) return;
     const text = draft.trim();
     if ((text.length === 0 && attachments.length === 0) || isBusy || uploadInProgress.current) return;
     const staged = attachments;
@@ -2277,7 +2280,7 @@ function ChatThread({
   }
 
   function retryMessage(text: string) {
-    if (ownerConflict) return;
+    if (ownerConflict || uiOnlyFixture) return;
     if (isBusy || text.length === 0) return;
     onActivity();
     void agent.send(text);
@@ -2413,6 +2416,17 @@ function ChatThread({
 
         <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
 
+        {process.env.NEXT_PUBLIC_GOLDEN_UI_MODE && (
+          <div role="status" className="mx-10 mt-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">
+            <p className="font-medium">Local qualification fixture</p>
+            <p className="text-kumo-subtle">
+              {process.env.NEXT_PUBLIC_GOLDEN_UI_MODE === "live-chat"
+                ? "Live model connection is enabled. A reply depends on valid model authorization. Work, GitHub, and executor results are simulated; no Execution Router route is admitted."
+                : "This fixture has no model connection. Chat is disabled; Work and route explanations are simulated."}
+            </p>
+          </div>
+        )}
+
         {canSelectEngineeringWork && <ChatWorkSelector selected={engineeringWork} onSelect={onEngineeringWorkChange} />}
 
         {ownerConflict && (
@@ -2452,7 +2466,7 @@ function ChatThread({
                   <MessageScrollerItem key={`${message.role}-${index}`} messageId={`${message.role}-${index}`}>
                     <ChatMessage
                       message={message}
-                      readOnly={ownerConflict}
+                      readOnly={ownerConflict || uiOnlyFixture}
                       usage={
                         message.metadata?.turnId
                           ? usageByTurn.get(message.metadata.turnId)
@@ -2480,20 +2494,19 @@ function ChatThread({
                     </Marker>
                   </MessageScrollerItem>
                 )}
-                {!ownerConflict && agent.error && (
+                {!ownerConflict && !isBusy && (agent.error || failedTurn) && (
                   <MessageScrollerItem messageId="error">
                     <Bubble variant="destructive">
-                      <BubbleContent>
-                        <p>{agent.error.message}</p>
+                      <BubbleContent role="alert">
+                        <p className="font-medium">Sofie couldn&rsquo;t finish this turn.</p>
+                        <p>Review the selected model and system status, then send a new message.</p>
                         <Button
-                          className="mt-3"
+                          className="mt-3 me-2"
                           size="sm"
                           variant="secondary"
-                          disabled={isBusy || !lastUserId}
-                          icon={ArrowClockwiseIcon}
-                          onClick={regenerateLastReply}
+                          onClick={onReviewSystem}
                         >
-                          Retry request
+                          Review setup
                         </Button>
                       </BubbleContent>
                     </Bubble>
@@ -2583,7 +2596,7 @@ function ChatThread({
             )}
             <InputArea
               ref={composerRef}
-              disabled={uploading}
+              disabled={uploading || uiOnlyFixture}
               value={draft}
               aria-label={`Message ${activeLabel}`}
               placeholder={`Message ${activeLabel}... (/ for commands)`}
@@ -2648,7 +2661,7 @@ function ChatThread({
                 variant="ghost"
                 shape="square"
                 icon={PlusIcon}
-                disabled={uploading}
+                disabled={uploading || uiOnlyFixture}
                 aria-label="Attach files"
                 title="Attach files"
                 className="text-kumo-subtle"
@@ -2690,7 +2703,7 @@ function ChatThread({
                     shape="circle"
                     icon={ArrowUpIcon}
                     aria-label="Send"
-                    disabled={uploading || (draft.trim().length === 0 && attachments.length === 0)}
+                    disabled={uiOnlyFixture || uploading || (draft.trim().length === 0 && attachments.length === 0)}
                   />
                 )}
               </div>
