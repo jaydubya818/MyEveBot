@@ -1,0 +1,177 @@
+{
+  "source": "docs/verification/2026-09-26-m1er1-window/window-closure.json",
+  "sourceSha256": "1f886c1e383d7a6cb12889018721601df7ca337156406b7599542a5fa837ccb3",
+  "qualificationId": "m1er1-33b7a0af-e626-4e86-a507-4454311a67a4",
+  "totalMicrousd": 777654,
+  "additionalThisTaskMicrousd": 0,
+  "repairSubmissionProviderCalls": 0,
+  "repairSubmissionCostMicrousd": 0,
+  "rows": [
+    {
+      "stage": "Initial authenticated inspection",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_0:0",
+      "spentMicrousd": 38942,
+      "reservedBoundMicrousd": 337266,
+      "inputTokens": 19021,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "inspect"
+        }
+      ]
+    },
+    {
+      "stage": "Scoped context / Knowledge explanation",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_0:1",
+      "spentMicrousd": 56142,
+      "reservedBoundMicrousd": 367140,
+      "inputTokens": 21456,
+      "tools": []
+    },
+    {
+      "stage": "Productive route admission",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:0",
+      "spentMicrousd": 47254,
+      "reservedBoundMicrousd": 391461,
+      "inputTokens": 23122,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "admit"
+        }
+      ]
+    },
+    {
+      "stage": "Approved workspace/base opening",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:1",
+      "spentMicrousd": 48486,
+      "reservedBoundMicrousd": 400260,
+      "inputTokens": 23868,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "open"
+        }
+      ]
+    },
+    {
+      "stage": "Approved repository reads",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:2",
+      "spentMicrousd": 50586,
+      "reservedBoundMicrousd": 404731,
+      "inputTokens": 24168,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "read"
+        },
+        {
+          "name": "engineering_direct",
+          "operation": "read"
+        },
+        {
+          "name": "engineering_direct",
+          "operation": "read"
+        }
+      ]
+    },
+    {
+      "stage": "Implementation planning",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:3",
+      "spentMicrousd": 60468,
+      "reservedBoundMicrousd": 424856,
+      "inputTokens": 25769,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "plan"
+        }
+      ]
+    },
+    {
+      "stage": "Initial implementation generation",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:4",
+      "spentMicrousd": 58818,
+      "reservedBoundMicrousd": 441900,
+      "inputTokens": 27079,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "write"
+        }
+      ]
+    },
+    {
+      "stage": "First candidate submission",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:5",
+      "spentMicrousd": 57410,
+      "reservedBoundMicrousd": 455830,
+      "inputTokens": 28195,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "submit"
+        }
+      ]
+    },
+    {
+      "stage": "Verification queue inspection",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:6",
+      "spentMicrousd": 59086,
+      "reservedBoundMicrousd": 468760,
+      "inputTokens": 29243,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "inspect"
+        }
+      ]
+    },
+    {
+      "stage": "Pending verification explanation",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_1:7",
+      "spentMicrousd": 73734,
+      "reservedBoundMicrousd": 526155,
+      "inputTokens": 34232,
+      "tools": []
+    },
+    {
+      "stage": "Persisted failure interpretation",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_2:0",
+      "spentMicrousd": 73890,
+      "reservedBoundMicrousd": 553490,
+      "inputTokens": 36580,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "inspect"
+        }
+      ]
+    },
+    {
+      "stage": "Autonomous repair generation",
+      "stepKey": "wrun_01M3FY7PXDPDH1W316X0TV69XM:turn_2:1",
+      "spentMicrousd": 100016,
+      "reservedBoundMicrousd": 642310,
+      "inputTokens": 45068,
+      "tools": [
+        {
+          "name": "engineering_direct",
+          "operation": "write"
+        }
+      ]
+    },
+    {
+      "stage": "Fresh-chat recovery explanation",
+      "stepKey": "wrun_01M3FYRWB0YDZ72GFEVZFK9PPM:turn_0:0",
+      "spentMicrousd": 52822,
+      "reservedBoundMicrousd": 355445,
+      "inputTokens": 20746,
+      "tools": []
+    }
+  ],
+  "retainedOutcome": "FAILED",
+  "repairDraftRevision": 6,
+  "verificationAttempts": 1,
+  "providerAuthority": "REVOKED"
+}

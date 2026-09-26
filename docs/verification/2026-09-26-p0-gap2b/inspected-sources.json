@@ -1,0 +1,20 @@
+{
+  "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/lib/engineering/worker-projection.ts": {
+    "sha256": "38891156b89f98fb9133abee4a5e2fbcbf592c6546f4f55745ddfa9957da13b1"
+  },
+  "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/agent/lib/context-assembly.ts": {
+    "sha256": "e8d2fc14f204d217824e9261b764e65a1a3cbc0c75b3344487d9abb66999c819"
+  },
+  "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/migrations/0051_engineering_conversation_budget.sql": {
+    "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+  },
+  "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve/apps/eve/lib/engineering/conversation-budget.ts": {
+    "sha256": "6daee5d7a1c191aa3aabb90dc89b9b4435a8f36ab6f23dc1939b8e7218d8910a"
+  },
+  "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve/apps/eve/lib/engineering/route-admission.ts": {
+    "sha256": "3d56b003d117c0a6488c4f3835d08551c9104587a98602ee20c95a749a3c2470"
+  },
+  "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve/apps/eve/migrations/0052_work_model_ledger.sql": {
+    "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+  }
+}
