@@ -25,7 +25,7 @@ export class VercelApiError extends Error {
 interface RequestOptions {
   token: string;
   teamId?: string | null;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   stage: DeployStage;
 }
@@ -91,13 +91,25 @@ export async function createProject(
   token: string,
   teamId: string | null,
   name: string,
+  managedEnvironmentId?: string,
 ): Promise<CreatedProject> {
   try {
     const project = await api<{ id: string; name: string }>("/v11/projects", {
       token,
       teamId,
       method: "POST",
-      body: { name, framework: "nextjs" },
+      body: {
+        name,
+        framework: "nextjs",
+        ...(managedEnvironmentId ? {
+          environmentVariables: [{
+            key: "MYEVE_MANAGED_ENVIRONMENT_ID",
+            value: managedEnvironmentId,
+            type: "plain",
+            target: ["production", "preview", "development"],
+          }],
+        } : {}),
+      },
       stage: "project",
     });
     return { id: project.id, name: project.name, existed: false };
@@ -118,6 +130,23 @@ export async function pauseProject(token: string, teamId: string | null, project
   await api(`/v1/projects/${encodeURIComponent(projectId)}/pause`, {
     token, teamId, method: "POST", stage: "project",
   });
+}
+
+/** Production aliases remain public; generated deployment and preview URLs require Vercel auth. */
+export async function setStandardProtection(token: string, teamId: string | null, projectId: string): Promise<void> {
+  const project = await api<{ ssoProtection?: { deploymentType?: string } }>(
+    `/v9/projects/${encodeURIComponent(projectId)}`,
+    { token, teamId, method: "PATCH", stage: "project",
+      body: { ssoProtection: { deploymentType: "prod_deployment_urls_and_all_previews" } } },
+  );
+  if (project.ssoProtection?.deploymentType !== "prod_deployment_urls_and_all_previews") {
+    throw new VercelApiError("project", "Vercel did not confirm Standard Protection.");
+  }
+}
+
+export async function setProjectPaused(token: string, teamId: string, projectId: string, paused: boolean): Promise<void> {
+  if (paused) await pauseProject(token, teamId, projectId);
+  else await unpauseProject(token, teamId, projectId);
 }
 
 export async function unpauseProject(token: string, teamId: string | null, projectId: string): Promise<void> {
@@ -323,6 +352,20 @@ export async function listProjectEnvKeys(
   return (body.envs ?? []).map((entry) => entry.key);
 }
 
+/** Non-secret project-creation marker used to recover after a CLI interruption. */
+export async function managedProjectMarker(
+  token: string,
+  teamId: string | null,
+  projectId: string,
+): Promise<string | null> {
+  const body = await api<{ envs?: { key: string; value?: unknown }[] }>(
+    `/v10/projects/${encodeURIComponent(projectId)}/env`,
+    { token, teamId, stage: "project" },
+  );
+  const marker = body.envs?.find((entry) => entry.key === "MYEVE_MANAGED_ENVIRONMENT_ID");
+  return typeof marker?.value === "string" ? marker.value : null;
+}
+
 export function assertRequiredProjectEnvKeys(
   actualKeys: readonly string[],
   requiredKeys: readonly string[],
@@ -511,6 +554,13 @@ export async function getProject(
     if (error instanceof VercelApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+/** Delete only after the caller verifies the exact managed project marker. */
+export async function deleteProject(token: string, teamId: string, projectId: string): Promise<void> {
+  await api(`/v9/projects/${encodeURIComponent(projectId)}`, {
+    token, teamId, method: "DELETE", stage: "project",
+  });
 }
 
 /** The most recent READY production deployment of a project, or null. */

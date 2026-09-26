@@ -12,7 +12,7 @@ import {
 } from "./contracts.ts";
 import { connectRelayOwner, RelayClient, relayOrigin } from "./client.ts";
 import { FederationStore } from "./store.ts";
-import { digest, encryptSecret } from "./transport.ts";
+import { decryptSecret, digest, encryptSecret } from "./transport.ts";
 
 const selectionSchema = z
   .object({
@@ -420,4 +420,41 @@ export async function rotateOrRevoke(store: FederationStore, revoke = false) {
     { address: connection.address },
   );
   return { address: connection.address };
+}
+
+/** Fence local access first, then retire the exact Relay identity for owner-authorized deletion. */
+export async function retireOwnerConnection(store: FederationStore) {
+  const [row] = await store.database.query(
+    "SELECT relay_owner_id,relay_agent_id,address,status,owner_session_encrypted FROM myeve_relay_connections WHERE owner_id=$1",
+    [store.ownerId],
+  );
+  if (!row) return { connected: false, retired: true };
+  if (row.status === "revoked") return { connected: true, retired: true, address: row.address };
+  if (row.status !== "active" && row.status !== "paused") throw new Error("Relay connection is not in a retireable state.");
+  await store.database.query(
+    "UPDATE myeve_relay_connections SET status='paused',updated_at=now() WHERE owner_id=$1 AND status='active'",
+    [store.ownerId],
+  );
+  const client = new RelayClient("", decryptSecret(store.ownerId, row.owner_session_encrypted));
+  const grants = await store.database.query(
+    "SELECT id FROM myeve_relay_grants WHERE owner_id=$1 AND status<>'revoked' ORDER BY id",
+    [store.ownerId],
+  );
+  for (const grant of grants) {
+    await client.owner({ operation: "revoke-grant", id: grant.id });
+    await store.database.query(
+      "UPDATE myeve_relay_grants SET status='revoked' WHERE owner_id=$1 AND id=$2",
+      [store.ownerId, grant.id],
+    );
+  }
+  await client.request(`/api/agents/${encodeURIComponent(row.relay_agent_id)}`,
+    { status: "DISABLED" }, true, "PATCH");
+  await client.request(`/api/agents/${encodeURIComponent(row.relay_agent_id)}/credentials`,
+    {}, true, "DELETE");
+  await store.database.query(
+    "UPDATE myeve_relay_connections SET status='revoked',agent_credential_encrypted='',owner_session_encrypted='',updated_at=now() WHERE owner_id=$1 AND relay_owner_id=$2 AND relay_agent_id=$3",
+    [store.ownerId, row.relay_owner_id, row.relay_agent_id],
+  );
+  await store.activity("agent-retired", null, { address: row.address });
+  return { connected: true, retired: true, address: row.address };
 }

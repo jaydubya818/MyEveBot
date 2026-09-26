@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Current migration identifier, now 0031; no effects.",
-      "sha256": "f9095d4ffbd34dcb9d85b2fe410e9474d79f0116e459393fc4f4f6c49c8364de"
+      "reason": "Current migration identifier, now 0039; no effects.",
+      "sha256": "a6c05cc6508077b69ccd8a405c037d947790a920a7630e0acade9f0dbd8c3788"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2436,12 +2436,12 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "5ad918c0d85491aa60643e79c533fe49fa4c0b595567e9ad7b6593eeec19e89a"
+      "sha256": "e92f33ade58141ea68670596eca879947540f6d8951ade5511d6f213310baa3d"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated owner operations explicitly enroll, preview and confirm publication, grant, revoke and rotate; private default and local-first revocation.",
-      "sha256": "1bc99625896de1553e13105a073ab25560ca252c65ba9d99fdeb68197f5ecdb3"
+      "reason": "Authenticated owner operations enroll, publish, grant, and revoke; retirement locally fences access before disabling the exact Relay Agent and credentials.",
+      "sha256": "e5315a5190ce632330e36cd635889cf093ca1344bf2107ac6d00547a590ff22e"
     },
     "lib/relay/projection.ts": {
       "classification": "READ_ONLY",

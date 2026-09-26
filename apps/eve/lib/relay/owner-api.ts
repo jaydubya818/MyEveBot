@@ -16,6 +16,7 @@ import {
   grantPeer,
   revokeGrant,
   rotateOrRevoke,
+  retireOwnerConnection,
 } from "./owner.ts";
 import {
   pollRelay,
@@ -131,6 +132,7 @@ const commandSchema = z
       "revoke-grant",
       "rotate",
       "revoke-credential",
+      "retire",
       "poll",
       "send",
       "get",
@@ -182,6 +184,8 @@ export async function ownerCommand(
       return rotateOrRevoke(store);
     case "revoke-credential":
       return rotateOrRevoke(store, true);
+    case "retire":
+      return retireOwnerConnection(store);
     case "poll":
       return pollRelay(store);
     case "send":
