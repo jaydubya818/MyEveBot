@@ -1,5 +1,6 @@
 /** Operator-only first-beta provisioning. Never expose this command as an HTTP route. */
 import { execFileSync, spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { readFile, stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
@@ -14,6 +15,7 @@ import {
   assertRequiredProjectEnvKeys, connectStoreToProject, createBlobStore, createDeployment,
   createProject, getDeploymentStatus, listProjectEnvKeys, listStores,
   managedProjectMarker, provisionNeonDatabase, setStandardProtection, upsertEnv,
+  setProjectPaused,
 } from "../lib/vercel-api";
 
 interface ProvisionFile {
@@ -293,12 +295,138 @@ async function recoverFailedDeployment(id: string, expectedDeploymentId: string)
   });
 }
 
+async function monitor(path: string): Promise<void> {
+  const input = JSON.parse(await readFile(await privateFile(path), "utf8")) as ProvisionFile;
+  const token = await vercelToken();
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    const environment = registry.environments.find((item) => item.email === input.email.toLowerCase());
+    if (!environment || environment.projectName !== input.config.projectName ||
+        !environment.projectId || !environment.deploymentId || !environment.origin ||
+        !["healthy", "active"].includes(environment.state)) {
+      throw new Error("Monitor requires an exact healthy managed Eve and private owner config.");
+    }
+    const marker = await managedProjectMarker(token, input.teamId, environment.projectId);
+    const deployment = await getDeploymentStatus(token, input.teamId, environment.deploymentId);
+    let readiness: { ready: boolean; checks: string[] } | null = null;
+    let error: string | null = null;
+    if (marker !== environment.id) error = "Project ownership marker changed.";
+    else if (deployment.readyState !== "READY") error = `Deployment is ${deployment.readyState}.`;
+    else {
+      try {
+        readiness = await ownerReadiness(environment.origin, input.config.accessPassword);
+        if (!readiness.ready) error = `Readiness needs setup: ${readiness.checks.join(", ")}.`;
+      } catch (cause) {
+        error = cause instanceof Error ? cause.message : "Owner readiness failed.";
+      }
+    }
+    registry = updateEnvironment(registry, environment.id, {
+      error,
+      ...(error === null ? { lastHealthCheckAt: new Date().toISOString() } : {}),
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: environment.id, healthy: error === null, error }));
+    return { registry, result: undefined };
+  });
+}
+
+async function recordExport(configPath: string, archivePath: string): Promise<void> {
+  const input = JSON.parse(await readFile(await privateFile(configPath), "utf8")) as ProvisionFile;
+  const archive = await readFile(await privateFile(archivePath));
+  if (archive.length === 0 || archive.length > 25_000_000) throw new Error("Owner archive size is invalid.");
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    const environment = registry.environments.find((item) => item.email === input.email.toLowerCase());
+    if (!environment || environment.projectName !== input.config.projectName || !environment.origin ||
+        !["healthy", "active"].includes(environment.state)) {
+      throw new Error("Export verification requires the exact healthy managed Eve.");
+    }
+    const login = await fetch(`${environment.origin}/api/auth/login`, {
+      method: "POST", redirect: "manual", signal: AbortSignal.timeout(15_000),
+      headers: { "Content-Type": "application/json", Origin: environment.origin },
+      body: JSON.stringify({ password: input.config.accessPassword }),
+    });
+    const cookie = login.headers.get("set-cookie")?.split(";")[0];
+    if (!login.ok || !cookie) throw new Error("Owner sign-in failed before archive verification.");
+    const form = new FormData();
+    form.set("archive", new File([new Uint8Array(archive)], "owner-backup.zip", { type: "application/zip" }));
+    const response = await fetch(`${environment.origin}/api/owner-data`, {
+      method: "POST", redirect: "manual", signal: AbortSignal.timeout(30_000),
+      headers: { Cookie: cookie, Origin: environment.origin }, body: form,
+    });
+    if (!response.ok) throw new Error("Managed Eve rejected the owner archive.");
+    const result = await response.json() as { validation?: { version?: unknown; fileCount?: unknown } };
+    if (result.validation?.version !== 1 || typeof result.validation.fileCount !== "number") {
+      throw new Error("Managed Eve did not return a valid archive-verification receipt.");
+    }
+    const sha256 = createHash("sha256").update(archive).digest("hex");
+    registry = updateEnvironment(registry, environment.id, { lastExportSha256: sha256 });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: environment.id, sha256, verifiedFiles: result.validation.fileCount }));
+    return { registry, result: undefined };
+  });
+}
+
+async function pause(id: string, expectedProjectId: string): Promise<void> {
+  const token = await vercelToken();
+  const teamId = requiredEnvironment("MYEVE_CONTROL_TEAM_ID");
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    const environment = current(registry, id);
+    if (!["healthy", "active"].includes(environment.state) || environment.projectId !== expectedProjectId) {
+      throw new Error("Pause requires the exact healthy or active project ID.");
+    }
+    if (await managedProjectMarker(token, teamId, expectedProjectId) !== id) {
+      throw new Error("Project no longer belongs to this managed environment.");
+    }
+    await setProjectPaused(token, teamId, expectedProjectId, true);
+    registry = updateEnvironment(registry, id, { state: "paused" });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: id, state: "paused", projectId: expectedProjectId }));
+    return { registry, result: undefined };
+  });
+}
+
+async function resume(id: string, configPath: string): Promise<void> {
+  const input = JSON.parse(await readFile(await privateFile(configPath), "utf8")) as ProvisionFile;
+  const token = await vercelToken();
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    const environment = current(registry, id);
+    if (environment.state !== "paused" || environment.email !== input.email.toLowerCase() ||
+        environment.projectName !== input.config.projectName || !environment.projectId || !environment.origin) {
+      throw new Error("Resume requires the exact paused Eve and private owner config.");
+    }
+    if (await managedProjectMarker(token, input.teamId, environment.projectId) !== id) {
+      throw new Error("Project no longer belongs to this managed environment.");
+    }
+    await setProjectPaused(token, input.teamId, environment.projectId, false);
+    let healthy = false;
+    for (let attempt = 0; attempt < 12 && !healthy; attempt++) {
+      try { healthy = (await ownerReadiness(environment.origin, input.config.accessPassword)).ready; }
+      catch { /* Vercel may take a short time to unpause the production alias. */ }
+      if (!healthy) await new Promise((resolve) => setTimeout(resolve, 5_000));
+    }
+    if (!healthy) throw new Error("Project resumed, but owner readiness has not recovered; retry after provider propagation.");
+    registry = updateEnvironment(registry, id, {
+      state: "healthy", lastHealthCheckAt: new Date().toISOString(), error: null,
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: id, state: "healthy", projectId: environment.projectId }));
+    return { registry, result: undefined };
+  });
+}
+
 async function main(): Promise<void> {
   const [command, argument] = process.argv.slice(2);
   if (command === "provision" && argument) return provision(argument);
   if (command === "recover-failed-deployment" && argument && process.argv[4]) {
     return recoverFailedDeployment(argument, process.argv[4]);
   }
+  if (command === "monitor" && argument) return monitor(argument);
+  if (command === "record-export" && argument && process.argv[4]) return recordExport(argument, process.argv[4]);
+  if (command === "pause" && argument && process.argv[4]) return pause(argument, process.argv[4]);
+  if (command === "resume" && argument && process.argv[4]) return resume(argument, process.argv[4]);
   if (command === "status") {
     const registry = await readManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"));
     console.log(JSON.stringify(registry.environments.map((environment) => ({
@@ -308,7 +436,7 @@ async function main(): Promise<void> {
     })), null, 2));
     return;
   }
-  throw new Error("Usage: managed-eve.ts provision /absolute/private/config.json | status | recover-failed-deployment ENVIRONMENT_ID DEPLOYMENT_ID");
+  throw new Error("Usage: managed-eve.ts provision CONFIG | monitor CONFIG | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | status | recover-failed-deployment ID DEPLOYMENT_ID");
 }
 
 main().catch((error: unknown) => {

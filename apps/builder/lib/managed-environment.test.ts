@@ -31,6 +31,10 @@ test("activation requires isolated provenance, health, and a model budget", () =
   assert.throws(() => updateEnvironment(registry, environment.id, { state: "active" }));
   registry = updateEnvironment(registry, environment.id, { state: "active", origin: "https://eve-beta-1.vercel.app", aiGatewayBudgetUsd: 20 }, fixed);
   assert.equal(registry.environments[0]?.state, "active");
+  registry = updateEnvironment(registry, environment.id, { state: "paused" }, fixed);
+  assert.equal(registry.environments[0]?.state, "paused");
+  registry = updateEnvironment(registry, environment.id, { state: "healthy" }, fixed);
+  assert.equal(registry.environments[0]?.state, "healthy");
   assert.throws(() => updateEnvironment(registry, environment.id, { ownerId: "someone-else" } as never));
 });
 

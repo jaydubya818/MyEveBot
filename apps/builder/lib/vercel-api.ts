@@ -140,6 +140,15 @@ export async function setStandardProtection(token: string, teamId: string | null
   }
 }
 
+/** Pausing one project fences its production deployment without affecting other Eves. */
+export async function setProjectPaused(
+  token: string, teamId: string, projectId: string, paused: boolean,
+): Promise<void> {
+  await api(`/v1/projects/${encodeURIComponent(projectId)}/${paused ? "pause" : "unpause"}`, {
+    token, teamId, method: "POST", stage: "project",
+  });
+}
+
 export interface StorageStore {
   id: string;
   name: string;
