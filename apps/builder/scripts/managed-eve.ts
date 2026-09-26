@@ -124,7 +124,8 @@ async function ownerReadiness(origin: string, password: string): Promise<{ ready
     overall?: unknown; checks?: { id?: unknown; state?: unknown; required?: unknown }[];
   };
   if (!Array.isArray(report.checks)) throw new Error("Managed Eve returned an invalid readiness report.");
-  const missing = report.checks.filter((check) => check.required && check.state !== "ready")
+  const missing = report.checks.filter((check) =>
+    check.required && check.state !== "ready" && check.state !== "excluded")
     .map((check) => String(check.id));
   return { ready: report.overall === "ready" && missing.length === 0, checks: missing };
 }
