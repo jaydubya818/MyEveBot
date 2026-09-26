@@ -7,20 +7,29 @@ import type { ExecutionDatabase } from "../../execution-types.ts";
  * AgentMail adapter, so the Action Gateway, approval binding, continuation and
  * recovery stay canonical. A draft that differs from the pin is rejected in
  * resolveTarget, before any approval can be requested.
+ *
+ * Each pin is a separate owner authorization with its own issuance time. Its single
+ * attempt is counted over every email attempt created at or after that time (any
+ * draft), so a pin never inherits an earlier pin's exhausted attempt and can never
+ * add more than one send. Earlier pins stay exhausted: the harness refuses to reissue
+ * their exact drafts.
  */
-export interface QualificationEmailPin { recipient: string; subject: string; text: string; maxSends: 1 }
+export interface QualificationEmailPin { recipient: string; subject: string; text: string; maxSends: 1; issuedAt: string }
 export const QUALIFICATION_OWNER_ID = "qualification-owner";
 // Every status reached once execution started; any of them consumes the single allowed attempt.
 const ATTEMPTED = ["executing", "verifying", "completed", "failed", "result_unknown", "recovering", "needs_you", "retryable"] as const;
 
-export function qualificationEmailPin(env: Record<string, string | undefined>): QualificationEmailPin | null {
+export function qualificationEmailPin(env: Record<string, string | undefined>, now: () => number = Date.now): QualificationEmailPin | null {
   const recipient = env.MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT, subject = env.MYEVE_OWNER_LOCAL_EMAIL_SUBJECT, text = env.MYEVE_OWNER_LOCAL_EMAIL_TEXT;
   if (recipient === undefined && subject === undefined && text === undefined) return null;
   if (!recipient || !/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(recipient) || recipient.length > 254) throw new Error("Qualification email recipient invalid.");
   if (!subject || subject.length > 200 || /[\r\n]/.test(subject)) throw new Error("Qualification email subject invalid.");
   if (!text || text.length > 2000) throw new Error("Qualification email text invalid.");
   if (env.MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS !== "1") throw new Error("Qualification email requires MAX_SENDS=1.");
-  return { recipient, subject, text, maxSends: 1 };
+  const issued = env.MYEVE_OWNER_LOCAL_EMAIL_ISSUED_AT ?? "";
+  const issuedMs = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/.test(issued) ? Date.parse(issued) : NaN;
+  if (!Number.isFinite(issuedMs) || issuedMs > now() + 60_000) throw new Error("Qualification email requires an issuance time.");
+  return { recipient, subject, text, maxSends: 1, issuedAt: new Date(issuedMs).toISOString() };
 }
 
 const list = (value: unknown) => value === undefined || value === null ? [] : Array.isArray(value) ? value : [value];
@@ -44,8 +53,8 @@ export function pinnedQualificationEmail<Result>(adapter: ActionAdapter<Result>,
       if (!pin) throw new Error("Email is not authorized in this qualification process.");
       assertPinnedDraft(parameters, pin);
       // Concurrent attempts see each other as executing and both fail closed.
-      const [row] = await database().query(`SELECT count(*)::int AS n FROM action_requests WHERE owner_id=$1 AND capability_id='tool.send_email' AND id<>$2 AND status = ANY($3::text[])`,
-        [QUALIFICATION_OWNER_ID, context.idempotencyKey, [...ATTEMPTED]]) as Array<{ n: number }>;
+      const [row] = await database().query(`SELECT count(*)::int AS n FROM action_requests WHERE owner_id=$1 AND capability_id='tool.send_email' AND id<>$2 AND status = ANY($3::text[]) AND created_at >= $4::timestamptz`,
+        [QUALIFICATION_OWNER_ID, context.idempotencyKey, [...ATTEMPTED], pin.issuedAt]) as Array<{ n: number }>;
       if (Number(row?.n ?? 1) >= pin.maxSends) throw new Error("Qualification email send limit reached.");
       return adapter.execute(parameters, context);
     },

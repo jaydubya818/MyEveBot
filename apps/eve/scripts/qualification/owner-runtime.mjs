@@ -10,7 +10,7 @@ import {createServer,request as httpsRequest} from 'node:https';
 import {request as httpRequest} from 'node:http';
 import {randomBytes,randomUUID,createHash} from 'node:crypto';
 import {readFile,appendFile,access,mkdtemp,rm,mkdir,writeFile} from 'node:fs/promises';
-import {readFileSync} from 'node:fs';
+import {readFileSync,readdirSync} from 'node:fs';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
 const root=fileURLToPath(new URL('../../',import.meta.url));
@@ -28,10 +28,17 @@ const email=serve&&process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE?(()=>{
  const pin=JSON.parse(readFileSync(process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE,'utf8'));
  const ref=/^keychain:([A-Za-z0-9._-]{3,100})\/([A-Za-z0-9._-]{3,100})$/.exec(process.env.MYEVE_AGENTMAIL_KEY_REF??'');
  const inbox=process.env.MYEVE_AGENTMAIL_INBOX_ID??'';
- if(!ref||!inbox||pin.maxSends!==1||Object.keys(pin).sort().join()!=='maxSends,recipient,subject,text')throw new Error('Email mode requires an exact pin file, a keychain AgentMail reference and a sender inbox');
+ if(!ref||!inbox||pin.maxSends!==1||Object.keys(pin).sort().join()!=='issuedAt,maxSends,pinId,recipient,subject,text'||!/^email-pin-[0-9]{1,3}$/.test(pin.pinId))throw new Error('Email mode requires an exact pin file (pinId, issuedAt, one send), a keychain AgentMail reference and a sender inbox');
+ // Each pin is a separate owner authorization. An exhausted pin's exact draft can never be reissued,
+ // and a pin id can never be reused.
+ const pinDir=path.dirname(process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE);
+ for(const name of readdirSync(pinDir).filter(n=>/^email-pin-.*-EXHAUSTED\.json$/.test(n))){
+  const spent=JSON.parse(readFileSync(path.join(pinDir,name),'utf8'));
+  if(name.startsWith(`${pin.pinId}-`)||(spent.recipient===pin.recipient&&spent.subject===pin.subject&&spent.text===pin.text))throw new Error(`Pin ${pin.pinId} reuses exhausted ${name}; refusing`);
+ }
  const key=execFileSync('/usr/bin/security',['find-generic-password','-s',ref[1],'-a',ref[2],'-w'],{encoding:'utf8'}).trim();
  if(!key)throw new Error('AgentMail reference empty');
- return {key,inbox,env:{MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:pin.recipient,MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:pin.subject,MYEVE_OWNER_LOCAL_EMAIL_TEXT:pin.text,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:'1'}};
+ return {key,inbox,env:{MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:pin.recipient,MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:pin.subject,MYEVE_OWNER_LOCAL_EMAIL_TEXT:pin.text,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:'1',MYEVE_OWNER_LOCAL_EMAIL_ISSUED_AT:pin.issuedAt},pinId:pin.pinId};
 })():null;
 if(serve&&(!/^[A-Za-z0-9._:-]{3,128}$/.test(serve.keyId)||!serve.publicKeyFile.startsWith('/')||!/^tgb_[0-9a-f]{32}$/.test(serve.binding)||!Number.isSafeInteger(serve.windowMs)||serve.windowMs<60000||serve.windowMs>3600000))
  throw new Error('serve requires RELAY_QUALIFICATION_KEY_ID, absolute RELAY_QUALIFICATION_PUBLIC_KEY_FILE, a tgb_ MYEVE_OWNER_LOCAL_SOURCE_IDENTITY and a 1-60 minute MYEVE_QUALIFICATION_WINDOW_MS');

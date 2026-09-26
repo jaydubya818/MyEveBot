@@ -2967,8 +2967,8 @@
     },
     "lib/relay/owner/qualification-email.ts": {
       "classification": "ENFORCED",
-      "reason": "Local-qualification email pin around the canonical AgentMail adapter: exact recipient/subject/text checked before approval target resolution and again before execution; at most one attempt counted durably in action_requests; no pin refuses all email.",
-      "sha256": "3af0401740add1f6acbc203a5884f4402b9f1d51d0cda0f51b97c44e1d846232"
+      "reason": "Local-qualification email pin around the canonical AgentMail adapter: exact recipient/subject/text checked before approval target resolution and again before execution; at most one attempt per owner-authorized pin, counted durably in action_requests over all email attempts since the pin's issuance time; no pin refuses all email.",
+      "sha256": "ba1aa912565c6807c32002a5f66cc51fe40cb5db7771665add586cd106c4ff00"
     }
   }
 }
