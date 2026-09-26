@@ -1,0 +1,189 @@
+HTML content Sofie, URL: localhost:3108/work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d
+						42 container
+							43 link MyEve / Work, Value: localhost:3108/work
+							44 container Engineering navigation
+								45 link Chat, Value: localhost:3108/chat
+								46 link Agent connections, Value: localhost:3108/manage/relay
+								47 link Settings, Value: localhost:3108/manage
+							48 text ENGINEERING · INTERNAL PILOT
+							49 heading Work, with a clear finish., Value: 1
+								50 text Work, with a clear finish.
+							51 text Define the outcome, keep its history, and inspect the evidence.
+							52 button Delegate issue
+							53 button New Work
+							54 container Work status
+								55 toggle button Working · 1, Value: 0
+									56 text Working
+									57 text  ·
+									58 text 1
+								59 toggle button Paused · 1, Value: 0
+									60 text Paused
+									61 text  ·
+									62 text 1
+							63 container Work list
+								64 text Find Work
+								65 text field (settable) Find Work, Placeholder: Find Work or repository
+								66 toggle button Value: 0, Unrelated private fixture fixture/unrelated Paused Next: Review the Work contract, then resume when ready. No execution has started.
+									67 text Unrelated private fixture
+									68 text fixture/unrelated
+									69 text Paused
+									70 text Next:
+									71 text Review the Work contract, then resume when ready. No execution has started.
+								72 toggle button Value: 1, Authenticated Sofie quantity parser jaydubya818/myeve-golden-work-qual Working Next: Sofie can inspect approved files, edit the draft, and submit a frozen candidate.
+									73 text Authenticated Sofie quantity parser
+									74 text jaydubya818/myeve-golden-work-qual
+									75 text Working
+									76 text Next:
+									77 text Sofie can inspect approved files, edit the draft, and submit a frozen candidate.
+							78 container Work detail
+								79 container
+									80 text Working  · Version  2
+								81 heading Authenticated Sofie quantity parser, Value: 2
+									82 text Authenticated Sofie quantity parser
+								83 text Implement the approved quantity CLI and verify it independently.
+								84 container
+									85 text jaydubya818/myeve-golden-work-qual  · $ 1.30  ceiling · 60  minutes active runtime
+								86 container
+									87 text Next:  Sofie can inspect approved files, edit the draft, and submit a frozen candidate.  Last update:  9/26/2026, 3:46:38 PM .
+								88 container
+									89 text Total conversation model spend: $ 0.724832  · Reserved: $ 0.000000  · Includes native execution subtotal; do not add them together.
+								90 container
+									91 text Native model spend: $ 0.582494  · Reserved: $ 0.000000
+								92 container
+									93 text Native development:  Draft in progress  · candidate 43f43eaf92ac
+								94 container Native Proof of Work
+									95 heading Native Proof of Work, Value: 3
+										96 text Native Proof of Work
+									97 container
+										98 text FAILED  · Candidate  43f43eaf92ac
+									99 content list
+										100 container
+											101 text Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:"invalid_quantity"}. Follow the approved Node ESM fixture contract. :  FAIL  ·  trusted-verifier
+									102 text This record covers native source development and protected local verification. GitHub publication, CI, review and owner acceptance have not been established.
+									103 text Native model cost coverage is UNKNOWN. No zero-cost or complete-cost claim is made.
+									104 container
+										105 text Immutable result  a22eea13-0a62-4e92-abff-335e640af67a  · sha256: e0a037bc6801450ad7c45a4090d0da7274bd9e9d3bc6d4aaeeff14188cc04689
+								106 container Execution routing
+									107 heading Execution strategy, Value: 3
+										108 text Execution strategy
+									109 text Admitted strategy
+									110 text Deep Agent
+									111 text Decision state
+									112 text ADMITTED
+									113 container
+										114 text Why: Bounded source development requires the qualified native Sofie provider and independent protected verification.
+									115 definition list
+										116 container Decision source
+											117 text Decision source
+										118 text POLICY
+										119 container Admitted provider
+											120 text Admitted provider
+										121 text myeve-native-sofie · 1
+										122 container Work version
+											123 text Work version
+										124 text 2
+										125 container Recorded
+											126 text Recorded
+										127 text 9/26/2026, 3:45:05 PM
+									128 heading Routing profile, Value: 4
+										129 text Routing profile
+									130 definition list
+										131 container Risk:
+											132 text Risk :
+										133 text isolated source changes
+										134 container Duration:
+											135 text Duration :
+										136 text bounded by Work
+										137 container Ambiguity:
+											138 text Ambiguity :
+										139 text approved objective and criteria
+										140 container Work Shape:
+											141 text Work Shape :
+										142 text bounded repository change
+										143 container Interaction:
+											144 text Interaction :
+										145 text owner-selected chat
+										146 container Parallelism:
+											147 text Parallelism :
+										148 text single writer
+										149 container Verification:
+											150 text Verification :
+										151 text independent protected checks
+										152 container Decomposition:
+											153 text Decomposition :
+										154 text one candidate at a time
+										155 container Human Judgment:
+											156 text Human Judgment :
+										157 text owner controls Work; publication is separate
+										158 container Profile Version:
+											159 text Profile Version :
+										160 text 1
+										161 container External Expertise:
+											162 text External Expertise :
+										163 text none
+									164 heading Routes eligible at admission, Value: 4
+										165 text Routes eligible at admission
+									166 text Deep Agent · Human
+									167 heading Rejected routes, Value: 4
+										168 text Rejected routes
+									169 content list
+										170 container
+											171 text Direct : Exploratory source development needs an Agent loop.
+										172 container
+											173 text Executor : This native Work authorization does not admit another provider.
+										174 container
+											175 text MyFactory : This native Work authorization does not admit another provider.
+										176 container
+											177 text Relay : This native Work authorization does not admit another provider.
+									178 heading Constraints, Value: 4
+										179 text Constraints
+									180 content list
+										181 container
+											182 AXListMarker •
+											183 text One writer
+										184 container
+											185 AXListMarker •
+											186 text Approved source paths only
+										187 container
+											188 AXListMarker •
+											189 text No publication or Ready authority
+									190 heading Provider runs, Value: 4
+										191 text Provider runs
+									192 content list
+										193 container
+											194 text Deep Agent  ·  RUNNING myeve-native-sofie  · 1  · Updated  9/26/2026, 3:45:10 PM
+								195 container
+									196 heading Acceptance criteria v1, Value: 3
+										197 text Acceptance criteria v 1
+									198 button Revise criteria
+									199 content list
+										200 container
+											201 text 1 . Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:"invalid_quantity"}. Follow the approved Node ESM fixture contract. Protected test required
+								202 container
+									203 heading Evidence & readiness, Value: 3
+										204 text Evidence & readiness
+									205 text Local check results are recorded above. Publication, CI, review and acceptance remain unverified.
+								206 container
+									207 heading Control, Value: 3
+										208 text Control
+									209 button Stop
+									210 button Take over
+									211 button Cancel Work
+								212 container
+									213 heading Activity, Value: 3
+										214 text Activity
+									215 content list
+										216 container
+											217 text resume · v 2 9/26/2026, 2:12:51 PM
+										218 container
+											219 text Work created · v 1 9/26/2026, 2:12:51 PM
+									220 container Route transitions
+										221 heading Route changes, Value: 4
+											222 text Route changes
+										223 content list
+											224 container
+												225 text Human  →  Deep Agent Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started. Trigger:  Policy-admission  ·
+												226 text 9/26/2026, 3:45:05 PM
+						227 pop up button Open Next.js Dev Tools
+							228 image
+			229

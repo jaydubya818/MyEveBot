@@ -1,0 +1,565 @@
+Bounded authenticated runtime started m1er1-33b7a0af-e626-4e86-a507-4454311a67a4 2026-09-26T23:42:11.552Z
+▲ Next.js 16.3.5 (webpack)
+- Local:         http://127.0.0.1:3108
+- Network:       http://127.0.0.1:3108
+✓ Ready in 324ms
+✓ Running next.config.ts took 94ms
+[eve:dev] ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js (23:28893) [33m[EVAL] [0mUse of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
+[eve:dev]  - Use of direct `eval` here. in ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js at 254579..254583
+[eve:dev]  [38;5;240m │[0m
+[eve:dev]  [38;5;240m │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
+[eve:dev] server listening at http://127.0.0.1:50953/
+
+○ Compiling /login ...
+ GET /login 200 in 4.0s (next.js: 3.7s, proxy.ts: 99ms, application-code: 163ms)
+ POST /api/auth/login 200 in 977ms (next.js: 952ms, proxy.ts: 3ms, application-code: 22ms)
+ GET /login 200 in 60ms (next.js: 23ms, proxy.ts: 3ms, application-code: 34ms)
+ GET / 200 in 1774ms (next.js: 1555ms, proxy.ts: 48ms, application-code: 171ms)
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /chat 200 in 2.3s (next.js: 1711ms, proxy.ts: 2ms, application-code: 545ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+○ Compiling /api/commands ...
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/commands 200 in 1846ms (next.js: 1661ms, proxy.ts: 3ms, application-code: 182ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/task-runs?threadId=beaed59b-e08b-4d58-b9f8-26dd1aac6beb 200 in 1873ms (next.js: 1661ms, proxy.ts: 3ms, application-code: 208ms)
+ GET /api/models 200 in 2.3s (next.js: 1661ms, proxy.ts: 3ms, application-code: 613ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/task-runs?threadId=beaed59b-e08b-4d58-b9f8-26dd1aac6beb 200 in 1356ms (next.js: 996ms, proxy.ts: 317ms, application-code: 43ms)
+ GET /api/threads 200 in 1385ms (next.js: 996ms, proxy.ts: 317ms, application-code: 72ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/capabilities 200 in 2.2s (next.js: 1038ms, proxy.ts: 996ms, application-code: 120ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/commands 200 in 1343ms (next.js: 95ms, proxy.ts: 1154ms, application-code: 94ms)
+ GET /api/task-runs?threadId=beaed59b-e08b-4d58-b9f8-26dd1aac6beb 200 in 253ms (next.js: 5ms, proxy.ts: 237ms, application-code: 12ms)
+ GET /api/task-runs?threadId=beaed59b-e08b-4d58-b9f8-26dd1aac6beb 200 in 255ms (next.js: 10ms, proxy.ts: 237ms, application-code: 8ms)
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /chat 200 in 1395ms (next.js: 192ms, proxy.ts: 1154ms, application-code: 50ms)
+ GET /api/agents 200 in 2.4s (next.js: 1120ms, proxy.ts: 1064ms, application-code: 244ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /chat 200 in 144ms (next.js: 54ms, proxy.ts: 76ms, application-code: 14ms)
+ GET /api/threads 200 in 171ms (next.js: 3ms, proxy.ts: 76ms, application-code: 92ms)
+ PUT /api/threads/beaed59b-e08b-4d58-b9f8-26dd1aac6beb 200 in 1685ms (next.js: 1435ms, proxy.ts: 237ms, application-code: 13ms)
+ GET /api/models 200 in 1646ms (next.js: 1009ms, proxy.ts: 16ms, application-code: 621ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/engineering/work 200 in 1392ms (next.js: 1252ms, proxy.ts: 76ms, application-code: 64ms)
+ GET /api/engineering/work 200 in 87ms (next.js: 4ms, proxy.ts: 56ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 17ms (next.js: 1.1ms, proxy.ts: 5ms, application-code: 10ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 23ms (next.js: 4ms, proxy.ts: 6ms, application-code: 13ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 24ms (next.js: 10ms, proxy.ts: 6ms, application-code: 8ms)
+ GET /api/engineering/work 200 in 41ms (next.js: 9ms, proxy.ts: 6ms, application-code: 27ms)
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/engineering/work 200 in 106ms (next.js: 5ms, proxy.ts: 33ms, application-code: 68ms)
+ GET /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 404 in 117ms (next.js: 41ms, proxy.ts: 33ms, application-code: 43ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 10ms (next.js: 1.5ms, proxy.ts: 1.5ms, application-code: 7ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 1836ms (next.js: 1809ms, proxy.ts: 1.7ms, application-code: 25ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 10ms (next.js: 3ms, proxy.ts: 1.5ms, application-code: 6ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 9ms (next.js: 1.9ms, proxy.ts: 1.3ms, application-code: 6ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 10ms (next.js: 2ms, proxy.ts: 1.6ms, application-code: 6ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 2ms, proxy.ts: 2.0ms, application-code: 8ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 1.3ms, proxy.ts: 5ms, application-code: 5ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 3ms, proxy.ts: 3ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 22ms (next.js: 0.7ms, proxy.ts: 1.4ms, application-code: 20ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 14ms (next.js: 4ms, proxy.ts: 3ms, application-code: 7ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 10ms (next.js: 1.3ms, proxy.ts: 1.4ms, application-code: 8ms)
+ GET /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 8ms (next.js: 1.7ms, proxy.ts: 1.4ms, application-code: 5ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.7ms, proxy.ts: 1.6ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 2ms, application-code: 25ms)
+ GET /api/engineering/work 200 in 17ms (next.js: 0.9ms, proxy.ts: 1.5ms, application-code: 15ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 7ms (next.js: 0.6ms, proxy.ts: 2ms, application-code: 5ms)
+ GET /api/threads 200 in 15ms (next.js: 5ms, proxy.ts: 4ms, application-code: 6ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 7ms (next.js: 0.6ms, proxy.ts: 3ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 34ms (next.js: 3ms, proxy.ts: 5ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 21ms (next.js: 0.8ms, proxy.ts: 1.5ms, application-code: 19ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.7ms, proxy.ts: 1.8ms, application-code: 3ms)
+ GET /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 39ms (next.js: 17ms, proxy.ts: 8ms, application-code: 14ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 11ms (next.js: 1.9ms, proxy.ts: 2ms, application-code: 7ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 3ms, proxy.ts: 1.6ms, application-code: 7ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 27ms (next.js: 3ms, proxy.ts: 3ms, application-code: 21ms)
+ GET /api/engineering/work 200 in 19ms (next.js: 0.7ms, proxy.ts: 1.5ms, application-code: 17ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 2ms, proxy.ts: 1.8ms, application-code: 8ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 9ms (next.js: 1.1ms, proxy.ts: 5ms, application-code: 4ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 13ms (next.js: 3ms, proxy.ts: 1.8ms, application-code: 9ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 13ms (next.js: 3ms, proxy.ts: 1.8ms, application-code: 8ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 15ms (next.js: 3ms, proxy.ts: 4ms, application-code: 7ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 8ms (next.js: 0.8ms, proxy.ts: 3ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 6ms, application-code: 22ms)
+ GET /api/engineering/work 200 in 19ms (next.js: 0.8ms, proxy.ts: 1.6ms, application-code: 16ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 3ms, proxy.ts: 3ms, application-code: 6ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.6ms, proxy.ts: 1.7ms, application-code: 4ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 16ms (next.js: 7ms, proxy.ts: 3ms, application-code: 6ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 13ms (next.js: 2ms, proxy.ts: 1.4ms, application-code: 10ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 1.7ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.8ms, proxy.ts: 1.5ms, application-code: 18ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 14ms (next.js: 3ms, proxy.ts: 1.7ms, application-code: 10ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 7ms (next.js: 0.7ms, proxy.ts: 1.5ms, application-code: 4ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 2ms, proxy.ts: 1.8ms, application-code: 8ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 1.7ms, proxy.ts: 1.5ms, application-code: 9ms)
+ GET /api/threads 200 in 7ms (next.js: 0.7ms, proxy.ts: 1.5ms, application-code: 5ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 7ms (next.js: 0.8ms, proxy.ts: 1.5ms, application-code: 5ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 32ms (next.js: 3ms, proxy.ts: 1.8ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 24ms (next.js: 1.1ms, proxy.ts: 1.8ms, application-code: 21ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 5ms (next.js: 0.7ms, proxy.ts: 1.4ms, application-code: 3ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 29ms (next.js: 3ms, proxy.ts: 1.4ms, application-code: 25ms)
+ GET /api/engineering/work 200 in 18ms (next.js: 1.0ms, proxy.ts: 1.2ms, application-code: 16ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.5ms, proxy.ts: 1.4ms, application-code: 4ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 5ms (next.js: 0.8ms, proxy.ts: 1.7ms, application-code: 3ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 1.6ms, application-code: 25ms)
+ GET /api/engineering/work 200 in 18ms (next.js: 0.6ms, proxy.ts: 1.6ms, application-code: 15ms)
+ GET /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 9ms (next.js: 2ms, proxy.ts: 1.5ms, application-code: 5ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 11ms (next.js: 1.5ms, proxy.ts: 1.9ms, application-code: 8ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 20ms (next.js: 3ms, proxy.ts: 1.7ms, application-code: 15ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 3ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 13ms (next.js: 3ms, proxy.ts: 1.5ms, application-code: 9ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 26ms (next.js: 2ms, proxy.ts: 4ms, application-code: 20ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 17ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.8ms, proxy.ts: 1.7ms, application-code: 4ms)
+[eve:dev] [eve:harness.tool-loop] tool-loop stream error {
+[eve:dev]   error: {
+[eve:dev]     errorId: '81709cc4-cef7-4b03-883b-c50719f92070',
+[eve:dev]     message: 'Error: Conversation budget, current authority or uncertain usage prevents another request.',
+[eve:dev]     detail: 'WorkError: Conversation budget, current authority or uncertain usage prevents another request.\n' +
+[eve:dev]       '    at EngineeringConversationBudget.reserve (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/.eve/dev-runtime/snapshots/muiz64tn-8e0aaadf-33e1-48af-a89c-d1a5125ef6a9/source/apps/eve/.eve/compile/authored-modules/51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs?generation=authored-modules%2F51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs:34899:21)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async generate (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/.eve/dev-runtime/snapshots/muiz64tn-8e0aaadf-33e1-48af-a89c-d1a5125ef6a9/source/apps/eve/.eve/compile/authored-modules/51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs?generation=authored-modules%2F51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs:35317:17)\n' +
+[eve:dev]       '    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/.eve/dev-runtime/snapshots/muiz64tn-8e0aaadf-33e1-48af-a89c-d1a5125ef6a9/source/apps/eve/.eve/compile/authored-modules/51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs?generation=authored-modules%2F51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs:35356:19)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n' +
+[eve:dev]       '    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n' +
+[eve:dev]       '    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12)\n' +
+[eve:dev]       '    at async streamStep (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-text.ts:2487:44) {\n' +
+[eve:dev]       "  code: 'conversation_budget',\n" +
+[eve:dev]       '  status: 403\n' +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] model call failed — parking session for retry by the user {
+[eve:dev]   errorId: 'cc091d42-7ca4-4c8c-8bcb-f367ae08ecc2',
+[eve:dev]   sessionId: 'wrun_01M3FY7PXDPDH1W316X0TV69XM',
+[eve:dev]   turnId: 'turn_2',
+[eve:dev]   error: {
+[eve:dev]     errorId: 'e6054b70-ffc5-4227-9fc0-87539899f941',
+[eve:dev]     message: 'Error: Conversation budget, current authority or uncertain usage prevents another request.',
+[eve:dev]     detail: 'WorkError: Conversation budget, current authority or uncertain usage prevents another request.\n' +
+[eve:dev]       '    at EngineeringConversationBudget.reserve (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/.eve/dev-runtime/snapshots/muiz64tn-8e0aaadf-33e1-48af-a89c-d1a5125ef6a9/source/apps/eve/.eve/compile/authored-modules/51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs?generation=authored-modules%2F51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs:34899:21)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async generate (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/.eve/dev-runtime/snapshots/muiz64tn-8e0aaadf-33e1-48af-a89c-d1a5125ef6a9/source/apps/eve/.eve/compile/authored-modules/51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs?generation=authored-modules%2F51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs:35317:17)\n' +
+[eve:dev]       '    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/.eve/dev-runtime/snapshots/muiz64tn-8e0aaadf-33e1-48af-a89c-d1a5125ef6a9/source/apps/eve/.eve/compile/authored-modules/51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs?generation=authored-modules%2F51c98c8463e7d16cf8691e24affef0bcc362f102cc89d161425c124148e0e843.mjs:35356:19)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n' +
+[eve:dev]       '    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n' +
+[eve:dev]       '    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12)\n' +
+[eve:dev]       '    at async streamStep (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-text.ts:2487:44) {\n' +
+[eve:dev]       "  code: 'conversation_budget',\n" +
+[eve:dev]       '  status: 403\n' +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 19ms (next.js: 3ms, proxy.ts: 2ms, application-code: 14ms)
+ PUT /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 16ms (next.js: 1.7ms, proxy.ts: 2ms, application-code: 12ms)
+ GET /api/threads/0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 12ms (next.js: 1.4ms, proxy.ts: 4ms, application-code: 6ms)
+ GET /api/threads 200 in 6ms (next.js: 0.8ms, proxy.ts: 1.6ms, application-code: 3ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.9ms, proxy.ts: 1.6ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 3ms, proxy.ts: 6ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 30ms (next.js: 0.8ms, proxy.ts: 1.5ms, application-code: 27ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 7ms (next.js: 0.7ms, proxy.ts: 3ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 105ms (next.js: 11ms, proxy.ts: 5ms, application-code: 89ms)
+ GET /api/engineering/work 200 in 57ms (next.js: 1.8ms, proxy.ts: 4ms, application-code: 51ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 9ms (next.js: 0.8ms, proxy.ts: 3ms, application-code: 5ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.8ms, proxy.ts: 1.5ms, application-code: 3ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 27ms (next.js: 2ms, proxy.ts: 1.4ms, application-code: 23ms)
+ GET /api/engineering/work 200 in 18ms (next.js: 0.7ms, proxy.ts: 1.5ms, application-code: 16ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 7ms (next.js: 0.7ms, proxy.ts: 2ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 29ms (next.js: 4ms, proxy.ts: 3ms, application-code: 23ms)
+ GET /api/engineering/work 200 in 18ms (next.js: 0.7ms, proxy.ts: 1.4ms, application-code: 16ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 6ms (next.js: 0.7ms, proxy.ts: 1.6ms, application-code: 4ms)
+ GET /api/threads 200 in 19ms (next.js: 2ms, proxy.ts: 4ms, application-code: 13ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 14ms (next.js: 2ms, proxy.ts: 5ms, application-code: 7ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 125ms (next.js: 31ms, proxy.ts: 19ms, application-code: 75ms)
+ GET /api/engineering/work 200 in 90ms (next.js: 19ms, proxy.ts: 3ms, application-code: 67ms)
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 21ms (next.js: 5ms, proxy.ts: 5ms, application-code: 11ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 125ms (next.js: 14ms, proxy.ts: 4ms, application-code: 107ms)
+ GET /api/engineering/work 200 in 190ms (next.js: 10ms, proxy.ts: 11ms, application-code: 169ms)
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /api/task-runs?threadId=0c6aa644-2ce7-4e1b-8d0d-a0aae0ece4ca 200 in 571ms (next.js: 11ms, proxy.ts: 528ms, application-code: 32ms)
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 11.3s (next.js: 10.9s, proxy.ts: 17ms, application-code: 363ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /api/engineering/work 200 in 262ms (next.js: 24ms, proxy.ts: 10ms, application-code: 228ms)
+ GET /api/engineering/work 200 in 266ms (next.js: 111ms, proxy.ts: 16ms, application-code: 140ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 295ms (next.js: 139ms, proxy.ts: 16ms, application-code: 140ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 303ms (next.js: 137ms, proxy.ts: 11ms, application-code: 155ms)
+[?25h

@@ -1,5 +1,7 @@
 # P0 Gap #2 — conversation budget and fresh-chat recovery
 
+**Latest live checkpoint:** [60-minute isolated qualification](../2026-09-26-m1er1-window/README.md) reached real failure and autonomous repair, then common-budget denial before resubmission. Additional spend $0.777654; temporary authority revoked. Fresh native Run parity fails; M1/ER1 NOT QUALIFIED, ER2 BLOCKED. The earlier record below is historical.
+
 **PARTIAL. Implementation and isolated qualification pass. The positive authenticated Sofie journey is NOT_RUN. M1/ER1 remains NOT QUALIFIED; ER2 remains BLOCKED.**
 
 The owner explicitly approved the additive [conversation-budget proposal](../2026-09-26-authenticated-sofie-native/conversation-budget-proposal.md). Work began at `d8efe978e36494873e81ee9c3ea6294d0838f930` on `codex/digital-worker-mvp`. No remote publication, PR, production migration/deployment, Relay or MyFactory action occurred.

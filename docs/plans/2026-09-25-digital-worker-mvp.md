@@ -22,6 +22,8 @@ implementation_authorized: true
 
 **Authenticated Sofie checkpoint (2026-09-26):** [The new dossier](../verification/2026-09-26-authenticated-sofie-native/README.md) records native context/projection and Role/JStack/mode wiring, 1,296 passing app tests, 151 root tests, five PostgreSQL integrations and a passing build. Offline authenticated desktop/mobile navigation and saved-Work app restart pass. The live model launch was blocked; pre-admission budget and fresh-session read-only recovery remain open. **M1/ER1 NOT QUALIFIED; ER2 and GitHub publication BLOCKED.**
 
+**Latest live M1/ER1 checkpoint (2026-09-26):** [Bounded authenticated qualification](../verification/2026-09-26-m1er1-window/README.md) ran at `4ad2b79`: protected failure and autonomous repair reached, next model request denied by unchanged common budget before repair submission. Fresh chat misreports native Run state. Additional spend $0.777654; independent 60-minute provider authority revoked after 17m32s. M1/ER1 NOT QUALIFIED; ER2 BLOCKED. Q37 next: bounded writer context under the common budget and native Run/verification truth parity, then positive PARTIAL Result/recovery/UI qualification.
+
 **P0 Gap #2 checkpoint (2026-09-26):** [Conversation budget/recovery implementation](../verification/2026-09-26-p0-gap2/README.md) adds approved migration 0051, durable whole-conversation accounting and guarded read-only recovery. Local tests/build pass; real authenticated chat reaches the wrapper and refuses expired provider qualification. Positive M1/ER1 journey NOT_RUN, additional spend $0, ER2 BLOCKED.
 
 ## 1. Working boundary and decisions

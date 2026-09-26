@@ -1,0 +1,569 @@
+Bounded authenticated runtime started m1er1-33b7a0af-e626-4e86-a507-4454311a67a4 2026-09-26T23:42:11.552Z
+▲ Next.js 16.3.5 (webpack)
+- Local:         http://127.0.0.1:3108
+- Network:       http://127.0.0.1:3108
+✓ Ready in 568ms
+✓ Running next.config.ts took 61ms
+[eve:dev] ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js (23:28893) [33m[EVAL] [0mUse of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
+[eve:dev]  - Use of direct `eval` here. in ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js at 254579..254583
+[eve:dev]  [38;5;240m │[0m
+[eve:dev]  [38;5;240m │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
+[eve:dev] server listening at http://127.0.0.1:53846/
+
+○ Compiling /api/engineering/work/[id] ...
+ GET /api/engineering/work 200 in 19.5s (next.js: 18.0s, proxy.ts: 227ms, application-code: 1263ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 19.5s (proxy.ts: 227ms)
+ GET /api/engineering/work 200 in 19.5s (next.js: 18.0s, proxy.ts: 228ms, application-code: 1251ms)
+ GET /api/engineering/work 200 in 19.5s (next.js: 18.0s, proxy.ts: 227ms, application-code: 1263ms)
+ GET /api/engineering/work 200 in 19.5s (next.js: 18.0s, proxy.ts: 227ms, application-code: 1264ms)
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 19.8s (next.js: 18.0s, proxy.ts: 227ms, application-code: 1482ms)
+○ Compiling /login ...
+ GET /login 200 in 6.0s (next.js: 4.0s, proxy.ts: 1324ms, application-code: 666ms)
+ GET /api/engineering/work 200 in 643ms (next.js: 13ms, proxy.ts: 15ms, application-code: 615ms)
+[browser] Uncaught Error: Hydration failed because the server rendered HTML didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+      <LoadingBoundary name="login/" loading={null}>
+        <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+          <RedirectBoundary>
+            <RedirectErrorBoundary router={{...}}>
+              <InnerLayoutRouter url="/login" tree={[...]} params={{}} cacheNode={{rsc:{...}, ...}} segmentPath={[...]} ...>
+                <SegmentViewNode type="page" pagePath="login/page...">
+                  <SegmentTrieNode>
+                  <ClientPageRoot Component={function LoginPage} serverProvidedParams={{...}}>
+                    <LoginPage params={Promise} searchParams={Promise}>
+                      <main className="relative g...">
+                        <div>
+                        <section className="relative w...">
+                          <div>
+                          <p>
+                          <h1>
+                          <p>
+                          <form className="mt-8" onSubmit={function submit}>
+                            <label>
+                            <input>
+                            <div
++                             className="mt-2 min-h-5 text-xs text-kumo-danger"
+-                             className={null}
++                             aria-live="polite"
+-                             aria-live={null}
+-                             data-lastpass-icon-root=""
+-                             style={{position:"relative",height:"0px",width:"0px",display:"initial",float:"left"}}
+                            >
+                            <Button type="submit" variant="primary" className="mt-3 w-ful..." disabled={true}>
++                             <button
++                               ref={null}
++                               data-kumo-component="Button"
++                               className="group flex shrink-0 items-center font-medium select-none border-0 shadow-xs..."
++                               disabled={true}
++                               style={{--kumo-button-emphasis-ring:"color-mix(...",--kumo-button-emphasis-bg:"color-mix(...", ...}}
++                               type="submit"
++                             >
+-                             <div className="mt-2 min-h-5 text-xs text-kumo-danger" aria-live="polite">
+                          ...
+                ...
+              ...
+    ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at button (<anonymous>)
+    at LoginPage (app/login/page.tsx:111:11)
+  109 |             {error}
+  110 |           </div>
+> 111 |           <Button
+      |           ^
+  112 |             type="submit"
+  113 |             variant="primary"
+  114 |             className="mt-3 w-full justify-center"
+ GET /api/engineering/work 200 in 752ms (next.js: 136ms, proxy.ts: 11ms, application-code: 604ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 812ms (next.js: 219ms, proxy.ts: 15ms, application-code: 578ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 813ms (next.js: 324ms, proxy.ts: 11ms, application-code: 477ms)
+○ Compiling /api/auth/login ...
+ POST /api/auth/login 200 in 3.4s (next.js: 3.4s, proxy.ts: 5ms, application-code: 63ms)
+ GET /api/engineering/work 200 in 1401ms (next.js: 61ms, proxy.ts: 353ms, application-code: 987ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 1577ms (next.js: 214ms, proxy.ts: 353ms, application-code: 1010ms)
+○ Compiling / ...
+⚠ Fast Refresh had to perform a full reload. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 2.7s (next.js: 22ms, proxy.ts: 1734ms, application-code: 958ms)
+ GET /api/engineering/work 200 in 2.8s (next.js: 38ms, proxy.ts: 1735ms, application-code: 1023ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 3.0s (next.js: 471ms, proxy.ts: 1735ms, application-code: 786ms)
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 426ms (next.js: 68ms, proxy.ts: 11ms, application-code: 346ms)
+ GET /api/engineering/work 200 in 289ms (next.js: 22ms, proxy.ts: 79ms, application-code: 187ms)
+ GET /api/engineering/work 200 in 315ms (next.js: 26ms, proxy.ts: 81ms, application-code: 208ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 461ms (next.js: 108ms, proxy.ts: 81ms, application-code: 271ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 467ms (next.js: 117ms, proxy.ts: 81ms, application-code: 269ms)
+ GET /api/engineering/work 200 in 243ms (next.js: 11ms, proxy.ts: 36ms, application-code: 196ms)
+ GET /api/engineering/work 200 in 246ms (next.js: 8ms, proxy.ts: 25ms, application-code: 214ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 380ms (next.js: 87ms, proxy.ts: 25ms, application-code: 269ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 416ms (next.js: 50ms, proxy.ts: 25ms, application-code: 341ms)
+ GET /api/engineering/work 200 in 47ms (next.js: 1.1ms, proxy.ts: 5ms, application-code: 41ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 53ms (next.js: 5ms, proxy.ts: 8ms, application-code: 41ms)
+ GET /api/engineering/work 200 in 45ms (next.js: 1.3ms, proxy.ts: 3ms, application-code: 41ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 58ms (next.js: 7ms, proxy.ts: 3ms, application-code: 47ms)
+ GET /api/engineering/work 200 in 32ms (next.js: 0.9ms, proxy.ts: 4ms, application-code: 27ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 42ms (next.js: 5ms, proxy.ts: 4ms, application-code: 33ms)
+ GET /api/engineering/work 200 in 28ms (next.js: 0.7ms, proxy.ts: 1.5ms, application-code: 25ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 40ms (next.js: 5ms, proxy.ts: 1.5ms, application-code: 33ms)
+○ Compiling /chat ...
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /chat 200 in 8.2s (next.js: 6.2s, proxy.ts: 2ms, application-code: 1940ms)
+ GET /api/engineering/work 200 in 8.2s (next.js: 6.2s, proxy.ts: 2ms, application-code: 2.0s)
+ GET /api/engineering/work 200 in 380ms (next.js: 158ms, proxy.ts: 62ms, application-code: 160ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 8.3s (next.js: 6.2s, proxy.ts: 3ms, application-code: 2.1s)
+ GET /api/engineering/work 200 in 116ms (next.js: 5ms, proxy.ts: 10ms, application-code: 101ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 154ms (next.js: 42ms, proxy.ts: 7ms, application-code: 105ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 131ms (next.js: 9ms, proxy.ts: 5ms, application-code: 117ms)
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/commands 200 in 4.6s (next.js: 4.2s, proxy.ts: 15ms, application-code: 386ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/threads 200 in 4.6s (next.js: 4.2s, proxy.ts: 16ms, application-code: 445ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /api/models 200 in 5.1s (next.js: 4.2s, proxy.ts: 15ms, application-code: 949ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/capabilities 200 in 7.0s (next.js: 2.7s, proxy.ts: 4.2s, application-code: 231ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/commands 200 in 2.0s (next.js: 59ms, proxy.ts: 1726ms, application-code: 220ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 200 in 9.2s (next.js: 4.6s, proxy.ts: 4.2s, application-code: 423ms)
+ GET /api/agents 200 in 5.4s (next.js: 2.3s, proxy.ts: 704ms, application-code: 2.4s)
+ GET /api/engineering/work 200 in 2.9s (next.js: 11ms, proxy.ts: 455ms, application-code: 2.4s)
+ GET /api/engineering/work 200 in 2.9s (next.js: 38ms, proxy.ts: 455ms, application-code: 2.4s)
+ GET /chat 200 in 2.9s (next.js: 231ms, proxy.ts: 455ms, application-code: 2.2s)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 3.2s (next.js: 2.0s, proxy.ts: 455ms, application-code: 717ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 3.2s (next.js: 2.0s, proxy.ts: 455ms, application-code: 723ms)
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 97ms (next.js: 11ms, proxy.ts: 4ms, application-code: 82ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /api/commands 200 in 109ms (next.js: 84ms, proxy.ts: 20ms, application-code: 5ms)
+ GET /api/threads 200 in 135ms (next.js: 98ms, proxy.ts: 20ms, application-code: 17ms)
+ GET /api/capabilities 200 in 140ms (next.js: 20ms, proxy.ts: 116ms, application-code: 4ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 180ms (next.js: 143ms, proxy.ts: 22ms, application-code: 16ms)
+ GET /api/commands 200 in 33ms (next.js: 9ms, proxy.ts: 21ms, application-code: 3ms)
+ GET /api/threads 200 in 48ms (next.js: 18ms, proxy.ts: 15ms, application-code: 15ms)
+ GET /api/agents 200 in 110ms (next.js: 12ms, proxy.ts: 30ms, application-code: 68ms)
+ GET /api/engineering/work 200 in 100ms (next.js: 13ms, proxy.ts: 16ms, application-code: 71ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 82ms (next.js: 51ms, proxy.ts: 16ms, application-code: 15ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 21ms (next.js: 7ms, proxy.ts: 5ms, application-code: 9ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 17ms (next.js: 3ms, proxy.ts: 5ms, application-code: 8ms)
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/models 200 in 438ms (next.js: 16ms, proxy.ts: 22ms, application-code: 400ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+⚠ ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+
+Import trace for requested module:
+../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+../../../../../../Myeve/node_modules/@novnc/novnc/core/rfb.js
+./components/computer-viewer.tsx
+./components/computer-workspace.tsx
+./app/chat.tsx
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 2.3s (next.js: 2.2s, proxy.ts: 6ms, application-code: 97ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 2.3s (next.js: 2.2s, proxy.ts: 6ms, application-code: 98ms)
+ GET /api/engineering/work 200 in 2.4s (next.js: 2.2s, proxy.ts: 6ms, application-code: 159ms)
+ GET /api/models 200 in 417ms (next.js: 16ms, proxy.ts: 149ms, application-code: 252ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /chat 200 in 1178ms (next.js: 216ms, proxy.ts: 3ms, application-code: 959ms)
+ GET /api/engineering/work 200 in 943ms (next.js: 2ms, proxy.ts: 863ms, application-code: 78ms)
+ GET /api/engineering/work 200 in 948ms (next.js: 6ms, proxy.ts: 863ms, application-code: 78ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 962ms (next.js: 29ms, proxy.ts: 863ms, application-code: 70ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 966ms (next.js: 33ms, proxy.ts: 863ms, application-code: 70ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /api/models 200 in 14ms (next.js: 5ms, proxy.ts: 5ms, application-code: 3ms)
+ GET /api/commands 200 in 181ms (next.js: 13ms, proxy.ts: 8ms, application-code: 161ms)
+ GET /api/capabilities 200 in 393ms (next.js: 12ms, proxy.ts: 218ms, application-code: 163ms)
+ GET /api/models 200 in 198ms (next.js: 7ms, proxy.ts: 188ms, application-code: 3ms)
+ GET /api/commands 200 in 33ms (next.js: 2ms, proxy.ts: 28ms, application-code: 3ms)
+ GET /api/agents 200 in 241ms (next.js: 179ms, proxy.ts: 9ms, application-code: 53ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 460ms (next.js: 206ms, proxy.ts: 218ms, application-code: 36ms)
+ GET /api/threads 200 in 476ms (next.js: 178ms, proxy.ts: 8ms, application-code: 290ms)
+ GET /api/engineering/work 200 in 51ms (next.js: 4ms, proxy.ts: 6ms, application-code: 41ms)
+ GET /api/threads 200 in 44ms (next.js: 9ms, proxy.ts: 23ms, application-code: 12ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 47ms (next.js: 16ms, proxy.ts: 23ms, application-code: 8ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 13ms (next.js: 5ms, proxy.ts: 3ms, application-code: 6ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 11ms (next.js: 4ms, proxy.ts: 2ms, application-code: 5ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 25ms (next.js: 11ms, proxy.ts: 5ms, application-code: 9ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 27ms (next.js: 2.0ms, proxy.ts: 5ms, application-code: 20ms)
+ GET /api/engineering/work 200 in 46ms (next.js: 7ms, proxy.ts: 5ms, application-code: 34ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 1.0ms, proxy.ts: 1.7ms, application-code: 3ms)
+ GET /api/engineering/work 200 in 31ms (next.js: 0.8ms, proxy.ts: 1.7ms, application-code: 29ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 42ms (next.js: 6ms, proxy.ts: 1.7ms, application-code: 34ms)
+ GET /api/engineering/work 200 in 22ms (next.js: 0.7ms, proxy.ts: 1.6ms, application-code: 20ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 9ms (next.js: 1.3ms, proxy.ts: 1.5ms, application-code: 6ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 54ms (next.js: 6ms, proxy.ts: 7ms, application-code: 41ms)
+ GET /api/engineering/work 200 in 31ms (next.js: 0.7ms, proxy.ts: 1.6ms, application-code: 29ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 43ms (next.js: 8ms, proxy.ts: 1.6ms, application-code: 33ms)
+ GET /api/engineering/work 200 in 21ms (next.js: 0.9ms, proxy.ts: 2ms, application-code: 18ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.8ms, proxy.ts: 1.5ms, application-code: 5ms)
+ GET /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 404 in 10ms (next.js: 3ms, proxy.ts: 3ms, application-code: 4ms)
+ PUT /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 200 in 14ms (next.js: 5ms, proxy.ts: 2ms, application-code: 7ms)
+ PUT /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 200 in 11ms (next.js: 2ms, proxy.ts: 1.6ms, application-code: 7ms)
+ PUT /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 200 in 11ms (next.js: 2ms, proxy.ts: 1.5ms, application-code: 8ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 0.7ms, proxy.ts: 1.2ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 28ms (next.js: 3ms, proxy.ts: 1.3ms, application-code: 24ms)
+ GET /api/engineering/work 200 in 30ms (next.js: 0.8ms, proxy.ts: 1.8ms, application-code: 28ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 42ms (next.js: 5ms, proxy.ts: 1.8ms, application-code: 36ms)
+ GET /api/engineering/work 200 in 23ms (next.js: 1.1ms, proxy.ts: 1.6ms, application-code: 21ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.9ms, proxy.ts: 1.5ms, application-code: 5ms)
+ PUT /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 200 in 13ms (next.js: 5ms, proxy.ts: 1.5ms, application-code: 6ms)
+ PUT /api/threads/273988df-aa5e-457a-8981-2fbcde707f7d 200 in 12ms (next.js: 3ms, proxy.ts: 1.6ms, application-code: 7ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 3ms, application-code: 25ms)
+ GET /api/engineering/work 200 in 24ms (next.js: 0.9ms, proxy.ts: 1.8ms, application-code: 22ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 37ms (next.js: 5ms, proxy.ts: 1.8ms, application-code: 30ms)
+ GET /api/threads 200 in 8ms (next.js: 0.7ms, proxy.ts: 1.3ms, application-code: 6ms)
+ GET /api/engineering/work 200 in 25ms (next.js: 0.6ms, proxy.ts: 1.6ms, application-code: 23ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.6ms, proxy.ts: 1.6ms, application-code: 5ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 9ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 6ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 3ms, proxy.ts: 2ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 24ms (next.js: 0.7ms, proxy.ts: 1.5ms, application-code: 22ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 4ms, proxy.ts: 1.5ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 24ms (next.js: 0.8ms, proxy.ts: 1.9ms, application-code: 21ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 12ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 9ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 32ms (next.js: 4ms, proxy.ts: 1.8ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 26ms (next.js: 1.2ms, proxy.ts: 1.7ms, application-code: 23ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 36ms (next.js: 5ms, proxy.ts: 1.7ms, application-code: 29ms)
+ GET /api/engineering/work 200 in 26ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 22ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.7ms, proxy.ts: 1.7ms, application-code: 4ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 21ms (next.js: 1.1ms, proxy.ts: 1.6ms, application-code: 18ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 3ms, proxy.ts: 1.7ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 27ms (next.js: 0.9ms, proxy.ts: 1.9ms, application-code: 24ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 37ms (next.js: 5ms, proxy.ts: 1.9ms, application-code: 31ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.7ms, proxy.ts: 1.4ms, application-code: 18ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 8ms (next.js: 1.3ms, proxy.ts: 2ms, application-code: 5ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 3ms, proxy.ts: 1.6ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 28ms (next.js: 0.8ms, proxy.ts: 1.8ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 38ms (next.js: 5ms, proxy.ts: 1.8ms, application-code: 32ms)
+ GET /api/threads 200 in 8ms (next.js: 1.0ms, proxy.ts: 1.9ms, application-code: 6ms)
+ GET /api/engineering/work 200 in 19ms (next.js: 0.6ms, proxy.ts: 2.0ms, application-code: 17ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.7ms, proxy.ts: 1.7ms, application-code: 5ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 1.1ms, proxy.ts: 1.6ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 3ms, proxy.ts: 1.7ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 33ms (next.js: 1.1ms, proxy.ts: 5ms, application-code: 27ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 43ms (next.js: 5ms, proxy.ts: 5ms, application-code: 34ms)
+ GET /api/engineering/work 200 in 27ms (next.js: 2ms, proxy.ts: 4ms, application-code: 21ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 9ms (next.js: 0.8ms, proxy.ts: 3ms, application-code: 5ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 39ms (next.js: 4ms, proxy.ts: 5ms, application-code: 31ms)
+ GET /api/engineering/work 200 in 31ms (next.js: 1.0ms, proxy.ts: 4ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 41ms (next.js: 4ms, proxy.ts: 4ms, application-code: 32ms)
+ GET /api/engineering/work 200 in 25ms (next.js: 0.8ms, proxy.ts: 3ms, application-code: 21ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 8ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 5ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 9ms (next.js: 0.9ms, proxy.ts: 1.5ms, application-code: 7ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 36ms (next.js: 5ms, proxy.ts: 2ms, application-code: 29ms)
+ GET /api/engineering/work 200 in 33ms (next.js: 1.3ms, proxy.ts: 4ms, application-code: 27ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 43ms (next.js: 5ms, proxy.ts: 4ms, application-code: 34ms)
+ GET /api/engineering/work 200 in 19ms (next.js: 0.7ms, proxy.ts: 1.7ms, application-code: 16ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 9ms (next.js: 1.0ms, proxy.ts: 4ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 45ms (next.js: 3ms, proxy.ts: 5ms, application-code: 37ms)
+ GET /api/engineering/work 200 in 30ms (next.js: 0.8ms, proxy.ts: 4ms, application-code: 25ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 41ms (next.js: 4ms, proxy.ts: 4ms, application-code: 33ms)
+ GET /api/threads 200 in 8ms (next.js: 1.1ms, proxy.ts: 1.8ms, application-code: 5ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.8ms, proxy.ts: 1.6ms, application-code: 18ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 0.7ms, proxy.ts: 1.4ms, application-code: 4ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 11ms (next.js: 1.1ms, proxy.ts: 1.4ms, application-code: 9ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 1.4ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 26ms (next.js: 0.7ms, proxy.ts: 1.9ms, application-code: 23ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 36ms (next.js: 4ms, proxy.ts: 1.9ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.9ms, proxy.ts: 1.6ms, application-code: 17ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.7ms, proxy.ts: 2ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 41ms (next.js: 3ms, proxy.ts: 1.4ms, application-code: 37ms)
+ GET /api/engineering/work 200 in 31ms (next.js: 0.9ms, proxy.ts: 1.6ms, application-code: 29ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 41ms (next.js: 5ms, proxy.ts: 1.6ms, application-code: 35ms)
+ GET /api/engineering/work 200 in 22ms (next.js: 0.7ms, proxy.ts: 2ms, application-code: 19ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.6ms, proxy.ts: 3ms, application-code: 3ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 0.6ms, proxy.ts: 1.6ms, application-code: 3ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 32ms (next.js: 3ms, proxy.ts: 1.6ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 32ms (next.js: 1.4ms, proxy.ts: 4ms, application-code: 27ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 43ms (next.js: 5ms, proxy.ts: 4ms, application-code: 34ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.7ms, proxy.ts: 2ms, application-code: 17ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.4ms, proxy.ts: 2ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 41ms (next.js: 3ms, proxy.ts: 1.9ms, application-code: 36ms)
+ GET /api/engineering/work 200 in 50ms (next.js: 4ms, proxy.ts: 5ms, application-code: 41ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 74ms (next.js: 16ms, proxy.ts: 5ms, application-code: 53ms)
+ GET /api/threads 200 in 18ms (next.js: 4ms, proxy.ts: 6ms, application-code: 8ms)
+ GET /api/engineering/work 200 in 32ms (next.js: 1.8ms, proxy.ts: 2ms, application-code: 28ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 11ms (next.js: 1.2ms, proxy.ts: 4ms, application-code: 6ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 1.0ms, proxy.ts: 1.8ms, application-code: 3ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 2ms, proxy.ts: 2.0ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 28ms (next.js: 0.7ms, proxy.ts: 1.8ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 38ms (next.js: 6ms, proxy.ts: 1.8ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 17ms (next.js: 0.7ms, proxy.ts: 1.6ms, application-code: 15ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.7ms, proxy.ts: 1.8ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 3ms, proxy.ts: 2.0ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 27ms (next.js: 0.7ms, proxy.ts: 1.9ms, application-code: 25ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 37ms (next.js: 4ms, proxy.ts: 1.9ms, application-code: 31ms)
+ GET /api/engineering/work 200 in 21ms (next.js: 0.6ms, proxy.ts: 1.9ms, application-code: 18ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 13ms (next.js: 0.6ms, proxy.ts: 1.8ms, application-code: 10ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 0.9ms, proxy.ts: 1.6ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 36ms (next.js: 5ms, proxy.ts: 4ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 29ms (next.js: 0.7ms, proxy.ts: 1.6ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 38ms (next.js: 5ms, proxy.ts: 1.6ms, application-code: 32ms)
+ GET /api/engineering/work 200 in 23ms (next.js: 0.6ms, proxy.ts: 2ms, application-code: 20ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 6ms (next.js: 1.1ms, proxy.ts: 1.6ms, application-code: 4ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 4ms, proxy.ts: 1.3ms, application-code: 30ms)
+ GET /api/engineering/work 200 in 28ms (next.js: 0.7ms, proxy.ts: 1.9ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 38ms (next.js: 4ms, proxy.ts: 1.9ms, application-code: 32ms)
+ GET /api/threads 200 in 8ms (next.js: 1.5ms, proxy.ts: 1.7ms, application-code: 5ms)
+ GET /api/engineering/work 200 in 24ms (next.js: 1.3ms, proxy.ts: 2.0ms, application-code: 21ms)
+ GET /api/task-runs?threadId=273988df-aa5e-457a-8981-2fbcde707f7d 200 in 7ms (next.js: 0.6ms, proxy.ts: 2ms, application-code: 4ms)
+ GET /api/threads 200 in 14ms (next.js: 1.3ms, proxy.ts: 2ms, application-code: 11ms)
+ GET /api/engineering/work 200 in 33ms (next.js: 6ms, proxy.ts: 2ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 42ms (next.js: 5ms, proxy.ts: 6ms, application-code: 31ms)
+ GET /work?id=fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 42ms (next.js: 8ms, proxy.ts: 5ms, application-code: 29ms)
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+[browser] ../../../../../../Myeve/node_modules/@novnc/novnc/core/util/browser.js
+The generated code contains 'async/await' because this module is using "topLevelAwait".
+However, your target environment does not appear to support 'async/await'.
+As a result, the code may not run as expected or may cause runtime errors.
+ GET /api/engineering/work 200 in 45ms (next.js: 1.7ms, proxy.ts: 3ms, application-code: 41ms)
+ GET /api/engineering/work 200 in 45ms (next.js: 5ms, proxy.ts: 2ms, application-code: 38ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 59ms (next.js: 15ms, proxy.ts: 2ms, application-code: 41ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 61ms (next.js: 18ms, proxy.ts: 2ms, application-code: 40ms)
+ GET /api/engineering/work 200 in 21ms (next.js: 0.6ms, proxy.ts: 1.6ms, application-code: 19ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 4ms, proxy.ts: 1.6ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 24ms (next.js: 1.7ms, proxy.ts: 1.7ms, application-code: 21ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 5ms, proxy.ts: 2ms, application-code: 24ms)
+ GET /api/engineering/work 200 in 21ms (next.js: 0.6ms, proxy.ts: 1.4ms, application-code: 19ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 31ms (next.js: 3ms, proxy.ts: 1.4ms, application-code: 27ms)
+ GET /api/engineering/work 200 in 39ms (next.js: 1.3ms, proxy.ts: 1.8ms, application-code: 36ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 47ms (next.js: 8ms, proxy.ts: 1.8ms, application-code: 37ms)
+ GET /api/engineering/work 200 in 19ms (next.js: 0.6ms, proxy.ts: 2ms, application-code: 16ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 28ms (next.js: 3ms, proxy.ts: 2ms, application-code: 23ms)
+ GET /api/engineering/work 200 in 26ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 22ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 5ms, proxy.ts: 2ms, application-code: 28ms)
+ GET /api/engineering/work 200 in 20ms (next.js: 0.7ms, proxy.ts: 1.9ms, application-code: 18ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 30ms (next.js: 3ms, proxy.ts: 1.9ms, application-code: 25ms)
+ GET /api/engineering/work 200 in 44ms (next.js: 0.7ms, proxy.ts: 4ms, application-code: 40ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 53ms (next.js: 6ms, proxy.ts: 4ms, application-code: 43ms)
+ GET /api/engineering/work 200 in 19ms (next.js: 0.6ms, proxy.ts: 1.6ms, application-code: 17ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 29ms (next.js: 3ms, proxy.ts: 1.6ms, application-code: 24ms)
+ GET /api/engineering/work 200 in 23ms (next.js: 0.8ms, proxy.ts: 2ms, application-code: 20ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 35ms (next.js: 8ms, proxy.ts: 2ms, application-code: 26ms)
+ GET /api/engineering/work 200 in 30ms (next.js: 1.3ms, proxy.ts: 2ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 41ms (next.js: 7ms, proxy.ts: 2ms, application-code: 32ms)
+ GET /api/engineering/work 200 in 30ms (next.js: 0.9ms, proxy.ts: 3ms, application-code: 26ms)
+ GET /api/engineering/work/fb5a3dd2-e601-404c-8321-81f44ac2973d 200 in 39ms (next.js: 6ms, proxy.ts: 3ms, application-code: 31ms)
+[?25h

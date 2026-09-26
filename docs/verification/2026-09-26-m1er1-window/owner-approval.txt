@@ -1,0 +1,579 @@
+APPROVED — 60-Minute Isolated Provider Qualification for M1/ER1
+
+I explicitly authorize the single bounded provider qualification described in:
+
+docs/verification/2026-09-26-p0-gap2/provider-qualification-approval.md
+
+PURPOSE
+
+Renew the expired fixture/provider qualification only long enough to execute
+
+the already-authorized authenticated Sofie native journey and determine
+
+whether M1/ER1 qualifies.
+
+This is fresh temporary authority.
+
+It must NOT revive, extend, mutate, or reinterpret any expired historical
+
+grant, Run, Action, approval, lease, provider qualification, or session.
+
+==================================================
+
+1. AUTHORIZED WINDOW
+
+==================================================
+
+Maximum qualification lifetime:
+
+60 minutes
+
+The authority must:
+
+- have a new identity;
+
+- have explicit creation time;
+
+- have explicit expiry;
+
+- be scoped to the exact qualification fixture;
+
+- expire automatically;
+
+- become unusable after expiry.
+
+Do not renew it automatically.
+
+Do not create recurring or persistent provider authority.
+
+==================================================
+
+2. AUTHORIZED SCOPE
+
+==================================================
+
+Authorize only the provider/model capability required for the documented
+
+authenticated M1/ER1 qualification.
+
+Bind it to the exact applicable:
+
+- owner/test identity;
+
+- Sofie Agent identity/revision;
+
+- selected synthetic Work;
+
+- qualification repository/profile;
+
+- provider;
+
+- model;
+
+- permitted capability;
+
+- purpose;
+
+- budget;
+
+- environment.
+
+Do not broaden repository, tool, integration, or external-effect authority.
+
+==================================================
+
+3. EXISTING TRANSMISSION AUTHORIZATION
+
+==================================================
+
+The previously recorded transmission authorization remains the payload consent
+
+for the authenticated journey only if the exact approved:
+
+- fixture files;
+
+- synthetic Work context;
+
+- generated candidates;
+
+- check outputs;
+
+- destination;
+
+- model;
+
+- purpose;
+
+- spend ceiling
+
+remain unchanged.
+
+Do not request duplicate payload consent merely because provider qualification
+
+is being renewed.
+
+If any of those transmission parameters changed, STOP and request fresh
+
+payload authorization.
+
+==================================================
+
+4. SPEND CEILING
+
+==================================================
+
+The previously approved maximum additional spend remains:
+
+$1.313161
+
+This qualification does not increase that ceiling.
+
+All selected-Work model calls must use the newly implemented durable common
+
+Work-budget controls before provider dispatch.
+
+Required:
+
+unbudgeted selected-Work model calls = 0
+
+Do not bypass the common ledger for qualification traffic.
+
+==================================================
+
+5. DO NOT REVIVE OLD AUTHORITY
+
+==================================================
+
+Explicitly prove that:
+
+- expired provider qualification remains expired;
+
+- old Runs remain historical;
+
+- expired approvals remain unusable;
+
+- consumed approvals remain consumed;
+
+- old provider handles are not reactivated;
+
+- historical writer sessions remain fenced.
+
+The new qualification must be independently identifiable.
+
+==================================================
+
+6. EXECUTE THE AUTHENTICATED SOFIE JOURNEY
+
+==================================================
+
+Within the temporary qualification window, execute the previously authorized
+
+real authenticated journey:
+
+Owner login
+
+→ Sofie chat
+
+→ selected durable Work
+
+→ fresh-session read-only recovery
+
+→ common Work-budget admission
+
+→ bounded context retrieval
+
+→ Current Truth explanation
+
+→ productive continuation request
+
+→ native route admission
+
+→ writer custody
+
+→ native model execution
+
+→ intentionally failing candidate
+
+→ protected verification failure
+
+→ Sofie interprets failure
+
+→ bounded repair
+
+→ new candidate
+
+→ protected verification pass
+
+→ immutable PARTIAL Result
+
+→ Sofie explains actual outcome
+
+No human source edits between failure and repair.
+
+No direct service invocation may substitute for a step specifically intended
+
+to qualify the real Sofie chat/model/tool path.
+
+==================================================
+
+7. QUALIFY ROLE / PACK / MODE
+
+==================================================
+
+During the journey, capture actual evidence for:
+
+Software Engineer Role
+
+JStack Capability Pack
+
+/potato-mode
+
+Prove their behavioral effect where specified.
+
+Also prove:
+
+authority expansion = 0
+
+budget expansion = 0
+
+publication authority expansion = 0
+
+==================================================
+
+8. FRESH-SESSION RECOVERY
+
+==================================================
+
+Use the actual authenticated chat experience to prove:
+
+- fresh conversation finds selected Work;
+
+- Current Truth is correct;
+
+- relevant context is retrieved;
+
+- provenance is retained;
+
+- no writer is acquired during read-only recovery;
+
+- model reasoning is budgeted;
+
+- productive execution requires separate admission.
+
+==================================================
+
+9. RESTART QUALIFICATION
+
+==================================================
+
+Execute the approved restart cases where practical within the qualification
+
+window:
+
+- fresh chat/session;
+
+- application/runtime restart;
+
+- verifier recovery.
+
+Verify:
+
+- Work survives;
+
+- candidate survives;
+
+- retained Result survives;
+
+- no duplicate provider execution;
+
+- no old authority is revived.
+
+==================================================
+
+10. UI QUALIFICATION
+
+==================================================
+
+Complete the previously missing UI Result-state checks:
+
+Desktop:
+
+- authenticated Chat;
+
+- Work;
+
+- route;
+
+- candidate;
+
+- evidence;
+
+- spend;
+
+- PARTIAL Result;
+
+- readiness explanation.
+
+Mobile web:
+
+- 390px-class viewport;
+
+- Chat;
+
+- Work;
+
+- Result;
+
+- evidence;
+
+- recovery/readiness state;
+
+- no critical horizontal overflow.
+
+==================================================
+
+11. READINESS MUST REMAIN PARTIAL
+
+==================================================
+
+Even if local implementation and protected verification pass:
+
+DO NOT produce READY_FOR_REVIEW.
+
+GitHub publication, post-publication CI and review are not yet qualified.
+
+Expected:
+
+LOCAL IMPLEMENTATION
+
+PASS
+
+PROTECTED VERIFICATION
+
+PASS
+
+OVERALL RESULT
+
+PARTIAL
+
+This is a required safety assertion.
+
+==================================================
+
+12. TEMPORARY AUTHORITY CLEANUP
+
+==================================================
+
+At qualification completion OR 60-minute expiry, whichever occurs first:
+
+- stop using the temporary provider qualification;
+
+- verify it is expired/revoked/unusable;
+
+- terminate qualification-only runtime resources;
+
+- reconcile outstanding model reservations;
+
+- preserve evidence;
+
+- preserve historical qualification records.
+
+Do not delete audit history merely to clean up authority.
+
+==================================================
+
+13. REQUIRED SAFETY RESULTS
+
+==================================================
+
+Unbudgeted model calls = 0
+
+Authority bypasses = 0
+
+Expired-authority revivals = 0
+
+Duplicate consequential effects = 0
+
+Lost candidates = 0
+
+Stale-writer authoritative updates = 0
+
+False Ready states = 0
+
+Qualification use after expiry = 0
+
+==================================================
+
+14. STOP CONDITIONS
+
+==================================================
+
+Stop and report rather than broadening authority if:
+
+- the exact fixture/profile no longer matches;
+
+- the model/provider differs from the approved transmission;
+
+- additional repository resources are required;
+
+- spend would exceed $1.313161;
+
+- a production credential is required;
+
+- existing execution guards would need weakening;
+
+- the 60-minute authority expires before completion.
+
+Do not silently issue another qualification.
+
+==================================================
+
+15. FINAL REPORT
+
+==================================================
+
+Report:
+
+PROVIDER QUALIFICATION
+
+PASS / FAIL / EXPIRED
+
+QUALIFICATION ID
+
+...
+
+LIFETIME
+
+...
+
+AUTHENTICATED SOFIE NATIVE JOURNEY
+
+PASS / FAIL
+
+WORK ↔ CHAT PARITY
+
+PASS / FAIL
+
+CURRENT TRUTH
+
+PASS / FAIL
+
+SOFTWARE ENGINEER ROLE
+
+PASS / FAIL
+
+JSTACK
+
+PASS / FAIL
+
+/POTATO-MODE
+
+PASS / FAIL
+
+CONTEXT / RETRIEVAL
+
+PASS / FAIL
+
+PRE-MODEL BUDGET ADMISSION
+
+PASS / FAIL
+
+FRESH-SESSION RECOVERY
+
+PASS / FAIL
+
+READ → PRODUCTIVE TRANSITION
+
+PASS / FAIL
+
+NATIVE ROUTE
+
+PASS / FAIL
+
+CANDIDATE CUSTODY
+
+PASS / FAIL
+
+PROTECTED VERIFICATION
+
+PASS / FAIL
+
+APPLICATION RESTART RECOVERY
+
+PASS / FAIL
+
+VERIFIER RECOVERY
+
+PASS / FAIL
+
+DESKTOP UI
+
+PASS / FAIL
+
+MOBILE WEB
+
+PASS / FAIL
+
+FINAL RESULT
+
+PARTIAL / other
+
+MODEL SPEND
+
+$X of $1.313161
+
+UNBUDGETED MODEL CALLS
+
+N
+
+AUTHORITY BYPASSES
+
+N
+
+EXPIRED-AUTHORITY REVIVALS
+
+N
+
+DUPLICATE CONSEQUENTIAL EFFECTS
+
+N
+
+LOST CANDIDATES
+
+N
+
+STALE-WRITER UPDATES
+
+N
+
+FALSE READY STATES
+
+N
+
+POST-QUALIFICATION TEMPORARY AUTHORITY
+
+EXPIRED / REVOKED / ERROR
+
+Then determine:
+
+P0 GAP #2
+
+PASS / PARTIAL / FAIL
+
+M1/ER1
+
+QUALIFIED / NOT QUALIFIED
+
+ER2
+
+READY FOR QUALIFICATION / BLOCKED
+
+Q37
+
+NEXT BLOCKER: <exact capability>
+
+Stop after reporting.
+
+Do not proceed automatically to ER2, Relay, MyFactory, GitHub publication,
+
+learning, Capsules, Q38, or Q39.

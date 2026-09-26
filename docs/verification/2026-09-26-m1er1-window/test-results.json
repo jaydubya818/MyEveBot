@@ -1,0 +1,161 @@
+{
+  "revision": "4ad2b7952555f96f084fa2cb93b145f05b023402",
+  "tests": [
+    {
+      "name": "app",
+      "command": [
+        "npm",
+        "run",
+        "test",
+        "--workspace=eve-agent"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "exitCode": 0,
+      "log": "app.log"
+    },
+    {
+      "name": "root",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "exitCode": 0,
+      "log": "root.log"
+    },
+    {
+      "name": "migrations",
+      "command": [
+        "npm",
+        "run",
+        "db:migrations:check"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "exitCode": 0,
+      "log": "migrations.log"
+    },
+    {
+      "name": "conversation",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-conversation.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "conversation.log"
+    },
+    {
+      "name": "native-host",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-native-host.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "native-host.log"
+    },
+    {
+      "name": "verifier",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-direct-verifier.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 1,
+      "log": "verifier.log"
+    },
+    {
+      "name": "direct",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-direct.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "direct.log"
+    },
+    {
+      "name": "knowledge",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-knowledge.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "knowledge.log"
+    },
+    {
+      "name": "context",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-work-context.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "context.log"
+    },
+    {
+      "name": "routing",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/route-admission.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "routing.log"
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace=eve-agent",
+        "--",
+        "--webpack"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "exitCode": 0,
+      "log": "build.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck",
+        "--workspace=eve-agent"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "exitCode": 0,
+      "log": "typecheck.log"
+    },
+    {
+      "name": "verifier-rerun",
+      "command": [
+        "node",
+        "--import",
+        "tsx",
+        "test/engineering-direct-verifier.integration.mjs"
+      ],
+      "cwd": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve",
+      "exitCode": 0,
+      "log": "verifier-rerun.log"
+    }
+  ],
+  "note": "Initial verifier assertions passed but teardown raised PostgreSQL 57P01. Standalone rerun passed. Initial failure retained; no test source was changed."
+}

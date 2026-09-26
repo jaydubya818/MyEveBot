@@ -1,5 +1,7 @@
 # Authenticated Sofie native qualification — incomplete
 
+**Latest live checkpoint:** [60-minute isolated qualification](../2026-09-26-m1er1-window/README.md) reached real failure and autonomous repair, then common-budget denial before resubmission. Additional spend $0.777654; temporary authority revoked. Fresh native Run parity fails; M1/ER1 NOT QUALIFIED, ER2 BLOCKED. The earlier record below is historical.
+
 **M1/ER1 NOT QUALIFIED. ER2 BLOCKED. GitHub publication BLOCKED.**
 
 **Latest continuation:** P0 Gap #2 implementation is approved and implemented with migration 0051 and passing isolated tests. [Current evidence](../2026-09-26-p0-gap2/README.md) is PARTIAL: the real owner chat reaches the new guarded model wrapper, but its provider qualification is expired. New model spend is $0; the positive journey remains NOT_RUN. Earlier sections below preserve the preceding checkpoint.

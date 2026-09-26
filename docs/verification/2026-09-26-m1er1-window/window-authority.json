@@ -1,0 +1,70 @@
+{
+  "id": "m1er1-33b7a0af-e626-4e86-a507-4454311a67a4",
+  "createdAt": "2026-09-26T22:42:11.552Z",
+  "expiresAt": "2026-09-26T23:42:11.552Z",
+  "environment": "isolated-dogfood",
+  "ownerId": "authenticated-native-fixture",
+  "agent": {
+    "id": "auth-native-sofie",
+    "owner_id": "authenticated-native-fixture",
+    "revision": "2026-09-26 14:12:51.196782-07",
+    "is_primary": true,
+    "status": "active",
+    "max_steps": 30,
+    "max_estimated_cost_usd": "1.3000",
+    "max_runtime_seconds": 3600
+  },
+  "work": {
+    "id": "fb5a3dd2-e601-404c-8321-81f44ac2973d",
+    "version": 2,
+    "generation": 2,
+    "control": "agent",
+    "lifecycle": "active",
+    "max_cost_usd": "1.3",
+    "max_duration_seconds": 3600
+  },
+  "provider": {
+    "id": "myeve-native-sofie",
+    "version": 1
+  },
+  "modelId": "anthropic/claude-sonnet-5",
+  "profileHash": "aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72",
+  "repository": "jaydubya818/myeve-golden-work-qual",
+  "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+  "resources": [
+    {
+      "path": ".github/workflows/quantity-ci.yml",
+      "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+    },
+    {
+      "path": "package.json",
+      "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+    },
+    {
+      "path": "README.md",
+      "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+    },
+    {
+      "path": "test/quantity.test.mjs",
+      "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+    }
+  ],
+  "permittedCapabilities": [
+    "budgeted selected-Work model reasoning",
+    "guarded native source development",
+    "independent local verification"
+  ],
+  "purpose": "Authenticated Sofie native M1/ER1 qualification only",
+  "additionalSpendCeilingUsd": 1.313161,
+  "workCeilingUsd": 1.3,
+  "maxCalls": 30,
+  "maxOutputTokens": 2048,
+  "maxRuns": 4,
+  "runtimeConfigHash": "db2fe94cdcccd0924c9970ce53aa565215c310098aa0f9920ce0ac747abe56e3",
+  "historicalConfigHash": "16ea1be02998aebff007b5764f1e147067a0e1b3db273cb2c5a520cbd1f75c6e",
+  "approvalSha256": "58d27397c3ac1fbf79092a9469a4f3cbbcadf4d5959e98a0841bfe770ce52d03"
+}
