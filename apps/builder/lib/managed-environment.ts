@@ -2,7 +2,7 @@ import { createHash, randomUUID } from "node:crypto";
 
 export const MANAGED_ENVIRONMENT_STATES = [
   "reserved", "project_created", "storage_created", "configured",
-  "deployed", "healthy", "active", "paused", "deleting", "deleted", "failed",
+  "deployed", "healthy", "active", "upgrading", "paused", "deleting", "deleted", "failed",
 ] as const;
 
 export type ManagedEnvironmentState = (typeof MANAGED_ENVIRONMENT_STATES)[number];
@@ -19,6 +19,11 @@ export interface ManagedEnvironment {
   deploymentId: string | null;
   origin: string | null;
   templateSha: string | null;
+  pendingDeploymentId?: string | null;
+  pendingTemplateSha?: string | null;
+  previousState?: "healthy" | "active" | null;
+  lastDatabaseBackupSha256?: string | null;
+  lastDatabaseBackupPath?: string | null;
   relayAccountId: string | null;
   relayAgentId: string | null;
   relayKeyVersion: string | null;
@@ -42,8 +47,9 @@ const ALLOWED_TRANSITIONS: Record<ManagedEnvironmentState, readonly ManagedEnvir
   storage_created: ["configured", "failed"],
   configured: ["deployed", "failed"],
   deployed: ["healthy", "failed"],
-  healthy: ["active", "paused", "deleting", "failed"],
-  active: ["paused", "deleting", "failed"],
+  healthy: ["active", "upgrading", "paused", "deleting", "failed"],
+  active: ["upgrading", "paused", "deleting", "failed"],
+  upgrading: ["healthy", "active", "failed"],
   paused: ["healthy", "active", "deleting", "failed"],
   deleting: ["deleted", "failed"],
   deleted: [],
@@ -73,6 +79,11 @@ export function newManagedEnvironment(input: {
     deploymentId: null,
     origin: null,
     templateSha: null,
+    pendingDeploymentId: null,
+    pendingTemplateSha: null,
+    previousState: null,
+    lastDatabaseBackupSha256: null,
+    lastDatabaseBackupPath: null,
     relayAccountId: null,
     relayAgentId: null,
     relayKeyVersion: null,
@@ -134,6 +145,10 @@ export function updateEnvironment(
   }
   if (next.state === "active" && (!next.aiGatewayBudgetUsd || !next.lastHealthCheckAt || !next.origin)) {
     throw new Error("A healthy Eve, public origin, and model budget are required before activation.");
+  }
+  if (next.state === "upgrading" && (!next.deploymentId || !next.templateSha ||
+      !next.lastDatabaseBackupSha256 || !next.previousState)) {
+    throw new Error("Upgrade requires current deployment and a verified database backup.");
   }
   if (next.state === "deleted" && !next.deletedAt) throw new Error("Deletion receipt time required.");
   return {

@@ -49,6 +49,29 @@ test("a second Eve cannot claim another Eve's project or database", () => {
   assert.throws(() => updateEnvironment(registry, second.id, { state: "storage_created", databaseStoreId: "store_one" }), /already assigned/);
 });
 
+test("upgrade keeps the original release until backup and new deployment are verified", () => {
+  const environment = newManagedEnvironment({ email: "tester@example.com", projectName: "eve-beta-1", now: fixed });
+  let registry: ManagedEnvironmentRegistry = { version: 1, environments: [environment] };
+  registry = updateEnvironment(registry, environment.id, { state: "project_created", projectId: "prj_one" }, fixed);
+  registry = updateEnvironment(registry, environment.id, { state: "storage_created", databaseStoreId: "store_one" }, fixed);
+  registry = updateEnvironment(registry, environment.id, { state: "configured" }, fixed);
+  registry = updateEnvironment(registry, environment.id, { state: "deployed", deploymentId: "dpl_old", templateSha: "a".repeat(40) }, fixed);
+  registry = updateEnvironment(registry, environment.id, { state: "healthy", origin: "https://eve-beta-1.vercel.app" }, fixed);
+  assert.throws(() => updateEnvironment(registry, environment.id, { state: "upgrading" }), /backup/);
+  registry = updateEnvironment(registry, environment.id, {
+    state: "upgrading", previousState: "healthy", pendingTemplateSha: "b".repeat(40),
+    lastDatabaseBackupPath: "/private/backup.dump", lastDatabaseBackupSha256: "c".repeat(64),
+  }, fixed);
+  assert.equal(registry.environments[0]?.deploymentId, "dpl_old");
+  registry = updateEnvironment(registry, environment.id, { pendingDeploymentId: "dpl_new" }, fixed);
+  registry = updateEnvironment(registry, environment.id, {
+    state: "healthy", deploymentId: "dpl_new", templateSha: "b".repeat(40),
+    pendingDeploymentId: null, pendingTemplateSha: null, previousState: null,
+  }, fixed);
+  assert.equal(registry.environments[0]?.templateSha, "b".repeat(40));
+  assert.equal(registry.environments[0]?.lastDatabaseBackupSha256, "c".repeat(64));
+});
+
 test("registry is private, atomic, backed up, and rejects concurrent mutations", async () => {
   const dir = await mkdtemp(join(tmpdir(), "myeve-managed-registry-"));
   const file = join(dir, "registry.json");

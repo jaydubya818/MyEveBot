@@ -1,9 +1,9 @@
 /** Operator-only first-beta provisioning. Never expose this command as an HTTP route. */
 import { execFileSync, spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { chmod, mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { createHash, randomUUID } from "node:crypto";
+import { chmod, mkdir, mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
-import { isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { parseEnv } from "node:util";
 
 import { buildEnv } from "../lib/deploy-env";
@@ -133,7 +133,8 @@ async function ownerReadiness(origin: string, password: string): Promise<{ ready
   return { ready: report.overall === "ready" && missing.length === 0, checks: missing };
 }
 
-async function migrateDedicatedDatabase(environment: ManagedEnvironment, teamSlug: string): Promise<void> {
+async function withDedicatedDatabase<T>(environment: ManagedEnvironment, teamSlug: string,
+  action: (url: string) => Promise<T>): Promise<T> {
   const directory = await mkdtemp(join(tmpdir(), "myeve-managed-env-"));
   const filename = join(directory, "production.env");
   try {
@@ -148,15 +149,46 @@ async function migrateDedicatedDatabase(environment: ManagedEnvironment, teamSlu
         vars.MYEVE_OWNER_ID !== environment.ownerId || !vars.DATABASE_URL) {
       throw new Error("Dedicated database environment identity did not match the registry.");
     }
-    const root = await templateRoot();
-    const migrated = spawnSync(process.execPath, ["scripts/migrate-database.ts"], {
-      cwd: root, encoding: "utf8", timeout: 300_000,
-      env: { ...process.env, DATABASE_URL: vars.DATABASE_URL },
-    });
-    if (migrated.status !== 0) throw new Error("Managed Eve database migration failed; inspect the dedicated database before retry.");
+    return await action(vars.DATABASE_URL_UNPOOLED || vars.DATABASE_URL);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
+}
+
+async function migrateDedicatedDatabase(environment: ManagedEnvironment, teamSlug: string): Promise<void> {
+  await withDedicatedDatabase(environment, teamSlug, async (url) => {
+    const root = await templateRoot();
+    const migrated = spawnSync(process.execPath, ["scripts/migrate-database.ts"], {
+      cwd: root, encoding: "utf8", timeout: 300_000,
+      env: { ...process.env, DATABASE_URL: url },
+    });
+    if (migrated.status !== 0) throw new Error("Managed Eve database migration failed; inspect the dedicated database before retry.");
+  });
+}
+
+async function backupDedicatedDatabase(environment: ManagedEnvironment, teamSlug: string,
+  configPath: string): Promise<{ path: string; sha256: string }> {
+  return withDedicatedDatabase(environment, teamSlug, async (url) => {
+    const directory = join(dirname(configPath), "database-backups");
+    await mkdir(directory, { recursive: true, mode: 0o700 });
+    const path = join(directory, `${environment.id}-${randomUUID()}.dump`);
+    const executable = "/opt/homebrew/opt/libpq/bin";
+    const dumped = spawnSync(join(executable, "pg_dump"), ["--format=custom", "--file", path], {
+      encoding: "utf8", timeout: 300_000, env: { ...process.env, PGDATABASE: url },
+    });
+    if (dumped.status !== 0) {
+      await rm(path, { force: true });
+      throw new Error("Dedicated database backup failed; upgrade stopped before deployment.");
+    }
+    await chmod(path, 0o600);
+    const verified = spawnSync(join(executable, "pg_restore"), ["--list", path], {
+      encoding: "utf8", timeout: 60_000,
+    });
+    if (verified.status !== 0 || !verified.stdout.includes("SCHEMA") ||
+        (await stat(path)).size < 1024) throw new Error("Dedicated database backup did not verify.");
+    const sha256 = createHash("sha256").update(await readFile(path)).digest("hex");
+    return { path, sha256 };
+  });
 }
 
 function current(registry: ManagedEnvironmentRegistry, id: string): ManagedEnvironment {
@@ -319,6 +351,114 @@ async function recoverFailedDeployment(id: string, expectedDeploymentId: string)
     });
     await checkpoint(registry);
     console.log(JSON.stringify({ environmentId: id, state: "configured", failedDeploymentId: expectedDeploymentId }));
+    return { registry, result: undefined };
+  });
+}
+
+async function upgrade(configPath: string): Promise<void> {
+  const path = await privateFile(configPath);
+  const input = JSON.parse(await readFile(path, "utf8")) as ProvisionFile;
+  if (!input?.config || !/^[a-f0-9]{40}$/.test(input.sourceSha)) {
+    throw new Error("Invalid managed upgrade input.");
+  }
+  exactSourceSha(input.sourceSha);
+  const token = await vercelToken();
+  await withManagedRegistry(requiredEnvironment("MYEVE_CONTROL_REGISTRY_PATH"), async (initial, checkpoint) => {
+    let registry = initial;
+    let environment = registry.environments.find((item) => item.email === input.email.toLowerCase());
+    if (!environment || environment.projectName !== input.config.projectName ||
+        !environment.projectId || !environment.deploymentId || !environment.origin ||
+        !["healthy", "active", "upgrading"].includes(environment.state)) {
+      throw new Error("Upgrade requires an exact healthy managed Eve and private owner config.");
+    }
+    const id = environment.id;
+    if (await managedProjectMarker(token, input.teamId, environment.projectId) !== id) {
+      throw new Error("Project no longer belongs to this managed environment.");
+    }
+    if (environment.state !== "upgrading") {
+      if (environment.state !== "healthy" && environment.state !== "active") {
+        throw new Error("Only a healthy or active Eve can begin an upgrade.");
+      }
+      const previousState = environment.state;
+      if (environment.templateSha === input.sourceSha) throw new Error("This source commit is already deployed.");
+      const oldDeployment = await getDeploymentStatus(token, input.teamId, environment.deploymentId);
+      if (oldDeployment.readyState !== "READY") throw new Error("Current production deployment is not ready.");
+      const backup = await backupDedicatedDatabase(environment, input.teamSlug, path);
+      registry = updateEnvironment(registry, id, {
+        state: "upgrading", previousState,
+        pendingTemplateSha: input.sourceSha, pendingDeploymentId: null,
+        lastDatabaseBackupPath: backup.path, lastDatabaseBackupSha256: backup.sha256,
+      });
+      await checkpoint(registry);
+    }
+    environment = current(registry, id);
+    if (environment.pendingTemplateSha !== input.sourceSha || !environment.lastDatabaseBackupPath ||
+        !environment.lastDatabaseBackupSha256) throw new Error("Upgrade checkpoint does not match this source or backup.");
+    const backup = await readFile(await privateFile(environment.lastDatabaseBackupPath));
+    if (createHash("sha256").update(backup).digest("hex") !== environment.lastDatabaseBackupSha256) {
+      throw new Error("Upgrade backup changed after checkpoint.");
+    }
+    if (!environment.pendingDeploymentId) {
+      await migrateDedicatedDatabase(environment, input.teamSlug);
+      const info = await templateInfo();
+      await upsertEnv(token, input.teamId, environment.projectId!, [
+        { key: "EVE_TEMPLATE_VERSION", value: info.version },
+        { key: "EVE_TEMPLATE_RELEASE", value: String(info.release) },
+      ]);
+      const deployment = await createDeployment(token, input.teamId, environment.projectName,
+        await assembleDeployment(input.config));
+      registry = updateEnvironment(registry, id, { pendingDeploymentId: deployment.id });
+      await checkpoint(registry);
+    }
+    environment = current(registry, id);
+    let deployment = await getDeploymentStatus(token, input.teamId, environment.pendingDeploymentId!);
+    for (let attempt = 0; attempt < 180 && deployment.readyState !== "READY"; attempt++) {
+      if (["ERROR", "CANCELED"].includes(deployment.readyState)) break;
+      await new Promise((resolve) => setTimeout(resolve, 5_000));
+      deployment = await getDeploymentStatus(token, input.teamId, environment.pendingDeploymentId!);
+    }
+    if (deployment.readyState !== "READY") {
+      if (!["ERROR", "CANCELED"].includes(deployment.readyState)) {
+        throw new Error("Upgrade build is still running; rerun the same command to resume.");
+      }
+      registry = updateEnvironment(registry, id, {
+        state: environment.previousState!, previousState: null,
+        pendingTemplateSha: null, pendingDeploymentId: null,
+        error: `Upgrade deployment ${environment.pendingDeploymentId} ${deployment.readyState}`,
+      });
+      await checkpoint(registry);
+      throw new Error("Upgrade build failed; original deployment remains recorded.");
+    }
+    let readiness: { ready: boolean; checks: string[] } | null = null;
+    try { readiness = await ownerReadiness(environment.origin!, input.config.accessPassword); }
+    catch { /* Restore the previous deployment below if readiness cannot be established. */ }
+    if (!readiness?.ready) {
+      const restored = spawnSync("npx", ["--yes", "vercel@60.1.3", "promote",
+        environment.deploymentId!, "--yes", "--scope", input.teamSlug], {
+        encoding: "utf8", timeout: 120_000,
+      });
+      if (restored.status !== 0) {
+        throw new Error("Upgrade failed readiness and automatic production restore failed; operator intervention required.");
+      }
+      const previous = await ownerReadiness(environment.origin!, input.config.accessPassword);
+      if (!previous.ready) throw new Error("Previous deployment promoted but owner readiness is still failing.");
+      registry = updateEnvironment(registry, id, {
+        state: environment.previousState!, previousState: null,
+        pendingTemplateSha: null, pendingDeploymentId: null,
+        error: "Upgrade failed readiness; previous production deployment restored.",
+      });
+      await checkpoint(registry);
+      throw new Error("Upgrade failed readiness; previous production deployment restored.");
+    }
+    registry = updateEnvironment(registry, id, {
+      state: environment.previousState!, deploymentId: environment.pendingDeploymentId!,
+      templateSha: input.sourceSha, pendingDeploymentId: null, pendingTemplateSha: null,
+      previousState: null, lastHealthCheckAt: new Date().toISOString(), error: null,
+    });
+    await checkpoint(registry);
+    console.log(JSON.stringify({ environmentId: id, deploymentId: current(registry, id).deploymentId,
+      sourceSha: input.sourceSha, state: current(registry, id).state,
+      backupSha256: environment.lastDatabaseBackupSha256 }));
     return { registry, result: undefined };
   });
 }
@@ -506,6 +646,7 @@ async function main(): Promise<void> {
     return recoverFailedDeployment(argument, process.argv[4]);
   }
   if (command === "monitor" && argument) return monitor(argument);
+  if (command === "upgrade" && argument) return upgrade(argument);
   if (command === "record-export" && argument && process.argv[4]) return recordExport(argument, process.argv[4]);
   if (command === "pause" && argument && process.argv[4]) return pause(argument, process.argv[4]);
   if (command === "resume" && argument && process.argv[4]) return resume(argument, process.argv[4]);
@@ -521,7 +662,7 @@ async function main(): Promise<void> {
     })), null, 2));
     return;
   }
-  throw new Error("Usage: managed-eve.ts provision CONFIG | monitor CONFIG | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | cleanup-rehearsal ID PROJECT_ID DB_STORE_ID | status | recover-failed-deployment ID DEPLOYMENT_ID");
+  throw new Error("Usage: managed-eve.ts provision CONFIG | upgrade CONFIG | monitor CONFIG | record-export CONFIG ARCHIVE | pause ID PROJECT_ID | resume ID CONFIG | cleanup-rehearsal ID PROJECT_ID DB_STORE_ID | status | recover-failed-deployment ID DEPLOYMENT_ID");
 }
 
 main().catch((error: unknown) => {
