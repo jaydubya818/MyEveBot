@@ -27,6 +27,9 @@ const { FederationStore } = await import("../../apps/eve/lib/relay/store.ts");
 const { ownerCommand, handleOwnerRequest } = await import(
   "../../apps/eve/lib/relay/owner-api.ts"
 );
+const { POST: savePeerPermissions } = await import(
+  "../../apps/eve/app/api/relay/peer-permissions/route.ts"
+);
 const { receiveDelivery } = await import("../../apps/eve/lib/relay/inbox.ts");
 const { retrieveArtifact } = await import(
   "../../apps/eve/lib/relay/artifacts.ts"
@@ -109,6 +112,8 @@ httpsServer(
       let response;
       if (incoming.url === "/api/relay")
         response = await handleOwnerRequest(request);
+      else if (incoming.url === "/api/relay/peer-permissions")
+        response = await savePeerPermissions(request);
       else if (incoming.url.startsWith("/api/relay/artifacts/")) {
         const artifact = await retrieveArtifact(
           store,
@@ -157,8 +162,28 @@ httpsServer(
           result = await store.claim(
             verifyEnvelope(input.token, await store.connection()),
           );
-        else if (input.operation === "deliver")
-          result = await receiveDelivery(store, input.token);
+        else if (input.operation === "deliver") {
+          const answerPeerMessage =
+            config.environment.MYEVE_QUALIFICATION_MOCK_REPLIES === "true"
+              ? async ({ envelope, settings, revalidate }) => {
+                  await revalidate();
+                  const incoming = String(envelope.payload.body);
+                  const response = `Sofie received Ava's message: ${incoming}`;
+                  if (!settings.publicProfile.trim())
+                    throw new Error("The test reply needs an owner-approved profile.");
+                  await revalidate();
+                  return {
+                    acknowledged: true,
+                    reply: { body: response, replyTo: envelope.id },
+                  };
+                }
+              : undefined;
+          result = await receiveDelivery(
+            store,
+            input.token,
+            answerPeerMessage ? { answerPeerMessage } : undefined,
+          );
+        }
         else if (input.operation === "traces") {
           result = queries;
           queries = [];
