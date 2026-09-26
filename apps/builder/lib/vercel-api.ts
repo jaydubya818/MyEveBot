@@ -113,6 +113,18 @@ export async function createProject(
   }
 }
 
+export async function pauseProject(token: string, teamId: string | null, projectId: string): Promise<void> {
+  await api(`/v1/projects/${encodeURIComponent(projectId)}/pause`, {
+    token, teamId, method: "POST", stage: "project",
+  });
+}
+
+export async function unpauseProject(token: string, teamId: string | null, projectId: string): Promise<void> {
+  await api(`/v1/projects/${encodeURIComponent(projectId)}/unpause`, {
+    token, teamId, method: "POST", stage: "project",
+  });
+}
+
 export interface ProjectModelBudget {
   projectId: string;
   limitAmount: number;
