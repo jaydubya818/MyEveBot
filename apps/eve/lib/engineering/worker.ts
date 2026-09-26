@@ -67,7 +67,7 @@ export class EngineeringWorker {
           state.humanHandoffGeneration=work.lifecycle==="active"&&work.control==="human"?work.generation:null;
         }
         else {
-          if(state.runs.some(run=>run.custodyUnresolved&&!run.resourceReleasedAt))
+          if(state.runs.some(run=>run.custodyUnresolved))
             throw new WorkError("candidate_custody","An interrupted executor resource has no retained candidate. Reconcile its contents before a fresh attempt.");
           if(!await this.authorityCurrent())throw new WorkError("agent_authority","The coordinating Agent is no longer active in this owner scope.");
           if(work.criteriaVersion!==state.contract.criteriaVersion||state.contract.profileHash!==this.profileCurrent())throw new Error("The current criteria or profile requires a new contract.");
@@ -196,7 +196,12 @@ export class EngineeringWorker {
       const work=await this.store.workStore.get(id);state.phase=state.effects.some(e=>e.status==="UNKNOWN")?"publishing":"needs_you";state.blockers=[error instanceof Error?error.message:"Execution needs reconciliation."];
       for(const run of state.runs.filter(r=>r.status==="running")) {
         try {await this.executor.requestStop(run);await this.retainInterruptedCandidate(state,run);run.status="failed";run.endedAt=nowIso();}
-        catch {state.blockers.push(`Resource stop is unconfirmed: ${run.resource}`);}
+        catch {
+          // The process or its volume may still contain the only candidate.
+          // Never let Continue abandon this attempt after an unknown stop.
+          run.custodyUnresolved=true;run.status="failed";run.endedAt=nowIso();
+          state.blockers.push(`Resource stop is unconfirmed: ${run.resource}`);
+        }
       }
       try {
         await this.store.save(work,state,"needs_human_review",claim.token);
@@ -231,12 +236,90 @@ export class EngineeringWorker {
       state.blockers.push(`Interrupted attempt has no admissible candidate: ${error instanceof Error?error.message:"unavailable"}`);
     }
   }
+  /** Owner-requested recovery is a bounded read of a stopped resource, not an executor retry. */
+  async reconcileCustody(id:string,revision:number,runId:string) {
+    const claim=await this.store.claim(id);
+    if(!claim)throw new WorkError("execution_busy","An execution writer is active. Reload and retry custody inspection.");
+    let leaseError:unknown;
+    const heartbeat=setInterval(()=>{void this.store.renew(id,claim.token).catch(error=>{leaseError=error;});},10000);
+    try {
+      const work=await this.store.workStore.get(id),state=claim.state;
+      const save=(kind:string)=>{
+        if(leaseError)throw leaseError;
+        return this.store.save(work,state,kind,claim.token);
+      };
+      if(state.qualificationMode!=="live"||state.revision!==revision||work.generation!==state.generation||work.control!=="agent"||work.lifecycle!=="active"||
+        state.phase!=="needs_you"||state.effects.some(effect=>["PREPARED","UNKNOWN"].includes(effect.status)))
+        throw new WorkError("custody_changed","Work, execution or publication authority changed. Reload before inspecting custody.");
+      const run=state.runs.find(item=>item.id===runId);
+      if(!run||!run.custodyUnresolved||run.candidate||run.resourceReleasedAt||!["failed","stopped"].includes(run.status)||
+        state.candidates.some(candidate=>candidate.runId===run.id))
+        throw new WorkError("custody_changed","This exact interrupted Run no longer has an unreconciled resource.");
+      if(!await this.authorityCurrent())throw new WorkError("agent_authority","The coordinating Agent is no longer active in this owner scope.");
+
+      let container:"running"|"stopped"|"absent"|"unknown"="unknown";
+      let volume:"present"|"absent"|"unknown"="unknown";
+      let reason:string|undefined;
+      try {
+        const observed=await this.executor.inspectCustody(run);
+        container=observed.container;volume=observed.volume;
+        if(container==="running")reason="Executor is still running. Stop it before candidate custody can be inspected.";
+        else if(volume!=="present")reason="The candidate volume is not present. Candidate custody remains unresolved.";
+        else if(!run.inputSnapshot)reason="The saved source snapshot is missing. Candidate identity cannot be verified.";
+      } catch {
+        reason="Executor resource state could not be established. Candidate custody remains unresolved.";
+      }
+      if(reason) {
+        state.custodyInspections??=[];
+        state.custodyInspections.push({id:randomUUID(),runId,at:nowIso(),container,volume,outcome:"UNRESOLVED",reason});
+        if(!state.blockers.includes(reason))state.blockers.push(reason);
+        return save("custody_inspection_unresolved");
+      }
+      try {
+        const candidate=await this.executor.collectCandidate(state.contract,run,run.inputSnapshot!);
+        assertCandidateIdentity(state.contract,run,run.inputSnapshot!,candidate);
+        invalidateEvidence(state);
+        state.candidates.push(candidate);run.candidate=candidate.sha;run.custodyUnresolved=false;
+        state.approval=null;
+        state.custodyInspections??=[];
+        const priorCustodyReasons=new Set(state.custodyInspections.filter(inspection=>inspection.runId===runId&&inspection.outcome==="UNRESOLVED").map(inspection=>inspection.reason));
+        state.custodyInspections.push({id:randomUUID(),runId,at:nowIso(),container,volume,outcome:"RETAINED",candidateSha:candidate.sha});
+        state.blockers=state.blockers.filter(blocker=>!blocker.startsWith("Interrupted attempt has no admissible candidate:")&&
+          !blocker.startsWith("An interrupted executor resource has no retained candidate.")&&!priorCustodyReasons.has(blocker));
+        state.blockers.push("Exact candidate retained after resource inspection; protected verification has not run. Release the resource before continuing.");
+        await save("candidate_custody_reconciled");
+        try {
+          await this.executor.cleanup(run);
+          run.resourceReleasedAt=nowIso();
+          state.blockers=state.blockers.filter(blocker=>!blocker.startsWith("Exact candidate retained after resource inspection;"));
+          state.blockers.push("Recovered candidate is retained. Continue with a fresh attempt for independent verification; no Result is ready.");
+          return await save("reconciled_resource_released");
+        } catch {
+          // Candidate custody is already durable. A later tick retries idempotent cleanup.
+          state.blockers.push("Recovered candidate is retained, but resource release is unconfirmed. A fresh attempt remains fenced.");
+          return save("reconciled_resource_release_pending");
+        }
+      } catch(error) {
+        // Only collection/identity failures reach here; never destroy the preserved volume.
+        if(run.candidate)throw error;
+        reason="The preserved resource did not yield an admissible candidate. Custody remains unresolved.";
+        state.custodyInspections??=[];
+        state.custodyInspections.push({id:randomUUID(),runId,at:nowIso(),container,volume,outcome:"UNRESOLVED",reason});
+        if(!state.blockers.includes(reason))state.blockers.push(reason);
+        return save("custody_inspection_unresolved");
+      }
+    } finally {clearInterval(heartbeat);await this.store.release(id,claim.token);}
+  }
   async continue(id:string,revision:number) {
     const work=await this.store.workStore.get(id),state=await this.store.get(id);
     if(!await this.authorityCurrent())throw new Error("Current coordinating Agent authority is required.");
     if(!state||state.revision!==revision||work.control!=="agent"||work.generation!==state.generation||state.effects.some(e=>["PREPARED","UNKNOWN"].includes(e.status)))throw new Error("Current agent control, generation and reconciled external effects are required.");
-    if(state.runs.some(run=>run.custodyUnresolved&&!run.resourceReleasedAt))
+    if(state.runs.some(run=>run.custodyUnresolved))
       throw new WorkError("candidate_custody","An interrupted executor resource has no retained candidate. Reconcile its contents before a fresh attempt.");
+    if(state.runs.some(run=>run.candidate&&!run.resourceReleasedAt))
+      throw new WorkError("resource_cleanup","A retained candidate's executor resource has not been released. Reconcile cleanup before a fresh attempt.");
+    if(state.runs.some(run=>run.status==="running"))
+      throw new WorkError("candidate_custody","An active executor attempt must be stopped and its candidate reconciled before a fresh attempt.");
     if(state.contract.profileHash!==this.profileCurrent()||work.criteriaVersion!==state.contract.criteriaVersion)throw new Error("Contract authority changed; continuation denied.");
     const truth=await this.github.observe(state.contract,workBranch(id));
     assertCurrentRepository(state,truth);
@@ -244,7 +327,7 @@ export class EngineeringWorker {
     const matchesHandoff=handoff?.generation===work.generation&&handoff.head===truth.head&&handoff.prNumber===(truth.pr?.number??null);
     if(!matchesConfirmedPublication(state,truth)&&!matchesHandoff)
       throw new WorkError("repository_changed","The repository, base or Work branch changed; reconcile it before continuing.");
-    for(const run of state.runs.filter(r=>["running","queued"].includes(r.status))) {await this.executor.requestStop(run);run.status="stopped";run.endedAt=nowIso();}
+    for(const run of state.runs.filter(r=>r.status==="queued")) {await this.executor.requestStop(run);run.status="stopped";run.endedAt=nowIso();}
     invalidateEvidence(state);state.generation=work.generation;state.truth=truth;state.blockers=[];state.approval=null;
     queueRun(state,work,"Owner selected a fresh attempt; preserve the reconciled branch",truth.head??latestCandidate(state)?.sha??state.contract.baseSha);
     state.interventions.push({id:randomUUID(),kind:"judgment",reason:"Explicit owner continuation / same-executor replacement",at:nowIso()});

@@ -27,7 +27,9 @@ function treeObjects(files: Record<string,string>) {
   }
   return {sha:tree(""),objects};
 }
-function candidateMaterial(contract: WorkContract, base: RepositorySnapshot, files: Record<string,string>) {
+export type CandidateContract = Pick<WorkContract,"workId"|"repository"|"baseSha"> &
+  { profile: Pick<WorkContract["profile"],"allowedPaths"> };
+function candidateMaterial(contract: CandidateContract, base: RepositorySnapshot, files: Record<string,string>) {
   const paths = [...new Set([...Object.keys(base.files),...Object.keys(files)])].filter(p=>base.files[p]!==files[p]).sort();
   if (!paths.length || paths.some(p=>!contract.profile.allowedPaths.includes(p)) || Object.keys(files).length>200 ||
     Buffer.byteLength(JSON.stringify(files))>500000 || Object.values(files).some(v=>v.includes("\0")))
@@ -45,7 +47,7 @@ function candidateCommitSha(tree: string, parentSha: string, commit: Candidate["
   const author = `${commit.name} <${commit.email}> ${Math.floor(timestamp/1000)} +0000`;
   return objectSha("commit",`tree ${tree}\nparent ${parentSha}\nauthor ${author}\ncommitter ${author}\n\n${commit.message}`);
 }
-export function createCandidate(contract: WorkContract, run: EngineeringRun, base: RepositorySnapshot, files: Record<string,string>): Candidate {
+export function createCandidate(contract: CandidateContract, run: EngineeringRun, base: RepositorySnapshot, files: Record<string,string>): Candidate {
   const {paths,tree,patch}=candidateMaterial(contract,base,files);
   const commit = {message:`MyEve Work ${contract.workId}\nRun ${run.id}\n`,name:"MyEve Engineering",email:"engineering@users.noreply.github.com",date:new Date(Math.floor(Date.now()/1000)*1000).toISOString()};
   const sha = candidateCommitSha(tree,run.publicationParentSha,commit);
@@ -53,7 +55,7 @@ export function createCandidate(contract: WorkContract, run: EngineeringRun, bas
     parentSha:run.publicationParentSha,sha,tree,files,changedPaths:paths,patch,artifactHash:digest({files,patch}),createdAt:nowIso(),commit};
 }
 /** Recompute identity before a candidate enters durable custody or protected verification. */
-export function assertCandidateIdentity(contract: WorkContract, run: EngineeringRun, base: RepositorySnapshot, candidate: Candidate) {
+export function assertCandidateIdentity(contract: CandidateContract, run: EngineeringRun, base: RepositorySnapshot, candidate: Candidate) {
   const {paths,tree,patch}=candidateMaterial(contract,base,candidate.files);
   const expectedCommit={message:`MyEve Work ${contract.workId}\nRun ${run.id}\n`,name:"MyEve Engineering",email:"engineering@users.noreply.github.com"};
   if (base.sha!==run.parentSha || candidate.workId!==contract.workId || candidate.runId!==run.id ||

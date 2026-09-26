@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { EngineeringWorkerProjection } from "@/lib/engineering/worker-projection";
 import { routeLabel, type RoutingSnapshot } from "./routing-summary";
 
 export type ChatEngineeringWork = { id: string; title: string; repository: string };
 type RouteState =
   | { workId: string; kind: "loading" }
-  | { workId: string; kind: "ready"; routing: RoutingSnapshot }
+  | { workId: string; kind: "ready"; routing: RoutingSnapshot; projection: EngineeringWorkerProjection | null }
   | { workId: string; kind: "error"; message: string };
 
 export function ChatWorkSelector({
@@ -72,11 +73,18 @@ export function ChatWorkSelector({
       try {
         const response = await fetch(`/api/engineering/work/${encodeURIComponent(workId)}`, { cache: "no-store", signal: controller.signal });
         if (!response.ok) throw new Error("Routing status could not be loaded.");
-        const body = await response.json().catch(() => null) as { routing?: RoutingSnapshot } | null;
+        const body = await response.json().catch(() => null) as {
+          routing?: RoutingSnapshot;
+          projection?: EngineeringWorkerProjection;
+        } | null;
         if (!body?.routing || !("decision" in body.routing) || !Array.isArray(body.routing.transitions) || !Array.isArray(body.routing.runs))
           throw new Error("Routing status is incomplete.");
         if (controller.signal.aborted) throw new Error("Routing status timed out.");
-        if (!disposed) setRouteState({ workId, kind: "ready", routing: body.routing });
+        const projection = body.projection?.workId === workId &&
+          typeof body.projection.status === "string" && typeof body.projection.nextStep === "string" &&
+          Array.isArray(body.projection.pendingDecisions)
+          ? body.projection : null;
+        if (!disposed) setRouteState({ workId, kind: "ready", routing: body.routing, projection });
       } catch (reason) {
         if (!disposed) setRouteState({ workId, kind: "error", message: controller.signal.aborted ? "Routing status timed out." : reason instanceof Error ? reason.message : "Routing status could not be loaded." });
       } finally {
@@ -115,6 +123,11 @@ export function ChatWorkSelector({
         </div>
       )}
       {selected && <div className="mt-2 border-t border-kumo-hairline pt-2 text-kumo-subtle">
+        {visibleRoute?.kind === "ready" && visibleRoute.projection && <div className="mb-2">
+          <p><span className="font-medium text-kumo-default">Status:</span> {visibleRoute.projection.status}</p>
+          <p className="mt-1 break-words"><span className="font-medium text-kumo-default">Next:</span> {visibleRoute.projection.nextStep}</p>
+          {visibleRoute.projection.pendingDecisions.length > 0 && <p className="mt-1 text-kumo-warning">Needs You: {visibleRoute.projection.pendingDecisions.length}</p>}
+        </div>}
         {visibleRoute?.kind === "loading" ? <p role="status">Loading route status…</p> : visibleRoute?.kind === "error" ? <div role="alert" className="flex flex-wrap items-center justify-between gap-2 text-kumo-warning"><span>{visibleRoute.message}</span><button type="button" className="min-h-9 font-medium underline underline-offset-2" onClick={() => setRouteRetry((value) => value + 1)}>Retry route status</button></div> : visibleRoute?.kind === "ready" && visibleRoute.routing.decision ? <>
           <p className="font-medium text-kumo-default">{visibleRoute.routing.decision.status === "PROPOSED" ? "Proposed" : visibleRoute.routing.decision.status === "STALE" ? "Stale recommendation" : "Admitted"}: {routeLabel(visibleRoute.routing.decision.selectedRoute)}</p>
           {visibleRoute.routing.decision.status === "PROPOSED" && <p className="mt-1">Recommendation only; no route admitted.</p>}

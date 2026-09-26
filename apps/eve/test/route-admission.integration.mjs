@@ -4,6 +4,7 @@ import { Client, Pool } from "pg";
 import { loadMigrations, runMigrations } from "../scripts/migration-runner.ts";
 import { RouteAdmissionService } from "../lib/engineering/route-admission.ts";
 import { RoutingStore } from "../lib/engineering/routing-store.ts";
+import { EngineeringWorkerProjectionStore } from "../lib/engineering/worker-projection.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
 
 const url = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? "postgresql://postgres@127.0.0.1:55468/postgres");
@@ -138,6 +139,12 @@ try {
   assert.equal(snapshot.runs.length, 1);
   assert.equal(snapshot.runs[0].status, "QUEUED");
   assert.equal(snapshot.runs[0].workGeneration, work.generation);
+  const queuedProjection = (await new EngineeringWorkerProjectionStore(store).get(work.id)).projection;
+  assert.equal(queuedProjection.status, "Queued");
+  assert.equal(queuedProjection.authoritySummary.admitted, true);
+  assert.equal(queuedProjection.authoritySummary.generationCurrent, true);
+  assert.equal(queuedProjection.readiness.ready, false);
+  assert.match(queuedProjection.nextStep, /no execution result exists yet/i);
   await assert.rejects(pool.query(
     `INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,status)
      VALUES($1,$2,$3,$4,'DIRECT','QUEUED')`,
@@ -157,6 +164,9 @@ try {
   await assert.rejects(otherActor.admit(work.id, request(work, proposal)), /owner authority/);
   const paused = await store.change(work.id, { operation: "pause", expectedVersion: work.version });
   assert.equal((await routes.snapshot(work.id)).decision.status, "STALE");
+  const pausedProjection = (await new EngineeringWorkerProjectionStore(store).get(work.id)).projection;
+  assert.equal(pausedProjection.status, "Paused");
+  assert.equal(pausedProjection.authoritySummary.generationCurrent, false);
   await assert.rejects(routes.recordProposal(work.id, {
     expectedWorkVersion: paused.version, selectedRoute: "HUMAN", reason: "A writer remains queued.",
     source: "RECOVERY", profile, eligibleRoutes: ["HUMAN"], rejectedRoutes: [],

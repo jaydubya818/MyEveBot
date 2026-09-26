@@ -31,9 +31,14 @@ export async function engineeringRuntime(principal:WorkPrincipal,store=new WorkS
   const config=await engineeringConfig();
   if(principal.scopeKind!=="personal"||principal.scopeId!==config.ownerId||principal.actorId!==config.ownerId)throw new WorkError("engineering_scope","This qualification profile belongs to another owner.",403);
   const authorityCurrent=async()=>{const agent=await getAgent(principal.scopeId,config.agentId,store.database);return !!agent&&agent.isPrimary&&agent.status==="active";};
-  const github=new GitHubAdapter(config.profile.repository,config.githubApp ? githubAppTokenProvider({
+  const githubCredential=config.githubApp ? githubAppTokenProvider({
     ...config.githubApp,repository:config.profile.repository,
-  }) : process.env.MYEVE_ENGINEERING_GITHUB_TOKEN??"");
+  }) : process.env.MYEVE_ENGINEERING_GITHUB_TOKEN || (async () => {
+    throw new WorkError("github_setup","The qualification publisher credential is unavailable. GitHub actions remain disabled.",503);
+  });
+  // Resource custody is local and must remain inspectable while publication auth is unavailable.
+  // The provider fails closed before any GitHub request when a credential is absent.
+  const github=new GitHubAdapter(config.profile.repository,githubCredential);
   const execution=new ExecutionStore(store);
   const worker=new EngineeringWorker(execution,github,new DockerClaudeExecutor({brokerPort:config.brokerPort,brokerSecret:process.env.MYEVE_ENGINEERING_BROKER_SECRET??"",model:config.model}),new DockerProtectedVerifier(),()=>digest(config.profile),authorityCurrent);
   return {config,store,execution,github,worker,authorityCurrent};

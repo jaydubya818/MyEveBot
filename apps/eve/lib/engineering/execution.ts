@@ -23,6 +23,13 @@ export interface EngineeringRun {
   resourceReleasedAt?: string;
   custodyUnresolved?: boolean;
 }
+export interface CustodyInspection {
+  id: string; runId: string; at: string;
+  container: "running" | "stopped" | "absent" | "unknown";
+  volume: "present" | "absent" | "unknown";
+  outcome: "RETAINED" | "UNRESOLVED";
+  candidateSha?: string; reason?: string;
+}
 export interface ExternalEffect {
   id: string; candidate: string; expectedHead: string | null;
   status: "PREPARED" | "UNKNOWN" | "CONFIRMED" | "DENIED";
@@ -56,12 +63,13 @@ export interface Execution {
   humanHandoffGeneration?: number | null; handoffBaseline?: HandoffBaseline | null;
   reviewChecks: { reviewId: string; check: WorkContract["profile"]["checks"][number] }[];
   results: ResultVersion[]; interventions: Intervention[]; blockers: string[];
+  custodyInspections?: CustodyInspection[];
   reservedUsd: number; modelRequests: number; lastActivity: string;
 }
 export const nowIso = () => new Date().toISOString();
 export function initialExecution(contract: WorkContract, generation: number): Execution {
   return { qualificationMode:"live", contract, revision: 1, generation, phase: "queued", runs: [], candidates: [], evidence: [], effects: [], approval: null,
-    truth: null, humanHandoffGeneration: null, handoffBaseline: null, addressedReviews: [], handledEvents: [], reviewChecks: [], results: [], interventions: [], blockers: [], reservedUsd: 0, modelRequests: 0, lastActivity: nowIso() };
+    truth: null, humanHandoffGeneration: null, handoffBaseline: null, addressedReviews: [], handledEvents: [], reviewChecks: [], results: [], interventions: [], blockers: [], custodyInspections: [], reservedUsd: 0, modelRequests: 0, lastActivity: nowIso() };
 }
 export function latestCandidate(state: Execution) { return state.candidates.at(-1) ?? null; }
 export function invalidateEvidence(state: Execution) {
@@ -94,6 +102,8 @@ export function readiness(work: Work, state: Execution, now = Date.now()) {
   if (!candidate || !truth?.head || candidate.sha !== truth.head) reasons.push("The candidate does not match the current GitHub head.");
   if (!truth?.pr?.open || !truth.pr.draft) reasons.push("An open draft PR is required.");
   if (state.runs.some(r => r.status === "queued" || r.status === "running")) reasons.push("An executor attempt is still active.");
+  if (state.runs.some(r => r.custodyUnresolved)) reasons.push("An interrupted executor candidate remains unaccounted for.");
+  if (state.runs.some(r => r.candidate && !r.resourceReleasedAt)) reasons.push("A retained candidate's executor resource still needs release.");
   if (state.effects.some(e => e.status === "UNKNOWN" || e.status === "PREPARED")) reasons.push("EXTERNAL STATE UNKNOWN: publication requires reconciliation.");
   if (!state.approval || !state.effects.some(e => e.candidate === candidate?.sha && e.status === "CONFIRMED")) reasons.push("The current candidate has no confirmed authorized publication.");
   for (const check of [...state.contract.profile.checks,...state.reviewChecks.map(r=>r.check)]) {

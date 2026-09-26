@@ -2549,7 +2549,11 @@ function ChatThread({
                     <Bubble variant="destructive">
                       <BubbleContent role="alert">
                         <p className="font-medium">Sofie couldn&rsquo;t finish this turn.</p>
-                        <p>Review the selected model and system status, then send a new message.</p>
+                        <p>
+                          {engineeringWork ? <>
+                            Check <a className="underline" href={`/work?id=${encodeURIComponent(engineeringWork.id)}`}>selected Work</a> and model setup, then send a new message.
+                          </> : "Review the selected model and system status, then send a new message."}
+                        </p>
                         <Button
                           className="mt-3 me-2"
                           size="sm"

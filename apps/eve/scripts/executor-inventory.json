@@ -2015,8 +2015,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "68d8d0512976f36b7fc7bfc95cc195916d5cfc039aa11899cba37c5f7f20ae41"
+      "reason": "Capability declarations and availability calculations describe tools but do not grant runtime authority or execute effects.",
+      "sha256": "90b6d1030efa7d25aba7ac250dd9bb9ab9f5ef957ab357ca785bd1f699e70765"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Static latest-migration marker; no executor, I/O, or authority decision.",
-      "sha256": "1b7bf544a9e35e7119d6fe796b9670d7a9f480766b2c2135448ad4be1ef4e32c"
+      "sha256": "73e7a8c2c2015b20fea6ae109c4b23922a384012f62b996bd3265a6cae245384"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2981,7 +2981,7 @@
     "lib/engineering/execution.ts": {
       "classification": "INTERNAL",
       "reason": "Pure execution state, readiness, custody and manifest logic used by scoped worker; no direct provider effect.",
-      "sha256": "fe8d95e1ba9f5c38ec6680ca150f7f1686d91c219a9697502068af7712673120"
+      "sha256": "bb968ba60ce245b8a8c6101b7e8b27828f60b968ed3e5d3e882cd931a269780e"
     },
     "lib/engineering/execution-store.ts": {
       "classification": "INTERNAL",
@@ -2991,22 +2991,22 @@
     "lib/engineering/execution-api.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "95ead89adaa842fd37d487e7f8b859cb751d79df3f8380031ba97074cfcb15fc"
+      "sha256": "791e70e298c638a3f8017aaf7fe9ea304c0dc772302d2fe024d00acdafbfafaa"
     },
     "lib/engineering/executor.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "9aa8aaff95af9de6480160ae715ac332ec36e3bf06f0e0c5af0b3d58379c1f95"
+      "sha256": "0fa3cf521d64d10008a5adba186917ab7524887bf092204f7afcde0a25d9deb3"
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
       "reason": "Bounded dogfood config and separately approved base validation before Work intake; provider effects terminate at inventoried leaves.",
-      "sha256": "d768fd27e71d32fc62fab08ddca8f48f3e3e16461c0d7dcae4f916ff5632023f"
+      "sha256": "eb0fce397feeb22312809805cb4eadb1b805b0f79f7fb8b59e61a5a0c4d99f54"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
       "reason": "Durable lease/generation fencing, current Agent/repository checks, exact candidate identity and protected evidence precede bounded GitHub publication; no blind retry.",
-      "sha256": "a5fb7c5c758fe58175abea7effc12f45b29ba6ad3fd4350c26cc91b6abb867d8"
+      "sha256": "d63518d634c19d2b002b195e473a60989b2badf848c9a080e5ec0b7c63207318"
     },
     "lib/engineering/model-broker.ts": {
       "classification": "ENFORCED",
@@ -3016,12 +3016,12 @@
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
       "reason": "Local isolated executor/verifier boundary: pinned image, task-owned resources, non-root restricted containers, internal or deny-all network, candidate custody before cleanup, no publication/provider/database credentials in executor.",
-      "sha256": "a420e90f5e7d06cc2e55933e2ef0de870484bb94d874296957f2b5b7c20e26d9"
+      "sha256": "19d5a9e11cac8e38bea45ef0a9cc074b57822582b81d96ad94754b5bf1f01fb2"
     },
     "lib/engineering/github.ts": {
       "classification": "ENFORCED",
       "reason": "Fixed GitHub publisher checks App authority, base/head, allowed paths and candidate object identities; non-force branch update and draft PR only.",
-      "sha256": "f602a7923c4db6a0f5fc091aa859e8875e1879f9765062175609e614e42786c4"
+      "sha256": "5a9f248159ab40726c2a1313b978ccb86c12d3f56c7d30ef965cb8b35f6a501c"
     },
     "app/api/engineering/intake/route.ts": {
       "classification": "INTERNAL",
@@ -3143,12 +3143,22 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-scoped Work/execution/route read model with revision and Agent-binding checks; no grant or effect.",
-      "sha256": "ddbceaacbf3adc7ddf46a1779675fdefcfd86da40ba4d2c3468ec0e21e99c54c"
+      "sha256": "a3385318e540d6507e898b8dfae6000e1d03c8915538a790683facf62a03f93a"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure validation/projection of correlated peer result; no network call, durable write, or grant.",
       "sha256": "dea9632c11719392c56b43bc8ce3bf8f2ced8ce0966d099e791c99cf21b42f0a"
+    },
+    "agent/tools/engineering_direct.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-bound primary-Agent tool requires selected Work, DEEP_AGENT route admission and current authority; edits and candidate submission remain scoped DB state, with no publication or verifier control exposed to the model.",
+      "sha256": "742781b9f3938c6d5036ba2d087100454e4ae9552e5b82c16bdb18ea24533974"
+    },
+    "lib/engineering/direct-development.ts": {
+      "classification": "ENFORCED",
+      "reason": "Scoped native draft/candidate custody is fenced by Work revision and admitted DEEP_AGENT route; protected verifier receives the frozen candidate only after a route recheck, and evidence persists under Work/run CAS with no publication path.",
+      "sha256": "c2b82f88f868f32be8821f71c9678bfef240cda629e78df07721b72d87b26577"
     }
   }
 }

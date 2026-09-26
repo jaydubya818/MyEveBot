@@ -423,6 +423,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("read_file", { description: "Read a file from the active Agent computer workspace.", permissions: ["files.read"], configuration: ["DATABASE_URL"], dependencies: ["files.read"], keywords: ["file", "read", "workspace"] }),
   tool("write_file", { description: "Write a bounded file in the active Agent computer workspace.", permissions: ["files.write"], risk: "medium", riskCategories: ["sandbox-data"], configuration: ["DATABASE_URL"], dependencies: ["files.write"], keywords: ["file", "write", "workspace"] }),
   tool("engineering_work", { description: "Prepare scoped Work and inspect its durable manifest, evidence and Results; the model cannot grant readiness or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE"], keywords: ["engineering", "work", "criteria", "evidence", "readiness"] }),
+  tool("engineering_direct", { description: "Inspect an owner-scoped Sofie engineering draft after DEEP_AGENT route admission, edit approved source paths, and retain a candidate for separate protected verification; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_ENGINEERING_CONFIG"], keywords: ["engineering", "deep agent", "sofie", "candidate", "verification"] }),
   tool("create_goal", { description: "Create a durable goal, optionally with its first plan, milestones, and tasks.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "plan", "milestone", "task", "outcome"] }),
   tool("get_routine_readiness", {description:"Inspect owner-scoped Routine readiness without changing authority or executing work.",permissions:["routines.read"],configuration:["DATABASE_URL"],keywords:["routine","readiness"]}),
   tool("list_goals", { description: "List owner goals and their progress.", feature: "goals", permissions: ["goals.read"], configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "progress", "status"] }),
@@ -551,6 +552,9 @@ function availabilityFor(
 ): ResolvedCapability["availability"] {
   if (definition.id === "tool.engineering_work" && env.MYEVE_ENGINEERING_MODE !== "dogfood") {
     return { status: "disabled", configured: false, reason: "Engineering Work is not enabled in this deployment." };
+  }
+  if (definition.id === "tool.engineering_direct" && (env.MYEVE_ENGINEERING_MODE !== "dogfood" || env.VERCEL_ENV === "production")) {
+    return { status: "disabled", configured: false, reason: "Native direct engineering is restricted to isolated dogfood." };
   }
   if (definition.id === "tool.evaluate_with_jev" && env.MYEVE_DECISION_INTELLIGENCE_ENABLED !== "true") {
     return {status: "disabled", configured: false, reason: "Jev evaluation is disabled in this deployment."};

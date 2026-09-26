@@ -75,7 +75,8 @@ function noExecutionNextStep(work: Work) {
   if (work.lifecycle !== "active") return "Review the retained Work history.";
   if (work.control === "human") return "Finish your changes, then hand Work back for a fresh admission decision.";
   if (work.control === "stopping") return "Wait for control to stop before changing Work.";
-  return "Review the Work contract and admit execution through its authorized workflow.";
+  if (work.control === "paused") return "Review the Work contract, then resume when ready. No execution has started.";
+  return "Execution cannot start until a qualified route and current authority are available.";
 }
 
 function latestTime(a: string, b: string | undefined) {
@@ -124,6 +125,37 @@ export class EngineeringWorkerProjectionStore {
     }
 
     const routing = routingForWorkVersion(route, work.version);
+    const admittedRoute = routing.decision?.status === "ADMITTED" ? routing.decision : null;
+    const currentRouteRun = admittedRoute ? routing.runs.find(run =>
+      run.decisionId === admittedRoute.id && run.workVersion === work.version &&
+      run.workGeneration === work.generation) ?? null : null;
+    const routeActivity = !execution && work.lifecycle === "active" && work.control === "agent"
+      ? admittedRoute
+        ? currentRouteRun
+          ? {
+              status: currentRouteRun.status === "QUEUED" ? "Queued"
+                : currentRouteRun.status === "RUNNING" ? "Working"
+                : currentRouteRun.status === "COMPLETED" ? "Needs verification"
+                : "Needs reconciliation",
+              activity: `Admitted ${currentRouteRun.route} route · ${currentRouteRun.status}.`,
+              nextStep: currentRouteRun.status === "QUEUED"
+                ? "A qualified provider must start this queued route; no execution result exists yet."
+                : currentRouteRun.status === "RUNNING"
+                  ? "Inspect the current provider run and retain a candidate before independent verification."
+                  : currentRouteRun.status === "COMPLETED"
+                    ? "Review the candidate and independent evidence before claiming readiness."
+                    : "Reconcile the provider outcome before retrying or handing Work to another route.",
+            }
+          : { status: "Needs reconciliation", activity: "The admitted route has no current Run.",
+              nextStep: "Reconcile the route Run before any new execution." }
+        : routing.decision?.status === "STALE"
+          ? { status: "Needs rerouting", activity: "The previous route is stale for this Work revision.",
+              nextStep: "Reconcile any old writer, then assess the current Work again." }
+          : routing.decision?.status === "PROPOSED"
+            ? { status: "Waiting for admission", activity: "A route has been recommended; no execution is admitted.",
+                nextStep: "Review the route recommendation in Work. A current authority check is required before execution." }
+          : null
+      : null;
     const truth = execution ? manifest(work, execution) : null;
     const result = execution?.results.at(-1) ?? null;
     const lastEvent = eventRows[0] ?? null;
@@ -161,15 +193,16 @@ export class EngineeringWorkerProjectionStore {
         budgetUsd: execution.contract.budgetUsd,
       } : null,
       authoritySummary: {
-        admitted: !!execution,
-        generationCurrent: !!execution && execution.generation === work.generation,
+        admitted: !!execution || !!admittedRoute,
+        generationCurrent: execution ? execution.generation === work.generation
+          : !!currentRouteRun && work.control === "agent",
         deadlineCurrent: !!execution && Date.now() < Date.parse(execution.contract.deadline),
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
-      status: truth?.status ?? noExecutionStatus(work),
-      activity: truth?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: truth?.nextStep ?? noExecutionNextStep(work),
+      status: truth?.status ?? routeActivity?.status ?? noExecutionStatus(work),
+      activity: truth?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
+      nextStep: truth?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
       readiness: truth?.readiness ?? { ready: false, reasons: ["No admitted execution or verified current evidence exists."] },
       currentRun: truth?.currentRun
         ? { id: truth.currentRun.id, status: truth.currentRun.status, startedAt: truth.currentRun.startedAt,

@@ -23,6 +23,41 @@ const limits=["--cap-drop=ALL","--security-opt=no-new-privileges","--memory=768m
 const init=`const fs=require('fs'),path=require('path');let s='';process.stdin.on('data',b=>s+=b);process.stdin.on('end',()=>{for(const [p,v] of Object.entries(JSON.parse(s))){if(p.startsWith('/')||p.split('/').some(x=>!x||x==='.'||x==='..'||x==='.git'))throw Error('path');const f=path.join('/work',p);fs.mkdirSync(path.dirname(f),{recursive:true,mode:0o777});fs.writeFileSync(f,v,{mode:0o666});}fs.chmodSync('/work',0o777);});`;
 const collect=`const fs=require('fs'),path=require('path');let n=0,size=0,files={};function walk(dir){for(const e of fs.readdirSync(dir,{withFileTypes:true})){const p=path.join(dir,e.name);if(e.isSymbolicLink())throw Error('symlink');if(e.isDirectory()){if(e.name==='.git'||e.name==='.claude')continue;walk(p);}else{if(!e.isFile()||++n>200)throw Error('file bound');const v=fs.readFileSync(p);size+=v.length;if(size>500000||v.includes(0))throw Error('content bound');files[path.relative('/work',p)]=v.toString('utf8');}}}walk('/work');console.log(JSON.stringify(files));`;
 function assertResource(run: EngineeringRun) { if(run.resource!==`myeve-golden-${run.id}` || !/^[a-f0-9-]{36}$/.test(run.id)) throw new Error("Unowned resource."); }
+export function containerCustodyState(run:EngineeringRun,result:{code:number;out:string;err:string}):"running"|"stopped"|"absent" {
+  if(cleanupResourceState(run,"container",run.resource,result)==="absent")return "absent";
+  const record=JSON.parse(result.out);
+  if(typeof record.State?.Running!=="boolean")
+    throw new Error("Executor container ownership is not established; custody remains unresolved.");
+  return record.State.Running?"running":"stopped";
+}
+export function volumeCustodyState(run:EngineeringRun,result:{code:number;out:string;err:string}):"present"|"absent" {
+  return cleanupResourceState(run,"volume",run.resource,result);
+}
+type CleanupResource = "container"|"network"|"volume";
+/** Cleanup may only treat an exact Docker not-found response as absence.
+ * A daemon outage, name collision, or missing ownership label leaves the Run fenced. */
+export function cleanupResourceState(run:EngineeringRun,kind:CleanupResource,name:string,
+  result:{code:number;out:string;err:string}):"present"|"absent" {
+  assertResource(run);
+  if(name!==run.resource && !(kind==="container"&&name===`${run.resource}-model`))
+    throw new Error("Unowned resource.");
+  if(result.code) {
+    // assertResource restricts the name to ASCII hex and hyphens, so it is safe in a RegExp.
+    const escaped=name;
+    const missing=kind==="container" ? new RegExp(`No such (?:object|container):\\s*${escaped}(?:\\s|$)`,"i")
+      : kind==="volume" ? new RegExp(`No such volume:\\s*${escaped}(?:\\s|$)`,"i")
+      : new RegExp(`(?:No such network:\\s*${escaped}|network\\s+${escaped}\\s+not found)(?:\\s|$)`,"i");
+    if(!missing.test(result.err))
+      throw new Error("Docker resource state is unavailable; cleanup remains unresolved.");
+    return "absent";
+  }
+  const record=JSON.parse(result.out);
+  const owned=kind==="container"
+    ? record.Name===`/${name}`&&record.Config?.Labels?.["myeve.golden"]==="true"
+    : record.Name===name&&record.Labels?.["myeve.golden"]==="true";
+  if(!owned)throw new Error("Docker resource ownership is not established; cleanup remains unresolved.");
+  return "present";
+}
 async function volume(image:string,name:string,files:Record<string,string>) {
   await checked(["volume","create","--label","myeve.golden=true",name]);
   await checked(["run","--rm","--network=none",...limits,"--user=1000:1000","--mount",`type=volume,src=${name},dst=/work`,"-i",image,"node","-e",init],JSON.stringify(files));
@@ -36,17 +71,22 @@ export class DockerClaudeExecutor implements Executor {
     assertResource(run);
     if (!Number.isInteger(this.config.brokerPort)||this.config.brokerPort<1024||this.config.brokerPort>65535) throw new Error("Invalid isolated broker port.");
     const name=run.resource,image=contract.profile.image;
-    const existing=await docker(["inspect",name]);
-    if(existing.code===0) return; // Stable attempt identity: never launch a duplicate executor.
+    const existing=await docker(["container","inspect","--format","{{json .}}",name]);
+    if(containerCustodyState(run,existing)!=="absent")return; // Stable attempt identity: never launch a duplicate executor.
+    // A previous launch could have left a partially initialized volume, network,
+    // or model proxy. Never overwrite it as if it were a fresh attempt.
+    const priorVolume=await docker(["volume","inspect","--format","{{json .}}",name]);
+    const priorNetwork=await docker(["network","inspect","--format","{{json .}}",name]);
+    const priorProxy=await docker(["container","inspect","--format","{{json .}}",`${name}-model`]);
+    if(volumeCustodyState(run,priorVolume)!=="absent" ||
+       cleanupResourceState(run,"network",name,priorNetwork)!=="absent" ||
+       cleanupResourceState(run,"container",`${name}-model`,priorProxy)!=="absent")
+      throw new Error("A partial executor launch needs resource reconciliation before a fresh start.");
     await volume(image,name,snapshot.files);
-    const network=await docker(["network","inspect",name]);
-    if(network.code) await checked(["network","create","--internal","--label","myeve.golden=true",name]);
+    await checked(["network","create","--internal","--label","myeve.golden=true",name]);
     const proxy=`const http=require('http');http.createServer(async(q,s)=>{try{if(q.method!=='POST'||new URL(q.url,'http://model').pathname!=='/v1/messages'){s.writeHead(403);return s.end();}let b='';for await(const c of q){b+=c;if(b.length>180000)throw Error('bound');}const r=await fetch('http://host.docker.internal:${this.config.brokerPort}/broker/${contract.workId}/${run.attemptId}',{method:'POST',headers:{authorization:q.headers.authorization||'','content-type':'application/json'},body:b,signal:AbortSignal.timeout(90000)});s.writeHead(r.status,{'content-type':r.headers.get('content-type')||'application/json'});s.end(Buffer.from(await r.arrayBuffer()));}catch(e){s.writeHead(503);s.end('Model broker unavailable');}}).listen(8080,'0.0.0.0');`;
-    const proxyExists=await docker(["inspect",name+"-model"]);
-    if(proxyExists.code) {
-      await checked(["run","-d","--name",name+"-model","--label","myeve.golden=true",...limits,image,"node","-e",proxy]);
-      await checked(["network","connect","--alias","model",name,name+"-model"]);
-    }
+    await checked(["run","-d","--name",name+"-model","--label","myeve.golden=true",...limits,image,"node","-e",proxy]);
+    await checked(["network","connect","--alias","model",name,name+"-model"]);
     const token=attemptToken(this.config.brokerSecret,contract.workId,run.attemptId);
     const prompt=`You are the single coding executor for bounded Work. Modify only ${contract.profile.allowedPaths.join(', ')}. Do not publish, call external services, modify workflow/configuration, or claim authoritative tests. Implement the objective and acceptance criteria. The trusted supervisor checks results independently.\n${JSON.stringify({objective:contract.objective,issue:contract.issueBody,criteria:contract.criteria,reason:run.reason})}`;
     await checked(["run","-d","--name",name,"--label","myeve.golden=true","--network",name,...limits,
@@ -61,11 +101,31 @@ export class DockerClaudeExecutor implements Executor {
   }
   followUp(contract:WorkContract,run:EngineeringRun,snapshot:RepositorySnapshot) { return this.start(contract,run,snapshot); }
   async observe(run:EngineeringRun) {
-    assertResource(run);const r=await docker(["inspect","--format","{{json .State}}",run.resource]);
-    if(r.code)return "lost" as const;const state=JSON.parse(r.out);
-    return state.Running?"running" as const:state.ExitCode===0?"completed" as const:"failed" as const;
+    assertResource(run);
+    const r=await docker(["container","inspect","--format","{{json .}}",run.resource]);
+    const state=containerCustodyState(run,r);
+    if(state==="absent")return "lost" as const;
+    if(state==="running")return "running" as const;
+    const exitCode=JSON.parse(r.out).State.ExitCode;
+    if(!Number.isInteger(exitCode))throw new Error("Executor exit state is unavailable; custody remains unresolved.");
+    return exitCode===0?"completed" as const:"failed" as const;
   }
-  async requestStop(run:EngineeringRun) { assertResource(run);const r=await docker(["inspect",run.resource]);if(!r.code)await checked(["stop","--time","2",run.resource]); }
+  async requestStop(run:EngineeringRun) {
+    assertResource(run);
+    const inspect=()=>docker(["container","inspect","--format","{{json .}}",run.resource]);
+    if(containerCustodyState(run,await inspect())==="running")
+      await checked(["stop","--time","2",run.resource]);
+    if(containerCustodyState(run,await inspect())==="running")
+      throw new Error("Executor stop is unconfirmed; candidate custody remains unresolved.");
+  }
+  async inspectCustody(run:EngineeringRun) {
+    assertResource(run);
+    const container=await docker(["inspect","--format","{{json .}}",run.resource]);
+    const containerState=containerCustodyState(run,container);
+    const volume=await docker(["volume","inspect","--format","{{json .}}",run.resource]);
+    const volumeState=volumeCustodyState(run,volume);
+    return {container:containerState,volume:volumeState};
+  }
   async collectCandidate(contract:WorkContract,run:EngineeringRun,snapshot:RepositorySnapshot) {
     assertResource(run);
     const files=JSON.parse(await checked(["run","--rm","--network=none",...limits,"--mount",`type=volume,src=${run.resource},dst=/work,readonly`,contract.profile.image,"node","-e",collect]));
@@ -74,16 +134,24 @@ export class DockerClaudeExecutor implements Executor {
   async collectUsage(_run:EngineeringRun) { return {coverage:"Durable broker reservations; executor self-reported costs are not authoritative",providerCostUsd:null}; }
   async cleanup(run:EngineeringRun) {
     assertResource(run);
-    for(const name of [run.resource,run.resource+"-model"]){const r=await docker(["inspect",name]);if(!r.code)await checked(["rm","-f",name]);}
-    const net=await docker(["network","inspect",run.resource]);if(!net.code)await checked(["network","rm",run.resource]);
-    const vol=await docker(["volume","inspect",run.resource]);if(!vol.code)await checked(["volume","rm",run.resource]);
-    for(const [kind,name] of [["container",run.resource],["container",run.resource+"-model"],["volume",run.resource],["network",run.resource]])
-      if((await docker([kind,"inspect",name])).code===0)throw new Error("Isolated resource cleanup did not complete.");
+    const resources:{kind:CleanupResource;name:string;remove:string[]}[]=[
+      {kind:"container",name:run.resource,remove:["rm","-f",run.resource]},
+      {kind:"container",name:`${run.resource}-model`,remove:["rm","-f",`${run.resource}-model`]},
+      {kind:"network",name:run.resource,remove:["network","rm",run.resource]},
+      {kind:"volume",name:run.resource,remove:["volume","rm",run.resource]},
+    ];
+    for(const resource of resources) {
+      const inspect=()=>docker([resource.kind,"inspect","--format","{{json .}}",resource.name]);
+      if(cleanupResourceState(run,resource.kind,resource.name,await inspect())==="present")
+        await checked(resource.remove);
+      if(cleanupResourceState(run,resource.kind,resource.name,await inspect())!=="absent")
+        throw new Error("Isolated resource cleanup did not complete.");
+    }
   }
 }
 
 export class DockerProtectedVerifier implements ProtectedVerifier {
-  async verify(contract:WorkContract,candidate:Candidate):Promise<Evidence[]> {
+  async verify(contract:Pick<WorkContract,"workId"|"baseSha"|"criteriaVersion"|"profileHash"|"profile">,candidate:Candidate):Promise<Evidence[]> {
     const name=`myeve-golden-verify-${candidate.id}`,image=contract.profile.image;
     const evidence:Evidence[]=[];
     try {

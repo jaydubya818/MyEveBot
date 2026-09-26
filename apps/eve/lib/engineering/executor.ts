@@ -9,6 +9,8 @@ export interface Executor {
   observe(run: EngineeringRun): Promise<"running"|"completed"|"lost"|"failed">;
   followUp(contract: WorkContract, run: EngineeringRun, snapshot: RepositorySnapshot): Promise<void>;
   requestStop(run: EngineeringRun): Promise<void>;
+  /** Read only. Unknown daemon state must never be interpreted as an absent resource. */
+  inspectCustody(run: EngineeringRun): Promise<{container:"running"|"stopped"|"absent";volume:"present"|"absent"}>;
   collectCandidate(contract: WorkContract, run: EngineeringRun, snapshot: RepositorySnapshot): Promise<Candidate>;
   collectUsage(run: EngineeringRun): Promise<{coverage:string;providerCostUsd:number|null}>;
   cleanup(run: EngineeringRun): Promise<void>;
