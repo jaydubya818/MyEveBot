@@ -24,7 +24,7 @@ export class VercelApiError extends Error {
 interface RequestOptions {
   token: string;
   teamId?: string | null;
-  method?: "GET" | "POST" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "DELETE";
   body?: unknown;
   stage: DeployStage;
 }
@@ -111,6 +111,53 @@ export async function createProject(
     }
     throw error;
   }
+}
+
+export interface ProjectModelBudget {
+  projectId: string;
+  limitAmount: number;
+  currentSpend: number;
+  refreshPeriod: string;
+  active: boolean;
+}
+
+/** AI Gateway project budgets apply to requests authenticated with this
+ * deployment's OIDC identity. Managed Eves do not receive a gateway API key. */
+export async function setProjectModelBudget(
+  token: string,
+  teamId: string | null,
+  projectId: string,
+  limitUsd: number,
+): Promise<ProjectModelBudget> {
+  if (!Number.isFinite(limitUsd) || limitUsd < 1 || limitUsd > 1000) {
+    throw new VercelApiError("project", "Project model budget must be between $1 and $1000");
+  }
+  const result = await api<{
+    scopeType: string; scopeId: string; limitAmount: number; currentSpend: number;
+    refreshPeriod: string; active: boolean;
+  }>("/ai-gateway/budgets", {
+    token, teamId, method: "PUT", stage: "project",
+    body: { scopeType: "project", projectId, limitAmount: limitUsd, refreshPeriod: "monthly" },
+  });
+  if (result.scopeType !== "project" || result.scopeId !== projectId ||
+      result.limitAmount !== limitUsd || result.refreshPeriod !== "monthly" || !result.active) {
+    throw new VercelApiError("project", "Vercel did not confirm the project's monthly model budget");
+  }
+  return { projectId, limitAmount: result.limitAmount, currentSpend: result.currentSpend, refreshPeriod: result.refreshPeriod, active: result.active };
+}
+
+export async function listProjectModelBudgets(token: string, teamId: string | null): Promise<ProjectModelBudget[]> {
+  const result = await api<{ budgets?: Array<{
+    scopeType: string; scopeId: string; limitAmount: number; currentSpend: number;
+    refreshPeriod: string; active: boolean;
+  }> }>("/ai-gateway/budgets/list?scopeType=project", { token, teamId, stage: "project" });
+  return (result.budgets ?? []).filter((budget) => budget.scopeType === "project").map((budget) => ({
+    projectId: budget.scopeId,
+    limitAmount: budget.limitAmount,
+    currentSpend: budget.currentSpend,
+    refreshPeriod: budget.refreshPeriod,
+    active: budget.active,
+  }));
 }
 
 export interface StorageStore {

@@ -7,6 +7,7 @@ import {
   createDeployment,
   createProject,
   listProjectEnvKeys,
+  setProjectModelBudget,
   upsertEnv,
 } from "@/lib/vercel-api";
 import { buildEnv, connectStorage } from "@/lib/deploy-service";
@@ -84,6 +85,9 @@ export async function provisionManagedEve(input: {
     "UPDATE managed_eve_environments SET project_id=$1,updated_at=now() WHERE id=$2 AND state='provisioning'",
     [project.id, input.environmentId],
   );
+  // The model budget is an admission gate. Never deploy an uncapped managed
+  // project, even if storage or application setup would otherwise succeed.
+  await setProjectModelBudget(token, teamId, project.id, input.monthlyModelBudgetUsd);
   const stores = await connectStorage(token, teamId, project.id, project.name, config);
   await managedDb().query(
     "UPDATE managed_eve_environments SET database_store_id=$1,blob_store_id=$2,updated_at=now() WHERE id=$3 AND state='provisioning'",

@@ -1,5 +1,6 @@
 import { adminDenied, isManagedAdmin } from "@/managed/admin-auth";
 import { managedDb } from "@/managed/db";
+import { listProjectModelBudgets } from "@/lib/vercel-api";
 
 export async function GET(request: Request): Promise<Response> {
   if (!isManagedAdmin(request)) return adminDenied();
@@ -11,7 +12,17 @@ export async function GET(request: Request): Promise<Response> {
               created_at,updated_at,retired_at
        FROM managed_eve_environments ORDER BY created_at DESC LIMIT 100`,
     );
-    return Response.json({ environments: result.rows }, { headers: { "Cache-Control": "no-store" } });
+    const vercelToken = process.env.MANAGED_EVE_VERCEL_TOKEN;
+    const budgets = vercelToken
+      ? await listProjectModelBudgets(vercelToken, process.env.MANAGED_EVE_VERCEL_TEAM_ID || null).catch(() => [])
+      : [];
+    const byProject = new Map(budgets.map((budget) => [budget.projectId, budget]));
+    return Response.json({
+      environments: result.rows.map((row: { project_id: string | null }) => ({
+        ...row,
+        modelBudget: row.project_id ? byProject.get(row.project_id) ?? null : null,
+      })),
+    }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return Response.json({ error: "Managed Eve control database is unavailable" }, {
       status: 503, headers: { "Cache-Control": "no-store" },

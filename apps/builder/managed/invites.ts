@@ -48,7 +48,7 @@ export async function issueManagedInvite(input: {
   const email = normalizeInviteEmail(input.email);
   const token = randomBytes(32).toString("base64url");
   const encryptedRelayInvite = encryptRelayInvite(input.relayInviteUrl);
-  if (!Number.isFinite(input.monthlyModelBudgetUsd) || input.monthlyModelBudgetUsd <= 0 || input.monthlyModelBudgetUsd > 1000) {
+  if (!Number.isFinite(input.monthlyModelBudgetUsd) || input.monthlyModelBudgetUsd < 1 || input.monthlyModelBudgetUsd > 1000) {
     throw new Error("A valid model budget is required");
   }
   const id = `inv_${randomUUID().replaceAll("-", "").slice(0, 24)}`;
