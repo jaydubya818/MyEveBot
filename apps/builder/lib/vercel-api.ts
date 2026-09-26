@@ -178,6 +178,8 @@ export interface StorageStore {
   /** "blob" for Blob stores; integration resources (Neon etc.) report their product. */
   kind: "blob" | "integration";
   productName: string | null;
+  ownership: "owned" | "linked" | "sandbox" | null;
+  connections: { id: string; projectId: string }[];
 }
 
 /**
@@ -192,6 +194,8 @@ export async function listStores(token: string, teamId: string | null): Promise<
       name: string;
       type?: string | null;
       product?: { name?: string; slug?: string } | null;
+      ownership?: "owned" | "linked" | "sandbox" | null;
+      projectsMetadata?: { id: string; projectId: string }[];
     }[];
   }>("/v1/storage/stores", { token, teamId, stage: "storage" });
   return (body.stores ?? []).map((store) => ({
@@ -199,6 +203,8 @@ export async function listStores(token: string, teamId: string | null): Promise<
     name: store.name,
     kind: store.type === "blob" || store.type == null ? "blob" : "integration",
     productName: store.product?.name ?? store.product?.slug ?? null,
+    ownership: store.ownership ?? null,
+    connections: Array.isArray(store.projectsMetadata) ? store.projectsMetadata.map((entry) => ({ id: entry.id, projectId: entry.projectId })) : [],
   }));
 }
 
@@ -436,6 +442,7 @@ export async function listProjects(
 export interface ProjectDetails {
   id: string;
   name: string;
+  paused: boolean | null;
   /** True when the project is linked to a git repository (builder deploys never are). */
   hasGitRepository: boolean;
 }
@@ -451,10 +458,12 @@ export async function getProject(
       id: string;
       name: string;
       link?: { type?: string; repo?: string; repoId?: number } | null;
+      paused?: boolean;
     }>(`/v9/projects/${encodeURIComponent(name)}`, { token, teamId, stage: "project" });
     return {
       id: project.id,
       name: project.name,
+      paused: typeof project.paused === "boolean" ? project.paused : null,
       hasGitRepository: project.link != null && typeof project.link === "object",
     };
   } catch (error) {

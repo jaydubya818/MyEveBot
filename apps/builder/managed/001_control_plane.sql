@@ -33,10 +33,15 @@ CREATE TABLE IF NOT EXISTS managed_eve_environments (
   last_error_stage text,
   last_error_summary text,
   last_export_verified_at timestamptz,
+  database_deleted_at timestamptz,
+  project_deleted_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   retired_at timestamptz
 );
+
+ALTER TABLE managed_eve_environments ADD COLUMN IF NOT EXISTS database_deleted_at timestamptz;
+ALTER TABLE managed_eve_environments ADD COLUMN IF NOT EXISTS project_deleted_at timestamptz;
 
 CREATE INDEX IF NOT EXISTS managed_eve_environments_state_idx ON managed_eve_environments (state);
 
