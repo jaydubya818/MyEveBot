@@ -220,6 +220,8 @@ export function BuilderWizard() {
   const [supermemoryKey, setSupermemoryKey] = useState("");
   const [composioKey, setComposioKey] = useState("");
   const [blobToken, setBlobToken] = useState("");
+  const [relayEnabled, setRelayEnabled] = useState(false);
+  const [relayFingerprint, setRelayFingerprint] = useState("");
   // The token+team the store list was fetched for, so we refetch when the
   // deploy scope changes instead of showing another account's storage.
   const storesScopeRef = useRef<string | null>(null);
@@ -270,6 +272,7 @@ export function BuilderWizard() {
         supermemoryApiKey: keyNeeds.supermemory ? supermemoryKey : undefined,
         composioApiKey: keyNeeds.composio ? composioKey : undefined,
       },
+      relay: relayEnabled ? { fingerprint: relayFingerprint.trim().toLowerCase() } : null,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- postgres/blob are derived fresh each render
     [
@@ -293,6 +296,8 @@ export function BuilderWizard() {
       blobToken,
       supermemoryKey,
       composioKey,
+      relayEnabled,
+      relayFingerprint,
       keyNeeds.supermemory,
       keyNeeds.composio,
       keyNeeds.blob,
@@ -432,7 +437,8 @@ export function BuilderWizard() {
           (postgresChoice === "manual" ? databaseUrl.trim().length > 0 : postgresChoice !== "") &&
           (!keyNeeds.supermemory || supermemoryKey.trim().length > 0) &&
           (!keyNeeds.composio || composioKey.trim().length > 0) &&
-          (!keyNeeds.blob || blobChoice !== "manual" || blobToken.trim().length > 0)
+          (!keyNeeds.blob || blobChoice !== "manual" || blobToken.trim().length > 0) &&
+          (!relayEnabled || /^[a-f0-9]{64}$/i.test(relayFingerprint.trim()))
         );
       default:
         return true;
@@ -1179,6 +1185,39 @@ export function BuilderWizard() {
                 />
               </FormField>
             )}
+            <div className="space-y-3 rounded-xl border border-white/10 p-4">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <Text render={<h3 />} weight="medium">Connect to Relay beta</Text>
+                  <Text render={<p />} size="2" color="gray">
+                    Optional. Use the invite and signing-key fingerprint supplied by the Relay operator.
+                  </Text>
+                </div>
+                <Switch checked={relayEnabled} onCheckedChange={setRelayEnabled} aria-label="Connect to Relay beta" />
+              </div>
+              {relayEnabled && (
+                <>
+                  <FormField
+                    label="Relay signing-key fingerprint"
+                    htmlFor="relay-fingerprint"
+                    description="Enter the 64-character SHA-256 fingerprint from the operator through a separate trusted channel. The Builder checks the live key against it before changing your Vercel project."
+                  >
+                    <TextField.Input
+                      id="relay-fingerprint"
+                      size="3"
+                      value={relayFingerprint}
+                      placeholder="64 hexadecimal characters"
+                      spellCheck={false}
+                      autoComplete="off"
+                      onChange={(event) => setRelayFingerprint(event.target.value)}
+                    />
+                  </FormField>
+                  <Text render={<p />} size="2" color="gray">
+                    Create a new MyEve project for this beta. After deployment, sign in to Relay with your invited account, then use MyEve&apos;s Relay panel to register your agent. No memories are shared automatically.
+                  </Text>
+                </>
+              )}
+            </div>
             <Text render={<p />} size="2" color="gray">
               Push notification keys are generated for you. Models run through your Vercel AI
               Gateway — no model provider keys needed.
