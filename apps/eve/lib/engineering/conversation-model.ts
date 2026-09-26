@@ -34,8 +34,7 @@ export function validConversationResponse(content: Awaited<ReturnType<Model["doG
   });
 }
 
-/** Outer total includes each provider call once. Native ledger remains an
- * independently enforced execution subtotal, never added to this total. */
+/** Each provider request has one common-ledger receipt. Native execution owns its reservation. */
 export function engineeringConversationModel(input:{store:WorkStore;workId:string;sessionId:string;stepKey:string;modelId:string;productive:boolean},
   dependencies: {authority?:NativeRouteAuthority;budget?:EngineeringConversationBudget;catalog?:typeof gateway.getAvailableModels;
     phase?:()=>Promise<ConversationPhase>;model?:(phase:ConversationPhase)=>Model}={}):Model {
@@ -54,6 +53,8 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
         [input.store.principal.scopeId,input.store.principal.scopeKind,input.workId]);
       phase=conversationPhase(input.productive,route?.status==="ADMITTED"&&route.providerId==="myeve-native-sofie",writer?String(writer.session_id):null,input.sessionId);
     }
+    // Native owns this exact provider call: do not wrap it in another economic reservation.
+    if(phase==="execution" && !dependencies.model) return nativeBudgetedModel(input).doGenerate(options);
     const scoped=conversationOptions(options,config.profile.maxOutputTokens,phase);
     if(options.abortSignal?.aborted)throw new Error("Conversation cancelled before reservation.");
     const catalog=await Promise.race([(dependencies.catalog??gateway.getAvailableModels)(),new Promise<never>((_,reject)=>{
@@ -64,7 +65,7 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
     if(rates.length!==4 || rates.some(rate=>!Number.isFinite(rate)||rate<=0))throw new Error("Current model pricing is required.");
     const inputBound=Buffer.byteLength(JSON.stringify({prompt:scoped.prompt,tools:scoped.tools}))+4096;
     const microUsd=Math.ceil(2*(inputBound*Math.max(rates[0],rates[2],rates[3])+config.profile.maxOutputTokens*rates[1])*1_000_000);
-    const reservation={...input,microUsd,maxCalls:config.profile.maxModelRequests,requestHash:digest({phase,modelId:input.modelId,prompt:scoped.prompt,tools:scoped.tools,maxOutputTokens:scoped.maxOutputTokens})};
+    const reservation={...input,microUsd,pricing,bounds:{inputBytes:inputBound,maxOutputTokens:config.profile.maxOutputTokens},maxCalls:config.profile.maxModelRequests,requestHash:digest({phase,modelId:input.modelId,prompt:scoped.prompt,tools:scoped.tools,maxOutputTokens:scoped.maxOutputTokens})};
     const prior=await budget.reserve(reservation);
     if(prior)return prior.result as Awaited<ReturnType<Model["doGenerate"]>>;
     try {
@@ -79,6 +80,7 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
       const valid=validConversationResponse(content,phase);
       const clean={content:valid?content:[],usage:response.usage,finishReason:response.finishReason,warnings:response.warnings,providerMetadata:response.providerMetadata};
       await budget.settle(reservation,Math.ceil(cost*1_000_000),clean);
+      await budget.assertOutput(reservation);
       if(!valid)throw new Error("Model requested an operation outside this conversation phase.");
       return clean;
     }catch(error){await budget.unknown(reservation);throw error;}

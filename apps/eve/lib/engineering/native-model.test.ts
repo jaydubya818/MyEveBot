@@ -12,7 +12,7 @@ function fixture() {
   const modelCall=vi.fn().mockResolvedValue({content:[{type:"text",text:"Done"}],usage:{inputTokens:{total:50},outputTokens:{total:10}},finishReason:{unified:"stop",raw:"stop"},warnings:[],providerMetadata:{gateway:{cost:"0.001"}}});
   const model=nativeBudgetedModel({store:{} as WorkStore,workId:"work",sessionId:"session",stepKey:"turn:0",modelId:"anthropic/claude-sonnet-5"}, {
     authority:{readConfig:async()=>({model:"claude-sonnet-5",profile:{maxOutputTokens:1024,maxModelRequests:5}}),assertEffect:effect} as unknown as NativeRouteAuthority,
-    budget:{reserve,settle,unknown} as unknown as NativeModelBudget,
+    budget:{reserve,settle,unknown,assertOutput:async()=>{},assertDispatch:vi.fn().mockResolvedValue(undefined)} as unknown as NativeModelBudget,
     catalog:vi.fn().mockResolvedValue({models:[{id:"anthropic/claude-sonnet-5",pricing:{input:"0.000003",output:"0.000015"}}]}),model:()=>({doGenerate:modelCall}) as never,
   });return {model,reserve,settle,unknown,effect,modelCall};
 }

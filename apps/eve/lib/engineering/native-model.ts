@@ -64,11 +64,12 @@ export function nativeBudgetedModel(input: { store: WorkStore; workId: string; s
     const inputBound = Buffer.byteLength(JSON.stringify({ prompt: scoped.prompt, tools: scoped.tools })) + 4096;
     const microUsd = Math.ceil(2 * (inputBound * Math.max(rates[0], rates[2], rates[3]) + config.profile.maxOutputTokens * rates[1]) * 1_000_000);
     const current = await authority.assertEffect(input.workId);
-    const reservation = { ...input, microUsd, maxCalls: config.profile.maxModelRequests,
+    const reservation = { ...input, microUsd, pricing, bounds: {inputBytes:inputBound,maxOutputTokens:config.profile.maxOutputTokens}, maxCalls: config.profile.maxModelRequests,
       requestHash: digest({ modelId: input.modelId, prompt: scoped.prompt, tools: scoped.tools, maxOutputTokens: scoped.maxOutputTokens }) };
     const prior = await budget.reserve(reservation);
     if (prior) return prior.result as Result;
     try {
+      await budget.assertDispatch(reservation);
       const response = await (dependencies.model ?? gateway)(input.modelId).doGenerate({ ...scoped,
         providerOptions: { gateway: { only: [input.modelId.split("/")[0]] } },
         abortSignal: AbortSignal.any([...(options.abortSignal ? [options.abortSignal] : []), AbortSignal.timeout(Math.max(1, Date.parse(current.contract.deadline) - Date.now()))]),
@@ -86,6 +87,7 @@ export function nativeBudgetedModel(input: { store: WorkStore; workId: string; s
         throw new Error("The model requested an unqualified native Work capability.");
       }
       await budget.settle(reservation, Math.ceil(cost * 1_000_000), clean);
+      await budget.assertOutput(reservation);
       await authority.assertEffect(input.workId);
       return clean;
     } catch (error) { await budget.unknown(reservation); throw error; }

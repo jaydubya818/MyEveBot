@@ -5,7 +5,7 @@
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards.",
-      "sha256": "e0aab2c802d80d16df974987a45cd6640de18dcb8a040650632107aea728de11"
+      "sha256": "4e225a249034b9f6963d4b55612ad438d1a00664b6a8ce40abe617edcb030e76"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -238,7 +238,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Owner- and Agent-scoped context assembly records internal provenance. Selected Work uses the shared native projection and active scoped facts; excludes broad Memory, unrelated goals and thread summaries; grants no authority.",
-      "sha256": "e8d2fc14f204d217824e9261b764e65a1a3cbc0c75b3344487d9abb66999c819"
+      "sha256": "4a35813c1f5bf22dc83a0072790570fe2094b6be4bbcded4a9fa67e9b5a7602f"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
-      "sha256": "c2f7ba584704dbcd7c61c4c63aadc3bd078298e9c9fb2ddb766c0fec72830609"
+      "sha256": "5adb5abf11a110365293b0a6a88a9bd00309e92446730d05baf01c4c79153070"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3143,7 +3143,7 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Shared immutable native result explicitly explains PARTIAL readiness limitations. Local verification never produces Ready; no effect or permission supplied.",
-      "sha256": "38891156b89f98fb9133abee4a5e2fbcbf592c6546f4f55745ddfa9957da13b1"
+      "sha256": "e67ae6a119e7e6983157706bf368e112f43919ae0549352f1c10d3846fd13ec1"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3192,13 +3192,13 @@
     },
     "lib/engineering/native-model-budget.ts": {
       "classification": "ENFORCED",
-      "reason": "Durable single-session writer and atomic bounded reservations before model calls. Exact replay only; unknown outcomes retain allowance and block calls/effects. Current Work/Agent/route/deadline rechecked.",
-      "sha256": "ec7ba60ccf32eff05f740174fcaeb356581bee05c80e06226f68b5bdfe89066a"
+      "reason": "Native productive authority and writer/session custody plus mandatory common Work budget; legacy ledger grants no new spend.",
+      "sha256": "a3c61e6c932aa981ef6de532cbb244fa2555cd9fc987f645f58a82ace4221048"
     },
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
       "reason": "Current authority, current pricing and durable reservation precede one model call. Only bounded text and native tool; no fallbacks or provider tools. Settle costs before exposure; unknown outcomes block retries.",
-      "sha256": "6171ebcc0bc808be9520397205b7ab0e34aeb7f4e46a0465aa73013fe3c142da"
+      "sha256": "2968accfb0198247500bad0f5d1bcd6415cc546bd3ec546810f9376236947704"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3213,7 +3213,7 @@
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
       "reason": "Fresh native owner/Agent/policy/qualification/budget/writer checks unchanged. Contract records actual Software Engineer/JStack/mode versions; composition does not alter policy, resources, operations, owner or budget.",
-      "sha256": "0728c78d536871cf44ae60430fe19f3ed38d6027681f18216e85879eeae3a00f"
+      "sha256": "662b148beafb654b363f7c1602a5b9f715e232a7c1fdfcadf7234fb9a86dba25"
     },
     "lib/engineering/native-behavior.ts": {
       "classification": "INTERNAL",
@@ -3222,13 +3222,13 @@
     },
     "lib/engineering/conversation-budget.ts": {
       "classification": "INTERNAL",
-      "reason": "Additional scoped conversation spending ledger; atomic bounded reservation/settlement, uncertain-call fencing, authority binding and replay. Grants no route or writer authority.",
-      "sha256": "e4ca60a7b3c07a6dd3df45b3c83466b8fb711415941a04a752fb280d4fe6e965"
+      "reason": "Canonical Work cost-ledger service: bounded reservation, exclusive dispatch claim, retained result and exact-call reconciliation. Native spending consumes this same ledger; read authority grants no writer.",
+      "sha256": "6daee5d7a1c191aa3aabb90dc89b9b4435a8f36ab6f23dc1939b8e7218d8910a"
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "All selected-Work model dispatch requires durable reservation and immediate authority recheck. Observers advertise inspect only; productive mode retains unchanged native model and effect guards. Exact model, text/tool/input/output bounds; no alternate provider.",
-      "sha256": "897ce768bab92bfe3992ba46e9d0f80e3914bae02d81e3661b62e815f6f6e31e"
+      "reason": "Selected-Work model calls use common ledger before dispatch; native execution owns one canonical reservation, not a nested charge. Observation permits inspect only.",
+      "sha256": "37bd22c08c930c3a3d01a622fcd4b7a7c07349bb0fce52e10139631fc1e67d8b"
     }
   }
 }
