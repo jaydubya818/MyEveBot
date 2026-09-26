@@ -7,11 +7,14 @@ export default function HomePage() {
   return (
     <main className="min-h-dvh">
       <header className="border-b border-gray-a4">
-        <div className="mx-auto flex w-full max-w-5xl items-baseline gap-3 px-6 py-4">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-baseline gap-3 px-6 py-4">
           <h1 className="text-base font-semibold text-gray-12">MyEve</h1>
           <p className="text-sm text-gray-11">
             Create, configure, and own a persistent personal AI on your Vercel account.
           </p>
+          <a href="/beta" className="ml-auto text-sm font-medium text-gray-11 underline hover:text-gray-12">
+            Joining with Relay? Beta setup →
+          </a>
         </div>
       </header>
       <BuilderWizard />
