@@ -22,7 +22,10 @@ function inviteKey(): Buffer {
 
 export function encryptRelayInvite(url: string): string {
   const parsed = new URL(url);
-  if (parsed.origin !== "https://relay-sage-nine.vercel.app" || parsed.pathname !== "/signup" || !parsed.searchParams.get("invite")) {
+  const fragment = new URLSearchParams(parsed.hash.slice(1));
+  const token = fragment.get("invite");
+  if (parsed.origin !== "https://relay-sage-nine.vercel.app" || parsed.pathname !== "/signup" ||
+      parsed.search || fragment.size !== 1 || !token || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
     throw new Error("Relay invitation must be the approved production signup URL");
   }
   const nonce = randomBytes(12);

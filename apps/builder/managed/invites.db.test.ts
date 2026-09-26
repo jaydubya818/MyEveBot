@@ -11,7 +11,7 @@ test("a disposable database enforces invite reservations and single use", { skip
   process.env.MANAGED_EVE_INVITE_KEY = randomBytes(32).toString("base64url");
   process.env.MANAGED_EVE_MAX_ACTIVE = "2";
   const suffix = randomBytes(6).toString("hex");
-  const relayInviteUrl = "https://relay-sage-nine.vercel.app/signup?invite=disposable-test";
+  const relayInviteUrl = `https://relay-sage-nine.vercel.app/signup#invite=${"a".repeat(43)}`;
   const invite = (email: string) => issueManagedInvite({
     email, relayInviteUrl, builderOrigin: "https://myeve-builder.vercel.app", monthlyModelBudgetUsd: 5,
   });
