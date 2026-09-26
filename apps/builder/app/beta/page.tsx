@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CoworkPrompt } from "./cowork-prompt";
 
 export const metadata: Metadata = {
   title: "MyEve + Relay beta setup",
@@ -60,6 +61,7 @@ export default function BetaPage() {
             </li>
           ))}
         </ol>
+        <CoworkPrompt />
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <a href="/" className="rounded-lg bg-gray-12 px-5 py-3 text-sm font-semibold text-gray-1 hover:opacity-90">Start MyEve setup →</a>
           <p className="text-sm text-gray-10">Your Relay invite is a separate private link.</p>
