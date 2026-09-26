@@ -10,9 +10,9 @@ Every managed Eve has a distinct Vercel project, Neon database, application cred
 
 The Builder hosts a small operator control plane with a separate database and an operator-only API. Records are durable: invitation, email, single-use token hash, environment ID, project and storage IDs, deployment ID, current template release, state, timestamps, and an append-only event log. No access passwords, Vercel tokens, Relay credentials, or database URLs are stored in these records.
 
-The operator can issue and revoke email-bound invitations, inspect health and release status, provision one isolated project, upgrade from the current Builder template without replacing secrets, set an admission budget, pause an Eve, request owner export, and retire an environment after export and explicit confirmation. Provisioning and deletion are idempotent and log every state transition. A failed operation remains visible with its stage and can be retried safely.
+The first control-plane slice issues private invitation links, provisions one isolated project, lists environments, checks project identity and health, verifies the AI budget, pauses or resumes a ready Eve, and records an operator-checked owner export hash. A failed operation remains visible with its stage. Upgrade, revocation, automated monitoring, and retirement still need implementation and qualification before the first tester is invited.
 
-The private invitation is the only link sent to a tester. It identifies the tester's account, then presents Eve setup and live readiness checks. The Relay signup token stays inside the invited flow and is not copied into agent chat or public URLs. The operator pins Relay's production signing key before any Eve is paired. A failed key check stops provisioning before project mutation.
+The private invitation is the only link sent to a tester. It is a bearer link sent to the invited email; possession of the link grants access to that setup. It presents the Relay signup invitation and Eve setup with live readiness checks. The invite token stays out of agent chat, and the page sends no referrer to Relay. The operator pins Relay's production signing key before any Eve is paired. A failed key check stops provisioning before project mutation.
 
 ## Budget and export
 
@@ -27,4 +27,4 @@ Eve already provides an owner-authenticated archive download under Manage → Yo
 3. Relay's beta-invite migration and current deployment are live. The approved key fingerprint is pinned by the operator; the tester never types it.
 4. A real tester completes one-link onboarding and a model-written Eve/Sofie exchange with an explicitly approved memory share and a denied unauthorized share.
 
-No invitation is sent until all four gates pass.
+No invitation is sent until all four gates pass. `MANAGED_EVE_PROVISIONING_ENABLED` stays unset until then.
