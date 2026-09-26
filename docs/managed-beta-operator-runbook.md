@@ -2,7 +2,7 @@
 
 ## Current release state
 
-Managed provisioning is disabled by default. The disposable managed Eve lifecycle passed live qualification on September 26, 2026: dedicated project and Neon store, $1 project model budget, migrations, owner sign-in, model response, upgrade, owner archive download and verification, pause, and deletion of the exact project and store. Keep production provisioning disabled until Relay pairing and production control-plane configuration pass the remaining gates in `managed-beta-control-plane.md`. The managed `/beta` page is still in the draft PR; the public page has the existing BYO path.
+Managed provisioning is disabled by default. The disposable managed Eve lifecycle passed live qualification on September 26, 2026: dedicated project and Neon store, $1 project model budget, migrations, owner sign-in, model response, upgrade, owner archive download and verification, pause, and deletion of the exact project and store. A separate Builder control-plane Neon store is connected only to production, its schema is applied, and its invitation, admin, cron, Relay fingerprint, origin, and capacity variables are production-only. The server Vercel token is intentionally absent while the account boundary is decided. Keep production provisioning disabled until Relay pairing and the remaining gates in `managed-beta-control-plane.md` pass. The managed `/beta` page is still in the draft PR; the public page has the existing BYO path.
 
 ## Control-plane setup
 

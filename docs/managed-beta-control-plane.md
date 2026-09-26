@@ -24,7 +24,9 @@ Eve already provides an owner-authenticated archive download under Manage → Yo
 
 1. A local disposable control-plane database passes invite replay, wrong-email, concurrent provisioning, isolation, upgrade, and deletion tests. The existing invite and retirement database tests pass; the full concurrent-provisioning and wrong-email scenarios still need explicit qualification.
 2. A live managed test Eve is provisioned in a dedicated project and database, then monitored, upgraded while retaining its credential, exported, and retired. This passed on September 26, 2026, including a real model response and verification that the exact Vercel project and Neon store disappeared.
-3. Relay's beta-invite migration and current deployment are live. The approved key fingerprint is pinned by the operator; the tester never types it.
+3. Relay's beta-invite migration and current deployment are live. Its owner invitation form is visible in production, and the approved key fingerprint is pinned in Builder's production configuration. A real invitation and pairing still need to be exercised.
 4. A real tester completes one-link onboarding and a model-written Eve/Sofie exchange with an explicitly approved memory share and a denied unauthorized share.
 
 No invitation is sent until all four gates pass. `MANAGED_EVE_PROVISIONING_ENABLED` stays unset until then.
+
+The Builder control-plane database and operator configuration are production-only. A Vercel provisioning token is deliberately absent: the current Builder project is in a personal Vercel account, where an account token can reach unrelated projects. The owner must choose a dedicated team boundary or explicitly accept that broader access before the service receives a token.
