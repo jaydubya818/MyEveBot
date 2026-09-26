@@ -40,6 +40,7 @@ export interface BuilderManifest {
   features: FeatureId[];
   projectName: string;
   deployedAt: string;
+  managed?: boolean;
 }
 
 export interface TemplateInfo {
@@ -61,6 +62,8 @@ export interface AssembleInput {
   /** Present for new Builder deployments; updates fall back to baked public identity. */
   agentName?: string;
   model?: string;
+  /** Managed beta projects initialize their dedicated database during build. */
+  managed?: boolean;
 }
 
 /** Locates apps/eve both in dev (cwd = apps/builder) and in the traced Vercel bundle. */
@@ -190,7 +193,9 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
     } else if (relative === "package.json") {
       const parsed = JSON.parse(data.toString("utf8")) as Record<string, unknown>;
       parsed.name = input.projectName;
-      if (!input.features.includes("browser")) delete (parsed.scripts as Record<string, unknown>)["computer:prewarm"];
+      const scripts = parsed.scripts as Record<string, string>;
+      if (!input.features.includes("browser")) delete scripts["computer:prewarm"];
+      if (input.managed) scripts.build = `npm run db:migrate && ${scripts.build}`;
       data = Buffer.from(`${JSON.stringify(parsed, null, 2)}\n`, "utf8");
     } else if (!input.features.includes("browser") && relative === "lib/computer-runtime-config.ts") {
       data = Buffer.from("export const COMPUTER_RUNTIME_ENABLED = false;\n");
@@ -260,6 +265,7 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
     features: [...input.features],
     projectName: input.projectName,
     deployedAt: new Date().toISOString(),
+    ...(input.managed ? { managed: true } : {}),
   };
   out.push({
     file: BUILDER_MANIFEST_FILE,

@@ -107,7 +107,7 @@ export async function provisionManagedEve(input: {
     await listProjectEnvKeys(token, teamId, project.id, "env"),
     env.map((entry) => entry.key),
   );
-  const deployment = await createDeployment(token, teamId, project.name, await assembleDeployment(config));
+  const deployment = await createDeployment(token, teamId, project.name, await assembleDeployment({ ...config, managed: true }));
   await recordProvisionedDeployment({
     id: input.environmentId,
     projectId: project.id,

@@ -41,6 +41,7 @@ interface UpdateRequest {
   action?: unknown; // "projects" | "inspect" | "update"
   projectName?: unknown;
   expectedProjectId?: unknown;
+  managedMode?: unknown;
 }
 
 /** Exact path match, else any depth-tolerant suffix match. */
@@ -65,6 +66,7 @@ interface DeployedAgent {
   features: FeatureId[];
   instructionsPath: string;
   customSchedulePaths: string[];
+  managed: boolean;
 }
 
 class InspectError extends Error {
@@ -136,6 +138,7 @@ async function readDeployedAgent(
   let currentVersion: string | null = null;
   let currentRelease: number | null = null;
   let features: FeatureId[] | null = null;
+  let managed = false;
   try {
     const raw = await getDeploymentFile(token, teamId, deploymentId, files.get(manifestPath)!);
     const parsed = JSON.parse(raw.toString("utf8")) as Partial<BuilderManifest>;
@@ -150,6 +153,7 @@ async function readDeployedAgent(
         FEATURE_IDS.includes(feature as FeatureId),
       );
     }
+    managed = parsed.managed === true;
   } catch {
     throw new InspectError(
       `"${projectName}" has an unreadable eve-builder.json manifest, so it can't be updated safely.`,
@@ -178,6 +182,7 @@ async function readDeployedAgent(
     features,
     instructionsPath,
     customSchedulePaths,
+    managed,
   };
 }
 
@@ -251,6 +256,9 @@ export async function POST(request: Request): Promise<Response> {
       features: agent.features,
       instructions,
       schedules: [],
+      managed: agent.managed || (body.managedMode === true &&
+        /^myeve-beta-[a-f0-9]{24}$/.test(agent.projectName) &&
+        body.expectedProjectId === agent.projectId),
     });
     files.push(...carried);
 

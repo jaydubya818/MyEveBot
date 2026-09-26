@@ -34,6 +34,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         token, teamId, action: "update", projectName, expectedProjectId: row.project_id,
+        managedMode: true,
       }),
     }));
     const outcome = await response.json() as {
