@@ -10,7 +10,7 @@ Current product priorities and shipped foundations are tracked in the canonical 
 
 ## What it does
 
-The opt-in [Golden Work implementation](docs/engineering-golden-work.md) extends the engineering preparation pilot with durable multi-Run execution, isolated Claude Code, protected verification, candidate custody, exact publication decisions, and Work evidence/Results UI. It is restricted to internal dogfood. **The live GitHub no-babysitting release gate has not passed; this branch is not approved for merge or external Alpha.** See the [Golden Work qualification dossier](docs/verification/2026-09-25-golden-work/README.md) for live versus simulated evidence, remaining gates, and the merge decision. The [earlier pilot record](docs/verification/2026-09-25-engineering-pilot/README.md) retains historical Sofie–Atlas exchange evidence.
+The opt-in [Golden Work implementation](docs/engineering-golden-work.md) extends the engineering preparation pilot with durable multi-Run execution, isolated Claude Code, protected verification, candidate custody, exact publication decisions, and Work evidence/Results UI. It is restricted to internal dogfood. **The live GitHub no-babysitting release gate has not passed; this branch is not approved for merge or external Alpha.** See the [Golden Work qualification dossier](docs/verification/2026-09-25-golden-work/README.md) and [approved repository preflight](docs/verification/2026-09-25-golden-work/live-local/README.md) for live versus simulated evidence and remaining gates. The [earlier pilot record](docs/verification/2026-09-25-engineering-pilot/README.md) retains historical Sofie–Atlas exchange evidence.
 
 **Chat**
 
