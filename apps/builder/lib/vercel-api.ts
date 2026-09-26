@@ -25,7 +25,7 @@ export class VercelApiError extends Error {
 interface RequestOptions {
   token: string;
   teamId?: string | null;
-  method?: "GET" | "POST" | "PATCH" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   stage: DeployStage;
 }
@@ -126,27 +126,80 @@ export async function createProject(
   }
 }
 
+export async function pauseProject(token: string, teamId: string | null, projectId: string): Promise<void> {
+  await api(`/v1/projects/${encodeURIComponent(projectId)}/pause`, {
+    token, teamId, method: "POST", stage: "project",
+  });
+}
+
 /** Production aliases remain public; generated deployment and preview URLs require Vercel auth. */
 export async function setStandardProtection(token: string, teamId: string | null, projectId: string): Promise<void> {
   const project = await api<{ ssoProtection?: { deploymentType?: string } }>(
     `/v9/projects/${encodeURIComponent(projectId)}`,
-    {
-      token, teamId, method: "PATCH", stage: "project",
-      body: { ssoProtection: { deploymentType: "prod_deployment_urls_and_all_previews" } },
-    },
+    { token, teamId, method: "PATCH", stage: "project",
+      body: { ssoProtection: { deploymentType: "prod_deployment_urls_and_all_previews" } } },
   );
   if (project.ssoProtection?.deploymentType !== "prod_deployment_urls_and_all_previews") {
     throw new VercelApiError("project", "Vercel did not confirm Standard Protection.");
   }
 }
 
-/** Pausing one project fences its production deployment without affecting other Eves. */
-export async function setProjectPaused(
-  token: string, teamId: string, projectId: string, paused: boolean,
-): Promise<void> {
-  await api(`/v1/projects/${encodeURIComponent(projectId)}/${paused ? "pause" : "unpause"}`, {
+export async function setProjectPaused(token: string, teamId: string, projectId: string, paused: boolean): Promise<void> {
+  if (paused) await pauseProject(token, teamId, projectId);
+  else await unpauseProject(token, teamId, projectId);
+}
+
+export async function unpauseProject(token: string, teamId: string | null, projectId: string): Promise<void> {
+  await api(`/v1/projects/${encodeURIComponent(projectId)}/unpause`, {
     token, teamId, method: "POST", stage: "project",
   });
+}
+
+export interface ProjectModelBudget {
+  projectId: string;
+  limitAmount: number;
+  currentSpend: number;
+  refreshPeriod: string;
+  active: boolean;
+}
+
+/** AI Gateway project budgets apply to requests authenticated with this
+ * deployment's OIDC identity. Managed Eves do not receive a gateway API key. */
+export async function setProjectModelBudget(
+  token: string,
+  teamId: string | null,
+  projectId: string,
+  limitUsd: number,
+): Promise<ProjectModelBudget> {
+  if (!Number.isFinite(limitUsd) || limitUsd < 1 || limitUsd > 1000) {
+    throw new VercelApiError("project", "Project model budget must be between $1 and $1000");
+  }
+  const result = await api<{
+    scopeType: string; scopeId: string; limitAmount: number; currentSpend: number;
+    refreshPeriod: string; active: boolean;
+  }>("/ai-gateway/budgets", {
+    token, teamId, method: "PUT", stage: "project",
+    body: { scopeType: "project", projectId, limitAmount: limitUsd, refreshPeriod: "monthly" },
+  });
+  if (result.scopeType !== "project" || result.scopeId !== projectId ||
+      result.limitAmount !== limitUsd || result.refreshPeriod !== "monthly" || !result.active) {
+    throw new VercelApiError("project", "Vercel did not confirm the project's monthly model budget");
+  }
+  return { projectId, limitAmount: result.limitAmount, currentSpend: result.currentSpend, refreshPeriod: result.refreshPeriod, active: result.active };
+}
+
+export async function listProjectModelBudgets(token: string, teamId: string | null): Promise<ProjectModelBudget[]> {
+  const result = await api<{ budgets?: Array<{
+    scopeType: string; scopeId: string; limitAmount: number; currentSpend: number;
+    refreshPeriod: string; active: boolean;
+  }> }>("/ai-gateway/budgets/list?scopeType=project", { token, teamId, stage: "project" });
+  return (result.budgets ?? []).filter((budget) => budget.scopeType === "project").map((budget) => ({
+    projectId: budget.scopeId,
+    limitAmount: budget.limitAmount,
+    currentSpend: budget.currentSpend,
+    refreshPeriod: budget.refreshPeriod,
+    active: budget.active,
+  }));
 }
 
 export interface StorageStore {
@@ -155,6 +208,8 @@ export interface StorageStore {
   /** "blob" for Blob stores; integration resources (Neon etc.) report their product. */
   kind: "blob" | "integration";
   productName: string | null;
+  ownership: "owned" | "linked" | "sandbox" | null;
+  connections: { id: string; projectId: string }[];
 }
 
 /**
@@ -169,6 +224,8 @@ export async function listStores(token: string, teamId: string | null): Promise<
       name: string;
       type?: string | null;
       product?: { name?: string; slug?: string } | null;
+      ownership?: "owned" | "linked" | "sandbox" | null;
+      projectsMetadata?: { id: string; projectId: string }[];
     }[];
   }>("/v1/storage/stores", { token, teamId, stage: "storage" });
   return (body.stores ?? []).map((store) => ({
@@ -176,6 +233,8 @@ export async function listStores(token: string, teamId: string | null): Promise<
     name: store.name,
     kind: store.type === "blob" || store.type == null ? "blob" : "integration",
     productName: store.product?.name ?? store.product?.slug ?? null,
+    ownership: store.ownership ?? null,
+    connections: Array.isArray(store.projectsMetadata) ? store.projectsMetadata.map((entry) => ({ id: entry.id, projectId: entry.projectId })) : [],
   }));
 }
 
@@ -353,27 +412,41 @@ export interface CreatedDeployment {
   readyState: string;
 }
 
-async function uploadDeploymentFile(token: string, teamId: string | null, file: DeployFile): Promise<{
-  file: string; sha: string; size: number;
-}> {
-  const contents = Buffer.from(file.data, "base64");
-  const sha = createHash("sha1").update(contents).digest("hex");
-  const url = new URL(`${API}/v2/files`);
-  if (teamId) url.searchParams.set("teamId", teamId);
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/octet-stream",
-      "Content-Length": String(contents.length),
-      "x-vercel-digest": sha,
-    },
-    body: contents,
+async function uploadDeploymentFiles(
+  token: string,
+  teamId: string | null,
+  files: DeployFile[],
+): Promise<Array<{ file: string; sha: string; size: number }>> {
+  const unique = new Map<string, Buffer>();
+  const references = files.map((entry) => {
+    const bytes = Buffer.from(entry.data, "base64");
+    const sha = createHash("sha1").update(bytes).digest("hex");
+    if (!unique.has(sha)) unique.set(sha, bytes);
+    return { file: entry.file, sha, size: bytes.length };
   });
-  if (!response.ok) {
-    throw new VercelApiError("deploy", `Vercel file upload failed (${response.status}).`, response.status);
+  const uploads = [...unique.entries()];
+  const endpoint = new URL(`${API}/v2/files`);
+  if (teamId) endpoint.searchParams.set("teamId", teamId);
+  let next = 0;
+  async function worker(): Promise<void> {
+    while (next < uploads.length) {
+      const [sha, bytes] = uploads[next++];
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/octet-stream",
+          "x-vercel-digest": sha,
+        },
+        body: new Uint8Array(bytes),
+      });
+      if (!response.ok) {
+        throw new VercelApiError("deploy", `Vercel file upload failed (${response.status})`, response.status);
+      }
+    }
   }
-  return { file: file.file, sha, size: contents.length };
+  await Promise.all(Array.from({ length: Math.min(16, uploads.length) }, () => worker()));
+  return references;
 }
 
 export async function createDeployment(
@@ -382,17 +455,9 @@ export async function createDeployment(
   projectName: string,
   files: DeployFile[],
 ): Promise<CreatedDeployment> {
-  // Vercel caps a deployment-creation JSON request at 10 MB. Upload the
-  // largest files by digest first, leaving room for metadata and API growth.
-  const deploymentFiles: (DeployFile | { file: string; sha: string; size: number })[] = [...files];
-  let requestBytes = Buffer.byteLength(JSON.stringify(deploymentFiles));
-  for (const file of [...files].sort((a, b) => b.data.length - a.data.length)) {
-    if (requestBytes < 8_000_000) break;
-    const index = deploymentFiles.findIndex((item) => item.file === file.file);
-    const reference = await uploadDeploymentFile(token, teamId, file);
-    deploymentFiles[index] = reference;
-    requestBytes -= Buffer.byteLength(JSON.stringify(file)) - Buffer.byteLength(JSON.stringify(reference));
-  }
+  // Inline base64 exceeds Vercel's deployment request limit for the Eve
+  // template. Upload content-addressed files first, then send only references.
+  const uploadedFiles = await uploadDeploymentFiles(token, teamId, files);
   const deployment = await api<{
     id: string;
     url: string;
@@ -408,7 +473,7 @@ export async function createDeployment(
       name: projectName,
       project: projectName,
       target: "production",
-      files: deploymentFiles,
+      files: uploadedFiles,
       projectSettings: { framework: "nextjs" },
     },
     stage: "deploy",
@@ -461,6 +526,7 @@ export async function listProjects(
 export interface ProjectDetails {
   id: string;
   name: string;
+  paused: boolean | null;
   /** True when the project is linked to a git repository (builder deploys never are). */
   hasGitRepository: boolean;
 }
@@ -476,10 +542,12 @@ export async function getProject(
       id: string;
       name: string;
       link?: { type?: string; repo?: string; repoId?: number } | null;
+      paused?: boolean;
     }>(`/v9/projects/${encodeURIComponent(name)}`, { token, teamId, stage: "project" });
     return {
       id: project.id,
       name: project.name,
+      paused: typeof project.paused === "boolean" ? project.paused : null,
       hasGitRepository: project.link != null && typeof project.link === "object",
     };
   } catch (error) {
@@ -506,6 +574,15 @@ export async function latestProductionDeploymentId(
     { token, teamId, stage: "project" },
   );
   return body.deployments?.[0]?.uid ?? null;
+}
+
+/** Any deployment, including failed and preview deployments, blocks empty-project recovery. */
+export async function projectHasDeployments(token: string, teamId: string | null, projectId: string): Promise<boolean> {
+  const body = await api<{ deployments?: { uid: string }[] }>(
+    `/v6/deployments?projectId=${encodeURIComponent(projectId)}&limit=1`,
+    { token, teamId, stage: "project" },
+  );
+  return (body.deployments?.length ?? 0) > 0;
 }
 
 interface DeploymentFileTreeEntry {

@@ -3,29 +3,29 @@ import { CoworkPrompt } from "./cowork-prompt";
 
 export const metadata: Metadata = {
   title: "MyEve + Relay beta setup",
-  description: "Set up your own Eve and connect it to Relay using an invitation and an operator-approved signing key.",
+  description: "Join the managed MyEve beta with an isolated Eve and a private Relay invitation.",
 };
 
 const steps = [
   {
     number: "01",
-    title: "Accept your Relay invitation",
-    body: "Use the private invite link the operator sent to your exact email address. Create your Relay account first; a generic signup page will not work for this beta.",
+    title: "Open your private setup link",
+    body: "The beta team sends one link to your invited email. It includes your Relay invitation and your managed Eve setup. Keep the link private.",
   },
   {
     number: "02",
-    title: "Build your Eve",
-    body: "Bring a Vercel account and a token from its Account Settings. Choose a new project name. Your Eve runs in your Vercel account, with the password and storage you select.",
+    title: "Create your Eve",
+    body: "Choose your Eve's name and sign-in password. The beta team provisions a dedicated Vercel project and data boundary for your Eve. You do not need a Vercel account.",
   },
   {
     number: "03",
-    title: "Pin the Relay key",
-    body: "On Keys & storage, turn on Connect to Relay beta and enter the SHA-256 fingerprint the operator gave you separately. Stop if the Builder reports a mismatch.",
+    title: "Connect to Relay",
+    body: "Accept your Relay invitation, then connect your Eve through Manage → Relay. Choose each agent permission and memory share explicitly.",
   },
   {
     number: "04",
-    title: "Connect and test",
-    body: "After the Builder confirms your Eve is answering, open Manage → Relay in your Eve. Sign in with your invited Relay account, register your agent, and grant only the peer access you choose.",
+    title: "Test and keep your data",
+    body: "Check that your Eve answers and that Relay can exchange an approved message. Export your Eve data from Manage → Your data whenever you need it.",
   },
 ];
 
@@ -47,10 +47,10 @@ export default function BetaPage() {
           Your agent, connected on your terms.
         </h1>
         <p className="mt-5 max-w-2xl text-lg leading-8 text-gray-11">
-          This beta gives you your own Eve and an invited Relay account. Private memories stay private until you choose what to share with another agent.
+          This beta gives you an isolated Eve and an invited Relay account. Private memories stay private until you choose what to share with another agent.
         </p>
         <div className="mt-8 rounded-xl border border-gray-a5 bg-gray-2 p-5 text-sm leading-6 text-gray-11">
-          <strong className="text-gray-12">Before you begin:</strong> have your private Relay invite, the separately supplied signing-key fingerprint, and a Vercel account ready. If either Relay item is missing, ask the operator before deploying.
+          <strong className="text-gray-12">Before you begin:</strong> request a private setup link from the beta team. Managed setup is invitation only while we qualify the first environments.
         </div>
         <ol className="mt-12 grid gap-4 sm:grid-cols-2">
           {steps.map((step) => (
@@ -63,8 +63,8 @@ export default function BetaPage() {
         </ol>
         <CoworkPrompt />
         <div className="mt-10 flex flex-wrap items-center gap-4">
-          <a href="/" className="rounded-lg bg-gray-12 px-5 py-3 text-sm font-semibold text-gray-1 hover:opacity-90">Start MyEve setup →</a>
-          <p className="text-sm text-gray-10">Your Relay invite is a separate private link.</p>
+          <a href="/" className="rounded-lg border border-gray-a5 px-5 py-3 text-sm font-semibold hover:bg-gray-3">Advanced: deploy in your own Vercel account →</a>
+          <p className="text-sm text-gray-10">Your invitation link opens managed setup when your beta slot is approved.</p>
         </div>
       </div>
     </main>

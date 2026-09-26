@@ -15,7 +15,8 @@ test("a source bundle above Vercel's request cap uploads files by digest", async
     assert.match(url, /\/v13\/deployments/);
     deploymentBytes = Buffer.byteLength(String(init?.body));
     const body = JSON.parse(String(init?.body)) as { files: { sha?: string; size?: number }[] };
-    assert.equal(body.files.filter((file) => file.sha && file.size).length, uploaded.length);
+    assert.equal(body.files.filter((file) => file.sha && file.size).length, 3);
+    assert.equal(new Set(body.files.map((file) => file.sha)).size, uploaded.length);
     return Response.json({ id: "dpl_test", url: "test.vercel.app", target: "production" });
   });
   const contents = Buffer.alloc(3_000_000, "a").toString("base64");
