@@ -52,6 +52,21 @@ function telegramTarget(ownerId: string, env: NodeJS.ProcessEnv = process.env): 
   return chatId;
 }
 
+export function telegramReviewAvailability(
+  ownerId: string,
+  env: NodeJS.ProcessEnv = process.env,
+): DeliveryChannelAvailability {
+  // The legacy sender is blocked at its external-write leaf. Configuration
+  // establishes a target, but it does not qualify delivery.
+  return {
+    channel: "telegram",
+    available: false,
+    reason: telegramTarget(ownerId, env) !== null
+      ? "Telegram review delivery is awaiting send authorization qualification."
+      : "Telegram needs a bot token and an allowlisted proactive chat target; review sends also await qualification.",
+  };
+}
+
 export async function availableReviewDeliveryChannels(
   ownerId: string,
 ): Promise<DeliveryChannelAvailability[]> {
@@ -59,17 +74,10 @@ export async function availableReviewDeliveryChannels(
     available: false,
     reason: "Web Push availability could not be checked.",
   }));
-  const telegramAvailable = telegramTarget(ownerId) !== null;
   return [
     { channel: "in_app", available: true, reason: null },
     { channel: "push", ...push },
-    {
-      channel: "telegram",
-      available: telegramAvailable,
-      reason: telegramAvailable
-        ? null
-        : "Telegram needs a bot token and an allowlisted proactive chat target.",
-    },
+    telegramReviewAvailability(ownerId),
   ];
 }
 

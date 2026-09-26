@@ -55,6 +55,14 @@ Do not infer zero production authority bypasses, cross-scope leaks, duplicate ef
 
 The existing standalone nightly Memory consolidation schedule currently runs as a runtime principal without an admitted occurrence, so its tool writes are denied by `toolActionRequest`. This slice corrected provenance for authorized scheduled occurrences; it did not loosen schedule authorization. Continuous learning remains an open milestone.
 
+## Telegram and Relay continuation — 2026-09-25
+
+**Telegram: local safety checks PASS; live conversation NOT_RUN.** The general MyEve Telegram export intentionally returns 503, and the exact dedicated qualification-bot Keychain service/account (`relay-telegram-qualification` / `RELAY_TELEGRAM_BOT_TOKEN`) was absent when checked without reading any value. No bot webhook, Telegram message or live model turn was exercised. This slice made the owner allowlist mandatory in development as well as production and stopped Review Delivery from advertising Telegram as available while its legacy send leaf remains blocked. Ten focused Node tests, the 1,197-test app suite, TypeScript and governance (605 sources, UNKNOWN=0) pass. These checks preserve the closed owner-channel release gate; they do not make Telegram usable yet.
+
+**Relay: current component checks PASS; Atlas/live exchange NOT_RUN.** MyEve Relay-focused tests passed 196 tests (19 skipped in their existing gates). A read-only check of the separate active Codex candidate `/Users/jaywest/Documents/ChatGPT/New project/relay-alpha-production-candidate` at `b152dc5380bc149f5525e4a12f02825f7dd9066a` passed TypeScript and 36 pure federation tests. No Relay files were changed here, and its full database/build suite was not run concurrently with the other task. The preserved local `Alpha↔Sofie` conversation report uses signed/correlated traffic and a deterministic responder; it is **not** Atlas identity, a live Sofie model answer or hosted federation. Relay's production activation record still leaves federation disabled. The in-progress Codex task must supply a reviewed final SHA before cross-repo qualification is repeated.
+
+The next live matrix needs a dedicated bot identity/token stored outside source, exact owner and sender allowlists, authenticated webhook delivery, duplicate/restart/revocation cases and observed Sofie replies. The separate peer matrix needs Atlas's registered Relay identity, reciprocal grants and local policies, both workers, and observed correlated replies in both directions. A Telegram message cannot act as approval or confer Relay permission. Until these observations exist, both release gates remain closed and the full Digital Worker journey remains **NOT QUALIFIED**.
+
 ## Browser captures
 
 - [Desktop Work evidence](work-desktop-simulated.png)

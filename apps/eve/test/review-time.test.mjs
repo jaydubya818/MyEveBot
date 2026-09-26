@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { resolveReviewDeliveryChannel, reviewDeliveryPolicy } from "../lib/review-delivery.ts";
+import { resolveReviewDeliveryChannel, reviewDeliveryPolicy, telegramReviewAvailability } from "../lib/review-delivery.ts";
 import { reviewRetryDecision } from "../lib/review-delivery-db.ts";
 import {
   deliveryDeduplicationKey,
@@ -125,4 +125,10 @@ test("proactive Telegram requires the configured owner and an explicit allowlist
     reviewDeliveryPolicy.telegramTarget("owner-a", { ...configured, TELEGRAM_PROACTIVE_CHAT_ID: "" }),
     null,
   );
+  assert.deepEqual(telegramReviewAvailability("owner-a", configured), {
+    channel: "telegram",
+    available: false,
+    reason: "Telegram review delivery is awaiting send authorization qualification.",
+  });
+  assert.equal(telegramReviewAvailability("owner-b", configured).available, false);
 });

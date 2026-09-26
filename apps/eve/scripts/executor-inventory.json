@@ -45,7 +45,7 @@
     "agent/channels/telegram.ts": {
       "classification": "BLOCKED",
       "reason": "Only blockedChannel is registered; framework-owned replies, typing, challenges and voice output are unreachable.",
-      "sha256": "2706042ba5a598f65ec98af5b471ca8df1e691ee0e344d1bc5e62fbf1fbb9180"
+      "sha256": "e40286237c8774979a92374ce718a6ab0d08dbc20fef4a0f4def16e51f57a3ba"
     },
     "agent/connections/agentcard.ts": {
       "classification": "BLOCKED",
@@ -2481,7 +2481,7 @@
     "lib/review-delivery.ts": {
       "classification": "BLOCKED",
       "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "5eba8fd79a70ae4c0398f9899d1040b7bebd5b68bdccc0bc954b6ffce7723056"
+      "sha256": "0adcdb7324ff6df1a2c46ca55c8e66e78642194b75d90982b2e0b0a7aac0e656"
     },
     "lib/review-schedule-types.ts": {
       "classification": "NOT_APPLICABLE",

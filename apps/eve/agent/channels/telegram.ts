@@ -4,9 +4,8 @@ import { defaultTelegramAuth, telegramChannel } from "eve/channels/telegram";
 // Credentials come from TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET_TOKEN.
 // The webhook route is mounted at POST /eve/v1/telegram.
 //
-// This is a personal agent: it only answers private DMs. Production fails
-// closed unless TELEGRAM_ALLOWED_USER_IDS contains the owner-approved Telegram
-// user ids. Local development may omit the list for channel setup testing.
+// This is a personal agent: it only answers private DMs from explicitly
+// allowlisted users. Development traffic must meet the same identity rule.
 function allowedUserIds(env: NodeJS.ProcessEnv): string[] {
   return (env.TELEGRAM_ALLOWED_USER_IDS ?? "")
     .split(",")
@@ -19,7 +18,6 @@ export function telegramUserAllowed(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
   const allowlist = allowedUserIds(env);
-  if (allowlist.length === 0) return env.NODE_ENV !== "production";
   return fromId !== undefined && allowlist.includes(String(fromId));
 }
 

@@ -99,6 +99,14 @@ For each selected Work, display a small, consistent state model:
 
 Reuse the existing Work detail sections (Overview, Changes, Evidence, Activity, Decisions, Results) and show context provenance/route there. The shared Current Truth read model should feed readiness, UI, Sofie's `engineering_work` tool and future notifications; each surface may format it, but none may independently decide `Ready` (§§64, 76, 137). Show freshness and “status unavailable” after a failed refresh. For mobile, prioritize Work status, Needs You, approval, takeover and Result review before dense diffs (§§75–76, 302, 379–388). Test with a real browser and model conversation as well as API/SQL tests.
 
+### Telegram owner channel and Relay qualification
+
+Telegram is another owner-facing transport for the same Sofie, Work and decision state. It is not a separate authority plane. A Telegram update must be bound to the dedicated bot, allowlisted sender/chat, local owner and selected Agent before it can reach a model turn. A Telegram message never supplies an approval or Work identity merely by saying “yes” or naming a Work. The existing canonical approval, Action Gateway, budget, expiry, cancellation and recovery checks must govern any consequential continuation. Status and Needs You replies must use the same Work projection as Chat; failures, duplicate updates and uncertain sends must stay visible rather than implying delivery.
+
+Keep Telegram and Relay separate in the test matrix: Telegram verifies human↔Sofie delivery; Relay verifies Sofie↔Atlas or another peer under both sides' permissions. A human request arriving through Telegram may lead Sofie to ask Atlas only through the Relay grant and peer policy, with bounded context and a correlated reply. A peer reply is evidence, never an approval or independent verification. Integrate against a reviewed Relay commit with an exact source revision and matching protocol tests, rather than an in-progress checkout.
+
+Telegram release qualification requires a dedicated bot identity and secure token reference, authentic webhook ingress, allowlist rejection, one inbound message→one Sofie turn→one outbound reply, duplicate/restart replay, expired approval, cancellation/revocation and bounded cost. Run the local synthetic matrix first, then a real dedicated-bot round trip and a separate Sofie↔Atlas exchange on the same reviewed heads. Do not infer live delivery from a 503-gated endpoint, mocked Bot API, passing component tests or a configured token alone. The existing owner-channel and Relay release gates stay closed until those live observations pass.
+
 ## 4. Later milestone gates
 
 Keep the order below. A milestone's code may already exist, but its exit requires the stated integrated observation (§§126–132, 264–299).

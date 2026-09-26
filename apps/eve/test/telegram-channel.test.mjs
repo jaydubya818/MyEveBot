@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { telegramUserAllowed } from "../agent/channels/telegram.ts";
+import telegram, { telegramUserAllowed } from "../agent/channels/telegram.ts";
 
 test("production Telegram access fails closed without an allowlist", () => {
   assert.equal(telegramUserAllowed(12345678, { NODE_ENV: "production" }), false);
@@ -17,6 +17,17 @@ test("production Telegram access accepts only explicitly allowed users", () => {
   assert.equal(telegramUserAllowed(undefined, env), false);
 });
 
-test("local Telegram setup remains usable without an allowlist", () => {
-  assert.equal(telegramUserAllowed(12345678, { NODE_ENV: "development" }), true);
+test("local Telegram setup also requires an explicit allowlist", () => {
+  assert.equal(telegramUserAllowed(12345678, { NODE_ENV: "development" }), false);
+  assert.equal(telegramUserAllowed(12345678, {
+    NODE_ENV: "development", TELEGRAM_ALLOWED_USER_IDS: "12345678",
+  }), true);
+});
+
+test("general Telegram webhook remains release blocked", async () => {
+  assert.equal(telegram.receive, undefined);
+  assert.equal(telegram.routes.length, 1);
+  const response = await telegram.routes[0].handler();
+  assert.equal(response.status, 503);
+  assert.equal((await response.json()).error, "channel_write_blocked");
 });
