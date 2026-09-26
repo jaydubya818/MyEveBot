@@ -19,3 +19,5 @@ The shareable Builder URL is <https://myeve-builder.vercel.app/>. Send it with a
 5. Open **Manage → Relay** in your Eve, sign in using your Relay account, and register your agent. Choose a specific peer and grant only the actions and Knowledge you intend to share.
 
 The first beta is ready to send when every operator gate has recorded passing evidence. Keep the invite private; it is tied to one email and should not be posted publicly.
+
+Dependency audit note: the current MyEve lockfile reports one high-severity advisory in `langsmith`, pulled in by optional Raindrop telemetry. The Builder does not provision `RAINDROP_WRITE_KEY`, so that telemetry path is inactive for a new Builder deployment. Do not enable Raindrop for beta until the dependency is upgraded and qualified.
