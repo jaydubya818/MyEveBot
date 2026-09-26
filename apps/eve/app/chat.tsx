@@ -52,6 +52,7 @@ import { ComputerWorkspace } from "@/components/computer-workspace";
 import { EmailClient } from "@/components/email-client";
 import { FilesPage } from "@/components/files-page";
 import { ChatWorkStatus } from "@/components/engineering/chat-work-status";
+import { ChatWorkSelector, type ChatEngineeringWork } from "@/components/engineering/chat-work-selector";
 import {
   CapabilityNotice,
   type CapabilityNoticeState,
@@ -724,6 +725,9 @@ function ChatApp({ initialView }: { initialView: MainView }) {
   const [goalsIncluded, setGoalsIncluded] = useState(true);
   const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
   const [engineeringIncluded, setEngineeringIncluded] = useState(false);
+  // Deliberately page-local: a Work choice is explicit for each chat thread
+  // and must not silently return after a reload or enter saved chat history.
+  const [engineeringWorkByThread, setEngineeringWorkByThread] = useState<Record<string, ChatEngineeringWork>>({});
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1173,6 +1177,12 @@ function ChatApp({ initialView }: { initialView: MainView }) {
       // Ignore storage failures.
     }
     deleteThreadOnServer(id);
+    setEngineeringWorkByThread((current) => {
+      if (!(id in current)) return current;
+      const next = { ...current };
+      delete next[id];
+      return next;
+    });
     setIndex((prev) => {
       const remaining = prev.threads.filter((thread) => thread.id !== id);
       if (remaining.length === 0) {
@@ -1559,6 +1569,14 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           agentName={index.threads.find((thread) => thread.id === index.activeId)?.agentName ?? AGENT_NAME}
           roleId={index.threads.find((thread) => thread.id === index.activeId)?.roleId}
           roleName={index.threads.find((thread) => thread.id === index.activeId)?.roleName}
+          engineeringIncluded={engineeringIncluded}
+          engineeringWork={engineeringWorkByThread[index.activeId] ?? null}
+          onEngineeringWorkChange={(work) => setEngineeringWorkByThread((current) => {
+            const next = { ...current };
+            if (work) next[index.activeId] = work;
+            else delete next[index.activeId];
+            return next;
+          })}
           initialChat={activeChat.chat}
           initialDraft={
             pendingDraft?.threadId === index.activeId ? pendingDraft.text : undefined
@@ -1776,6 +1794,9 @@ function ChatThread({
   agentName,
   roleId,
   roleName,
+  engineeringIncluded,
+  engineeringWork,
+  onEngineeringWorkChange,
   initialChat: savedInitialChat,
   initialDraft,
   onTitle,
@@ -1802,6 +1823,9 @@ function ChatThread({
   agentName: string;
   roleId?: string;
   roleName?: string;
+  engineeringIncluded: boolean;
+  engineeringWork: ChatEngineeringWork | null;
+  onEngineeringWorkChange: (work: ChatEngineeringWork | null) => void;
   initialChat: SavedChat;
   /** Composer prefill, used when a fork was started from an edit. */
   initialDraft?: string;
@@ -1827,6 +1851,7 @@ function ChatThread({
 }) {
   const [initialChat] = useState(() => reconcileChatSession(savedInitialChat));
   const activeLabel = roleName ?? agentName;
+  const canSelectEngineeringWork = engineeringIncluded && !agentId && !roleId && !ownerConflict;
   const [draft, setDraft] = useState(initialDraft ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
   // One-turn transcript context for threads forked from a message: eve
@@ -1895,8 +1920,14 @@ function ChatThread({
     prepareSend: (input) => {
       const forkedThreadTranscript = forkContextRef.current;
       forkContextRef.current = undefined;
+      const headers = { ...input.headers };
+      for (const name of Object.keys(headers)) {
+        if (name.toLowerCase() === "x-myeve-engineering-work-id") delete headers[name];
+      }
+      if (canSelectEngineeringWork && engineeringWork) headers["x-myeve-engineering-work-id"] = engineeringWork.id;
       return {
         ...input,
+        headers,
         clientContext: {
           eveWebModel: model,
           webThreadId: threadId,
@@ -2381,6 +2412,8 @@ function ChatThread({
         )}
 
         <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
+
+        {canSelectEngineeringWork && <ChatWorkSelector selected={engineeringWork} onSelect={onEngineeringWorkChange} />}
 
         {ownerConflict && (
           <div role="status" className="mx-10 mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-kumo-warning/30 bg-kumo-warning/5 px-4 py-3 text-sm">

@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   contextPackageSchema,
   digitalWorkContractSchema,
+  legacyDigitalWorkContractV1Schema,
+  mapLegacyExecutionRouteV1,
   proofLinkProblems,
   proofOfWorkSchema,
 } from "./contracts.ts";
@@ -10,17 +12,30 @@ import {
   POTATO_MODE_V1,
   modeSchema,
 } from "./packs.ts";
-import { decideExecutionRoute, routeFactsSchema, routeRequestSchema } from "./routing.ts";
+import { decideExecutionRoute, routeFactsSchema, routePolicySchema, routeRequestSchema } from "./routing.ts";
 
 const now = Date.parse("2026-09-25T12:00:00.000Z");
 const workId = "00000000-0000-4000-8000-000000000001";
 const criterionId = "00000000-0000-4000-8000-000000000002";
 const scope = { kind: "personal" as const, id: "owner-1" };
 const hash = `sha256:${"a".repeat(64)}`;
+const providers = {
+  DIRECT: { id: "direct-tools", version: 1 },
+  DEEP_AGENT: { id: "deep-agent-harness", version: 1 },
+  EXECUTOR: { id: "bounded-executor", version: 1 },
+  MYFACTORY: { id: "myfactory-adapter", version: 1 },
+  RELAY: { id: "relay-client", version: 1 },
+};
+const routes = ["DIRECT", "DEEP_AGENT", "EXECUTOR", "MYFACTORY", "RELAY"] as const;
+
+function qualified(provider: { id: string; version: number }) {
+  return { provider, scope, status: "QUALIFIED", health: "HEALTHY", evidenceRef: `qualification:${provider.id}`,
+    observedAt: "2026-09-25T11:59:50.000Z", expiresAt: "2026-09-25T13:00:00.000Z" };
+}
 
 function fixture() {
   const work = digitalWorkContractSchema.parse({
-    contractVersion: 1,
+    contractVersion: 2,
     workId,
     workVersion: 3,
     criteriaVersion: 2,
@@ -30,16 +45,20 @@ function fixture() {
     objective: "Deliver one verified change.",
     criteria: [{ id: criterionId, statement: "The behavior passes the admitted test.", evidence: "deterministic" }],
     resourceRefs: ["repository:example/project"],
-    allowedOperations: ["workspace.read", "workspace.write", "executor.start", "factory.submit", "peer.request"],
-    allowedRoutes: ["DIRECT", "EXECUTOR", "FACTORY", "PEER"],
+    allowedOperations: ["workspace.read", "workspace.write", "deep-agent.start", "executor.start", "factory.submit", "peer.request"],
+    allowedRoutes: routes,
     budgetUsd: 8,
     deadline: "2026-09-25T13:00:00.000Z",
     policyVersion: 7,
     composition: ENGINEERING_COMPOSITION_V1,
+    routingProfile: { profileVersion: 1, workShape: "exploratory", decomposition: "single-thread",
+      interaction: "interactive", parallelism: "low", verification: "standard", duration: "medium",
+      ambiguity: "high", externalExpertise: "none", humanJudgment: "possible", risk: "medium" },
+    routePolicy: { id: "engineering-policy", version: 3 },
     definitionOfDone: ["Independent evidence covers the current result revision."],
   });
   const context = contextPackageSchema.parse({
-    contractVersion: 1,
+    contractVersion: 2,
     workId,
     workVersion: 3,
     scope,
@@ -53,16 +72,23 @@ function fixture() {
   });
   const facts = routeFactsSchema.parse({
     currentWorkVersion: 3,
+    currentCriteriaVersion: 2,
     currentPolicyVersion: 7,
     workActive: true,
     scope,
     agentId: "agent-sofie",
     authority: "ALLOW",
     remainingBudgetUsd: 5,
-    allowedRoutes: ["DIRECT", "EXECUTOR", "FACTORY", "PEER"],
+    allowedRoutes: routes,
     allowedOperations: work.allowedOperations,
     allowedResourceRefs: work.resourceRefs,
-    availability: { DIRECT: "QUALIFIED", EXECUTOR: "QUALIFIED", FACTORY: "QUALIFIED", PEER: "QUALIFIED" },
+    routePolicy: routePolicySchema.parse({ id: "engineering-policy", version: 3, allowedRoutes: routes, providers }),
+    qualifications: {
+      DIRECT: qualified(providers.DIRECT), DEEP_AGENT: qualified(providers.DEEP_AGENT),
+      EXECUTOR: qualified(providers.EXECUTOR), MYFACTORY: qualified(providers.MYFACTORY),
+      RELAY: qualified(providers.RELAY),
+    },
+    writerState: "NONE",
     factoryAdmission: "ALLOW",
     relayGrant: "ALLOW",
     peerPolicy: "ALLOW",
@@ -80,25 +106,26 @@ describe("Digital Worker route boundary", () => {
     });
   });
 
-  it.each(["EXECUTOR", "FACTORY", "PEER"] as const)("requires a qualified %s route", route => {
+  it.each(["DEEP_AGENT", "EXECUTOR", "MYFACTORY", "RELAY"] as const)("requires a qualified %s route", route => {
     const { work, context, facts, request } = fixture();
     request.route = route;
-    request.requiredOperations = [{ EXECUTOR: "executor.start", FACTORY: "factory.submit", PEER: "peer.request" }[route]];
+    request.requiredOperations = [{ DEEP_AGENT: "deep-agent.start", EXECUTOR: "executor.start",
+      MYFACTORY: "factory.submit", RELAY: "peer.request" }[route]];
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe(route);
-    facts.availability[route] = "UNKNOWN";
+    facts.qualifications[route]!.status = "UNKNOWN";
     expect(decideExecutionRoute(work, context, request, facts, now)).toMatchObject({ selected: "HUMAN", admitted: false });
   });
 
   it("requires both a Relay grant and peer policy, and separate Factory admission", () => {
     const { work, context, facts, request } = fixture();
-    request.route = "PEER";
+    request.route = "RELAY";
     request.requiredOperations = ["peer.request"];
     facts.relayGrant = "UNKNOWN";
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe("HUMAN");
     facts.relayGrant = "ALLOW";
     facts.peerPolicy = "DENY";
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe("HUMAN");
-    request.route = "FACTORY";
+    request.route = "MYFACTORY";
     request.requiredOperations = ["factory.submit"];
     facts.factoryAdmission = "UNKNOWN";
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe("HUMAN");
@@ -106,13 +133,66 @@ describe("Digital Worker route boundary", () => {
 
   it("keeps behavior packs out of authority, including high initiative mode", () => {
     const { work, context, facts, request } = fixture();
-    request.route = "FACTORY";
+    request.route = "MYFACTORY";
     request.requiredOperations = ["factory.submit"];
     work.allowedRoutes = ["DIRECT"];
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe("HUMAN");
     work.composition.mode = { id: POTATO_MODE_V1.id, version: POTATO_MODE_V1.version };
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe("HUMAN");
     expect(modeSchema.safeParse({ ...POTATO_MODE_V1, allowedOperations: ["factory.submit"] }).success).toBe(false);
+  });
+
+  it("keeps the qualitative routing profile out of authority", () => {
+    const { work, context, facts, request } = fixture();
+    work.routingProfile.parallelism = "high";
+    work.routingProfile.ambiguity = "none";
+    facts.routePolicy.allowedRoutes = ["DIRECT"];
+    request.route = "MYFACTORY";
+    request.requiredOperations = ["factory.submit"];
+    expect(decideExecutionRoute(work, context, request, facts, now).reasons)
+      .toContain("The route policy does not allow this route.");
+  });
+
+  it("requires a current matching provider binding, evidence, health and scope", () => {
+    const { work, context, facts, request } = fixture();
+    request.route = "EXECUTOR";
+    request.requiredOperations = ["executor.start"];
+    const qualifiedExecutor = facts.qualifications.EXECUTOR!;
+    facts.routePolicy.providers.EXECUTOR = { id: "unexpected-provider", version: 1 };
+    expect(decideExecutionRoute(work, context, request, facts, now).reasons)
+      .toContain("The route has no matching qualified provider binding.");
+    facts.routePolicy.providers.EXECUTOR = providers.EXECUTOR;
+    qualifiedExecutor.evidenceRef = null;
+    expect(decideExecutionRoute(work, context, request, facts, now).admitted).toBe(false);
+    qualifiedExecutor.evidenceRef = "qualification:bounded-executor";
+    qualifiedExecutor.health = "UNKNOWN";
+    expect(decideExecutionRoute(work, context, request, facts, now).admitted).toBe(false);
+    qualifiedExecutor.health = "HEALTHY";
+    qualifiedExecutor.scope.id = "other-owner";
+    expect(decideExecutionRoute(work, context, request, facts, now).reasons)
+      .toContain("Provider qualification is outside Work scope.");
+    qualifiedExecutor.scope.id = scope.id;
+    qualifiedExecutor.expiresAt = "2026-09-25T11:59:59.000Z";
+    expect(decideExecutionRoute(work, context, request, facts, now).admitted).toBe(false);
+  });
+
+  it("rejects an active or unknown writer even with an otherwise qualified route", () => {
+    const { work, context, facts, request } = fixture();
+    facts.writerState = "ACTIVE";
+    expect(decideExecutionRoute(work, context, request, facts, now).reasons)
+      .toContain("An active writer exists or current writer state is unknown.");
+    facts.writerState = "UNKNOWN";
+    expect(decideExecutionRoute(work, context, request, facts, now).admitted).toBe(false);
+  });
+
+  it("requires the exact Work criteria and route policy revisions", () => {
+    const { work, context, facts, request } = fixture();
+    facts.currentCriteriaVersion++;
+    expect(decideExecutionRoute(work, context, request, facts, now).admitted).toBe(false);
+    facts.currentCriteriaVersion = work.criteriaVersion;
+    facts.routePolicy.version++;
+    expect(decideExecutionRoute(work, context, request, facts, now).reasons)
+      .toContain("The route policy changed.");
   });
 
   it("rejects stale context, cross-scope context, and missing provenance", () => {
@@ -154,9 +234,9 @@ describe("Digital Worker route boundary", () => {
     request.resourceRefs = work.resourceRefs;
     request.requiredOperations = ["production.deploy"];
     expect(decideExecutionRoute(work, context, request, facts, now).selected).toBe("HUMAN");
-    request.route = "FACTORY";
+    request.route = "MYFACTORY";
     request.requiredOperations = ["workspace.write"];
-    expect(decideExecutionRoute(work, context, request, facts, now).reasons).toContain("Route FACTORY needs its dispatch operation in the request.");
+    expect(decideExecutionRoute(work, context, request, facts, now).reasons).toContain("Route MYFACTORY needs its dispatch operation in the request.");
   });
 
   it("permits human escalation without treating it as execution", () => {
@@ -176,11 +256,30 @@ describe("Digital Worker route boundary", () => {
   });
 });
 
+describe("Digital Worker contract versioning", () => {
+  it("parses legacy Work separately and requires explicit v1 route label conversion", () => {
+    const { work, context, facts } = fixture();
+    const legacy = structuredClone(work) as Record<string, unknown>;
+    legacy.contractVersion = 1;
+    legacy.allowedRoutes = ["DIRECT", "FACTORY", "PEER"];
+    delete legacy.routingProfile;
+    delete legacy.routePolicy;
+    expect(legacyDigitalWorkContractV1Schema.safeParse(legacy).success).toBe(true);
+    expect(digitalWorkContractSchema.safeParse(legacy).success).toBe(false);
+    expect(mapLegacyExecutionRouteV1("FACTORY", 1)).toBe("MYFACTORY");
+    expect(mapLegacyExecutionRouteV1("PEER", 1)).toBe("RELAY");
+    expect(mapLegacyExecutionRouteV1("DEEP_AGENT", 1)).toBeNull();
+    expect(mapLegacyExecutionRouteV1("FACTORY", 2)).toBeNull();
+    expect(decideExecutionRoute(legacy, context, { route: "MYFACTORY", requiredOperations: ["factory.submit"],
+      resourceRefs: work.resourceRefs }, facts, now).admitted).toBe(false);
+  });
+});
+
 describe("Proof of Work links", () => {
   it("requires independent PASS evidence for the exact current result and criteria revision", () => {
     const { work } = fixture();
     const proof = proofOfWorkSchema.parse({
-      contractVersion: 1,
+      contractVersion: 2,
       workId,
       workVersion: 3,
       criteriaVersion: 2,

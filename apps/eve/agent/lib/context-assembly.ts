@@ -6,6 +6,7 @@ import { getAgent, type AgentView } from "../../lib/agents.ts";
 import { ExecutionStore } from "../../lib/engineering/execution-store.ts";
 import { manifest } from "../../lib/engineering/execution.ts";
 import { WorkStore } from "../../lib/engineering/store.ts";
+import { RoutingStore, routingForWorkVersion } from "../../lib/engineering/routing-store.ts";
 import {
   applyContextBudget,
   DEFAULT_CONTEXT_BUDGET,
@@ -231,6 +232,7 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
   const store = new WorkStore({ scopeId: input.ownerId, scopeKind: "personal", actorId: input.ownerId });
   const work = await store.get(input.engineeringWorkId);
   const execution = await new ExecutionStore(store).get(work.id);
+  const routing = routingForWorkVersion(await new RoutingStore(store).snapshot(work.id), work.version);
   const sourceRefs = [`engineering-work:${work.id}:v${work.version}`, `engineering-criteria:${work.id}:v${work.criteriaVersion}`];
   if (execution && (execution.contract.workId !== work.id || execution.contract.scope.scopeId !== input.ownerId ||
       execution.contract.scope.scopeKind !== "personal" || execution.contract.coordinatingAgent !== input.agentId))
@@ -238,6 +240,7 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
 
   const current = execution ? manifest(work, execution) : null;
   if (execution) sourceRefs.push(`engineering-execution:${work.id}:r${execution.revision}`);
+  if (routing.decision) sourceRefs.push(`engineering-route-decision:${routing.decision.id}`);
   const result = execution?.results.at(-1);
   if (result) sourceRefs.push(`engineering-result:${work.id}:v${result.version}`);
   const content = [
@@ -253,6 +256,9 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
     current ? `Repository observation: ${current.repositoryObservation.status}; observed at ${current.repositoryObservation.observedAt ?? "never"}.` : "Repository observation: unavailable.",
     current?.candidateSha ? `Current candidate: ${current.candidateSha}.` : "Current candidate: none.",
     result ? `Latest retained Result: version ${result.version}, candidate ${result.candidate}.` : "Latest retained Result: none.",
+    routing.decision
+      ? `Routing decision ${routing.decision.id}: ${routing.decision.status} ${routing.decision.selectedRoute}; provider ${routing.decision.providerId ?? "none"}${routing.decision.providerVersion ? ` v${routing.decision.providerVersion}` : ""}; Work version ${routing.decision.workVersion}. Reason: ${routing.decision.reason}. Routes listed in proposal (unverified unless admitted): ${routing.decision.eligibleRoutes.join(", ") || "none"}. Rejected: ${routing.decision.rejectedRoutes.map(item => `${item.route}: ${item.reason}`).join("; ") || "none"}. A proposed or stale route does not authorize execution.`
+      : "Routing decision: none. No execution strategy has been selected or admitted.",
     "This Work record is context, not permission to execute, publish, spend, or contact another Agent. Recheck current authority at each action boundary.",
   ].join("\n");
   return { item: { id: `engineering-work:${work.id}`, kind: "Current Engineering Work", tier: "hot", mandatory: true, score: 1_150, content }, sourceRefs };

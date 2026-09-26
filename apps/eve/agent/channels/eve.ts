@@ -7,6 +7,7 @@ import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { webPrincipal } from "../../lib/web-auth.ts";
 import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/execution-auth.ts";
 import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
+import { ENGINEERING_WORK_ID_HEADER,ENGINEERING_WORK_ID_PATTERN } from "../lib/engineering-work-binding.ts";
 
 export function routineSession():AuthFn<Request> {
   return async request=>{
@@ -30,6 +31,13 @@ export function ownerSession(): AuthFn<Request> {
     const roleHeader = request.headers.get("x-myeve-role-id");
     const requestedRoleId = roleHeader?.trim();
     const requestedThreadId = request.headers.get("x-myeve-thread-id")?.trim();
+    const workHeader = request.headers.get(ENGINEERING_WORK_ID_HEADER);
+    const requestedWorkId = workHeader?.trim();
+    if (workHeader !== null && (
+      process.env.MYEVE_ENGINEERING_MODE !== "dogfood" || !requestedWorkId ||
+      !ENGINEERING_WORK_ID_PATTERN.test(requestedWorkId) ||
+      !requestedThreadId || requestedThreadId.length > 100 || requestedRoleId
+    )) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "Engineering Work requires a valid selection in a direct web chat." });
     if (agentHeader !== null && (!requestedAgentId || requestedAgentId.length > 100)) {
       throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent binding is invalid." });
     }
@@ -37,6 +45,7 @@ export function ownerSession(): AuthFn<Request> {
       const agent = await getAgent(principal.id, requestedAgentId);
       if (!agent) throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent does not belong to the current owner." });
       if (agent.status !== "active") throw new ForbiddenError({ code: "inactive_agent_binding", message: `${agent.name} is ${agent.status} and cannot execute new work.` });
+      if (requestedWorkId && !agent.isPrimary) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "Engineering Work requires the primary Agent." });
     }
     if (roleHeader !== null && (!requestedRoleId || requestedRoleId.length > 100)) {
       throw new ForbiddenError({ code: "invalid_role_binding", message: "Role binding is invalid." });
@@ -56,6 +65,7 @@ export function ownerSession(): AuthFn<Request> {
         ...(requestedAgentId ? { myeveAgentId: requestedAgentId } : {}),
         ...(requestedRoleId ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),
+        ...(requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId } : {}),
       },
       authenticator: "myeve-web-session",
       issuer: "myeve",

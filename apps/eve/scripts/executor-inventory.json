@@ -25,7 +25,7 @@
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7ef69f8915236e4b93ca6a948b83a08d37fb247f82179a7ee6f72b5c9059ed7c"
+      "sha256": "10994e3ee262f602da9302fd701cf1c28b4fd778074d1deafeafdc83dff577af"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -173,7 +173,7 @@
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "e0eb6fbd225c25e9fb55fdd774a583e5c90e58b7db8ae3fd2ae93983e86e3433"
+      "sha256": "2fd609008ba123735081779e074b84f9407f4213c7af3f5cfea9df809bdd4ca1"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -238,7 +238,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f06d2c9d34c72d44a05eb48988b73c6fab0c1a5180c96eccf6c8bb41d4ae16bb"
+      "sha256": "28d4faa37cba1d41360764585f0dbd447985d205eb91ed35282a4004f833cb32"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "cbf123a11381b9d1c32ccef77b77386508b4e359475f5acf5eff5f30abec3106"
+      "sha256": "15938821b54b490e726927515bf2aa6baf3487f6dfd66c09ec1833e9237b7739"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2946,7 +2946,7 @@
     "lib/engineering/api.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "b677ab77d4534c44a702847dfcc612c776553ecb6a4afa64ba4737e80f1bbd1d"
+      "sha256": "49018e2e99fe1f91ca2614ef478cf22672a9e88445d1e50a4b006f6569a9c4ba"
     },
     "lib/engineering/store.ts": {
       "classification": "INTERNAL",
@@ -2971,7 +2971,7 @@
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "63542aae08eb62d4ba21abb3b4b5bbff7e7cc0ca8d4faf7c9b852c9968a43529"
+      "sha256": "d142d5535920ed30bc152450425b6064a4426e549dca2f47d2eeccf2bbbb2303"
     },
     "lib/engineering/contract.ts": {
       "classification": "INTERNAL",
@@ -3058,7 +3058,7 @@
     "lib/digital-worker/contracts.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
-      "sha256": "98fa464cad26794b1f001980d707ab76a4dbf5f831d88606a9ef1c07d16729c4"
+      "sha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30"
     },
     "lib/digital-worker/packs.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3068,7 +3068,22 @@
     "lib/digital-worker/routing.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
-      "sha256": "c09e39897dbd08da07fd1fe9559b410d0f0cba380160b6eedc01098337d88e0e"
+      "sha256": "e2d550b6a89ddc8d050a1da29c0fac5f62b6183fb7fff3eaa5f84b7b41d27dfc"
+    },
+    "agent/lib/engineering-work-binding.ts": {
+      "classification": "INTERNAL",
+      "reason": "Validates authenticated owner, thread and primary-Agent Work binding before context assembly; no provider effect.",
+      "sha256": "009425e8602c414bc8a9e9a1812b19cef21077566eaee61f8128d8e5ad3405f1"
+    },
+    "lib/digital-worker/providers.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Type-only provider-neutral interfaces; no runtime executor, credential or side effect.",
+      "sha256": "5acea9b98284a8e9d4f08aa7aca65d3cf21854c1d0292a0c28ebe39841d39d98"
+    },
+    "lib/engineering/routing-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped PostgreSQL proposal and history state; no route dispatch, credential, or external provider effect.",
+      "sha256": "49e5c3470f78a4d1a29beb3c5c36ffedebbebe2c105fd4447b29669030c1337d"
     }
   }
 }

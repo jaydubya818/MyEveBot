@@ -145,3 +145,40 @@ test("the Eve session auth chain rejects anonymous production origins", async ()
     restoreAuthEnv(previous);
   }
 });
+
+test("Engineering Work selection is a validated, per-request owner web auth claim", async () => {
+  const previous = captureAuthEnv();
+  Object.assign(process.env, { ...productionEnv, MYEVE_ENGINEERING_MODE: "dogfood" });
+  try {
+    const cookie = `${WEB_SESSION_COOKIE}=${createWebSessionToken(process.env)}`;
+    const workId = "11111111-1111-4111-8111-111111111111";
+    const request = (headers = {}) => new Request("https://agent.example/eve/v1/session", {
+      method: "POST", headers: { cookie, "x-myeve-thread-id": "thread-1", ...headers },
+    });
+    const selected = await routeAuth(request({ "x-myeve-engineering-work-id": workId }), eveAuth);
+    assert.ok(!(selected instanceof Response));
+    assert.equal(selected.authenticator, "myeve-web-session");
+    assert.equal(selected.attributes.myeveEngineeringWorkId, workId);
+
+    const cleared = await routeAuth(request(), eveAuth);
+    assert.ok(!(cleared instanceof Response));
+    assert.equal(cleared.attributes.myeveEngineeringWorkId, undefined);
+
+    for (const headers of [
+      { "x-myeve-engineering-work-id": "not-a-uuid" },
+      { "x-myeve-engineering-work-id": workId, "x-myeve-thread-id": "" },
+      { "x-myeve-engineering-work-id": workId, "x-myeve-role-id": "researcher" },
+    ]) {
+      const denied = await routeAuth(request(headers), eveAuth);
+      assert.ok(denied instanceof Response);
+      assert.equal(denied.status, 403);
+      assert.equal((await denied.json()).code, "invalid_engineering_work_binding");
+    }
+    process.env.MYEVE_ENGINEERING_MODE = "off";
+    const disabled = await routeAuth(request({ "x-myeve-engineering-work-id": workId }), eveAuth);
+    assert.ok(disabled instanceof Response);
+    assert.equal(disabled.status, 403);
+  } finally {
+    restoreAuthEnv(previous);
+  }
+});

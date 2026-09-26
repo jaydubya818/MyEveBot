@@ -4,6 +4,7 @@ import { boundedJson } from "../relay/client.ts";
 import { WorkStore } from "./store.ts";
 import { WorkError } from "./types.ts";
 import { ExecutionStore } from "./execution-store.ts";
+import { RoutingStore, routingForWorkVersion } from "./routing-store.ts";
 import { manifest } from "./execution.ts";
 
 export function engineeringPrincipal(request: Request) {
@@ -47,17 +48,19 @@ export async function handleWorkRequest(request: Request, id?: string) {
     if (id) z.string().uuid().parse(id);
     if (request.method === "GET") {
       const executions = new ExecutionStore(store);
+      const selectedWork = id ? await store.get(id) : null;
       const state = id ? await executions.get(id) : null;
       const items = id ? [] : await store.list();
       return Response.json(
         id
           ? {
-              work: await store.get(id),
+              work: selectedWork,
               events: await store.events(id),
               criteriaHistory: await store.criteriaHistory(id),
               execution: state,
-              manifest: state ? manifest(await store.get(id),state) : null,
+              manifest: state ? manifest(selectedWork!,state) : null,
               executionHistory: state ? await executions.history(id) : [],
+              routing: routingForWorkVersion(await new RoutingStore(store).snapshot(id), selectedWork!.version),
             }
           : {
               work: items,

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ExecutionDetail } from "./execution-detail";
+import { RoutingSummary, RoutingTimeline, type RoutingSnapshot } from "./routing-summary";
 import type { Execution, manifest } from "../../lib/engineering/execution";
 import type {
   Criterion,
@@ -25,6 +26,7 @@ type Detail = {
   execution: Execution | null;
   manifest: ReturnType<typeof manifest> | null;
   executionHistory: {revision:number;kind:string;actor_id:string;created_at:string}[];
+  routing?: RoutingSnapshot | null;
 };
 async function api(path = "", init?: RequestInit) {
   const response = await fetch(`/api/engineering/work${path}`, {
@@ -50,6 +52,8 @@ export function WorkDashboard() {
   const [items, setItems] = useState<Work[]>([]);
   const [detail, setDetail] = useState<Detail | null>(null);
   const [detailStale, setDetailStale] = useState(false);
+  const [openingId, setOpeningId] = useState<string | null>(null);
+  const [failedOpenId, setFailedOpenId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [summaryStale, setSummaryStale] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -104,14 +108,40 @@ export function WorkDashboard() {
       document.removeEventListener("visibilitychange", refreshVisible);
     };
   }, [busy]);
-  useEffect(()=>{
-    if(!detail?.execution || busy || criteriaEdit)return;
-    const id=detail.work.id,version=selection.current;
-    const timer=setInterval(()=>{void api(`/${id}`).then(data=>{if(selection.current===version){setDetail(data);setDetailStale(false);if(data.manifest)setManifests(current=>current.map(m=>m.workId===id?data.manifest:m));}}).catch(()=>{
-      if(selection.current===version)setDetailStale(true);
-    });},5000);
-    return ()=>clearInterval(timer);
-  },[detail?.work.id,!!detail?.execution,busy,criteriaEdit]);
+  useEffect(() => {
+    if (!detail || busy || criteriaEdit || openingId || failedOpenId) return;
+    const id = detail.work.id;
+    const version = selection.current;
+    let disposed = false;
+    let inFlight = false;
+    async function reloadSelected() {
+      if (disposed || inFlight) return;
+      inFlight = true;
+      try {
+        const data = await api(`/${id}`);
+        if (disposed || selection.current !== version) return;
+        setDetail(data);
+        setItems((current) => current.map((item) => item.id === id ? data.work : item));
+        setManifests((current) => [
+          ...current.filter((item) => item.workId !== id),
+          ...(data.manifest ? [data.manifest] : []),
+        ]);
+        setDetailStale(false);
+      } catch {
+        if (!disposed && selection.current === version) setDetailStale(true);
+      } finally {
+        inFlight = false;
+      }
+    }
+    const interval = window.setInterval(() => void reloadSelected(), detail.execution ? 5_000 : 15_000);
+    const onFocus = () => { if (document.visibilityState === "visible") void reloadSelected(); };
+    window.addEventListener("focus", onFocus);
+    return () => {
+      disposed = true;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [detail?.work.id, !!detail?.execution, busy, criteriaEdit, openingId, failedOpenId]);
   async function delegate(event:React.FormEvent<HTMLFormElement>) {
     event.preventDefault();setBusy(true);setError("");const form=new FormData(event.currentTarget);
     try {const response=await fetch("/api/engineering/intake",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({issue:Number(form.get("issue")),maxCostUsd:Number(form.get("budget")),maxDurationSeconds:Number(form.get("minutes"))*60,idempotencyKey:intakeKey.current})});
@@ -126,6 +156,8 @@ export function WorkDashboard() {
     setCriteriaEdit(false);
     setConfirmCancel(false);
     setDetailStale(true);
+    setFailedOpenId(null);
+    setOpeningId(id);
     setBusy(true);
     try {
       const data = await api(`/${id}`);
@@ -145,9 +177,15 @@ export function WorkDashboard() {
         window.history.replaceState(null, "", url);
       }
     } catch (e) {
-      if (version === selection.current) setError((e as Error).message);
+      if (version === selection.current) {
+        setFailedOpenId(id);
+        setError((e as Error).message);
+      }
     } finally {
-      if (version === selection.current) setBusy(false);
+      if (version === selection.current) {
+        setOpeningId(null);
+        setBusy(false);
+      }
     }
   }
   async function mutate(id: string, command: WorkCommand) {
@@ -224,6 +262,12 @@ export function WorkDashboard() {
   const visible = items.filter((w) =>
     `${w.title} ${w.repository}`.toLowerCase().includes(query.toLowerCase()) && (!statusFilter||manifests.find(m=>m.workId===w.id)?.status===statusFilter),
   );
+  const selectedWorkId = openingId ?? failedOpenId ?? detail?.work.id;
+  const openingTitle = items.find((item) => item.id === openingId)?.title ?? "selected Work";
+  const failedTitle = items.find((item) => item.id === failedOpenId)?.title ?? "selected Work";
+  let emptyMessage = "No Work matches these filters.";
+  if (items.length === 0) emptyMessage = error ? "Reload Work to view saved items." : "No Work yet. Start with one bounded engineering task.";
+  else if (statusFilter && !query) emptyMessage = `No Work in ${statusFilter}.`;
   return (
     <main className="min-h-screen bg-kumo-base text-kumo-default">
       <header className="border-b border-kumo-line">
@@ -270,6 +314,8 @@ export function WorkDashboard() {
               createKey.current = crypto.randomUUID();
               setCreating(true);
               setDetail(null);
+              setFailedOpenId(null);
+              setOpeningId(null);
               setError("");
               setNotice("");
             }}
@@ -291,7 +337,7 @@ export function WorkDashboard() {
               disabled={busy}
               onClick={() => {
                 setError("");
-                void (detail ? open(detail.work.id) : refresh()).catch((e) =>
+                void (failedOpenId ? open(failedOpenId) : detail ? open(detail.work.id) : refresh()).catch((e) =>
                   setError(e.message),
                 );
               }}
@@ -318,7 +364,7 @@ export function WorkDashboard() {
           <p role="status">Loading Work…</p>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[310px_minmax(0,1fr)]">
-            <section aria-label="Work list" className={`min-w-0 space-y-3 ${detail||creating?"order-last lg:order-none":""}`}>
+            <section aria-label="Work list" className={`min-w-0 space-y-3 ${selectedWorkId||creating?"order-last lg:order-none":""}`}>
               <label className="sr-only" htmlFor="search-work">
                 Find Work
               </label>
@@ -330,36 +376,33 @@ export function WorkDashboard() {
                 placeholder="Find Work or repository"
               />
               {visible.length === 0 ? (
-                <p className="rounded-xl border border-dashed border-kumo-line p-6 text-sm text-kumo-subtle">
-                  {query
-                    ? "No matching Work."
-                    : error
-                      ? "Reload Work to view saved items."
-                      : "No Work yet. Start with one bounded engineering task."}
-                </p>
+                <div className="rounded-xl border border-dashed border-kumo-line p-6 text-sm text-kumo-subtle">
+                  <p>{emptyMessage}</p>
+                  {(query || statusFilter) && items.length > 0 && <button type="button" className="mt-3 font-medium text-kumo-default underline underline-offset-2" onClick={() => { setQuery(""); setStatusFilter(""); }}>Clear filters</button>}
+                </div>
               ) : (
-                visible.map((w) => (
-                  <button
-                    key={w.id}
-                    disabled={busy}
-                    onClick={() => void open(w.id)}
-                    aria-pressed={detail?.work.id === w.id}
-                    className={`w-full rounded-xl border p-4 text-left ${detail?.work.id === w.id ? "border-kumo-strong bg-kumo-tint" : "border-kumo-line"}`}
-                  >
-                    <span className="block break-words font-medium">
-                      {w.title}
-                    </span>
-                    <span className="mt-1 block break-all text-xs text-kumo-subtle">
-                      {w.repository}
-                    </span>
-                    <span className="mt-3 block text-xs">{manifests.find(m=>m.workId===w.id)?.status??status(w)}</span>
-                  </button>
-                ))
+                visible.map((w) => {
+                  const currentManifest = manifests.find((item) => item.workId === w.id);
+                  return (
+                    <button
+                      key={w.id}
+                      disabled={busy}
+                      onClick={() => void open(w.id)}
+                      aria-pressed={selectedWorkId === w.id}
+                      className={`w-full rounded-xl border p-4 text-left ${selectedWorkId === w.id ? "border-kumo-strong bg-kumo-tint" : "border-kumo-line"}`}
+                    >
+                      <span className="block break-words font-medium">{w.title}</span>
+                      <span className="mt-1 block break-all text-xs text-kumo-subtle">{w.repository}</span>
+                      <span className="mt-3 block text-xs">{currentManifest?.status ?? status(w)}{currentManifest?.pendingDecisions.length ? ` · ${currentManifest.pendingDecisions.length} decision${currentManifest.pendingDecisions.length === 1 ? "" : "s"} waiting` : ""}</span>
+                      {currentManifest?.nextStep && <span className="mt-1 line-clamp-2 break-words text-xs text-kumo-subtle">Next: {currentManifest.nextStep}</span>}
+                    </button>
+                  );
+                })
               )}
             </section>
             <section
               aria-label="Work detail"
-              className={`min-w-0 rounded-2xl border border-kumo-line p-5 md:p-7 ${detail||creating?"order-first lg:order-none":""}`}
+              className={`min-w-0 rounded-2xl border border-kumo-line p-5 md:p-7 ${selectedWorkId||creating?"order-first lg:order-none":""}`}
             >
               {creating ? (
                 <form onSubmit={create} className="space-y-5">
@@ -453,6 +496,17 @@ export function WorkDashboard() {
                     </button>
                   </div>
                 </form>
+              ) : openingId ? (
+                <div role="status" className="py-16 text-center">
+                  <h2 className="text-xl font-medium">Opening {openingTitle}…</h2>
+                  <p className="mt-3 text-sm text-kumo-subtle">Checking the latest Work state before showing controls.</p>
+                </div>
+              ) : failedOpenId ? (
+                <div className="py-16 text-center">
+                  <h2 className="text-xl font-medium">Could not open {failedTitle}</h2>
+                  <p className="mt-3 text-sm text-kumo-subtle">Choose another Work item or retry to load its current state.</p>
+                  <button type="button" className={`${button} mt-5`} onClick={() => void open(failedOpenId)}>Retry this Work</button>
+                </div>
               ) : detail ? (
                 <div className="space-y-6">
                   <div>
@@ -481,6 +535,7 @@ export function WorkDashboard() {
                       </a>
                     )}
                   </div>
+                  <RoutingSummary routing={detail.routing} stale={detailStale} />
                   <section>
                     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                       <h3 className="font-semibold">
@@ -749,6 +804,7 @@ export function WorkDashboard() {
                         </li>
                       ))}
                     </ol>
+                    <RoutingTimeline transitions={detail.routing?.transitions} />
                   </section>
                 </div>
               ) : (

@@ -1,8 +1,19 @@
 import { z } from "zod";
 
-export const DIGITAL_WORKER_CONTRACT_VERSION = 1 as const;
-export const executionRouteSchema = z.enum(["DIRECT", "EXECUTOR", "FACTORY", "PEER", "HUMAN"]);
+export const DIGITAL_WORKER_CONTRACT_VERSION = 2 as const;
+export const legacyExecutionRouteV1Schema = z.enum(["DIRECT", "EXECUTOR", "FACTORY", "PEER", "HUMAN"]);
+export const executionRouteSchema = z.enum(["DIRECT", "DEEP_AGENT", "EXECUTOR", "MYFACTORY", "RELAY", "HUMAN"]);
 export type ExecutionRoute = z.infer<typeof executionRouteSchema>;
+
+/** An explicit label conversion only. A v1 policy never authorizes a v2 route. */
+export function mapLegacyExecutionRouteV1(route: unknown, sourceVersion: unknown): ExecutionRoute | null {
+  if (sourceVersion !== 1) return null;
+  const parsed = legacyExecutionRouteV1Schema.safeParse(route);
+  if (!parsed.success) return null;
+  if (parsed.data === "FACTORY") return "MYFACTORY";
+  if (parsed.data === "PEER") return "RELAY";
+  return parsed.data;
+}
 
 export const scopeSchema = z.object({
   kind: z.enum(["personal", "organization"]),
@@ -10,7 +21,7 @@ export const scopeSchema = z.object({
 }).strict();
 export type WorkScope = z.infer<typeof scopeSchema>;
 
-const versionedReferenceSchema = z.object({
+export const versionedReferenceSchema = z.object({
   id: z.string().min(1).max(120),
   version: z.number().int().positive(),
 }).strict();
@@ -22,6 +33,23 @@ export const compositionSchema = z.object({
 }).strict();
 export type WorkerComposition = z.infer<typeof compositionSchema>;
 
+const qualitativeFactSchema = z.string().trim().min(1).max(80);
+/** Descriptive Work facts for explanation. They never grant execution authority. */
+export const routingProfileSchema = z.object({
+  profileVersion: z.literal(1),
+  workShape: qualitativeFactSchema,
+  decomposition: qualitativeFactSchema,
+  interaction: qualitativeFactSchema,
+  parallelism: qualitativeFactSchema,
+  verification: qualitativeFactSchema,
+  duration: qualitativeFactSchema,
+  ambiguity: qualitativeFactSchema,
+  externalExpertise: qualitativeFactSchema,
+  humanJudgment: qualitativeFactSchema,
+  risk: qualitativeFactSchema,
+}).strict();
+export type RoutingProfile = z.infer<typeof routingProfileSchema>;
+
 const criterionSchema = z.object({
   id: z.string().uuid(),
   statement: z.string().trim().min(1).max(1000),
@@ -32,8 +60,7 @@ const referenceSchema = z.string().trim().min(1).max(400);
 const distinct = (values: readonly string[]) => new Set(values).size === values.length;
 
 /** A role-neutral snapshot of delegated responsibility, not an authorization token. */
-export const digitalWorkContractSchema = z.object({
-  contractVersion: z.literal(DIGITAL_WORKER_CONTRACT_VERSION),
+const commonWorkFields = {
   workId: z.string().uuid(),
   workVersion: z.number().int().positive(),
   criteriaVersion: z.number().int().positive(),
@@ -44,12 +71,26 @@ export const digitalWorkContractSchema = z.object({
   criteria: z.array(criterionSchema).min(1).max(20).refine(items => distinct(items.map(item => item.id))),
   resourceRefs: z.array(referenceSchema).min(1).max(30).refine(distinct),
   allowedOperations: z.array(referenceSchema).min(1).max(30).refine(distinct),
-  allowedRoutes: z.array(executionRouteSchema).min(1).max(5).refine(distinct),
   budgetUsd: z.number().finite().nonnegative(),
   deadline: z.string().datetime({ offset: true }),
   policyVersion: z.number().int().positive(),
   composition: compositionSchema,
   definitionOfDone: z.array(z.string().trim().min(1).max(500)).min(1).max(20),
+};
+
+/** Parse archived v1 records without silently admitting their legacy route names. */
+export const legacyDigitalWorkContractV1Schema = z.object({
+  ...commonWorkFields,
+  contractVersion: z.literal(1),
+  allowedRoutes: z.array(legacyExecutionRouteV1Schema).min(1).max(5).refine(distinct),
+}).strict();
+
+export const digitalWorkContractSchema = z.object({
+  ...commonWorkFields,
+  contractVersion: z.literal(DIGITAL_WORKER_CONTRACT_VERSION),
+  allowedRoutes: z.array(executionRouteSchema).min(1).max(6).refine(distinct),
+  routingProfile: routingProfileSchema,
+  routePolicy: versionedReferenceSchema,
 }).strict();
 export type DigitalWorkContract = z.infer<typeof digitalWorkContractSchema>;
 

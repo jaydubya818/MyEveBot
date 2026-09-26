@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fixture } from "../../test/engineering-fixtures.ts";
 
 const mocks = vi.hoisted(() => ({
-  getAgent: vi.fn(), getWork: vi.fn(), getExecution: vi.fn(), memorySearch: vi.fn(), query: vi.fn(), principal: vi.fn(),
+  getAgent: vi.fn(), getWork: vi.fn(), getExecution: vi.fn(), getRouting: vi.fn(), memorySearch: vi.fn(), query: vi.fn(), principal: vi.fn(),
 }));
 vi.mock("../../lib/agents.ts", () => ({ getAgent: mocks.getAgent }));
 vi.mock("../../lib/engineering/store.ts", () => ({
@@ -13,6 +13,10 @@ vi.mock("../../lib/engineering/store.ts", () => ({
 }));
 vi.mock("../../lib/engineering/execution-store.ts", () => ({
   ExecutionStore: class { get = mocks.getExecution; },
+}));
+vi.mock("../../lib/engineering/routing-store.ts", async (importOriginal) => ({
+  ...await importOriginal<typeof import("../../lib/engineering/routing-store.ts")>(),
+  RoutingStore: class { snapshot = mocks.getRouting; },
 }));
 vi.mock("./receipts-db.ts", () => ({ db: () => ({ query: mocks.query }) }));
 vi.mock("./memory-store.ts", () => ({ memoryStore: { search: mocks.memorySearch } }));
@@ -33,6 +37,7 @@ beforeEach(() => {
   const current = fixture();
   mocks.getWork.mockResolvedValue(current.work);
   mocks.getExecution.mockResolvedValue(current.state);
+  mocks.getRouting.mockResolvedValue({ decision: null, transitions: [], runs: [] });
 });
 afterEach(() => vi.unstubAllEnvs());
 
@@ -45,11 +50,39 @@ describe("opt-in Engineering Work context", () => {
     expect(assembled.markdown).toContain("Current Truth: Ready for Review");
     expect(assembled.markdown).toContain("Current candidate:");
     expect(assembled.markdown).toContain("context, not permission");
+    expect(assembled.markdown).toContain("Routing decision: none");
     expect(assembled.sourceRefs).toContain(`engineering-work:${current.id}:v${current.version}`);
     expect(assembled.sourceRefs).toContain(`engineering-criteria:${current.id}:v${current.criteriaVersion}`);
     expect(assembled.sourceRefs).toContain(`engineering-execution:${current.id}:r1`);
     expect(assembled.overBudget).toBe(false);
     expect(mocks.query.mock.calls.some(([sql]) => String(sql).includes("INSERT INTO context_assemblies"))).toBe(true);
+  });
+
+  it("uses only the persisted routing decision for route explanations", async () => {
+    const current = await mocks.getWork();
+    mocks.getRouting.mockResolvedValue({ decision: {
+      id: "route-decision-1", workVersion: current.version, selectedRoute: "HUMAN", status: "PROPOSED",
+      providerId: null, providerVersion: null, reason: "The harness is not qualified.",
+      eligibleRoutes: ["HUMAN"], rejectedRoutes: [{ route: "DEEP_AGENT", reason: "Unqualified provider" }],
+    }, transitions: [], runs: [] });
+    const assembled = await assembleContext(input(current.id));
+    expect(assembled.markdown).toContain("Routing decision route-decision-1: PROPOSED HUMAN");
+    expect(assembled.markdown).toContain("The harness is not qualified.");
+    expect(assembled.markdown).toContain("DEEP_AGENT: Unqualified provider");
+    expect(assembled.sourceRefs).toContain("engineering-route-decision:route-decision-1");
+  });
+
+  it("degrades a route read from a different Work revision", async () => {
+    const current = await mocks.getWork();
+    mocks.getRouting.mockResolvedValue({ decision: {
+      id: "route-decision-newer", workVersion: current.version + 1, selectedRoute: "DEEP_AGENT", status: "ADMITTED",
+      providerId: "harness", providerVersion: "1", reason: "A later revision was assessed.",
+      eligibleRoutes: ["DEEP_AGENT"], rejectedRoutes: [],
+    }, transitions: [], runs: [] });
+    const assembled = await assembleContext(input(current.id));
+    expect(assembled.markdown).toContain("Routing decision route-decision-newer: STALE DEEP_AGENT");
+    expect(assembled.markdown).not.toContain("ADMITTED DEEP_AGENT");
+    expect(assembled.sourceRefs).toContain(`engineering-work:${current.id}:v${current.version}`);
   });
 
   it("labels prepared Work as degraded when no execution is admitted", async () => {
