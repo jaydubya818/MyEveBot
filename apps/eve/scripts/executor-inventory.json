@@ -2436,7 +2436,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "e92f33ade58141ea68670596eca879947540f6d8951ade5511d6f213310baa3d"
+      "sha256": "c459066eae008f616ab6b28bfd71956eb3eb1edc886766347e200bc7a5cd5d8c"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
