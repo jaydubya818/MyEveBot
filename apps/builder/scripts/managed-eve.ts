@@ -76,18 +76,18 @@ function budgetCli(args: string[]): string {
   return child.stdout;
 }
 
-function setBudget(projectName: string, amount: number, teamSlug: string): void {
+function setBudget(projectName: string, projectId: string, amount: number, teamSlug: string): void {
   if (!Number.isInteger(amount) || amount < 1 || amount > 100) {
     throw new Error("Managed beta budget must be an integer from $1 to $100.");
   }
   budgetCli(["set", "project", projectName, "--limit", String(amount),
     "--refresh-period", "monthly", "--scope", teamSlug]);
   const listed = JSON.parse(budgetCli(["list", "--json", "--scope-type", "project", "--scope", teamSlug])) as {
-    budgets?: unknown[];
+    budgets?: { scopeId?: unknown; limitAmount?: unknown; refreshPeriod?: unknown; active?: unknown }[];
   };
   if (!Array.isArray(listed.budgets) || !listed.budgets.some((item) =>
-    item && typeof item === "object" && JSON.stringify(item).includes(projectName) &&
-    JSON.stringify(item).includes(String(amount))
+    item.scopeId === projectId && item.limitAmount === amount &&
+    item.refreshPeriod === "monthly" && item.active === true
   )) throw new Error("Vercel did not confirm the managed Eve's project budget.");
 }
 
@@ -218,7 +218,7 @@ async function provision(path: string): Promise<void> {
     }
     environment = current(registry, id);
     if (environment.state === "configured") {
-      setBudget(environment.projectName, input.budgetUsd, input.teamSlug);
+      setBudget(environment.projectName, environment.projectId!, input.budgetUsd, input.teamSlug);
       registry = updateEnvironment(registry, id, { aiGatewayBudgetUsd: input.budgetUsd });
       await checkpoint(registry);
       const files = await assembleDeployment(input.config);
