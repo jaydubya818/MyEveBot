@@ -70,12 +70,12 @@ export function PeerPermissionsPanel({ localAgentId }: { localAgentId: string })
     {model && !model.relationships.length && !editing && <p className="text-sm">No peer relationships yet. Discovery alone grants no access.</p>}
     {model?.discoveryStatus === "UNAVAILABLE" && <p className="text-sm">Relay discovery is unavailable. Saved policies remain visible; access is not assumed.</p>}
     {!editing && model?.relationships.map(row => <article key={row.id} className="space-y-3 rounded-lg border border-kumo-line p-4">
-      <div className="flex flex-wrap justify-between gap-2"><h3 className="font-medium">{row.displayName}</h3><span className="text-sm">{words(row.status)}</span></div>
+      <div className="flex flex-wrap justify-between gap-2"><h3 className="font-medium">{row.displayName}</h3><span className="text-sm">{row.status === "RELAY_AUTH_REQUIRED" && row.policies.some(policy => policy.capability === "message.receive" && policy.policy !== "DENY" && policy.relayStatus === "EXACT_REQUEST_REQUIRED") ? "Incoming authority checked on receipt" : words(row.status)}</span></div>
       <p className="break-all text-sm">{row.peer}</p>
       <p className="text-sm">MyEve expiration: {date(row.expiresAt)} · Revision {row.revision}</p>
       {row.policies.map(policy => <div key={`${policy.capability}:${policy.resource}`} className="space-y-1 border-t border-kumo-line pt-2 text-sm">
         <p>{capabilityNames[policy.capability] ?? policy.capability} · <span className="break-all">{policy.resource}</span></p>
-        <p>MyEve: {words(policy.policy)} · Relay: {words(policy.relayStatus)} · Effective: {words(policy.effective)}</p>
+        <p>MyEve: {words(policy.policy)} · Relay: {words(policy.relayStatus)} · Effective: {policy.capability === "message.receive" && policy.policy !== "DENY" && policy.relayStatus === "EXACT_REQUEST_REQUIRED" ? "checked when a message arrives" : words(policy.effective)}</p>
         {policy.relayExpiresAt && <p>Relay expires: {date(policy.relayExpiresAt)}</p>}
         <p className="text-kumo-subtle">{words(policy.reason)}</p>
       </div>)}
