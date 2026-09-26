@@ -70,6 +70,8 @@ export default defineDynamic({
             return {work:truth.work,projection:truth.projection,routing:truth.routing,facts,behavior:nativeBehavior(runtime.config.nativeMode),
               ...summary(inspected.workspace,inspected.current)};
           }
+          if (principal.attributes.myeveEngineeringIntent!=="continue")
+            throw new WorkError("direct_read_only","This conversation is read-only. The owner must select productive continuation; existing admission and writer checks still apply.",403);
           if (input.operation==="read") {
             await authority.assertEffect(selected);
             return service.read(selected,input.path);

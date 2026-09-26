@@ -79,5 +79,9 @@ Read the approved plan, sprint checkpoint, native boundary and repository instru
 ### Approved live continuation — separate implementation review blocked
 - [x] Explicit owner approval recorded for exact Anthropic/Vercel fixture payload and $1.313161 additional ceiling.
 - [x] Source pinned to fc9d52c; runtime remains unchanged after automatic approval review rejected the additive budget/recovery implementation.
-- [ ] Implement the concrete conversation-budget-proposal.md after implementation-level approval; preserve every existing native guard.
+- [x] Implement the approved conversation-budget-proposal.md and migration 0051; preserve existing native guards. See P0 Gap #2 dossier.
 - [ ] Run the authenticated journey. No provider call/spend occurred in this continuation; ER2 remains blocked and was not started.
+
+### 2026-09-26 — approved P0 Gap #2 implementation
+
+By: Codex. Added durable conversation admission and read-only recovery, explicit productive intent, native subtotal accounting and process-loss tests. Corrected current HTTP transport selection without relaxing binding checks. App 1,315 pass/40 skip; root 151 pass; seven PG suites, migrations/type/governance/build pass. Exact fixture migrated locally; no provider spend. Real authenticated context reaches model wrapper and refuses expired qualification. P0 PARTIAL; positive journey NOT_RUN. Request one explicit 60-minute isolated qualification, then finish Q37's authenticated gate. ER2/Q38/Q39 remain deferred. Evidence: docs/verification/2026-09-26-p0-gap2/README.md.

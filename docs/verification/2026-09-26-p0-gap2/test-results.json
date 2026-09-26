@@ -1,0 +1,96 @@
+{
+  "startingHead": "d8efe978e36494873e81ee9c3ea6294d0838f930",
+  "tests": [
+    {
+      "name": "app",
+      "command": "npm run test --workspace=eve-agent",
+      "exitCode": 0,
+      "log": "logs/app.log"
+    },
+    {
+      "name": "root",
+      "command": "npm test",
+      "exitCode": 0,
+      "log": "logs/root.log"
+    },
+    {
+      "name": "focused",
+      "command": "cd apps/eve && npx vitest run lib/engineering/conversation-model.test.ts agent/tools/engineering_direct.test.ts",
+      "exitCode": 0,
+      "log": "logs/focused.log"
+    },
+    {
+      "name": "binding",
+      "command": "npx vitest run apps/eve/agent/instructions/persistent-agent.test.ts apps/eve/agent/lib/engineering-work-binding.test.ts",
+      "exitCode": 0,
+      "log": "logs/binding.log"
+    },
+    {
+      "name": "typecheck",
+      "command": "npm run typecheck --workspace=eve-agent",
+      "exitCode": 0,
+      "log": "logs/typecheck.log"
+    },
+    {
+      "name": "migrations",
+      "command": "npm run db:migrations:check",
+      "exitCode": 0,
+      "log": "logs/migrations.log"
+    },
+    {
+      "name": "build",
+      "command": "npm run build --workspace=eve-agent -- --webpack",
+      "exitCode": 0,
+      "log": "logs/build.log"
+    },
+    {
+      "name": "pg",
+      "command": "cd apps/eve && node --import tsx test/engineering-conversation.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/pg.log"
+    },
+    {
+      "name": "native-host",
+      "command": "cd apps/eve && node --import tsx test/engineering-native-host.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/native-host.log"
+    },
+    {
+      "name": "verifier",
+      "command": "cd apps/eve && node --import tsx test/engineering-direct-verifier.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/verifier.log"
+    },
+    {
+      "name": "direct",
+      "command": "cd apps/eve && node --import tsx test/engineering-direct.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/direct.log"
+    },
+    {
+      "name": "knowledge",
+      "command": "cd apps/eve && node --import tsx test/engineering-knowledge.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/knowledge.log"
+    },
+    {
+      "name": "context",
+      "command": "cd apps/eve && node --import tsx test/engineering-work-context.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/context.log"
+    },
+    {
+      "name": "routing",
+      "command": "cd apps/eve && node --import tsx test/route-admission.integration.mjs",
+      "exitCode": 0,
+      "log": "logs/routing.log"
+    }
+  ],
+  "rerunNotes": [
+    "Knowledge initially launched from root lacked application aliases; application-directory rerun passed.",
+    "Governance caught a stale budget fingerprint; reviewed final fingerprint and complete typecheck rerun passed."
+  ],
+  "authenticatedJourney": "NOT_RUN",
+  "additionalModelSpendUsd": 0,
+  "ceilingUsd": 1.313161
+}

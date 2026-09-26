@@ -1,6 +1,6 @@
 # Proposed additive conversation budget and read-only recovery
 
-**Status: NOT IMPLEMENTED. Automatic approval review rejected execution before any runtime file or migration changed.** This document is a reviewable proposal, not a migration or executable workaround. Transmission consent is already granted and is not being requested again.
+**Status: APPROVED AND IMPLEMENTED.** Migration 0051 and bounded local tests pass. [P0 Gap #2 evidence](../2026-09-26-p0-gap2/README.md) remains PARTIAL pending fresh explicit provider qualification and the positive authenticated journey. The original proposal below is retained for design traceability.
 
 ## Why required
 
@@ -33,6 +33,6 @@ The current fixture ceiling is $1.30, below the authorized additional $1.313161.
 
 This touches security-sensitive model routing and persistent accounting even though it adds restrictions. A defective implementation could miscount shared spend, expose write tools to an observer, or produce incorrect recovery behavior. Therefore implementation and isolated regression validation must precede live transmission. If any existing guard must be weakened, stop; this proposal does not authorize that.
 
-## Approval requested
+## Original implementation approval request — now granted
 
 Approve implementing exactly this additive design in the local worktree and applying its new tables only to isolated test databases, then testing the existing approved fixture within the unchanged transmission/resource/spend authorization. This is implementation approval, not a request to repeat payload consent.

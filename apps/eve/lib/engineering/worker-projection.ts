@@ -40,6 +40,7 @@ export interface EngineeringWorkerProjection {
   attention: CurrentManifest["attention"];
   pendingDecisions: string[];
   latestResult: { id: string; version: number; summary: string; candidate: string; createdAt: string } | null;
+  conversationRuntime?: {spentUsd:number;reservedUsd:number;usageUnknown:boolean;inflight:boolean}|null;
   nativeRuntime?: {spentUsd:number;reservedUsd:number;usageUnknown:boolean;inflight:boolean}|null;
   nativeResult?: {id:string;proof:ProofOfWork;contentHash:string;current:boolean}|null;
   nativeDevelopment: {
@@ -110,7 +111,7 @@ export class EngineeringWorkerProjectionStore {
     const id = work.id;
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
-    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows] = await Promise.all([
+    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
       this.workStore.database.query(
@@ -140,6 +141,9 @@ export class EngineeringWorkerProjectionStore {
       ),
       this.workStore.database.query(
         `SELECT spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_native_runtime
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
+      this.workStore.database.query(
+        `SELECT spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_conversation_budget
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
     ]);
     const current = await this.workStore.get(id);
@@ -318,6 +322,8 @@ export class EngineeringWorkerProjectionStore {
       nativeDevelopment,
       nativeResult,
       nativeRuntime,
+      conversationRuntime: conversationRows[0] ? {spentUsd:Number(conversationRows[0].spent_microusd)/1_000_000,
+        reservedUsd:Number(conversationRows[0].reserved_microusd)/1_000_000,usageUnknown:Boolean(conversationRows[0].usage_unknown),inflight:Boolean(conversationRows[0].inflight)} : null,
       routing: routing.decision
         ? { decisionId: routing.decision.id, status: routing.decision.status, selectedRoute: routing.decision.selectedRoute,
           reason: routing.decision.reason, providerId: routing.decision.providerId }

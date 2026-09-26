@@ -45,7 +45,7 @@ export default defineDynamic({
       if (authenticatedRoleId && role?.executionMode !== "on-demand") throw new Error("This Role is not available for on-demand use.");
       if (authenticatedRoleId && (principal?.attributes.myeveAgentId || ctx.session.auth.initiator?.attributes.myeveAgentId)) throw new Error("Choose either a persistent Agent or an on-demand Role.");
       const engineeringWorkId = selectedEngineeringWorkId({
-        ownerId, threadId, agent, roleId: authenticatedRoleId, channelKind: ctx.conversation?.channel.kind,
+        ownerId, threadId, agent, roleId: authenticatedRoleId, channelKind: ctx.channel.kind,
         mode: ctx.conversation?.mode, auth: ctx.session.auth,
       });
       await bindExecutorRun(ctx.session.id, durableTurnId(event), ownerId, agent, threadId, role

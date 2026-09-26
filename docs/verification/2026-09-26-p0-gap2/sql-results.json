@@ -1,0 +1,70 @@
+{
+  "observedAt": "2026-09-26T22:32:06.563Z",
+  "workId": "fb5a3dd2-e601-404c-8321-81f44ac2973d",
+  "role": "postgres",
+  "queries": {
+    "work": {
+      "sql": "SELECT id,version,generation,control,lifecycle,max_cost_usd FROM engineering_work WHERE id=$1",
+      "rows": [
+        {
+          "id": "fb5a3dd2-e601-404c-8321-81f44ac2973d",
+          "version": 2,
+          "generation": 2,
+          "control": "agent",
+          "lifecycle": "active",
+          "max_cost_usd": "1.3"
+        }
+      ]
+    },
+    "conversation": {
+      "sql": "SELECT calls_started,spent_microusd,reserved_microusd,inflight,usage_unknown FROM engineering_conversation_budget WHERE work_id=$1",
+      "rows": []
+    },
+    "modelCalls": {
+      "sql": "SELECT step_key,status FROM engineering_conversation_calls WHERE work_id=$1",
+      "rows": []
+    },
+    "nativeWriter": {
+      "sql": "SELECT session_id,calls_started,spent_microusd,reserved_microusd FROM engineering_native_runtime WHERE work_id=$1",
+      "rows": []
+    },
+    "routes": {
+      "sql": "SELECT id,status FROM engineering_routing_decisions WHERE work_id=$1",
+      "rows": []
+    },
+    "candidates": {
+      "sql": "SELECT work_id FROM engineering_direct_workspaces WHERE work_id=$1",
+      "rows": []
+    },
+    "results": {
+      "sql": "SELECT id,candidate_sha FROM engineering_native_results WHERE work_id=$1",
+      "rows": []
+    },
+    "assemblies": {
+      "sql": "SELECT session_id,agent_run_id,source_refs FROM context_assemblies WHERE owner_id='authenticated-native-fixture' AND source_refs @> jsonb_build_array('engineering-work:' || $1::text)",
+      "rows": [
+        {
+          "session_id": "wrun_01M3FX7H1SWKZVHPVMTZFXX26E",
+          "agent_run_id": "agent_run_wrun_01M3FX7H1SWKZVHPVMTZFXX26E_turn_1",
+          "source_refs": [
+            "agent:auth-native-sofie",
+            "engineering-work:fb5a3dd2-e601-404c-8321-81f44ac2973d",
+            "engineering-work:fb5a3dd2-e601-404c-8321-81f44ac2973d:v2",
+            "engineering-criteria:fb5a3dd2-e601-404c-8321-81f44ac2973d:v1",
+            "engineering-knowledge:knowledge_0b507132-22e3-49c4-8c85-c78aa37bfd3e",
+            "knowledge-source:auth-source-decision",
+            "engineering-knowledge:knowledge_de1be0c4-8d43-4e54-87d7-04be23e4b330",
+            "knowledge-source:auth-source-current"
+          ]
+        }
+      ]
+    }
+  },
+  "qualification": {
+    "expiresAt": "2026-09-26T22:12:51.199Z",
+    "expired": true
+  },
+  "schema": {
+    "count": 51
+  }
+}

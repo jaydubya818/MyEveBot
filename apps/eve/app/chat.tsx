@@ -1958,11 +1958,14 @@ function ChatThread({
       forkContextRef.current = undefined;
       const headers = { ...input.headers };
       for (const name of Object.keys(headers)) {
-        if (name.toLowerCase() === "x-myeve-engineering-work-id") delete headers[name];
+        if (["x-myeve-engineering-work-id", "x-myeve-engineering-intent"].includes(name.toLowerCase())) delete headers[name];
       }
       if (engineeringWork && !canSelectEngineeringWork)
         throw new Error("Selected Work cannot be bound to this Agent.");
-      if (canSelectEngineeringWork && engineeringWork) headers["x-myeve-engineering-work-id"] = engineeringWork.id;
+      if (canSelectEngineeringWork && engineeringWork) {
+        headers["x-myeve-engineering-work-id"] = engineeringWork.id;
+        headers["x-myeve-engineering-intent"] = engineeringWork.productive ? "continue" : "observe";
+      }
       return {
         ...input,
         headers,

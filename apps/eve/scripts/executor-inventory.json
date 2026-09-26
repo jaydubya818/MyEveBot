@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected primary-Agent Work routes to the native budget-enforcing model only after persisted native admission; model and effect leaves independently recheck current authority.",
-      "sha256": "84d1de930543df2c133045856baed905c0b6787b8d30de1116bfffd9ae1b3b7a"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards.",
+      "sha256": "e0aab2c802d80d16df974987a45cd6640de18dcb8a040650632107aea728de11"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -25,7 +25,7 @@
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "10994e3ee262f602da9302fd701cf1c28b4fd778074d1deafeafdc83dff577af"
+      "sha256": "d31c08d00a868100f8fa9abec77aa771f74db58afba9cce64a8ff23337bbb51f"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -173,7 +173,7 @@
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated selected Work instructions request fresh engineering_direct inspect and distinguish native PARTIAL from readiness; instructions grant no effects.",
-      "sha256": "82c063971cf8e0c4a1becc0ba111a625f753f4b1d174a309dfe2870fae7994aa"
+      "sha256": "c40f4fe4a7455980a2a6a42f9cd828d71a1b803a0a0c11139ffff9374648d2f9"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -238,7 +238,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Owner- and Agent-scoped context assembly records internal provenance. Selected Work uses the shared native projection and active scoped facts; excludes broad Memory, unrelated goals and thread summaries; grants no authority.",
-      "sha256": "1e8cca5fe58a1110b49f505a753ad9c67a91494c606fec23cd5b7ec37a53647d"
+      "sha256": "e8d2fc14f204d217824e9261b764e65a1a3cbc0c75b3344487d9abb66999c819"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
-      "sha256": "90cd409f87113532201346a66a5c6215a3b69e25f0b1f6c2b6149c79bcae27f5"
+      "sha256": "c2f7ba584704dbcd7c61c4c63aadc3bd078298e9c9fb2ddb766c0fec72830609"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3073,7 +3073,7 @@
     "agent/lib/engineering-work-binding.ts": {
       "classification": "INTERNAL",
       "reason": "Validates authenticated owner, thread and primary-Agent Work binding before context assembly; no provider effect.",
-      "sha256": "009425e8602c414bc8a9e9a1812b19cef21077566eaee61f8128d8e5ad3405f1"
+      "sha256": "7219b83174bf0ef1343fa1090860134f1ba46be4934ff6c6ed25e178ccb56da9"
     },
     "lib/digital-worker/providers.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3143,7 +3143,7 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Shared immutable native result explicitly explains PARTIAL readiness limitations. Local verification never produces Ready; no effect or permission supplied.",
-      "sha256": "9ff2eb4df2a5f390f00b64af40ad57855783242bdebc2962b4ffe9edac1c1dce"
+      "sha256": "38891156b89f98fb9133abee4a5e2fbcbf592c6546f4f55745ddfa9957da13b1"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3153,7 +3153,7 @@
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
       "reason": "Existing authenticated owner/selected Work, Action Gateway, native session/route and revision checks unchanged. Inspect additionally reads shared UI truth, scoped active knowledge and behavior-only manifests; no writer or spend relaxation.",
-      "sha256": "a17cb1c9bbce70e67de9090b965e45aa88957e5e88ccd436eefd018bc264a91e"
+      "sha256": "209d1aa97d5adbc075d9d52545f9eac703d67ab9845a7c1744a2b82e6064348d"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3219,6 +3219,16 @@
       "classification": "INTERNAL",
       "reason": "Composes existing versioned role/pack/mode guidance only; contains no grants, providers, effect dispatch or budget values.",
       "sha256": "b4509c08d422ebb773f8016998856843566d810da79974896e9740568f78bafa"
+    },
+    "lib/engineering/conversation-budget.ts": {
+      "classification": "INTERNAL",
+      "reason": "Additional scoped conversation spending ledger; atomic bounded reservation/settlement, uncertain-call fencing, authority binding and replay. Grants no route or writer authority.",
+      "sha256": "e4ca60a7b3c07a6dd3df45b3c83466b8fb711415941a04a752fb280d4fe6e965"
+    },
+    "lib/engineering/conversation-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "All selected-Work model dispatch requires durable reservation and immediate authority recheck. Observers advertise inspect only; productive mode retains unchanged native model and effect guards. Exact model, text/tool/input/output bounds; no alternate provider.",
+      "sha256": "897ce768bab92bfe3992ba46e9d0f80e3914bae02d81e3661b62e815f6f6e31e"
     }
   }
 }

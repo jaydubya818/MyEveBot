@@ -1,6 +1,5 @@
-import { nativeBudgetedModel } from "../lib/engineering/native-model.ts";
+import { engineeringConversationModel } from "../lib/engineering/conversation-model.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
-import { RoutingStore } from "../lib/engineering/routing-store.ts";
 import {ownerRuntimeFromAuth} from "../lib/relay/owner/runtime.ts";
 import {ownerBudgetedModel,ownerModelStepKey} from "../lib/relay/owner/model.ts";
 import type { LanguageModelMiddleware } from "ai";
@@ -58,11 +57,13 @@ export default defineAgent({
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
         const model = agent?.preferredModel ?? requested.model;
         const workId=ctx.session.auth.current?.attributes.myeveEngineeringWorkId;
+        if (workId !== undefined && (typeof workId!=="string" || !agent?.isPrimary ||
+            ctx.session.auth.current?.principalType!=="user" || ctx.session.auth.current?.attributes.owner!=="true" || ("parent" in ctx.session && ctx.session.parent)))
+          throw new Error("Selected Work requires an authenticated primary-Agent conversation.");
         if (typeof workId==="string" && agent?.isPrimary) {
           const store=new WorkStore({scopeId:agent.ownerId,scopeKind:"personal",actorId:agent.ownerId});
-          const route=(await new RoutingStore(store).snapshot(workId)).decision;
-          if (route?.status==="ADMITTED" && route.providerId==="myeve-native-sofie") return {
-            model:nativeBudgetedModel({store,workId,sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:model??DEFAULT_MODEL}),
+          return {
+            model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:model??DEFAULT_MODEL}),
             modelContextWindowTokens:200_000,
           };
         }

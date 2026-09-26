@@ -159,6 +159,12 @@ test("Engineering Work selection is a validated, per-request owner web auth clai
     assert.ok(!(selected instanceof Response));
     assert.equal(selected.authenticator, "myeve-web-session");
     assert.equal(selected.attributes.myeveEngineeringWorkId, workId);
+    assert.equal(selected.attributes.myeveEngineeringIntent, "observe");
+    const continued=await routeAuth(request({"x-myeve-engineering-work-id":workId,"x-myeve-engineering-intent":"continue"}),eveAuth);
+    assert.ok(!(continued instanceof Response));assert.equal(continued.attributes.myeveEngineeringIntent,"continue");
+    for(const headers of [{"x-myeve-engineering-intent":"continue"},{"x-myeve-engineering-work-id":workId,"x-myeve-engineering-intent":"admin"}]){
+      const denied=await routeAuth(request(headers),eveAuth);assert.ok(denied instanceof Response);assert.equal(denied.status,403);
+    }
 
     const cleared = await routeAuth(request(), eveAuth);
     assert.ok(!(cleared instanceof Response));

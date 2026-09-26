@@ -259,6 +259,7 @@ async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView
     (execution?.candidates.at(-1)?.sha ?? projection.nativeDevelopment?.candidateSha)
       ? `Current candidate: ${execution?.candidates.at(-1)?.sha ?? projection.nativeDevelopment?.candidateSha}.` : "Current candidate: none.",
     projection.nativeResult ? `Native immutable Proof of Work ${projection.nativeResult.id}: ${JSON.stringify(projection.nativeResult.proof)}. Hash ${projection.nativeResult.contentHash}.` : "",
+    projection.conversationRuntime ? `Whole conversation model accounting (includes native subtotal): ${JSON.stringify(projection.conversationRuntime)}.` : "",
     projection.nativeRuntime ? `Native model accounting: ${JSON.stringify(projection.nativeRuntime)}.` : "",
     projection.latestResult ? `Latest retained Result: version ${projection.latestResult.version}, candidate ${projection.latestResult.candidate}; ${projection.latestResult.summary}.` : "Latest retained Result: none.",
     routing.decision

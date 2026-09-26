@@ -2,7 +2,7 @@
 
 **M1/ER1 NOT QUALIFIED. ER2 BLOCKED. GitHub publication BLOCKED.**
 
-**Latest continuation:** Exact live transmission is now approved. A separate automatic review blocked the additive conversation-budget implementation before execution. Runtime code is unchanged; new provider spend remains $0. See [current continuation](approved-continuation.md) and [the implementation proposal](conversation-budget-proposal.md). Earlier references below to transmission approval describe the preceding checkpoint.
+**Latest continuation:** P0 Gap #2 implementation is approved and implemented with migration 0051 and passing isolated tests. [Current evidence](../2026-09-26-p0-gap2/README.md) is PARTIAL: the real owner chat reaches the new guarded model wrapper, but its provider qualification is expired. New model spend is $0; the positive journey remains NOT_RUN. Earlier sections below preserve the preceding checkpoint.
 
 This tranche starts at `3dfee3e130d610570ebda56ec98c3dba6136abee` on `codex/digital-worker-mvp`. Prior [native-host qualification](../2026-09-26-native-host/README.md) is preserved and is not represented as a new authenticated journey. No provider call or publication occurred in this tranche.
 

@@ -37,6 +37,6 @@ export function selectedEngineeringWorkId(input: WorkContextBinding): string | n
       !input.threadId || current.attributes?.webThreadId !== input.threadId ||
       initiator.attributes?.webThreadId !== input.threadId ||
       current.attributes?.myeveRoleId || initiator.attributes?.myeveRoleId)
-    throw new Error("Selected Engineering Work requires this owner's direct primary Agent web chat.");
+    throw new Error(`Selected Engineering Work requires this owner's direct primary Agent web chat (channel=${input.channelKind ?? "missing"}, mode=${input.mode ?? "missing"}).`);
   return selection;
 }

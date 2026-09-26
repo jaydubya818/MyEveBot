@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import type { EngineeringWorkerProjection } from "@/lib/engineering/worker-projection";
 import { routeLabel, type RoutingSnapshot } from "./routing-summary";
 
-export type ChatEngineeringWork = { id: string; title: string; repository: string };
+export type ChatEngineeringWork = { id: string; title: string; repository: string; productive?: boolean };
 type RouteState =
   | { workId: string; kind: "loading" }
   | { workId: string; kind: "ready"; routing: RoutingSnapshot; projection: EngineeringWorkerProjection | null }
@@ -111,7 +111,17 @@ export function ChatWorkSelector({
   const visibleRoute = selected && routeState?.workId === selected.id ? routeState : selected ? { workId: selected.id, kind: "loading" as const } : null;
 
   return (
-    <section aria-label="Engineering Work context" className="mx-10 mt-3 rounded-xl border border-kumo-hairline bg-kumo-elevated px-3 py-2 text-xs">
+    <section aria-label="Engineering Work context" className="mx-10 mt-3 max-h-[35dvh] shrink-0 overflow-y-auto rounded-xl border border-kumo-hairline bg-kumo-elevated px-3 py-2 text-xs">
+      {selected && <label className="mb-2 block">
+        Work access
+        <select aria-label="Work access" className="mt-1 block min-h-9 w-full rounded border p-1" value={selected.productive ? "continue" : "observe"}
+          onChange={event => onSelect({...selected,productive:event.target.value==="continue"})}>
+          <option value="observe">Read-only recovery</option>
+          <option value="continue">Request productive continuation</option>
+        </select>
+        <span className="mt-1 block text-kumo-subtle">Reading does not acquire a writer. Continuation rechecks current authority and cannot take over another session.</span>
+      </label>}
+
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="font-semibold">Work context for this thread</span>
         <a href={selected ? `/work?id=${encodeURIComponent(selected.id)}` : "/work"} className="font-medium text-kumo-brand underline-offset-2 hover:underline">Open Work</a>

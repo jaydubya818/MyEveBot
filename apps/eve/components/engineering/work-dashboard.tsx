@@ -564,6 +564,11 @@ export function WorkDashboard() {
                       runtime
                     </p>
                     {detail.projection && <p className="mt-2 text-xs text-kumo-subtle">Next: {detail.projection.nextStep} Last update: <time dateTime={detail.projection.lastMeaningfulActivity}>{new Date(detail.projection.lastMeaningfulActivity).toLocaleString()}</time>.</p>}
+                    {detail.projection?.conversationRuntime && <p className="mt-2 text-xs text-kumo-subtle">
+                      Total conversation model spend: ${detail.projection.conversationRuntime.spentUsd.toFixed(6)} · Reserved: ${detail.projection.conversationRuntime.reservedUsd.toFixed(6)}
+                      {detail.projection.conversationRuntime.usageUnknown && " · Usage uncertain; new calls are fenced"}
+                      {" · Includes native execution subtotal; do not add them together."}
+                    </p>}
                     {detail.projection?.nativeRuntime && <p className="mt-2 text-xs text-kumo-subtle">
                       Native model spend: ${detail.projection.nativeRuntime.spentUsd.toFixed(6)} · Reserved: ${detail.projection.nativeRuntime.reservedUsd.toFixed(6)}
                       {detail.projection.nativeRuntime.usageUnknown && " · Usage uncertain; execution is fenced"}

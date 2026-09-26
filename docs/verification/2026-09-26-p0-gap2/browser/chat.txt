@@ -1,0 +1,3 @@
+Browser tab: 3, Title: "Sofie", URL: "http://localhost:3108/chat".
+There has been no change in the accessibility tree.
+The focused UI element is 1 AXWebArea Sofie, URL: localhost:3108/chat

@@ -33,6 +33,9 @@ export function ownerSession(): AuthFn<Request> {
     const requestedThreadId = request.headers.get("x-myeve-thread-id")?.trim();
     const workHeader = request.headers.get(ENGINEERING_WORK_ID_HEADER);
     const requestedWorkId = workHeader?.trim();
+    const workIntent = request.headers.get("x-myeve-engineering-intent");
+    if (workIntent !== null && (!requestedWorkId || !["observe", "continue"].includes(workIntent)))
+      throw new ForbiddenError({code:"invalid_engineering_intent",message:"Select Work and a valid access mode."});
     if (workHeader !== null && (
       process.env.MYEVE_ENGINEERING_MODE !== "dogfood" || !requestedWorkId ||
       !ENGINEERING_WORK_ID_PATTERN.test(requestedWorkId) ||
@@ -65,7 +68,7 @@ export function ownerSession(): AuthFn<Request> {
         ...(requestedAgentId ? { myeveAgentId: requestedAgentId } : {}),
         ...(requestedRoleId ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),
-        ...(requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId } : {}),
+        ...(requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId, myeveEngineeringIntent: workIntent ?? "observe" } : {}),
       },
       authenticator: "myeve-web-session",
       issuer: "myeve",

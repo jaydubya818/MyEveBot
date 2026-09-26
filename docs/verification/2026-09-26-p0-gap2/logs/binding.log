@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve
+
+ ✓ apps/eve/agent/lib/engineering-work-binding.test.ts (3 tests) 2ms
+ ✓ apps/eve/agent/instructions/persistent-agent.test.ts (2 tests) 3ms
+
+ Test Files  2 passed (2)
+      Tests  5 passed (5)
+   Start at  15:27:08
+   Duration  330ms (transform 61ms, setup 0ms, collect 85ms, tests 5ms, environment 0ms, prepare 59ms)
+

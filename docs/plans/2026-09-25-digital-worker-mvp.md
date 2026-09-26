@@ -22,6 +22,8 @@ implementation_authorized: true
 
 **Authenticated Sofie checkpoint (2026-09-26):** [The new dossier](../verification/2026-09-26-authenticated-sofie-native/README.md) records native context/projection and Role/JStack/mode wiring, 1,296 passing app tests, 151 root tests, five PostgreSQL integrations and a passing build. Offline authenticated desktop/mobile navigation and saved-Work app restart pass. The live model launch was blocked; pre-admission budget and fresh-session read-only recovery remain open. **M1/ER1 NOT QUALIFIED; ER2 and GitHub publication BLOCKED.**
 
+**P0 Gap #2 checkpoint (2026-09-26):** [Conversation budget/recovery implementation](../verification/2026-09-26-p0-gap2/README.md) adds approved migration 0051, durable whole-conversation accounting and guarded read-only recovery. Local tests/build pass; real authenticated chat reaches the wrapper and refuses expired provider qualification. Positive M1/ER1 journey NOT_RUN, additional spend $0, ER2 BLOCKED.
+
 ## 1. Working boundary and decisions
 
 The first user is one personal, durable Agent: Sofie, acting as a Software Engineer. MyEve owns her identity, Work, context, authority, decisions, and Results. A model session, coding executor, MyFactory run, or Relay peer is replaceable execution or context (§§1–5, 219–243). An organization edition requires separately qualified identity, membership, and memory isolation; a textual `organization` scope is not a substitute for those checks. Keep the [EP02 organization delta](2026-09-25-ep02-organization-delta.md) open.
