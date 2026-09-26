@@ -24,9 +24,10 @@ Development-only Gateway OIDC credentials were pulled into a mode-600 temporary 
 
 - Read-only GitHub issue, tree, workflow and base CI verification: PASS.
 - Scoped App minting tests: 2 PASS; GitHub adapter boundary tests: 4 PASS.
-- Eve regression suite: 1,115 PASS, 40 skipped (the PostgreSQL suites were previously enabled separately in the prior dossier).
-- Typecheck, capability registry, skill validation and governance inventory: PASS, 596 classified sources, UNKNOWN=0.
-- Real PostgreSQL/Docker Golden integration fault suite: 11 case groups PASS; GitHub and coding executor remain simulated in this suite.
+- Eve regression suite: 1,115 PASS, 40 skipped (the PostgreSQL suites were previously enabled separately in the prior dossier). [Log](eve.log).
+- Typecheck, capability registry, skill validation and governance inventory: PASS, 596 classified sources, UNKNOWN=0. [Log](typecheck.log).
+- Real PostgreSQL/Docker Golden integration fault suite: 11 case groups PASS; GitHub and coding executor remain simulated in this suite. [Log](integration.log).
+- Updated Eve production build with Webpack: PASS. [Log](build.log).
 - Swift Keychain importer typecheck and live harness syntax check: PASS.
 
 ## Required continuation
