@@ -196,15 +196,31 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
       data = Buffer.from("export const COMPUTER_RUNTIME_ENABLED = false;\n");
     } else if (!input.features.includes("browser") && relative === "lib/computer-sandbox-backend.ts") {
       // Keep an explicit deny backend: deleting the root definition enables Eve's default backend.
-      data = Buffer.from(`import type { SandboxBackend } from "eve/sandbox";
+      data = Buffer.from(`import { defineSandboxProvider } from "eve/sandbox/provider";
+import type { SandboxSession, SandboxNetworkPolicy } from "eve/sandbox";
 export class ComputerSandboxAuthorityRequired extends Error {}
-export async function bindPreparedComputer(..._args: unknown[]): Promise<never> { throw new Error("Computer is disabled in this deployment."); }
-export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new Error("Computer is disabled in this deployment."); }
-export const computerSandboxBackend: SandboxBackend = {
+export interface DisabledComputerSession extends SandboxSession {
+  readonly id: string;
+  setNetworkPolicy(policy: SandboxNetworkPolicy): Promise<void>;
+}
+export async function bindPreparedComputer(..._args: unknown[]): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); }
+export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); }
+export const computerSandboxBackend = {
   name: "myeve-computer-disabled",
   async prewarm() { return { reused: false }; },
-  async create() { throw new Error("Computer is disabled in this deployment."); },
+  async create(): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); },
 };
+export const ComputerSandbox = defineSandboxProvider<undefined, undefined, {}, {}, DisabledComputerSession>({
+  name: "myeve-computer-disabled",
+  environment() {
+    return {
+      async prepare() { return {}; },
+      async start(): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); },
+      async resume(): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); },
+    };
+  },
+});
+export const computerEnvironment = ComputerSandbox.environment();
 `);
     } else if (!input.features.includes("browser") && relative === "lib/computer-resource-provider.ts") {
       data = Buffer.from(`import type { ComputerLifecycleProvider } from "./action-gateway.ts";
