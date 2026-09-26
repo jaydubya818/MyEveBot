@@ -7,7 +7,7 @@ import { z } from "zod";
 import { listKnowledge } from "../knowledge.ts";
 import { webPrincipal } from "../web-auth.ts";
 import { FederationStore } from "./store.ts";
-import { boundedJson, relayOrigin } from "./client.ts";
+import { boundedJson, RelayOperationError, relayOrigin } from "./client.ts";
 import {
   connectOwner,
   previewPublication,
@@ -263,10 +263,14 @@ export async function handleOwnerRequest(request: Request) {
   } catch (error) {
     const auth =
       error instanceof Error && /Sign in|Same-origin/.test(error.message);
+    const expiredRelayOwner =
+      error instanceof RelayOperationError && error.status === 401;
     return Response.json(
       {
         error: auth
           ? (error as Error).message
+          : expiredRelayOwner
+            ? "Relay owner connection expired. Reconnect it in Manage → Relay, then retry."
           : "Relay action could not complete. Check the connection, selection, expiry, and local policy before retrying.",
       },
       { status: auth ? 403 : 400, headers },
