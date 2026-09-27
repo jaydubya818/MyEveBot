@@ -2,10 +2,15 @@
   "version": 2,
   "note": "Source-level inventory: classifications describe consequential effects; mixed sources may also contain reads/internal state. Every helper/API change requires review. See docs/action-executor-audit.md.",
   "executors": {
+    "lib/engineering/factory-authenticated-result.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN.",
+      "sha256": "a8779ae55de57db41701de468018bb5f210f2b4a05f6fb9e71a44cc53910ab3d"
+    },
     "lib/engineering/factory-return-contract.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict bounded synthetic MyFactory return and local source/candidate pin schemas using actual Factory receipt, Run, Check and event fields. No provider, filesystem, authority or execution effects.",
-      "sha256": "678f9d0150bc1d9dd8865ab771bcc1d546e6564c3a9508fd244d998bb12313be"
+      "reason": "Strict bounded MyFactory synthetic return and trusted expected FactoryVersion schemas using actual receipt, Run, Check and event fields. No provider, filesystem, authority or execution effects.",
+      "sha256": "c49d20666fd59d3d79928958178e8be56e46d7bef256c3639e6c8882732e3b89"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
