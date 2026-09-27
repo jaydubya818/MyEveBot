@@ -1,5 +1,10 @@
 # Digital Worker owner UX integration
 
+**READY FOR INTEGRATION — UI/API-contract qualified.** Live design-partner E2E
+remains **NOT YET QUALIFIED**. The [source crosswalk](beta-ux-integration-contract.md)
+and [integration checklist](beta-ux-integration-checklist.md) define the final
+integration handoff for accepted candidate `ed0f6b5dad0e3a131a9f5332139e627245cbd4e8`.
+
 The beta UI lives in `apps/eve/components/owner`. Presentation projections and
 sample fixtures are colocated there because they are browser-only. They are not
 execution contracts, server authorities, or additions to the executor inventory.
