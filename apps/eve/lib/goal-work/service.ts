@@ -96,13 +96,46 @@ export class GoalWorkService {
         idempotencyKey,
       ],
     );
+    const ownerCommand =
+      this.actor === "owner" &&
+      [
+        "GOAL_CREATED",
+        "GOAL_CHANGED",
+        "GOAL_PAUSE",
+        "GOAL_RESUME",
+        "GOAL_REOPEN",
+        "GOAL_ARCHIVE",
+        "TASK_CREATED",
+        "TASK_CHANGED",
+        "TASK_PAUSE",
+        "TASK_RESUME",
+        "TASK_CANCEL",
+        "PLAN_CHANGED",
+        "OWNER_OUTCOME_CONFIRMED",
+        "OWNER_COMPLETION_CONFIRMED",
+      ].includes(type);
+    if (ownerCommand || type === "OWNER_DECISION")
+      await tx.query(
+        `INSERT INTO eve_events(id,owner_id,type,source_type,goal_id,goal_task_id,summary,payload)
+      VALUES($1,$2,'HUMAN_INTERVENTION','owner',$3,$4,'Owner judgment recorded',$5::jsonb)`,
+        [
+          randomUUID(),
+          this.ownerId,
+          goalId,
+          taskId ?? null,
+          JSON.stringify({
+            classification: "NECESSARY_JUDGMENT",
+            reason: type,
+          }),
+        ],
+      );
   }
   async create(value: unknown) {
     const input = goalInput.parse(value);
     return this.database.transaction(async (tx) => {
       const rows = await tx.query(
-        `INSERT INTO goals(id,owner_id,title,success_criteria,priority,target_date,status,source,source_reference)
-        VALUES($1,$2,$3,$4::jsonb,$5,$6,'active','goal-work',$7) ON CONFLICT DO NOTHING RETURNING id`,
+        `INSERT INTO goals(id,owner_id,title,success_criteria,priority,target_date,status,source,source_reference,requires_owner_confirmation)
+        VALUES($1,$2,$3,$4::jsonb,$5,$6,'active','goal-work',$7,$8) ON CONFLICT DO NOTHING RETURNING id`,
         [
           input.id,
           this.ownerId,
@@ -111,6 +144,7 @@ export class GoalWorkService {
           input.priority,
           input.target,
           fingerprint(input),
+          input.requireOwnerConfirmation ?? false,
         ],
       );
       const [goal] = await tx.query(
@@ -129,7 +163,7 @@ export class GoalWorkService {
     summary: string,
     reason: string,
     resultRef?: string,
-    commandId = randomUUID(),
+    commandId: string = randomUUID(),
   ) {
     text.parse(summary);
     text.parse(reason);
@@ -163,10 +197,16 @@ export class GoalWorkService {
           "SELECT 1 FROM goal_work_links WHERE owner_id=$1 AND goal_id=$2 AND result_id=$3 AND state='result'",
           [this.ownerId, goalId, resultRef ?? null],
         );
-        if (!result)
-          throw new Error(
-            "Result provenance required for automatic replanning",
+        if (!result) {
+          const [existingPlan] = await tx.query(
+            "SELECT id FROM goal_plans WHERE goal_id=$1 LIMIT 1",
+            [goalId],
           );
+          if (existingPlan)
+            throw new Error(
+              "Result provenance required for automatic replanning",
+            );
+        }
       }
       const [last] = await tx.query(
         "SELECT version FROM goal_plans WHERE goal_id=$1 ORDER BY version DESC LIMIT 1",
@@ -340,15 +380,17 @@ export class GoalWorkService {
       return this.task(tx, goalId, taskId);
     });
   }
-  async reviseGoal(goalId: string, value: unknown) {
+  async reviseGoal(goalId: string, value: unknown, expectedRevision?: number) {
     this.owner();
     const input = goalInput.parse(value);
     if (input.id !== goalId) throw new Error("Goal identity cannot change");
     return this.locked(goalId, async (tx, g) => {
+      if (expectedRevision !== undefined && g.revision !== expectedRevision)
+        throw new Error("Stale Goal revision");
       if (g.status === "archived")
         throw new Error("Archived Goal cannot be revised");
       await tx.query(
-        `UPDATE goals SET title=$3,success_criteria=$4::jsonb,priority=$5,target_date=$6,updated_at=now()
+        `UPDATE goals SET title=$3,success_criteria=$4::jsonb,priority=$5,target_date=$6,requires_owner_confirmation=$7,updated_at=now()
         WHERE owner_id=$1 AND id=$2`,
         [
           this.ownerId,
@@ -357,6 +399,7 @@ export class GoalWorkService {
           JSON.stringify(input.criteria),
           input.priority,
           input.target,
+          input.requireOwnerConfirmation ?? g.requires_owner_confirmation,
         ],
       );
       await this.event(
@@ -376,10 +419,13 @@ export class GoalWorkService {
     goalId: string,
     action: "pause" | "resume" | "reopen" | "archive",
     reason: string,
+    expectedRevision?: number,
   ) {
     this.owner();
     text.parse(reason);
     return this.locked(goalId, async (tx, g) => {
+      if (expectedRevision !== undefined && g.revision !== expectedRevision)
+        throw new Error("Stale Goal revision");
       const allowed =
         action === "reopen"
           ? g.status === "completed"
@@ -710,6 +756,7 @@ export class GoalWorkService {
         t.generation !== signal.taskGeneration
       )
         throw new Error("Stale dependency signal");
+      if (terminal.has(t.status)) return { ignored: true };
       const [prior] = await tx.query(
         "SELECT payload FROM goal_work_signals WHERE owner_id=$1 AND event_id=$2",
         [this.ownerId, signal.eventId],
@@ -842,11 +889,18 @@ export class GoalWorkService {
       return { completed: complete };
     });
   }
-  async confirmOutcome(goalId: string, criterion: string, decisionRef: string) {
+  async confirmOutcome(
+    goalId: string,
+    criterion: string,
+    decisionRef: string,
+    expectedRevision?: number,
+  ) {
     this.owner();
     text.parse(decisionRef);
     return this.locked(goalId, async (tx, g) => {
       this.mutable(g);
+      if (expectedRevision !== undefined && g.revision !== expectedRevision)
+        throw new Error("Stale Goal revision");
       if (!g.success_criteria.includes(criterion))
         throw new Error("Unknown Goal criterion");
       await tx.query(
@@ -864,10 +918,40 @@ export class GoalWorkService {
       );
     });
   }
+  async confirmCompletion(
+    goalId: string,
+    decisionRef: string,
+    expectedRevision?: number,
+  ) {
+    this.owner();
+    text.parse(decisionRef);
+    return this.locked(goalId, async (tx, g) => {
+      this.mutable(g);
+      if (expectedRevision !== undefined && g.revision !== expectedRevision)
+        throw new Error("Stale Goal revision");
+      await tx.query(
+        "UPDATE goals SET confirmed_generation=generation,confirmation_ref=$3 WHERE owner_id=$1 AND id=$2",
+        [this.ownerId, goalId, decisionRef],
+      );
+      await this.event(
+        tx,
+        goalId,
+        "OWNER_COMPLETION_CONFIRMED",
+        "Owner confirmed completion of current Goal",
+        undefined,
+        { generation: g.generation, decisionRef },
+      );
+    });
+  }
   async completeGoal(goalId: string) {
     return this.locked(goalId, async (tx, g) => {
       if (g.status === "completed") return { completed: true };
-      if (g.status !== "active") return { completed: false };
+      if (
+        g.status !== "active" ||
+        (g.requires_owner_confirmation &&
+          g.confirmed_generation !== g.generation)
+      )
+        return { completed: false };
       const [row] = await tx.query(
         `SELECT NOT EXISTS(SELECT 1 FROM goal_tasks WHERE goal_id=$2 AND status NOT IN ('completed','cancelled'))
         AND NOT EXISTS(SELECT 1 FROM goal_work_links WHERE owner_id=$1 AND goal_id=$2 AND state IN ('prepared','linked'))

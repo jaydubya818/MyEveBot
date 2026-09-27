@@ -2968,7 +2968,7 @@
     "lib/goal-work/contracts.ts": {
       "classification": "INTERNAL",
       "reason": "Server-only dependency ports; default Work adapter denies admission. Contracts carry references and criteria, never tool/provider/writer/budget grants.",
-      "sha256": "6a116b00a13bcceb781e3870e3f2f3fc1ec99f7bd85291dc5cbd8f5d796b852e"
+      "sha256": "05bb3485f59bd2d7c5e623a69cb7904c7c9f3d93478da1f1242060bc4e701c07"
     },
     "lib/goal-work/dispatcher.ts": {
       "classification": "INTERNAL",
@@ -2978,17 +2978,52 @@
     "lib/goal-work/projections.ts": {
       "classification": "READ_ONLY",
       "reason": "Bounded owner-scoped read-only SQL projections for Today, Daily Brief, Goal and Task detail; no cross-owner joins or execution path.",
-      "sha256": "40a913054d1c1bfec55ab094d76e4a1907c9f74af8122c8a548a9867fab4bdd5"
+      "sha256": "3256cf34af59de61889a5835d4d85807b1c1cc5af128a30fd1b9891cf924b48d"
     },
     "lib/goal-work/service.ts": {
       "classification": "INTERNAL",
       "reason": "Isolated Goal orchestration service using injected canonical Work/Result/Signal ports, durable correlation and row locks. No runtime route or tool registration. PostgreSQL replay, SIGKILL, owner isolation, stale generation and denied-authority fixtures qualified; live Work admission remains an integration dependency.",
-      "sha256": "bf8e72316d45302320be69ecc2dd7e6b07eff0b1dec3fbc49797658059e5a906"
+      "sha256": "562082815bc5288ee1e27e43af953141e8a686e8cfde88f8e0921ec3f189168f"
     },
     "lib/goal-work/validation.ts": {
       "classification": "INTERNAL",
       "reason": "Bounded input validation for Goal orchestration, dependencies, signals and canonical Result envelopes. No execution or external effects.",
-      "sha256": "794389e7137459ec25bcb48bdd28882f59c27a25b2faa95902f27c82e834c037"
+      "sha256": "86e290e8723e9cc77022d0bade84ae6d07764775f7b697bf4da545d855257b7c"
+    },
+    "lib/goal-work/context-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure Work-scoped advisory Memory request descriptors and evidence-only learning references. No Memory persistence, learning promotion or execution authority.",
+      "sha256": "482390067b79b1fa8e407f4c1d9091836553aee90a530dda7bc262d2707b2949"
+    },
+    "lib/goal-work/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Unmounted authenticated handler factory; signed production sessions, same-origin writes, strict bounded input, owner-scoped services and revision checks. Decisions go to canonical Inbox, not execution.",
+      "sha256": "92ab29e0c0a74cd996c6a17f3b28fa56218668c6d3445c2120c36ef6137a6c6e"
+    },
+    "lib/goal-work/product-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure owner-scoped Today, Daily Brief and Beta Goal summary mapping. No fabricated TaskRun/approval, provider access or execution.",
+      "sha256": "581f2d415c278ffdbb5df7970d23e8d36d0aadd6ddc340cd5c8e1ba4f3eb5130"
+    },
+    "lib/goal-work/canonical-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Canonical Work creation and retained Result mapping through injected gateways and canonical validators. Immutable intent dedupe; canonical policy owns budgets and routes; no Factory/provider invocation.",
+      "sha256": "3fcc11bf92214e5f75398916f87da3d811c4978ed5ce34adada030152594b07c"
+    },
+    "lib/goal-work/database.ts": {
+      "classification": "INTERNAL",
+      "reason": "Injected pool transaction adapter sets owner scope and bounded SQL timeouts. No connection creation, credentials, migration application or schema grants.",
+      "sha256": "e41425936363f5619f72db19808172dcfe64d720c79af2bc8120bc71a0aa8d42"
+    },
+    "lib/goal-work/inbox-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Rereads canonical owner response and validates current action binding before dependency resolution. Informational follow-up mapping creates no scheduler or approval.",
+      "sha256": "2632383657a1b9fd97bb557c7342262d8c43615a4c99bbe6fa36c8917ee22ff2"
+    },
+    "lib/goal-work/event-adapters.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated source resolver and trusted scheduler clock feed generation-bound dependency reevaluation. No installed scheduler, provider call or direct execution.",
+      "sha256": "baa167aa55f445622a533fdbd11cb414a606c0f46a7705046d3328824c3c9165"
     }
   }
 }

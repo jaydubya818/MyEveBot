@@ -1,5 +1,7 @@
 # Goals and proactive work evidence dossier
 
+> **Historical first-tranche evidence. Superseded-by:** [integration-preparation qualification](integration-preparation/README.md). Core accepted at `b9b46c41480f0859d44683346bd24d7ce9f2b7c9`; the original logs below remain preserved. Current overall status is READY_FOR_INTEGRATION; live activation is NOT_RUN.
+
 **Design partner Goal OS: NOT READY.** The isolated orchestration service passes local
 qualification; production persistence rollout and canonical runtime adapters remain
 blocked by shared migration ownership / unmerged integrations. No merge or deployment

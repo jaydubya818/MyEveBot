@@ -1,5 +1,7 @@
 # Goal OS: outcomes, tasks and Work
 
+> **Integration status superseded-by:** [integration-preparation crosswalk](goal-work-integration-crosswalk.md) and [current evidence](verification/goals-proactive-work/integration-preparation/README.md). The core contract below remains historical context.
+
 Status: locally qualified orchestration candidate. **Not enabled for design partners.**
 The current UI and agent tools still use the existing Goal repository. The new service
 is server-only, unregistered, and requires the candidate schema and canonical adapters.

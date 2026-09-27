@@ -122,7 +122,13 @@ export class GoalWorkQueries {
         eligibleForAdmission:
           g.status === "active" &&
           !t.paused &&
-          !["completed", "cancelled", "blocked", "failed"].includes(t.status) &&
+          ![
+            "completed",
+            "cancelled",
+            "blocked",
+            "failed",
+            "verification",
+          ].includes(t.status) &&
           !unresolved.length &&
           !activeWork &&
           !current &&
@@ -145,6 +151,14 @@ export class GoalWorkQueries {
       contractVersion: 1 as const,
       id: g.id,
       objective: g.title,
+      revision: g.revision,
+      generation: g.generation,
+      updatedAt: iso(g.updated_at),
+      createdAt: iso(g.created_at),
+      completedAt: iso(g.completed_at),
+      archivedAt: iso(g.archived_at),
+      requireOwnerConfirmation: g.requires_owner_confirmation,
+      ownerConfirmed: g.confirmed_generation === g.generation,
       status: g.status,
       priority: g.priority,
       target: iso(g.target_date),
@@ -245,12 +259,37 @@ export class GoalWorkQueries {
         g.tasks
           .filter(
             (t) =>
+              t.status === "completed" &&
               t.completedAt &&
               new Date(t.completedAt).getTime() > Date.now() - 86400000,
           )
           .map((t) => ({ goalId: g.id, ...t })),
       ),
     };
+  }
+  async interventions(goalId: string) {
+    return this.database.transaction(async (tx) => {
+      const [goal] = await tx.query(
+        "SELECT id FROM goals WHERE owner_id=$1 AND id=$2 FOR SHARE",
+        [this.ownerId, goalId],
+      );
+      if (!goal) throw new Error("Goal not found");
+      const rows = await tx.query(
+        `SELECT payload->>'classification' AS classification,count(*)::int AS count FROM eve_events
+        WHERE owner_id=$1 AND goal_id=$2 AND type='HUMAN_INTERVENTION' GROUP BY payload->>'classification'`,
+        [this.ownerId, goalId],
+      );
+      return {
+        necessaryJudgment: Number(
+          rows.find((r) => r.classification === "NECESSARY_JUDGMENT")?.count ??
+            0,
+        ),
+        avoidableCoordination: Number(
+          rows.find((r) => r.classification === "AVOIDABLE_COORDINATION")
+            ?.count ?? 0,
+        ),
+      };
+    });
   }
   async brief(
     since: string,

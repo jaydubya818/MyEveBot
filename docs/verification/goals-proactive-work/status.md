@@ -1,5 +1,7 @@
 # Qualification status
 
+> **Historical first-tranche evidence. Superseded-by:** [integration-preparation qualification](integration-preparation/README.md). Core accepted at `b9b46c41480f0859d44683346bd24d7ce9f2b7c9`; the original logs below remain preserved. Current overall status is READY_FOR_INTEGRATION; live activation is NOT_RUN.
+
 All PASS values below refer to the isolated service/candidate-schema fixture boundary,
 not production activation. See the dossier for integration dependencies.
 

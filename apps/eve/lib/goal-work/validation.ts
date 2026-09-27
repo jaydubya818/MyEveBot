@@ -41,6 +41,7 @@ export const goalInput = z
     criteria,
     priority: priority.default("normal"),
     target: z.string().date().nullable().default(null),
+    requireOwnerConfirmation: z.boolean().optional(),
   })
   .strict();
 export const taskInput = z
@@ -68,7 +69,14 @@ export const resultSchema = z
     ownerId: text,
     workId: text,
     correlationKey: text,
-    outcome: z.enum(["SUCCEEDED", "PARTIAL", "FAILED"]),
+    outcome: z.enum([
+      "SUCCEEDED",
+      "PARTIAL",
+      "FAILED",
+      "BLOCKED",
+      "CANCELLED",
+      "SUPERSEDED",
+    ]),
     current: z.boolean(),
     verified: z.boolean(),
     satisfiedCriteria: z.array(text).max(20),

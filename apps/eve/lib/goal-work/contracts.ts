@@ -23,6 +23,10 @@ export interface WorkRequest extends GoalContext {
   targetAt: string | null;
   goalCriteria: string[];
   planVersion: number;
+  /** Descriptive preferences only; canonical Work owns allowedRoutes and admission. */
+  routeHints?: Array<
+    "DIRECT" | "DEEP_AGENT" | "EXECUTOR" | "MYFACTORY" | "RELAY" | "HUMAN"
+  >;
   dependencies: Array<{
     id: string;
     kind: DependencyKind;
@@ -47,7 +51,13 @@ export interface WorkResult {
   ownerId: string;
   workId: string;
   correlationKey: string;
-  outcome: "SUCCEEDED" | "PARTIAL" | "FAILED";
+  outcome:
+    | "SUCCEEDED"
+    | "PARTIAL"
+    | "FAILED"
+    | "BLOCKED"
+    | "CANCELLED"
+    | "SUPERSEDED";
   current: boolean;
   verified: boolean;
   satisfiedCriteria: string[];

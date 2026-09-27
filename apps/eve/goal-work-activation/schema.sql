@@ -1,5 +1,8 @@
--- CANDIDATE ONLY. Not a numbered migration; apply only in isolated qualification.
+-- ACTIVATION CANDIDATE. No migration number. Apply only after canonical ownership signoff.
 -- Extends the existing Goal OS. Work/Inbox data remains owned by those services.
+ALTER TABLE goals ADD COLUMN requires_owner_confirmation boolean NOT NULL DEFAULT false;
+ALTER TABLE goals ADD COLUMN confirmed_generation integer;
+ALTER TABLE goals ADD COLUMN confirmation_ref text;
 ALTER TABLE goals ADD COLUMN revision integer NOT NULL DEFAULT 1;
 ALTER TABLE goals ADD COLUMN generation integer NOT NULL DEFAULT 1;
 ALTER TABLE goal_tasks ADD COLUMN generation integer NOT NULL DEFAULT 1;
@@ -48,12 +51,15 @@ CREATE TABLE goal_outcome_evidence (
 -- task edits against Goal completion. These triggers grant no Work authority.
 CREATE FUNCTION goal_work_goal_fence() RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-  IF (NEW.title,NEW.description,NEW.success_criteria) IS DISTINCT FROM
-     (OLD.title,OLD.description,OLD.success_criteria) THEN
+  IF (NEW.title,NEW.description,NEW.success_criteria,NEW.requires_owner_confirmation) IS DISTINCT FROM
+     (OLD.title,OLD.description,OLD.success_criteria,OLD.requires_owner_confirmation) THEN
     NEW.generation := OLD.generation + 1;
     IF OLD.status='completed' THEN NEW.status:='active'; END IF;
   END IF;
   IF NEW.status='completed' AND OLD.status<>'completed' THEN
+    IF NEW.requires_owner_confirmation AND NEW.confirmed_generation IS DISTINCT FROM NEW.generation THEN
+      RAISE EXCEPTION 'Current owner confirmation required';
+    END IF;
     IF jsonb_array_length(NEW.success_criteria)=0 OR EXISTS (
       SELECT 1 FROM jsonb_array_elements_text(NEW.success_criteria) c
       WHERE NOT EXISTS (SELECT 1 FROM goal_outcome_evidence e WHERE e.owner_id=NEW.owner_id
@@ -112,3 +118,11 @@ BEGIN
 END $$;
 CREATE TRIGGER goal_work_dependency_fence AFTER INSERT OR DELETE ON goal_task_dependencies
  FOR EACH ROW EXECUTE FUNCTION goal_work_dependency_fence();
+
+ALTER TABLE goals ADD CONSTRAINT goal_work_positive_versions CHECK (generation>0 AND revision>0);
+ALTER TABLE goal_tasks ADD CONSTRAINT goal_work_positive_generation CHECK (generation>0);
+CREATE INDEX goal_work_active_goals ON goals(owner_id,id) WHERE status='active';
+CREATE INDEX goal_work_dependencies_goal ON goal_work_dependencies(owner_id,goal_id,task_id,id);
+CREATE INDEX goal_work_dependency_reverse ON goal_work_dependencies(owner_id,goal_id,reference) WHERE kind='task';
+
+CREATE INDEX goal_work_interventions ON eve_events(owner_id,goal_id) WHERE type='HUMAN_INTERVENTION';

@@ -1,0 +1,32 @@
+{
+  "ownerId": "alice",
+  "scope": {
+    "id": "alice",
+    "kind": "personal"
+  },
+  "workId": "3f74ad37-9763-4b59-9eaa-6a7e363bce77",
+  "workVersion": 1,
+  "knowledge": {
+    "method": "EngineeringKnowledgeStore.list",
+    "args": [
+      "3f74ad37-9763-4b59-9eaa-6a7e363bce77",
+      {
+        "limit": 10,
+        "includeHistory": false
+      }
+    ]
+  },
+  "advisoryLearning": {
+    "method": "LearningStore.retrieve",
+    "args": [
+      "3f74ad37-9763-4b59-9eaa-6a7e363bce77",
+      "implementation",
+      "goal:23e2f45b4712f941797617f86f500a6663289ba7014c6108b38a8698eb5b0cdd"
+    ]
+  },
+  "sourceRefs": [
+    "inbox-response:response_4d57f2d211ed5959ec30556e5dc4b861a749b4ad2df42250525cdff2a971e1f6:8cde18080c822fd5ec5c34236ea635b02cef83427e4aa273509577671827241e",
+    "5161fb60-2fd9-479c-b7d0-a16d68152a2c"
+  ],
+  "trust": "ADVISORY_ONLY"
+}

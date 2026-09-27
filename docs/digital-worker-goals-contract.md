@@ -1,5 +1,7 @@
 # Digital Worker architecture: Goal orchestration boundary
 
+> **Integration status superseded-by:** [integration-preparation crosswalk](goal-work-integration-crosswalk.md) and [current evidence](verification/goals-proactive-work/integration-preparation/README.md). The core contract below remains historical context.
+
 The Goal layer answers **what outcome, what is eligible, and what happens next**.
 Canonical Work answers **how it executes, under what authority, and what Result is true**.
 

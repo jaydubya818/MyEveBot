@@ -1,8 +1,10 @@
 # Proactive Goal continuation
 
+> **Integration status superseded-by:** [integration-preparation crosswalk](goal-work-integration-crosswalk.md) and [current evidence](verification/goals-proactive-work/integration-preparation/README.md). The core contract below remains historical context.
+
 This is an isolated, locally qualified candidate; it has no installed production
 scheduler, webhook, tool, route or default database. The candidate schema lives in
-`apps/eve/test/fixtures/goal-work/schema.sql`, outside the migration runner.
+`apps/eve/goal-work-activation/schema.sql`, outside the migration runner.
 
 ## Durable flow
 

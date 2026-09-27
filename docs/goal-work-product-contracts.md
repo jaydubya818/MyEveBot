@@ -1,5 +1,7 @@
 # Goal Work product contracts (version 1)
 
+> **Integration status superseded-by:** [integration-preparation crosswalk](goal-work-integration-crosswalk.md) and [current evidence](verification/goals-proactive-work/integration-preparation/README.md). The core contract below remains historical context.
+
 `GoalWorkQueries(ownerId, database)` is a server-only projection service. Consumers
 must obtain `ownerId` from authenticated server context. No infrastructure logs are
 needed to render the default owner experience. This does not replace the existing

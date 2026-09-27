@@ -210,7 +210,7 @@ try {
   );
   await admin.query(
     await readFile(
-      new URL("./fixtures/goal-work/schema.sql", import.meta.url),
+      new URL("../goal-work-activation/schema.sql", import.meta.url),
       "utf8",
     ),
   );

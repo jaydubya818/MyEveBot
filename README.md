@@ -258,15 +258,17 @@ vercel deploy --prod --yes
 
 After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
 
-## Goal OS and proactive work candidate
+## Goal OS and proactive work integration candidate
 
-The durable Goal/Task orchestration candidate reuses existing Goal OS records and adds
-replay-safe Work correlation, evidence-backed progress, owner controls and bounded
-Today/Daily Brief contracts. It is locally qualified with PostgreSQL concurrency and
-process-loss fixtures, but is **not enabled for design partners**: migration ownership
-and canonical Work/Inbox/scheduler adapters remain integration dependencies.
+**READY_FOR_INTEGRATION. Live design-partner Goal OS: NOT_RUN.** Goal OS and proactive
+continuation cores are locally qualified, including canonical Work/Result adapters,
+actual pinned Inbox delivery, Today/Daily Brief composition, signed-session API,
+scheduler/event contracts, and multi-session recovery. Canonical Work/Result, Inbox,
+scheduler/event sources and Beta browser integration remain pending activation.
 
-See [Goal OS](docs/goal-os.md), [proactive continuation](docs/proactive-work.md),
-[product contracts](docs/goal-work-product-contracts.md),
-[Digital Worker boundary](docs/digital-worker-goals-contract.md), and the
-[evidence dossier](docs/verification/goals-proactive-work/README.md).
+This status supersedes the original candidate wording. The API is unmounted and the
+persistence package is unnumbered; no shared schema or execution release was enabled.
+See the [integration evidence](docs/verification/goals-proactive-work/integration-preparation/README.md),
+[exact crosswalk](docs/goal-work-integration-crosswalk.md),
+[activation package](apps/eve/goal-work-activation/README.md), and
+[original core evidence](docs/verification/goals-proactive-work/README.md).
