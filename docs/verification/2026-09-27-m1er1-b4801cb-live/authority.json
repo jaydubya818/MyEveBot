@@ -1,0 +1,60 @@
+{
+  "id": "gap2b-m1er1-fdb7b825-b5ff-41d3-878a-8c979c6e368f",
+  "createdAt": "2026-09-27T03:11:27.473Z",
+  "expiresAt": "2026-09-27T03:41:27.474Z",
+  "environment": "isolated-dogfood",
+  "candidate": "b4801cb50c16f003de75b4c2d55e2db785c453e4",
+  "work": {
+    "id": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+    "initialVersion": 1,
+    "admittedVersion": 2,
+    "generation": 2
+  },
+  "ownerId": "m1er1-b4801cb-owner",
+  "agent": {
+    "id": "m1er1-b4801cb-sofie",
+    "owner_id": "m1er1-b4801cb-owner",
+    "revision": "2026-09-26 20:10:45.875314-07",
+    "is_primary": true,
+    "status": "active",
+    "max_steps": 10,
+    "max_estimated_cost_usd": "1.3000",
+    "max_runtime_seconds": 1800
+  },
+  "modelId": "anthropic/claude-sonnet-5",
+  "provider": "Anthropic only through Vercel AI Gateway",
+  "profileHash": "aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72",
+  "base": {
+    "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+    "files": [
+      {
+        "path": ".github/workflows/quantity-ci.yml",
+        "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+      },
+      {
+        "path": ".gitignore",
+        "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+      },
+      {
+        "path": "package.json",
+        "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+      },
+      {
+        "path": "README.md",
+        "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+      },
+      {
+        "path": "test/quantity.test.mjs",
+        "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+      }
+    ]
+  },
+  "ceilingUsd": 1.3,
+  "maxCalls": 10,
+  "maxOutputTokens": 2048,
+  "inputEnvelopeBytes": 14336,
+  "repairIterations": 1,
+  "finalExplanations": 1,
+  "runtimeConfigHash": "018d88e3f0c8b48686b98885c594a972802831d9d20291cfd163c078abf3e569",
+  "approvalSha256": "0e8f562b81290587217c6865c477e96cd246dd5ff2e00dc0a32f409f03ef7b87"
+}

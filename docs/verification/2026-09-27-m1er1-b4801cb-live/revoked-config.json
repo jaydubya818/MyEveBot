@@ -1,0 +1,172 @@
+{
+  "mode": "isolated-dogfood",
+  "ownerId": "m1er1-b4801cb-owner",
+  "agentId": "m1er1-b4801cb-sofie",
+  "objective": "Implement the approved quantity CLI and verify it independently.",
+  "criteria": [
+    {
+      "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+      "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract.",
+      "method": "test"
+    }
+  ],
+  "profile": {
+    "id": "authenticated-native-quantity",
+    "version": 1,
+    "repository": "jaydubya818/myeve-golden-work-qual",
+    "privateQualification": true,
+    "baseBranch": "main",
+    "allowedPaths": [
+      "quantity.mjs"
+    ],
+    "checks": [
+      {
+        "id": "quantity-0",
+        "program": "quantity.mjs",
+        "input": "2",
+        "expectedOutput": "{\"quantity\":2}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-1",
+        "program": "quantity.mjs",
+        "input": "1",
+        "expectedOutput": "{\"quantity\":1}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-2",
+        "program": "quantity.mjs",
+        "input": "42\n",
+        "expectedOutput": "{\"quantity\":42}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-3",
+        "program": "quantity.mjs",
+        "input": "  7  \n",
+        "expectedOutput": "{\"quantity\":7}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-4",
+        "program": "quantity.mjs",
+        "input": "0",
+        "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-5",
+        "program": "quantity.mjs",
+        "input": "-1",
+        "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-6",
+        "program": "quantity.mjs",
+        "input": "-5\n",
+        "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-7",
+        "program": "quantity.mjs",
+        "input": "1.5",
+        "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-8",
+        "program": "quantity.mjs",
+        "input": "0.25",
+        "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      },
+      {
+        "id": "quantity-9",
+        "program": "quantity.mjs",
+        "input": "2.7\n",
+        "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+        "expectedExitCode": 0,
+        "criterionIds": [
+          "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+        ]
+      }
+    ],
+    "requiredCI": [
+      "quantity-ci"
+    ],
+    "reviewerLogins": [
+      "jaydubya818"
+    ],
+    "policyVersion": 1,
+    "executor": "claude-code",
+    "image": "node@sha256:ebfe2f90462722a7a4de65e91990e97fe0d401c70e0e762c5b53302f905ec1c1",
+    "maxRuns": 4,
+    "maxModelRequests": 30,
+    "maxOutputTokens": 2048
+  },
+  "approvedBase": {
+    "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+    "files": [
+      {
+        "path": ".github/workflows/quantity-ci.yml",
+        "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+      },
+      {
+        "path": ".gitignore",
+        "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+      },
+      {
+        "path": "package.json",
+        "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+      },
+      {
+        "path": "README.md",
+        "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+      },
+      {
+        "path": "test/quantity.test.mjs",
+        "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+      }
+    ]
+  },
+  "brokerPort": 55470,
+  "model": "claude-sonnet-5",
+  "nativeCompletion": {
+    "inputBytes": 14336,
+    "implementationCalls": 5,
+    "repairCalls": 3,
+    "explanationCalls": 1,
+    "repairIterations": 1
+  },
+  "nativeMode": "potato"
+}

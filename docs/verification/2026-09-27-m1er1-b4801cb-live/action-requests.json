@@ -1,0 +1,286 @@
+[
+  {
+    "id": "action_6cb308f8-7e64-42c6-a4de-316d4eede6b3",
+    "owner_id": "m1er1-b4801cb-owner",
+    "run_id": "action_run_1cc9c188-7c0d-49d6-a509-121fca5a24dd",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01Bbg5s3Hmw4zGzzpWrqEHXV",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b4801cb-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b4801cb-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "94e9400ff24e7bb9cd00bb44a8f4714d92bd409cfb16441413e9a994dd3b01b4",
+    "safe_summary": {
+      "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "route": "DEEP_AGENT",
+      "runId": "535529af-9e35-4408-b881-78012dd68bec",
+      "status": "QUEUED",
+      "decisionId": "39214182-6e5d-4be1-9bbb-165a9d9fa5af",
+      "workVersion": 2,
+      "transitionId": "adf47b37-2702-4aa9-8156-75a8f6a88c04",
+      "workGeneration": 2
+    },
+    "created_at": "2026-09-27T03:12:25.721Z",
+    "updated_at": "2026-09-27T03:12:25.862Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_32c41757-e255-4c3e-90ee-7b23653413d0",
+    "owner_id": "m1er1-b4801cb-owner",
+    "run_id": "action_run_1cc9c188-7c0d-49d6-a509-121fca5a24dd",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01Ca1WgZWE6ct5GMS3De1iCT",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b4801cb-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b4801cb-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "94e9400ff24e7bb9cd00bb44a8f4714d92bd409cfb16441413e9a994dd3b01b4",
+    "safe_summary": {
+      "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "DENY",
+    "authority_source": "native-work",
+    "approval_id": null,
+    "status": "denied",
+    "attempt_count": 0,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": null,
+    "created_at": "2026-09-27T03:12:28.242Z",
+    "updated_at": "2026-09-27T03:12:28.244Z",
+    "reason_code": "capability_denied",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_062dfc7a-7466-4fd0-9db6-d978de968aa0",
+    "owner_id": "m1er1-b4801cb-owner",
+    "run_id": "action_run_1cc9c188-7c0d-49d6-a509-121fca5a24dd",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01DhPSKCwcEN2cGrNkH3WNyu",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b4801cb-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b4801cb-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "94e9400ff24e7bb9cd00bb44a8f4714d92bd409cfb16441413e9a994dd3b01b4",
+    "safe_summary": {
+      "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "DENY",
+    "authority_source": "native-work",
+    "approval_id": null,
+    "status": "denied",
+    "attempt_count": 0,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": null,
+    "created_at": "2026-09-27T03:12:42.577Z",
+    "updated_at": "2026-09-27T03:12:42.581Z",
+    "reason_code": "capability_denied",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_ee53d2e9-db4f-408c-beeb-8fff670356c7",
+    "owner_id": "m1er1-b4801cb-owner",
+    "run_id": "action_run_1cc9c188-7c0d-49d6-a509-121fca5a24dd",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01J21c4aXxnbeLuj4ucw1h5s",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b4801cb-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b4801cb-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "94e9400ff24e7bb9cd00bb44a8f4714d92bd409cfb16441413e9a994dd3b01b4",
+    "safe_summary": {
+      "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "DENY",
+    "authority_source": "native-work",
+    "approval_id": null,
+    "status": "denied",
+    "attempt_count": 0,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": null,
+    "created_at": "2026-09-27T03:12:45.969Z",
+    "updated_at": "2026-09-27T03:12:45.972Z",
+    "reason_code": "capability_denied",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_7a17d40b-0e63-4dbf-965f-d23bbb672e96",
+    "owner_id": "m1er1-b4801cb-owner",
+    "run_id": "action_run_1cc9c188-7c0d-49d6-a509-121fca5a24dd",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01JuzhvNME61Aq34VmuLFxtQ",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b4801cb-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b4801cb-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "94e9400ff24e7bb9cd00bb44a8f4714d92bd409cfb16441413e9a994dd3b01b4",
+    "safe_summary": {
+      "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "DENY",
+    "authority_source": "native-work",
+    "approval_id": null,
+    "status": "denied",
+    "attempt_count": 0,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": null,
+    "created_at": "2026-09-27T03:12:48.718Z",
+    "updated_at": "2026-09-27T03:12:48.720Z",
+    "reason_code": "capability_denied",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_eb900399-568d-49c6-a207-b619b9c25e05",
+    "owner_id": "m1er1-b4801cb-owner",
+    "run_id": "action_run_1cc9c188-7c0d-49d6-a509-121fca5a24dd",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_0123Hr19woq2Uj7AZgPfaN6P",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b4801cb-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b4801cb-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "94e9400ff24e7bb9cd00bb44a8f4714d92bd409cfb16441413e9a994dd3b01b4",
+    "safe_summary": {
+      "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "DENY",
+    "authority_source": "native-work",
+    "approval_id": null,
+    "status": "denied",
+    "attempt_count": 0,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": null,
+    "created_at": "2026-09-27T03:12:54.093Z",
+    "updated_at": "2026-09-27T03:12:54.095Z",
+    "reason_code": "capability_denied",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  }
+]

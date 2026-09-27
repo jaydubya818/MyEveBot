@@ -1,0 +1,122 @@
+{
+  "at": "2026-09-27T03:15:48.654Z",
+  "candidate": "b4801cb50c16f003de75b4c2d55e2db785c453e4",
+  "bindings": [
+    {
+      "callId": "40698721-3fb6-4d69-9dd8-80a1f3d37949",
+      "purpose": "CONVERSATION_REASONING",
+      "payload": "payload-1d7bb9afc20af530b2eb41f03d0bd31136b69d480490034391fed34849f3d2a8.json",
+      "request": {
+        "operation": "admit",
+        "expectedWorkVersion": 2,
+        "expectedWorkGeneration": 2
+      },
+      "metadata": {
+        "version": 2,
+        "generation": 2
+      },
+      "costMicrousd": "5670",
+      "providerAttempts": 1,
+      "provider": "anthropic"
+    },
+    {
+      "callId": "85ab380e-5768-4abc-aa0f-97af2a17dfb4",
+      "purpose": "NATIVE_EXECUTION",
+      "payload": "payload-bc1938fbb3d8a1391dfad9fe479836c67f146bc54a79ecfd121ab53a5b169f4c.json",
+      "request": {
+        "operation": "admit",
+        "expectedWorkVersion": 2,
+        "expectedWorkGeneration": 2
+      },
+      "metadata": "Work identity: {\"workId\":\"132f7ba3-d244-440a-a8a5-9dcee2512ecb\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+      "costMicrousd": "6392",
+      "providerAttempts": 1,
+      "provider": "anthropic"
+    },
+    {
+      "callId": "a8e44dbe-4c91-4e79-b985-4494a6f4bb1f",
+      "purpose": "NATIVE_EXECUTION",
+      "payload": "payload-e83d95182311af4c53035bbc5698152178498bcd127ea726321e12dbb6cb3941.json",
+      "request": {
+        "operation": "admit",
+        "expectedWorkVersion": 2,
+        "expectedWorkGeneration": 2
+      },
+      "metadata": "Work identity: {\"workId\":\"132f7ba3-d244-440a-a8a5-9dcee2512ecb\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+      "costMicrousd": "15022",
+      "providerAttempts": 1,
+      "provider": "anthropic"
+    },
+    {
+      "callId": "26bac86b-adc3-4d35-aa41-59423e38d8ab",
+      "purpose": "NATIVE_EXECUTION",
+      "payload": "payload-bfeac4983d4530de01b6f11e767ccf3860defd4f873d4a5174b3c4863251f188.json",
+      "request": {
+        "operation": "admit",
+        "expectedWorkVersion": 2,
+        "expectedWorkGeneration": 2
+      },
+      "metadata": "Work identity: {\"workId\":\"132f7ba3-d244-440a-a8a5-9dcee2512ecb\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+      "costMicrousd": "7472",
+      "providerAttempts": 1,
+      "provider": "anthropic"
+    },
+    {
+      "callId": "be84fd46-b3dc-456d-880b-819d53dfc710",
+      "purpose": "NATIVE_EXECUTION",
+      "payload": "payload-7f2c00c878dbd350ee20defa3ddad687323878e71904502bd9a2e050418874d3.json",
+      "request": {
+        "operation": "admit",
+        "expectedWorkVersion": 2,
+        "expectedWorkGeneration": 2
+      },
+      "metadata": "Work identity: {\"workId\":\"132f7ba3-d244-440a-a8a5-9dcee2512ecb\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+      "costMicrousd": "6652",
+      "providerAttempts": 1,
+      "provider": "anthropic"
+    },
+    {
+      "callId": "c0b56d0a-5555-46c0-b4bd-27c34eb2dc62",
+      "purpose": "NATIVE_EXECUTION",
+      "payload": "payload-ac4527070f8f0604cb808cd21587ad7a8f356c8cb1afe37fa65d80a03b426e11.json",
+      "request": {
+        "operation": "admit",
+        "expectedWorkVersion": 2,
+        "expectedWorkGeneration": 2
+      },
+      "metadata": "Work identity: {\"workId\":\"132f7ba3-d244-440a-a8a5-9dcee2512ecb\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+      "costMicrousd": "8812",
+      "providerAttempts": 1,
+      "provider": "anthropic"
+    }
+  ],
+  "callCount": 6,
+  "spentMicrousd": 50020,
+  "reservedMicrousd": 0,
+  "unknownExposure": 0,
+  "completionHoldMicrousd": 450564,
+  "work": [
+    {
+      "id": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "version": 3,
+      "generation": 3,
+      "control": "paused"
+    }
+  ],
+  "runs": 1,
+  "writers": 1,
+  "workspaces": 0,
+  "results": 0,
+  "jobs": 0,
+  "firstProposalMatchesResumedWork": true,
+  "metadataInjectedByHarness": false,
+  "sourceEffects": 0,
+  "authorityBypasses": 0,
+  "falseReady": 0,
+  "expiredRevivals": 0,
+  "duplicateConsequentialEffects": 0,
+  "staleWriterUpdates": 0,
+  "unbudgetedCalls": 0,
+  "budgetViolations": 0,
+  "incorrectModelRunExplanations": 0
+}

@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-27T03:16:18.956Z",
+  "processes": [],
+  "listeners": "",
+  "runningDockerContainers": "",
+  "retainedDatabase": "golden_m1er1_b4801cb_156524c4990e",
+  "removedEmptyPreparation": [
+    {
+      "database": "golden_m1er1_b4801cb_cff43a454993",
+      "tables": 0,
+      "authorityIssued": false,
+      "cleanup": "Empty failed preparation only"
+    }
+  ]
+}

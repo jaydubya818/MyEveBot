@@ -1,0 +1,28 @@
+[
+  {
+    "id": "context_854b3eba-1975-4b4e-a1d4-86b7c538fdf0",
+    "owner_id": "m1er1-b4801cb-owner",
+    "agent_id": "m1er1-b4801cb-sofie",
+    "session_id": "wrun_01M3GDJWG7MQ9CM74QZ4QX05VP",
+    "agent_run_id": "agent_run_wrun_01M3GDJWG7MQ9CM74QZ4QX05VP_turn_0",
+    "thread_id": "c355bb76-e8ce-484c-98a3-1f96204bbd59",
+    "goal_id": null,
+    "goal_task_id": null,
+    "task_run_id": null,
+    "memory_refs": [],
+    "thread_summary_id": null,
+    "source_refs": [
+      "agent:m1er1-b4801cb-sofie",
+      "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+      "engineering-work:132f7ba3-d244-440a-a8a5-9dcee2512ecb:v2",
+      "engineering-criteria:132f7ba3-d244-440a-a8a5-9dcee2512ecb:v1"
+    ],
+    "estimated_tokens": 4731,
+    "budget": {
+      "maximumTokens": 12000,
+      "retrievalTokens": 4000,
+      "reservedInstructionTokens": 4000
+    },
+    "created_at": "2026-09-27T03:12:22.304Z"
+  }
+]

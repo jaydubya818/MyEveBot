@@ -1,0 +1,321 @@
+{
+  "at": "2026-09-27T03:10:45.880Z",
+  "head": "b4801cb50c16f003de75b4c2d55e2db785c453e4",
+  "fixture": {
+    "database": "golden_m1er1_b4801cb_156524c4990e",
+    "databaseURL": "postgresql://postgres@127.0.0.1:55468/golden_m1er1_b4801cb_156524c4990e",
+    "ownerId": "m1er1-b4801cb-owner",
+    "owner": "m1er1-b4801cb-owner",
+    "agentId": "m1er1-b4801cb-sofie",
+    "workId": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+    "profileHash": "aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72",
+    "approvedBase": {
+      "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+      "files": [
+        {
+          "path": ".github/workflows/quantity-ci.yml",
+          "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+        },
+        {
+          "path": ".gitignore",
+          "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+        },
+        {
+          "path": "package.json",
+          "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+        },
+        {
+          "path": "README.md",
+          "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+        },
+        {
+          "path": "test/quantity.test.mjs",
+          "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+        }
+      ]
+    },
+    "unqualifiedConfigPath": "/private/tmp/m1er1-b4801cb/unqualified-config.json"
+  },
+  "work": {
+    "id": "132f7ba3-d244-440a-a8a5-9dcee2512ecb",
+    "scopeId": "m1er1-b4801cb-owner",
+    "title": "Fresh authenticated M1/ER1 — b4801cb",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "repository": "jaydubya818/myeve-golden-work-qual",
+    "lifecycle": "active",
+    "control": "paused",
+    "version": 1,
+    "generation": 1,
+    "criteriaVersion": 1,
+    "criteria": [
+      {
+        "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+        "method": "test",
+        "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+      }
+    ],
+    "maxCostUsd": 1.3,
+    "maxDurationSeconds": 1800,
+    "createdAt": "2026-09-27T03:10:45.876Z",
+    "updatedAt": "2026-09-27T03:10:45.876Z"
+  },
+  "agent": {
+    "id": "m1er1-b4801cb-sofie",
+    "owner_id": "m1er1-b4801cb-owner",
+    "revision": "2026-09-26 20:10:45.875314-07",
+    "is_primary": true,
+    "status": "active",
+    "max_steps": 10,
+    "max_estimated_cost_usd": "1.3000",
+    "max_runtime_seconds": 1800
+  },
+  "migrations": [
+    {
+      "name": "0001_runtime_core.sql",
+      "checksum": "c073affaeeee6ed3f9076d0b8befe79f7d0b8373685ee4e4b0ffc50158c1a591"
+    },
+    {
+      "name": "0002_trustworthy_delegation.sql",
+      "checksum": "ff54635f7be5ddb786d61ea6918554089710cd46a5fe2ff32a0f1f29ca6be22d"
+    },
+    {
+      "name": "0003_goal_operating_system.sql",
+      "checksum": "f893b5849eed817727823c8749414b93212727334470c6d7c9fa7ff63ea9a9a3"
+    },
+    {
+      "name": "0004_skill_control_plane.sql",
+      "checksum": "5aaa7abda2b51bd01ef3d1b3c7fbddc722823cd0c86491ffb6f3bc17d2db70d1"
+    },
+    {
+      "name": "0005_skill_evals_and_outcomes.sql",
+      "checksum": "3e121a5ddbc8d96fe874c48c0bd771e810061881fadfae2206cf75a92aa28ca4"
+    },
+    {
+      "name": "0006_outcomes_and_review_loop.sql",
+      "checksum": "e2f38f5c4c00714967e559162d5077ff1e95f2afaf1941dc9b5c1eccd5f41957"
+    },
+    {
+      "name": "0007_proactive_review_delivery.sql",
+      "checksum": "f58e7b307fa48617bd25d4ee27b47f53c91d2737ba228a2d1ec110b41172e02e"
+    },
+    {
+      "name": "0008_persistent_agents.sql",
+      "checksum": "12a11b5d6b7d17ca63f69a88c1b1402fea715df5608dc8c185723f04c40b18e1"
+    },
+    {
+      "name": "0009_scoped_memory_context.sql",
+      "checksum": "f5a7a72b2b2740939c5026cee63fe0630d9548b46bddb08579f05d75dbbb73ef"
+    },
+    {
+      "name": "0010_agent_computer_runtime.sql",
+      "checksum": "793fe423d9b6d149ab95293e5f9a3ad03316f37ca444abdacd2e7a968a566550"
+    },
+    {
+      "name": "0011_knowledge_provenance_core.sql",
+      "checksum": "6814a006398afc3116ec7dd66ea541095d0a8aa7dd52ff9f006a5b8f9123db0b"
+    },
+    {
+      "name": "0012_role_run_attribution.sql",
+      "checksum": "b01414f2cf519e5041af79f02b0a18ea636d26994e21b60e4b723ed44a200213"
+    },
+    {
+      "name": "0013_colleague_first_execution.sql",
+      "checksum": "5e60a2f830734975c5585f7df3d49267b10a541cb751b4f284e0122b24133f36"
+    },
+    {
+      "name": "0014_persistent_browser_profiles.sql",
+      "checksum": "16d97a4cc4bcc88680c8af5a1860e7f79cf1d762523db78dba66a1e350731716"
+    },
+    {
+      "name": "0015_phone_safety_controls.sql",
+      "checksum": "71eac1e130da97386f069df18f8cd960c1c84d9d3564d2dacc65f31f80beb399"
+    },
+    {
+      "name": "0016_owner_data_operations.sql",
+      "checksum": "7106ee769bc1d6ec2c683e2fb5f7a55babf9157c12c89671258d135885ec1b49"
+    },
+    {
+      "name": "0017_owner_file_inventory.sql",
+      "checksum": "fa2e6e980737f4f287213deae3963a7ac37d2b1debc14a66a1025ad82cf97e34"
+    },
+    {
+      "name": "0018_owner_knowledge_control.sql",
+      "checksum": "775ff88476a964c4f4a6e1d0c1d0091e067380a426813e5eb8bc9a30351a9e40"
+    },
+    {
+      "name": "0019_agent_control_center.sql",
+      "checksum": "cb4fa7220678020c9bb93afe3dbf9246d809d694146edbb4669a67505ac86a98"
+    },
+    {
+      "name": "0020_canonical_approval_requests.sql",
+      "checksum": "beebe4d1f44f95ef3d236d13964cd00d7c308182d591634953e4cc2c2dd94323"
+    },
+    {
+      "name": "0021_computer_control_leases.sql",
+      "checksum": "3b587c8eb5294c2815ff6d7126adff290a9f4238afb5e83a15d4bd5e21ee8ab8"
+    },
+    {
+      "name": "0022_live_computer_provider.sql",
+      "checksum": "34b92ecbda5c4359517ba0895f3beedb9af6dc44ff2bd3bcfe4e38e1b3400237"
+    },
+    {
+      "name": "0023_execution_reliability.sql",
+      "checksum": "d305f1746a01828eb1816800eb68e10037f9f894128a286dc8e4ed41d14fc8b5"
+    },
+    {
+      "name": "0024_routine_owner_review.sql",
+      "checksum": "318424d227a0de64114e892d035baf6d967c8b084e140c5fc0786b4288fd128b"
+    },
+    {
+      "name": "0025_action_executor_enforcement.sql",
+      "checksum": "d63540cdb2cb652bff747bab8b41cc20def079052f405484370d2d0cd9183cf6"
+    },
+    {
+      "name": "0026_action_recovery_qualification.sql",
+      "checksum": "9b3cd379b75e83a508fa6ef889a25ecee8a18a55620a7bf33889cc87a4b870ca"
+    },
+    {
+      "name": "0027_relay_federation.sql",
+      "checksum": "2ea6d67e5e327eeaff02b2ef6ef5d537f27a0d71bee247c361e15b491f114bd7"
+    },
+    {
+      "name": "0028_routine_pending_send.sql",
+      "checksum": "e091f18401fa7907d16c7b1a4dea361eae2d2e64d830391674f574d0f55aa377"
+    },
+    {
+      "name": "0029_routine_admission.sql",
+      "checksum": "61c6911338e8cdfe6dba0429925c034df0accf09221a44d84dae5744c2aaf254"
+    },
+    {
+      "name": "0030_action_binding_reconciliation.sql",
+      "checksum": "43d49e112514067c6e1297b3eea4d912c6c94269ecad6c60179b98295448c74e"
+    },
+    {
+      "name": "0031_computer_template_lifecycle.sql",
+      "checksum": "0f8b07eb4767d54e3d169cea3bb2cbe2c043875ee78425a245312f678c86b7f5"
+    },
+    {
+      "name": "0032_computer_resource_lifecycles.sql",
+      "checksum": "e8716fa7242e08e6000e20f3f3c3cd6da464acc0636462ab68162ecdf224514b"
+    },
+    {
+      "name": "0033_final_lineage_bridge.sql",
+      "checksum": "d36de193a45cbdbef411315c131a05251aa5285ad64eca5a7eb056497e96712d"
+    },
+    {
+      "name": "0034_conversation_runs.sql",
+      "checksum": "cd119cf9aba81295acb6c0b556c3186ad80f9b51e41dd961608552de0b84b3bb"
+    },
+    {
+      "name": "0035_peer_permissions.sql",
+      "checksum": "d4f3e2ec1b1c158e01a095dc18e37727224db8245b8dc872a7775c0c02447d4f"
+    },
+    {
+      "name": "0036_owner_channel_handoff.sql",
+      "checksum": "18f1e055de75f0d95814ddb6a7133b9525b9c81db5db63008e1389900c278fc3"
+    },
+    {
+      "name": "0037_owner_model_reservations.sql",
+      "checksum": "53da8ad67e4584947c31bdc2d615f31be7b9792ff6367bfc25d299a26fc9a6db"
+    },
+    {
+      "name": "0038_owner_qualification_budget.sql",
+      "checksum": "f9859dbf7de00e31b6881da5fe099477cea8efc66cf5d136ef30a8e97426f66b"
+    },
+    {
+      "name": "0039_engineering_work.sql",
+      "checksum": "4c089e7a4000ce753e4f455046d0e2bdd56b771ed4cef7cc5366a65a20c7cd76"
+    },
+    {
+      "name": "0040_app_settings.sql",
+      "checksum": "492b321e56a2c19202b3cdfb94dcd17a40f80f56500b4a1c40557645be7aad4a"
+    },
+    {
+      "name": "0041_engineering_execution.sql",
+      "checksum": "decf1dc5b13c9c6a1eadae86c6fafe973377b87f1370d311fd01f7e1760ebefd"
+    },
+    {
+      "name": "0042_engineering_routing.sql",
+      "checksum": "980a59e0b01a71dacbfd126d9544e1021bdef3493006cfe34538a5cfe6f40266"
+    },
+    {
+      "name": "0043_engineering_route_admission.sql",
+      "checksum": "ef585670dda760ea89b7b390f4ad818ef7b4c80f2ab8eea2b0217603488ea04a"
+    },
+    {
+      "name": "0044_engineering_knowledge.sql",
+      "checksum": "957f75bac9889eeee808f5659ff8eeafdfadf2071364bccd5cd38a4d48f8ff16"
+    },
+    {
+      "name": "0045_relay_reply_claims.sql",
+      "checksum": "383dd7e2a31162f857d2a5ca7e82a6395b392acad26fa784cc52d5143ea97560"
+    },
+    {
+      "name": "0046_engineering_learning_drafts.sql",
+      "checksum": "376ccaebf2c98665f469f99782bff5f6d8c1a03a923c2be55b1acafbc35e8085"
+    },
+    {
+      "name": "0047_engineering_direct.sql",
+      "checksum": "fdc71b86cf5066b6a8c0559aed2e9e0fde0b5824ceb7520a0fc07a12e008f7c9"
+    },
+    {
+      "name": "0048_engineering_direct_verification.sql",
+      "checksum": "a0d859dfbf229594b53fc7f7fc425a87bc5f359ccbf10205012df3261134e751"
+    },
+    {
+      "name": "0049_telegram_owner_receipts.sql",
+      "checksum": "015e4a42093b51e368ae6ebf5b63c112205c699d78d6e672956b2dd14f0ca756"
+    },
+    {
+      "name": "0050_engineering_native_runtime.sql",
+      "checksum": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+    },
+    {
+      "name": "0051_engineering_conversation_budget.sql",
+      "checksum": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+    },
+    {
+      "name": "0052_work_model_ledger.sql",
+      "checksum": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+    },
+    {
+      "name": "0053_native_completion_contract.sql",
+      "checksum": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+    }
+  ],
+  "pricing": {
+    "input": "0.000002",
+    "output": "0.00001",
+    "cachedInputTokens": "0.0000002",
+    "cacheCreationInputTokens": "0.0000025"
+  },
+  "plan": {
+    "stages": [
+      {
+        "id": "IMPLEMENT",
+        "calls": 5,
+        "microUsd": 112641
+      },
+      {
+        "id": "REPAIR",
+        "calls": 3,
+        "microUsd": 112641
+      },
+      {
+        "id": "EXPLAIN",
+        "calls": 1,
+        "microUsd": 112641
+      }
+    ],
+    "maxExposureMicrousd": 1013769,
+    "inputBytes": 14336,
+    "maxOutputTokens": 2048,
+    "repairIterations": 1
+  },
+  "admissionMicroUsd": 112641,
+  "fullPlanMicroUsd": 1126410,
+  "ceilingMicroUsd": 1300000,
+  "pricingFits": true,
+  "credentialEnvironment": "development",
+  "credentialValidThrough": "2026-09-27T08:31:34.000Z"
+}

@@ -1,0 +1,212 @@
+Bounded authenticated runtime started gap2b-m1er1-fdb7b825-b5ff-41d3-878a-8c979c6e368f 2026-09-27T03:41:27.474Z
+▲ Next.js 16.3.5 (webpack)
+- Local:         http://127.0.0.1:3108
+- Network:       http://127.0.0.1:3108
+✓ Ready in 353ms
+✓ Running next.config.ts took 99ms
+[eve:dev] [33m[PLUGIN_TIMINGS] [0mJavaScript callbacks ran for 2.4s of this 3.0s build (78%).
+[eve:dev] The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+[eve:dev]   - plugin eve-node-esm-compat-banner renderChunk (47%, 1.4s, 1 call)
+[eve:dev] Additional callback time came from the callbacks below and from callbacks under 1s.
+[eve:dev] 2 callbacks are listed without a time. Their calls overlapped, so the time inside one call includes work from other calls. To find their cost, profile the build with `node --cpu-prof`:
+[eve:dev]   - plugin eve-package-tsconfig-paths resolveId (1992 calls)
+[eve:dev]   - plugin eve-generation-package-boundary resolveId (2592 calls)
+[eve:dev] See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+[eve:dev] ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js (23:28893) [33m[EVAL] [0mUse of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
+[eve:dev]  - Use of direct `eval` here. in ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js at 254579..254583
+[eve:dev]  [38;5;240m │[0m 
+[eve:dev]  [38;5;240m │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
+[eve:dev] server listening at http://127.0.0.1:52869/
+
+ POST /api/auth/login 200 in 914ms (next.js: 800ms, proxy.ts: 95ms, application-code: 18ms)
+ GET /api/engineering/work/132f7ba3-d244-440a-a8a5-9dcee2512ecb 200 in 665ms (next.js: 566ms, proxy.ts: 5ms, application-code: 94ms)
+ PATCH /api/engineering/work/132f7ba3-d244-440a-a8a5-9dcee2512ecb 200 in 18ms (next.js: 4ms, proxy.ts: 1.8ms, application-code: 12ms)
+ GET /api/engineering/work/132f7ba3-d244-440a-a8a5-9dcee2512ecb 200 in 28ms (next.js: 1.4ms, proxy.ts: 1.5ms, application-code: 25ms)
+ PUT /api/threads/c355bb76-e8ce-484c-98a3-1f96204bbd59 200 in 762ms (next.js: 718ms, proxy.ts: 1.5ms, application-code: 42ms)
+[eve:dev] [eve:harness.tool-loop] tool execution failed {
+[eve:dev]   toolName: 'engineering_direct',
+[eve:dev]   toolCallId: 'toolu_01Ca1WgZWE6ct5GMS3De1iCT',
+[eve:dev]   error: {
+[eve:dev]     errorId: 'c7ac6b9e-6beb-4d8a-8a44-4a73a81f5f18',
+[eve:dev]     message: 'Error: Action is not authorized.',
+[eve:dev]     detail: 'ActionBlocked [Error]: Action is not authorized.\n' +
+[eve:dev]       '    at ActionGateway.run (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:281758:11)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/types/execute-tool.ts:45:36)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:145:32)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:270:14)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:126:9)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async Object.runInTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:179:7)\n' +
+[eve:dev]       '    at async executeToolCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:109:10)\n' +
+[eve:dev]       '    at async <anonymous> (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tools-from-stream.ts:235:34) {\n' +
+[eve:dev]       "  status: 'denied',\n" +
+[eve:dev]       "  actionId: 'action_32c41757-e255-4c3e-90ee-7b23653413d0'\n" +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] tool execution failed {
+[eve:dev]   toolName: 'engineering_direct',
+[eve:dev]   toolCallId: 'toolu_01DhPSKCwcEN2cGrNkH3WNyu',
+[eve:dev]   error: {
+[eve:dev]     errorId: 'd6407f09-a63d-40dd-a259-b309b59eb9ae',
+[eve:dev]     message: 'Error: Action is not authorized.',
+[eve:dev]     detail: 'ActionBlocked [Error]: Action is not authorized.\n' +
+[eve:dev]       '    at ActionGateway.run (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:281758:11)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/types/execute-tool.ts:45:36)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:145:32)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:270:14)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:126:9)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async Object.runInTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:179:7)\n' +
+[eve:dev]       '    at async executeToolCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:109:10)\n' +
+[eve:dev]       '    at async <anonymous> (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tools-from-stream.ts:235:34) {\n' +
+[eve:dev]       "  status: 'denied',\n" +
+[eve:dev]       "  actionId: 'action_062dfc7a-7466-4fd0-9db6-d978de968aa0'\n" +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] tool execution failed {
+[eve:dev]   toolName: 'engineering_direct',
+[eve:dev]   toolCallId: 'toolu_01J21c4aXxnbeLuj4ucw1h5s',
+[eve:dev]   error: {
+[eve:dev]     errorId: '6e77db65-f027-499d-9344-3328c063a799',
+[eve:dev]     message: 'Error: Action is not authorized.',
+[eve:dev]     detail: 'ActionBlocked [Error]: Action is not authorized.\n' +
+[eve:dev]       '    at ActionGateway.run (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:281758:11)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/types/execute-tool.ts:45:36)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:145:32)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:270:14)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:126:9)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async Object.runInTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:179:7)\n' +
+[eve:dev]       '    at async executeToolCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:109:10)\n' +
+[eve:dev]       '    at async <anonymous> (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tools-from-stream.ts:235:34) {\n' +
+[eve:dev]       "  status: 'denied',\n" +
+[eve:dev]       "  actionId: 'action_ee53d2e9-db4f-408c-beeb-8fff670356c7'\n" +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] tool execution failed {
+[eve:dev]   toolName: 'engineering_direct',
+[eve:dev]   toolCallId: 'toolu_01JuzhvNME61Aq34VmuLFxtQ',
+[eve:dev]   error: {
+[eve:dev]     errorId: 'af844183-3992-4266-8ac8-b38ea8aaaf12',
+[eve:dev]     message: 'Error: Action is not authorized.',
+[eve:dev]     detail: 'ActionBlocked [Error]: Action is not authorized.\n' +
+[eve:dev]       '    at ActionGateway.run (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:281758:11)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/types/execute-tool.ts:45:36)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:145:32)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:270:14)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:126:9)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async Object.runInTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:179:7)\n' +
+[eve:dev]       '    at async executeToolCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:109:10)\n' +
+[eve:dev]       '    at async <anonymous> (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tools-from-stream.ts:235:34) {\n' +
+[eve:dev]       "  status: 'denied',\n" +
+[eve:dev]       "  actionId: 'action_7a17d40b-0e63-4dbf-965f-d23bbb672e96'\n" +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] tool execution failed {
+[eve:dev]   toolName: 'engineering_direct',
+[eve:dev]   toolCallId: 'toolu_0123Hr19woq2Uj7AZgPfaN6P',
+[eve:dev]   error: {
+[eve:dev]     errorId: '24e7ce27-0b04-474a-96e1-6f6a4b487596',
+[eve:dev]     message: 'Error: Action is not authorized.',
+[eve:dev]     detail: 'ActionBlocked [Error]: Action is not authorized.\n' +
+[eve:dev]       '    at ActionGateway.run (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:281758:11)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/types/execute-tool.ts:45:36)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:145:32)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:270:14)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:126:9)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async Object.runInTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:179:7)\n' +
+[eve:dev]       '    at async executeToolCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:109:10)\n' +
+[eve:dev]       '    at async <anonymous> (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tools-from-stream.ts:235:34) {\n' +
+[eve:dev]       "  status: 'denied',\n" +
+[eve:dev]       "  actionId: 'action_eb900399-568d-49c6-a207-b619b9c25e05'\n" +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] tool-loop stream error {
+[eve:dev]   error: {
+[eve:dev]     errorId: '91e20a67-b2d4-4459-89fd-5b487d31bfa1',
+[eve:dev]     message: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}',
+[eve:dev]     name: 'NeonDbError',
+[eve:dev]     detail: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}\n' +
+[eve:dev]       '    at dr.execute (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:8244:17)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async NativeModelBudget.reserve (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35527:17)\n' +
+[eve:dev]       '    at async Object.generate [as doGenerate] (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35831:17)\n' +
+[eve:dev]       '    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:36098:19)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n' +
+[eve:dev]       '    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n' +
+[eve:dev]       '    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {\n' +
+[eve:dev]       '  severity: undefined,\n' +
+[eve:dev]       '  code: undefined,\n' +
+[eve:dev]       '  detail: undefined,\n' +
+[eve:dev]       '  hint: undefined,\n' +
+[eve:dev]       '  position: undefined,\n' +
+[eve:dev]       '  internalPosition: undefined,\n' +
+[eve:dev]       '  internalQuery: undefined,\n' +
+[eve:dev]       '  where: undefined,\n' +
+[eve:dev]       '  schema: undefined,\n' +
+[eve:dev]       '  table: undefined,\n' +
+[eve:dev]       '  column: undefined,\n' +
+[eve:dev]       '  dataType: undefined,\n' +
+[eve:dev]       '  constraint: undefined,\n' +
+[eve:dev]       '  file: undefined,\n' +
+[eve:dev]       '  line: undefined,\n' +
+[eve:dev]       '  routine: undefined,\n' +
+[eve:dev]       '  sourceError: undefined\n' +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] model call failed — parking session for retry by the user {
+[eve:dev]   errorId: '2082f1e4-c9d1-48ec-b1c8-b22d4c398906',
+[eve:dev]   sessionId: 'wrun_01M3GDJWG7MQ9CM74QZ4QX05VP',
+[eve:dev]   turnId: 'turn_0',
+[eve:dev]   error: {
+[eve:dev]     errorId: 'ca91fa9a-2cd1-4cd5-83db-b100ddaccbe1',
+[eve:dev]     message: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}',
+[eve:dev]     name: 'NeonDbError',
+[eve:dev]     detail: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}\n' +
+[eve:dev]       '    at dr.execute (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:8244:17)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async NativeModelBudget.reserve (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35527:17)\n' +
+[eve:dev]       '    at async Object.generate [as doGenerate] (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35831:17)\n' +
+[eve:dev]       '    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:36098:19)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n' +
+[eve:dev]       '    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n' +
+[eve:dev]       '    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {\n' +
+[eve:dev]       '  severity: undefined,\n' +
+[eve:dev]       '  code: undefined,\n' +
+[eve:dev]       '  detail: undefined,\n' +
+[eve:dev]       '  hint: undefined,\n' +
+[eve:dev]       '  position: undefined,\n' +
+[eve:dev]       '  internalPosition: undefined,\n' +
+[eve:dev]       '  internalQuery: undefined,\n' +
+[eve:dev]       '  where: undefined,\n' +
+[eve:dev]       '  schema: undefined,\n' +
+[eve:dev]       '  table: undefined,\n' +
+[eve:dev]       '  column: undefined,\n' +
+[eve:dev]       '  dataType: undefined,\n' +
+[eve:dev]       '  constraint: undefined,\n' +
+[eve:dev]       '  file: undefined,\n' +
+[eve:dev]       '  line: undefined,\n' +
+[eve:dev]       '  routine: undefined,\n' +
+[eve:dev]       '  sourceError: undefined\n' +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+ GET /api/engineering/work/132f7ba3-d244-440a-a8a5-9dcee2512ecb 200 in 101ms (next.js: 17ms, proxy.ts: 4ms, application-code: 80ms)
+[?25h

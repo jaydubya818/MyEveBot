@@ -1,0 +1,755 @@
+[
+  {
+    "data": {
+      "runtime": {
+        "agentId": "eve-agent",
+        "agentName": "eve-agent",
+        "eveVersion": "0.66.3"
+      },
+      "trace": {
+        "decision": {
+          "action": "record",
+          "recordInputs": true,
+          "recordOutputs": true
+        },
+        "spanId": "b36b3bbe624768c6",
+        "traceFlags": 1,
+        "traceId": "23e93f5bffa0fdeb4afa4a14fdb8dbcb"
+      }
+    },
+    "type": "session.started",
+    "meta": {
+      "at": "2026-09-27T03:12:22.104Z",
+      "id": "evt_01M3GDJWJREJCQ4717R391TKVA",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "sequence": 0,
+      "turnId": "turn_0",
+      "trace": {
+        "decision": {
+          "action": "record",
+          "recordInputs": true,
+          "recordOutputs": true
+        },
+        "spanId": "b36b3bbe624768c6",
+        "traceFlags": 1,
+        "traceId": "23e93f5bffa0fdeb4afa4a14fdb8dbcb"
+      }
+    },
+    "type": "turn.started",
+    "meta": {
+      "at": "2026-09-27T03:12:22.224Z",
+      "id": "evt_01M3GDJWPGGVXVX2FWQQHDM47P",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "message": "Execute this ONE approved synthetic M1/ER1 Work as Sofie, Software Engineer, with JStack repository conventions and /potato-mode. Use the assembled Current Truth to admit through engineering_direct now; do not spend an extra inspect call before admission. Then use the five bounded implementation calls to open the pinned repository, read README.md, record a plan, write quantity.mjs, and submit. For this intentional negative qualification, the FIRST candidate must use parseInt on trimmed stdin and accept positive parsed values, so fractional inputs demonstrate a real protected-check failure. Preserve all five existing files. Wait for the separate protected verifier. After failure, inspect and interpret the persisted evidence, perform ONE autonomous repair, and submit it within the three reserved repair calls. Do not claim Ready or publish. The whole Work is capped at $1.30 and ten calls including admission and one later fresh read-only explanation. Stop on any guard denial or uncertainty; do not retry, substitute providers, or broaden authority.",
+      "parts": [
+        {
+          "text": "Execute this ONE approved synthetic M1/ER1 Work as Sofie, Software Engineer, with JStack repository conventions and /potato-mode. Use the assembled Current Truth to admit through engineering_direct now; do not spend an extra inspect call before admission. Then use the five bounded implementation calls to open the pinned repository, read README.md, record a plan, write quantity.mjs, and submit. For this intentional negative qualification, the FIRST candidate must use parseInt on trimmed stdin and accept positive parsed values, so fractional inputs demonstrate a real protected-check failure. Preserve all five existing files. Wait for the separate protected verifier. After failure, inspect and interpret the persisted evidence, perform ONE autonomous repair, and submit it within the three reserved repair calls. Do not claim Ready or publish. The whole Work is capped at $1.30 and ten calls including admission and one later fresh read-only explanation. Stop on any guard denial or uncertainty; do not retry, substitute providers, or broaden authority.",
+          "type": "text"
+        }
+      ],
+      "sequence": 0,
+      "turnId": "turn_0"
+    },
+    "type": "message.received",
+    "meta": {
+      "at": "2026-09-27T03:12:22.306Z",
+      "id": "evt_01M3GDJWS2X8PR2CQMNVWEHDTS",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 0,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:22.329Z",
+      "id": "evt_01M3GDJWSSWGHSJ7HCFVZ8VXZ6",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "actions": [
+        {
+          "callId": "toolu_01Bbg5s3Hmw4zGzzpWrqEHXV",
+          "input": {
+            "request": {
+              "operation": "admit",
+              "expectedWorkVersion": 2,
+              "expectedWorkGeneration": 2
+            }
+          },
+          "kind": "tool-call",
+          "toolName": "engineering_direct"
+        }
+      ],
+      "sequence": 0,
+      "stepIndex": 0,
+      "turnId": "turn_0"
+    },
+    "type": "actions.requested",
+    "meta": {
+      "at": "2026-09-27T03:12:25.669Z",
+      "id": "evt_01M3GDK025FAEA5A8PAV5BW4ZG",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "result": {
+        "callId": "toolu_01Bbg5s3Hmw4zGzzpWrqEHXV",
+        "kind": "tool-result",
+        "output": {
+          "actionId": "action_6cb308f8-7e64-42c6-a4de-316d4eede6b3",
+          "receipt": {
+            "decisionId": "39214182-6e5d-4be1-9bbb-165a9d9fa5af",
+            "route": "DEEP_AGENT",
+            "runId": "535529af-9e35-4408-b881-78012dd68bec",
+            "status": "QUEUED",
+            "transitionId": "adf47b37-2702-4aa9-8156-75a8f6a88c04",
+            "workGeneration": 2,
+            "workVersion": 2
+          }
+        },
+        "toolName": "engineering_direct"
+      },
+      "sequence": 0,
+      "status": "completed",
+      "stepIndex": 0,
+      "turnId": "turn_0"
+    },
+    "type": "action.result",
+    "meta": {
+      "at": "2026-09-27T03:12:25.865Z",
+      "id": "evt_01M3GDK089VGPX308GX0GD90G9",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "finishReason": "tool-calls",
+      "sequence": 0,
+      "stepIndex": 0,
+      "turnId": "turn_0",
+      "usage": {
+        "costUsd": 0.00567,
+        "inputTokens": 2060,
+        "outputTokens": 155,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "providerMetadata": {
+        "gateway": {
+          "generationId": "gen_01M3GDJX67JWJDT92XNZTDD76S"
+        }
+      }
+    },
+    "type": "step.completed",
+    "meta": {
+      "at": "2026-09-27T03:12:25.871Z",
+      "id": "evt_01M3GDK08FDP5763SDXABGEA0M",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 1,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:25.925Z",
+      "id": "evt_01M3GDK0A5G2SZV3PX98ZSZ4KA",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "actions": [
+        {
+          "callId": "toolu_01Ca1WgZWE6ct5GMS3De1iCT",
+          "input": {
+            "request": {
+              "operation": "admit",
+              "expectedWorkVersion": 2,
+              "expectedWorkGeneration": 2
+            }
+          },
+          "kind": "tool-call",
+          "toolName": "engineering_direct"
+        }
+      ],
+      "sequence": 0,
+      "stepIndex": 1,
+      "turnId": "turn_0"
+    },
+    "type": "actions.requested",
+    "meta": {
+      "at": "2026-09-27T03:12:28.193Z",
+      "id": "evt_01M3GDK2H18X0V1EAN4VPKRFTP",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "error": {
+        "code": "ACTION_RESULT_FAILED",
+        "message": "Action is not authorized."
+      },
+      "result": {
+        "callId": "toolu_01Ca1WgZWE6ct5GMS3De1iCT",
+        "kind": "tool-result",
+        "output": "Action is not authorized.",
+        "toolName": "engineering_direct",
+        "isError": true
+      },
+      "sequence": 0,
+      "status": "failed",
+      "stepIndex": 1,
+      "turnId": "turn_0"
+    },
+    "type": "action.result",
+    "meta": {
+      "at": "2026-09-27T03:12:28.259Z",
+      "id": "evt_01M3GDK2K3B5APPZ78NGX90F5W",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "finishReason": "tool-calls",
+      "sequence": 0,
+      "stepIndex": 1,
+      "turnId": "turn_0",
+      "usage": {
+        "costUsd": 0.006392,
+        "inputTokens": 2676,
+        "outputTokens": 104,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "providerMetadata": {
+        "gateway": {
+          "generationId": "gen_01M3GDK0J9AJEX6WY92F0CV6SS"
+        }
+      }
+    },
+    "type": "step.completed",
+    "meta": {
+      "at": "2026-09-27T03:12:28.511Z",
+      "id": "evt_01M3GDK2TZGR92RERYCAJJYKKB",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 2,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:28.555Z",
+      "id": "evt_01M3GDK2WB557D2WB4MXQH2KW7",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "actions": [
+        {
+          "callId": "toolu_01DhPSKCwcEN2cGrNkH3WNyu",
+          "input": {
+            "request": {
+              "operation": "admit",
+              "expectedWorkVersion": 2,
+              "expectedWorkGeneration": 2
+            }
+          },
+          "kind": "tool-call",
+          "toolName": "engineering_direct"
+        }
+      ],
+      "sequence": 0,
+      "stepIndex": 2,
+      "turnId": "turn_0"
+    },
+    "type": "actions.requested",
+    "meta": {
+      "at": "2026-09-27T03:12:42.525Z",
+      "id": "evt_01M3GDKGGXED6HSMDRWKB4XC8V",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "error": {
+        "code": "ACTION_RESULT_FAILED",
+        "message": "Action is not authorized."
+      },
+      "result": {
+        "callId": "toolu_01DhPSKCwcEN2cGrNkH3WNyu",
+        "kind": "tool-result",
+        "output": "Action is not authorized.",
+        "toolName": "engineering_direct",
+        "isError": true
+      },
+      "sequence": 0,
+      "status": "failed",
+      "stepIndex": 2,
+      "turnId": "turn_0"
+    },
+    "type": "action.result",
+    "meta": {
+      "at": "2026-09-27T03:12:42.583Z",
+      "id": "evt_01M3GDKGJQ1J6GZR9A5CZTPV9Y",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "finishReason": "tool-calls",
+      "sequence": 0,
+      "stepIndex": 2,
+      "turnId": "turn_0",
+      "usage": {
+        "costUsd": 0.015022,
+        "inputTokens": 2701,
+        "outputTokens": 962,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "providerMetadata": {
+        "gateway": {
+          "generationId": "gen_01M3GDK3431HHX8TX3YMYKKY9W"
+        }
+      }
+    },
+    "type": "step.completed",
+    "meta": {
+      "at": "2026-09-27T03:12:42.590Z",
+      "id": "evt_01M3GDKGJYT55DBY3BNNN5SKA5",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 3,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:42.637Z",
+      "id": "evt_01M3GDKGMD9XWEZFMP2Z7Y64Y7",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "actions": [
+        {
+          "callId": "toolu_01J21c4aXxnbeLuj4ucw1h5s",
+          "input": {
+            "request": {
+              "operation": "admit",
+              "expectedWorkVersion": 2,
+              "expectedWorkGeneration": 2
+            }
+          },
+          "kind": "tool-call",
+          "toolName": "engineering_direct"
+        }
+      ],
+      "sequence": 0,
+      "stepIndex": 3,
+      "turnId": "turn_0"
+    },
+    "type": "actions.requested",
+    "meta": {
+      "at": "2026-09-27T03:12:45.916Z",
+      "id": "evt_01M3GDKKTWF82CWR8ZF49MQTQ3",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "error": {
+        "code": "ACTION_RESULT_FAILED",
+        "message": "Action is not authorized."
+      },
+      "result": {
+        "callId": "toolu_01J21c4aXxnbeLuj4ucw1h5s",
+        "kind": "tool-result",
+        "output": "Action is not authorized.",
+        "toolName": "engineering_direct",
+        "isError": true
+      },
+      "sequence": 0,
+      "status": "failed",
+      "stepIndex": 3,
+      "turnId": "turn_0"
+    },
+    "type": "action.result",
+    "meta": {
+      "at": "2026-09-27T03:12:45.973Z",
+      "id": "evt_01M3GDKKWN81H8X5BNQTNHZCZH",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "finishReason": "tool-calls",
+      "sequence": 0,
+      "stepIndex": 3,
+      "turnId": "turn_0",
+      "usage": {
+        "costUsd": 0.007472,
+        "inputTokens": 2701,
+        "outputTokens": 207,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "providerMetadata": {
+        "gateway": {
+          "generationId": "gen_01M3GDKGX0CRENC9GXBEG2DVQP"
+        }
+      }
+    },
+    "type": "step.completed",
+    "meta": {
+      "at": "2026-09-27T03:12:45.979Z",
+      "id": "evt_01M3GDKKWVE8BWWP44CHWPDK2E",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 4,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:46.021Z",
+      "id": "evt_01M3GDKKY5NVNMNN4EZE2TRH4X",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "actions": [
+        {
+          "callId": "toolu_01JuzhvNME61Aq34VmuLFxtQ",
+          "input": {
+            "request": {
+              "operation": "admit",
+              "expectedWorkVersion": 2,
+              "expectedWorkGeneration": 2
+            }
+          },
+          "kind": "tool-call",
+          "toolName": "engineering_direct"
+        }
+      ],
+      "sequence": 0,
+      "stepIndex": 4,
+      "turnId": "turn_0"
+    },
+    "type": "actions.requested",
+    "meta": {
+      "at": "2026-09-27T03:12:48.670Z",
+      "id": "evt_01M3GDKPGYA43NF18ADS9T6ZM4",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "error": {
+        "code": "ACTION_RESULT_FAILED",
+        "message": "Action is not authorized."
+      },
+      "result": {
+        "callId": "toolu_01JuzhvNME61Aq34VmuLFxtQ",
+        "kind": "tool-result",
+        "output": "Action is not authorized.",
+        "toolName": "engineering_direct",
+        "isError": true
+      },
+      "sequence": 0,
+      "status": "failed",
+      "stepIndex": 4,
+      "turnId": "turn_0"
+    },
+    "type": "action.result",
+    "meta": {
+      "at": "2026-09-27T03:12:48.721Z",
+      "id": "evt_01M3GDKPJHWV5KPZQHS07JG1E5",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "finishReason": "tool-calls",
+      "sequence": 0,
+      "stepIndex": 4,
+      "turnId": "turn_0",
+      "usage": {
+        "costUsd": 0.006652,
+        "inputTokens": 2701,
+        "outputTokens": 125,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "providerMetadata": {
+        "gateway": {
+          "generationId": "gen_01M3GDKM665TWKVQYJYNG7N1W5"
+        }
+      }
+    },
+    "type": "step.completed",
+    "meta": {
+      "at": "2026-09-27T03:12:48.726Z",
+      "id": "evt_01M3GDKPJP0621GSMKZQ7VMRX7",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 5,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:48.769Z",
+      "id": "evt_01M3GDKPM1MXN9MWBFNDXWBB6R",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "actions": [
+        {
+          "callId": "toolu_0123Hr19woq2Uj7AZgPfaN6P",
+          "input": {
+            "request": {
+              "operation": "admit",
+              "expectedWorkVersion": 2,
+              "expectedWorkGeneration": 2
+            }
+          },
+          "kind": "tool-call",
+          "toolName": "engineering_direct"
+        }
+      ],
+      "sequence": 0,
+      "stepIndex": 5,
+      "turnId": "turn_0"
+    },
+    "type": "actions.requested",
+    "meta": {
+      "at": "2026-09-27T03:12:54.045Z",
+      "id": "evt_01M3GDKVRXNY02F9CJJMGHR529",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "error": {
+        "code": "ACTION_RESULT_FAILED",
+        "message": "Action is not authorized."
+      },
+      "result": {
+        "callId": "toolu_0123Hr19woq2Uj7AZgPfaN6P",
+        "kind": "tool-result",
+        "output": "Action is not authorized.",
+        "toolName": "engineering_direct",
+        "isError": true
+      },
+      "sequence": 0,
+      "status": "failed",
+      "stepIndex": 5,
+      "turnId": "turn_0"
+    },
+    "type": "action.result",
+    "meta": {
+      "at": "2026-09-27T03:12:54.097Z",
+      "id": "evt_01M3GDKVTH6R6ETBRGCJEYYB0F",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "finishReason": "tool-calls",
+      "sequence": 0,
+      "stepIndex": 5,
+      "turnId": "turn_0",
+      "usage": {
+        "costUsd": 0.008812,
+        "inputTokens": 2701,
+        "outputTokens": 341,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0
+      },
+      "providerMetadata": {
+        "gateway": {
+          "generationId": "gen_01M3GDKPW20Z8YRMD871H2PJSG"
+        }
+      }
+    },
+    "type": "step.completed",
+    "meta": {
+      "at": "2026-09-27T03:12:54.104Z",
+      "id": "evt_01M3GDKVTR802V96MC4DTVSKGY",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "modelId": "myeve-work-conversation/anthropic/claude-sonnet-5",
+      "sequence": 0,
+      "stepIndex": 6,
+      "turnId": "turn_0"
+    },
+    "type": "step.started",
+    "meta": {
+      "at": "2026-09-27T03:12:54.145Z",
+      "id": "evt_01M3GDKVW1MN024EC603Y569KW",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "code": "MODEL_CALL_FAILED",
+      "details": {
+        "errorId": "2082f1e4-c9d1-48ec-b1c8-b22d4c398906",
+        "message": "NeonDbError: Server error (HTTP status 403): {\"message\":\"Completion stage allowance exhausted\",\"code\":\"P0001\"}",
+        "name": "NeonDbError",
+        "detail": "NeonDbError: Server error (HTTP status 403): {\"message\":\"Completion stage allowance exhausted\",\"code\":\"P0001\"}\n    at dr.execute (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:8244:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async NativeModelBudget.reserve (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35527:17)\n    at async Object.generate [as doGenerate] (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35831:17)\n    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:36098:19)\n    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {\n  severity: undefined,\n  code: undefined,\n  detail: undefined,\n  hint: undefined,\n  position: undefined,\n  internalPosition: undefined,\n  internalQuery: undefined,\n  where: undefined,\n  schema: undefined,\n  table: undefined,\n  column: undefined,\n  dataType: undefined,\n  constraint: undefined,\n  file: undefined,\n  line: undefined,\n  routine: undefined,\n  sourceError: undefined\n}"
+      },
+      "message": "Server error (HTTP status 403): {\"message\":\"Completion stage allowance exhausted\",\"code\":\"P0001\"}",
+      "sequence": 0,
+      "stepIndex": 6,
+      "turnId": "turn_0"
+    },
+    "type": "step.failed",
+    "meta": {
+      "at": "2026-09-27T03:12:54.232Z",
+      "id": "evt_01M3GDKVYRTDAF2GC0FT6V6XWZ",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "code": "MODEL_CALL_FAILED",
+      "details": {
+        "errorId": "2082f1e4-c9d1-48ec-b1c8-b22d4c398906",
+        "message": "NeonDbError: Server error (HTTP status 403): {\"message\":\"Completion stage allowance exhausted\",\"code\":\"P0001\"}",
+        "name": "NeonDbError",
+        "detail": "NeonDbError: Server error (HTTP status 403): {\"message\":\"Completion stage allowance exhausted\",\"code\":\"P0001\"}\n    at dr.execute (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:8244:17)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async NativeModelBudget.reserve (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35527:17)\n    at async Object.generate [as doGenerate] (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:35831:17)\n    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/muj8sexo-96ccf79c-45cc-4268-9d44-9174b605dbd7/source/apps/eve/.eve/compile/authored-modules/d6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs?generation=authored-modules%2Fd6ef6938653856ce042c313d07af3797dbe3447c542c485e84db8750ca84f7ac.mjs:36098:19)\n    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {\n  severity: undefined,\n  code: undefined,\n  detail: undefined,\n  hint: undefined,\n  position: undefined,\n  internalPosition: undefined,\n  internalQuery: undefined,\n  where: undefined,\n  schema: undefined,\n  table: undefined,\n  column: undefined,\n  dataType: undefined,\n  constraint: undefined,\n  file: undefined,\n  line: undefined,\n  routine: undefined,\n  sourceError: undefined\n}"
+      },
+      "message": "Server error (HTTP status 403): {\"message\":\"Completion stage allowance exhausted\",\"code\":\"P0001\"}",
+      "sequence": 0,
+      "turnId": "turn_0"
+    },
+    "type": "turn.failed",
+    "meta": {
+      "at": "2026-09-27T03:12:54.233Z",
+      "id": "evt_01M3GDKVYSQJQ8TCVWAA965YZJ",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  },
+  {
+    "data": {
+      "continuationToken": "[REDACTED]",
+      "wait": "next-user-message"
+    },
+    "type": "session.waiting",
+    "meta": {
+      "at": "2026-09-27T03:12:54.237Z",
+      "id": "evt_01M3GDKVYXS9T1NENEMS3C9FR1",
+      "deliveryIds": [
+        "6b743ea4-dac2-445b-a13c-2777b52adb02"
+      ]
+    }
+  }
+]
