@@ -4,6 +4,8 @@
 
 **Q37 local composition:** core checkpoint `4ddd4229e025bde4c3789b0845d98cbcdec43cb1`; [expanded canonical qualification](docs/verification/2026-09-27-q37-local-composition/REPORT.md) adds same-Work synthetic publication, CI/review continuations, fresh protected checks and durable advisory learning-draft recovery. Local contracts pass; production learning promotion and the full live journey remain unqualified. No live Factory run was started.
 
+**Independent review correction:** [terminal receipt retention](docs/verification/2026-09-27-factory-terminal-receipts/REPORT.md) now preserves signed FAILED/CANCELLED evidence after writer fencing. Connected, Gate B/C, application, governance and webpack checks pass; applied migration bytes remain unchanged.
+
 
 **Canonical Digital Worker integration (2026-09-27):** `codex/digital-worker-integration` combines M1 implementation `90d668f`, its documentation-only `78b6bef` update, and qualified Gate C `96ae446`. [Combined evidence and canonical commit identity](docs/verification/2026-09-27-digital-worker-integration/REPORT.md) record local M1 **PASS** (Result **PARTIAL**), M1 live **NOT QUALIFIED**, Gate C **PASS / CLOSED**, and **zero cross-boundary authority violations / false Ready**. Migration 0053 and Gate C 0054 are unchanged; the legacy remote migration is renumbered byte-for-byte to registered 0055. The dirty older Digital Worker implementation is superseded, with its historical evidence preserved under its owner. That immutable baseline preceded Gate B; the forward 0056 tranche and its actual local qualification are recorded above. Live MyFactory remains **NOT_RUN**.
 

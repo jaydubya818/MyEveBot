@@ -90,16 +90,18 @@ export class FactoryWorkDriver {
    // Quiescence is independent of result acceptance. Cancelled or invalid results
    // cannot prevent a proven terminal writer from being fenced.
    run=await this.writers.reconcile(run,adapter);
-   if(run.dispatch_state==='TERMINAL'&&(run.status!=='COMPLETED'||run.stop_reason))return {state:'TERMINAL',outcome:run.status};
+   const historicalTerminal=run.dispatch_state==='TERMINAL'&&(run.status!=='COMPLETED'||!!run.stop_reason);
    // A result and resource observation are separate; neither substitutes for the other.
    const request=await this.receipts.request(run.factory_request_id);
-   let receiptId:string|undefined;
+   let receiptId:string|undefined,receiptStatus:string|undefined;
    if(['COMPLETED','FAILED','CANCELLED'].includes(remote.state)){
     const returned=await adapter.result(request.binding);
-    if(returned.result){const admitted=await admitFactoryResult(this.receipts,request.id,returned.result,{keys:()=>adapter.keys()});if(admitted.status==='ADMITTED')receiptId=admitted.receiptId;else throw new WorkError('factory_result_denied','Factory result was not admitted: '+admitted.status);}
+    if(returned.result){const admitted=await admitFactoryResult(this.receipts,request.id,returned.result,{keys:()=>adapter.keys()});receiptStatus=admitted.status;if(admitted.status==='ADMITTED')receiptId=admitted.receiptId;else if(!historicalTerminal)throw new WorkError('factory_result_denied','Factory result was not admitted: '+admitted.status);}
    }
    if(run.dispatch_state!=='TERMINAL')return {state:run.dispatch_state};
-   if(run.status!=='COMPLETED'||run.stop_reason)return {state:'TERMINAL',outcome:run.status};
+   // Failed/cancelled signed envelopes still pass through durable Gate C custody.
+   // Historical or rejected receipts never authorize candidate custody or verification.
+   if(historicalTerminal)return {state:'TERMINAL',outcome:run.status,receiptStatus};
    receiptId??=(await this.receipts.admission(request.id))?.receipt_id as string|undefined;
    if(!receiptId)return {state:'AWAITING_RESULT'};
    await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()});

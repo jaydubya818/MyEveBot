@@ -1,0 +1,48 @@
+PASS fresh complete 57 migration chain
+PASS migration injected failure rolls back DDL and ledger
+PASS populated supported 0053 to 0054 preserves all historical tables/data
+PASS migration rerun is no-op
+PASS real producer golden, twelve concurrent exact deliveries, one receipt/admission
+PASS SIGKILL/restart/replay after RECEIVED
+PASS SIGKILL/restart/replay after AUTHENTICATED
+PASS SIGKILL/restart/replay after ATTESTED
+PASS SIGKILL/restart/replay after INTEGRITY_VERIFIED
+PASS SIGKILL/restart/replay after ADMITTED
+PASS conflicting signed manifest preserves both, no replacement
+PASS generation preserves historical provenance only
+PASS cancelled preserves historical provenance only
+PASS takeover preserves historical provenance only
+PASS superseded preserves historical provenance only
+PASS work_cancelled preserves historical provenance only
+PASS cross-Work/scoped receipt denial
+PASS revoked key historical only
+PASS retired key historical only
+PASS expired key historical only
+PASS revocation retains prior admitted bytes without current eligibility
+PASS durable denial signature
+PASS durable denial unknown_key
+PASS durable denial protocol
+PASS durable denial malformed
+PASS durable denial manifest
+PASS durable denial artifact
+PASS durable denial wrong_factory
+PASS durable denial wrong_version
+PASS durable denial wrong_request
+PASS durable denial wrong_workorder
+PASS durable denial wrong_attempt
+PASS durable denial candidate
+PASS durable denial evidence
+PASS durable denial ready
+PASS durable denial authority
+PASS same manifest reordered transport yields same logical receipt/admission
+PASS signed producer CANCELLED remains historical
+PASS signed producer FAILED remains historical
+PASS trust registry outage leaves durable recoverable receipt
+PASS historical manifest conflict is retained, not replaced
+PASS 256 KiB authenticated exact-attempt retrieval, durable admission and restart without refetch
+PASS database composite foreign key denies cross-Work attachment
+PASS concurrent conflicting manifests admit exactly one, retain loser as conflict
+PASS restricted application role; no direct receipt/writer mutation
+PASS restricted worker role; no direct receipt/writer mutation
+PASS zero writer/budget/route side effects; zero false Ready
+{"passed":47,"unauthenticatedAdmissions":0,"factoryGrantedAuthority":0,"falseReady":0,"duplicateAdmissions":0,"liveFactory":"NOT_RUN"}

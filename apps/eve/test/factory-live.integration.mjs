@@ -33,7 +33,7 @@ const adminURL='postgresql://postgres@127.0.0.1:55479/postgres',name='factory_be
 const admin=new Client(adminURL);await admin.connect();await admin.query('CREATE DATABASE '+name);const pool=new Pool({connectionString:adminURL.replace(/postgres$/,'')+name});
 const database={query:async(s,p)=>(await pool.query(s,p)).rows};
 const migrationDB={...database,transaction:async ss=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of ss)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
-let supervisor,checks=0,composition;const results=[],journeys=[];function pass(label){checks++;results.push(label);console.log('PASS',label);}
+let supervisor,checks=0,composition;const results=[],journeys=[],terminalReceipts=[];function pass(label){checks++;results.push(label);console.log('PASS',label);}
 try{
  const migrations=await loadMigrations();assert.equal(migrations.length,57);
  const pin=JSON.parse(await readFile(new URL('../../../docs/verification/2026-09-27-myfactory-beta/0057-ownership.json',import.meta.url),'utf8'));
@@ -52,8 +52,8 @@ try{
  const pair=generateKeyPairSync('ed25519'),token='a'.repeat(64),key={factoryId:'factory-beta',keyId:'local',publicKey:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
  const signing={factoryId:key.factoryId,currentKeyId:key.keyId,privateKey:pair.privateKey.export({type:'pkcs8',format:'pem'}).toString(),keys:[key]};
  await writeFile(join(dataDir,'connections.json'),JSON.stringify({clients:[{id:'myeve',name:'Local qualification',tokenSha256:createHash('sha256').update(token).digest('hex'),repositoryPaths:[repo],actions:['factory.prepare','factory.dispatch','factory.observe','factory.stop']}]}));
- let executions=0,failCandidate=false,heldExecution=null;
- const deps={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic-codex-1',workerProfile:'mac',error:null}),runCodex:async input=>{executions++;if(heldExecution){await heldExecution;return {success:false,status:'cancelled',eventsPath:'fixture',usage:null};}await writeFile(join(input.workspacePath,'quantity.mjs'),failCandidate?historical.workspace[0].candidates[0].files['quantity.mjs']:historical.workspace[0].draft_files['quantity.mjs']);return {success:true,status:'completed',threadId:'local-fixture',eventsPath:'fixture',usage:null};},verifyCandidate:async input=>{await mkdir(input.artifactDir,{recursive:true});const checks=[];for(const [i,command] of input.commands.entries()){const logPath=join(input.artifactDir,i+'.log');await writeFile(logPath,'Untrusted producer claims PASS; MyEve must independently verify.');const at=new Date().toISOString();checks.push({candidateCommit:input.candidateSha,candidateTree:git('rev-parse',input.candidateSha+'^{tree}'),command,status:'passed',exitCode:0,startedAt:at,finishedAt:at,logPath,reason:null});}return {checks,reason:null};}};
+ let executions=0,failCandidate=false,failedExecution=false,heldExecution=null;
+ const deps={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic-codex-1',workerProfile:'mac',error:null}),runCodex:async input=>{executions++;if(failedExecution)return {success:false,status:'failed',eventsPath:'fixture',usage:null};if(heldExecution){await heldExecution;return {success:false,status:'cancelled',eventsPath:'fixture',usage:null};}await writeFile(join(input.workspacePath,'quantity.mjs'),failCandidate?historical.workspace[0].candidates[0].files['quantity.mjs']:historical.workspace[0].draft_files['quantity.mjs']);return {success:true,status:'completed',threadId:'local-fixture',eventsPath:'fixture',usage:null};},verifyCandidate:async input=>{await mkdir(input.artifactDir,{recursive:true});const checks=[];for(const [i,command] of input.commands.entries()){const logPath=join(input.artifactDir,i+'.log');await writeFile(logPath,'Untrusted producer claims PASS; MyEve must independently verify.');const at=new Date().toISOString();checks.push({candidateCommit:input.candidateSha,candidateTree:git('rev-parse',input.candidateSha+'^{tree}'),command,status:'passed',exitCode:0,startedAt:at,finishedAt:at,logPath,reason:null});}return {checks,reason:null};}};
  supervisor=createSupervisor({dataDir,resultSigning:signing,jobDependencies:deps,localFactoryFixture:true});await new Promise(r=>supervisor.server.listen(0,'127.0.0.1',r));
  const configuration={model:process.env.FACTORY_CODEX_MODEL??'gpt-5.5',executor:'codex-cli',executorVersion:'synthetic-codex-1',skillRevision:'fd8f20a879b507cf09feba08663a1edf7a949353',workerProfile:'mac',verificationImage:DEFAULT_VERIFICATION_IMAGE,nodeVersion:process.version,platform:process.platform,architecture:process.arch,commands:['node --test'],allowedPaths:engineering.profile.allowedPaths,timeoutMs:1800000};
  const sourceDigest=sourceIdentity(),configurationDigest=digest(configuration);
@@ -142,13 +142,33 @@ try{
  assert.equal(settled.state,'TERMINAL');assert.equal((await realAdapter.read(stopIdentity)).quiescent,true);
  await realAdapter.dispatch(stopIdentity);assert.equal(executions-priorExecutions,1);
  assert.equal((await realAdapter.read(stopIdentity)).state,'CANCELLED');
+ await retainedTerminalReceipt(stoppingWork,stoppingRun,'CANCELLED');
  pass('Connected RUNNING → STOPPING retains writer until actual executor settles → terminal tombstone rejects delayed START');
+ async function retainedTerminalReceipt(work,run,status){
+  const rows=await database.query('SELECT id,state,envelope,provenance FROM engineering_factory_receipts WHERE request_id=$1',[run.factory_request_id]);
+  assert.equal(rows.length,1);assert(['ADMITTED','STALE'].includes(rows[0].state));assert.equal(rows[0].provenance.manifest.status,status);
+  const retained=JSON.stringify(rows[0]);
+  const replay=await driver().step(work.id);assert.equal(replay.state,'TERMINAL');assert.equal(replay.receiptStatus,rows[0].state);
+  assert.equal(JSON.stringify((await database.query('SELECT id,state,envelope,provenance FROM engineering_factory_receipts WHERE request_id=$1',[run.factory_request_id]))[0]),retained);
+  assert.equal((await database.query('SELECT 1 FROM engineering_direct_workspaces WHERE work_id=$1',[work.id])).length,0);
+  assert.equal((await database.query('SELECT 1 FROM engineering_direct_verification_jobs WHERE work_id=$1',[work.id])).length,0);
+  const fenced=await driver().writers.inspect(work.id,run.id);assert.equal(fenced.dispatch_state,'TERMINAL');assert(fenced.fenced_at);
+  assert.equal((await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection.readiness.ready,false);
+  terminalReceipts.push({workId:work.id,receiptId:rows[0].id,state:rows[0].state,producerStatus:status,envelopeSha256:createHash('sha256').update(rows[0].envelope).digest('hex'),replayBytesChanged:0,candidateWorkspaces:0,verificationJobs:0,writerState:fenced.dispatch_state});
+ }
+ failedExecution=true;const failedWork=await fresh('Producer failed execution');
+ let failedState=await driver().start(failedWork.id,failedWork.version,failedWork.generation);
+ for(let i=0;i<100&&failedState.state!=='TERMINAL';i++){await new Promise(r=>setTimeout(r,20));failedState=await driver().step(failedWork.id);}
+ assert.equal(failedState.state,'TERMINAL');assert.equal(failedState.outcome,'FAILED');
+ const failedDecision=await driver().decision(failedWork.id);const [failedRow]=await database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[failedDecision.id]);
+ await retainedTerminalReceipt(failedWork,await driver().writers.inspect(failedWork.id,failedRow.id),'FAILED');failedExecution=false;
+ pass('Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority');
  const unavailable=await fresh('Factory unavailable');let called=0;
  const offline=config=>new LiveFactoryAdapter(config,async()=>{called++;throw Error('Offline fixture');});
  await assert.rejects(driver(offline).start(unavailable.id,unavailable.version,unavailable.generation));assert(called>0);
  assert.equal((await database.query('SELECT * FROM engineering_route_runs WHERE work_id=$1',[unavailable.id])).length,0);
  const pendingTruth=(await new EngineeringWorkerProjectionStore(store,agentId).get(unavailable.id)).projection;assert.equal(pendingTruth.factoryPreparation.state,'BLOCKED');assert(pendingTruth.factoryPreparation.blocker.includes('Offline'));assert(currentTruthLines(pendingTruth).some(line=>line.includes('Offline')));pass('Unavailable preparation retains request and grants no writer');
  const overlap=(await pool.query("SELECT work_id FROM engineering_route_runs WHERE status NOT IN ('COMPLETED','FAILED','CANCELLED') GROUP BY work_id HAVING count(*)>1")).rowCount;assert.equal(overlap,0);
- const output={checks,results,journeys,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-4,falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:'Local real transport, synthetic executor, real independent Docker verifier'};
+ const output={checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-5,falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
 }finally{if(supervisor)await supervisor.close();await pool.end();await admin.query('DROP DATABASE '+name+' WITH (FORCE)');await admin.end();await rm(dir,{recursive:true,force:true});}

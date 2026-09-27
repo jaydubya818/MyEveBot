@@ -1,0 +1,10 @@
+{
+  "baseline": "065eca2ccdcd047b01ae3cff0b34a87c95947ad2",
+  "changedOwnedFingerprint": [
+    "lib/engineering/factory-work-driver.ts"
+  ],
+  "unrelatedGovernanceEntriesChanged": 0,
+  "classificationsChanged": 0,
+  "migrationBytesChanged": 0,
+  "registrationChanged": false
+}
