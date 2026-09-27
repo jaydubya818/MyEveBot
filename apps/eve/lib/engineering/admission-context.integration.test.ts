@@ -32,6 +32,7 @@ import { DirectDevelopmentStore } from "./direct-development.ts";
 import { DirectVerificationDriver } from "./direct-verification-driver.ts";
 import { DockerProtectedVerifier } from "./docker-executor.ts";
 import { NativeResultStore } from "./native-results.ts";
+import { nativeExecutionCapsule } from "./native-execution-controller.ts";
 import { NativeModelBudget } from "./native-model-budget.ts";
 
 const enabled = process.env.ADMISSION_CONTEXT_TEST_POSTGRES === "1";
@@ -256,10 +257,17 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     a.ctx.callId=randomUUID();
     await contextHook.events!["step.started"]!({data:{turnId:a.ctx.session.turn.id}} as never,a.ctx);
     const selected:any=await (agentDefinition as any).model.events["step.started"]({data:{turnId:a.ctx.session.turn.id,stepIndex:step}},a.ctx);
+    const beforeModel=(await new EngineeringWorkerProjectionStore(store,agentId).get(a.ctx.session.auth.current.attributes.myeveEngineeringWorkId)).projection;
     const result=await selected.model.doGenerate(a.options);
+    const supplied=payloadState(captured.at(-1));
+    if(supplied.executionController) {
+      expect(supplied.executionController).toEqual(JSON.parse(JSON.stringify({...beforeModel.executionController,metrics:undefined})));
+      expect(supplied.currentTruth).toEqual(currentTruthLines(beforeModel));
+    }
     const call=result.content.find((item:any)=>item.type==="tool-call");
     if(!call)throw new Error("Expected a controlled productive proposal");
     const proposal=nativeDevelopmentToolSchema.parse(JSON.parse(call.input));
+    a.ctx.callId=call.toolCallId;
     const response=await a.tool.execute(proposal,a.ctx);
     // Actual framework-shaped tool feedback, never a harness next-action instruction.
     a.options.prompt.push({role:"assistant",content:[call]},{role:"tool",content:[{
@@ -292,6 +300,10 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     local.provider.mockImplementation(async options=>{
       captured.push(options);
       const state=payloadState(options);
+      if(options.tools?.length===0) {
+        expect(state.executionController.phase).toBe("COMPLETE");
+        return {content:[{type:"text",text:`Candidate ${state.candidate.sha} passed protected checks. Work is PARTIAL, not Ready. Publication, CI and review remain unqualified. ${state.currentTruth.join(" ")}`}],usage:{inputTokens:{total:1000},outputTokens:{total:100}},finishReason:{unified:"stop"},warnings:[],providerMetadata:{gateway:{cost:"0.003"}}};
+      }
       let request:any;
       if(!state.nativeExecution)request=proposeFromPayload(options).request;
       else {
@@ -300,21 +312,22 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
         expect(JSON.stringify(options.tools)).not.toContain('"const":"admit"');
         expect(state.nativeExecution.admissionRequired).toBe(false);
         expect(state.nativeExecution.writerSessionId).toBeTruthy();
+        const controller=state.executionController;
         if(alwaysDuplicate || (duplicate&&!duplicateSent)) {
-          duplicateSent=true;
-          // Simulate a provider ignoring its narrowed schema once. Tokens still
-          // originate ONLY in the real provider-bound canonical metadata.
-          request=proposeFromPayload(options).request;
-        } else if(state.nativeExecution.nextOperation==="open")request={operation:"open"};
-        else if(state.stage==="REPAIR") {
-          expect(state.evidence.some((e:any)=>e.result==="FAIL")).toBe(true);
-          if(!["inspect","write"].includes(state.lastToolFeedback?.operation))request={operation:"inspect"};
-          else if(state.draftChanges["quantity.mjs"]?.includes("parseInt"))request={operation:"write",expectedRevision:state.revision,path:"quantity.mjs",content:'import fs from "node:fs"; const raw=fs.readFileSync(0,"utf8").trim(); const n=Number(raw); console.log(JSON.stringify(/^\\d+$/.test(raw)&&Number.isSafeInteger(n)&&n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};
-          else request={operation:"submit",expectedRevision:state.revision};
-        } else if(!state.plan && state.lastToolFeedback?.operation!=="read")request={operation:"read",path:"README.md"};
-        else if(!state.plan)request={operation:"plan",expectedRevision:state.revision,plan:"Read approved objective and criteria. Deliberate parseInt negative fixture, then one evidence-driven repair."};
-        else if(!state.draftChanges["quantity.mjs"])request={operation:"write",expectedRevision:state.revision,path:"quantity.mjs",content:'import fs from "node:fs"; const n=parseInt(fs.readFileSync(0,"utf8").trim(),10); console.log(JSON.stringify(n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};
-        else request={operation:"submit",expectedRevision:state.revision};
+          duplicateSent=true;request=proposeFromPayload(options).request;
+        } else {
+          switch(controller.nextOperation) {
+            case "open": request={operation:"open"};break;
+            case "read": request={operation:"read",path:controller.known.requiredReads.find((p:string)=>!controller.known.inspected.some((i:any)=>i.path===p))};break;
+            case "plan": request={operation:"plan",expectedRevision:state.revision,plan:{files:controller.targets,change:"Implement the approved parser, first using the requested negative parseInt fixture.",verification:"Submit for independent protected checks, then repair exact failures once.",assumptions:"Pinned Node ESM fixture",blockers:[]}};break;
+            case "inspect": expect(state.evidence.some((e:any)=>e.result==="FAIL")).toBe(true);request={operation:"inspect"};break;
+            case "write": request={operation:"write",expectedRevision:state.revision,path:controller.targets[0],content:controller.phase==="REPAIR"
+              ? 'import fs from "node:fs"; const raw=fs.readFileSync(0,"utf8").trim(); const n=Number(raw); console.log(JSON.stringify(/^\\d+$/.test(raw)&&Number.isSafeInteger(n)&&n>0?{quantity:n}:{error:"invalid_quantity"}));\n'
+              : 'import fs from "node:fs"; const n=parseInt(fs.readFileSync(0,"utf8").trim(),10); console.log(JSON.stringify(n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};break;
+            case "submit": request={operation:"submit",expectedRevision:state.revision};break;
+            default: throw new Error("No deterministic productive operation");
+          }
+        }
       }
       return {content:[{type:"tool-call",toolName:"engineering_direct",toolCallId:randomUUID(),input:JSON.stringify({request})}],usage:{inputTokens:{total:1000},outputTokens:{total:100}},finishReason:{unified:"tool-calls"},warnings:[],providerMetadata:{gateway:{cost:"0.003"}}};
     });
@@ -323,6 +336,7 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
   it("authenticated production continuation opens, reads, implements, fails protected checks, repairs and retains PARTIAL",async()=>{
     await localRepository();controlledProductionProvider();
     const work=await freshWork(),a=await assembled(work.id),seen:string[]=[];
+    a.options.prompt.at(-1).content[0].text=await readFile(new URL("../../../../docs/verification/2026-09-27-m1er1-b3bff2b-live/owner-message.txt",import.meta.url),"utf8");
     let admittedProjection: any;
     const authority=new NativeRouteAuthority(store),direct=new DirectDevelopmentStore(store,{profile:config.profile,approvedBase:config.approvedBase,objective:config.objective,criteria:config.criteria,agentId,issueNumber:1,assertCurrentAuthority:id=>authority.assertEffect(id)});
     const driver=new DirectVerificationDriver(direct,new DockerProtectedVerifier());
@@ -363,6 +377,17 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     const [b]=await local.query("SELECT *,engineering_completion_remaining(scope_id,work_id) held FROM engineering_work_model_budget WHERE work_id=$1",[work.id]);
     expect(b.calls_admitted).toBe(9);expect(Number(b.spent_microusd)+Number(b.reserved_microusd)+Number(b.held)).toBeLessThanOrEqual(1300000);
     expect(Number(b.held)).toBe(112641); // untouched fresh final explanation slot
+    const observer=await assembled(work.id,false);
+    const explanation=await observer.model.doGenerate(observer.options);
+    expect(explanation.content[0].text).toContain(p.verification.candidateSha);
+    expect(explanation.content[0].text).toContain("PARTIAL, not Ready");
+    const final=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+    expect(final.executionController?.phase).toBe("COMPLETE");
+    expect(final.executionController?.metrics).toMatchObject({modelCalls:10,productiveCalls:9,coordinationCalls:1,noProgressCalls:0,verificationAttempts:2,repairAttempts:1,humanInterventions:0});
+    expect(final.executionController?.metrics.phaseTransitions).toEqual(["ORIENT","PLAN","IMPLEMENT","VERIFY","REPAIR","VERIFY","COMPLETE"]);
+    expect(final.completionStatus).toBe("COMPLETE");expect(final.readiness.ready).toBe(false);
+    expect(await counts(work.id)).toEqual({runs:1,writers:1});
+    if(process.env.NATIVE_CONTROLLER_EVIDENCE)await writeFile(process.env.NATIVE_CONTROLLER_EVIDENCE,JSON.stringify({kind:"LOCAL_CONTROLLED_PROVIDER_REAL_AUTHENTICATED_ASSEMBLY",operations:seen,finalProjection:final,providerPayloads:captured.slice(-10)},null,2));
   },120000);
 
   it("one duplicate admission returns current state without effects and the next model chooses repository open",async()=>{
@@ -374,8 +399,8 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     expect(duplicate.response.writerSessionId).toBe(a.ctx.session.id);expect(duplicate.response.nextOperation).toBe("open");
     expect(await counts(work.id)).toEqual(before);
     expect((await nextStep(a,2)).proposal.operation).toBe("open");
-    const state=payloadState(captured.at(-1));expect(state.currentTruth.join()).toContain("Previous duplicate admission");
-    expect(state.lastToolFeedback.excerpt).toContain("ALREADY_ADMITTED");
+    const state=payloadState(captured.at(-1));expect(state.executionController.progress.consecutiveNoProgress).toBe(1);
+    expect(state.lastToolFeedback.operation).toBe("admit");
     await expect(a.tool.execute({request:{operation:"admit",expectedWorkVersion:work.version-1,expectedWorkGeneration:work.generation}},a.ctx)).rejects.toThrow(/current Work/);
     await expect(a.tool.execute({request:{operation:"admit",expectedWorkVersion:work.version,expectedWorkGeneration:work.generation-1}},a.ctx)).rejects.toThrow(/current Work/);
     const observer=await assembled(work.id,false);
@@ -385,15 +410,73 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     expect(await counts(work.id)).toEqual({runs:1,writers:1});
   },30000);
 
-  it("provider ignoring duplicate feedback is deterministically stopped before a third repeated paid attempt",async()=>{
+  it("provider ignoring duplicate feedback is deterministically stopped after one bounded recovery opportunity",async()=>{
     controlledProductionProvider(false,true);const work=await freshWork(),a=await assembled(work.id);
-    await nextStep(a,0);await nextStep(a,1);await nextStep(a,2);
+    await nextStep(a,0);await nextStep(a,1);await nextStep(a,2);await nextStep(a,3);
     const n=local.provider.mock.calls.length;
-    await expect(nextStep(a,3)).rejects.toThrow(/Repeated admission proposals stopped/);
+    await expect(nextStep(a,4)).rejects.toThrow(/NO_PROGRESS/);
     expect(local.provider.mock.calls.length).toBe(n);
     expect(await counts(work.id)).toEqual({runs:1,writers:1});
     await store.change(work.id,{operation:"pause",expectedVersion:work.version});
     await expect(a.tool.execute({request:proposeFromPayload(captured.at(-1)).request},a.ctx)).rejects.toThrow(/current Work|context is unavailable/);
+  });
+
+  it("live open/read/open/read regression redirects to PLAN without repeating effects",async()=>{
+    await localRepository();controlledProductionProvider();
+    const normal=local.provider.getMockImplementation()!;let step=0;
+    local.provider.mockImplementation(async options=>{
+      const result=await normal(options);const index=step++;
+      if(index===3 || index===4)result.content[0].input=JSON.stringify({request:index===3?{operation:"open"}:{operation:"read",path:"README.md"}});
+      return result;
+    });
+    const work=await freshWork(),a=await assembled(work.id);
+    for(let i=0;i<3;i++)await nextStep(a,i);
+    for(let i=3;i<5;i++)expect((await nextStep(a,i)).response.status).toBe("NO_PROGRESS");
+    const p=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+    expect(p.executionController).toMatchObject({phase:"PLAN",nextOperation:"plan",progress:{consecutiveNoProgress:2,recovery:"NO_PROGRESS"}});
+    expect((await nextStep(a,5)).proposal.operation).toBe("plan");
+    const after=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+    expect(after.executionController).toMatchObject({phase:"BLOCKED",nextOperation:null,progress:{consecutiveNoProgress:0},metrics:{modelCalls:6,productiveCalls:3,noProgressCalls:2}});
+    expect(await nativeExecutionCapsule(store,work.id)).toMatchObject({phase:"IMPLEMENT",nextOperation:"write"}); // derived progress advanced; unchanged stage budget now blocks more model calls
+    expect(await counts(work.id)).toEqual({runs:1,writers:1});
+    // A justified NEW dependency may be read without resetting the established plan.
+    a.ctx.callId=randomUUID();
+    expect(await a.tool.execute({request:{operation:"read",path:"package.json"}},a.ctx)).toMatchObject({status:"NO_PROGRESS"});
+    a.ctx.callId=randomUUID();
+    expect(await a.tool.execute({request:{operation:"read",path:"package.json",reason:"Confirm the Node module format before writing the planned source"}},a.ctx)).toHaveProperty("content");
+    expect((await nativeExecutionCapsule(store,work.id))?.phase).toBe("IMPLEMENT");
+  });
+
+  it("a provider refusing PLAN after bounded open/read recovery stops without another paid call",async()=>{
+    await localRepository();controlledProductionProvider();const normal=local.provider.getMockImplementation()!;let step=0;
+    local.provider.mockImplementation(async options=>{const result=await normal(options);if(step++>=3){result.content[0].input=JSON.stringify({request:{operation:"read",path:"README.md"}});result.content[0].toolCallId="reused-malicious-id";}return result;});
+    const work=await freshWork(),a=await assembled(work.id);
+    for(let i=0;i<6;i++)await nextStep(a,i);
+    const n=local.provider.mock.calls.length;
+    await expect(nextStep(a,6)).rejects.toThrow(/NO_PROGRESS/);
+    expect(local.provider.mock.calls.length).toBe(n);
+    const p=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+    expect(p.executionController?.progress.recovery).toBe("STOP");expect(p.readiness.ready).toBe(false);
+    expect(await counts(work.id)).toEqual({runs:1,writers:1});
+  });
+
+  it("blocked intent, duplicate receipts and pause remain bounded and cannot authorize mutation",async()=>{
+    await localRepository();controlledProductionProvider();const work=await freshWork(),a=await assembled(work.id);
+    await nextStep(a,0);await nextStep(a,1);await nextStep(a,2);
+    const p=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+    expect(p.executionController?.phase).toBe("PLAN");
+    const before=p.executionController?.metrics.operations;
+    // Replayed tool delivery has the same id; it must not count again.
+    await a.tool.execute({request:{operation:"read",path:"README.md"}},a.ctx);
+    expect((await nativeExecutionCapsule(store,work.id))?.metrics.operations).toBe(before);
+    a.ctx.callId=randomUUID();
+    await a.tool.execute({request:{operation:"plan",expectedRevision:1,plan:{files:["quantity.mjs"],change:"Implement parser",verification:"Independent protected tests",assumptions:"None",blockers:["Missing owner requirement"]}}},a.ctx);
+    const n=local.provider.mock.calls.length;
+    await expect(nextStep(a,3)).rejects.toThrow(/blocked/);expect(local.provider.mock.calls.length).toBe(n);
+    expect((await nativeExecutionCapsule(store,work.id))?.phase).toBe("BLOCKED");
+    await store.change(work.id,{operation:"pause",expectedVersion:work.version});
+    await expect(a.tool.execute({request:{operation:"write",expectedRevision:2,path:"quantity.mjs",content:"wrong"}},a.ctx)).rejects.toThrow();
+    expect((await new DirectDevelopmentStore(store,{profile:config.profile,approvedBase:config.approvedBase,objective:config.objective,criteria:config.criteria,agentId,issueNumber:1}).inspect(work.id)).workspace?.draftFiles["quantity.mjs"]).toBeUndefined();
   });
 
   it("metadata failure is deterministic and cannot initiate a provider call", async () => {

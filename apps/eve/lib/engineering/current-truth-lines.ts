@@ -16,6 +16,7 @@ export function currentTruthLines(projection: EngineeringWorkerProjection): stri
   return [
     `Work identity: ${JSON.stringify(metadata)}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.`,
     ...(projection.nativeExecution ? [`Native execution: ${projection.nativeExecution.admissionStatus}; phase ${projection.nativeExecution.phase}; next operation ${projection.nativeExecution.nextOperation??"none"}. Observed state only. Already admitted means no new admission.`] : []),
+    ...(projection.executionController ? [`Engineering phase: ${projection.executionController.phase}; next ${projection.executionController.nextOperation??"none"}; progress ${projection.executionController.progress.recovery}.`] : []),
     truth.activeRun?`Active Run: ${truth.activeRun.id}; ${truth.activeRun.purpose}; ${truth.activeRun.effectiveStatus}. Fresh checks are required at every action boundary.`:"Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
     truth.latestRun?`Latest Run: ${truth.latestRun.id}; ${truth.latestRun.purpose}; ${truth.latestRun.effectiveStatus}; recorded ${truth.latestRun.storedStatus}; deadline ${truth.latestRun.deadline??"unavailable"}.`
       :truth.runHistory.length?"Latest Run: ordering unavailable; inspect retained Run history.":"Latest Run: none recorded.",

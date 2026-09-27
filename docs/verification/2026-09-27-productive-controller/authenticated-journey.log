@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve
+
+ ✓ lib/engineering/admission-context.integration.test.ts (15 tests) 6395ms
+   ✓ authenticated production admission context with real PostgreSQL > authenticated production continuation opens, reads, implements, fails protected checks, repairs and retains PARTIAL  4865ms
+
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Start at  21:49:47
+   Duration  7.28s (transform 271ms, setup 0ms, collect 668ms, tests 6.39s, environment 0ms, prepare 39ms)
+

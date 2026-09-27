@@ -1,3 +1,4 @@
+import { nativeExecutionCapsule, type NativeExecutionCapsule } from "./native-execution-controller.ts";
 import { proofOfWorkSchema, type ProofOfWork } from "../digital-worker/contracts.ts";
 import { digest } from "./contract.ts";
 import { ExecutionStore } from "./execution-store.ts";
@@ -43,10 +44,11 @@ export interface EngineeringWorkerProjection {
   verification: { candidateSha: string | null; status: string; jobStatus: string | null; evidenceCount: number; evidenceHashes: string[] };
   candidateHistory: {sha:string;checks:string;failures:string[];evidenceCount:number}[];
   completionStatus: string;
+  executionController: NativeExecutionCapsule | null;
   nativeExecution: {
     admissionStatus: "NEEDS_ADMISSION" | "ALREADY_ADMITTED";
     phase: "NEEDS_ADMISSION" | "ADMITTED_READY_FOR_PRODUCTIVE_WORK" | "IMPLEMENTING" | "VERIFYING" | "REPAIRING" | "COMPLETED" | "BLOCKED";
-    nextOperation: "admit" | "open" | "read" | "plan" | "write" | "inspect" | null;
+    nextOperation: "admit" | "open" | "read" | "plan" | "write" | "inspect" | "submit" | null;
     admissionRequired: boolean;
     runId: string | null;
     writerSessionId: string | null;
@@ -288,6 +290,13 @@ export class EngineeringWorkerProjectionStore {
       control: work.control,
       completionContractId: completion?.id ?? null,
     };
+    const executionController=completion ? await nativeExecutionCapsule(this.workStore,id) : null;
+    if(executionController) {
+      if(!productive && !["VERIFY","COMPLETE"].includes(executionController.phase)) {
+        executionController.phase="BLOCKED";executionController.nextOperation=null;executionController.allowedOperations=[];
+      }
+      nativeExecution.nextOperation=executionController.nextOperation;
+    }
     const nativeCurrent = runTruth.activeRun?.id === currentRouteRun?.id && !!runTruth.activeRun && !!nativeRow && !!admittedRoute && !!currentRouteRun &&
       !execution && currentRouteRun.route === "DEEP_AGENT" && currentRouteRun.status === "RUNNING" &&
       nativeRow.decision_id === admittedRoute.id && nativeRow.route_run_id === currentRouteRun.id &&
@@ -430,7 +439,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution,
+      runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -460,7 +469,12 @@ export class EngineeringWorkerProjectionStore {
       qualificationMode: execution?.qualificationMode ?? null,
       status: truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
       activity: truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
+      nextStep: truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
+        ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
+        : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
+        : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."
+        : `Native execution is blocked. ${executionController.known.plan?.blockers.join("; ") || (executionController.progress.recovery==="STOP" ? "Bounded no-progress recovery is exhausted." : "Recheck current authority and completion capacity.")} No productive operation is recommended.`
+        : routeActivity?.nextStep) ?? noExecutionNextStep(work),
       readiness: truth?.readiness ?? { ready: false, reasons: nativeResult
         ? [`Native protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },

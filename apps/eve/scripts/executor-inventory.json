@@ -3142,8 +3142,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only canonical projection observes current native authority before workspace creation, derives post-admission phases and next operations, and fences expired/stale/exhausted state; no custody acquired by reads.",
-      "sha256": "4ea64627a99a33af89d4f49d9dbaa3dd1932b427d3924b86ae9d913d4dc34fc1"
+      "reason": "Read-only canonical projection shares native phase/progress observations with Chat while retaining authority, generation, accounting, verification and readiness fences.",
+      "sha256": "2d3d2f109b7fb32786abbc0fbeb6746499c5406ad3b909204d99774f8b6b2286"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3152,8 +3152,8 @@
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated selected-Work effect gateway remains mandatory for new admission and productive writes. Exact-current duplicate admission is read-only observation, fenced by Work tokens, current authority and same writer; no new grant or effect.",
-      "sha256": "b0aa5ad2ea2b43974ee5f32d450c17348246a4c66b4003566a1dee40eff22f99"
+      "reason": "Existing authenticated binding, current writer and Action Gateway remain required. Native controller only narrows productive operations; scoped idempotent events record successful inspections and progress. Duplicate/no-op requests receive guidance without effects.",
+      "sha256": "4adedda1c41fe9759f24b0cf87d50a276b50ebbe2578d65e1e9243533d323fc0"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3187,8 +3187,8 @@
     },
     "lib/engineering/native-input.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict native tool schema requires positive integer expectedWorkVersion and expectedWorkGeneration. Neither token is optional or inferred; model arguments grant no authority.",
-      "sha256": "ad4ce171a26cfc5969fe6f7cc034ab4049f760e8d7ca31d7d5da81a6625e43e5"
+      "reason": "Bounded native input schema adds explicit implementation intent and reasoned dependency reads. No authority fields or new executor capability.",
+      "sha256": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712"
     },
     "lib/engineering/native-model-budget.ts": {
       "classification": "ENFORCED",
@@ -3197,8 +3197,8 @@
     },
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Current native authority and common-ledger budget gate every model call. Execution context narrows away admit, carries bounded tool feedback, and deterministically stops repeated admission before more spend; no provider fallback or authority changes.",
-      "sha256": "f8ba3ff3caef910a75df04c7b428c0cce88abf847469fb1f64076899d9272f2b"
+      "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged.",
+      "sha256": "959a3173c3987c2e30de2adcb70f79a8f23e9f5259942c1fa067b4c803bad315"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3227,8 +3227,8 @@
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical persisted version and generation reach bounded admission and read-only prompts. Metadata is observational; no discovery provider call, writer grant or bypass. Existing common-ledger reservations, admission-only completion preflight, text-only final explanation and provider guards remain enforced.",
-      "sha256": "0bc4a137dc2f3849eead1a6d302f90e50600ab0e13c08b5f7d125bc9e86b7906"
+      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged.",
+      "sha256": "65198c09664523152bcde2f7992dac6db1c111a099cdd031a39a7286609c644c"
     },
     "lib/engineering/run-truth.ts": {
       "classification": "READ_ONLY",
@@ -3237,8 +3237,8 @@
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
-      "reason": "Canonical persisted Work/Run/writer metadata and bounded admission transition receipt; observational phase/next action never grants authority.",
-      "sha256": "2e5b321227fc681077ffe39b69e4f9dd6d3ad77d0c6074254989f307f3052ae8"
+      "reason": "Pure Work/Chat formatter adds deterministic phase/next-action/no-progress guidance. Observations never grant authority.",
+      "sha256": "54a4afc426b714b48502427e2566539ef4889744c41d4db416bbe6a10594da83"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",
@@ -3249,6 +3249,11 @@
       "classification": "INTERNAL",
       "reason": "Builds a bounded immutable completion contract from current Work/Agent/provider and reconciled admission pricing; reads stage state. Economic reservation is atomic in common-ledger SQL; this helper grants no independent authority. Qualified through concurrent admission, stage exhaustion, UNKNOWN, stale-authority and process-loss tests.",
       "sha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8"
+    },
+    "lib/engineering/native-execution-controller.ts": {
+      "classification": "INTERNAL",
+      "reason": "Native-only derived phase and progress read model with scoped idempotent eve_events observations. No authority, accounting or verification mutation. Event writes require current Work version/generation and same writer. Existing services authorize every effect.",
+      "sha256": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1"
     }
   }
 }

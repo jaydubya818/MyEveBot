@@ -108,3 +108,25 @@ The [authenticated live evidence](verification/2026-09-27-m1er1-b3bff2b-live/REP
 The full journey did not qualify. The actual sequence was `admit → open → read → open → read → read`; the implementation-stage cap denied the next call. After reading, workspace revision remained 1, the plan remained empty, and canonical next-operation guidance still said `read`. Prior tool feedback was present, but the controlled local provider's progression into planning did not predict the real provider's behavior. No implementation, candidate, protected failure, repair, PARTIAL Result or fresh final explanation was reached.
 
 Six reconciled calls cost $0.088092; reservations and UNKNOWN exposure are zero. Temporary provider and common-ledger authority are revoked, the new Work is paused, and temporary resources are stopped. The unused $0.450564 completion hold and all history remain preserved. No prior Work or migration was retried. M1/ER1 remains **NOT QUALIFIED**, and P0 Gap #2B/Gap #2 remain **PARTIAL**. The next blocker is bounded repository-read → plan/implementation progress through the real authenticated continuation path; no fix or new live window is implied by this evidence update.
+
+
+## Native productive execution controller — LOCAL PASS
+
+The [controller qualification dossier](verification/2026-09-27-productive-controller/REPORT.md) extends the existing bounded native harness. No schema, authority, completion-budget, ledger, writer, Action Gateway, protected-verification or readiness contract is replaced. The shared `executionController` projection supplies these derived phases:
+
+- ORIENT: open the approved base and inspect README plus existing editable target files. New target files are explicitly recorded as absent from the base. Objective and criteria come from the selected Work.
+- PLAN: persist a concise intent with affected files, change, independent verification, assumptions and blockers. A blocker stops productive model spending.
+- IMPLEMENT: edit an approved target, then submit changed content. Additional reads require a specific unresolved dependency and do not restart orientation.
+- VERIFY: wait for independent evidence; the model cannot count its own checks.
+- REPAIR: inspect the exact failed candidate evidence, edit once, then submit the changed candidate for protected verification.
+- COMPLETE: local verification passed and an immutable PARTIAL Result exists. The reserved fresh read-only explanation remains a separate completion step. This never means Ready for Review.
+
+Scoped `NATIVE_OPERATION` observations use the existing `eve_events` table. Successful reads are bound to content digests, Work/version/generation, Run and writer. Workspace, candidate, protected evidence, Result and common-ledger records remain authoritative. Event replay is idempotent across durable model-call/tool-call identities; provider-reused tool IDs cannot hide loops. Read-only Work/Chat projections never acquire custody or write observations.
+
+After two consecutive operations without meaningful progress, `NO_PROGRESS` includes completed context, phase and expected productive action. The next turn gets one bounded recovery opportunity; a third consecutive no-progress observation stops another model dispatch. Repeated open/read, duplicate admission, invalid phase operations and unchanged writes do not create new authority or source effects. Phase-specific provider schemas narrow the default tool choice; tool-side checks enforce progression even if the provider ignores its schema. Existing stage and total-call limits still win.
+
+The compact per-turn capsule references unchanged source by digest and paths, retains relevant source/changes and bounded failure excerpts with provenance hashes, and omits detailed telemetry from model payloads. Work retains per-job phase observations, model/productive/coordination/no-progress counts, operations, candidate revisions, verification/repair attempts, spend and Work-control interventions. These are Work-level reliability metrics, not employee scoring.
+
+The full authenticated local fixture used ten controlled calls: one admission, eight productive engineering calls, and one fresh explanation (nine productive calls total). There were zero normal-path admission/open/read loops and zero false Ready events. The original full owner instruction fits the unchanged 14,336-byte admitted input envelope. Atomic operations remain separate; the aspirational roughly-five-turn journey has not been achieved.
+
+M1/ER1 is **NOT QUALIFIED live**. The prior failed windows remain preserved and revoked. Current app/security, completion accounting, protected verifier, PostgreSQL projection, governance and build checks pass. Two older standalone test failures reproduce unchanged on `caad506` and are documented in the dossier; they are not counted as passing current-contract tests. A real provider can still fail or exhaust the bounded window. No new live authority or ER2 work is initiated by local success.

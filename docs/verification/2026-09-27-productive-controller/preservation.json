@@ -1,0 +1,21 @@
+{
+  "2026-09-27-gap2b-live": {
+    "artifacts": 23,
+    "status": "UNCHANGED"
+  },
+  "2026-09-27-m1er1-b4801cb-live": {
+    "artifacts": 38,
+    "status": "UNCHANGED"
+  },
+  "2026-09-27-post-admission-continuity": {
+    "artifacts": 14,
+    "status": "UNCHANGED"
+  },
+  "2026-09-27-m1er1-b3bff2b-live": {
+    "artifacts": 40,
+    "status": "UNCHANGED"
+  },
+  "apps/eve/migrations/0051_engineering_conversation_budget.sql": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce",
+  "apps/eve/migrations/0052_work_model_ledger.sql": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106",
+  "apps/eve/migrations/0053_native_completion_contract.sql": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+}

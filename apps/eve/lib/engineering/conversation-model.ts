@@ -78,7 +78,7 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
       if(state?.stage==="EXPLAIN") {
         const projection=(await new EngineeringWorkerProjectionStore(input.store,config.agentId,id=>authority.assertEffect(id)).get(input.workId)).projection;
         const truth=currentTruthLines(projection);
-        scoped=completionModelOptions(conversationOptions(options,config.profile.maxOutputTokens,phase),config,state,truth,currentWorkMetadata(projection));
+        scoped=completionModelOptions(conversationOptions(options,config.profile.maxOutputTokens,phase),config,state,truth,{...currentWorkMetadata(projection),executionController:projection.executionController});
         scoped.prompt=[{role:"system",content:"Read-only final Work explanation. Explain canonical Current Truth, exact candidate, protected verification, immutable Result, budget and limitations. Return a nonempty text explanation; no tools are permitted. Do not acquire writer custody or claim Ready."},...scoped.prompt.filter(p=>p.role!=="system")];
         scoped.tools=[]; scoped.toolChoice={type:"none"};
         completion={id:state.contract.id,stage:"EXPLAIN"};

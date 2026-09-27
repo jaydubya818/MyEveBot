@@ -1,0 +1,13 @@
+{
+  "README.md": "1f77a8113074e61c82b6e928c85168e154f7a5caaf370036044f4d7db5959d1d",
+  "apps/eve/agent/tools/engineering_direct.ts": "4adedda1c41fe9759f24b0cf87d50a276b50ebbe2578d65e1e9243533d323fc0",
+  "apps/eve/lib/engineering/admission-context.integration.test.ts": "badec47155a19c23ce5c60ea0984090ad1886b7bbca71d17dce5e7caa6dcc484",
+  "apps/eve/lib/engineering/conversation-model.ts": "65198c09664523152bcde2f7992dac6db1c111a099cdd031a39a7286609c644c",
+  "apps/eve/lib/engineering/current-truth-lines.ts": "54a4afc426b714b48502427e2566539ef4889744c41d4db416bbe6a10594da83",
+  "apps/eve/lib/engineering/native-input.ts": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712",
+  "apps/eve/lib/engineering/native-model.ts": "959a3173c3987c2e30de2adcb70f79a8f23e9f5259942c1fa067b4c803bad315",
+  "apps/eve/lib/engineering/worker-projection.ts": "2d3d2f109b7fb32786abbc0fbeb6746499c5406ad3b909204d99774f8b6b2286",
+  "apps/eve/scripts/executor-inventory.json": "ae827128f1bd5187a970ef8e86dbd048dd39051b1bb47703c2d5bc02d899fe3d",
+  "docs/engineering-golden-work.md": "a81ac7b354efb6094873e52ec283e25fdf4f198f77fa136d49fc9c21170af652",
+  "apps/eve/lib/engineering/native-execution-controller.ts": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1"
+}

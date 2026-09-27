@@ -1,3 +1,4 @@
+import { nativeExecutionCapsule, permitsNativeOperation, nativeProgressGuidance, recordNativeOperation } from "../../lib/engineering/native-execution-controller.ts";
 import { nativeBehavior } from "../../lib/engineering/native-behavior.ts";
 import { nativeAdmissionTransition } from "../../lib/engineering/current-truth-lines.ts";
 import { RoutingStore } from "../../lib/engineering/routing-store.ts";
@@ -65,6 +66,23 @@ export default defineDynamic({
             objective:runtime.config.objective,criteria:runtime.config.criteria,
             agentId:runtime.config.agentId,issueNumber:1,assertCurrentAuthority:id=>authority.assertEffect(id),
           });
+          const productive=principal.attributes.myeveEngineeringIntent==="continue";
+          if(productive && input.operation!=="admit" && input.operation!=="inspect")
+            await new NativeModelBudget(runtime.store,authority).assertSession(selected,toolCtx.session.id);
+          const before=productive ? await nativeExecutionCapsule(runtime.store,selected) : null;
+          // Observation never grants or refreshes authority. Even no-progress
+          // recovery requires the current admitted writer and effect fences.
+          if(before && productive) {
+            await authority.assertEffect(selected);
+            await new NativeModelBudget(runtime.store,authority).assertSession(selected,toolCtx.session.id);
+            const unchangedWrite=input.operation==="write" &&
+              (await service.inspect(selected)).workspace?.draftFiles[input.path]===input.content;
+            if(input.operation!=="admit" && (!permitsNativeOperation(before,input)||unchangedWrite)) {
+              const after=await recordNativeOperation(runtime.store,selected,input,toolCtx.session.id,toolCtx.callId,before,runtime.config.profile.allowedPaths,false);
+              return nativeProgressGuidance(after!);
+            }
+          }
+          const perform=async()=>{
           if (input.operation==="inspect") {
             const inspected=await service.inspect(selected);
             const truth=await new EngineeringWorkerProjectionStore(runtime.store,agent.id).get(selected);
@@ -127,7 +145,7 @@ export default defineDynamic({
                 await authority.assertEffect(selected);
                 return summary(await service.open(selected,observed),true);
               }
-              if (input.operation==="plan") return summary(await service.plan(selected,input.expectedRevision,input.plan),true);
+              if (input.operation==="plan") return summary(await service.plan(selected,input.expectedRevision,typeof input.plan==="string"?input.plan:JSON.stringify(input.plan)),true);
               if (input.operation==="write") return summary(await service.write(selected,input.expectedRevision,input.path,input.content),true);
               const result=await service.submit(selected,input.expectedRevision);
               return {candidate:{sha:result.candidate.sha,changedPaths:result.candidate.changedPaths,
@@ -137,6 +155,20 @@ export default defineDynamic({
             receipt(result) { return {...result}; },
             async verify(result) { return {verified:true,receipt:{...result}}; },
           });
+          };
+          let output:unknown;
+          try {output=await perform();} catch(error) {
+            if(before && productive) {
+              await authority.assertEffect(selected);
+              await recordNativeOperation(runtime.store,selected,input,toolCtx.session.id,toolCtx.callId,before,runtime.config.profile.allowedPaths,false);
+            }
+            throw error;
+          }
+          if(before && productive) {
+            await authority.assertEffect(selected);
+            await recordNativeOperation(runtime.store,selected,input,toolCtx.session.id,toolCtx.callId,before,runtime.config.profile.allowedPaths,true,output);
+          }
+          return output;
         },
       });
     },
