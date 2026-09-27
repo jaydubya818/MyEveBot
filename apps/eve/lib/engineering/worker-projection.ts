@@ -1,3 +1,4 @@
+import type {FactorySpend,FactorySpendSummary} from './factory-spend.ts';
 import { nativeExecutionCapsule, type NativeExecutionCapsule } from "./native-execution-controller.ts";
 import { proofOfWorkSchema, type ProofOfWork } from "../digital-worker/contracts.ts";
 import { digest } from "./contract.ts";
@@ -12,8 +13,9 @@ import { WorkError, type Work } from "./types.ts";
 type CurrentManifest = ReturnType<typeof manifest>;
 
 export interface EngineeringWorkerProjection {
+  factoryAccounting?:FactorySpendSummary;
   factoryPreparation?: {requestId:string;state:string;blocker:string|null};
-  factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:{status:string;ceilingUsd:number;reason?:string}}};
+  factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:FactorySpend;accounting?:FactorySpendSummary}};
   workId: string;
   title: string;
   objective: string;
@@ -239,6 +241,7 @@ export class EngineeringWorkerProjectionStore {
     const factoryWriter=factoryRun?{requestId:factoryRun.factory_binding?.requestId,dispatchIdentity:factoryRun.dispatch_identity,remoteRunId:factoryRun.factory_binding?.runId,runId:String(factoryRun.id),writerGeneration:Number(factoryRun.writer_generation),state:String(factoryRun.dispatch_state),stopReason:factoryRun.stop_reason??null,candidateProducer:factoryRun.factory_candidate?"MYFACTORY":null,factoryId:factoryRun.factory_binding?.factoryId,factoryVersion:factoryRun.factory_binding?.factoryVersion,workOrderId:factoryRun.factory_binding?.workOrderId,attempt:factoryRun.factory_binding?.attemptNumber,receiptId:factoryRun.factory_receipt_id??undefined,observation:factoryRun.factory_observation?.value}:undefined;
     const preparation=preparationRows[0],observation=preparation?.factory_observation?.value;
     const factoryPreparation=preparation?{requestId:String(preparation.factory_preparation.request.requestId),state:String(observation?.state??'PREPARING'),blocker:observation?.reason??observation?.blocker??null}:undefined;
+    const factoryAccounting=observation?.accounting as FactorySpendSummary|undefined;
     const factoryCurrent=!!factoryRun && factoryRun.id===currentRouteRun?.id;
     const factoryActivity=factoryCurrent ? factoryRun.dispatch_state!=="TERMINAL"
       ? {status:factoryRun.dispatch_state==="DISPATCHED"?"Working":"Needs reconciliation",activity:`MyFactory writer: ${factoryRun.dispatch_state}.`,nextStep:factoryRun.dispatch_state==="PREPARED"?"Dispatch the exact admitted request once.":"Inspect the exact Factory attempt. Stop or timeout is not quiescence; native and human productive access remain blocked."}
@@ -459,7 +462,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
+      factoryAccounting,factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -489,7 +492,7 @@ export class EngineeringWorkerProjectionStore {
       qualificationMode: execution?.qualificationMode ?? null,
       status: factoryActivity?.status ?? (factoryPreparation?.blocker?"Needs reconciliation":null) ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
       activity: factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
+      nextStep: factoryAccounting?.accountingCompleteness==='VALIDATED_READBACK' && factoryAccounting.blocker && factoryWriter?.state==='TERMINAL' ? `Factory execution is fenced. ${factoryAccounting.blocker}. Accounting reconciliation grants no new execution authority.` : factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
         ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
         : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."

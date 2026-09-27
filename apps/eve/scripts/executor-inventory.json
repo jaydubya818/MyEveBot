@@ -2,6 +2,11 @@
   "version": 2,
   "note": "Source-level inventory: classifications describe consequential effects; mixed sources may also contain reads/internal state. Every helper/API change requires review. See docs/action-executor-audit.md.",
   "executors": {
+    "lib/engineering/factory-spend.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
+      "sha256": "8f8fe02871543e55246736ad6e094caa27765f6c4c1a5b287ae5d3b2ab4f4079"
+    },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
       "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects.",
@@ -3188,7 +3193,7 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
-      "sha256": "a534b5ecbc76ea2d76beece0a423354887676366178ee9a2baa8f23956d22565"
+      "sha256": "f7dfbc80a5e6bb83529bac463903cf9bd4b4530c6872053af23ae5f6552c732f"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3283,7 +3288,7 @@
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority.",
-      "sha256": "8427b826dfd9fc0f63726c0a0f467d07a3dc3eae021194cea4d313840e5d462d"
+      "sha256": "e2834a2f0da1c43533a69c265c0fc0d16766418a65dd327ef0cb0c3fc4830db6"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",
@@ -3324,12 +3329,12 @@
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "b999214f29d6c3f71e6b8cedaac42dcb618a65f367951ff9979db1c78fe31d64"
+      "sha256": "644195d2d8c5c5385e20d87000a97808214df17251c2f8d5ca28647942394b5b"
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "53dd52cb1239dbc27de1708737dbb4f49b7c0929539d12b15da6d2ce37c47214"
+      "sha256": "52e83596ccff234266b4fd53e4c26950f35144ff92d18b3ba043b49f7a8114f9"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3339,7 +3344,7 @@
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "90c638a063c52d2946e10b7f813784aa4e0b018fe60283c7d2aa51a61b1c25da"
+      "sha256": "98346e08620a824b8f9450a780a75275384f7790b1d3d44682159c46aee31330"
     },
     "app/api/engineering/work/[id]/factory/route.ts": {
       "classification": "INTERNAL",

@@ -1,3 +1,4 @@
+import {assertFactorySpendCanStart,assertSpendContinuation,workSpendSchema} from './factory-spend.ts';
 import {preflightApprovedBase} from './base-preflight.ts';
 import {randomUUID} from 'node:crypto';
 import {digest} from './contract.ts';
@@ -28,7 +29,13 @@ export class FactoryWorkDriver {
  }
  private scope(id:string){return [this.store.principal.scopeId,this.store.principal.scopeKind,id];}
  async decision(id:string){await this.store.get(id);const [row]=await this.store.database.query('SELECT * FROM engineering_routing_decisions WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 ORDER BY work_version DESC LIMIT 1',this.scope(id));return row??null;}
- private async observation(id:string,decisionId:string,value:unknown){await this.store.database.query('UPDATE engineering_routing_decisions SET factory_observation=$5::jsonb WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4',[...this.scope(id),decisionId,JSON.stringify({observedAt:new Date().toISOString(),value})]);}
+ private async observation(id:string,decisionId:string,value:unknown){
+  const spend=workSpendSchema.safeParse((value as {spend?:unknown})?.spend);
+  if(spend.success){
+   const history=await this.store.database.query('SELECT factory_observation FROM engineering_routing_decisions WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3',this.scope(id));
+   for(const row of history){const previous=workSpendSchema.safeParse(row.factory_observation?.value?.spend);if(previous.success)assertSpendContinuation(previous.data,spend.data);}
+  }
+  await this.store.database.query('UPDATE engineering_routing_decisions SET factory_observation=$5::jsonb WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4',[...this.scope(id),decisionId,JSON.stringify({observedAt:new Date().toISOString(),value})]);}
  async start(id:string,expectedVersion:number,expectedGeneration:number){
   const work=await this.store.get(id),config=await this.authority.readConfig();
   if(work.version!==expectedVersion||work.generation!==expectedGeneration)throw new WorkError('factory_work_changed','Select the current Work revision.');
@@ -70,6 +77,7 @@ export class FactoryWorkDriver {
    if(decision.status==='PROPOSED'){
     const response=await adapter.prepare(preparation.request);await this.observation(id,decision.id,response);
     if(!response.snapshot)return {state:response.state};
+    assertFactorySpendCanStart(response.spend);
     const s=response.snapshot;
     const binding=prepareAuthenticatedFactoryInput({workId:id,workVersion:work.version,workGeneration:work.generation,criteriaVersion:work.criteriaVersion,agentId:config.engineering.agentId,
      factoryId:s.factoryId,factoryVersion:s.factoryVersion,requestId:s.requestId,requestDigest:s.requestDigest,sourceDigest:s.sourceDigest,configurationDigest:s.configurationDigest,workOrderId:s.workOrderId,runId:s.runId,attemptNumber:s.attemptNumber,inputCommit:s.inputCommit});
@@ -87,6 +95,8 @@ export class FactoryWorkDriver {
     if(digest(current.binding)!==digest(prior.binding))throw new WorkError('factory_authority_changed','Owner Agent or configuration changed. Stop and reconcile the retained attempt.');
     const eligible=decideExecutionRoute(prior.contract,current.context,decision.admission_request,{...current.facts,writerState:'NONE'});
     if(!eligible.admitted)throw new WorkError('factory_dispatch_denied',eligible.reasons.join(' '),403);
+    const budgetReadback=await adapter.prepared(preparation.request);
+    await this.observation(id,decision.id,budgetReadback);assertFactorySpendCanStart(budgetReadback.spend);
     await this.writers.dispatch(run,adapter);run=await this.writers.inspect(id,row.id);
    }
    const identity=await this.writers.identity(run);
@@ -126,7 +136,12 @@ export class FactoryWorkDriver {
    const result=await new NativeResultStore(this.direct).retain(id);
    await this.observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
    return {state:result.proof.outcome,result};
-  }catch(error){await this.observation(id,decision.id,{state:'BLOCKED',reason:error instanceof Error?error.message:'Reconciliation required'});throw error;}
+  }catch(error){
+   const retained=(await this.decision(id))?.factory_observation?.value;
+   await this.observation(id,decision.id,{...retained,
+    ...(retained?.accounting?{accounting:{...retained.accounting,accountingCompleteness:'STALE_READBACK',safeAllowanceMicrousd:null,unknownMicrousd:null,spendEnforcementQualified:false,blocker:'Latest accounting is unverified; retained exposure is not released'}}:{}),
+    state:'BLOCKED',reason:error instanceof Error?error.message:'Reconciliation required'});throw error;
+  }
  }
  async stop(id:string,reason:'cancel'|'takeover'='cancel'){
   const decision=await this.decision(id);if(!decision?.factory_preparation)throw new WorkError('factory_prepare_missing','No Factory preparation exists.');

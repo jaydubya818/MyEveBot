@@ -1,0 +1,14 @@
+{
+  "addedQ37Entry": [
+    "lib/engineering/factory-spend.ts"
+  ],
+  "refreshedOwnedFingerprints": [
+    "lib/engineering/current-truth-lines.ts",
+    "lib/engineering/factory-live-adapter.ts",
+    "lib/engineering/factory-routing.ts",
+    "lib/engineering/factory-work-driver.ts",
+    "lib/engineering/worker-projection.ts"
+  ],
+  "unrelatedEntryBytesChanged": 0,
+  "classificationChanges": 0
+}

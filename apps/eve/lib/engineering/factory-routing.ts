@@ -1,3 +1,4 @@
+import {factorySpendAdmission} from './factory-spend.ts';
 import {readFile} from 'node:fs/promises';
 import {z} from 'zod';
 import {engineeringConfig} from './runtime.ts';
@@ -30,8 +31,10 @@ export class FactoryRouteAuthority {
   const native=await new NativeRouteAuthority(this.store,async()=>config.engineering).read(work);
   const policy=betaPolicySchema.parse(config.routing??{intent:'UNSUPPORTED'});
   // Non-Factory proposals do not depend on Factory transport or paid execution readiness.
-  if(policy.intent==='PRODUCE'&&q.mode==='LIVE'&&!q.spendEnforced)
-   throw new WorkError('factory_spend_unqualified','Live Factory spend enforcement is not qualified.',503);
+  if(policy.intent==='PRODUCE'){
+   const spend=factorySpendAdmission(connection);
+   if(!spend.allowed)throw new WorkError('factory_spend_unqualified',spend.reasons.join('; '),503);
+  }
   const healthy=policy.intent==='PRODUCE'?await new LiveFactoryAdapter(connection).healthy():false;
   const now=Date.now();
   const qualified=q.scopeId===work.scopeId&&q.profileHash===digest(config.engineering.profile)&&Date.parse(q.qualifiedAt)<=now&&Date.parse(q.expiresAt)>now&&

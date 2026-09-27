@@ -1,0 +1,15 @@
+
+> eve-agent@0.0.0 test
+> vitest run lib/engineering/factory-spend.test.ts lib/engineering/factory-beta.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve
+
+ ✓ lib/engineering/factory-spend.test.ts (14 tests) 11ms
+ ✓ lib/engineering/factory-beta.test.ts (13 tests) 9ms
+
+ Test Files  2 passed (2)
+      Tests  27 passed (27)
+   Start at  16:31:58
+   Duration  509ms (transform 165ms, setup 0ms, collect 340ms, tests 20ms, environment 0ms, prepare 69ms)
+

@@ -1,3 +1,5 @@
+import {assertFactorySpendCanStart} from '../lib/engineering/factory-spend.ts';
+import {createServer} from 'node:http';
 import {localRelay,composeFactoryResult} from './factory-q37-composition.mjs';
 import assert from 'node:assert/strict';
 import {randomUUID,randomBytes,generateKeyPairSync,createHash} from 'node:crypto';
@@ -33,7 +35,7 @@ const adminURL='postgresql://postgres@127.0.0.1:55479/postgres',name='factory_be
 const admin=new Client(adminURL);await admin.connect();await admin.query('CREATE DATABASE '+name);const pool=new Pool({connectionString:adminURL.replace(/postgres$/,'')+name});
 const database={query:async(s,p)=>(await pool.query(s,p)).rows};
 const migrationDB={...database,transaction:async ss=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of ss)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
-let supervisor,checks=0,composition;const results=[],journeys=[],terminalReceipts=[];function pass(label){checks++;results.push(label);console.log('PASS',label);}
+let supervisor,spendProvider,providerCalls=0,checks=0,composition;const spendFixture=process.env.FACTORY_SPEND_FIXTURE==='1';const results=[],journeys=[],terminalReceipts=[];function pass(label){checks++;results.push(label);console.log('PASS',label);}
 try{
  const migrations=await loadMigrations();assert.equal(migrations.length,57);
  const pin=JSON.parse(await readFile(new URL('../../../docs/verification/2026-09-27-myfactory-beta/0057-ownership.json',import.meta.url),'utf8'));
@@ -52,12 +54,16 @@ try{
  const pair=generateKeyPairSync('ed25519'),token='a'.repeat(64),key={factoryId:'factory-beta',keyId:'local',publicKey:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
  const signing={factoryId:key.factoryId,currentKeyId:key.keyId,privateKey:pair.privateKey.export({type:'pkcs8',format:'pem'}).toString(),keys:[key]};
  await writeFile(join(dataDir,'connections.json'),JSON.stringify({clients:[{id:'myeve',name:'Local qualification',tokenSha256:createHash('sha256').update(token).digest('hex'),repositoryPaths:[repo],actions:['factory.prepare','factory.dispatch','factory.observe','factory.stop']}]}));
- let executions=0,failCandidate=false,failedExecution=false,heldExecution=null;
- const deps={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic-codex-1',workerProfile:'mac',error:null}),runCodex:async input=>{executions++;if(failedExecution)return {success:false,status:'failed',eventsPath:'fixture',usage:null};if(heldExecution){await heldExecution;return {success:false,status:'cancelled',eventsPath:'fixture',usage:null};}await writeFile(join(input.workspacePath,'quantity.mjs'),failCandidate?historical.workspace[0].candidates[0].files['quantity.mjs']:historical.workspace[0].draft_files['quantity.mjs']);return {success:true,status:'completed',threadId:'local-fixture',eventsPath:'fixture',usage:null};},verifyCandidate:async input=>{await mkdir(input.artifactDir,{recursive:true});const checks=[];for(const [i,command] of input.commands.entries()){const logPath=join(input.artifactDir,i+'.log');await writeFile(logPath,'Untrusted producer claims PASS; MyEve must independently verify.');const at=new Date().toISOString();checks.push({candidateCommit:input.candidateSha,candidateTree:git('rev-parse',input.candidateSha+'^{tree}'),command,status:'passed',exitCode:0,startedAt:at,finishedAt:at,logPath,reason:null});}return {checks,reason:null};}};
- supervisor=createSupervisor({dataDir,resultSigning:signing,jobDependencies:deps,localFactoryFixture:true});await new Promise(r=>supervisor.server.listen(0,'127.0.0.1',r));
+ let executions=0,failCandidate=false,failedExecution=false,heldExecution=null,unknownProvider=false;
+ if(spendFixture){spendProvider=createServer((_req,res)=>{providerCalls++;if(unknownProvider){res.writeHead(503);res.end('synthetic response lost');return;}res.writeHead(200,{'content-type':'application/json','x-request-id':'synthetic-provider-'+providerCalls});res.end(JSON.stringify({id:'fixture-response-'+providerCalls,status:'completed',usage:{input_tokens:10,output_tokens:10}}));});await new Promise(r=>spendProvider.listen(0,'127.0.0.1',r));}
+ const price={revision:'synthetic-v1',model:'gpt-5.5',validUntil:new Date(Date.now()+3600000).toISOString(),contextLimitTokens:1000,outputLimitTokens:100,inputMicrousdPerMillion:1000000,outputMicrousdPerMillion:2000000};
+ const deps={preflightCodex:async()=>({binaryAvailable:true,authenticated:true,version:'synthetic-codex-1',workerProfile:'mac',error:null}),runCodex:async input=>{executions++;if(failedExecution)return {success:false,status:'failed',eventsPath:'fixture',usage:null};if(heldExecution){await heldExecution;return {success:false,status:'cancelled',eventsPath:'fixture',usage:null};}if(spendFixture){assert(input.gateway);const paid=await fetch(input.gateway.baseUrl+'/responses',{method:'POST',headers:{authorization:'Bearer '+input.gateway.childToken,'content-type':'application/json'},body:JSON.stringify({model:'gpt-5.5',input:'synthetic bounded coding request'})});if(unknownProvider){assert.equal(paid.status,503);return {success:false,status:'failed',eventsPath:'synthetic UNKNOWN',usage:null};}assert.equal(paid.status,200);}
+ await writeFile(join(input.workspacePath,'quantity.mjs'),failCandidate?historical.workspace[0].candidates[0].files['quantity.mjs']:historical.workspace[0].draft_files['quantity.mjs']);return {success:true,status:'completed',threadId:'local-fixture',eventsPath:'fixture',usage:null};},verifyCandidate:async input=>{await mkdir(input.artifactDir,{recursive:true});const checks=[];for(const [i,command] of input.commands.entries()){const logPath=join(input.artifactDir,i+'.log');await writeFile(logPath,'Untrusted producer claims PASS; MyEve must independently verify.');const at=new Date().toISOString();checks.push({candidateCommit:input.candidateSha,candidateTree:git('rev-parse',input.candidateSha+'^{tree}'),command,status:'passed',exitCode:0,startedAt:at,finishedAt:at,logPath,reason:null});}return {checks,reason:null};}};
+ supervisor=createSupervisor({dataDir,resultSigning:signing,jobDependencies:deps,localFactoryFixture:!spendFixture,...(spendFixture?{localSpendFixture:{upstreamOrigin:'http://127.0.0.1:'+spendProvider.address().port,upstreamApiKey:'synthetic-provider-only',price}}:{})});await new Promise(r=>supervisor.server.listen(0,'127.0.0.1',r));
  const configuration={model:process.env.FACTORY_CODEX_MODEL??'gpt-5.5',executor:'codex-cli',executorVersion:'synthetic-codex-1',skillRevision:'fd8f20a879b507cf09feba08663a1edf7a949353',workerProfile:'mac',verificationImage:DEFAULT_VERIFICATION_IMAGE,nodeVersion:process.version,platform:process.platform,architecture:process.arch,commands:['node --test'],allowedPaths:engineering.profile.allowedPaths,timeoutMs:1800000};
  const sourceDigest=sourceIdentity(),configurationDigest=digest(configuration);
  const connection={origin:'http://127.0.0.1:'+supervisor.server.address().port,token,factoryId:key.factoryId,sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),repositoryPath:repo,keys:[key],qualification:{scopeId:owner,profileHash:digest(engineering.profile),evidenceRef:'connected local qualification',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),mode:'LOCAL_FIXTURE',spendEnforced:true}};
+ if(spendFixture){const proof={status:'QUALIFIED',evidenceRef:'controlled local consumer fixture; not real provider qualification'};connection.qualification.mode='LOCAL_SPEND_FIXTURE';connection.spendContract={version:'WORK_LEDGER_V1',sourceDigest};connection.qualification.spendReview={environment:'LOCAL_FIXTURE',sourceDigest,factoryVersion:connection.factoryVersion,expiresAt:price.validUntil,hardCeiling:proof,preCallEnforcement:proof,accounting:proof,unknownRetention:proof,completion:proof,pricing:{...proof,model:price.model,revision:price.revision,validUntil:price.validUntil}};}
  const config={engineering,connection,commands:configuration.commands,routing:{intent:'PRODUCE',boundedOperationQualified:false}},store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database);
  const authority=new FactoryRouteAuthority(store,async()=>config),direct=new DirectDevelopmentStore(store,{profile:engineering.profile,approvedBase:engineering.approvedBase,objective:engineering.objective,criteria:engineering.criteria,agentId,issueNumber:1});
  const driver=(adapterFor)=>new FactoryWorkDriver(store,authority,direct,new DockerProtectedVerifier(),async()=>source,adapterFor);
@@ -83,6 +89,19 @@ try{
  }
  pass('LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation');
  pass('Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer');
+ if(spendFixture){
+  for(const field of ['pricing','completion','accounting']){
+   const review=structuredClone(connection.qualification.spendReview);review[field].status='PENDING';review[field].evidenceRef=null;
+   const pending={...config,connection:{...connection,qualification:{...connection.qualification,spendReview:review}}};
+   const rejected=new FactoryWorkDriver(store,new FactoryRouteAuthority(store,async()=>pending),direct,new DockerProtectedVerifier(),async()=>{throw Error('Pending spend qualification acquired source');},()=>{throw Error('Pending spend qualification called Factory');});
+   const work=await fresh('Missing '+field);await assert.rejects(rejected.start(work.id,work.version,work.generation),error=>error.code==='factory_spend_unqualified');assert.equal(await rejected.decision(work.id),null);
+   for(const [intent,route] of [['PLAN','DIRECT'],['INVESTIGATE','DIRECT'],['JUDGMENT','HUMAN']]){
+    const directConfig={...pending,routing:{intent,boundedOperationQualified:false}},unaffected=new FactoryWorkDriver(store,new FactoryRouteAuthority(store,async()=>directConfig),direct,new DockerProtectedVerifier(),async()=>{throw Error('Non-Factory scope acquired source');},()=>{throw Error('Non-Factory scope called Factory');});
+    const selected=await fresh(field+' '+intent);assert.equal((await unaffected.start(selected.id,selected.version,selected.generation)).route,route);
+   }
+  }
+  pass('Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available');
+ }
  for(const failed of [false,true]){
   failCandidate=failed;
   let {work}=await store.create({title:'Connected Factory '+(failed?'failure':'success'),objective:engineering.objective,repository:engineering.profile.repository,criteria:engineering.criteria,maxCostUsd:1.3,maxDurationSeconds:600,idempotencyKey:randomUUID()});work=await store.change(work.id,{operation:'resume',expectedVersion:work.version});
@@ -92,6 +111,7 @@ try{
   assert.equal(state.state,failed?'FAILED':'PARTIAL');assert.equal(executions,failed?2:1);
   const ws=(await direct.inspect(work.id)).workspace;assert.equal(ws.producer,'MYFACTORY');assert(ws.evidence.length);assert.equal((await driver().step(work.id)).state,state.state);assert.equal(executions,failed?2:1);
   const truth=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;assert.equal(truth.readiness.ready,false);assert(truth.factoryWriter.dispatchIdentity);assert(truth.factoryWriter.remoteRunId);assert(truth.factoryWriter.requestId);assert.equal(truth.factoryPreparation.state,'COMPLETED');
+  if(spendFixture){assert.equal(truth.factoryAccounting.settledMicrousd,30);assert.equal(truth.factoryAccounting.reservedMicrousd,0);assert.equal(truth.factoryAccounting.ceilingMicrousd,1300000);assert(currentTruthLines(truth).some(line=>line.includes('Factory Work budget:')));}
   const decision=await driver().decision(work.id);await assert.rejects(pool.query("UPDATE engineering_routing_decisions SET factory_preparation='{}' WHERE id=$1",[decision.id]),/immutable/);await assert.rejects(pool.query('DELETE FROM engineering_routing_decisions WHERE id=$1',[decision.id]),/deleted/);
   journeys.push({workId:work.id,outcome:state.state,writer:truth.factoryWriter,explanation:currentTruthLines(truth),candidate:ws.candidates[0].sha,evidenceCount:ws.evidence.length,resultId:state.result.id});
   pass('Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification '+(failed?'FAIL':'PASS')+'; restarted driver replay cannot dispatch twice');
@@ -190,7 +210,20 @@ try{
  await assert.rejects(driver(offline).start(unavailable.id,unavailable.version,unavailable.generation));assert(called>0);
  assert.equal((await database.query('SELECT * FROM engineering_route_runs WHERE work_id=$1',[unavailable.id])).length,0);
  const pendingTruth=(await new EngineeringWorkerProjectionStore(store,agentId).get(unavailable.id)).projection;assert.equal(pendingTruth.factoryPreparation.state,'BLOCKED');assert(pendingTruth.factoryPreparation.blocker.includes('Offline'));assert(currentTruthLines(pendingTruth).some(line=>line.includes('Offline')));pass('Unavailable preparation retains request and grants no writer');
+ if(spendFixture){
+  unknownProvider=true;failedExecution=false;const work=await fresh('UNKNOWN accounting'),before=executions;
+  let state=await driver().start(work.id,work.version,work.generation);
+  for(let i=0;i<100&&state.state!=='TERMINAL';i++){await new Promise(r=>setTimeout(r,40));state=await driver().step(work.id);}
+  assert.equal(state.state,'TERMINAL');assert.equal(executions,before+1);
+  let truth=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+  assert.equal(truth.factoryWriter.state,'TERMINAL');assert.equal(truth.factoryAccounting.unknownMicrousd,1200);assert.equal(truth.factoryAccounting.reservedMicrousd,1200);assert.equal(truth.factoryAccounting.safeAllowanceMicrousd,1298800);
+  assert(currentTruthLines(truth).some(line=>line.includes('uncertain $0.001200')));assert(truth.nextStep.includes('reconcile'));
+  const spent=truth.factoryWriter.observation.spend;assert.throws(()=>assertFactorySpendCanStart(spent),/reconciliation/);
+  await driver().step(work.id);truth=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+  assert.equal(truth.factoryAccounting.unknownMicrousd,1200);assert.equal(executions,before+1);assert.equal(truth.readiness.ready,false);
+  pass('Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation');
+ }
  const overlap=(await pool.query("SELECT work_id FROM engineering_route_runs WHERE status NOT IN ('COMPLETED','FAILED','CANCELLED') GROUP BY work_id HAVING count(*)>1")).rowCount;assert.equal(overlap,0);
- const output={checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-5,falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:'Local real transport, synthetic executor, real independent Docker verifier'};
+ const output={spendFixture,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?6:5),falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
-}finally{if(supervisor)await supervisor.close();await pool.end();await admin.query('DROP DATABASE '+name+' WITH (FORCE)');await admin.end();await rm(dir,{recursive:true,force:true});}
+}finally{if(supervisor)await supervisor.close();if(spendProvider)await new Promise(r=>spendProvider.close(r));await pool.end();await admin.query('DROP DATABASE '+name+' WITH (FORCE)');await admin.end();await rm(dir,{recursive:true,force:true});}
