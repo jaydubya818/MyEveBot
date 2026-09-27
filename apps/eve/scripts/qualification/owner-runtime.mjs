@@ -28,17 +28,19 @@ const email=serve&&process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE?(()=>{
  const pin=JSON.parse(readFileSync(process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE,'utf8'));
  const ref=/^keychain:([A-Za-z0-9._-]{3,100})\/([A-Za-z0-9._-]{3,100})$/.exec(process.env.MYEVE_AGENTMAIL_KEY_REF??'');
  const inbox=process.env.MYEVE_AGENTMAIL_INBOX_ID??'';
- if(!ref||!inbox||pin.maxSends!==1||Object.keys(pin).sort().join()!=='issuedAt,maxSends,pinId,recipient,subject,text'||!/^email-pin-[0-9]{1,3}$/.test(pin.pinId))throw new Error('Email mode requires an exact pin file (pinId, issuedAt, one send), a keychain AgentMail reference and a sender inbox');
- // Each pin is a separate owner authorization. An exhausted pin's exact draft can never be reissued,
- // and a pin id can never be reused.
+ if(!ref||!inbox||pin.maxSends!==1||Object.keys(pin).sort().join()!=='maxSends,pinId,recipient,subject,text'||!/^email-pin-[0-9]{1,3}$/.test(pin.pinId))throw new Error('Email mode requires an exact pin file (pinId, one send), a keychain AgentMail reference and a sender inbox');
+ // Exhausted pins are registered as exhausted in the durable ledger before any new pin, so their
+ // drafts and ids can never be reissued. Their evidence files are never modified.
  const pinDir=path.dirname(process.env.MYEVE_QUALIFICATION_EMAIL_PIN_FILE);
- for(const name of readdirSync(pinDir).filter(n=>/^email-pin-.*-EXHAUSTED\.json$/.test(n))){
+ const exhausted=readdirSync(pinDir).filter(n=>/^email-pin-[0-9]{1,3}-EXHAUSTED\.json$/.test(n)).map(name=>{
   const spent=JSON.parse(readFileSync(path.join(pinDir,name),'utf8'));
-  if(name.startsWith(`${pin.pinId}-`)||(spent.recipient===pin.recipient&&spent.subject===pin.subject&&spent.text===pin.text))throw new Error(`Pin ${pin.pinId} reuses exhausted ${name}; refusing`);
- }
+  const status=JSON.parse(readFileSync(path.join(pinDir,name.replace(/\.json$/,'.status.json')),'utf8'));
+  if(status.status!=='EXHAUSTED'||!status.action||!status.completedAt)throw new Error(`Exhausted pin ${name} lacks its evidence record`);
+  return {pinId:name.replace(/-EXHAUSTED\.json$/,''),draft:{recipient:spent.recipient,subject:spent.subject,text:spent.text},action:status.action,exhaustedAt:status.completedAt};
+ });
  const key=execFileSync('/usr/bin/security',['find-generic-password','-s',ref[1],'-a',ref[2],'-w'],{encoding:'utf8'}).trim();
  if(!key)throw new Error('AgentMail reference empty');
- return {key,inbox,env:{MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:pin.recipient,MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:pin.subject,MYEVE_OWNER_LOCAL_EMAIL_TEXT:pin.text,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:'1',MYEVE_OWNER_LOCAL_EMAIL_ISSUED_AT:pin.issuedAt},pinId:pin.pinId};
+ return {key,inbox,exhausted,pinId:pin.pinId,env:{MYEVE_OWNER_LOCAL_EMAIL_PIN_ID:pin.pinId,MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT:pin.recipient,MYEVE_OWNER_LOCAL_EMAIL_SUBJECT:pin.subject,MYEVE_OWNER_LOCAL_EMAIL_TEXT:pin.text,MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS:'1'}};
 })():null;
 if(serve&&(!/^[A-Za-z0-9._:-]{3,128}$/.test(serve.keyId)||!serve.publicKeyFile.startsWith('/')||!/^tgb_[0-9a-f]{32}$/.test(serve.binding)||!Number.isSafeInteger(serve.windowMs)||serve.windowMs<60000||serve.windowMs>3600000))
  throw new Error('serve requires RELAY_QUALIFICATION_KEY_ID, absolute RELAY_QUALIFICATION_PUBLIC_KEY_FILE, a tgb_ MYEVE_OWNER_LOCAL_SOURCE_IDENTITY and a 1-60 minute MYEVE_QUALIFICATION_WINDOW_MS');
@@ -57,6 +59,18 @@ const campaign=process.env.MYEVE_QUALIFICATION_CAMPAIGN_DIR??path.join(process.e
 if((await pool.query('SHOW data_directory')).rows[0].data_directory!==path.join(campaign,'postgres'))throw new Error('Port 55447 is not the active campaign ledger; refusing');
 try{await access(path.join(campaign,'campaign.lock','owner.json'));}catch{throw new Error('Exclusive campaign lock not held; refusing');}
 if(!(await pool.query("SELECT to_regclass('public.owner_qualification_budget') present")).rows[0].present)throw new Error('Qualification budget ledger missing; restore existing campaign');
+if(email){
+ const {qualificationDraftSha256,qualificationEmailPin,registerQualificationEmailPin}=await import(path.join(root,'lib/relay/owner/qualification-email.ts'));
+ const ledger={query:async(text,params=[])=>(await pool.query(text,params)).rows};
+ for(const spent of email.exhausted){
+  await pool.query(`INSERT INTO owner_qualification_email_pins(pin_id,draft_sha256,max_sends,attempts,first_attempt_action_id,exhausted_at) VALUES($1,$2,1,1,$3,$4) ON CONFLICT DO NOTHING`,[spent.pinId,qualificationDraftSha256(spent.draft),spent.action,spent.exhaustedAt]);
+  const state=await registerQualificationEmailPin(ledger,{pinId:spent.pinId,draftSha256:qualificationDraftSha256(spent.draft),maxSends:1});
+  if(state.remaining!==0)throw new Error(`Exhausted pin ${spent.pinId} is not exhausted in the ledger; refusing`);
+ }
+ const active=qualificationEmailPin(email.env);
+ const state=await registerQualificationEmailPin(ledger,active);
+ console.log(JSON.stringify({phase:'email_pin',pinId:active.pinId,draftSha256:active.draftSha256,attempts:state.attempts,remaining:state.remaining,exhaustedPins:email.exhausted.map(x=>x.pinId)}));
+}
 const canary='MYEVE_PRIVATE_CANARY_qualification_do_not_export_709b';
 await pool.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,preferred_model,status,max_steps,max_runtime_seconds,max_estimated_cost_usd)
  VALUES('qualification-agent','qualification-owner','qualification','Qualification','Public research',$1,true,'anthropic/claude-sonnet-5','active',8,60,0.1) ON CONFLICT(id) DO NOTHING`,[canary]);

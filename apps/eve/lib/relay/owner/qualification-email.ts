@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { ActionAdapter } from "../../action-gateway.ts";
 import type { ExecutionDatabase } from "../../execution-types.ts";
 
@@ -8,28 +9,37 @@ import type { ExecutionDatabase } from "../../execution-types.ts";
  * recovery stay canonical. A draft that differs from the pin is rejected in
  * resolveTarget, before any approval can be requested.
  *
- * Each pin is a separate owner authorization with its own issuance time. Its single
- * attempt is counted over every email attempt created at or after that time (any
- * draft), so a pin never inherits an earlier pin's exhausted attempt and can never
- * add more than one send. Earlier pins stay exhausted: the harness refuses to reissue
- * their exact drafts.
+ * Each pin is a separate owner authorization identified by its id and the digest of
+ * its exact draft. Its single attempt is consumed atomically in the durable,
+ * append-only owner_qualification_email_pins ledger before the provider is called,
+ * so restarts, reloads or re-registration cannot restore it, and an exhausted draft
+ * cannot be reissued under another id.
  */
-export interface QualificationEmailPin { recipient: string; subject: string; text: string; maxSends: 1; issuedAt: string }
+export interface QualificationEmailPin { pinId: string; recipient: string; subject: string; text: string; maxSends: 1; draftSha256: string }
 export const QUALIFICATION_OWNER_ID = "qualification-owner";
-// Every status reached once execution started; any of them consumes the single allowed attempt.
-const ATTEMPTED = ["executing", "verifying", "completed", "failed", "result_unknown", "recovering", "needs_you", "retryable"] as const;
 
-export function qualificationEmailPin(env: Record<string, string | undefined>, now: () => number = Date.now): QualificationEmailPin | null {
+export function qualificationDraftSha256(draft: { recipient: string; subject: string; text: string }) {
+  return createHash("sha256").update(JSON.stringify([draft.recipient, draft.subject, draft.text])).digest("hex");
+}
+
+export function qualificationEmailPin(env: Record<string, string | undefined>): QualificationEmailPin | null {
   const recipient = env.MYEVE_OWNER_LOCAL_EMAIL_RECIPIENT, subject = env.MYEVE_OWNER_LOCAL_EMAIL_SUBJECT, text = env.MYEVE_OWNER_LOCAL_EMAIL_TEXT;
   if (recipient === undefined && subject === undefined && text === undefined) return null;
   if (!recipient || !/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(recipient) || recipient.length > 254) throw new Error("Qualification email recipient invalid.");
   if (!subject || subject.length > 200 || /[\r\n]/.test(subject)) throw new Error("Qualification email subject invalid.");
   if (!text || text.length > 2000) throw new Error("Qualification email text invalid.");
   if (env.MYEVE_OWNER_LOCAL_EMAIL_MAX_SENDS !== "1") throw new Error("Qualification email requires MAX_SENDS=1.");
-  const issued = env.MYEVE_OWNER_LOCAL_EMAIL_ISSUED_AT ?? "";
-  const issuedMs = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,3})?Z$/.test(issued) ? Date.parse(issued) : NaN;
-  if (!Number.isFinite(issuedMs) || issuedMs > now() + 60_000) throw new Error("Qualification email requires an issuance time.");
-  return { recipient, subject, text, maxSends: 1, issuedAt: new Date(issuedMs).toISOString() };
+  const pinId = env.MYEVE_OWNER_LOCAL_EMAIL_PIN_ID ?? "";
+  if (!/^email-pin-[0-9]{1,3}$/.test(pinId)) throw new Error("Qualification email requires a pin id.");
+  return { pinId, recipient, subject, text, maxSends: 1, draftSha256: qualificationDraftSha256({ recipient, subject, text }) };
+}
+
+/** Registers a pin idempotently. Never resets attempts; refuses any id/draft rebinding. */
+export async function registerQualificationEmailPin(database: ExecutionDatabase, pin: Pick<QualificationEmailPin, "pinId" | "draftSha256" | "maxSends">) {
+  await database.query(`INSERT INTO owner_qualification_email_pins(pin_id,draft_sha256,max_sends) VALUES($1,$2,$3) ON CONFLICT DO NOTHING`, [pin.pinId, pin.draftSha256, pin.maxSends]);
+  const rows = await database.query(`SELECT pin_id,draft_sha256,attempts,max_sends FROM owner_qualification_email_pins WHERE pin_id=$1 OR draft_sha256=$2`, [pin.pinId, pin.draftSha256]) as Array<{ pin_id: string; draft_sha256: string; attempts: number; max_sends: number }>;
+  if (rows.length !== 1 || rows[0].pin_id !== pin.pinId || rows[0].draft_sha256 !== pin.draftSha256) throw new Error("Qualification email pin conflicts with a registered pin.");
+  return { attempts: Number(rows[0].attempts), remaining: Number(rows[0].max_sends) - Number(rows[0].attempts) };
 }
 
 const list = (value: unknown) => value === undefined || value === null ? [] : Array.isArray(value) ? value : [value];
@@ -52,10 +62,15 @@ export function pinnedQualificationEmail<Result>(adapter: ActionAdapter<Result>,
     async execute(parameters, context) {
       if (!pin) throw new Error("Email is not authorized in this qualification process.");
       assertPinnedDraft(parameters, pin);
-      // Concurrent attempts see each other as executing and both fail closed.
-      const [row] = await database().query(`SELECT count(*)::int AS n FROM action_requests WHERE owner_id=$1 AND capability_id='tool.send_email' AND id<>$2 AND status = ANY($3::text[]) AND created_at >= $4::timestamptz`,
-        [QUALIFICATION_OWNER_ID, context.idempotencyKey, [...ATTEMPTED], pin.issuedAt]) as Array<{ n: number }>;
-      if (Number(row?.n ?? 1) >= pin.maxSends) throw new Error("Qualification email send limit reached.");
+      // Consume the pin's single attempt durably and atomically before the provider call.
+      // Concurrent attempts serialize on the row; at most one succeeds. A failed send keeps
+      // the attempt consumed (containment), and an unregistered pin sends nothing.
+      const consumed = await database().query(`UPDATE owner_qualification_email_pins
+        SET attempts=attempts+1, first_attempt_action_id=COALESCE(first_attempt_action_id,$3),
+            exhausted_at=CASE WHEN attempts+1>=max_sends THEN now() ELSE NULL END
+        WHERE pin_id=$1 AND draft_sha256=$2 AND attempts<max_sends RETURNING pin_id`,
+        [pin.pinId, pin.draftSha256, context.idempotencyKey]) as Array<{ pin_id: string }>;
+      if (consumed.length !== 1) throw new Error("Qualification email send limit reached.");
       return adapter.execute(parameters, context);
     },
   };
