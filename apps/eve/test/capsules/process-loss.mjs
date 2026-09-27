@@ -12,6 +12,11 @@ if (phase === 'manifest') process.kill(process.pid, 'SIGKILL');
 const capsule = exportCapsule({ candidates: source, selectedIds, ownerRef, eveRef: 'sofie-a', reviewedDigest: review.reviewDigest });
 if (phase === 'finalization') process.kill(process.pid, 'SIGKILL');
 const adapter = new FixtureDestination(path, undefined, reached => { if (reached === phase) process.kill(process.pid, 'SIGKILL'); });
+if (phase === 'conflict_resolution') {
+  const existing = structuredClone(source[0].item);
+  existing.text = 'Newer destination preference'; existing.version = '2.0.0';
+  adapter.seedCurrent([existing]);
+}
 const destination = await adapter.snapshot();
 const raw = canonicalJson(capsule);
 const preview = previewImport(raw, destination);

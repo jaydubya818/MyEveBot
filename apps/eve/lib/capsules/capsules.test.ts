@@ -220,9 +220,10 @@ describe("Real process loss and recovery", () => {
     try {
       expect(child.signal, child.stderr).toBe("SIGKILL");
       const state = await adapter.snapshot(); expect(state.imported).toHaveLength(phase === "after_commit" ? 9 : 0);
+      if (phase === "conflict_resolution") expect(state.current[0].text).toBe("Newer destination preference");
       if (phase === "after_commit") expect(state.imported.every(r => r.provenance.capsuleDigest.startsWith("sha256:"))).toBe(true);
       const raw = canonicalJson(exported()); const p = previewImport(raw, state);
-      const batch = prepareImport(raw, state, p.reviewDigest, p.items.map(row => ({ id: row.item.id, choice: row.status === "duplicate" ? "keep_existing" : "include" })));
+      const batch = prepareImport(raw, state, p.reviewDigest, p.items.map(row => ({ id: row.item.id, choice: row.status === "duplicate" ? "keep_existing" : row.status === "conflict" ? "stage_incoming" : "include" })));
       await adapter.commit(batch); expect((await adapter.snapshot()).imported).toHaveLength(9);
     } finally { adapter.close(); rmSync(dir, { recursive: true, force: true }); }
   }, 30_000);
