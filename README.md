@@ -1,5 +1,12 @@
 # MyEveBot
 
+**Owner experience branch:** Today, Work, Needs you, Daily Brief, Results and Proof
+of Work are implemented against the existing stable APIs. Start at `/today`;
+use `/beta-preview` for the explicitly labeled sample journey. Read the
+[design partner guide](docs/beta-guide.md), [Digital Worker UX integration boundary](docs/digital-worker-ux.md),
+and [product audit](docs/verification/beta-product-experience/AUDIT.md).
+Production execution and independent verification remain separate qualification gates.
+
 [MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Cloudflare's [Kumo](https://github.com/cloudflare/kumo) components.
 
 Each deployment serves one owner by default for a simple security boundary. MyEve, Relay, and MyFactory keep separate authority and state: MyEve is the owner's agent, Relay is an optional governed capability plane, and MyFactory is a local software-delivery supervisor. Connecting them is explicit and does not grant an agent permission to approve, merge, or deploy its own work.
