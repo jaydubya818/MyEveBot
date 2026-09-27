@@ -1,0 +1,48 @@
+{
+  "boundary": "SYNTHETIC_LOCAL_ONLY",
+  "workId": "d3cf913a-f352-41d6-953e-2207d3f32c51",
+  "requestId": "37512507-729c-4bae-a4a9-24960c71a550",
+  "factoryVersion": {
+    "myFactoryCommit": "543906dc20fefed2def97e43953095ea0b7c60bc",
+    "configurationDigest": "186d0018a0c98593885c92cded6876ca3e63eeb5cd8d465bf1f2960bca3910ce"
+  },
+  "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+  "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+  "attempt": 1,
+  "candidate": {
+    "candidateCommit": "8b06af3758dc109ba0903db23db8076e867ca22f",
+    "candidateTree": "550c60f1cf6a7fac320c5f824f76d2af506940b6",
+    "changedPaths": [
+      "answer.ts"
+    ],
+    "diffPath": "/fixture/artifacts/candidate.patch",
+    "diffSha256": "2667ecfc62348ed791b9e0f22c489e45391f99ad260de6062c38c23b78b1fc5c"
+  },
+  "checks": [
+    {
+      "id": "657cf806-849b-43c0-a936-000000000001",
+      "command": "node check-answer.mjs",
+      "status": "passed",
+      "logSha256": "51128947b41d47385010640ce678e71fadc4cdcdc8dc87c2ace3c12852f684d2"
+    },
+    {
+      "id": "657cf806-849b-43c0-a936-000000000002",
+      "command": "git diff --check",
+      "status": "passed",
+      "logSha256": "d732952941b6634c0dd4a3891cd3b2d21a7a859ccb7051b651a183105c312d64"
+    }
+  ],
+  "artifactCount": 3,
+  "custodyDigest": "e0980c142f321ee5f92f06d70158cbf78a8afe3f7a0fd49655b9ad15fc977a3f",
+  "disposition": "RECEIVED",
+  "reportedStatus": "completed",
+  "trust": "FACTORY_REPORTED",
+  "integrity": "MATCHED_LOCAL_PINS",
+  "duplicateDisposition": "DEDUPED",
+  "lateAfterCancellation": "HISTORICAL",
+  "cancellationUnknown": "UNKNOWN",
+  "authorityGranted": false,
+  "independentVerification": "NOT_RUN",
+  "readiness": "NOT_READY",
+  "liveFactory": "NOT_RUN"
+}
