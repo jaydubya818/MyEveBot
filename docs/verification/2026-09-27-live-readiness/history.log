@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "checkpointSha256": "1035868902946349a3833e910849f7b4df307c194db0b7c8eeb790166be0c95c",
+  "checkpointModified": false,
+  "migrationChecksum": "dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc",
+  "preparationMigrationChecksum": "787b26a37700c890d0cee38ab47bb2b5e51c24cd70a28568f98d7d009072f057",
+  "populatedReceiptUpgrade": "PASS",
+  "populatedFailureRollback": "PASS",
+  "rerun": "PASS",
+  "preservedRows": {
+    "engineering_work": 2,
+    "engineering_routing_decisions": 1,
+    "engineering_route_runs": 1,
+    "engineering_native_runtime": 1,
+    "engineering_direct_workspaces": 1,
+    "engineering_direct_verification_jobs": 1,
+    "engineering_native_results": 1,
+    "engineering_work_model_calls": 0
+  },
+  "oldColumnsChanged": 0,
+  "factoryAuthorityAdded": 0
+}

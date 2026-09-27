@@ -3339,7 +3339,7 @@
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "47e4ead410824c2effa2f76c340bc5ca6a4e39e6f0c299ac31f98b70b8da2322"
+      "sha256": "1c79bef39f7b7115922292f85cb4aa7c187eb7568039fd7a2b10ee94743c45a5"
     },
     "app/api/engineering/work/[id]/factory/route.ts": {
       "classification": "INTERNAL",

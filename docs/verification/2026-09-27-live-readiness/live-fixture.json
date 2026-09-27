@@ -1,0 +1,128 @@
+{
+  "repository": "/private/tmp/q37-readiness-qualification/live-fixture",
+  "remoteConfigured": false,
+  "baseSha": "024bab53fbde4577deab812a1e9705f8118b176f",
+  "treeSha": "f9a6e11fee187537f47a6761accd5a43cf760101",
+  "files": {
+    "README.md": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73",
+    ".gitignore": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97",
+    "package.json": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e",
+    "test/quantity.test.mjs": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5",
+    ".github/workflows/quantity-ci.yml": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+  },
+  "allowedChanges": [
+    "quantity.mjs"
+  ],
+  "objective": "Implement the approved quantity CLI and verify it independently.",
+  "criteria": [
+    {
+      "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+      "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract.",
+      "method": "test"
+    }
+  ],
+  "protectedChecks": [
+    {
+      "id": "quantity-0",
+      "program": "quantity.mjs",
+      "input": "2",
+      "expectedOutput": "{\"quantity\":2}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-1",
+      "program": "quantity.mjs",
+      "input": "1",
+      "expectedOutput": "{\"quantity\":1}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-2",
+      "program": "quantity.mjs",
+      "input": "42\n",
+      "expectedOutput": "{\"quantity\":42}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-3",
+      "program": "quantity.mjs",
+      "input": "  7  \n",
+      "expectedOutput": "{\"quantity\":7}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-4",
+      "program": "quantity.mjs",
+      "input": "0",
+      "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-5",
+      "program": "quantity.mjs",
+      "input": "-1",
+      "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-6",
+      "program": "quantity.mjs",
+      "input": "-5\n",
+      "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-7",
+      "program": "quantity.mjs",
+      "input": "1.5",
+      "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-8",
+      "program": "quantity.mjs",
+      "input": "0.25",
+      "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    },
+    {
+      "id": "quantity-9",
+      "program": "quantity.mjs",
+      "input": "2.7\n",
+      "expectedOutput": "{\"error\":\"invalid_quantity\"}\n",
+      "expectedExitCode": 0,
+      "criterionIds": [
+        "adee18e6-0076-45e7-b8e9-cccb2a898f4d"
+      ]
+    }
+  ],
+  "bundleSha256": "6e72f003b10d9e37d4d4df6cd8e57c44cb8e25556b2ac10b180f078f31d45b1b",
+  "executionStarted": false
+}

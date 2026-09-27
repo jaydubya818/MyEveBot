@@ -13,6 +13,13 @@ describe('Factory beta boundaries',()=>{
   for(const key of ['factoryQualified','factoryAvailable','writerFree','scopeAllowed','budgetAvailable'])expect(betaRoute('PRODUCE',{...eligible,[key]:false}).route).toBe('HUMAN');
   expect(betaRoute('PLAN',eligible).route).toBe('DIRECT');expect(betaRoute('INVESTIGATE',eligible).route).toBe('DIRECT');expect(betaRoute('APPROVE',eligible).route).toBe('HUMAN');
  });
+ it('keeps bounded operations behind separate qualification and sends unsupported judgment to human',()=>{
+  expect(betaRoute('BOUNDED_OPERATION',eligible).route).toBe('HUMAN');
+  expect(betaRoute('BOUNDED_OPERATION',{...eligible,boundedOperationQualified:true}).route).toBe('DIRECT');
+  for(const key of ['scopeAllowed','budgetAvailable','writerFree'])expect(betaRoute('BOUNDED_OPERATION',{...eligible,boundedOperationQualified:true,[key]:false}).route).toBe('HUMAN');
+  for(const intent of ['UNSUPPORTED','JUDGMENT'] as const)expect(betaRoute(intent,eligible).route).toBe('HUMAN');
+  expect(betaRoute('unknown' as never,eligible).route).toBe('HUMAN');
+ });
  it.each(['https://evil.invalid','http://localhost:12345','http://127.0.0.1:12345/private','http://x:y@127.0.0.1:12345'])('rejects unqualified credential destination %s',origin=>{expect(()=>new LiveFactoryAdapter({...config,origin})).toThrow();});
  it('rejects owner-supplied connection, qualification or dispatch bindings',()=>{
   const input={operation:'start',expectedWorkVersion:2,expectedWorkGeneration:2};expect(factoryActionSchema.safeParse(input).success).toBe(true);

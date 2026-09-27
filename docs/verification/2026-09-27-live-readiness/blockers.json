@@ -1,0 +1,31 @@
+{
+  "cliVersion": "codex-cli 0.157.0",
+  "cliAuthenticationConfigured": true,
+  "apiKeyCopiedOrUsedForModelCall": false,
+  "producerPin": "d9564beef41590c3700069ec340d926db23b7ba7",
+  "producerPaidMode": "DISABLED",
+  "qualifiedPerWorkSpendEnforcement": false,
+  "liveFactoryVersion": "UNQUALIFIED",
+  "missingLoginIsNotTheBlocker": true,
+  "remaining": [
+    {
+      "id": "spend-enforcement",
+      "status": "BLOCKED",
+      "detail": "Pinned producer supports qualified zero-cost fixtures only; its direct Codex CLI path has no qualified pre-request Work-specific currency reservation. Enabling paid dispatch now would weaken the hard spend invariant. A dedicated budget-enforcing runtime/provider credential must be qualified; an ambient login is insufficient."
+    },
+    {
+      "id": "live-profile",
+      "status": "BLOCKED_ON_SPEND_ENFORCEMENT",
+      "detail": "Actual executor/FactoryVersion cannot be declared live-qualified from synthetic executor pins."
+    },
+    {
+      "id": "live-authorization",
+      "status": "NOT_REQUESTED",
+      "detail": "No live approval request or run until the bounded runtime is qualified."
+    }
+  ],
+  "officialReferences": [
+    "https://developers.openai.com/codex/config-reference",
+    "https://developers.openai.com/api/docs/guides/spend-limits"
+  ]
+}

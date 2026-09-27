@@ -6,6 +6,8 @@
 
 **Independent review correction:** [terminal receipt retention](docs/verification/2026-09-27-factory-terminal-receipts/REPORT.md) now preserves signed FAILED/CANCELLED evidence after writer fencing. Connected, Gate B/C, application, governance and webpack checks pass; applied migration bytes remain unchanged.
 
+**Live-readiness checkpoint:** independent review of `21973e5bf646ceec4c68dc90625ff020d405d7a9` is **PASS**. [Fresh runtime qualification and pinned fixture](docs/verification/2026-09-27-live-readiness/REPORT.md) pass locally. CLI authentication exists; the remaining blocker is an unqualified per-Work spend-enforcement boundary, not a missing login. Paid dispatch remains disabled; **Live MyFactory = NOT READY / NOT_RUN**.
+
 
 **Canonical Digital Worker integration (2026-09-27):** `codex/digital-worker-integration` combines M1 implementation `90d668f`, its documentation-only `78b6bef` update, and qualified Gate C `96ae446`. [Combined evidence and canonical commit identity](docs/verification/2026-09-27-digital-worker-integration/REPORT.md) record local M1 **PASS** (Result **PARTIAL**), M1 live **NOT QUALIFIED**, Gate C **PASS / CLOSED**, and **zero cross-boundary authority violations / false Ready**. Migration 0053 and Gate C 0054 are unchanged; the legacy remote migration is renumbered byte-for-byte to registered 0055. The dirty older Digital Worker implementation is superseded, with its historical evidence preserved under its owner. That immutable baseline preceded Gate B; the forward 0056 tranche and its actual local qualification are recorded above. Live MyFactory remains **NOT_RUN**.
 

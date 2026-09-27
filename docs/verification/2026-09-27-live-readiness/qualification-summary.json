@@ -1,0 +1,42 @@
+{
+  "reviewedBaseline": "21973e5bf646ceec4c68dc90625ff020d405d7a9",
+  "producer": "d9564beef41590c3700069ec340d926db23b7ba7",
+  "application": {
+    "passed": 1555,
+    "skipped": 40
+  },
+  "rootSecurityPassed": 151,
+  "producerPassed": 101,
+  "gateBPassed": 23,
+  "gateCPassed": 47,
+  "connectedPassed": 12,
+  "postgresql": "PASS",
+  "dockerRuntime": "PASS",
+  "typecheck": "PASS",
+  "migrationValidation": {
+    "status": "PASS",
+    "count": 57
+  },
+  "webpack": "PASS",
+  "governance": {
+    "status": "PASS",
+    "unknown": 0,
+    "unrelatedEntriesChanged": 0
+  },
+  "safetyCounters": {
+    "concurrentWriters": 0,
+    "duplicateExecutions": 0,
+    "duplicateConsequentialDispatches": 0,
+    "postFenceStarts": 0,
+    "falseQuiescence": 0,
+    "staleMutations": 0,
+    "lostCustody": 0,
+    "historicalReceiptAuthorityGrants": 0,
+    "incompleteBindingAdmissions": 0,
+    "falseReady": 0
+  },
+  "coordinationDebt": 0,
+  "counterScope": "Bounded local fixture assertions, including separate restarted worker; not live telemetry",
+  "liveMyFactory": "NOT_READY",
+  "paidExecution": "NOT_RUN"
+}

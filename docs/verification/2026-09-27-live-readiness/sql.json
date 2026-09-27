@@ -1,0 +1,22 @@
+[
+  {
+    "test": "route-admission",
+    "exitCode": 0
+  },
+  {
+    "test": "engineering-work-context",
+    "exitCode": 0
+  },
+  {
+    "test": "worker-projection",
+    "exitCode": 0
+  },
+  {
+    "test": "engineering-direct-verifier",
+    "exitCode": 0
+  },
+  {
+    "test": "legacy-factory-migration",
+    "exitCode": 0
+  }
+]

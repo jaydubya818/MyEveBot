@@ -8,6 +8,8 @@ implementation_authorized: true
 
 # MyEve Digital Worker MVP
 
+**Current runtime/independent review checkpoint:** [local readiness record](../verification/2026-09-27-live-readiness/REPORT.md). Review of `21973e5` PASS; local runtime gates requalified; fixed bounded-operation/unsupported routing; exact synthetic live fixture prepared. Live is NOT READY because the pinned paid executor has no qualified per-Work hard spend boundary. Existing API authentication does not close that gate.
+
 **Connected MyFactory local qualification (2026-09-27): PASS.** The canonical consumer on `codex/digital-worker-integration` pairs with producer `d9564beef41590c3700069ec340d926db23b7ba7`. Registered immutable **0056 + 0057** retain two-stage preparation/binding, one productive writer, exactly-once dispatch, UNKNOWN/STOPPING recovery, Gate C receipts, immutable Factory custody and independent protected verification. Both success and Factory → new native repair retain **PARTIAL**, never Ready. Current Truth and owner controls share an unattended reconciliation driver. [Canonical evidence](../verification/2026-09-27-myfactory-beta/REPORT.md) and [routing/operator guide](../myfactory-operator.md) distinguish real local HTTP/PostgreSQL/Docker qualification from synthetic model/Relay/GitHub/learning contracts. **Live MyFactory = NOT READY / NOT_RUN**: paid execution is disabled until a spend-enforcing executor and credential/runtime are qualified. M1 local is PASS; native live remains EXPERIMENTAL. Independent review is pending on the committed candidate.
 
 

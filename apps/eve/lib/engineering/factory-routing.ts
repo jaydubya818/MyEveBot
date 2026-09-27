@@ -41,9 +41,11 @@ export class FactoryRouteAuthority {
  }
 }
 /** Product vocabulary only. Execution still requires canonical admission. */
-export function betaRoute(intent:'INVESTIGATE'|'PLAN'|'PRODUCE'|'APPROVE',facts:{factoryQualified:boolean;factoryAvailable:boolean;writerFree:boolean;scopeAllowed:boolean;budgetAvailable:boolean;readOnlyAllowed:boolean}){
- if(intent==='APPROVE'||!facts.scopeAllowed)return {route:'HUMAN',reason:'Owner judgment or unsupported scope'} as const;
+export function betaRoute(intent:'INVESTIGATE'|'PLAN'|'BOUNDED_OPERATION'|'PRODUCE'|'APPROVE'|'JUDGMENT'|'UNSUPPORTED',facts:{factoryQualified:boolean;factoryAvailable:boolean;writerFree:boolean;scopeAllowed:boolean;budgetAvailable:boolean;readOnlyAllowed:boolean;boundedOperationQualified?:boolean}){
+ if(intent==='APPROVE'||intent==='JUDGMENT'||intent==='UNSUPPORTED'||!facts.scopeAllowed)return {route:'HUMAN',reason:'Owner judgment or unsupported scope'} as const;
  if(intent==='INVESTIGATE'||intent==='PLAN')return {route:facts.readOnlyAllowed?'DIRECT':'HUMAN',reason:'Bounded read-only Sofie work'} as const;
+ if(intent==='BOUNDED_OPERATION')return {route:facts.boundedOperationQualified&&facts.budgetAvailable&&facts.writerFree?'DIRECT':'HUMAN',reason:'Bounded operations require separate backend qualification and normal action admission'} as const;
+ if(intent!=='PRODUCE')return {route:'HUMAN',reason:'Unsupported intent'} as const;
  return facts.factoryQualified&&facts.factoryAvailable&&facts.writerFree&&facts.budgetAvailable?
   {route:'MYFACTORY',reason:'Qualified bounded software production uses MyFactory'} as const:
   {route:'HUMAN',reason:'Factory qualification, availability, writer or budget is blocked; no automatic native fallback'} as const;
