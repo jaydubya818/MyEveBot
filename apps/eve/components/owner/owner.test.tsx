@@ -56,4 +56,16 @@ describe("owner decision and proof components", () => {
     expect(html).toContain("Correct this");
     expect(html).toContain('aria-pressed="false"');
   });
+  it("does not show another run’s checks as evidence for a result", () => {
+    const snapshot = exampleSnapshot();
+    const html = renderToStaticMarkup(
+      <Proof
+        task={snapshot.tasks[0]}
+        result={{ ...snapshot.outcomes[0]!, runId: "a-different-run" }}
+      />,
+    );
+    expect(html).not.toContain("All required recorded checks passed");
+    expect(html).not.toContain("Required sections are present");
+    expect(html).toContain("Loading evidence");
+  });
 });

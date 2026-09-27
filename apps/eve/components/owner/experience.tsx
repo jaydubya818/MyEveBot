@@ -79,7 +79,11 @@ export function OwnerExperience({
     ),
   ];
   const approvals = pendingApprovals(snapshot.approvals);
-  const selected = work.find((item) => item.id === selectedId);
+  const selected =
+    work.find((item) => item.id === selectedId) ??
+    projectWork({ ...snapshot, goals: [] }).find(
+      (item) => item.id === selectedId,
+    );
   const result = snapshot.outcomes.find((item) => item.id === selectedId);
   function href(destination: OwnerView, id?: string) {
     const query = new URLSearchParams();
@@ -743,17 +747,17 @@ export function OwnerExperience({
                             <State value={taskState(task.status)} />
                           </div>
                           <p>
-                            {task.statusReason ??
-                              "No additional phase is recorded."}
+                            {["failed", "paused"].includes(task.status)
+                              ? recoveryMessage(task)
+                              : (task.statusReason ??
+                                "No additional phase is recorded.")}
                           </p>
                           <p className="owner-muted">
                             {preview
                               ? "Example delegation: Sofie asked MyFactory to prepare a candidate. This is a preview, not an observed handoff."
                               : "The current contract does not identify an execution provider. No MyFactory or Relay delegation is inferred."}
                           </p>
-                          {["failed", "paused"].includes(task.status) && (
-                            <p>{recoveryMessage(task)}</p>
-                          )}
+
                           <p className="owner-muted">
                             Reported estimate: $
                             {task.usage.estimatedCostUsd.toFixed(2)} used · $
@@ -763,7 +767,9 @@ export function OwnerExperience({
                           <details>
                             <summary>Execution details</summary>
                             <p className="owner-muted">
-                              Reference: {task.id} · {task.kind} · Updated{" "}
+                              Reported reason:{" "}
+                              {task.statusReason ?? "Not supplied"}. Reference:{" "}
+                              {task.id} · {task.kind} · Updated{" "}
                               {date(task.updatedAt)}
                             </p>
                           </details>
@@ -894,6 +900,9 @@ export function OwnerExperience({
                   ))}
                 </Card>
                 <Card title="Recent decisions">
+                  {snapshot.approvals.length === approvals.length && (
+                    <p className="owner-muted">No decisions recorded yet.</p>
+                  )}
                   <ul className="owner-list">
                     {snapshot.approvals
                       .filter(

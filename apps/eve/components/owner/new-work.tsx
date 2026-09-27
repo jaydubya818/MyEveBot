@@ -27,17 +27,23 @@ export function NewWork({
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (lock.current || !title.trim()) return;
+    const parsedCriteria = criteria
+      .split("\n")
+      .map((value) => value.trim())
+      .filter(Boolean);
+    if (parsedCriteria.length > 20) {
+      setError(
+        "Keep this work focused on at most 20 acceptance criteria. Your draft has not been submitted.",
+      );
+      return;
+    }
     lock.current = true;
     setBusy(true);
     setError(null);
     const payload = {
       title: title.trim(),
       description: context.trim() || title.trim(),
-      successCriteria: criteria
-        .split("\n")
-        .map((value) => value.trim())
-        .filter(Boolean)
-        .slice(0, 20),
+      successCriteria: parsedCriteria,
       status: "draft",
       planningMode: "simple",
     };
