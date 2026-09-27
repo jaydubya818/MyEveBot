@@ -1,5 +1,7 @@
 # MyFactory Gate C — bounded offline candidate-return qualification
 
+> Current producer/consumer assessment: [consumer migration stop](consumer/REPORT.md). Producer `fcd8afd` is locally qualified; the earlier consumer below uses a different wire contract. Its tests do not qualify consumption of the new producer. The historical record below is preserved.
+
 **Gate C: PARTIAL / NOT QUALIFIED. Gate B: CONTRACT DEFINED, NOT IMPLEMENTED. Live MyFactory: NOT_RUN. Digital Worker readiness: NOT_READY.** The continuation stopped before a required MyEve schema migration, as instructed.
 
 This continuation starts from MyEve `56e5f30d91694e87f55234307cf946bc6a2b9772` on `codex/q37-integration` (the local checkout also contained documentation commit `63131a8`). MyFactory started at `543906dc20fefed2def97e43953095ea0b7c60bc` on `codex/local-factory`; the Gate C implementation is on `codex/q37-gate-c`. The previous read-only finding is preserved in [PRIOR-AUDIT.md](PRIOR-AUDIT.md). No live MyFactory execution, external issue, writer transfer, production deployment, or M1/ER1-owned writer mutation occurred.

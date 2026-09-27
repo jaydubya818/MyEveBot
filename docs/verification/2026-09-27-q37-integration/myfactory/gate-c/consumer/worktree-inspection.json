@@ -1,0 +1,155 @@
+[
+  {
+    "worktree": "/Users/jaywest/Myeve",
+    "HEAD": "a7936898c77d157aa66c222b86aedce07e265e16",
+    "branch": "refs/heads/main",
+    "status": " M README.md\n M apps/eve/agent/connections/composio.ts\n M apps/eve/agent/instructions/computer-runtime.ts\n M apps/eve/scripts/executor-inventory.json\n?? .playwright-cli/\n?? docs/plans/2026-09-25-feat-myeve-engineering-plan.md\n?? docs/plans/2026-09-25-knowledge-verification.md\n?? docs/plans/2026-09-25-myeve-engineering-claude-review.md\n?? docs/plans/2026-09-25-myeve-engineering-source-ledger.md\n?? docs/plans/2026-09-25-myeve-engineering-verification.md\n?? docs/verification/digital-worker/\n?? output/knowledge-verification-2026-09-25.md\n?? output/playwright/knowledge-2026-09-25/\n",
+    "migrations": []
+  },
+  {
+    "worktree": "/private/tmp/knowledge-production-source",
+    "HEAD": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+    "branch": "refs/heads/codex/knowledge-production",
+    "status": "",
+    "migrations": []
+  },
+  {
+    "worktree": "/private/tmp/myfactory-myeve-main-merge",
+    "HEAD": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+    "status": "",
+    "migrations": []
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+    "HEAD": "acfe498a8eaf3a394087079d4a1978adcca3277d",
+    "branch": "refs/heads/codex/digital-worker-mvp",
+    "status": " M apps/eve/agent/tools/engineering_direct.ts\n M apps/eve/lib/database-schema.ts\n M apps/eve/lib/engineering/native-model.test.ts\n M apps/eve/lib/engineering/native-model.ts\n M apps/eve/lib/engineering/native-results.ts\n M apps/eve/lib/engineering/native-routing.ts\n M apps/eve/lib/engineering/route-admission.ts\n M apps/eve/lib/engineering/runtime.ts\n?? apps/eve/lib/engineering/native-completion.ts\n?? apps/eve/migrations/0053_native_completion_contract.sql\n?? apps/eve/test/native-completion-migration.integration.mjs\n?? apps/eve/test/native-completion-process.mjs\n?? apps/eve/test/native-completion.integration.mjs\n?? docs/verification/2026-09-26-p0-gap2b-implementation/\n",
+    "migrations": [
+      {
+        "name": "0050_engineering_native_runtime.sql",
+        "sha256": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+      },
+      {
+        "name": "0051_engineering_conversation_budget.sql",
+        "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+      },
+      {
+        "name": "0052_work_model_ledger.sql",
+        "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+      },
+      {
+        "name": "0053_native_completion_contract.sql",
+        "sha256": "a01c3b83a7d360216aa0bd11bb70319f0fc484efadbf31c19c565ac0ef869300"
+      }
+    ]
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+    "HEAD": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+    "branch": "refs/heads/codex/p0-gap-02-common-ledger",
+    "status": "",
+    "migrations": [
+      {
+        "name": "0050_engineering_native_runtime.sql",
+        "sha256": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+      },
+      {
+        "name": "0051_engineering_conversation_budget.sql",
+        "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+      },
+      {
+        "name": "0052_work_model_ledger.sql",
+        "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+      }
+    ]
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+    "HEAD": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+    "branch": "refs/heads/codex/p0-gap2b-projection",
+    "status": "",
+    "migrations": [
+      {
+        "name": "0050_engineering_native_runtime.sql",
+        "sha256": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+      },
+      {
+        "name": "0051_engineering_conversation_budget.sql",
+        "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+      },
+      {
+        "name": "0052_work_model_ledger.sql",
+        "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+      }
+    ]
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+    "HEAD": "84be8db765b738e62ef662164ac57cb1a4750361",
+    "branch": "refs/heads/codex/p0-gap2b-qualification",
+    "status": "",
+    "migrations": [
+      {
+        "name": "0050_engineering_native_runtime.sql",
+        "sha256": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+      },
+      {
+        "name": "0051_engineering_conversation_budget.sql",
+        "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+      },
+      {
+        "name": "0052_work_model_ledger.sql",
+        "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+      },
+      {
+        "name": "0053_native_completion_contract.sql",
+        "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+      }
+    ]
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+    "HEAD": "e36b6b25a1d1093c20cd9216ff8ee474631b25a3",
+    "branch": "refs/heads/codex/q37-integration",
+    "status": "",
+    "migrations": [
+      {
+        "name": "0050_engineering_native_runtime.sql",
+        "sha256": "f6b7f44703973a262a8dc905dfbdad6209f4a9849074756e1fe8cd07ca0a0acf"
+      },
+      {
+        "name": "0051_engineering_conversation_budget.sql",
+        "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+      },
+      {
+        "name": "0052_work_model_ledger.sql",
+        "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+      },
+      {
+        "name": "0053_native_completion_contract.sql",
+        "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+      }
+    ]
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+    "HEAD": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+    "branch": "refs/heads/codex/sofie-chat-mainline",
+    "status": "",
+    "migrations": []
+  },
+  {
+    "worktree": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+    "HEAD": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+    "branch": "refs/heads/codex/thread-owner-conflict",
+    "status": "",
+    "migrations": []
+  },
+  {
+    "worktree": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+    "HEAD": "cab819bdd93ae1470925765728faacf8f6beab25",
+    "branch": "refs/heads/codex/myfactory-hosted-routing",
+    "status": "READ_TIMEOUT; protected; not assumed clean",
+    "migrations": []
+  }
+]
