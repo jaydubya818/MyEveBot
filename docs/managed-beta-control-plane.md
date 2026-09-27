@@ -1,5 +1,15 @@
 # Managed MyEve beta
 
+**Release status (September 26, 2026): NOT QUALIFIED.** The final combined
+Golden Journey has not run. The last disposable release-candidate attempt
+stopped at HTTP 403 `customer_verification_required` from the dedicated team's
+AI Gateway. Its accounts and provider resources were retired and deleted with
+zero active Relay sessions/grants and zero remaining projects/stores. The
+dedicated team retains a $1 Pause On spend budget. See the
+[operator runbook](managed-beta-operator-runbook.md) for the current gate and
+the separate, earlier lifecycle qualification. Keep managed provisioning
+globally disabled; do not invite an external tester from this result.
+
 ## Product contract
 
 One private invitation takes a tester through Relay account creation and an Eve that MyEve provisions for them. The tester supplies a name and sets their own Eve access password. They do not need a Vercel account, Vercel token, signing-key fingerprint, or MyFactory installation. BYO Vercel remains an advanced Builder path.

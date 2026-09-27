@@ -2,7 +2,32 @@
 
 ## Current release state
 
-Managed provisioning is disabled by default. The disposable managed Eve lifecycle passed live qualification on September 26, 2026: dedicated project and Neon store, $1 project model budget, migrations, owner sign-in, model response, upgrade, owner archive download and verification, pause, and deletion of the exact project and store. A separate Builder control-plane Neon store is connected only to production, its schema is applied, and its invitation, admin, cron, Relay fingerprint, origin, and capacity variables are production-only. The server Vercel token is intentionally absent while the account boundary is decided. Keep production provisioning disabled until Relay pairing and the remaining gates in `managed-beta-control-plane.md` pass. The managed `/beta` page is still in the draft PR; the public page has the existing BYO path.
+**Final Golden Journey requalification: NOT QUALIFIED (September 26, 2026).** The
+last disposable release-candidate run reached a live Eve model request on the
+dedicated `myeve-beta` Vercel team, but AI Gateway returned HTTP 403
+`customer_verification_required` because that team had no payment method. The
+new end-to-end run has not started. On readback, the dedicated team had zero
+projects and zero stores; its $1 team budget had Pause On and $0 current spend.
+Do not count unrun peer, Knowledge, revocation, replay, or post-upgrade model
+checks as passes. [MyEve PR #34](https://github.com/jaydubya818/MyEveBot/pull/34)
+and [Relay PR #27](https://github.com/jaydubya818/relay/pull/27) remain draft.
+Neither main branch nor global managed provisioning was changed for this
+requalification. The dedicated-team card-only billing form is at
+<https://vercel.com/myeve-beta/~/settings/billing>; adding a card requires the
+owner's entry and confirmation. The $1 on-demand budget does not cap the $20
+Pro base charge. Do not use the personal Vercel account to work around the
+Gateway denial.
+
+Managed provisioning is disabled by default. An earlier, separate disposable Eve
+lifecycle passed its bounded live checks (project and Neon store creation,
+project model budget, migrations, owner sign-in, model response, upgrade,
+verified owner archive, pause, and exact resource deletion). That result does
+not qualify the combined Ava/Sofie Golden Journey. The production Builder
+control plane has its own Neon store and production-only configuration; its
+server provisioning token remains absent. Keep production provisioning
+disabled until reciprocal Relay collaboration, governed Knowledge, revocation,
+replay, upgrade, retirement, and cleanup pass together. The managed `/beta`
+page remains in the draft PR; the public page retains the BYO path.
 
 ## Control-plane setup
 

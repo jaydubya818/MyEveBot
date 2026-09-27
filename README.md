@@ -4,6 +4,14 @@
 
 Each deployment serves one owner by default for a simple security boundary. MyEve, Relay, and MyFactory keep separate authority and state: MyEve is the owner's agent, Relay is an optional governed capability plane, and MyFactory is a local software-delivery supervisor. Connecting them is explicit and does not grant an agent permission to approve, merge, or deploy its own work.
 
+**Managed beta status:** The combined Ava/Sofie Golden Journey is **not
+qualified**. The last disposable candidate run stopped when the dedicated
+MyEve Beta team's AI Gateway required a payment method (HTTP 403
+`customer_verification_required`). No external tester is invited and global
+managed provisioning remains disabled. See the
+[operator runbook](docs/managed-beta-operator-runbook.md) for the exact gate,
+resource readback, and release controls. The BYO Vercel path remains separate.
+
 ## Finding current priorities
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.
