@@ -245,6 +245,7 @@ test("live UI contract journey saves draft, carries context to conversation, and
   await accessibility(page);
   if (info.project.name === "mobile") {
     await page.getByRole("button", { name: "Open threads" }).click();
+    await expect.poll(async () => (await page.getByRole("complementary", { name: "App navigation" }).boundingBox())?.x).toBe(0);
     await capture(page, "navigation", info.project.name);
     await accessibility(page);
   }
