@@ -1,0 +1,65 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/q37-integration/Myeve/apps/eve
+
+ ✓ lib/relay/message-result.test.ts > correlated peer message results > returns the exact peer's bounded answer with no remote extra fields 2ms
+ ✓ lib/relay/message-result.test.ts > correlated peer message results > keeps delivery and unavailable-answer states distinct 0ms
+ ✓ lib/relay/message-result.test.ts > correlated peer message results > rejects mismatched request, reply, and peer identity 1ms
+ ✓ lib/relay/message-result.test.ts > correlated peer message results > rejects malformed, oversized, or contradictory completed answers 0ms
+ ✓ lib/engineering/factory-observation.test.ts > Work-bound MyFactory intake observation > distinguishes a verified hosted request awaiting local intake from a signed queued receipt 5ms
+ ✓ lib/engineering/factory-observation.test.ts > Work-bound MyFactory intake observation > does not fetch or reuse a receipt after Work version, generation, route or run changes 1ms
+ ✓ lib/engineering/factory-observation.test.ts > Work-bound MyFactory intake observation > fails closed on invalid signature, wrong request identity and read errors 1ms
+ ✓ lib/engineering/factory-observation.test.ts > Work-bound MyFactory intake observation > checks signed state and timestamps without inferring completion 1ms
+ ✓ lib/engineering/factory-observation.test.ts > Work-bound MyFactory intake observation > rejects malformed request bindings before any provider read 1ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > drafts a source-linked, advisory-only candidate while preserving unknown supervision cost 4ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects an ineligible recommendation: Skip owner approval for the next Work. 1ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects an ineligible recommendation: Share Relay grants with other agents. 0ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects an ineligible recommendation: Store the API key in reusable experience. 0ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects an ineligible recommendation: Increase execution authority after a good result. 0ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects owner impersonation, future source evidence and an authority proposal type 0ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > prepares promotion only after independent qualification and exact owner review 2ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects changed candidates, cross-owner review, failed qualification and conflicting evidence 1ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > rejects a candidate linked to a different Work or scope even if review hashes match 0ms
+ ✓ lib/digital-worker/learning.test.ts > M6 learning safety boundary > keeps organization learning behind the later tenancy gate 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > discloses only exact selected text; retains local provenance outside the payload 3ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires the approved text hash and a byte bound 1ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > returns an advisory receipt attached to the same Work and exact peer request 1ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > allows restart replay from serialized state and suppresses a duplicate attachment 1ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"ownerId":"other"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"agentId":"other"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"workId":"ad834e86-865b-4166-a3e5-6df47bd876c5"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"workVersion":8} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"workGeneration":3} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"lifecycle":"accepted"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"lifecycle":"cancelled"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"lifecycle":"failed"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"lifecycle":"superseded"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"control":"paused"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"control":"stopping"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > fences stale or unrelated Work: {"control":"human"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"ownerId":"other"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"agentId":"other"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"peer":"relay://peer-owner/other"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"grantId":"other"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"grantRevision":4} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"status":"REVOKED"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"qualified":false} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"checkedAt":"2026-09-27T01:59:29.999Z"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"checkedAt":"2026-09-27T02:00:00.001Z"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > requires current exact grant readback: {"expiresAt":"2026-09-27T02:00:00.000Z"} 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > rechecks revocation even when a matching receipt was previously attached 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > rejects missing/mismatched request IDs and a transport-authenticated wrong peer 1ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > does not promote delivery acknowledgment or a timeout to a peer answer 1ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > drops remote private/authority fields and treats instructions as advisory text 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > rejects excessive reply bytes and invalid or expired deadlines 0ms
+ ✓ lib/engineering/relay-collaboration.test.ts > Work-bound Relay collaboration (synthetic, no transport or grants queried) > rejects a corrupt or cross-Work prior receipt 1ms
+ ✓ lib/engineering/github.test.ts > Trusted GitHub boundary > denies public or mismatched repositories before reading an issue 3ms
+ ✓ lib/engineering/github.test.ts > Trusted GitHub boundary > rejects a concurrently changed human head before any mutation 4ms
+ ✓ lib/engineering/github.test.ts > Trusted GitHub boundary > refuses ambiguous duplicate PRs 1ms
+ ✓ lib/engineering/github.test.ts > Trusted GitHub boundary > does not follow credential-bearing redirects 0ms
+ ✓ lib/engineering/github-app.test.ts > repository-scoped GitHub App authentication > mints one short-lived installation token for the exact repository and reuses it within its lifetime 74ms
+ ✓ lib/engineering/github-app.test.ts > repository-scoped GitHub App authentication > fails closed when GitHub denies the scoped grant 41ms
+
+ Test Files  6 passed (6)
+      Tests  57 passed (57)
+   Start at  20:00:45
+   Duration  377ms (transform 101ms, setup 0ms, collect 260ms, tests 158ms, environment 1ms, prepare 191ms)

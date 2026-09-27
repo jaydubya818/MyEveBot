@@ -1,0 +1,25 @@
+{
+  "baseline": "1d736975019965864880252219973d096de0288a",
+  "originMainAtInspection": "c8c160a",
+  "schema": "0053_native_completion_contract; no migrations applied",
+  "boundary": "synthetic local contract only",
+  "files": {
+    "apps/eve/lib/engineering/relay-collaboration.ts": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb",
+    "apps/eve/lib/engineering/relay-collaboration.test.ts": "cbaf1afcd306951630292232d910233f14ca7df1d7cae97eb813f2df3d4159ec",
+    "apps/eve/migrations/0051_engineering_conversation_budget.sql": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce",
+    "apps/eve/migrations/0052_work_model_ledger.sql": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106",
+    "apps/eve/migrations/0053_native_completion_contract.sql": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53",
+    "docs/verification/2026-09-27-q37-integration/ASSESSMENT.md": "6195bd158848470f4700a4bf049a2a2cda1a3fdeeac8a624bc131fd6bd455100",
+    "docs/verification/2026-09-27-q37-integration/REPORT.md": "04bee453ba2f085fa66d9f8977ab7d2d04e7601d8a4461fe7db2a6eaf4eba65e",
+    "docs/verification/2026-09-27-q37-integration/governance.log": "0a89b07e848001fbfd7da8df80e99ce46f3597d4c4e87384c2c795ceee350a6b",
+    "docs/verification/2026-09-27-q37-integration/migrations.log": "b7bf9c8ffa663df21cd25fac4932f58eef5ea427d02720f2741cb68c27615e5b",
+    "docs/verification/2026-09-27-q37-integration/tests.log": "981ac4650bd3c98a0499a429475e4943b77ec21a1f6ce4257a9bb27538b095c1",
+    "docs/verification/2026-09-27-q37-integration/typecheck.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/verification/2026-09-27-q37-integration/governance-entry.json": "024913ab6bbfbadb61ac70ebb30d899b43ef5397f869a8008f3da8d205942f80"
+  },
+  "frozenAuditInputs": {
+    "/Users/jaywest/Myeve/docs/verification/digital-worker/release-manifest.yaml": "f7e817bcb9f73f33059c3cb745049bf5fb60e77d474305ea4dd8be067f7e89b6",
+    "/Users/jaywest/Myeve/docs/verification/digital-worker/release-gates.yaml": "1bdfd577ab20a35764fa7134c7c238fd99a9c2462662855018561073d35bcce6",
+    "/Users/jaywest/Myeve/docs/verification/digital-worker/audit-2026-09-26/q37-readiness.md": "69f13f46af3d33497c3fcbf9209d16b30f881926fb6bcadf493e59119b59264d"
+  }
+}
