@@ -104,7 +104,7 @@ try {
  for(const stage of ['CONTRACT','RESERVED','DISPATCHED','RESULT_RETAINED']){
   const w=await prepare('crash '+stage);if(stage!=='CONTRACT')await admit(w);
   const req=stage==='CONTRACT'?null:await nativeRequest(w);await crash(stage,w,req);
-  if(stage==='CONTRACT'){assert.equal(await held(w),initialHold);assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_native_runtime WHERE work_id=$1',[w.id])).rows[0].n,0);}
+  if(stage==='CONTRACT'){assert.equal(await held(w),initialHold);assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_native_runtime WHERE work_id=$1',[w.id])).rows[0].n,1);}
   else {const recovered=new NativeModelBudget(store,authority);const receipt=await recovered.recover(req);assert.equal(receipt.status,stage);
    await assert.rejects(recovered.assertDispatch(req),/redispatch/);
    if(stage==='RESULT_RETAINED'){await recovered.reconcile(req,1000);assert.equal((await recovered.reserve(req)).result.content[0].text,'Exact retained controlled response');}

@@ -43,6 +43,17 @@ export interface EngineeringWorkerProjection {
   verification: { candidateSha: string | null; status: string; jobStatus: string | null; evidenceCount: number; evidenceHashes: string[] };
   candidateHistory: {sha:string;checks:string;failures:string[];evidenceCount:number}[];
   completionStatus: string;
+  nativeExecution: {
+    admissionStatus: "NEEDS_ADMISSION" | "ALREADY_ADMITTED";
+    phase: "NEEDS_ADMISSION" | "ADMITTED_READY_FOR_PRODUCTIVE_WORK" | "IMPLEMENTING" | "VERIFYING" | "REPAIRING" | "COMPLETED" | "BLOCKED";
+    nextOperation: "admit" | "open" | "read" | "plan" | "write" | "inspect" | null;
+    admissionRequired: boolean;
+    runId: string | null;
+    writerSessionId: string | null;
+    route: "NATIVE" | null;
+    control: Work["control"];
+    completionContractId: string | null;
+  };
   completionBudget: { ceilingUsd: number; heldUsd: number | null; remainingUsd: number | null; observed: boolean };
   draft: { revision: number; contentHash: string; differsFromCandidate: boolean } | null;
   /** Compatibility alias for the observed active Run; historical identity lives in runTruth. */
@@ -235,10 +246,10 @@ export class EngineeringWorkerProjectionStore {
       :usedSlots>=Number(configuredSlots)?"STAGE_EXHAUSTED":"READY";
     let observedRunId: string | null = null;
     let authorityReason = "Current execution authority not established";
-    if (nativeRow && conversationRows[0]?.status==="ACTIVE" && !conversationRows[0]?.usage_unknown && !nativeRuntimeRows[0]?.usage_unknown) {
+    if (currentRouteRun?.providerId === "myeve-native-sofie" && completion && conversationRows[0]?.status==="ACTIVE" && !conversationRows[0]?.usage_unknown && !nativeRuntimeRows[0]?.usage_unknown) {
       try { observedRunId=(await this.observeNativeAuthority(id)).runId; }
       catch { authorityReason="Current provider, policy, Agent or admission authority unavailable"; }
-    } else if (nativeRow) authorityReason="Common Work budget requires reconciliation or current authority";
+    } else if (completion) authorityReason="Common Work budget requires reconciliation or current authority";
     // Recheck Work after the asynchronous authority observation; reads never acquire custody.
     const afterAuthority=await this.workStore.get(id);
     if(afterAuthority.version!==work.version || afterAuthority.generation!==work.generation)
@@ -252,12 +263,31 @@ export class EngineeringWorkerProjectionStore {
     for(const run of execution?.runs??[]) if(!observedInputs.some(item=>item.id===run.id)) observedInputs.push({
       id:run.id,purpose:run.reason,status:run.status,generation:run.generation,version:null,
       associatedAt:run.startedAt,timestampSource:"execution-start",deadline:execution!.contract.deadline});
-    if(["EXPIRED","COMPLETE","EXPLANATION_REQUIRED","RECONCILIATION_REQUIRED"].includes(completionStatus)) {
+    if(["EXPIRED","COMPLETE","EXPLANATION_REQUIRED","RECONCILIATION_REQUIRED","STAGE_EXHAUSTED"].includes(completionStatus)) {
       observedRunId=null;authorityReason=`Completion workflow is ${completionStatus}; history is read-only`;
     }
     const runTruth=projectRuns(work,observedInputs,{runId:observedRunId,
       writerRunId:runtime?.route_run_id?String(runtime.route_run_id):null,
       writerSessionId:runtime?.session_id?String(runtime.session_id):null,reason:authorityReason});
+    const nativeAdmitted = currentRouteRun?.providerId === "myeve-native-sofie" && !!completion;
+    const productive = nativeAdmitted && runTruth.activeRun?.id === currentRouteRun?.id;
+    const nativeExecution: EngineeringWorkerProjection["nativeExecution"] = {
+      admissionStatus: nativeAdmitted ? "ALREADY_ADMITTED" : "NEEDS_ADMISSION",
+      phase: completionStatus === "COMPLETE" ? "COMPLETED"
+        : nativeAdmitted && !productive ? "BLOCKED"
+        : nativePhase === "VERIFICATION_REQUESTED" ? "VERIFYING"
+        : productive && !nativeRow ? "ADMITTED_READY_FOR_PRODUCTIVE_WORK"
+        : productive && completionStage === "REPAIR" ? "REPAIRING"
+        : productive ? "IMPLEMENTING" : "NEEDS_ADMISSION",
+      nextOperation: !nativeAdmitted ? "admit" : !productive || nativePhase === "VERIFICATION_REQUESTED" ? null
+        : !nativeRow ? "open" : completionStage === "REPAIR" ? "inspect" : nativeRow.revision === 1 ? "read" : "write",
+      admissionRequired: !nativeAdmitted,
+      runId: nativeAdmitted ? currentRouteRun!.id : null,
+      writerSessionId: runTruth.writerSession.recordedId,
+      route: nativeAdmitted ? "NATIVE" : null,
+      control: work.control,
+      completionContractId: completion?.id ?? null,
+    };
     const nativeCurrent = runTruth.activeRun?.id === currentRouteRun?.id && !!runTruth.activeRun && !!nativeRow && !!admittedRoute && !!currentRouteRun &&
       !execution && currentRouteRun.route === "DEEP_AGENT" && currentRouteRun.status === "RUNNING" &&
       nativeRow.decision_id === admittedRoute.id && nativeRow.route_run_id === currentRouteRun.id &&
@@ -311,7 +341,10 @@ export class EngineeringWorkerProjectionStore {
       updatedAt: nativeRow.updated_at instanceof Date
         ? nativeRow.updated_at.toISOString() : String(nativeRow.updated_at),
     } : null;
-    const nativeActivity = nativeCurrent ? nativePhase === "VERIFICATION_REQUESTED"
+    const nativeActivity = nativeExecution.phase === "ADMITTED_READY_FOR_PRODUCTIVE_WORK"
+      ? {status:"Working",activity:"Admission and writer custody are current; the repository is not opened yet.",
+        nextStep:"Open the pinned repository with engineering_direct open. No new admission is required; each effect still rechecks authority."}
+      : nativeCurrent ? nativePhase === "VERIFICATION_REQUESTED"
       ? { status: "Needs verification", activity: "Sofie retained a frozen candidate awaiting independent checks.",
           nextStep: "Run protected checks on the exact candidate. Work is not ready." }
       : nativePhase === "VERIFICATION_FAILED"
@@ -397,7 +430,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      runTruth, verification, draft, completionBudget, candidateHistory, completionStatus,
+      runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution,
       workId: work.id,
       title: work.title,
       objective: work.objective,

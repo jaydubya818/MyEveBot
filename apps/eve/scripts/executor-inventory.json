@@ -3137,13 +3137,13 @@
     },
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
-      "reason": "Deterministic scoped admission rechecks both expected native version/generation against current Work and authoritative binding, including the final locked SQL predicate. Native missing generation denies; generic routes retain their existing contract. No provider dispatch or schema change.",
-      "sha256": "c02a740089b1ec44c7ceeec8425acf7598f7b852635498efb83175444f07bdd2"
+      "reason": "Atomic scoped admission checks Work version/generation, policy/provider/Agent, completion contract and budget, then binds the existing authenticated completion session as sole native writer in the same SQL statement. No model dispatch or independent money authority.",
+      "sha256": "d23e00eaffee8f5931d8da188cda990b24c97816b149922fe19bf609fbefe3cc"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped canonical Current Truth includes persisted Work generation alongside version, with reread fences preserved. No-route state describes a guarded admission proposal rather than implying permission. Projection grants no execution authority.",
-      "sha256": "d94a4cb04e4935edd90f644bde7815edecb88fe1425d9c3dcc98a4e1243fca91"
+      "reason": "Read-only canonical projection observes current native authority before workspace creation, derives post-admission phases and next operations, and fences expired/stale/exhausted state; no custody acquired by reads.",
+      "sha256": "4ea64627a99a33af89d4f49d9dbaa3dd1932b427d3924b86ae9d913d4dc34fc1"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3152,8 +3152,8 @@
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated selected primary-Agent Work remains bound through context receipts and Action Gateway. Native admission carries both required observed version and generation to the authoritative service. Read-only sessions cannot admit or acquire writer custody.",
-      "sha256": "d30efe9a0093e4eff96cbb13d354820b5ee2aa886530023a6aa672c1d8fc1b1a"
+      "reason": "Authenticated selected-Work effect gateway remains mandatory for new admission and productive writes. Exact-current duplicate admission is read-only observation, fenced by Work tokens, current authority and same writer; no new grant or effect.",
+      "sha256": "b0aa5ad2ea2b43974ee5f32d450c17348246a4c66b4003566a1dee40eff22f99"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3197,8 +3197,8 @@
     },
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Bounded completion context may include canonical observed Work metadata for final read-only explanation. Existing exact common-ledger settlement, stage bounds, writer/effect fences and protected verification remain unchanged.",
-      "sha256": "0d68d798aa15fa1a644c27c3793ffa293d98a9e176497cb5221c22520b44e465"
+      "reason": "Current native authority and common-ledger budget gate every model call. Execution context narrows away admit, carries bounded tool feedback, and deterministically stops repeated admission before more spend; no provider fallback or authority changes.",
+      "sha256": "f8ba3ff3caef910a75df04c7b428c0cce88abf847469fb1f64076899d9272f2b"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3237,8 +3237,8 @@
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
-      "reason": "Shared Work UI and authenticated Chat formatter includes validated persisted Work identity/version/generation. Pure observation only; missing metadata fails closed and never authorizes execution.",
-      "sha256": "c74ae1d6bf68190bf4c2c7f7640892094b6e16ee994178a86b3f49c673b7efc2"
+      "reason": "Canonical persisted Work/Run/writer metadata and bounded admission transition receipt; observational phase/next action never grants authority.",
+      "sha256": "2e5b321227fc681077ffe39b69e4f9dd6d3ad77d0c6074254989f307f3052ae8"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",

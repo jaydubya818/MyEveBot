@@ -1,4 +1,6 @@
 import { nativeBehavior } from "../../lib/engineering/native-behavior.ts";
+import { nativeAdmissionTransition } from "../../lib/engineering/current-truth-lines.ts";
+import { RoutingStore } from "../../lib/engineering/routing-store.ts";
 import { EngineeringWorkerProjectionStore } from "../../lib/engineering/worker-projection.ts";
 import { EngineeringKnowledgeStore } from "../../lib/engineering/knowledge.ts";
 import { NativeModelBudget } from "../../lib/engineering/native-model-budget.ts";
@@ -72,6 +74,19 @@ export default defineDynamic({
           }
           if (principal.attributes.myeveEngineeringIntent!=="continue")
             throw new WorkError("direct_read_only","This conversation is read-only. The owner must select productive continuation; existing admission and writer checks still apply.",403);
+          if (input.operation==="admit") {
+            const work=await runtime.store.get(selected);
+            if(work.version!==input.expectedWorkVersion || work.generation!==input.expectedWorkGeneration)
+              throw new WorkError("routing_changed","Reload the current Work before admission.");
+            if((await new RoutingStore(runtime.store).snapshot(selected)).decision?.status==="ADMITTED") {
+              await authority.assertEffect(selected);
+              await new NativeModelBudget(runtime.store,authority).assertSession(selected,toolCtx.session.id);
+              const {projection}=await new EngineeringWorkerProjectionStore(runtime.store,agent.id,id=>authority.assertEffect(id)).get(selected);
+              if(projection.workVersion!==input.expectedWorkVersion || projection.workGeneration!==input.expectedWorkGeneration)
+                throw new WorkError("routing_changed","Work changed while admission was observed.");
+              return nativeAdmissionTransition(projection,true);
+            }
+          }
           if (input.operation==="read") {
             await authority.assertEffect(selected);
             return service.read(selected,input.path);
@@ -100,7 +115,11 @@ export default defineDynamic({
             async execute(parameters,handle) {
               await consumeActionAuthority(handle,parameters,action.capabilityId);
               await consumeProviderAuthority(handle,parameters,action.capabilityId);
-              if (input.operation==="admit") return admitNativeWork(runtime.store,selected,input.expectedWorkVersion,input.expectedWorkGeneration,authority,toolCtx.session.id);
+              if (input.operation==="admit") {
+                const receipt=await admitNativeWork(runtime.store,selected,input.expectedWorkVersion,input.expectedWorkGeneration,authority,toolCtx.session.id);
+                const {projection}=await new EngineeringWorkerProjectionStore(runtime.store,agent.id,id=>authority.assertEffect(id)).get(selected);
+                return {...receipt,...nativeAdmissionTransition(projection)};
+              }
               await authority.assertEffect(selected);
               if (input.operation==="open") {
                 await service.requireAdmission(selected);

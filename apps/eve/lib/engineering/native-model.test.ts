@@ -10,7 +10,7 @@ function fixture() {
   const reserve=vi.fn().mockResolvedValue(null),settle=vi.fn().mockResolvedValue(undefined),unknown=vi.fn().mockResolvedValue(undefined);
   const effect=vi.fn().mockResolvedValue({contract:{deadline:new Date(Date.now()+60000).toISOString()}});
   const modelCall=vi.fn().mockResolvedValue({content:[{type:"text",text:"Done"}],usage:{inputTokens:{total:50},outputTokens:{total:10}},finishReason:{unified:"stop",raw:"stop"},warnings:[],providerMetadata:{gateway:{cost:"0.001"}}});
-  const model=nativeBudgetedModel({store:{} as WorkStore,workId:"work",sessionId:"session",stepKey:"turn:0",modelId:"anthropic/claude-sonnet-5"}, {
+  const model=nativeBudgetedModel({store:{principal:{scopeId:"owner",scopeKind:"personal"},database:{query:async()=>[]}} as unknown as WorkStore,workId:"work",sessionId:"session",stepKey:"turn:0",modelId:"anthropic/claude-sonnet-5"}, {
     currentTruth:async()=>[],
     completionState:async()=>({contract:{id:"contract",inputBytes:14336},stage:"IMPLEMENT",workspace:{},waiting:false}),
     authority:{readConfig:async()=>({model:"claude-sonnet-5",profile:{maxOutputTokens:1024,maxModelRequests:5}}),assertEffect:effect} as unknown as NativeRouteAuthority,

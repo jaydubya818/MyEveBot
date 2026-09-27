@@ -1,0 +1,14 @@
+{
+  "README.md": "6da212f4a2779d9c49d6b0317627d6050732eec47c06b019cf501a390120389d",
+  "apps/eve/agent/tools/engineering_direct.ts": "b0aa5ad2ea2b43974ee5f32d450c17348246a4c66b4003566a1dee40eff22f99",
+  "apps/eve/lib/engineering/admission-context.integration.test.ts": "9a45d6551f8deac789a11682fef0cb54650d684951d03f682d56d04f327437f7",
+  "apps/eve/lib/engineering/current-truth-lines.ts": "2e5b321227fc681077ffe39b69e4f9dd6d3ad77d0c6074254989f307f3052ae8",
+  "apps/eve/lib/engineering/native-model.test.ts": "b29bd536855537c8d945d60650ed98b3a9691bb8e6a7259efa0861790cc1f1df",
+  "apps/eve/lib/engineering/native-model.ts": "f8ba3ff3caef910a75df04c7b428c0cce88abf847469fb1f64076899d9272f2b",
+  "apps/eve/lib/engineering/route-admission.ts": "d23e00eaffee8f5931d8da188cda990b24c97816b149922fe19bf609fbefe3cc",
+  "apps/eve/lib/engineering/worker-projection.test.ts": "e22103a1c7198c1f905fa6cfe1c5221226f0d05a332d8950d07b93fddabfffdd",
+  "apps/eve/lib/engineering/worker-projection.ts": "4ea64627a99a33af89d4f49d9dbaa3dd1932b427d3924b86ae9d913d4dc34fc1",
+  "apps/eve/scripts/executor-inventory.json": "c1aec0f2d6fd4fe68771fc845c2eaba3dff4c3f8bc87a6882791594b889d6d78",
+  "apps/eve/test/native-completion.integration.mjs": "42d28cd8047b6e8cedd1a12f397a18108c3c446867b715785b6539450e71b978",
+  "docs/engineering-golden-work.md": "710cd8f59bc140eb7525cafaa749c7a2004169f210a5cf4705ce79d8c68d5716"
+}

@@ -28,6 +28,10 @@ import { nativeDevelopmentToolSchema } from "./native-input.ts";
 import { EngineeringWorkerProjectionStore } from "./worker-projection.ts";
 import { currentTruthLines, currentWorkMetadata } from "./current-truth-lines.ts";
 import { nativeCompletionState } from "./native-completion.ts";
+import { DirectDevelopmentStore } from "./direct-development.ts";
+import { DirectVerificationDriver } from "./direct-verification-driver.ts";
+import { DockerProtectedVerifier } from "./docker-executor.ts";
+import { NativeResultStore } from "./native-results.ts";
 import { NativeModelBudget } from "./native-model-budget.ts";
 
 const enabled = process.env.ADMISSION_CONTEXT_TEST_POSTGRES === "1";
@@ -168,7 +172,7 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     expect(await counts(work.id)).toEqual({ runs: 0, writers: 0 });
   });
 
-  it("real authenticated assembly supplies both tokens; model proposes; real tool/gateway admits, then writer still requires acquisition", async () => {
+  it("real authenticated assembly supplies both tokens; model proposes; real tool/gateway admits, and binds the writer atomically", async () => {
     const work = await freshWork(), a = await assembled(work.id);
     expect(await counts(work.id)).toEqual({ runs: 0, writers: 0 });
     await expect(a.tool.execute({ request: { operation: "open" } }, a.ctx)).rejects.toThrow(/writer session/);
@@ -181,8 +185,8 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     expect(actual.currentTruth[0]).toBe(currentTruthLines(ui)[0]);
     const result = await a.tool.execute(request, a.ctx);
     expect(JSON.stringify(result)).toContain("QUEUED");
-    expect(await counts(work.id)).toEqual({ runs: 1, writers: 0 });
-    await expect(new NativeModelBudget(store).assertSession(work.id, a.ctx.session.id)).rejects.toThrow(/writer session/);
+    expect(await counts(work.id)).toEqual({ runs: 1, writers: 1 });
+    await expect(new NativeModelBudget(store).assertSession(work.id, a.ctx.session.id)).resolves.toBeUndefined();
     const state = await nativeCompletionState(store, work.id);
     expect(state.contract.repairIterations).toBe(1);
     const [budget] = await local.query("SELECT *,engineering_completion_remaining(scope_id,work_id) held FROM engineering_work_model_budget WHERE work_id=$1", [work.id]);
@@ -246,6 +250,150 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     const tool: any = await toolDefinition.events["step.started"]!({}, a.ctx);
     await expect(tool.execute({ request: { operation: "open" } }, a.ctx)).rejects.toThrow(/writer session/);
     expect(await counts(work.id)).toEqual({ runs: 0, writers: 0 });
+  });
+
+  async function nextStep(a: Awaited<ReturnType<typeof assembled>>, step: number) {
+    a.ctx.callId=randomUUID();
+    await contextHook.events!["step.started"]!({data:{turnId:a.ctx.session.turn.id}} as never,a.ctx);
+    const selected:any=await (agentDefinition as any).model.events["step.started"]({data:{turnId:a.ctx.session.turn.id,stepIndex:step}},a.ctx);
+    const result=await selected.model.doGenerate(a.options);
+    const call=result.content.find((item:any)=>item.type==="tool-call");
+    if(!call)throw new Error("Expected a controlled productive proposal");
+    const proposal=nativeDevelopmentToolSchema.parse(JSON.parse(call.input));
+    const response=await a.tool.execute(proposal,a.ctx);
+    // Actual framework-shaped tool feedback, never a harness next-action instruction.
+    a.options.prompt.push({role:"assistant",content:[call]},{role:"tool",content:[{
+      type:"tool-result",toolCallId:call.toolCallId,toolName:"engineering_direct",output:{type:"json",value:response},
+    }]});
+    return {proposal:proposal.request,response};
+  }
+
+  async function localRepository() {
+    const archived=JSON.parse(await readFile(new URL("../../../../docs/verification/2026-09-26-m1er1-window/window-closure.json",import.meta.url),"utf8"));
+    const files=archived.workspace[0].source_files;
+    expect(Object.keys(files)).toHaveLength(5);
+    vi.stubEnv("MYEVE_ENGINEERING_GITHUB_TOKEN","local-fixture-only");
+    vi.stubGlobal("fetch",vi.fn(async(input,init)=>{
+      const url=new URL(String(input));
+      if(url.origin!=="https://api.github.com" || (init?.method??"GET")!=="GET")throw Error("Network forbidden");
+      const base="/repos/"+config.profile.repository;
+      const paths=Object.keys(files);
+      let body;
+      if(url.pathname===base)body={private:true,full_name:config.profile.repository,permissions:{push:true},archived:false};
+      else if(url.pathname===base+"/commits/"+config.approvedBase.sha)body={sha:config.approvedBase.sha,commit:{tree:{sha:"local-tree"}}};
+      else if(url.pathname===base+"/git/trees/local-tree")body={truncated:false,tree:paths.map((path,i)=>({path,type:"blob",mode:"100644",sha:"local-"+i,size:files[path].length}))};
+      else {const i=paths.findIndex((_,i)=>url.pathname===base+"/git/blobs/local-"+i);if(i<0)throw Error("Unapproved fixture read");body={content:Buffer.from(files[paths[i]]).toString("base64")};}
+      return Response.json(body);
+    }));
+  }
+
+  function controlledProductionProvider(duplicate=false,alwaysDuplicate=false) {
+    let duplicateSent=false;
+    local.provider.mockImplementation(async options=>{
+      captured.push(options);
+      const state=payloadState(options);
+      let request:any;
+      if(!state.nativeExecution)request=proposeFromPayload(options).request;
+      else {
+        expect(options.prompt[0].content).toContain("Software Engineer using JStack");
+        expect(options.prompt[0].content).toContain("potato mode");
+        expect(JSON.stringify(options.tools)).not.toContain('"const":"admit"');
+        expect(state.nativeExecution.admissionRequired).toBe(false);
+        expect(state.nativeExecution.writerSessionId).toBeTruthy();
+        if(alwaysDuplicate || (duplicate&&!duplicateSent)) {
+          duplicateSent=true;
+          // Simulate a provider ignoring its narrowed schema once. Tokens still
+          // originate ONLY in the real provider-bound canonical metadata.
+          request=proposeFromPayload(options).request;
+        } else if(state.nativeExecution.nextOperation==="open")request={operation:"open"};
+        else if(state.stage==="REPAIR") {
+          expect(state.evidence.some((e:any)=>e.result==="FAIL")).toBe(true);
+          if(!["inspect","write"].includes(state.lastToolFeedback?.operation))request={operation:"inspect"};
+          else if(state.draftChanges["quantity.mjs"]?.includes("parseInt"))request={operation:"write",expectedRevision:state.revision,path:"quantity.mjs",content:'import fs from "node:fs"; const raw=fs.readFileSync(0,"utf8").trim(); const n=Number(raw); console.log(JSON.stringify(/^\\d+$/.test(raw)&&Number.isSafeInteger(n)&&n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};
+          else request={operation:"submit",expectedRevision:state.revision};
+        } else if(!state.plan && state.lastToolFeedback?.operation!=="read")request={operation:"read",path:"README.md"};
+        else if(!state.plan)request={operation:"plan",expectedRevision:state.revision,plan:"Read approved objective and criteria. Deliberate parseInt negative fixture, then one evidence-driven repair."};
+        else if(!state.draftChanges["quantity.mjs"])request={operation:"write",expectedRevision:state.revision,path:"quantity.mjs",content:'import fs from "node:fs"; const n=parseInt(fs.readFileSync(0,"utf8").trim(),10); console.log(JSON.stringify(n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};
+        else request={operation:"submit",expectedRevision:state.revision};
+      }
+      return {content:[{type:"tool-call",toolName:"engineering_direct",toolCallId:randomUUID(),input:JSON.stringify({request})}],usage:{inputTokens:{total:1000},outputTokens:{total:100}},finishReason:{unified:"tool-calls"},warnings:[],providerMetadata:{gateway:{cost:"0.003"}}};
+    });
+  }
+
+  it("authenticated production continuation opens, reads, implements, fails protected checks, repairs and retains PARTIAL",async()=>{
+    await localRepository();controlledProductionProvider();
+    const work=await freshWork(),a=await assembled(work.id),seen:string[]=[];
+    let admittedProjection: any;
+    const authority=new NativeRouteAuthority(store),direct=new DirectDevelopmentStore(store,{profile:config.profile,approvedBase:config.approvedBase,objective:config.objective,criteria:config.criteria,agentId,issueNumber:1,assertCurrentAuthority:id=>authority.assertEffect(id)});
+    const driver=new DirectVerificationDriver(direct,new DockerProtectedVerifier());
+    for(let step=0;step<9;step++) {
+      const {proposal,response}=await nextStep(a,step).catch(error=>{console.error("Local journey failed at step",step,"after",seen);throw error;});seen.push(proposal.operation);
+      if(step===0) {
+        const p=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+        const receipt=response.receipt;
+        admittedProjection=p;
+        expect(receipt).toMatchObject({...currentWorkMetadata(p),...p.nativeExecution});
+        expect(receipt.currentTruth).toEqual(currentTruthLines(p));
+        expect(receipt.admission).toBe("SUCCESS");expect(receipt.nextPhase).toBe("PRODUCTIVE_EXECUTION");
+        expect(receipt.runId).toBe(p.runTruth.activeRun?.id);expect(p.runTruth.latestRun?.id).toBe(receipt.runId);
+        expect(p.nativeExecution.nextOperation).toBe("open");expect(receipt.writerSessionId).toBe(a.ctx.session.id);
+        expect(receipt.nativeExecution).toBeUndefined();
+        expect(receipt.completionContractId).toBe(p.nativeExecution.completionContractId);
+        expect(receipt.budget.heldUsd).toBe(p.completionBudget.heldUsd);
+      }
+      if(step===1) {
+        expect(proposal.operation).toBe("open");
+        const supplied=payloadState(captured.at(-1));
+        expect(supplied).toMatchObject(currentWorkMetadata(admittedProjection));
+        expect(supplied.nativeExecution).toEqual(admittedProjection.nativeExecution);
+        expect(supplied.currentTruth).toEqual(currentTruthLines(admittedProjection));
+        expect(supplied.objective).toBe(config.objective);
+        expect(supplied.criteria).toEqual(config.criteria);
+      }
+      if(proposal.operation==="submit") {
+        await driver.run(work.id);const retained=await new NativeResultStore(direct).retain(work.id);
+        expect(retained.proof.outcome).toBe(step===5?"FAILED":"PARTIAL");
+      }
+    }
+    expect(seen).toEqual(["admit","open","read","plan","write","submit","inspect","write","submit"]);
+    expect(await counts(work.id)).toEqual({runs:1,writers:1});
+    const p=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;
+    expect(p.verification.status).toBe("PASS");expect(p.candidateHistory.map(c=>c.checks)).toEqual(["FAIL","PASS"]);
+    expect(p.readiness.ready).toBe(false);expect(p.nativeResult?.proof.outcome).toBe("PARTIAL");
+    const [b]=await local.query("SELECT *,engineering_completion_remaining(scope_id,work_id) held FROM engineering_work_model_budget WHERE work_id=$1",[work.id]);
+    expect(b.calls_admitted).toBe(9);expect(Number(b.spent_microusd)+Number(b.reserved_microusd)+Number(b.held)).toBeLessThanOrEqual(1300000);
+    expect(Number(b.held)).toBe(112641); // untouched fresh final explanation slot
+  },120000);
+
+  it("one duplicate admission returns current state without effects and the next model chooses repository open",async()=>{
+    await localRepository();controlledProductionProvider(true);
+    const work=await freshWork(),a=await assembled(work.id);
+    await nextStep(a,0);const before=await counts(work.id);
+    const duplicate=await nextStep(a,1);
+    expect(duplicate.response.admission).toBe("ALREADY_ADMITTED");expect(duplicate.response.message).toBe("NO NEW ADMISSION REQUIRED");
+    expect(duplicate.response.writerSessionId).toBe(a.ctx.session.id);expect(duplicate.response.nextOperation).toBe("open");
+    expect(await counts(work.id)).toEqual(before);
+    expect((await nextStep(a,2)).proposal.operation).toBe("open");
+    const state=payloadState(captured.at(-1));expect(state.currentTruth.join()).toContain("Previous duplicate admission");
+    expect(state.lastToolFeedback.excerpt).toContain("ALREADY_ADMITTED");
+    await expect(a.tool.execute({request:{operation:"admit",expectedWorkVersion:work.version-1,expectedWorkGeneration:work.generation}},a.ctx)).rejects.toThrow(/current Work/);
+    await expect(a.tool.execute({request:{operation:"admit",expectedWorkVersion:work.version,expectedWorkGeneration:work.generation-1}},a.ctx)).rejects.toThrow(/current Work/);
+    const observer=await assembled(work.id,false);
+    await expect(observer.tool.execute({request:proposeFromPayload(captured.at(-1)).request},observer.ctx)).rejects.toThrow(/read-only/);
+    const stranger=await assembled(work.id);
+    await expect(stranger.tool.execute({request:proposeFromPayload(captured.at(-1)).request},stranger.ctx)).rejects.toThrow(/writer session/);
+    expect(await counts(work.id)).toEqual({runs:1,writers:1});
+  },30000);
+
+  it("provider ignoring duplicate feedback is deterministically stopped before a third repeated paid attempt",async()=>{
+    controlledProductionProvider(false,true);const work=await freshWork(),a=await assembled(work.id);
+    await nextStep(a,0);await nextStep(a,1);await nextStep(a,2);
+    const n=local.provider.mock.calls.length;
+    await expect(nextStep(a,3)).rejects.toThrow(/Repeated admission proposals stopped/);
+    expect(local.provider.mock.calls.length).toBe(n);
+    expect(await counts(work.id)).toEqual({runs:1,writers:1});
+    await store.change(work.id,{operation:"pause",expectedVersion:work.version});
+    await expect(a.tool.execute({request:proposeFromPayload(captured.at(-1)).request},a.ctx)).rejects.toThrow(/current Work|context is unavailable/);
   });
 
   it("metadata failure is deterministic and cannot initiate a provider call", async () => {

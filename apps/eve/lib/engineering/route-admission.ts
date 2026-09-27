@@ -129,6 +129,8 @@ export class RouteAdmissionService {
          FROM engineering_work w
          WHERE w.scope_id=$1 AND w.scope_kind=$2 AND w.id=$3
            AND w.version=$4 AND w.criteria_version=$5 AND w.generation=$28
+           AND ($29::text IS NULL OR NOT EXISTS (SELECT 1 FROM engineering_native_runtime n
+             WHERE n.scope_id=w.scope_id AND n.scope_kind=w.scope_kind AND n.work_id=w.id))
            AND w.lifecycle='active' AND w.control='agent'
            AND ($25::text IS NULL OR (w.generation=$27 AND EXISTS (SELECT 1 FROM agents a
              WHERE a.owner_id=w.scope_id AND a.id=$25 AND a.status='active' AND a.is_primary=true
@@ -179,6 +181,10 @@ export class RouteAdmissionService {
            'QUEUED',a.id,a.work_version,w.generation
          FROM admitted a JOIN locked_work w ON w.id=a.work_id
          RETURNING id,work_version,work_generation,route,status
+       ), writer AS (
+         INSERT INTO engineering_native_runtime(scope_id,scope_kind,work_id,route_run_id,session_id)
+         SELECT $1,$2,$3,q.id,$29 FROM queued q WHERE $29::text IS NOT NULL
+         RETURNING route_run_id
        )
        SELECT a.id AS decision_id,t.id AS transition_id,q.id AS run_id,
          q.work_version,q.work_generation,q.route,q.status
@@ -190,7 +196,7 @@ export class RouteAdmissionService {
         admissionReason, facts.routePolicy.id, facts.routePolicy.version, JSON.stringify(input.request),
         JSON.stringify(context), JSON.stringify(authoritySnapshot),
         digest(context), digest(authoritySnapshot), transitionId, runId,
-        snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null, input.expectedWorkGeneration ?? work.generation,
+        snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null, input.expectedWorkGeneration ?? work.generation, completion?.sessionId ?? null,
       ],
     ).catch((error: unknown) => {
       if (error && typeof error==="object" && "message" in error && String(error.message).startsWith("INSUFFICIENT_COMPLETION_BUDGET:"))
