@@ -34,7 +34,18 @@ export class FactoryWorkDriver {
   if(work.version!==expectedVersion||work.generation!==expectedGeneration)throw new WorkError('factory_work_changed','Select the current Work revision.');
   let decision=await this.decision(id);
   if(decision?.work_version===work.version&&decision.factory_preparation)return this.step(id);
-  const snapshot=await this.authority.read(work),request={route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:[`repository:${work.repository}`]};
+  const snapshot=await this.authority.assess(work),request={route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:[`repository:${work.repository}`]};
+  if(snapshot.selection.route!=='MYFACTORY'){
+   const selected=snapshot.selection.route;
+   if(decision?.work_version===work.version&&(decision.selected_route??decision.selectedRoute)!==selected)
+    throw new WorkError('factory_route_conflict','Another route proposal owns this Work revision.');
+   if(!decision||decision.work_version!==work.version)await new RoutingStore(this.store).recordProposal(id,{
+    expectedWorkVersion:work.version,selectedRoute:selected,reason:snapshot.selection.reason,source:'POLICY',
+    profile:snapshot.contract.routingProfile,eligibleRoutes:selected==='HUMAN'?['HUMAN']:['DIRECT','HUMAN'],
+    rejectedRoutes:[{route:'MYFACTORY',reason:'Current backend intent or qualification does not allow Factory production'}],
+    constraints:['Proposal only; normal action admission still required','No Factory preparation or writer authority'],providerId:null,providerVersion:null});
+   return {state:'ROUTED',route:selected,reason:snapshot.selection.reason};
+  }
   const eligibility=decideExecutionRoute(snapshot.contract,snapshot.context,request,snapshot.facts);
   if(!eligibility.admitted)throw new WorkError('factory_denied',eligibility.reasons.join(' '),403);
   if(!decision||decision.work_version!==work.version)decision=await new RoutingStore(this.store).recordProposal(id,{expectedWorkVersion:work.version,selectedRoute:'MYFACTORY',reason:'Beta policy: substantial bounded software production uses the qualified Factory',source:'POLICY',profile:snapshot.contract.routingProfile,eligibleRoutes:['MYFACTORY','HUMAN'],rejectedRoutes:[],constraints:['One productive writer','PARTIAL until separate release gates'],providerId:config.connection.factoryId,providerVersion:config.connection.factoryVersion});

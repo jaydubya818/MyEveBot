@@ -3329,7 +3329,7 @@
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "5d535b9d91b53d935fc6f16de8d1d70796e3e356c124aad8bb8139fba9c77562"
+      "sha256": "53dd52cb1239dbc27de1708737dbb4f49b7c0929539d12b15da6d2ce37c47214"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3339,7 +3339,7 @@
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "1c79bef39f7b7115922292f85cb4aa7c187eb7568039fd7a2b10ee94743c45a5"
+      "sha256": "9c6118806a3547bdc358816d14579652db9632bffb80589b388900ab8e2d8092"
     },
     "app/api/engineering/work/[id]/factory/route.ts": {
       "classification": "INTERNAL",

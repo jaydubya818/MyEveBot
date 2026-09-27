@@ -168,3 +168,5 @@ The [new authenticated live qualification](verification/2026-09-27-m1er1-90d668f
 Spend is **$0.118796**, with provider reservations and UNKNOWN exposure zero. The new Work is paused and authority revoked; temporary resources are stopped. Two action-level result_unknown records and both rejected proposals remain preserved, separately from settled provider accounting. No repaired candidate, protected PASS, successful PARTIAL or final explanation was reached.
 
 **M1/ER1: NOT QUALIFIED. Gap #2B and Gap #2: PARTIAL.** Next blocker: repair tool/revision continuity and the remaining protected PASS → PARTIAL → fresh explanation path. No harness fix, extra window, peer resumption or ER2 was started.
+
+**Production routing correction:** [Connected admission evidence](verification/2026-09-27-routing-admission/REPORT.md) supersedes the earlier unit-only routing claim. Server-reviewed Work intent now selects DIRECT/HUMAN before Factory preparation; only qualified PRODUCE proceeds to MYFACTORY. Missing classification fails closed. Route selection grants no execution authority.

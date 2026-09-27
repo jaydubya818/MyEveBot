@@ -7,7 +7,9 @@ import {factoryConnectionSchema,LiveFactoryAdapter,type FactoryPrepareRequest} f
 import {WorkStore} from './store.ts';
 import {WorkError,type Work} from './types.ts';
 
-export const factoryRuntimeSchema=z.object({connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
+export const betaIntentSchema=z.enum(['INVESTIGATE','PLAN','BOUNDED_OPERATION','PRODUCE','APPROVE','JUDGMENT','UNSUPPORTED']);
+const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualified:z.boolean().default(false)}).strict();
+export const factoryRuntimeSchema=z.object({routing:betaPolicySchema.default({intent:'UNSUPPORTED',boundedOperationQualified:false}),connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
 export async function factoryConfig(){
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
  if(!file?.startsWith('/'))throw new WorkError('factory_setup','A reviewed MyFactory connection profile is required.',503);
@@ -20,13 +22,22 @@ export type FactoryRuntime=Awaited<ReturnType<typeof factoryConfig>>;
 export class FactoryRouteAuthority {
  constructor(readonly store:WorkStore,readonly readConfig:()=>Promise<FactoryRuntime>=factoryConfig){}
  async read(work:Work,requestId?:string,prepared?:FactoryPrepareRequest){
+  const {selection,...snapshot}=await this.assess(work,requestId,prepared);
+  return snapshot;
+ }
+ async assess(work:Work,requestId?:string,prepared?:FactoryPrepareRequest){
   const config=await this.readConfig(),connection=config.connection,q=connection.qualification;
   const native=await new NativeRouteAuthority(this.store,async()=>config.engineering).read(work);
-  const adapter=new LiveFactoryAdapter(connection),healthy=await adapter.healthy();
+  const policy=betaPolicySchema.parse(config.routing??{intent:'UNSUPPORTED'});
+  const adapter=new LiveFactoryAdapter(connection),healthy=policy.intent==='PRODUCE'?await adapter.healthy():false;
   const now=Date.now();
   const qualified=q.scopeId===work.scopeId&&q.profileHash===digest(config.engineering.profile)&&Date.parse(q.qualifiedAt)<=now&&Date.parse(q.expiresAt)>now&&
     (q.mode==='LOCAL_FIXTURE'||q.spendEnforced);
   if(q.mode==='LIVE'&&!q.spendEnforced)throw new WorkError('factory_spend_unqualified','Live Factory spend enforcement is not qualified.',503);
+  const selection=betaRoute(policy.intent,{factoryQualified:qualified,factoryAvailable:healthy,
+   writerFree:native.facts.writerState==='NONE',scopeAllowed:native.facts.workActive&&native.facts.authority==='ALLOW',
+   budgetAvailable:native.facts.remainingBudgetUsd>0,readOnlyAllowed:native.facts.authority==='ALLOW',
+   boundedOperationQualified:policy.boundedOperationQualified});
   const provider={id:connection.factoryId,version:connection.factoryVersion};
   const contract={...native.contract,allowedRoutes:['MYFACTORY' as const],allowedOperations:['factory.submit'],
    deadline:prepared?.deadline??native.contract.deadline,
@@ -36,11 +47,11 @@ export class FactoryRouteAuthority {
   const facts={...native.facts,allowedRoutes:['MYFACTORY' as const],allowedOperations:['factory.submit'],
    routePolicy:{...contract.routePolicy,allowedRoutes:contract.allowedRoutes,providers},factoryAdmission:qualified&&healthy?'ALLOW':'DENY',
    qualifications:{...providers,MYFACTORY:{provider,scope:contract.scope,status:qualified?'QUALIFIED':'UNQUALIFIED',health:healthy?'HEALTHY':'UNHEALTHY',evidenceRef:q.evidenceRef,observedAt:new Date(now).toISOString(),expiresAt:q.expiresAt}}};
-  return {contract,context:native.context,facts,binding:native.binding,
+  return {selection,contract,context:native.context,facts,binding:native.binding,
    ...(requestId?{factory:{requestId,repository:work.repository,baseSha:config.engineering.approvedBase.sha,profileHash:digest(config.engineering.profile),allowedPaths:config.engineering.profile.allowedPaths,deadline:contract.deadline}}:{})};
  }
 }
-/** Product vocabulary only. Execution still requires canonical admission. */
+/** Backend-reviewed Work intent selects a proposal. Execution still requires canonical admission. */
 export function betaRoute(intent:'INVESTIGATE'|'PLAN'|'BOUNDED_OPERATION'|'PRODUCE'|'APPROVE'|'JUDGMENT'|'UNSUPPORTED',facts:{factoryQualified:boolean;factoryAvailable:boolean;writerFree:boolean;scopeAllowed:boolean;budgetAvailable:boolean;readOnlyAllowed:boolean;boundedOperationQualified?:boolean}){
  if(intent==='APPROVE'||intent==='JUDGMENT'||intent==='UNSUPPORTED'||!facts.scopeAllowed)return {route:'HUMAN',reason:'Owner judgment or unsupported scope'} as const;
  if(intent==='INVESTIGATE'||intent==='PLAN')return {route:facts.readOnlyAllowed?'DIRECT':'HUMAN',reason:'Bounded read-only Sofie work'} as const;

@@ -58,9 +58,21 @@ try{
  const configuration={model:process.env.FACTORY_CODEX_MODEL??'gpt-5.5',executor:'codex-cli',executorVersion:'synthetic-codex-1',skillRevision:'fd8f20a879b507cf09feba08663a1edf7a949353',workerProfile:'mac',verificationImage:DEFAULT_VERIFICATION_IMAGE,nodeVersion:process.version,platform:process.platform,architecture:process.arch,commands:['node --test'],allowedPaths:engineering.profile.allowedPaths,timeoutMs:1800000};
  const sourceDigest=sourceIdentity(),configurationDigest=digest(configuration);
  const connection={origin:'http://127.0.0.1:'+supervisor.server.address().port,token,factoryId:key.factoryId,sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),repositoryPath:repo,keys:[key],qualification:{scopeId:owner,profileHash:digest(engineering.profile),evidenceRef:'connected local qualification',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),mode:'LOCAL_FIXTURE',spendEnforced:true}};
- const config={engineering,connection,commands:configuration.commands},store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database);
+ const config={engineering,connection,commands:configuration.commands,routing:{intent:'PRODUCE',boundedOperationQualified:false}},store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database);
  const authority=new FactoryRouteAuthority(store,async()=>config),direct=new DirectDevelopmentStore(store,{profile:engineering.profile,approvedBase:engineering.approvedBase,objective:engineering.objective,criteria:engineering.criteria,agentId,issueNumber:1});
  const driver=(adapterFor)=>new FactoryWorkDriver(store,authority,direct,new DockerProtectedVerifier(),async()=>source,adapterFor);
+ // The real action driver reads backend policy before source acquisition or PREPARE.
+ for(const [intent,qualified,route] of [['INVESTIGATE',false,'DIRECT'],['PLAN',false,'DIRECT'],['BOUNDED_OPERATION',true,'DIRECT'],['BOUNDED_OPERATION',false,'HUMAN'],['UNSUPPORTED',false,'HUMAN'],['APPROVE',false,'HUMAN'],['JUDGMENT',false,'HUMAN'],[null,false,'HUMAN']]){
+  const selected=await fresh('Backend routing '+intent),before=executions;
+  const selectedConfig={...config,routing:intent?{intent,boundedOperationQualified:qualified}:undefined};
+  const selectedDriver=new FactoryWorkDriver(store,new FactoryRouteAuthority(store,async()=>selectedConfig),direct,new DockerProtectedVerifier(),async()=>{throw Error('Non-production route acquired source');},()=>{throw Error('Non-production route called Factory');});
+  const result=await selectedDriver.start(selected.id,selected.version,selected.generation);
+  assert.equal(result.route,route);assert.equal(result.state,'ROUTED');
+  const saved=await selectedDriver.decision(selected.id);assert.equal(saved.selected_route,route);assert.equal(saved.status,'PROPOSED');assert.equal(saved.factory_preparation,null);
+  assert.equal((await database.query('SELECT id FROM engineering_route_runs WHERE work_id=$1',[selected.id])).length,0);assert.equal(executions,before);
+  assert.equal((await selectedDriver.start(selected.id,selected.version,selected.generation)).route,route);
+ }
+ pass('Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer');
  for(const failed of [false,true]){
   failCandidate=failed;
   let {work}=await store.create({title:'Connected Factory '+(failed?'failure':'success'),objective:engineering.objective,repository:engineering.profile.repository,criteria:engineering.criteria,maxCostUsd:1.3,maxDurationSeconds:600,idempotencyKey:randomUUID()});work=await store.change(work.id,{operation:'resume',expectedVersion:work.version});
@@ -106,7 +118,7 @@ try{
   let result;
   if(boundary==='RESPONSE_LOST'){
    const engineeringFile=join(dir,'engineering.json'),factoryFile=join(dir,'factory.json');
-   await writeFile(engineeringFile,JSON.stringify(engineering));await writeFile(factoryFile,JSON.stringify({connection,commands:config.commands}));
+   await writeFile(engineeringFile,JSON.stringify(engineering));await writeFile(factoryFile,JSON.stringify({connection,commands:config.commands,routing:config.routing}));
    const worker=spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env:{...process.env,MYEVE_ENGINEERING_MODE:'dogfood',VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:adminURL.replace(/postgres$/,'')+name},stdio:['ignore','pipe','pipe']});
    let output='';worker.stderr.on('data',x=>output+=x);const exited=once(worker,'exit');
    try{

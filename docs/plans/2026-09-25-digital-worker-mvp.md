@@ -220,3 +220,5 @@ The original nine attachments form one numbered Digital Worker specification. Fi
 | Harness/Factory boundaries, ER stages and immediate order, §§102–154 | `/Users/jaywest/.codex/attachments/b9825a32-f021-4e4c-b82c-97eaf72c0a28/Pasted text.txt` |
 | ER1/ER2 detailed gates and later transitions, §§154–212 | `/Users/jaywest/.codex/attachments/c483349a-63d5-4160-8718-959030c1734b/Pasted text.txt` |
 | Architecture, composite demo and final instruction, §§212–246 | `/Users/jaywest/.codex/attachments/904a7d93-cb4c-4962-b310-ba13b498cb2b/Pasted text.txt` |
+
+**Production routing correction:** [Connected admission evidence](../verification/2026-09-27-routing-admission/REPORT.md) supersedes the earlier unit-only routing claim. Server-reviewed Work intent now selects DIRECT/HUMAN before Factory preparation; only qualified PRODUCE proceeds to MYFACTORY. Missing classification fails closed. Route selection grants no execution authority.
