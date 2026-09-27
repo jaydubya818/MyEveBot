@@ -62,6 +62,10 @@ carries no production claim. Exact action cards identify human judgment.
 7. Qualify owner-scoped database persistence, real agent continuation, Relay,
    Factory, and protected verifier end to end. Browser fixtures do not prove these.
 
+Activity uses saved Work creation timestamps, recorded execution milestones,
+Result records, and retained owner decisions. It does not manufacture investigation,
+repair, or verification events.
+
 ## Accessibility and resilience
 
 Native links/buttons/forms/disclosures; labeled fields; live error/success states;
