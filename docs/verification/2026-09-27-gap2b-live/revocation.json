@@ -1,0 +1,6 @@
+{
+  "id": "gap2b-m1er1-45feb228-7eeb-431d-9dc8-e1625eb2ebd8",
+  "status": "REVOKED",
+  "at": "2026-09-27T02:36:03.016174+00:00",
+  "reason": "First authenticated call could not admit because bounded Current Truth omits Work version. Full remaining planned journey requires >10 total calls; no retry or guard changes authorized."
+}

@@ -1,0 +1,53 @@
+{
+  "at": "2026-09-27T02:38:06.965Z",
+  "before": {
+    "scope_id": "authenticated-native-fixture",
+    "scope_kind": "personal",
+    "work_id": "ca197e24-08e4-47a5-9589-b96df35485bb",
+    "actor_id": "authenticated-native-fixture",
+    "agent_id": "auth-native-sofie",
+    "agent_revision": "2026-09-26 19:20:14.76-07",
+    "policy_hash": "4ef071237b1f0a7cd86ee1824fa16c5c461ef01ed6cf869fd4f7f11430e4808f",
+    "policy_version": 1,
+    "budget_version": 1,
+    "ceiling_microusd": "1300000",
+    "spent_microusd": "23086",
+    "reserved_microusd": "0",
+    "max_calls": 10,
+    "calls_admitted": 1,
+    "deadline": "2026-09-27T03:00:56.771Z",
+    "status": "ACTIVE",
+    "historical": {
+      "native": null,
+      "executor": null,
+      "conversation": null
+    },
+    "created_at": "2026-09-27T02:34:54.151Z"
+  },
+  "after": {
+    "scope_id": "authenticated-native-fixture",
+    "scope_kind": "personal",
+    "work_id": "ca197e24-08e4-47a5-9589-b96df35485bb",
+    "actor_id": "authenticated-native-fixture",
+    "agent_id": "auth-native-sofie",
+    "agent_revision": "2026-09-26 19:20:14.76-07",
+    "policy_hash": "4ef071237b1f0a7cd86ee1824fa16c5c461ef01ed6cf869fd4f7f11430e4808f",
+    "policy_version": 1,
+    "budget_version": 1,
+    "ceiling_microusd": "1300000",
+    "spent_microusd": "23086",
+    "reserved_microusd": "0",
+    "max_calls": 10,
+    "calls_admitted": 1,
+    "deadline": "2026-09-27T03:00:56.771Z",
+    "status": "REVOKED",
+    "historical": {
+      "native": null,
+      "executor": null,
+      "conversation": null
+    },
+    "created_at": "2026-09-27T02:34:54.151Z"
+  },
+  "receiptsUnchanged": true,
+  "reason": "Administrative revocation of this qualification grant at explicit failure stop boundary; no amount/counter/receipt changed."
+}

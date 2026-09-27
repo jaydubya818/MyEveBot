@@ -1,0 +1,42 @@
+{
+  "qualificationId": "gap2b-m1er1-45feb228-7eeb-431d-9dc8-e1625eb2ebd8",
+  "candidate": "f4d25febd9ac43be9bc6c4ee57e78f4857ca51cd",
+  "live": "BLOCKED",
+  "calls": 1,
+  "providerAttempts": 1,
+  "spendMicrousd": 23086,
+  "reservedMicrousd": 0,
+  "completionHoldMicrousd": 0,
+  "durationSeconds": 306.246174,
+  "payloadStateKeys": [
+    "workId",
+    "objective",
+    "criteria",
+    "currentTruth"
+  ],
+  "missingAdmissionFields": [
+    "workVersion",
+    "workGeneration"
+  ],
+  "payloadSha256": "ec313b0c8bafbc88153bd6041984a88cde97b7e9b91d3b9db6f2b5f365b681a6",
+  "provider": "anthropic",
+  "model": "anthropic/claude-sonnet-5",
+  "receipt": "e4328718-e2ad-45ce-bc39-c695ae522943",
+  "session": "wrun_01M3GBE8RC17VHGM7M9Z1GPARP",
+  "safety": {
+    "unbudgetedCalls": 0,
+    "budgetViolations": 0,
+    "completionReserveTheft": 0,
+    "doubleCounting": 0,
+    "authorityBypasses": 0,
+    "expiredAuthorityRevivals": 0,
+    "duplicateConsequentialEffects": 0,
+    "lostCandidates": 0,
+    "lostRepairDrafts": 0,
+    "staleWriterUpdates": 0,
+    "incorrectRunExplanations": 0,
+    "falseReadyStates": 0,
+    "useAfterExpiry": 0
+  },
+  "scope": "One actual provider request and its refusal before tool execution; downstream capabilities not qualified."
+}

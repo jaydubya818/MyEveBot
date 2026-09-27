@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-27T02:29:44.823Z",
+  "before": {
+    "oid": 352206,
+    "datname": "gap2b_m1er1_2b3e464aec18b4d1"
+  },
+  "after": {
+    "oid": 352206,
+    "datname": "golden_gap2b_m1er1_2b3e464aec18b4d1"
+  },
+  "reason": "Conform fresh isolated fixture to unchanged protected-verifier golden_ allowlist; no data/schema/authority changed."
+}
