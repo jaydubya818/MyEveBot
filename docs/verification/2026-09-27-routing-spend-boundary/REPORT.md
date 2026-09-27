@@ -1,0 +1,13 @@
+# Non-Factory routes remain available while paid Factory is unqualified
+
+Supersedes candidate `2d258cf7ca79ca56550595296a1cbe0bbab94eca` for the ordering of Factory spend enforcement and adapter construction. Independent review found that an unqualified LIVE Factory profile threw before DIRECT/HUMAN selection. Its connected routing cases used LOCAL_FIXTURE and did not exercise that state.
+
+The existing authority now checks paid spend qualification and constructs/health-checks the Factory adapter only for the backend-reviewed PRODUCE intent. All non-Factory intents still require the existing exact owner/Work/objective/repository/criteria checks and ordinary action admission. The change grants no paid authority and does not relax connection schema validation, Factory origin pinning, writer fencing or dispatch validation.
+
+The connected production-driver test now covers all eight non-production intent cases against three configurations: qualified local fixture, LIVE with spend enforcement false, and LIVE with spend enforcement false plus a transport origin rejected by the Factory adapter. That is 24 route/replay cases. None may acquire source, invoke Factory preparation, allocate a writer Run or execute a model. Two additional PRODUCE cases assert `factory_spend_unqualified` before transport construction, proposal or writer creation. The full existing connected Factory success/repair/restart/STOPPING/historical receipt journey then runs unchanged against the zero-cost producer fixture.
+
+The configuration schema remains required for this scoped Factory action surface. An absent or malformed server profile is still an error; DIRECT proposals are independent of Factory transport availability and paid qualification, not of all backend configuration. DIRECT selection remains a proposal, not a new direct execution architecture.
+
+Earlier [Gate B/C, migration, root and protected-verifier results](../2026-09-27-routing-admission/REPORT.md) remain applicable. No migration bytes or shared contracts changed; only the owned Factory routing fingerprint changed. Live MyFactory remains NOT READY / NOT_RUN because the real paid runtime lacks qualified per-Work spend enforcement. No paid provider or external endpoint was contacted in the LIVE-labelled denial fixtures.
+
+Final qualification: **14 connected checks PASS**, including 24 non-production routing cases and two paid-production denials; **1555 application tests PASS / 40 environment-gated skips**; **typecheck/governance PASS, UNKNOWN=0**; **webpack PASS**. Safety counters zero. [Results](qualification-summary.json), [connected evidence](connected.json), [source hashes](source-hashes.json), [artifact hashes](artifact-hashes.json).

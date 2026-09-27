@@ -62,9 +62,10 @@ try{
  const authority=new FactoryRouteAuthority(store,async()=>config),direct=new DirectDevelopmentStore(store,{profile:engineering.profile,approvedBase:engineering.approvedBase,objective:engineering.objective,criteria:engineering.criteria,agentId,issueNumber:1});
  const driver=(adapterFor)=>new FactoryWorkDriver(store,authority,direct,new DockerProtectedVerifier(),async()=>source,adapterFor);
  // The real action driver reads backend policy before source acquisition or PREPARE.
+ for(const routingConnection of [connection,{...connection,qualification:{...connection.qualification,mode:'LIVE',spendEnforced:false}},{...connection,origin:'https://unqualified.invalid',qualification:{...connection.qualification,mode:'LIVE',spendEnforced:false}}])
  for(const [intent,qualified,route] of [['INVESTIGATE',false,'DIRECT'],['PLAN',false,'DIRECT'],['BOUNDED_OPERATION',true,'DIRECT'],['BOUNDED_OPERATION',false,'HUMAN'],['UNSUPPORTED',false,'HUMAN'],['APPROVE',false,'HUMAN'],['JUDGMENT',false,'HUMAN'],[null,false,'HUMAN']]){
   const selected=await fresh('Backend routing '+intent),before=executions;
-  const selectedConfig={...config,routing:intent?{intent,boundedOperationQualified:qualified}:undefined};
+  const selectedConfig={...config,connection:routingConnection,routing:intent?{intent,boundedOperationQualified:qualified}:undefined};
   const selectedDriver=new FactoryWorkDriver(store,new FactoryRouteAuthority(store,async()=>selectedConfig),direct,new DockerProtectedVerifier(),async()=>{throw Error('Non-production route acquired source');},()=>{throw Error('Non-production route called Factory');});
   const result=await selectedDriver.start(selected.id,selected.version,selected.generation);
   assert.equal(result.route,route);assert.equal(result.state,'ROUTED');
@@ -72,6 +73,15 @@ try{
   assert.equal((await database.query('SELECT id FROM engineering_route_runs WHERE work_id=$1',[selected.id])).length,0);assert.equal(executions,before);
   assert.equal((await selectedDriver.start(selected.id,selected.version,selected.generation)).route,route);
  }
+ for(const origin of [connection.origin,'https://unqualified.invalid']){
+  const selected=await fresh('Unqualified paid production'),before=executions;
+  const deniedConfig={...config,connection:{...connection,origin,qualification:{...connection.qualification,mode:'LIVE',spendEnforced:false}}};
+  const deniedDriver=new FactoryWorkDriver(store,new FactoryRouteAuthority(store,async()=>deniedConfig),direct,new DockerProtectedVerifier(),async()=>{throw Error('Unqualified production acquired source');},()=>{throw Error('Unqualified production called Factory');});
+  await assert.rejects(deniedDriver.start(selected.id,selected.version,selected.generation),error=>error.code==='factory_spend_unqualified');
+  assert.equal(await deniedDriver.decision(selected.id),null);assert.equal(executions,before);
+  assert.equal((await database.query('SELECT id FROM engineering_route_runs WHERE work_id=$1',[selected.id])).length,0);
+ }
+ pass('LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation');
  pass('Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer');
  for(const failed of [false,true]){
   failCandidate=failed;

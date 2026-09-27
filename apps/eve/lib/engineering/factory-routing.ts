@@ -29,11 +29,13 @@ export class FactoryRouteAuthority {
   const config=await this.readConfig(),connection=config.connection,q=connection.qualification;
   const native=await new NativeRouteAuthority(this.store,async()=>config.engineering).read(work);
   const policy=betaPolicySchema.parse(config.routing??{intent:'UNSUPPORTED'});
-  const adapter=new LiveFactoryAdapter(connection),healthy=policy.intent==='PRODUCE'?await adapter.healthy():false;
+  // Non-Factory proposals do not depend on Factory transport or paid execution readiness.
+  if(policy.intent==='PRODUCE'&&q.mode==='LIVE'&&!q.spendEnforced)
+   throw new WorkError('factory_spend_unqualified','Live Factory spend enforcement is not qualified.',503);
+  const healthy=policy.intent==='PRODUCE'?await new LiveFactoryAdapter(connection).healthy():false;
   const now=Date.now();
   const qualified=q.scopeId===work.scopeId&&q.profileHash===digest(config.engineering.profile)&&Date.parse(q.qualifiedAt)<=now&&Date.parse(q.expiresAt)>now&&
     (q.mode==='LOCAL_FIXTURE'||q.spendEnforced);
-  if(q.mode==='LIVE'&&!q.spendEnforced)throw new WorkError('factory_spend_unqualified','Live Factory spend enforcement is not qualified.',503);
   const selection=betaRoute(policy.intent,{factoryQualified:qualified,factoryAvailable:healthy,
    writerFree:native.facts.writerState==='NONE',scopeAllowed:native.facts.workActive&&native.facts.authority==='ALLOW',
    budgetAvailable:native.facts.remainingBudgetUsd>0,readOnlyAllowed:native.facts.authority==='ALLOW',
