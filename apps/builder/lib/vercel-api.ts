@@ -431,21 +431,30 @@ async function uploadDeploymentFiles(
   async function worker(): Promise<void> {
     while (next < uploads.length) {
       const [sha, bytes] = uploads[next++];
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/octet-stream",
-          "x-vercel-digest": sha,
-        },
-        body: new Uint8Array(bytes),
-      });
-      if (!response.ok) {
-        throw new VercelApiError("deploy", `Vercel file upload failed (${response.status})`, response.status);
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/octet-stream",
+              "x-vercel-digest": sha,
+            },
+            body: new Uint8Array(bytes),
+            signal: AbortSignal.timeout(30_000),
+          });
+          if (response.ok) break;
+          if (attempt === 2 || (response.status !== 429 && response.status < 500)) {
+            throw new VercelApiError("deploy", `Vercel file upload failed (${response.status})`, response.status);
+          }
+        } catch (error) {
+          if (error instanceof VercelApiError || attempt === 2) throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
       }
     }
   }
-  await Promise.all(Array.from({ length: Math.min(16, uploads.length) }, () => worker()));
+  await Promise.all(Array.from({ length: Math.min(8, uploads.length) }, () => worker()));
   return references;
 }
 

@@ -14,7 +14,7 @@ const transitions: Record<ManagedEveState, readonly ManagedEveState[]> = {
   verifying: ["ready", "failed"],
   ready: ["paused", "upgrading", "retiring", "failed"],
   paused: ["ready", "deploying", "retiring"],
-  failed: ["approved", "provisioning", "deploying", "verifying", "retiring"],
+  failed: ["approved", "provisioning", "deploying", "verifying", "ready", "retiring"],
   retiring: ["retired", "failed"],
   retired: [],
 };

@@ -11,7 +11,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   catch { return Response.json({ error: "Unknown managed Eve" }, { status: 404 }); }
   try {
     const result = await managedDb().query<DeploymentRow>(
-      "SELECT id,state,project_id,project_name,deployment_id,public_url,monthly_model_budget_usd FROM managed_eve_environments WHERE id=$1", [id],
+      "SELECT id,state,project_id,project_name,deployment_id,public_url,monthly_model_budget_usd,last_error_stage FROM managed_eve_environments WHERE id=$1", [id],
     );
     const row = result.rows[0];
     if (!row || row.project_name !== projectName) {
