@@ -372,8 +372,8 @@
     },
     "agent/lib/memory-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "bc343b0346f5e704415e0ede6a89f675657b0bef8788900b09512f87a26331d6"
+      "reason": "Canonical owner/scope-filtered Memory storage; exact duplicate identities, local archive/replace correction and bounded reads. Remote deletion remains verified. No new authority consumers; existing remember Action Gateway caller unchanged. PostgreSQL concurrency, replay and isolation qualification in test/total-recall.integration.mjs.",
+      "sha256": "20f11e6538c0ed0f3b1fcf77ad63ee4c71cb99d6e339ca42328aa38aad87ec04"
     },
     "agent/lib/memory-tool-context.ts": {
       "classification": "INTERNAL",
@@ -522,8 +522,8 @@
     },
     "agent/schedules/memory-consolidation.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dce3b0aca2d1083de4fe04488cf3b7cceb5f8275481ec401370f63b3c6eb069d"
+      "reason": "Review-only nightly Memory instructions preserve conflicting observations and source history; no autonomous promotion, recency-based truth replacement or new tool authority.",
+      "sha256": "3ddc9ac2902a6845ab8fa843460e65b0c346ed39e1f6a273f6b945195a0bf3e5"
     },
     "agent/schedules/operations-monitor.ts": {
       "classification": "INTERNAL",
@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Current migration identifier, now 0040; no effects.",
-      "sha256": "6fd7d93d4887ecfcbdca2479f73302ff5d294a1e3982790bf369cfa46494fd97"
+      "reason": "Migration head 0061; constant only, preserves NOT_APPLICABLE. Forward hardening invalidates superseded Result completion; no executor effects.",
+      "sha256": "c133a37b974ccb97be0c6e5a0c9e3b45530337e7c7590819ef35491fa6a6c114"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2959,6 +2959,296 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+    },
+    "lib/goal-work/validation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded input validation for Goal orchestration, dependencies, signals and canonical Result envelopes. No execution or external effects.",
+      "sha256": "86e290e8723e9cc77022d0bade84ae6d07764775f7b697bf4da545d855257b7c"
+    },
+    "lib/goal-work/attention-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure structural mapping to the unmerged myeve.attention.v1 contract. No Inbox persistence, notifications, owner impersonation, approval grant or executor.",
+      "sha256": "bbfea88319901c40ea2c99fcb851cff8aa119931ad4cb6b0ec6eea08c2231b61"
+    },
+    "lib/goal-work/projections.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Bounded owner-scoped read-only SQL projections for Today, Daily Brief, Goal and Task detail; no cross-owner joins or execution path.",
+      "sha256": "3256cf34af59de61889a5835d4d85807b1c1cc5af128a30fd1b9891cf924b48d"
+    },
+    "lib/goal-work/contracts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Server-only dependency ports; default Work adapter denies admission. Contracts carry references and criteria, never tool/provider/writer/budget grants.",
+      "sha256": "05bb3485f59bd2d7c5e623a69cb7904c7c9f3d93478da1f1242060bc4e701c07"
+    },
+    "lib/goal-work/context-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure Work-scoped advisory Memory request descriptors and evidence-only learning references. No Memory persistence, learning promotion or execution authority.",
+      "sha256": "482390067b79b1fa8e407f4c1d9091836553aee90a530dda7bc262d2707b2949"
+    },
+    "lib/goal-work/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Unmounted authenticated handler factory; signed production sessions, same-origin writes, strict bounded input, owner-scoped services and revision checks. Decisions go to canonical Inbox, not execution.",
+      "sha256": "92ab29e0c0a74cd996c6a17f3b28fa56218668c6d3445c2120c36ef6137a6c6e"
+    },
+    "lib/goal-work/product-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure owner-scoped Today, Daily Brief and Beta Goal summary mapping. No fabricated TaskRun/approval, provider access or execution.",
+      "sha256": "581f2d415c278ffdbb5df7970d23e8d36d0aadd6ddc340cd5c8e1ba4f3eb5130"
+    },
+    "lib/goal-work/canonical-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Canonical Work creation and retained Result mapping through injected gateways and canonical validators. Immutable intent dedupe; canonical policy owns budgets and routes; no Factory/provider invocation.",
+      "sha256": "3fcc11bf92214e5f75398916f87da3d811c4978ed5ce34adada030152594b07c"
+    },
+    "lib/goal-work/database.ts": {
+      "classification": "INTERNAL",
+      "reason": "Injected pool transaction adapter sets owner scope and bounded SQL timeouts. No connection creation, credentials, migration application or schema grants.",
+      "sha256": "e41425936363f5619f72db19808172dcfe64d720c79af2bc8120bc71a0aa8d42"
+    },
+    "lib/goal-work/inbox-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Rereads canonical owner response and validates current action binding before dependency resolution. Informational follow-up mapping creates no scheduler or approval.",
+      "sha256": "2632383657a1b9fd97bb557c7342262d8c43615a4c99bbe6fa36c8917ee22ff2"
+    },
+    "lib/goal-work/event-adapters.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated source resolver and trusted scheduler clock feed generation-bound dependency reevaluation. No installed scheduler, provider call or direct execution.",
+      "sha256": "baa167aa55f445622a533fdbd11cb414a606c0f46a7705046d3328824c3c9165"
+    },
+    "lib/goal-work/service.ts": {
+      "classification": "INTERNAL",
+      "reason": "Isolated Goal orchestration service using injected canonical Work/Result/Signal ports, durable correlation and row locks. No runtime route or tool registration. PostgreSQL replay, SIGKILL, owner isolation, stale generation and denied-authority fixtures qualified; live Work admission remains an integration dependency.",
+      "sha256": "562082815bc5288ee1e27e43af953141e8a686e8cfde88f8e0921ec3f189168f"
+    },
+    "lib/goal-work/dispatcher.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded owner-scoped Goal cursor dispatcher calls the Goal admission service. No installed schedule, direct executor, connector call or authority grant.",
+      "sha256": "a758574e755f052dc3f8f3c26980ba07880de974c8dc30e9b111788906182960"
+    },
+    "lib/total-recall/work-retrieval.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads canonical owner-bound Work, Knowledge and explicitly selected owner Memory with same-Work correction lineage, scope verification, relevance and full-item bounds. No writes or authority consumer. Disposable PostgreSQL isolation, quality and correction tests qualify the boundary.",
+      "sha256": "629704a9aba454848b9fc49e417dd3f3773961b6219f9bc605f93338a46dae21"
+    },
+    "lib/total-recall/projections.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Validated read-only Memory and Learning UI projections plus private/Work-scoped portability representation. Eligibility false, no grants, sharing or Capsule activation.",
+      "sha256": "dc7f22bc3204804842b7489455c2e2a9256b786d7f797ee210077e4f44ee061f"
+    },
+    "lib/total-recall/learning.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure closed-vocabulary advisory learning, strict feedback schemas, secret exclusion, code-owned deterministic fixtures and version transitions. Evidence prose never becomes model instructions, Skills, policy, grants or execution parameters.",
+      "sha256": "40afb274c4fa72f5672323bc171391b66f1e2d6b2fc7e249718c1559c3987ffe"
+    },
+    "lib/total-recall/retrieval-contract.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Strict Work/owner/repository retrieval DTOs, bounded limits, truth and provenance; selection defaults deny cross-Work/private context. No authority or I/O.",
+      "sha256": "755435ab99b1e29c63704da2dfe550738f2c4db1dfb9ca5680f8bf2ad9c54589"
+    },
+    "lib/total-recall/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reuses authenticated same-origin Engineering owner principal; strict bounded bodies; server-run evaluation only; exact hash/revision owner decisions. Disabled except explicit local qualification and denied on hosted production. No model-callable promotion path.",
+      "sha256": "8d65fdb1237d20d0a1e0d8c34cda8492b1086b519250e5f96a155baf20718f93"
+    },
+    "lib/total-recall/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Verifies retained canonical Result proof/hash/Work and owner scope before feedback; exact Work binding accompanies version-CAS decisions. Reads immutable results; writes advisory learning only. No result writer, verifier or Factory execution.",
+      "sha256": "ac24b756686a95356ee6f95e41de8afc9321f51446cd70c9f16e147bb48a0724"
+    },
+    "lib/total-recall/fixture-consumer.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Deterministic integration fixture parses bounded serialized evidence and compares plan facts to independent expected facts. No model, tools, production runtime hook or authority; metrics explicitly do not qualify live improvement.",
+      "sha256": "923560478aab5de1e7f72f62c31103d5bd4517b39494a998a4b6a25c8d0b19db"
+    },
+    "lib/total-recall/sofie-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Composes bounded user-role evidence and code-owned advisory guidance. LearningStore writes scoped offered-context receipts only. No live agent hook, system authority, execution or approval changes.",
+      "sha256": "5510c0e2a2d524b56c72f017b7eafe9c1133813f1651086c50b54bb0bd8be7a9"
+    },
+    "lib/total-recall/store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-authenticated personal Work feedback and revision-CAS learning history; scoped promoted-only retrieval with usage receipts. No action, routing, writer, credential, approval, budget or publication writes. Proposed schema remains outside migration chain pending shared ownership integration.",
+      "sha256": "05d1fe34d7cb5e2c878e802b45aba8d93c19462549f228fb0cdb2c8f345ebbac"
+    },
+    "lib/universal-inbox/goals-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure structural Goal NeedsYouItem normalization preserving owner and existing Goal/Task/dependency generations; no Goal OS state or execution.",
+      "sha256": "309cd8fb646101d55af05b2e8c0f52b77794b87de31d0fbaead6fb849f8467e9"
+    },
+    "lib/universal-inbox/adapters.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure normalization of already admitted source data. No polling, provider access, reply, grants or execution; trusted owner-scoped mappings are required.",
+      "sha256": "c809900aeaaca7f3fa8a4814216331bbe82a35acde2ccb0b73bb1adede8a5c7f"
+    },
+    "lib/universal-inbox/fixtures.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic server-side fixtures only. No live accounts, source polling, delivery or canonical writes.",
+      "sha256": "c1c3accbb9ba6ceca39fa74283eda6cf9dace5d1adb4d6b0a439857338b1435d"
+    },
+    "lib/universal-inbox/repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped transactional persistence interface only; no implementation or external effects.",
+      "sha256": "cd5f53a3303f9f406d69ab5c00bdc56d723a54b3fa13cf5630fb877b7864218c"
+    },
+    "lib/universal-inbox/admission.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner/account/audience/grant/projection-hash admission and bounded retained-source visibility checks. No provider calls or authority grants; source authority is injected by the owning backend.",
+      "sha256": "ee24c4a3aabcfcb56584bfbe7ca0fca800fffd9fa400c0a6b121ba47fca84198"
+    },
+    "lib/universal-inbox/fixture-repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Local SQLite qualification storage only; not imported by any production route/scheduler. Transactions persist synthetic attention and response evidence, never canonical Work or authority.",
+      "sha256": "2252f4ef4d8d7b7887830ae680c087aeac413e9e588cfce613b126c22d91917f"
+    },
+    "lib/universal-inbox/source-adapters.ts": {
+      "classification": "INTERNAL",
+      "reason": "Thin local normalization of already fetched/verified provider data; explicit local triage. No credential access, provider fetches, replies, grants or live ingestion registration.",
+      "sha256": "e942b9b48d42db50b38b319724f96296b1455b23b1a7f02f905c96a02db26533"
+    },
+    "lib/universal-inbox/contracts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict attention and response schemas and types only; no provider effects or authority.",
+      "sha256": "fb74550b339b57c70442e9c18abe6eb65250a34953b38c962c7863fe3c4f0a01"
+    },
+    "lib/universal-inbox/continuation-fixture.ts": {
+      "classification": "INTERNAL",
+      "reason": "Local-only durable fake continuation authority for stale/replay contract qualification; no production registration or canonical Work mutation.",
+      "sha256": "96a8bddd01f5861547ea925049278228d07763c91d0f0d64573ddb2cdd574d67"
+    },
+    "lib/universal-inbox/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Unmounted authenticated owner API factory with mandatory retained-source visibility checks, bounded pages/body and same-origin response intents. No execution or provider authority.",
+      "sha256": "76734e5bb5476af38c463a266f5bd3972271b5556fc7c4dec78a4e4f89b9bff0"
+    },
+    "lib/universal-inbox/continuation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict generation/version-bound owner response and Goal dependency signal contract; canonical receiver owns atomic authority checks, eligibility and idempotency. No canonical Work execution.",
+      "sha256": "f49510770c61f985db62c195417a5ff467e09325f4006b558c8188d53c238963"
+    },
+    "lib/universal-inbox/postgres-repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Unmounted activation candidate with owner-scoped transactions, RLS context and serialized attention writes. Injected restricted pool; no DDL, environment credentials, canonical Work writes or source permissions.",
+      "sha256": "2aacbc0eb6677688952316d80d594fbfd09cd49a65939bd92ed4637583e24ea7"
+    },
+    "lib/universal-inbox/feeds.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded Today/Daily Brief projections and deterministic notification/follow-up intents only; no scheduler, push or delivery execution. Production uses an authorized reader.",
+      "sha256": "ae934f45f8020c04c1f9828961abee931b6a784ae837d6621075fd6ffc2b0068"
+    },
+    "lib/universal-inbox/beta-crosswalk.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure pinned-Beta presentation handoff; canonical approval view joined by exact binding, no fabricated authority, TaskRun or product UI edits.",
+      "sha256": "f0ebd977e9c8ea81e3244e9798983fbe2d8fa9b8ff48b8f7705248c3560b5f6e"
+    },
+    "lib/universal-inbox/query.ts": {
+      "classification": "INTERNAL",
+      "reason": "Validated bounded owner-scoped cursor/window/filter query construction with constant SQL field names; no execution effects.",
+      "sha256": "980d3f87daa0be1df1d58619226cd1a8a537cdcfdb2fa1983285b07b0dcb6c35"
+    },
+    "lib/universal-inbox/domain.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure identity, priority, lifecycle, Needs You and presentation logic; no effects.",
+      "sha256": "384eed3f73156c1dec9582a43e08f0d1fdfe41d89a118502816b081aba79d9b3"
+    },
+    "lib/universal-inbox/service.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped attention lifecycle and response intents. Provider handoff occurs only through an injected canonical consumer required to enforce authority and durable response-ID idempotency; no production registration.",
+      "sha256": "11ff58dcf1439acaa3837c765fcd165e29a3be0ef5aeb48ab2f33041046730fb"
+    },
+    "lib/universal-inbox/approval-consumer.ts": {
+      "classification": "INTERNAL",
+      "reason": "Exact canonical approval read/decision interface with interrupted-write reconciliation. Formal approval remains canonical; decisions bypass it. No Work execution or new authority.",
+      "sha256": "13b9ace437c42314b5faa1225dfee25b46dddfbfc19911c4f7c6063c7ac36dd6"
+    },
+    "lib/engineering/knowledge.ts": {
+      "classification": "INTERNAL",
+      "reason": "Atomic owner-scoped Knowledge/source link to one personal Work; source reuse excludes other Work and same-Work SQL supersession has no provider effect.",
+      "sha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247"
+    },
+    "lib/engineering/contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e"
+    },
+    "lib/engineering/types.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4"
+    },
+    "lib/engineering/store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899"
+    },
+    "lib/digital-worker/packs.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure Digital Worker behavior-pack metadata/compatibility; no provider invocation, effect, or grant.",
+      "sha256": "fb2bcdc62f0fb4b6cd083e06a434474c25970fb46f955a2bee6215e3d3f72f06"
+    },
+    "lib/digital-worker/contracts.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
+      "sha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30"
+    },
+    "lib/digital-worker/routing.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure scoped routing decisions; MYFACTORY supports its exact content-digest FactoryVersion while other provider versions remain numeric. No dispatch or authority effects.",
+      "sha256": "f548914ccab0b6b0d2ba657f011b686d78bd23114c0fb89b7bae866485e0c6ae"
+    },
+    "app/api/learning/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Thin Learning review route delegates GET/POST to authenticated same-origin, qualification-only handler; no independent execution or authority path.",
+      "sha256": "762bec2a570c42a57e7395dd2641eb7fd3b031f1eff0f1e830e0cb2de91bbd40"
+    },
+    "lib/engineering/api.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Extracted signed-session principal and same-origin validation from frozen engineering API. No database mutation or executor imports.",
+      "sha256": "fa48459655a2bb996a8172d51e86d1ff0a727d5f56c65387610a9abe8f1dc7fb"
+    },
+    "lib/beta-integration/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reviewed retained Result generation/hash/latest-revision checks, exact retained owner-signal binding, restricted Goal/Inbox roles, signed owner and same-origin boundary. Qualification-only loopback database; Work intent creation still cannot admit or dispatch providers. No new authority or external effects.",
+      "sha256": "4ccc435df9db8b986a8e2a24072be8d7e2b8a4610232929cf8e2fdd09f9947a0"
+    },
+    "app/api/beta/inbox/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates only to betaRequest inbox: signed owner, same-origin mutation, restricted owner-scoped Inbox persistence; no source ingestion endpoint or executor.",
+      "sha256": "bc5a4268ef20070980d235ca5b0aac43f3dcacf168b97a866fc8b9d3e2311f2c"
+    },
+    "app/api/beta/memory/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates only to betaRequest memory: signed owner, scoped Work facts and correction lineage; no authority or sharing expansion.",
+      "sha256": "2772a89dfc74c8f5ae9a688b66566103dd8af274477d7178ac3616f6be5a3c1c"
+    },
+    "app/api/beta/goals/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates only to betaRequest goals: signed owner, restricted Goal state, version-bound owner Inbox responses and idempotent Work intent; no provider execution.",
+      "sha256": "73821269eb8b0f8842549c1fc13a885ce55289d6717f3a89fc44ed57e254b784"
+    },
+    "app/api/beta/learning/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates only to betaRequest learning: signed owner, current Work revision, exact family scope and candidate hash; qualified evaluation required before owner promotion.",
+      "sha256": "f9e2c03ac3479507fe729c7efded8497a6e7a119fe14f1e9a631d14e2e35c3b7"
+    },
+    "app/api/beta/start/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates only to betaRequest start: signed owner and same origin; stable Goal/Plan/Task identities and durable Work intent; does not admit an executor.",
+      "sha256": "875e7b601c28637f7643382a904426e1d27428ba63f8d5a0379606d298bb32b6"
+    },
+    "app/api/beta/feedback/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates only to betaRequest feedback: signed owner and same origin; validates immutable retained Result hash and Work revision before candidate persistence; no automatic promotion.",
+      "sha256": "17d22d187af41c68209d536e1589c757bd396ff787cf6b14958d62f743b423da"
+    },
+    "app/api/beta/results/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "GET delegates to authenticated owner-filtered immutable Result projection. POST has no mutation handler and returns unavailable.",
+      "sha256": "8c0d4e1fd36ab02c0c0ab4427f9cdb686cb7d5308a959620e8c89f4ea59e1a60"
+    },
+    "app/api/beta/work/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "GET delegates to authenticated owner-scoped Work intent projection. POST has no mutation handler and returns unavailable.",
+      "sha256": "cba71244615e45dd2a1da0e200ea9c53816accbae3ab4b921a81eb45d7ab4ce7"
     }
   }
 }

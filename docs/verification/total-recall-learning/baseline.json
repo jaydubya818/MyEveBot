@@ -1,0 +1,91 @@
+{
+  "baseline": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+  "originMain": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+  "localMain": "a7936898c77d157aa66c222b86aedce07e265e16",
+  "worktrees": [
+    {
+      "worktree": "/Users/jaywest/Myeve",
+      "head": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "status": " M README.md\n M apps/eve/agent/connections/composio.ts\n M apps/eve/agent/instructions/computer-runtime.ts\n M apps/eve/scripts/executor-inventory.json\n?? .playwright-cli/\n?? docs/plans/2026-09-25-feat-myeve-engineering-plan.md\n?? docs/plans/2026-09-25-knowledge-verification.md\n?? docs/plans/2026-09-25-myeve-engineering-claude-review.md\n?? docs/plans/2026-09-25-myeve-engineering-source-ledger.md\n?? docs/plans/2026-09-25-myeve-engineering-verification.md\n?? docs/verification/digital-worker/\n?? output/knowledge-verification-2026-09-25.md\n?? output/playwright/knowledge-2026-09-25/\n",
+      "migrations": ""
+    },
+    {
+      "worktree": "/private/tmp/knowledge-production-source",
+      "head": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/private/tmp/myfactory-myeve-main-merge",
+      "head": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/beta-product-experience/Myeve",
+      "head": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+      "status": "?? docs/verification/beta-product-experience/\n",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+      "head": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+      "status": " M apps/eve/agent/instructions/persistent-agent.ts\n M apps/eve/components/engineering/work-dashboard.tsx\n M apps/eve/lib/capability-registry.ts\n M apps/eve/lib/database-schema.ts\n M apps/eve/lib/engineering/current-truth-lines.ts\n M apps/eve/lib/engineering/github.ts\n M apps/eve/lib/engineering/worker-projection.ts\n M apps/eve/scripts/check-executor-governance.ts\n M apps/eve/scripts/executor-inventory.json\n M apps/eve/test/factory-receipt.integration.mjs\n M apps/eve/test/factory-writer-history.integration.mjs\n M apps/eve/test/factory-writer.integration.mjs\n M apps/eve/test/native-completion.integration.mjs\n?? apps/eve/agent/tools/engineering_factory.ts\n?? apps/eve/app/api/engineering/work/[id]/factory/\n?? apps/eve/lib/engineering/factory-api.ts\n?? apps/eve/lib/engineering/factory-beta.test.ts\n?? apps/eve/lib/engineering/factory-live-adapter.ts\n?? apps/eve/lib/engineering/factory-routing.ts\n?? apps/eve/lib/engineering/factory-runtime.ts\n?? apps/eve/lib/engineering/factory-work-driver.ts\n?? apps/eve/migrations/0057_factory_preparation_intent.sql\n?? apps/eve/scripts/factory-worker.ts\n?? apps/eve/test/factory-live.integration.mjs\n?? apps/eve/test/factory-q37-composition.mjs\n?? docs/verification/2026-09-27-myfactory-beta/\n",
+      "migrations": " M apps/eve/lib/database-schema.ts\n?? apps/eve/migrations/0057_factory_preparation_intent.sql\n"
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+      "head": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+      "head": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+      "head": "a00e8f46f348a6a38fdb2e9dcae954147aac0d92",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve",
+      "head": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+      "head": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+      "head": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+      "head": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve",
+      "head": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+      "status": "",
+      "migrations": ""
+    },
+    {
+      "worktree": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+      "head": "cab819bdd93ae1470925765728faacf8f6beab25",
+      "status": "",
+      "migrations": ""
+    }
+  ]
+}

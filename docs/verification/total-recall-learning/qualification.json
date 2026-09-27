@@ -1,0 +1,35 @@
+{
+  "implementationSha": "3416014e9aba4aebd663e27db042ca76c6254c2b",
+  "baseline": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+  "unit": {
+    "passed": 1552,
+    "skipped": 56,
+    "filesPassed": 178,
+    "filesSkipped": 4
+  },
+  "databaseJourneys": 23,
+  "knowledgeIntegration": "PASS",
+  "typecheck": "PASS",
+  "governance": "PASS",
+  "build": "PASS",
+  "schemaActivation": "BLOCKED: integration workstream owns migration 0057 and schema registry",
+  "designPartnerReady": false,
+  "liveModelJourney": "NOT RUN",
+  "browser": "Real disabled boundary; mocked API lifecycle states",
+  "changedPaths": [
+    "apps/eve/agent/lib/memory-store.test.ts",
+    "apps/eve/agent/lib/memory-store.ts",
+    "apps/eve/agent/schedules/memory-consolidation.ts",
+    "apps/eve/app/api/learning/route.ts",
+    "apps/eve/app/learning/page.tsx",
+    "apps/eve/lib/total-recall/api.test.ts",
+    "apps/eve/lib/total-recall/api.ts",
+    "apps/eve/lib/total-recall/learning.test.ts",
+    "apps/eve/lib/total-recall/learning.ts",
+    "apps/eve/lib/total-recall/store.ts",
+    "apps/eve/scripts/executor-inventory.json",
+    "apps/eve/test/helpers/recall-restart.mjs",
+    "apps/eve/test/total-recall.integration.mjs",
+    "docs/verification/total-recall-learning/proposed-schema.sql"
+  ]
+}

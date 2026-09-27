@@ -1,0 +1,1047 @@
+{
+  "version": "myeve.attention.v1",
+  "mode": "fixture",
+  "pinnedBetaSha": "ed0f6b5dad0e3a131a9f5332139e627245cbd4e8",
+  "productionActivated": false,
+  "inbox": {
+    "version": "myeve.attention.v1",
+    "items": [
+      {
+        "version": "myeve.attention.v1",
+        "id": "attention_48244c3ac9d971d218f3593dc6075785ee8fb9df3aabb32309e2c2cfb08a1266",
+        "ownerId": "fixture-owner",
+        "correlationId": "follow-up:tester",
+        "episode": 1,
+        "workId": "fixture-work",
+        "kind": "FOLLOW_UP",
+        "status": "WAITING",
+        "title": "Waiting for tester",
+        "summary": "Sofie will check the scheduled follow-up.",
+        "revision": 1,
+        "sourceSequence": 2,
+        "createdAt": "2026-09-27T12:00:00.000Z",
+        "updatedAt": "2026-09-27T12:00:00.000Z",
+        "seenAt": null,
+        "notification": "UNREAD",
+        "source": {
+          "system": "work",
+          "accountId": "fixture-account",
+          "eventId": "tester-wait",
+          "sender": "Sofie",
+          "threadId": null,
+          "occurredAt": "2026-09-27T12:00:00.000Z",
+          "reference": "fixture-work",
+          "grantId": null,
+          "attachments": [],
+          "evidence": []
+        },
+        "priority": {
+          "blockingActiveWork": false,
+          "deadlineAt": null,
+          "urgency": "normal",
+          "ownerRequested": false,
+          "dependencyCount": 0,
+          "sourceImportance": 0
+        },
+        "priorityScore": 0,
+        "action": null,
+        "actionBinding": null,
+        "followUpAt": "2026-09-28T12:00:00.000Z",
+        "responseId": null,
+        "workGeneration": null,
+        "workVersion": null,
+        "goal": null,
+        "waitingFor": null,
+        "actionRequiredAt": null,
+        "resolvedAt": null,
+        "supersededAt": null,
+        "lastExternalReplyAt": null,
+        "lastMessageAt": null,
+        "needsYou": false,
+        "availableActions": [
+          "mark_read",
+          "dismiss"
+        ]
+      },
+      {
+        "version": "myeve.attention.v1",
+        "id": "attention_63699dc48ff999e988250d42d69fa5bec975e5d4f763e350dbe279635d96a0df",
+        "ownerId": "fixture-owner",
+        "correlationId": "work:fixture-work",
+        "episode": 1,
+        "workId": "fixture-work",
+        "kind": "DECISION",
+        "status": "NEEDS_ACTION",
+        "title": "Choose provider A or B",
+        "summary": "Your choice unblocks this Work.",
+        "revision": 2,
+        "sourceSequence": 2,
+        "createdAt": "2026-09-27T12:00:00.000Z",
+        "updatedAt": "2026-09-27T12:00:00.000Z",
+        "seenAt": null,
+        "notification": "UNREAD",
+        "source": {
+          "system": "work",
+          "accountId": "fixture-account",
+          "eventId": "decision-2",
+          "sender": "Sofie",
+          "threadId": null,
+          "occurredAt": "2026-09-27T12:00:00.000Z",
+          "reference": "fixture-work",
+          "grantId": null,
+          "attachments": [],
+          "evidence": []
+        },
+        "priority": {
+          "blockingActiveWork": false,
+          "deadlineAt": null,
+          "urgency": "normal",
+          "ownerRequested": false,
+          "dependencyCount": 0,
+          "sourceImportance": 0
+        },
+        "priorityScore": 0,
+        "action": {
+          "id": "choose-provider",
+          "kind": "decision",
+          "reason": "choice",
+          "involvement": "NECESSARY_JUDGMENT",
+          "prompt": "Choose the provider for this Work.",
+          "options": [
+            "A",
+            "B"
+          ],
+          "expiresAt": null
+        },
+        "actionBinding": "65bf085a59c6d9f58b36b8e7e89a74c586683d645452f29b148627099002aa42",
+        "followUpAt": null,
+        "responseId": null,
+        "workGeneration": null,
+        "workVersion": null,
+        "goal": null,
+        "waitingFor": null,
+        "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+        "resolvedAt": null,
+        "supersededAt": null,
+        "lastExternalReplyAt": null,
+        "lastMessageAt": "2026-09-27T12:00:00.000Z",
+        "needsYou": true,
+        "availableActions": [
+          "mark_read",
+          "respond"
+        ]
+      },
+      {
+        "version": "myeve.attention.v1",
+        "id": "attention_bc045bbe8dec181fa5c158435fdc987fa025411094595b337e425eae325c982f",
+        "ownerId": "fixture-owner",
+        "correlationId": "email:thread-1",
+        "episode": 1,
+        "workId": null,
+        "kind": "MESSAGE",
+        "status": "NEW",
+        "title": "External reply",
+        "summary": "The documents are ready.",
+        "revision": 1,
+        "sourceSequence": 1,
+        "createdAt": "2026-09-27T12:00:00.000Z",
+        "updatedAt": "2026-09-27T12:00:00.000Z",
+        "seenAt": null,
+        "notification": "UNREAD",
+        "source": {
+          "system": "email",
+          "accountId": "fixture-account",
+          "eventId": "email-1",
+          "sender": "partner@example.test",
+          "threadId": "email-thread",
+          "occurredAt": "2026-09-27T12:00:00.000Z",
+          "reference": "email-1",
+          "grantId": null,
+          "attachments": [
+            {
+              "id": "attachment-1",
+              "name": "proposal.pdf",
+              "reference": "provider:attachment-1"
+            }
+          ],
+          "evidence": []
+        },
+        "priority": {
+          "blockingActiveWork": false,
+          "deadlineAt": null,
+          "urgency": "normal",
+          "ownerRequested": false,
+          "dependencyCount": 0,
+          "sourceImportance": 0
+        },
+        "priorityScore": 0,
+        "action": null,
+        "actionBinding": null,
+        "followUpAt": null,
+        "responseId": null,
+        "workGeneration": null,
+        "workVersion": null,
+        "goal": null,
+        "waitingFor": null,
+        "actionRequiredAt": null,
+        "resolvedAt": null,
+        "supersededAt": null,
+        "lastExternalReplyAt": null,
+        "lastMessageAt": "2026-09-27T12:00:00.000Z",
+        "needsYou": false,
+        "availableActions": [
+          "mark_read",
+          "dismiss"
+        ]
+      },
+      {
+        "version": "myeve.attention.v1",
+        "id": "attention_e22eafffbd3c97ea7ab0f792d1ee8051869598fc254f3c5b6de198e6bbd39090",
+        "ownerId": "fixture-owner",
+        "correlationId": "approval:fixture-approval",
+        "episode": 1,
+        "workId": "fixture-work",
+        "kind": "APPROVAL",
+        "status": "NEEDS_ACTION",
+        "title": "Approve the saved email",
+        "summary": "send",
+        "revision": 1,
+        "sourceSequence": 1,
+        "createdAt": "2026-09-27T12:00:00.000Z",
+        "updatedAt": "2026-09-27T12:00:00.000Z",
+        "seenAt": null,
+        "notification": "UNREAD",
+        "source": {
+          "system": "approval",
+          "accountId": "fixture-account",
+          "eventId": "fixture-approval:pending",
+          "sender": "Sofie",
+          "threadId": null,
+          "occurredAt": "2026-09-27T12:00:00.000Z",
+          "reference": "fixture-approval",
+          "grantId": null,
+          "attachments": [],
+          "evidence": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fixture-run"
+          ]
+        },
+        "priority": {
+          "blockingActiveWork": false,
+          "deadlineAt": null,
+          "urgency": "normal",
+          "ownerRequested": false,
+          "dependencyCount": 0,
+          "sourceImportance": 0
+        },
+        "priorityScore": 0,
+        "action": {
+          "id": "fixture-approval",
+          "kind": "approval",
+          "reason": "approval",
+          "involvement": "NECESSARY_JUDGMENT",
+          "prompt": "Approve the saved email",
+          "options": [
+            "approved",
+            "denied"
+          ],
+          "expiresAt": "2026-09-28T12:00:00.000Z",
+          "approval": {
+            "id": "fixture-approval",
+            "bindingHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "why": "Approve the saved email",
+            "scope": "recipient@example.test",
+            "effects": [
+              "Send the saved message to the named recipient"
+            ]
+          }
+        },
+        "actionBinding": "23bb858c9292259c71481bdf6e6c4c81f3d2a5668ec330bc70f4e8b14bb0eb6e",
+        "followUpAt": null,
+        "responseId": null,
+        "workGeneration": null,
+        "workVersion": null,
+        "goal": null,
+        "waitingFor": null,
+        "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+        "resolvedAt": null,
+        "supersededAt": null,
+        "lastExternalReplyAt": null,
+        "lastMessageAt": null,
+        "needsYou": true,
+        "availableActions": [
+          "mark_read",
+          "respond"
+        ]
+      }
+    ],
+    "nextCursor": null
+  },
+  "needsYou": {
+    "version": "myeve.attention.v1",
+    "items": [
+      {
+        "version": "myeve.attention.v1",
+        "id": "attention_63699dc48ff999e988250d42d69fa5bec975e5d4f763e350dbe279635d96a0df",
+        "ownerId": "fixture-owner",
+        "correlationId": "work:fixture-work",
+        "episode": 1,
+        "workId": "fixture-work",
+        "kind": "DECISION",
+        "status": "NEEDS_ACTION",
+        "title": "Choose provider A or B",
+        "summary": "Your choice unblocks this Work.",
+        "revision": 2,
+        "sourceSequence": 2,
+        "createdAt": "2026-09-27T12:00:00.000Z",
+        "updatedAt": "2026-09-27T12:00:00.000Z",
+        "seenAt": null,
+        "notification": "UNREAD",
+        "source": {
+          "system": "work",
+          "accountId": "fixture-account",
+          "eventId": "decision-2",
+          "sender": "Sofie",
+          "threadId": null,
+          "occurredAt": "2026-09-27T12:00:00.000Z",
+          "reference": "fixture-work",
+          "grantId": null,
+          "attachments": [],
+          "evidence": []
+        },
+        "priority": {
+          "blockingActiveWork": false,
+          "deadlineAt": null,
+          "urgency": "normal",
+          "ownerRequested": false,
+          "dependencyCount": 0,
+          "sourceImportance": 0
+        },
+        "priorityScore": 0,
+        "action": {
+          "id": "choose-provider",
+          "kind": "decision",
+          "reason": "choice",
+          "involvement": "NECESSARY_JUDGMENT",
+          "prompt": "Choose the provider for this Work.",
+          "options": [
+            "A",
+            "B"
+          ],
+          "expiresAt": null
+        },
+        "actionBinding": "65bf085a59c6d9f58b36b8e7e89a74c586683d645452f29b148627099002aa42",
+        "followUpAt": null,
+        "responseId": null,
+        "workGeneration": null,
+        "workVersion": null,
+        "goal": null,
+        "waitingFor": null,
+        "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+        "resolvedAt": null,
+        "supersededAt": null,
+        "lastExternalReplyAt": null,
+        "lastMessageAt": "2026-09-27T12:00:00.000Z",
+        "needsYou": true,
+        "availableActions": [
+          "mark_read",
+          "respond"
+        ]
+      },
+      {
+        "version": "myeve.attention.v1",
+        "id": "attention_e22eafffbd3c97ea7ab0f792d1ee8051869598fc254f3c5b6de198e6bbd39090",
+        "ownerId": "fixture-owner",
+        "correlationId": "approval:fixture-approval",
+        "episode": 1,
+        "workId": "fixture-work",
+        "kind": "APPROVAL",
+        "status": "NEEDS_ACTION",
+        "title": "Approve the saved email",
+        "summary": "send",
+        "revision": 1,
+        "sourceSequence": 1,
+        "createdAt": "2026-09-27T12:00:00.000Z",
+        "updatedAt": "2026-09-27T12:00:00.000Z",
+        "seenAt": null,
+        "notification": "UNREAD",
+        "source": {
+          "system": "approval",
+          "accountId": "fixture-account",
+          "eventId": "fixture-approval:pending",
+          "sender": "Sofie",
+          "threadId": null,
+          "occurredAt": "2026-09-27T12:00:00.000Z",
+          "reference": "fixture-approval",
+          "grantId": null,
+          "attachments": [],
+          "evidence": [
+            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "fixture-run"
+          ]
+        },
+        "priority": {
+          "blockingActiveWork": false,
+          "deadlineAt": null,
+          "urgency": "normal",
+          "ownerRequested": false,
+          "dependencyCount": 0,
+          "sourceImportance": 0
+        },
+        "priorityScore": 0,
+        "action": {
+          "id": "fixture-approval",
+          "kind": "approval",
+          "reason": "approval",
+          "involvement": "NECESSARY_JUDGMENT",
+          "prompt": "Approve the saved email",
+          "options": [
+            "approved",
+            "denied"
+          ],
+          "expiresAt": "2026-09-28T12:00:00.000Z",
+          "approval": {
+            "id": "fixture-approval",
+            "bindingHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "why": "Approve the saved email",
+            "scope": "recipient@example.test",
+            "effects": [
+              "Send the saved message to the named recipient"
+            ]
+          }
+        },
+        "actionBinding": "23bb858c9292259c71481bdf6e6c4c81f3d2a5668ec330bc70f4e8b14bb0eb6e",
+        "followUpAt": null,
+        "responseId": null,
+        "workGeneration": null,
+        "workVersion": null,
+        "goal": null,
+        "waitingFor": null,
+        "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+        "resolvedAt": null,
+        "supersededAt": null,
+        "lastExternalReplyAt": null,
+        "lastMessageAt": null,
+        "needsYou": true,
+        "availableActions": [
+          "mark_read",
+          "respond"
+        ]
+      }
+    ],
+    "nextCursor": null
+  },
+  "beta": {
+    "approvals": [
+      {
+        "id": "fixture-approval",
+        "taskId": "fixture-run",
+        "goalId": null,
+        "goalTaskId": null,
+        "agentId": "sofie",
+        "roleId": null,
+        "capabilityId": "tool.send_email",
+        "provider": "email",
+        "resource": "recipient@example.test",
+        "action": "send",
+        "actionClass": "send",
+        "parameters": {},
+        "bindingHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "risk": "high",
+        "effects": [
+          "Send the saved message to the named recipient"
+        ],
+        "estimatedCostUsd": null,
+        "prompt": "Approve the saved email",
+        "requestedBy": "Sofie",
+        "requestedAt": "2026-09-27T12:00:00.000Z",
+        "expiresAt": "2026-09-28T12:00:00.000Z",
+        "status": "pending",
+        "decision": null,
+        "decisionReason": null,
+        "decidedBy": null,
+        "decidedAt": null
+      }
+    ],
+    "attention": [
+      {
+        "id": "attention_48244c3ac9d971d218f3593dc6075785ee8fb9df3aabb32309e2c2cfb08a1266",
+        "title": "Waiting for tester",
+        "prompt": "Sofie will check the scheduled follow-up.",
+        "state": "Waiting",
+        "workId": "fixture-work",
+        "correlationId": "follow-up:tester",
+        "needsYou": false,
+        "availableActions": [
+          "mark_read",
+          "dismiss"
+        ],
+        "responseBinding": null
+      },
+      {
+        "id": "attention_63699dc48ff999e988250d42d69fa5bec975e5d4f763e350dbe279635d96a0df",
+        "title": "Choose provider A or B",
+        "prompt": "Choose the provider for this Work.",
+        "state": "Needs you",
+        "workId": "fixture-work",
+        "correlationId": "work:fixture-work",
+        "needsYou": true,
+        "availableActions": [
+          "mark_read",
+          "respond"
+        ],
+        "responseBinding": {
+          "actionId": "choose-provider",
+          "actionBinding": "65bf085a59c6d9f58b36b8e7e89a74c586683d645452f29b148627099002aa42",
+          "expectedRevision": 2,
+          "options": [
+            "A",
+            "B"
+          ]
+        }
+      },
+      {
+        "id": "attention_bc045bbe8dec181fa5c158435fdc987fa025411094595b337e425eae325c982f",
+        "title": "External reply",
+        "prompt": "The documents are ready.",
+        "state": "Informational",
+        "workId": null,
+        "correlationId": "email:thread-1",
+        "needsYou": false,
+        "availableActions": [
+          "mark_read",
+          "dismiss"
+        ],
+        "responseBinding": null
+      },
+      {
+        "id": "attention_e22eafffbd3c97ea7ab0f792d1ee8051869598fc254f3c5b6de198e6bbd39090",
+        "title": "Approve the saved email",
+        "prompt": "Approve the saved email",
+        "state": "Needs you",
+        "workId": "fixture-work",
+        "correlationId": "approval:fixture-approval",
+        "needsYou": true,
+        "availableActions": [
+          "mark_read",
+          "respond"
+        ],
+        "responseBinding": {
+          "actionId": "fixture-approval",
+          "actionBinding": "23bb858c9292259c71481bdf6e6c4c81f3d2a5668ec330bc70f4e8b14bb0eb6e",
+          "expectedRevision": 1,
+          "options": [
+            "approved",
+            "denied"
+          ]
+        }
+      }
+    ]
+  },
+  "today": {
+    "version": "myeve.attention-feed.v1",
+    "needsYouCount": {
+      "value": 2,
+      "capped": false
+    },
+    "needsYou": {
+      "version": "myeve.attention.v1",
+      "items": [
+        {
+          "version": "myeve.attention.v1",
+          "id": "attention_63699dc48ff999e988250d42d69fa5bec975e5d4f763e350dbe279635d96a0df",
+          "ownerId": "fixture-owner",
+          "correlationId": "work:fixture-work",
+          "episode": 1,
+          "workId": "fixture-work",
+          "kind": "DECISION",
+          "status": "NEEDS_ACTION",
+          "title": "Choose provider A or B",
+          "summary": "Your choice unblocks this Work.",
+          "revision": 2,
+          "sourceSequence": 2,
+          "createdAt": "2026-09-27T12:00:00.000Z",
+          "updatedAt": "2026-09-27T12:00:00.000Z",
+          "seenAt": null,
+          "notification": "UNREAD",
+          "source": {
+            "system": "work",
+            "accountId": "fixture-account",
+            "eventId": "decision-2",
+            "sender": "Sofie",
+            "threadId": null,
+            "occurredAt": "2026-09-27T12:00:00.000Z",
+            "reference": "fixture-work",
+            "grantId": null,
+            "attachments": [],
+            "evidence": []
+          },
+          "priority": {
+            "blockingActiveWork": false,
+            "deadlineAt": null,
+            "urgency": "normal",
+            "ownerRequested": false,
+            "dependencyCount": 0,
+            "sourceImportance": 0
+          },
+          "priorityScore": 0,
+          "action": {
+            "id": "choose-provider",
+            "kind": "decision",
+            "reason": "choice",
+            "involvement": "NECESSARY_JUDGMENT",
+            "prompt": "Choose the provider for this Work.",
+            "options": [
+              "A",
+              "B"
+            ],
+            "expiresAt": null
+          },
+          "actionBinding": "65bf085a59c6d9f58b36b8e7e89a74c586683d645452f29b148627099002aa42",
+          "followUpAt": null,
+          "responseId": null,
+          "workGeneration": null,
+          "workVersion": null,
+          "goal": null,
+          "waitingFor": null,
+          "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+          "resolvedAt": null,
+          "supersededAt": null,
+          "lastExternalReplyAt": null,
+          "lastMessageAt": "2026-09-27T12:00:00.000Z",
+          "needsYou": true,
+          "availableActions": [
+            "mark_read",
+            "respond"
+          ]
+        },
+        {
+          "version": "myeve.attention.v1",
+          "id": "attention_e22eafffbd3c97ea7ab0f792d1ee8051869598fc254f3c5b6de198e6bbd39090",
+          "ownerId": "fixture-owner",
+          "correlationId": "approval:fixture-approval",
+          "episode": 1,
+          "workId": "fixture-work",
+          "kind": "APPROVAL",
+          "status": "NEEDS_ACTION",
+          "title": "Approve the saved email",
+          "summary": "send",
+          "revision": 1,
+          "sourceSequence": 1,
+          "createdAt": "2026-09-27T12:00:00.000Z",
+          "updatedAt": "2026-09-27T12:00:00.000Z",
+          "seenAt": null,
+          "notification": "UNREAD",
+          "source": {
+            "system": "approval",
+            "accountId": "fixture-account",
+            "eventId": "fixture-approval:pending",
+            "sender": "Sofie",
+            "threadId": null,
+            "occurredAt": "2026-09-27T12:00:00.000Z",
+            "reference": "fixture-approval",
+            "grantId": null,
+            "attachments": [],
+            "evidence": [
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "fixture-run"
+            ]
+          },
+          "priority": {
+            "blockingActiveWork": false,
+            "deadlineAt": null,
+            "urgency": "normal",
+            "ownerRequested": false,
+            "dependencyCount": 0,
+            "sourceImportance": 0
+          },
+          "priorityScore": 0,
+          "action": {
+            "id": "fixture-approval",
+            "kind": "approval",
+            "reason": "approval",
+            "involvement": "NECESSARY_JUDGMENT",
+            "prompt": "Approve the saved email",
+            "options": [
+              "approved",
+              "denied"
+            ],
+            "expiresAt": "2026-09-28T12:00:00.000Z",
+            "approval": {
+              "id": "fixture-approval",
+              "bindingHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "why": "Approve the saved email",
+              "scope": "recipient@example.test",
+              "effects": [
+                "Send the saved message to the named recipient"
+              ]
+            }
+          },
+          "actionBinding": "23bb858c9292259c71481bdf6e6c4c81f3d2a5668ec330bc70f4e8b14bb0eb6e",
+          "followUpAt": null,
+          "responseId": null,
+          "workGeneration": null,
+          "workVersion": null,
+          "goal": null,
+          "waitingFor": null,
+          "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+          "resolvedAt": null,
+          "supersededAt": null,
+          "lastExternalReplyAt": null,
+          "lastMessageAt": null,
+          "needsYou": true,
+          "availableActions": [
+            "mark_read",
+            "respond"
+          ]
+        }
+      ],
+      "nextCursor": null
+    },
+    "importantMessages": {
+      "version": "myeve.attention.v1",
+      "items": [],
+      "nextCursor": null
+    },
+    "blockedWork": {
+      "version": "myeve.attention.v1",
+      "items": [],
+      "nextCursor": null
+    },
+    "recentResolutions": {
+      "version": "myeve.attention.v1",
+      "items": [],
+      "nextCursor": null
+    }
+  },
+  "dailyBrief": {
+    "version": "myeve.attention-feed.v1",
+    "window": {
+      "after": "2026-09-26T00:00:00.000Z",
+      "through": "2026-09-27T12:00:00.000Z"
+    },
+    "newNeedsYou": {
+      "version": "myeve.attention.v1",
+      "items": [
+        {
+          "version": "myeve.attention.v1",
+          "id": "attention_63699dc48ff999e988250d42d69fa5bec975e5d4f763e350dbe279635d96a0df",
+          "ownerId": "fixture-owner",
+          "correlationId": "work:fixture-work",
+          "episode": 1,
+          "workId": "fixture-work",
+          "kind": "DECISION",
+          "status": "NEEDS_ACTION",
+          "title": "Choose provider A or B",
+          "summary": "Your choice unblocks this Work.",
+          "revision": 2,
+          "sourceSequence": 2,
+          "createdAt": "2026-09-27T12:00:00.000Z",
+          "updatedAt": "2026-09-27T12:00:00.000Z",
+          "seenAt": null,
+          "notification": "UNREAD",
+          "source": {
+            "system": "work",
+            "accountId": "fixture-account",
+            "eventId": "decision-2",
+            "sender": "Sofie",
+            "threadId": null,
+            "occurredAt": "2026-09-27T12:00:00.000Z",
+            "reference": "fixture-work",
+            "grantId": null,
+            "attachments": [],
+            "evidence": []
+          },
+          "priority": {
+            "blockingActiveWork": false,
+            "deadlineAt": null,
+            "urgency": "normal",
+            "ownerRequested": false,
+            "dependencyCount": 0,
+            "sourceImportance": 0
+          },
+          "priorityScore": 0,
+          "action": {
+            "id": "choose-provider",
+            "kind": "decision",
+            "reason": "choice",
+            "involvement": "NECESSARY_JUDGMENT",
+            "prompt": "Choose the provider for this Work.",
+            "options": [
+              "A",
+              "B"
+            ],
+            "expiresAt": null
+          },
+          "actionBinding": "65bf085a59c6d9f58b36b8e7e89a74c586683d645452f29b148627099002aa42",
+          "followUpAt": null,
+          "responseId": null,
+          "workGeneration": null,
+          "workVersion": null,
+          "goal": null,
+          "waitingFor": null,
+          "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+          "resolvedAt": null,
+          "supersededAt": null,
+          "lastExternalReplyAt": null,
+          "lastMessageAt": "2026-09-27T12:00:00.000Z",
+          "needsYou": true,
+          "availableActions": [
+            "mark_read",
+            "respond"
+          ]
+        },
+        {
+          "version": "myeve.attention.v1",
+          "id": "attention_e22eafffbd3c97ea7ab0f792d1ee8051869598fc254f3c5b6de198e6bbd39090",
+          "ownerId": "fixture-owner",
+          "correlationId": "approval:fixture-approval",
+          "episode": 1,
+          "workId": "fixture-work",
+          "kind": "APPROVAL",
+          "status": "NEEDS_ACTION",
+          "title": "Approve the saved email",
+          "summary": "send",
+          "revision": 1,
+          "sourceSequence": 1,
+          "createdAt": "2026-09-27T12:00:00.000Z",
+          "updatedAt": "2026-09-27T12:00:00.000Z",
+          "seenAt": null,
+          "notification": "UNREAD",
+          "source": {
+            "system": "approval",
+            "accountId": "fixture-account",
+            "eventId": "fixture-approval:pending",
+            "sender": "Sofie",
+            "threadId": null,
+            "occurredAt": "2026-09-27T12:00:00.000Z",
+            "reference": "fixture-approval",
+            "grantId": null,
+            "attachments": [],
+            "evidence": [
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "fixture-run"
+            ]
+          },
+          "priority": {
+            "blockingActiveWork": false,
+            "deadlineAt": null,
+            "urgency": "normal",
+            "ownerRequested": false,
+            "dependencyCount": 0,
+            "sourceImportance": 0
+          },
+          "priorityScore": 0,
+          "action": {
+            "id": "fixture-approval",
+            "kind": "approval",
+            "reason": "approval",
+            "involvement": "NECESSARY_JUDGMENT",
+            "prompt": "Approve the saved email",
+            "options": [
+              "approved",
+              "denied"
+            ],
+            "expiresAt": "2026-09-28T12:00:00.000Z",
+            "approval": {
+              "id": "fixture-approval",
+              "bindingHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "why": "Approve the saved email",
+              "scope": "recipient@example.test",
+              "effects": [
+                "Send the saved message to the named recipient"
+              ]
+            }
+          },
+          "actionBinding": "23bb858c9292259c71481bdf6e6c4c81f3d2a5668ec330bc70f4e8b14bb0eb6e",
+          "followUpAt": null,
+          "responseId": null,
+          "workGeneration": null,
+          "workVersion": null,
+          "goal": null,
+          "waitingFor": null,
+          "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+          "resolvedAt": null,
+          "supersededAt": null,
+          "lastExternalReplyAt": null,
+          "lastMessageAt": null,
+          "needsYou": true,
+          "availableActions": [
+            "mark_read",
+            "respond"
+          ]
+        }
+      ],
+      "nextCursor": null
+    },
+    "unresolvedImportant": {
+      "version": "myeve.attention.v1",
+      "items": [
+        {
+          "version": "myeve.attention.v1",
+          "id": "attention_63699dc48ff999e988250d42d69fa5bec975e5d4f763e350dbe279635d96a0df",
+          "ownerId": "fixture-owner",
+          "correlationId": "work:fixture-work",
+          "episode": 1,
+          "workId": "fixture-work",
+          "kind": "DECISION",
+          "status": "NEEDS_ACTION",
+          "title": "Choose provider A or B",
+          "summary": "Your choice unblocks this Work.",
+          "revision": 2,
+          "sourceSequence": 2,
+          "createdAt": "2026-09-27T12:00:00.000Z",
+          "updatedAt": "2026-09-27T12:00:00.000Z",
+          "seenAt": null,
+          "notification": "UNREAD",
+          "source": {
+            "system": "work",
+            "accountId": "fixture-account",
+            "eventId": "decision-2",
+            "sender": "Sofie",
+            "threadId": null,
+            "occurredAt": "2026-09-27T12:00:00.000Z",
+            "reference": "fixture-work",
+            "grantId": null,
+            "attachments": [],
+            "evidence": []
+          },
+          "priority": {
+            "blockingActiveWork": false,
+            "deadlineAt": null,
+            "urgency": "normal",
+            "ownerRequested": false,
+            "dependencyCount": 0,
+            "sourceImportance": 0
+          },
+          "priorityScore": 0,
+          "action": {
+            "id": "choose-provider",
+            "kind": "decision",
+            "reason": "choice",
+            "involvement": "NECESSARY_JUDGMENT",
+            "prompt": "Choose the provider for this Work.",
+            "options": [
+              "A",
+              "B"
+            ],
+            "expiresAt": null
+          },
+          "actionBinding": "65bf085a59c6d9f58b36b8e7e89a74c586683d645452f29b148627099002aa42",
+          "followUpAt": null,
+          "responseId": null,
+          "workGeneration": null,
+          "workVersion": null,
+          "goal": null,
+          "waitingFor": null,
+          "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+          "resolvedAt": null,
+          "supersededAt": null,
+          "lastExternalReplyAt": null,
+          "lastMessageAt": "2026-09-27T12:00:00.000Z",
+          "needsYou": true,
+          "availableActions": [
+            "mark_read",
+            "respond"
+          ]
+        },
+        {
+          "version": "myeve.attention.v1",
+          "id": "attention_e22eafffbd3c97ea7ab0f792d1ee8051869598fc254f3c5b6de198e6bbd39090",
+          "ownerId": "fixture-owner",
+          "correlationId": "approval:fixture-approval",
+          "episode": 1,
+          "workId": "fixture-work",
+          "kind": "APPROVAL",
+          "status": "NEEDS_ACTION",
+          "title": "Approve the saved email",
+          "summary": "send",
+          "revision": 1,
+          "sourceSequence": 1,
+          "createdAt": "2026-09-27T12:00:00.000Z",
+          "updatedAt": "2026-09-27T12:00:00.000Z",
+          "seenAt": null,
+          "notification": "UNREAD",
+          "source": {
+            "system": "approval",
+            "accountId": "fixture-account",
+            "eventId": "fixture-approval:pending",
+            "sender": "Sofie",
+            "threadId": null,
+            "occurredAt": "2026-09-27T12:00:00.000Z",
+            "reference": "fixture-approval",
+            "grantId": null,
+            "attachments": [],
+            "evidence": [
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "fixture-run"
+            ]
+          },
+          "priority": {
+            "blockingActiveWork": false,
+            "deadlineAt": null,
+            "urgency": "normal",
+            "ownerRequested": false,
+            "dependencyCount": 0,
+            "sourceImportance": 0
+          },
+          "priorityScore": 0,
+          "action": {
+            "id": "fixture-approval",
+            "kind": "approval",
+            "reason": "approval",
+            "involvement": "NECESSARY_JUDGMENT",
+            "prompt": "Approve the saved email",
+            "options": [
+              "approved",
+              "denied"
+            ],
+            "expiresAt": "2026-09-28T12:00:00.000Z",
+            "approval": {
+              "id": "fixture-approval",
+              "bindingHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "why": "Approve the saved email",
+              "scope": "recipient@example.test",
+              "effects": [
+                "Send the saved message to the named recipient"
+              ]
+            }
+          },
+          "actionBinding": "23bb858c9292259c71481bdf6e6c4c81f3d2a5668ec330bc70f4e8b14bb0eb6e",
+          "followUpAt": null,
+          "responseId": null,
+          "workGeneration": null,
+          "workVersion": null,
+          "goal": null,
+          "waitingFor": null,
+          "actionRequiredAt": "2026-09-27T12:00:00.000Z",
+          "resolvedAt": null,
+          "supersededAt": null,
+          "lastExternalReplyAt": null,
+          "lastMessageAt": null,
+          "needsYou": true,
+          "availableActions": [
+            "mark_read",
+            "respond"
+          ]
+        }
+      ],
+      "nextCursor": null
+    },
+    "resolved": {
+      "version": "myeve.attention.v1",
+      "items": [],
+      "nextCursor": null
+    },
+    "externalReplies": {
+      "version": "myeve.attention.v1",
+      "items": [],
+      "nextCursor": null
+    },
+    "followUpsDue": {
+      "version": "myeve.attention.v1",
+      "items": [],
+      "nextCursor": null
+    }
+  }
+}

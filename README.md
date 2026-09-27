@@ -10,6 +10,10 @@ is configured but has not been live-qualified because no message from Orchis's
 Eve has reached Sofie's authorized inbox. Reciprocal communication is not a
 pass. See the [live qualification record](docs/federation/orchis-sofie-live-qualification.md).
 
+## Design-partner beta integration candidate
+
+**PARTIAL — locally qualified, not deployed.** The [canonical beta integration dossier](docs/verification/beta-integration/README.md) combines the four frozen UX, Recall/Learning, Goal and Inbox candidates. Owner pages use persisted local data; Task→Work intents, Result verification, owner decisions, memory correction and learning lifecycle have concurrency/restart evidence. Work admission and live Sofie consumption remain pending, and local Results are explicitly labeled fixtures. MyFactory/Q37 and Capsules are not imported. Reconcile the alternate Digital Worker migration lineage before any future deployment.
+
 ## Finding current priorities
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.

@@ -1,0 +1,203 @@
+
+> eve-agent@0.0.0 test
+> vitest run --run
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/total-recall-learning/Myeve/apps/eve
+
+ ✓ lib/engineering/github-app.test.ts (2 tests) 75ms
+ ✓ lib/voice/attachments.test.ts (18 tests) 83ms
+ ✓ lib/decision-intelligence/evaluation.test.ts (5 tests) 27ms
+ ✓ lib/decision-intelligence/retained-evidence.test.ts (2 tests) 31ms
+ ✓ lib/voice/dispatch.test.ts (10 tests) 62ms
+ ✓ agent/lib/agentphone-policy.test.ts (5 tests) 11ms
+ ✓ lib/engineering/factory-authenticated-result.test.ts (39 tests) 38ms
+ ✓ lib/decision-intelligence/challenge-draft.test.ts (2 tests) 23ms
+ ✓ lib/computer-template-lifecycle.test.ts (11 tests) 354ms
+ ✓ agent/lib/telemetry-startup.test.ts (1 test) 68ms
+ ✓ app/api/decision-intelligence/route.test.ts (6 tests) 298ms
+ ✓ agent/lib/federation-approval.test.ts (14 tests) 54ms
+ ✓ lib/engineering/native-repair-context.test.ts (10 tests) 33ms
+ ✓ lib/decision-intelligence/shadow.test.ts (21 tests) 29ms
+ ✓ lib/owner-data.test.ts (13 tests) 258ms
+ ✓ lib/routine-admission.test.ts (51 tests) 36ms
+ ✓ agent/lib/foreman.test.ts (27 tests) 21ms
+ ✓ lib/voice/thread.test.ts (7 tests) 23ms
+ ✓ agent/lib/federation-tool.test.ts (16 tests) 289ms
+ ✓ lib/engineering/base-preflight.test.ts (6 tests) 17ms
+ ✓ lib/decision-intelligence/jev-provider.test.ts (24 tests) 40ms
+ ✓ lib/relay/adapter.test.ts (45 tests) 32ms
+ ✓ lib/relay/owner/config.test.ts (12 tests) 8ms
+ ✓ app/api/connections/route.test.ts (2 tests) 14ms
+ ✓ lib/decision-intelligence/ai-sdk-regression.test.ts (5 tests) 30ms
+ ✓ lib/engineering/factory-return.test.ts (78 tests) 32ms
+ ✓ lib/engineering/execution.test.ts (34 tests) 20ms
+ ✓ lib/composio-connect.test.ts (13 tests) 15ms
+ ✓ components/engineering/routing-summary.test.tsx (4 tests) 17ms
+ ✓ agent/lib/memory-store.test.ts (12 tests) 910ms
+   ✓ durable Memory during semantic provider failure > returns local memory when the provider hangs instead of waiting past Context Assembly's memory window  901ms
+ ✓ lib/digital-worker/experimental-harness-boundary.test.ts (9 tests) 18ms
+ ✓ scripts/migration-sql.test.ts (2 tests) 5ms
+ ✓ agent/lib/effect/voice.test.ts (4 tests) 15ms
+ ✓ lib/missed-occurrences.test.ts (4 tests) 15ms
+ ✓ lib/engineering/candidate-custody.test.ts (22 tests) 20ms
+ ✓ agent/lib/effect/agentcard-connect.test.ts (13 tests) 23ms
+ ✓ agent/lib/effect/agentcard-attach.test.ts (6 tests) 14ms
+ ✓ lib/action-recovery.test.ts (17 tests) 21ms
+ ✓ lib/relay/ingress.test.ts (15 tests) 14ms
+ ✓ lib/engineering/factory-writer.test.ts (26 tests) 10ms
+ ✓ lib/engineering/github.test.ts (4 tests) 13ms
+ ✓ lib/engineering/relay-collaboration.test.ts (32 tests) 14ms
+ ✓ lib/decision-intelligence/knowledge-isolation.test.ts (8 tests) 19ms
+ ✓ lib/voice/bridge.test.ts (23 tests) 18ms
+ ✓ lib/digital-worker/contracts.test.ts (19 tests) 15ms
+ ✓ lib/qualification/client.test.ts (7 tests) 11ms
+ ✓ lib/decision-intelligence/experiment.test.ts (16 tests) 1195ms
+   ✓ frozen V0.5 cohorts and contracts > uses independently invoked six/seven predictions on matched non-Insight cases  400ms
+ ✓ lib/total-recall/learning.test.ts (19 tests) 15ms
+ ✓ lib/thread-owner-conflict.test.ts (2 tests) 14ms
+ ✓ lib/owner-knowledge.test.ts (11 tests) 14ms
+ ✓ lib/relay/canonical-vector.test.ts (7 tests) 12ms
+ ✓ lib/engineering/conversation-model.test.ts (11 tests) 11ms
+ ✓ lib/relay/peer-permissions.test.ts (26 tests) 9ms
+ ✓ lib/action-resolution-route.test.ts (4 tests) 8ms
+ ✓ agent/lib/context-assembly.test.ts (12 tests) 13ms
+ ✓ agent/lib/raindrop-hook.test.ts (3 tests) 1532ms
+   ✓ Raindrop durable turn hook > cleans up after the bounded terminal retry budget is exhausted  1251ms
+ ✓ lib/engineering/factory-observation.test.ts (5 tests) 13ms
+ ✓ lib/digital-worker/capsules.test.ts (6 tests) 19ms
+ ✓ lib/qualification/artifact-route.test.ts (5 tests) 10ms
+ ✓ lib/digital-worker/effective-packs.test.ts (6 tests) 11ms
+ ✓ lib/relay/review-regressions.test.ts (12 tests) 12ms
+ ✓ app/api/owner-data/route.test.ts (3 tests) 8ms
+ ✓ agent/lib/effect/artifacts.test.ts (2 tests) 1ms
+ ✓ lib/owner-archive-security.test.ts (36 tests) 1370ms
+ ✓ lib/engineering/worker-projection.test.ts (8 tests) 12ms
+ ✓ agent/lib/effect/anonymous-eve-rate-limit.test.ts (8 tests) 10ms
+ ✓ lib/routine-admission-route.test.ts (11 tests) 9ms
+ ✓ lib/computer-runtime.test.ts (3 tests) 9ms
+ ✓ app/api/relay/peer-permissions/route.test.ts (8 tests) 10ms
+ ✓ lib/digital-worker/learning.test.ts (10 tests) 11ms
+ ✓ lib/approvals.test.ts (5 tests) 9ms
+ ✓ lib/decision-intelligence/v0-preservation.test.ts (3 tests) 4ms
+ ✓ agent/lib/effect/imessage.test.ts (4 tests) 9ms
+ ✓ lib/decision-intelligence/challenge-cohorts.test.ts (9 tests) 13ms
+ ✓ lib/engineering/native-model.test.ts (7 tests) 15ms
+ ✓ lib/engineering/docker-protected-verifier.test.ts (3 tests) 3ms
+ ✓ agent/lib/effect/agentcard.test.ts (8 tests) 10ms
+ ✓ lib/chat-session.test.ts (5 tests) 8ms
+ ✓ lib/action-recovery-route.test.ts (3 tests) 8ms
+ ✓ lib/relay/canonical-v2.test.ts (3 tests) 11ms
+ ✓ lib/engineering/types.test.ts (17 tests) 7ms
+ ✓ lib/relay/message-draft.test.ts (2 tests) 9ms
+ ✓ lib/relay/work-authority.test.ts (4 tests) 14ms
+ ✓ lib/artifact-client.test.ts (5 tests) 6ms
+ ✓ agent/lib/jev-chat.test.ts (14 tests) 6ms
+ ✓ lib/decision-intelligence/challenge-review.test.ts (6 tests) 9ms
+ ✓ lib/relay/local-origin.test.ts (12 tests) 2ms
+ ✓ app/api/owner-data/route-privacy.test.ts (1 test) 8ms
+ ✓ lib/routine-readiness-tool.test.ts (3 tests) 2ms
+ ✓ lib/engineering/native-api.test.ts (3 tests) 9ms
+ ✓ agent/hooks/engineering-work-context.test.ts (4 tests) 3ms
+ ✓ app/api/owner-knowledge/route.test.ts (6 tests) 9ms
+ ✓ lib/computer-template-vercel.test.ts (13 tests) 5ms
+ ✓ lib/computer-api-errors.test.ts (2 tests) 8ms
+ ✓ lib/web-auth.test.ts (2 tests) 3ms
+ ✓ lib/total-recall/api.test.ts (5 tests) 5ms
+ ✓ lib/phone-auth.test.ts (14 tests) 7ms
+ ✓ lib/card-auth.test.ts (6 tests) 9ms
+ ✓ lib/threads-route-owner-conflict.test.ts (3 tests) 6ms
+ ✓ components/engineering/chat-work-selector.test.tsx (2 tests) 7ms
+ ✓ agent/lib/effect/imessage-inbound.test.ts (4 tests) 5ms
+ ✓ lib/relay/owner/model.test.ts (17 tests) 5ms
+ ✓ lib/control-center.test.ts (22 tests) 3ms
+ ✓ app/api/files/route.test.ts (2 tests) 4ms
+ ✓ lib/execution-types.test.ts (5 tests) 8ms
+ ✓ app/api/artifacts/[id]/content/route.test.ts (2 tests) 5ms
+ ✓ lib/external-write-policy.test.ts (9 tests) 5ms
+ ✓ agent/tools/remember.test.ts (13 tests) 5ms
+ ✓ lib/engineering/api.test.ts (4 tests) 4ms
+ ✓ app/api/computer-sessions/route.test.ts (2 tests) 5ms
+ ✓ lib/live-session-provider.test.ts (7 tests) 5ms
+ ✓ agent/lib/myfactory.test.ts (4 tests) 5ms
+ ✓ lib/relay/owner/runtime.test.ts (5 tests) 4ms
+ ✓ agent/tools/engineering_direct.test.ts (8 tests) 8ms
+ ✓ lib/routine-final-gate.test.ts (8 tests) 5ms
+ ✓ lib/imessage-auth.test.ts (5 tests) 8ms
+ ✓ lib/computer-sandbox-backend.test.ts (4 tests) 6ms
+ ✓ app/api/computer-profiles/route.test.ts (1 test) 4ms
+ ✓ lib/routine-release.test.ts (4 tests) 12ms
+ ✓ agent/lib/effect/tool-schema.test.ts (3 tests) 3ms
+ ✓ agent/instructions/persistent-agent.test.ts (2 tests) 6ms
+ ✓ agent/lib/effect/chat-files.test.ts (1 test) 10ms
+ ✓ agent/lib/computer-context.test.ts (8 tests) 3ms
+ ✓ lib/chat-attachments.test.ts (4 tests) 2ms
+ ✓ lib/relay/grant-duration.test.ts (2 tests) 31ms
+ ✓ lib/relay/message-reply.test.ts (5 tests) 4ms
+ ✓ lib/relay/message-reply-settings.test.ts (3 tests) 5ms
+ ✓ lib/decision-intelligence/metrics.test.ts (5 tests) 18ms
+ ✓ lib/engineering/docker-custody.test.ts (6 tests) 4ms
+ ✓ lib/relay/message-result.test.ts (4 tests) 4ms
+ ✓ lib/routine-activation.test.ts (3 tests) 4ms
+ ✓ lib/routine-resume.test.ts (1 test) 2ms
+ ✓ agent/lib/engineering-knowledge-binding.test.ts (3 tests) 3ms
+ ✓ lib/computer-selection.test.ts (10 tests) 2ms
+ ✓ agent/lib/owner-chat-run.test.ts (12 tests) 5ms
+ ✓ scripts/migration-runner.test.ts (14 tests) 7ms
+ ✓ lib/action-authority.test.ts (5 tests) 21ms
+ ✓ lib/chat-file-client.test.ts (2 tests) 2ms
+ ✓ lib/relay/grant-preference.test.ts (2 tests) 3ms
+ ✓ lib/artifact-workspace-state.test.ts (3 tests) 1ms
+ ✓ agent/lib/slack-events.test.ts (13 tests) 3ms
+ ✓ lib/async-lru-cache.test.ts (4 tests) 2ms
+ ✓ agent/lib/agentcard-mcp.test.ts (4 tests) 3ms
+ ✓ lib/activation.test.ts (3 tests) 2ms
+ ✓ agent/lib/engineering-work-binding.test.ts (3 tests) 3ms
+ ✓ agent/lib/slack-reactions.test.ts (11 tests) 7ms
+ ✓ lib/computer-control.test.ts (13 tests) 14ms
+ ✓ lib/agentcard-http.test.ts (3 tests) 9ms
+ ✓ agent/tools/delegate_foreman_issue.test.ts (6 tests) 4ms
+ ✓ lib/engineering/run-truth.test.ts (11 tests) 3ms
+ ✓ agent/lib/agentphone-signature.test.ts (11 tests) 5ms
+ ✓ app/api/imessage/transcript/route.test.ts (3 tests) 3ms
+ ✓ agent/lib/executor-boundary.test.ts (3 tests) 4ms
+ ✓ lib/engineering/completion-budget-plan.test.ts (6 tests) 2ms
+ ✓ lib/threads-db-owner-conflict.test.ts (2 tests) 3ms
+ ✓ lib/relay/key-version.test.ts (3 tests) 3ms
+ ✓ agent/lib/imessage-session.test.ts (6 tests) 2ms
+ ✓ agent/lib/orgo-profile.test.ts (3 tests) 2ms
+ ✓ agent/lib/effect/agentphone.test.ts (13 tests) 2ms
+ ✓ lib/routine-preflight.test.ts (4 tests) 2ms
+ ✓ agent/lib/local-computer-connection.test.ts (14 tests) 5ms
+ ✓ lib/execution-auth.test.ts (2 tests) 2ms
+ ✓ lib/relay/owner/worker.test.ts (3 tests) 2ms
+ ✓ agent/tools/engineering-knowledge-tools.test.ts (2 tests) 2ms
+ ✓ lib/artifact-api.test.ts (6 tests) 2ms
+ ✓ lib/thread-sync.test.ts (19 tests) 4008ms
+   ✓ sessionHasEventAt > reports the tail when only a flush newline arrives before the deadline  2002ms
+   ✓ sessionHasEventAt > reports the tail when the route stays silent until the deadline  2002ms
+ ✓ lib/channels.test.ts (2 tests) 6ms
+ ✓ lib/relay/owner/snapshot.test.ts (2 tests) 2ms
+ ✓ lib/capabilities.test.ts (2 tests) 6ms
+ ✓ agent/lib/web-client-context.test.ts (2 tests) 1ms
+ ✓ agent/lib/agentphone-voice-stream.test.ts (18 tests) 2ms
+ ✓ lib/files-api.test.ts (5 tests) 16ms
+ ✓ lib/mask-email.test.ts (3 tests) 1ms
+ ✓ lib/engineering/native-behavior.test.ts (1 test) 2ms
+ ✓ agent/lib/telemetry-privacy.test.ts (2 tests) 1ms
+stderr | agent/lib/local-computer-task.test.ts > local_computer_task approval > denies a guest instead of offering an approval prompt
+owner-gate: denied local_computer_task for guest group-participant
+
+ ✓ agent/lib/local-computer-task.test.ts (2 tests) 2ms
+ ↓ lib/relay/owner/model-budget.integration.test.mjs (19 tests | 19 skipped)
+ ↓ lib/pending-action-continuation.integration.test.mjs (20 tests | 20 skipped)
+ ↓ agent/lib/remember-gateway.integration.test.mjs (1 test | 1 skipped)
+ ↓ lib/engineering/admission-context.integration.test.ts (16 tests | 16 skipped)
+ ✓ agent/instrumentation.test.ts (3 tests) 1ms
+ ✓ components/owner-data-panel.test.tsx (1 test) 4ms
+
+ Test Files  178 passed | 4 skipped (182)
+      Tests  1552 passed | 56 skipped (1608)
+   Start at  13:00:43
+   Duration  5.23s (transform 3.31s, setup 0ms, collect 22.98s, tests 12.14s, environment 14ms, prepare 6.86s)
+

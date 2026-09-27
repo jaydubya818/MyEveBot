@@ -1,0 +1,146 @@
+[
+  {
+    "route": "/today",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Today",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=goal&id=10cdc7fa-1171-424f-8c36-d681c83bbf4b",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=work&id=c9520de9-e6e8-41d7-acf3-f9e416f42092",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work",
+    "width": 1440,
+    "scroll": 1425,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/needs-you",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Needs you",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/results",
+    "width": 1440,
+    "scroll": 1425,
+    "heading": "Results",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/memory?workId=40c4855d-85d0-42cf-8bbc-1bcefed27903",
+    "width": 1440,
+    "scroll": 1425,
+    "heading": "Memory and learning",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/brief",
+    "width": 1440,
+    "scroll": 1425,
+    "heading": "Daily Brief",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/welcome",
+    "width": 1440,
+    "scroll": 1440,
+    "heading": "Meet Sofie",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/today",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Today",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=goal&id=10cdc7fa-1171-424f-8c36-d681c83bbf4b",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work?kind=work&id=c9520de9-e6e8-41d7-acf3-f9e416f42092",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/work",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Work",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/needs-you",
+    "width": 390,
+    "scroll": 390,
+    "heading": "Needs you",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/results",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Results",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/memory?workId=40c4855d-85d0-42cf-8bbc-1bcefed27903",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Memory and learning",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/brief",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Daily Brief",
+    "violations": [],
+    "unavailable": false
+  },
+  {
+    "route": "/welcome",
+    "width": 390,
+    "scroll": 375,
+    "heading": "Meet Sofie",
+    "violations": [],
+    "unavailable": false
+  }
+]

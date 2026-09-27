@@ -1,0 +1,101 @@
+{
+  "recordedAt": "2026-09-27T21:16:46.314066+00:00",
+  "note": "Read-only inventory before this tranche commit. Crosswalk qualification uses the pinned commits, not newer sibling heads. No sibling checkout was modified.",
+  "worktrees": [
+    {
+      "worktree": "/Users/jaywest/Myeve",
+      "HEAD": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "branch": "refs/heads/main",
+      "dirty": true
+    },
+    {
+      "worktree": "/private/tmp/knowledge-production-source",
+      "HEAD": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+      "branch": "refs/heads/codex/knowledge-production",
+      "dirty": false
+    },
+    {
+      "worktree": "/private/tmp/myfactory-myeve-main-merge",
+      "HEAD": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/beta-product-experience/Myeve",
+      "HEAD": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+      "branch": "refs/heads/codex/beta-product-experience",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+      "HEAD": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+      "branch": "refs/heads/codex/digital-worker-integration",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+      "HEAD": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+      "branch": "refs/heads/codex/p0-gap-02-common-ledger",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+      "HEAD": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+      "branch": "refs/heads/codex/p0-gap2b-projection",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+      "HEAD": "a00e8f46f348a6a38fdb2e9dcae954147aac0d92",
+      "branch": "refs/heads/codex/p0-gap2b-qualification",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/goals-proactive-work/Myeve",
+      "HEAD": "b9b46c41480f0859d44683346bd24d7ce9f2b7c9",
+      "branch": "refs/heads/codex/goals-proactive-work",
+      "dirty": true
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve",
+      "HEAD": "bf7a45158dc14f7d38d14ad35ae84218b4866c0c",
+      "branch": "refs/heads/codex/portable-sofie-capsules",
+      "dirty": true
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+      "HEAD": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+      "branch": "refs/heads/codex/q37-integration",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+      "HEAD": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+      "branch": "refs/heads/codex/sofie-chat-mainline",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+      "HEAD": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+      "branch": "refs/heads/codex/thread-owner-conflict",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve",
+      "HEAD": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+      "branch": "refs/heads/codex/total-recall-learning",
+      "dirty": false
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/universal-inbox/Myeve",
+      "HEAD": "36675bd5c64fa848b32f7dfbbb349957b5853498",
+      "branch": "refs/heads/codex/universal-inbox",
+      "dirty": true
+    },
+    {
+      "worktree": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+      "HEAD": "cab819bdd93ae1470925765728faacf8f6beab25",
+      "branch": "refs/heads/codex/myfactory-hosted-routing",
+      "dirty": false
+    }
+  ]
+}

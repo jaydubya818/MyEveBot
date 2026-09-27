@@ -1,0 +1,262 @@
+{
+  "review": {
+    "kind": "daily",
+    "generatedAt": "2026-09-27T21:15:32.853Z",
+    "periodStart": "2026-09-27T21:15:31.691Z",
+    "periodEnd": "2026-09-27T21:15:32.853Z",
+    "topPriorities": [
+      {
+        "goalId": "01-today",
+        "goalTitle": "Prepare the next partner cohort",
+        "taskId": "Ready-next",
+        "taskTitle": "Draft the next invitation",
+        "priority": "normal",
+        "dueAt": null,
+        "estimatedEffortMinutes": null,
+        "whyNow": [
+          "Dependencies are satisfied"
+        ]
+      }
+    ],
+    "overdue": [],
+    "approaching": [],
+    "blocked": [
+      {
+        "goalId": "00-golden",
+        "goalTitle": "Launch the design-partner beta",
+        "taskId": "C-launch",
+        "taskTitle": "Launch the selected cohort",
+        "priority": "normal",
+        "at": null
+      },
+      {
+        "goalId": "01-today",
+        "goalTitle": "Prepare the next partner cohort",
+        "taskId": "Scheduled-later",
+        "taskTitle": "Review tomorrow’s responses",
+        "priority": "normal",
+        "at": null
+      },
+      {
+        "goalId": "02-blocked",
+        "goalTitle": "Resolve the partner import failure",
+        "taskId": "Needs-repair",
+        "taskTitle": "Review the failed partner import",
+        "priority": "normal",
+        "at": null
+      },
+      {
+        "goalId": "legacy",
+        "goalTitle": "Old completed Goal",
+        "taskId": "legacy-task",
+        "taskTitle": "Old task",
+        "priority": "normal",
+        "at": null
+      }
+    ],
+    "pendingOwnerActions": [
+      {
+        "goalId": "00-golden",
+        "goalTitle": "Launch the design-partner beta",
+        "taskId": "C-launch",
+        "taskTitle": "Launch the selected cohort",
+        "priority": "normal",
+        "at": null
+      }
+    ],
+    "completed": [
+      {
+        "goalId": "00-golden",
+        "goalTitle": "Launch the design-partner beta",
+        "taskId": "A-prepare",
+        "taskTitle": "Prepare the beta workspace",
+        "priority": "normal",
+        "at": "2026-09-27 14:15:32.786817-07"
+      }
+    ],
+    "atRisk": [],
+    "recommendations": []
+  },
+  "details": {
+    "goalProgressChanges": [
+      {
+        "id": "9fd5de7b-5924-4da6-bf72-68245b15cf89",
+        "type": "GOAL_CHANGED",
+        "summary": "Owner revised goal",
+        "goalId": "api",
+        "taskId": null,
+        "at": "2026-09-27 14:15:32.725298-07",
+        "references": {
+          "previousCriteria": [
+            "Outcome"
+          ],
+          "previousGeneration": 1
+        }
+      },
+      {
+        "id": "84bc26c0-1f8b-41dc-a587-4a7218c4f483",
+        "type": "PLAN_CHANGED",
+        "summary": "Goal-authorized initial plan",
+        "goalId": "00-golden",
+        "taskId": null,
+        "at": "2026-09-27 14:15:32.735646-07",
+        "references": {
+          "planId": "cd45d2c2-f21f-471c-88a8-ea1fbfe16847",
+          "version": 1,
+          "commandHash": "01fffde6bfe2086d88e8c4d7fe172c1d391c5f0678a9b1c6ddacb6c00935f1b7"
+        }
+      },
+      {
+        "id": "49b3b2d3-21be-48e5-9e89-68a84ad2144b",
+        "type": "TASK_COMPLETED",
+        "summary": "Verified task outcome complete",
+        "goalId": "00-golden",
+        "taskId": "A-prepare",
+        "at": "2026-09-27 14:15:32.786817-07",
+        "references": {
+          "reason": "Current canonical criteria independently satisfied",
+          "workId": "cca24577-256a-4e34-badc-176ae07fbb26",
+          "current": true,
+          "resultId": "18c570d0-ea10-4c68-8ea9-36e7b3bde4eb"
+        }
+      },
+      {
+        "id": "d8573487-8344-49dd-aa6b-fd5bdb50b936",
+        "type": "PLAN_CHANGED",
+        "summary": "Goal-authorized initial plan",
+        "goalId": "01-today",
+        "taskId": null,
+        "at": "2026-09-27 14:15:32.821361-07",
+        "references": {
+          "planId": "004d4183-a877-43ce-8c72-d0785539543e",
+          "version": 1,
+          "commandHash": "d2d121374739cd3618692c08fe9ac285406f6ed215e99286a7774639ca1fe975"
+        }
+      },
+      {
+        "id": "e77a9571-e8bc-4dcd-98ba-ed7a4b3bf843",
+        "type": "PLAN_CHANGED",
+        "summary": "Goal-authorized initial plan",
+        "goalId": "02-blocked",
+        "taskId": null,
+        "at": "2026-09-27 14:15:32.829114-07",
+        "references": {
+          "planId": "fe013616-06b2-456c-94f7-f7ad7d57574a",
+          "version": 1,
+          "commandHash": "8675060d3693db2a7d6df077ec98f7f1a9f3a99e2f2f781122beb904ae068019"
+        }
+      }
+    ],
+    "completedTasks": [
+      {
+        "id": "49b3b2d3-21be-48e5-9e89-68a84ad2144b",
+        "type": "TASK_COMPLETED",
+        "summary": "Verified task outcome complete",
+        "goalId": "00-golden",
+        "taskId": "A-prepare",
+        "at": "2026-09-27 14:15:32.786817-07",
+        "references": {
+          "reason": "Current canonical criteria independently satisfied",
+          "workId": "cca24577-256a-4e34-badc-176ae07fbb26",
+          "current": true,
+          "resultId": "18c570d0-ea10-4c68-8ea9-36e7b3bde4eb"
+        }
+      }
+    ],
+    "completedWork": [
+      {
+        "goalId": "00-golden",
+        "taskId": "A-prepare",
+        "workId": "cca24577-256a-4e34-badc-176ae07fbb26",
+        "resultId": "18c570d0-ea10-4c68-8ea9-36e7b3bde4eb"
+      }
+    ],
+    "newBlockers": [
+      {
+        "id": "e3e3f777-abb5-4f7e-86c5-712611276248",
+        "type": "RESULT_RECEIVED",
+        "summary": "Result retained; task not completed",
+        "goalId": "02-blocked",
+        "taskId": "Needs-repair",
+        "at": "2026-09-27 14:15:32.841606-07",
+        "references": {
+          "reason": "Canonical outcome FAILED; ",
+          "workId": "29767aa6-c22a-4d36-b6b0-db98a3074cfe",
+          "current": true,
+          "resultId": "d91a07b4-2214-4e9f-96bf-20b7629db553"
+        }
+      }
+    ],
+    "dependenciesCleared": [
+      {
+        "id": "310c969f-c434-48ea-9592-8a09f912b8e0",
+        "type": "DEPENDENCY_CLEARED",
+        "summary": "Waiting for partner reply",
+        "goalId": "00-golden",
+        "taskId": "B-invite",
+        "at": "2026-09-27 14:15:32.799302-07",
+        "references": {
+          "evidenceRef": "provider-receipt:8645fc76-6f60-4110-8101-cbc7c563c3fa",
+          "dependencyId": "reply"
+        }
+      }
+    ],
+    "needsYou": [
+      {
+        "goalId": "00-golden",
+        "taskId": "C-launch",
+        "id": "choice",
+        "kind": "owner",
+        "label": "Choose the launch cohort",
+        "reference": "launch-cohort",
+        "dueAt": null,
+        "satisfied": false,
+        "options": [
+          "A",
+          "B"
+        ],
+        "evidenceRef": null,
+        "decision": null
+      }
+    ],
+    "newlyEligibleTasks": [
+      {
+        "id": "30506007-2e13-41dd-a630-b1dfa80fa9a3",
+        "type": "TASK_ELIGIBLE",
+        "summary": "Task eligible for Work admission",
+        "goalId": "00-golden",
+        "taskId": "A-prepare",
+        "at": "2026-09-27 14:15:32.746697-07",
+        "references": {}
+      },
+      {
+        "id": "9b75d57a-ebf8-44a8-af87-a4e3fca7c877",
+        "type": "TASK_ELIGIBLE",
+        "summary": "Task eligible for Work admission",
+        "goalId": "00-golden",
+        "taskId": "B-invite",
+        "at": "2026-09-27 14:15:32.801361-07",
+        "references": {}
+      },
+      {
+        "id": "783bdded-ea3f-43ef-8e28-f983033a2502",
+        "type": "TASK_ELIGIBLE",
+        "summary": "Task eligible for Work admission",
+        "goalId": "02-blocked",
+        "taskId": "Needs-repair",
+        "at": "2026-09-27 14:15:32.832797-07",
+        "references": {}
+      }
+    ],
+    "upcomingScheduledDependencies": [
+      {
+        "goalId": "01-today",
+        "taskId": "Scheduled-later",
+        "label": "Tomorrow’s review",
+        "dueAt": "2026-09-28T21:15:32.824Z"
+      }
+    ],
+    "nextChangeCursor": null,
+    "nextGoalCursor": null
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "version": "myeve.goal-feedback.v1",
+  "goalId": "00-golden",
+  "goalOutcome": {
+    "status": "completed",
+    "criteria": [
+      "Beta launched"
+    ],
+    "evidence": [
+      {
+        "criterion": "Beta launched",
+        "reference": "0b8264c6-20e8-41d6-a812-e7ab51c88aaa",
+        "source": "result"
+      }
+    ]
+  },
+  "tasks": [
+    {
+      "taskId": "A-prepare",
+      "outcome": "completed",
+      "resultId": "18c570d0-ea10-4c68-8ea9-36e7b3bde4eb",
+      "workId": "cca24577-256a-4e34-badc-176ae07fbb26"
+    },
+    {
+      "taskId": "B-invite",
+      "outcome": "completed",
+      "resultId": "5161fb60-2fd9-479c-b7d0-a16d68152a2c",
+      "workId": "8231553f-848e-4379-b538-61727672246a"
+    },
+    {
+      "taskId": "C-launch",
+      "outcome": "completed",
+      "resultId": "0b8264c6-20e8-41d6-a812-e7ab51c88aaa",
+      "workId": "3f74ad37-9763-4b59-9eaa-6a7e363bce77"
+    }
+  ],
+  "resultRefs": [
+    {
+      "workId": "3f74ad37-9763-4b59-9eaa-6a7e363bce77",
+      "resultId": "0b8264c6-20e8-41d6-a812-e7ab51c88aaa"
+    },
+    {
+      "workId": "8231553f-848e-4379-b538-61727672246a",
+      "resultId": "5161fb60-2fd9-479c-b7d0-a16d68152a2c"
+    },
+    {
+      "workId": "cca24577-256a-4e34-badc-176ae07fbb26",
+      "resultId": "18c570d0-ea10-4c68-8ea9-36e7b3bde4eb"
+    }
+  ],
+  "ownerFeedbackRefs": [
+    {
+      "id": "db18b483-ddeb-4a79-93b1-93c94b51427c",
+      "type": "OWNER_DECISION"
+    }
+  ],
+  "coordinationDebt": {
+    "necessaryJudgment": 2,
+    "avoidableCoordination": 0
+  },
+  "planChanges": [
+    {
+      "id": "cd45d2c2-f21f-471c-88a8-ea1fbfe16847",
+      "version": 1,
+      "reason": "Goal-authorized initial plan"
+    }
+  ],
+  "disposition": "EVIDENCE_ONLY"
+}

@@ -2,11 +2,7 @@ import { defineSchedule } from "eve/schedules";
 
 import { ownerName } from "../lib/owner";
 
-// Nightly "dreaming" pass over long-term memory (Supermemory): merge
-// duplicates, resolve contradictions, promote recurring signals to permanent,
-// and prune stale one-off context. Task mode: runs to completion with no
-// channel delivery; the work happens through the memory tools. Cron is UTC on
-// Vercel, so 08:15 is ~4am in Toronto.
+// Nightly review preserves source history. It cannot qualify learned behavior.
 export default defineSchedule({
   cron: "15 8 * * *",
   markdown: `
@@ -14,24 +10,15 @@ Nightly memory consolidation. Review your long-term memory about ${ownerName()} 
 tidy it. Work only through list_memories, remember, and forget; do not
 message anyone.
 
-1. Load all memory visible to the primary Agent with list_memories. Never attempt to inspect another Agent's private scope.
-2. Merge duplicates: when several entries say the same thing, save one entry
-   with the best phrasing (entity-centric, e.g. "${ownerName()} prefers window seats")
-   using remember in the same scope, then forget the redundant ones. Skip this when entries
-   only look similar but carry distinct details.
-3. Resolve contradictions: when two entries conflict, keep the more recent
-   one (updatedAt) and forget the outdated one. If recency is unclear, keep
-   both.
-4. Promote stable patterns: a non-permanent fact that keeps showing up or is
-   clearly durable (routines, relationships, strong preferences, ongoing
-   projects) becomes one permanent entry (remember with permanent: true);
-   forget the transient duplicates it replaces.
-5. Prune: forget one-off context that is clearly spent (past events long
-   over, short-lived states, completed errands). Keep anything with lasting
-   value.
+1. Load memory visible to the primary Agent with list_memories. Never inspect another Agent's private scope.
+2. Preserve repeated evidence and its source identity. Do not merge merely similar statements or discard their provenance.
+3. Preserve contradictions. A newer observation is not automatically more authoritative. Never forget a conflicting fact simply because its timestamp is older. Ask for owner correction during the next relevant conversation when necessary.
+4. Do not promote recurring observations into permanent preferences or procedures. Repetition is evidence, not evaluation or owner confirmation.
+5. Do not rewrite or delete historical facts, corrections, or source evidence during consolidation. Current Truth and history are distinct.
 
-Be conservative: when in doubt, keep the memory. Never forget a permanent
-entry unless it is directly superseded by a merged or newer version you just
-saved. Aim for a small, high-signal set of edits, not a rewrite.
+This review grants no permissions and makes no policy changes. Feedback and
+inferences remain candidates until separately evaluated and reviewed. Do not
+save credentials or instructions to bypass safeguards. When no safe, necessary
+change exists, finish without edits or a message.
 `.trim(),
 });
