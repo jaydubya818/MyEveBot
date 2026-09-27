@@ -51,3 +51,8 @@ Foreman is a separate Linear agent workflow. Follow the [Sofie–Foreman setup](
 5. If using Foreman, delegate a separate test issue and verify the Linear agent session and any draft PR independently.
 
 If Sofie reports a 404 HTML response to chat, check the production alias and the app's `/eve/v1/**` route before diagnosing Linear or MyFactory. If a WorkOrder remains `awaiting_local_factory`, check the host's intake status, Linear access, and whether the Mac is awake; read back the same request ID. Do not weaken authentication or copy another component's token to make a test pass.
+
+
+## Gate C custody boundary (offline only)
+
+MyEve's additive 0054 receipt records the exact signed Factory result, FactoryVersion, key identity, Work/attempt binding, candidate and evidence digests, and admission decision. Exact replays reuse one receipt; conflicting manifests are auditable; stale results remain historical. Large artifacts use signed references to short-lived, authenticated Linear comment chunks with byte digest checks. Rotated keys remain verifiable for history; revoked keys cannot authorize new admission. Supply the public-only `MYFACTORY_SIGNING_TRUST_BUNDLE` for key-ID trust status; the existing public PEM remains available for legacy receipts. These receipts do not grant writer, publication, budget, independent verification or Ready status. Gate B single-writer handoff and live MyFactory execution remain pending; do not enable them from this setup guide.

@@ -1,10 +1,10 @@
 # MyFactory Gate C — bounded offline candidate-return qualification
 
-**Gate C: PARTIAL / NOT QUALIFIED. Gate B: CONTRACT DEFINED, NOT IMPLEMENTED. Live MyFactory: NOT_RUN. Digital Worker readiness: NOT_READY.** The continuation stopped before a required MyEve schema migration, as instructed.
+**Current Gate C: PASS offline. Gate B: READY FOR COORDINATION, NOT IMPLEMENTED. Live MyFactory: NOT_RUN. Digital Worker readiness: NOT_READY.** Earlier sections preserve the prior partial-gate finding; the final qualification is in the addendum below.
 
 This continuation starts from MyEve `56e5f30d91694e87f55234307cf946bc6a2b9772` on `codex/q37-integration` (the local checkout also contained documentation commit `63131a8`). MyFactory started at `543906dc20fefed2def97e43953095ea0b7c60bc` on `codex/local-factory`; the Gate C implementation is on `codex/q37-gate-c`. The previous read-only finding is preserved in [PRIOR-AUDIT.md](PRIOR-AUDIT.md). No live MyFactory execution, external issue, writer transfer, production deployment, or M1/ER1-owned writer mutation occurred.
 
-## Implemented and exercised locally
+## Prior checkpoint: implemented and exercised locally
 
 | Boundary | Evidence | Result |
 |---|---|---|
@@ -22,7 +22,7 @@ The producer fixture uses a real temporary Git repository: it commits a base and
 
 **Earlier executed commands (preserved):** MyFactory `npm test` passed all workspace suites: supervisor 42/42, agent 9/9, app builder 8/8, hosted routing 7/7, storage 10/10, verification 6/6. The supervisor suite requires loopback socket access; a sandboxed run showed `EPERM` for nine HTTP tests, then the same suite passed 42/42 with local socket permission. A top-level Vercel SDK import stalled the first hosted-intake run; lazy loading those SDKs only during connector authorization fixed startup and the intake test passed. The clean-install `captureFactoryVersion` check confirmed stable Factory ID/source commit and a different configuration digest after changing the model. MyEve `vitest run lib/engineering/factory-authenticated-result.test.ts --maxWorkers=1` passed 3/3, and `tsc --noEmit --incremental false` passed. MyFactory `npm run typecheck` and `npm run build` were attempted after the tests, remained in the unrelated `@factory/web` TypeScript step without output, and were interrupted; neither was reported as passing at that time. No live tests were attempted.
 
-## Gate decision and owner boundary
+## Prior checkpoint gate decision and owner boundary
 
 The bounded authenticated candidate-return transport and FactoryVersion path exist, but **Gate C does not pass the complete required contract** while key lifecycle, durable admission and the unresolved integration test remain. A signed result has `authorityGranted=false`, independent verification `NOT_RUN`, and readiness `NOT_READY`. No candidate is imported into MyEve production custody. The size-limited Linear issue channel fails closed for larger candidates; a separate authenticated artifact channel is needed before general use.
 
@@ -49,3 +49,22 @@ The governance check initially found the prior Q37 result adapter unclassified a
 ### Unrun Gate C checks and safety
 
 Trusted signing-key rotation/revocation and historical compromise semantics, large authenticated artifact transport, durable admission/restart/replay, and the complete local Golden Case remain **NOT_RUN / NOT QUALIFIED** after the schema stop. The small inline manifest path and earlier tests retain their prior limited results. There was no live Factory run, producer dispatch, candidate attachment, independent verification, Ready transition or writer grant. The [Gate B contract](REQUIRED-CONTRACT.md#writer-handoff-required-contract) remains design-only and was not implemented.
+
+
+## Additive Gate C custody continuation (MyEve e36b6b2 / MyFactory 13d9fc8)
+
+Migration ownership audit inspected the canonical manifest and all registered MyEve worktrees. 0054 was unclaimed; 0051–0053 and their checksums were left unchanged. `0054_engineering_factory_results.sql` adds only Work-scoped signed-result receipts and conflict observations. A unique operation ID drives replay; a changed manifest/envelope under that identity records CONFLICT. Admission stages are RECEIVED → AUTHENTICATED → ATTESTED → INTEGRITY_VERIFIED → ADMITTED, with REJECTED/STALE/CONFLICT terminal outcomes. Work locking prevents stale version/generation/control/lifecycle from becoming current. The Factory candidate commit and artifact digests remain provenance; no candidate bytes are duplicated into DIRECT/native custody. Factory-granted authority is zero, independent verification remains NOT_RUN, and Ready remains NOT_READY.
+
+The producer now has active/rotated/revoked signing-key records. Historical cryptographic validity and observed trust status remain distinct. Referenced patch/log bytes are published in bounded Linear comments before the signed result. The consumer uses its scoped Linear connector to fetch 8 KB chunks, verifies the signed manifest's exact scope, length and SHA-256, and rejects expired/missing/substituted bytes. No public artifact URL is introduced.
+
+**Executed offline checks:** MyEve TypeScript passed; focused authenticated-result and 20 KB artifact tests passed 5/5. Disposable PostgreSQL 17 on port 55673 passed 0053→0054 upgrade, injected failed-migration rollback, rerun, concurrent exact replay, changed-manifest conflict, stale generation, restricted-role denial, durable authenticated admission, process-object restart and replay. `executor governance ok: 644 classified sources; UNKNOWN=0`. Factory protocol, hosted-intake and artifact tests passed in focused runs, including rotation, revocation, retained historical trust, lost provider response and substituted chunks. No provider deployment or live Factory execution occurred.
+
+**Current gate:** PARTIAL. The complete post-change real producer attempt through MyEve durable admission, exhaustive restart at each stage, and full post-change MyFactory build still require qualification. The earlier PASS claims above are historical checks from prior commits; they are not upgraded to a Gate C PASS by these focused tests. Gate B stays a design contract for M1/ER1 coordination. Live MyFactory: NOT_RUN.
+
+### Final offline qualification addendum
+
+A new `hosted-golden.test.mjs` uses `JobManager` to create a real temporary Git candidate from a bounded WorkOrder, records a FactoryVersion check, runs a local fixture agent and check, publishes the signed result and a 20 KB log through Linear-shaped chunks, and preserves frozen replay. Its exact signed issue/comment fixture then enters MyEve's authenticated consumer and 0054 PostgreSQL admission. The result is ADMITTED once, replay returns the same receipt, independent verification stays NOT_RUN, readiness stays NOT_READY, and Factory-granted authority is 0. This is an **offline fixture**, not a live provider or real coding-model run.
+
+Final disposable PostgreSQL 17 checks cover fresh 54-migration chain, 0053→0054 upgrade with a retained historical Work row, injected failed-migration rollback, idempotent rerun, six concurrent real-client replays, same-operation changed-manifest conflict, stale generation, admission racing with cancellation and supersession, restricted-role denial, and resume from every stored admission stage. MyEve full `npm run typecheck` passed with governance UNKNOWN=0. MyFactory full `npm test` passed including the new Golden attempt, `npm run typecheck` passed, and its web build passed in the existing clean offline build fixture after source comparison; the original checkout's Vite step still stalls on its local dependency installation. The build fixture has identical web and contracts sources and lockfile.
+
+**Gate C: PASS for offline qualification.** No live MyFactory execution, Gate B writer transfer, provider deployment, or main-branch change occurred. Gate B remains ready for coordination with the M1/ER1 owner; this receipt is not a writer handoff.
