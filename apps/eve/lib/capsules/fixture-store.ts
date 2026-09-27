@@ -44,7 +44,15 @@ export class FixtureDestination implements CapsuleDestinationAdapter {
   }
   /** Deterministic retrieval fixture, not agent execution or instruction activation. */
   retrieveForNewWork(projectId?: string) {
-    return this.read().imported.filter(r => r.state === "reviewed_context" && r.targetEveRef === "sofie-b" && (r.targetScope.type === "agent" || r.targetScope.type === "project" && r.targetScope.id === projectId));
+    const state = this.read();
+    return state.imported.filter(record => {
+      const inScope = record.targetScope.type === "agent" || record.targetScope.type === "project" && record.targetScope.id === projectId;
+      const hasCurrentTruth = state.current.some(current => current.kind === record.item.kind && current.key === record.item.key && (
+        current.scope.type === "owner" && record.targetScope.type === "agent" ||
+        current.scope.type === record.targetScope.type && current.scope.id === record.targetScope.id
+      ));
+      return record.state === "reviewed_context" && record.targetEveRef === state.eveRef && inScope && !hasCurrentTruth;
+    });
   }
   close() { this.database.close(); }
 }

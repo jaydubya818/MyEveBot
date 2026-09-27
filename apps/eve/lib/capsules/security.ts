@@ -11,11 +11,14 @@ const secrets = [
   /\b(?:api[ _-]?key|oauth|access[ _-]?token|refresh[ _-]?token|password|session[ _-]?(?:cookie|id)|secret|vercel[ _-]?token|relay[ _-]?(?:credential|token)|one[ _-]?time[ _-]?(?:code|secret)|otp)\b\s*["']?\s*[:=]\s*\S+/i,
   /\b(?:set-cookie|cookie)\s*:/i,
 ];
+const authorityAssignment = /["']?\b(?:grants?|(?:tool|factory|repository|relay)[ _-]?permissions?|permissions?|approvals?|approval[ _-]?state|account[ _-]?roles?|organization[ _-]?membership|execution[ _-]?eligibility|active[ _-]?(?:work|run)|writer[ _-]?(?:lease|authority)|provider[ _-]?authority|billing[ _-]?authority|completion[ _-]?budget|factory[ _-]?dispatch)["']?\s*[:=]\s*\S+/i;
 const unsafeInstructions = /(?:ignore|override|bypass|disable)\s+(?:all\s+|the\s+|previous\s+|system\s+)*(?:instructions|polic(?:y|ies)|safety|permissions|approvals|guards)|(?:grant|enable)\s+(?:yourself|all tools|repository access)|<\/?(?:system|tool_call|script|iframe)\b|javascript:/i;
 
 export function scanText(text: string): void {
   const normalized = text.normalize("NFKC").replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "");
   if (secrets.some(pattern => pattern.test(normalized))) throw new CapsuleError("secret", "Sensitive credential material detected. Remove it at the source before exporting or importing.");
+  if (authorityAssignment.test(normalized)) throw new CapsuleError("authority", "Embedded authority configuration is not portable. Remove grants, permissions and live execution state.");
+  if (/data:[^\s]*;base64,|\bbase64\s*[:=]/i.test(normalized)) throw new CapsuleError("encoding", "Encoded payloads are not supported. Use readable experience text only.");
   if (unsafeInstructions.test(normalized)) throw new CapsuleError("unsafe_guidance", "Possible policy override or executable content detected. Review and remove the unsafe guidance.");
   // Opaque encoded strings are not needed for this text-only portable format.
   for (const token of normalized.match(/[A-Za-z0-9+/_=-]{40,}/g) ?? []) {

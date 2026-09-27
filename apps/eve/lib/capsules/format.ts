@@ -59,7 +59,7 @@ export function exportCapsule(input: { candidates: ExportCandidate[]; selectedId
       format: "myeve-memory-capsule" as const, formatVersion: "1.1" as const,
       capsuleId: input.capsuleId ?? randomUUID(), createdAt: input.now ?? new Date().toISOString(),
       source: { ownerRef: input.ownerRef, eveRef: input.eveRef },
-      compatibility: { minimumReader: "1.0" as const, activation: "review_required" as const },
+      compatibility: { minimumReader: "1.1" as const, activation: "review_required" as const },
       inventory: preview.items.map(item => ({ id: item.id, digest: digest(item), bytes: byteSize(item) })),
     }, items: preview.items,
   };
@@ -74,6 +74,7 @@ export function inspectCapsule(raw: string): Capsule {
   const { digest: claimed, ...body } = capsule;
   if (claimed !== digest(body)) throw new CapsuleError("integrity", "Capsule integrity failed. Obtain an unchanged copy from its owner.");
   if (Date.parse(capsule.manifest.createdAt) > Date.now() + 60_000) throw new CapsuleError("time", "Capsule creation time is in the future.");
+  if (capsule.manifest.compatibility.minimumReader !== capsule.manifest.formatVersion) throw new CapsuleError("compatibility", "The declared reader compatibility does not match Capsule semantics.");
   const ids = new Set<string>();
   const keys = new Set<string>();
   if (capsule.items.length !== capsule.manifest.inventory.length) throw new CapsuleError("inventory", "Capsule inventory is inconsistent.");

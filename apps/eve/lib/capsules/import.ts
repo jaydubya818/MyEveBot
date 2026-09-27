@@ -34,7 +34,10 @@ export function previewImport(raw: string, destination: Destination) {
     const targetScope: CapsuleScope = item.scope.type === "project" ? item.scope : { type: "agent", id: destination.eveRef };
     const supported = destination.supportedKinds.includes(item.kind) && (item.scope.type !== "project" || destination.projectIds.includes(item.scope.id));
     const previous = destination.imported.find(r => r.targetEveRef === destination.eveRef && identity(r.item, r.targetScope) === identity(item, targetScope));
-    const existing = destination.current.find(c => identity(c, c.scope.type === "owner" ? targetScope.type === "agent" ? targetScope : c.scope : c.scope) === identity(item, targetScope)) ?? previous?.item;
+    const existing = destination.current.find(current => {
+      const scope = current.scope.type === "owner" && targetScope.type === "agent" ? targetScope : current.scope;
+      return identity(current, scope) === identity(item, targetScope);
+    }) ?? previous?.item;
     if (existing) validateItem(existing); // Never echo unsafe existing content in a conflict review.
     const status = !supported ? "unsupported" as const : existing ? equivalent(existing, item) ? "duplicate" as const : "conflict" as const : "new" as const;
     return { item, targetScope, status, existing: existing ?? null, qualificationRequired: requiresQualification(item),

@@ -2835,7 +2835,7 @@
     "lib/capsules/fixture-store.ts": {
       "classification": "INTERNAL",
       "reason": "Local-only SQLite qualification fixture, unreachable in production; atomic staging and SIGKILL recovery tested. Not a canonical Memory store or executor.",
-      "sha256": "3df8d3d9651e006756cc7e2155d8b07cb03d44e93486e9b3d2fce2154e898481"
+      "sha256": "6dd30147435cfb0f5a138caab86564e198f11566ba6d9536bfe846d290f47b94"
     },
     "lib/capsules/fixtures.ts": {
       "classification": "INTERNAL",
@@ -2845,12 +2845,12 @@
     "lib/capsules/format.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "131b389d3344a4d8cd62c643de0a56d2df746aea2f17f46b5080dcecc967c775"
+      "sha256": "62b0147b211612b071697ee6faa305d23acd689dcd55660df6c9fc9f53561cdc"
     },
     "lib/capsules/import.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "7b14bf099c9b7b99a9cbaa5b934d2bb61414ec46f242d1d232fd5eece489246d"
+      "sha256": "0de42c815d41366414eeb7dd1721c34323845e0765ff6479ebe9a9d3168a510e"
     },
     "lib/capsules/memory-adapter.ts": {
       "classification": "INTERNAL",
@@ -2860,12 +2860,12 @@
     "lib/capsules/schema.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "67b38d79b24ac7d753fba916b60991c402eb7c68f53434ed11d105236eee21ec"
+      "sha256": "c8a5eb17f0138e2a75779f7c78f03af931a850d6fe4347f0841c5bfa24bf2754"
     },
     "lib/capsules/security.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "fbbdfb424ad9878e8e360705c907c6abcf9903a23de6797ef935476dcdb3395f"
+      "sha256": "b6c9c39dfc48a8e7a292cf3c8b987e537aee69e2ec8958aa2c7329ce2a52e4c4"
     },
     "lib/capsules/service.ts": {
       "classification": "INTERNAL",

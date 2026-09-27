@@ -27,7 +27,7 @@ export const manifestSchema = z.object({
   format: z.literal("myeve-memory-capsule"), formatVersion: z.enum(["1.0", "1.1"]),
   capsuleId: z.string().uuid(), createdAt: z.string().datetime(),
   source: z.object({ ownerRef: digestSchema, eveRef: ref }).strict(),
-  compatibility: z.object({ minimumReader: z.literal("1.0"), activation: z.literal("review_required") }).strict(),
+  compatibility: z.object({ minimumReader: z.enum(["1.0", "1.1"]), activation: z.literal("review_required") }).strict(),
   inventory: z.array(z.object({ id: ref, digest: digestSchema, bytes: z.number().int().positive() }).strict()).min(1).max(CAPSULE_LIMITS.items),
 }).strict();
 export const capsuleSchema = z.object({
