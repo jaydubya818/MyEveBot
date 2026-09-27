@@ -1,0 +1,32 @@
+### Ran Playwright code
+```js
+await (async (page) => {
+  const work={id:'12345678-1234-4123-8123-123456789012',title:'Launch brief',version:1,repository:'fixture/recall'};
+  const family={id:'a'.repeat(64),revision:3,scope:{ownerId:'recall-owner',repository:'fixture/recall',workType:'research',workId:null},events:[],versions:[{version:1,behavior:'cite_sources',status:'CANDIDATE',hash:'b'.repeat(64),reason:null,createdAt:'2026-09-27T20:00:00Z',correctionOf:null,evidence:[{eventId:'fixture-feedback',workId:work.id,workVersion:1,note:'The brief was useful. Please keep the original source references beside each finding.',provenance:'authenticated_owner_feedback'}],evaluation:{result:'PASS',baselineScore:0,learnedScore:1}}]};
+  const actions=[];
+  await page.unroute('**/api/learning');
+  await page.route('**/api/learning',async route=>{
+    if(route.request().method()==='POST'){
+      const body=route.request().postDataJSON();actions.push(body.command.action);
+      if(body.command.action==='promote'){family.versions[0].status='PROMOTED';family.versions[0].reason='Owner reviewed and promoted source citations.';}
+      if(body.command.action==='rollback'){family.versions[0].status='ROLLED_BACK';family.versions[0].reason='Withdrawn after later feedback.';}
+      family.revision++;await route.fulfill({json:{family}});
+    }else await route.fulfill({json:{families:[family],works:[work]}});
+  });
+  await page.reload();
+  await page.getByText('Cite original sources · v1',{exact:false}).waitFor();
+  await page.getByText('Why this was proposed',{exact:false}).click();
+  await page.screenshot({path:'docs/verification/total-recall-learning/ui-evaluated.png',fullPage:true});
+  await page.getByRole('button',{name:'Promote for this scope',exact:true}).click();
+  await page.getByRole('button',{name:'Roll back',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Correct',exact:true}).click();
+  await page.getByRole('heading',{name:'Correct version 1',exact:true}).waitFor();
+  await page.getByRole('button',{name:'Cancel correction',exact:true}).click();
+  await page.getByRole('button',{name:'Roll back',exact:true}).click();
+  await page.getByText('ROLLED BACK',{exact:true}).waitFor();
+  if(JSON.stringify(actions)!==JSON.stringify(['promote','rollback']))throw Error('Unexpected UI actions');
+  await page.setViewportSize({width:390,height:844});
+  await page.screenshot({path:'docs/verification/total-recall-learning/ui-mobile-rollback.png',fullPage:true});
+  console.log(JSON.stringify({fixture:'mocked API after real authenticated unavailable state',actions,correctionForm:true,mobileWidth:390}));
+})(page);
+```

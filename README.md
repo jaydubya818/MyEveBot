@@ -182,6 +182,12 @@ Preview deployments use the same fail-closed owner authentication as production.
 `MYEVE_ACCESS_PASSWORD`, `MYEVE_SESSION_SECRET`, and `MYEVE_OWNER_ID` for the Vercel Preview
 environment before qualification; do not weaken the auth boundary to make a preview testable.
 
+## Total Recall and governed learning
+
+Scoped Memory now deduplicates exact repeated writes, retains correction history, bounds recall, and keeps semantic-provider access within the configured owner. Nightly consolidation preserves conflicting evidence instead of treating the newest observation as truth.
+
+The [governed learning implementation and operator guide](docs/total-recall-learning.md) separates feedback, candidates, deterministic evaluation, owner promotion and rollback. **Learning is not design-partner ready:** shared migration ownership blocks schema activation; the service/UI are qualified only locally and live Sofie reuse remains unqualified. See the [qualification dossier](docs/verification/total-recall-learning/README.md).
+
 ## Chat and memory reliability
 
 - Submitted prompts render immediately. Restored chats reconcile their saved stream cursor with the transcript and catch up with the durable session before accepting another message.
