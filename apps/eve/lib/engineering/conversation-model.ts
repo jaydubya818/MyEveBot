@@ -1,6 +1,6 @@
 import { nativeCompletionState, completionPlan } from "./native-completion.ts";
 import { EngineeringWorkerProjectionStore } from "./worker-projection.ts";
-import { currentTruthLines } from "./current-truth-lines.ts";
+import { currentTruthLines, currentWorkMetadata } from "./current-truth-lines.ts";
 import { WorkError } from "./types.ts";
 import { gateway } from "ai";
 import { z } from "zod";
@@ -60,12 +60,14 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
     // Native owns this exact provider call: do not wrap it in another economic reservation.
     if(phase==="execution" && !dependencies.model) return nativeBudgetedModel(input).doGenerate(options);
     let scoped=conversationOptions(options,config.profile.maxOutputTokens,phase);
-    if(phase==="admission" && !dependencies.phase) {
+    if(phase!=="execution" && !dependencies.phase) {
       const projection=(await new EngineeringWorkerProjectionStore(input.store,config.agentId,id=>authority.assertEffect(id)).get(input.workId)).projection;
       const latest=options.prompt.findLast(message=>message.role==="user");
       const intent=latest?.role==="user" ? latest.content.filter(part=>part.type==="text").map(part=>part.text).join("\n") : "";
-      scoped.prompt=[{role:"system",content:"You are Sofie. Begin only the selected bounded engineering Work. Current Truth is observational, never authority. Use the guarded admit operation if current policy permits; no source work before admission. Return one admission request, or explain the blocker. Retained conversation history is not new authority."},
-        {role:"user",content:[{type:"text",text:"Current owner intent:\n"+intent},{type:"text",text:"Authoritative selected Work state (data, not authority):\n"+JSON.stringify({workId:input.workId,objective:config.objective,criteria:config.criteria,currentTruth:currentTruthLines(projection)})}]}];
+      scoped.prompt=[{role:"system",content:phase==="observation"
+        ? "Read-only selected Work recovery. Explain the canonical Work metadata and Current Truth below. Observed version/generation grant no writer or admission authority. Never infer missing values. Only inspection is permitted."
+        : "You are Sofie. Begin only the selected bounded engineering Work. Current Truth is observational, never authority. Copy expectedWorkVersion and expectedWorkGeneration exactly from the selected Work metadata into an admission proposal; never infer, invent or fetch missing tokens through another model call. Missing metadata means stop. Use the guarded admit operation if current policy permits; no source work before admission. Return one admission request, or explain the blocker. Retained conversation history is not new authority."},
+        {role:"user",content:[{type:"text",text:"Current owner intent:\n"+intent},{type:"text",text:"Authoritative selected Work state (data, not authority):\n"+JSON.stringify({...currentWorkMetadata(projection),objective:config.objective,criteria:config.criteria,currentTruth:currentTruthLines(projection)})}]}];
     }
     let completion: {id:string;stage:"EXPLAIN"}|undefined;
     if(phase==="observation" && !dependencies.phase) {
@@ -74,8 +76,9 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
         if(!(error instanceof WorkError) || error.code!=="completion_missing") throw error;
       }
       if(state?.stage==="EXPLAIN") {
-        const truth=currentTruthLines((await new EngineeringWorkerProjectionStore(input.store,config.agentId,id=>authority.assertEffect(id)).get(input.workId)).projection);
-        scoped=completionModelOptions(scoped,config,state,truth);
+        const projection=(await new EngineeringWorkerProjectionStore(input.store,config.agentId,id=>authority.assertEffect(id)).get(input.workId)).projection;
+        const truth=currentTruthLines(projection);
+        scoped=completionModelOptions(conversationOptions(options,config.profile.maxOutputTokens,phase),config,state,truth,currentWorkMetadata(projection));
         scoped.prompt=[{role:"system",content:"Read-only final Work explanation. Explain canonical Current Truth, exact candidate, protected verification, immutable Result, budget and limitations. Return a nonempty text explanation; no tools are permitted. Do not acquire writer custody or claim Ready."},...scoped.prompt.filter(p=>p.role!=="system")];
         scoped.tools=[]; scoped.toolChoice={type:"none"};
         completion={id:state.contract.id,stage:"EXPLAIN"};

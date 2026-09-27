@@ -99,7 +99,7 @@ try {
   await budget.assertDispatch(first);await assert.rejects(budget.assertDispatch(first),/fence/);
   await budget.settle(first,1000,{content:[{type:"text",text:"Current Truth"}]});
   assert.deepEqual((await new EngineeringConversationBudget(workStore,authority).reserve(first)).result,{content:[{type:"text",text:"Current Truth"}]});
-  await admitNativeWork(workStore,work.id,work.version,authority);
+  await admitNativeWork(workStore,work.id,work.version,work.generation,authority);
   const projection=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection;
   assert.equal(projection.runTruth.latestRun.id,(await new RoutingStore(workStore).snapshot(work.id)).runs[0].id);
   assert.equal(projection.runTruth.latestRun.timestampSource,"admission");assert.equal(projection.readiness.ready,false);
@@ -114,7 +114,7 @@ try {
   assert.equal((await pool.query("SELECT admission_authority_snapshot#>>'{contract,deadline}' AS deadline FROM engineering_routing_decisions WHERE work_id=$1",[work.id])).rows[0].deadline,'2000-01-01T00:00:00.000Z');
   console.log('PASS: expired productive admission stays expired after separately budgeted read-only recovery');
   for(const opponent of ["conversation","native"]){
-    const w=await prepare(opponent);if(opponent==="native")await admitNativeWork(workStore,w.id,w.version,authority);
+    const w=await prepare(opponent);if(opponent==="native")await admitNativeWork(workStore,w.id,w.version,w.generation,authority);
     const a={...request(w.id,"a"),microUsd:2000000},b={...request(w.id,"b"),microUsd:2000000};
     const results=await Promise.allSettled([budget.reserve(a),(opponent==="native"?native:budget).reserve(b)]);
     assert.equal(results.filter(x=>x.status==="fulfilled").length,1);
@@ -195,7 +195,7 @@ try {
   const observerModel=engineeringConversationModel({...modelInput,productive:false},{authority,catalog,model:provider});
   await observerModel.doGenerate(options);assert.equal(providerCalls,1);
   assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_native_runtime WHERE work_id=$1',[modelWork.id])).rows[0].n,0);
-  await admitNativeWork(workStore,modelWork.id,modelWork.version,authority);
+  await admitNativeWork(workStore,modelWork.id,modelWork.version,modelWork.generation,authority);
   await nativeBudgetedModel({...modelInput,stepKey:'model-owner:1'},{authority,catalog,model:provider}).doGenerate(options);
   assert.equal(providerCalls,2);
   const receipts=(await pool.query('SELECT purpose,spent_microusd FROM engineering_work_model_calls WHERE work_id=$1 ORDER BY created_at',[modelWork.id])).rows;

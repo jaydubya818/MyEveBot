@@ -35,14 +35,14 @@ export function nativeModelOptions(options: Options, maxOutputTokens: number): O
  * Raw conversation and evidence remain retained; no model summary or cost estimate
  * substitutes for authoritative state. Oversized current intent/state fails closed. */
 export function completionModelOptions(options:Options,config:{objective?:string;criteria?:unknown;nativeMode?:string;profile:{maxOutputTokens:number}},
-  state:Awaited<ReturnType<typeof nativeCompletionState>>, truth: string[] = []):Options {
+  state:Awaited<ReturnType<typeof nativeCompletionState>>, truth: string[] = [], metadata?: {workId:string;expectedWorkVersion:number;expectedWorkGeneration:number}):Options {
   const latest=options.prompt.findLast(message=>message.role==="user");
   const intent=latest?.role==="user" ? latest.content.filter(part=>part.type==="text").map(part=>part.text).join("\n") : "";
   if(latest?.role==="user"&&latest.content.some(part=>part.type!=="text"))throw new WorkError("completion_input","Native completion requires text intent.");
   const w=state.workspace,candidate=w.candidates?.at(-1);
   const evidence=(w.evidence??[]).filter((e:Record<string,unknown>)=>e.candidate===candidate?.sha).map((e:Record<string,unknown>)=>({check:e.check,result:e.result,candidate:e.candidate,...(e.result!=="PASS"?{artifact:e.artifact}:{})}));
   const changed=Object.fromEntries(Object.entries(w.draft_files??{}).filter(([path,body])=>body!==w.source_files?.[path]));
-  const current={workId:state.contract.workId,objective:config.objective,criteria:config.criteria,phase:w.phase??"NOT_OPENED",revision:w.revision??null,
+  const current={workId:state.contract.workId,...metadata,objective:config.objective,criteria:config.criteria,phase:w.phase??"NOT_OPENED",revision:w.revision??null,
     stage:state.stage,plan:w.plan??null,approvedFiles:state.stage==="IMPLEMENT"?w.source_files??{}:Object.keys(w.source_files??{}),
     draftChanges:state.stage==="EXPLAIN"?Object.keys(changed):changed,currentTruth:truth,candidate:candidate?{sha:candidate.sha,artifactHash:candidate.artifactHash}:null,evidence};
   const prompt:Options["prompt"]=[{role:"system",content:"You are Sofie, Software Engineer using JStack repository conventions and "+(config.nativeMode??"normal")+" mode. "+(config.nativeMode==="potato"?"Proactively perform admitted repairs without routine interruptions. ":"Explain the next bounded step and follow owner intent. ")+"Work only through engineering_direct under existing authority. Current durable state below replaces stale tool history. Follow owner intent and exact acceptance criteria; preserve approved files. Open if unopened, read needed files, record a plan, write the bounded change, submit. Inspect protected failures before a minimal repair; submit the repair. Never invent checks. Local pass is PARTIAL, never Ready: publication/CI/review are unqualified. A contract reserves capacity, not authority. If checks are pending, stop. Explain actual candidate, checks and limitations when finished."},

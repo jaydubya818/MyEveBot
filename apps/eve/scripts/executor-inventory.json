@@ -3137,13 +3137,13 @@
     },
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
-      "reason": "Trusted server snapshot binds Agent revision and Work generation; SQL CAS admits current scoped Work without provider execution.",
-      "sha256": "e01e27411b05bcbcfa6a4b0cbfd52ec4b687242aa44b7bf72d5c9f704ed3a6d5"
+      "reason": "Deterministic scoped admission rechecks both expected native version/generation against current Work and authoritative binding, including the final locked SQL predicate. Native missing generation denies; generic routes retain their existing contract. No provider dispatch or schema change.",
+      "sha256": "c02a740089b1ec44c7ceeec8425acf7598f7b852635498efb83175444f07bdd2"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-scoped SELECT-only Work/native projection with current read-only authority observation; historical Run visibility never acquires writer custody.",
-      "sha256": "eb4f7c8fa221b0396a5b5285de411f73d8d205d616d4196f600a64c25dbae1fa"
+      "reason": "Owner-scoped canonical Current Truth includes persisted Work generation alongside version, with reread fences preserved. No-route state describes a guarded admission proposal rather than implying permission. Projection grants no execution authority.",
+      "sha256": "d94a4cb04e4935edd90f644bde7815edecb88fe1425d9c3dcc98a4e1243fca91"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3152,8 +3152,8 @@
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing authenticated owner/selected Work, Action Gateway, native session/route and revision checks unchanged. Inspect additionally reads shared UI truth, scoped active knowledge and behavior-only manifests; no writer or spend relaxation.",
-      "sha256": "482c821a911725fef9aba62249d93ea056cb35d6f167f06e02f12a856fed8f7b"
+      "reason": "Authenticated selected primary-Agent Work remains bound through context receipts and Action Gateway. Native admission carries both required observed version and generation to the authoritative service. Read-only sessions cannot admit or acquire writer custody.",
+      "sha256": "d30efe9a0093e4eff96cbb13d354820b5ee2aa886530023a6aa672c1d8fc1b1a"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3182,13 +3182,13 @@
     },
     "lib/engineering/native-api.ts": {
       "classification": "ENFORCED",
-      "reason": "Same-origin authenticated owner input accepts only Work version, obtains trusted facts, and records bounded admission without dispatch.",
-      "sha256": "3293b935dc6019d497485badd2f80f800dfbeba325d87fe49260bc0c19e0d9d9"
+      "reason": "Owner-scoped same-origin native admission requires both version and generation; no caller qualification or authority snapshots accepted. Deterministic service rechecks current persisted Work.",
+      "sha256": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e"
     },
     "lib/engineering/native-input.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict discriminated operation schemas within provider-compatible object envelope. Mutation revisions required; no authority fields accepted.",
-      "sha256": "9f9113f536788326ee3ae015db0d3fd1379159984dbf0e0625c6dad1a4485ce1"
+      "reason": "Strict native tool schema requires positive integer expectedWorkVersion and expectedWorkGeneration. Neither token is optional or inferred; model arguments grant no authority.",
+      "sha256": "ad4ce171a26cfc5969fe6f7cc034ab4049f760e8d7ca31d7d5da81a6625e43e5"
     },
     "lib/engineering/native-model-budget.ts": {
       "classification": "ENFORCED",
@@ -3197,8 +3197,8 @@
     },
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Current authority, current pricing and durable reservation precede one model call. Only bounded text and native tool; no fallbacks or provider tools. Settle costs before exposure; unknown outcomes block retries.",
-      "sha256": "e88320cf3de6dc064dc49c88f76944710fa021176204236dd93364f4a53b0295"
+      "reason": "Bounded completion context may include canonical observed Work metadata for final read-only explanation. Existing exact common-ledger settlement, stage bounds, writer/effect fences and protected verification remain unchanged.",
+      "sha256": "0d68d798aa15fa1a644c27c3793ffa293d98a9e176497cb5221c22520b44e465"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3212,8 +3212,8 @@
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
-      "reason": "Fresh native owner/Agent/policy/qualification/budget/writer checks unchanged. Contract records actual Software Engineer/JStack/mode versions; composition does not alter policy, resources, operations, owner or budget.",
-      "sha256": "7bc8892ea2505504a12bbcc1295006ac726efc999d97bef363be54c519598ada"
+      "reason": "Native admission validates both optimistic-concurrency tokens and rejects stale persisted Work before route proposal; original values continue to final atomic admission. Qualification, completion capacity, scope and writer guards remain authoritative.",
+      "sha256": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc"
     },
     "lib/engineering/native-behavior.ts": {
       "classification": "INTERNAL",
@@ -3227,8 +3227,8 @@
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Selected-Work model calls use common ledger before dispatch; native execution owns one canonical reservation, not a nested charge. Observation permits inspect only.",
-      "sha256": "01481df3c3d350352840856dbf07f987c185025260a857a556b2527bad7c8ed4"
+      "reason": "Canonical persisted version and generation reach bounded admission and read-only prompts. Metadata is observational; no discovery provider call, writer grant or bypass. Existing common-ledger reservations, admission-only completion preflight, text-only final explanation and provider guards remain enforced.",
+      "sha256": "0bc4a137dc2f3849eead1a6d302f90e50600ab0e13c08b5f7d125bc9e86b7906"
     },
     "lib/engineering/run-truth.ts": {
       "classification": "READ_ONLY",
@@ -3237,8 +3237,8 @@
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
-      "reason": "Pure shared Work/chat formatting of observed Current Truth; no authority creation.",
-      "sha256": "4366499891be5bb6c5f3fcc096a4f5819d8233c0aeee0df5cf839429cfff9fb6"
+      "reason": "Shared Work UI and authenticated Chat formatter includes validated persisted Work identity/version/generation. Pure observation only; missing metadata fails closed and never authorizes execution.",
+      "sha256": "c74ae1d6bf68190bf4c2c7f7640892094b6e16ee994178a86b3f49c673b7efc2"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",

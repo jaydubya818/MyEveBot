@@ -99,7 +99,7 @@ try {
   const native=new NativeModelBudget(workStore,authority);
   await assert.rejects(native.reserve(request(work.id,"fresh",1)),/authority changed/);
   assert.equal(conversationPhase(true,false,null,"fresh"),"admission");
-  await admitNativeWork(workStore,work.id,work.version,authority);
+  await admitNativeWork(workStore,work.id,work.version,work.generation,authority);
   const execution=request(work.id,"fresh",2);
   await budget.reserve(execution);await native.reserve(execution);await native.settle(execution,2000,{content:[]});await budget.settle(execution,2000,{content:[]});
   await native.assertSession(work.id,"fresh");await assert.rejects(native.assertSession(work.id,"observer"),/writer session/);
@@ -111,7 +111,7 @@ try {
   await native.assertSession(work.id,"fresh");
   // Upgrading an existing native Work carries forward both usage and call count once.
   const priorWork=await prepare("Existing native accounting");
-  await admitNativeWork(workStore,priorWork.id,priorWork.version,authority);
+  await admitNativeWork(workStore,priorWork.id,priorWork.version,priorWork.generation,authority);
   const priorCall=request(priorWork.id,"prior-writer",0);
   await native.reserve(priorCall);await native.settle(priorCall,3000,{content:[]});
   const recoveredCall=request(priorWork.id,"prior-reader",1);

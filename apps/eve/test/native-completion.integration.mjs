@@ -49,7 +49,7 @@ try {
  let serial=0;
  const request=(work,session='writer',extra={})=>({workId:work.id,sessionId:session,stepKey:session+':turn:'+serial++,modelId:'anthropic/claude-sonnet-5',requestHash:digest({serial}),microUsd:70000,maxCalls:30,pricing,bounds:{inputBytes:5000,maxOutputTokens:2048},...extra});
  async function prepare(title,cost=1000){const {work:saved}=await store.create({title,objective:config.objective,repository:profile.repository,criteria:config.criteria,maxCostUsd:1.3,maxDurationSeconds:3600,idempotencyKey:randomUUID()});const work=await store.change(saved.id,{operation:'resume',expectedVersion:saved.version});const req=request(work,'writer',{microUsd:Math.max(70000,cost)});await budget.reserve(req);await budget.assertDispatch(req);await budget.settle(req,cost,{content:[{type:'text',text:'Controlled admission'}]});return work;}
- async function admit(work){return admitNativeWork(store,work.id,work.version,authority,'writer');}
+ async function admit(work){return admitNativeWork(store,work.id,work.version,work.generation,authority,'writer');}
  async function held(work){return Number((await pool.query('SELECT engineering_completion_remaining($1,$2) n',[owner,work.id])).rows[0].n);}
  async function crash(stage,w,reservation,action){
   const child=fork(new URL('./native-completion-process.mjs',import.meta.url),[],{execArgv:['--import','tsx'],stdio:['ignore','ignore','pipe','ipc']});let stderr='';child.stderr.on('data',v=>stderr+=v);
@@ -117,7 +117,7 @@ try {
    if(sql.includes('admission_authority_snapshot=$20::jsonb')){params=[...params];const snapshot=JSON.parse(params[19]);mutation(snapshot.completion);params[19]=JSON.stringify(snapshot);}
    return (await pool.query(sql,params)).rows;
   }});
-  await assert.rejects(admitNativeWork(alteredStore,w.id,w.version,new NativeRouteAuthority(alteredStore,async()=>config),'writer'),/completion|qualification|stage/i);
+  await assert.rejects(admitNativeWork(alteredStore,w.id,w.version,w.generation,new NativeRouteAuthority(alteredStore,async()=>config),'writer'),/completion|qualification|stage/i);
   assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_route_runs WHERE work_id=$1',[w.id])).rows[0].n,0);
  }
  const narrowed=await prepare('narrowed ceiling');await admit(narrowed);const pending=request(narrowed,'observer');await budget.reserve(pending);
@@ -171,10 +171,11 @@ try {
  const freshTruth=(await new EngineeringWorkerProjectionStore(store,agentId,id=>authority.assertEffect(id)).get(journey.id)).projection;
  const freshOptions={prompt:[{role:'user',content:[{type:'text',text:'Begin the bounded parser Work. '+currentTruthLines(freshTruth).join('\n')}]}],tools:[{type:'function',name:'engineering_direct',inputSchema:z.toJSONSchema(nativeDevelopmentToolSchema,{target:'draft-7'})}]};
  const initialModel=engineeringConversationModel({store,workId:journey.id,sessionId:'writer',stepKey:'writer:admission:0',modelId:'anthropic/claude-sonnet-5',productive:true},
-  {authority,catalog:async()=>({models:[{id:'anthropic/claude-sonnet-5',pricing}]}),model:()=>({doGenerate:async()=>({content:[{type:'tool-call',toolName:'engineering_direct',toolCallId:'admit',input:JSON.stringify({request:{operation:'admit',expectedWorkVersion:journey.version}})}],usage:{inputTokens:{total:1000},outputTokens:{total:100}},finishReason:{unified:'tool-calls'},warnings:[],providerMetadata:{gateway:{cost:'0.003'}}})})});
+  {authority,catalog:async()=>({models:[{id:'anthropic/claude-sonnet-5',pricing}]}),model:()=>({doGenerate:async(scoped)=>{const part=scoped.prompt.flatMap(m=>Array.isArray(m.content)?m.content:[]).find(p=>p.type==='text'&&p.text.startsWith('Authoritative selected Work state'));const state=JSON.parse(part.text.slice(part.text.indexOf('\n')+1));const request=nativeDevelopmentToolSchema.parse({request:{operation:'admit',expectedWorkVersion:state.expectedWorkVersion,expectedWorkGeneration:state.expectedWorkGeneration}});return {content:[{type:'tool-call',toolName:'engineering_direct',toolCallId:'admit',input:JSON.stringify(request)}],usage:{inputTokens:{total:1000},outputTokens:{total:100}},finishReason:{unified:'tool-calls'},warnings:[],providerMetadata:{gateway:{cost:'0.003'}}};}})});
  freshOptions.prompt.unshift({role:'system',content:'Old unrelated context. '.repeat(3000)});
  const admissionResponse=await initialModel.doGenerate(freshOptions);assert.equal(JSON.parse(admissionResponse.content[0].input).request.operation,'admit');
- await admit(journey);
+ const proposalFromModel=nativeDevelopmentToolSchema.parse(JSON.parse(admissionResponse.content[0].input)).request;
+ await admitNativeWork(store,journey.id,proposalFromModel.expectedWorkVersion,proposalFromModel.expectedWorkGeneration,authority,'writer');
  const initialReceipt=(await pool.query("SELECT reserved_microusd,spent_microusd FROM engineering_work_model_calls WHERE work_id=$1",[journey.id])).rows[0];
  assert(Number(initialReceipt.reserved_microusd)+await held(journey)<=1300000);
  console.log('PASS: actual fresh conversation wrapper/schema/Current Truth plus full completion maximum fit unchanged $1.30',JSON.stringify({conversationBound:Number(initialReceipt.reserved_microusd),completionHold:await held(journey)}));
@@ -232,7 +233,7 @@ try {
  await assert.rejects(direct.write(journey.id,final.revision,'quantity.mjs',source.files['quantity.mjs']),/repair iteration/);
  await assert.rejects(direct.plan(journey.id,final.revision,'Third attempt'),/repair iteration/);
  await assert.rejects(direct.submit(journey.id,final.revision),/repair iteration/);
- if(explanationVariant==='valid')await writeFile(new URL('../../../docs/verification/2026-09-26-gap2b-qualified/budget-telemetry.json',import.meta.url),JSON.stringify({kind:'LOCAL_SYNTHETIC_CONTROLLED_PROVIDER',ceilingMicrousd:1300000,initialConversationBoundMicrousd:Number(initialReceipt.reserved_microusd),completionHoldMicrousd:initialHold,maximumPlannedMicrousd:Number(initialReceipt.reserved_microusd)+initialHold,telemetry,finalTruth},null,2)+'\n');
+ if(explanationVariant==='valid' && process.env.NATIVE_COMPLETION_TELEMETRY)await writeFile(process.env.NATIVE_COMPLETION_TELEMETRY,JSON.stringify({kind:'LOCAL_SYNTHETIC_CONTROLLED_PROVIDER',ceilingMicrousd:1300000,initialConversationBoundMicrousd:Number(initialReceipt.reserved_microusd),completionHoldMicrousd:initialHold,maximumPlannedMicrousd:Number(initialReceipt.reserved_microusd)+initialHold,telemetry,finalTruth},null,2)+'\n');
  console.log('PASS: '+explanationVariant+' fresh explanation truth/charge; third source repair denied');
  }
 

@@ -17,6 +17,7 @@ import { WorkError, type Work } from "./types.ts";
 const admissionInputSchema = z.object({
   decisionId: z.string().uuid(),
   expectedWorkVersion: z.number().int().positive(),
+  expectedWorkGeneration: z.number().int().positive().optional(),
   request: routeRequestSchema,
 }).strict();
 
@@ -86,7 +87,8 @@ export class RouteAdmissionService {
         this.workStore.principal.actorId !== this.workStore.principal.scopeId)
       throw new WorkError("route_scope_unqualified", "Current owner authority is required for route admission.", 403);
     const work = await this.workStore.get(id);
-    if (work.version !== input.expectedWorkVersion || work.lifecycle !== "active" || work.control !== "agent")
+    if (work.version !== input.expectedWorkVersion ||
+        (input.expectedWorkGeneration !== undefined && work.generation !== input.expectedWorkGeneration) || work.lifecycle !== "active" || work.control !== "agent")
       throw new WorkError("routing_changed", "Work or control changed. Reload before admitting a route.");
     const proposal = (await new RoutingStore(this.workStore).snapshot(id)).decision;
     if (!proposal || proposal.id !== input.decisionId || proposal.status !== "PROPOSED" ||
@@ -96,6 +98,9 @@ export class RouteAdmissionService {
     // The authority source is supplied by trusted server code, never by the request or proposal.
     const snapshot = authoritySnapshotSchema.parse(await this.authority.read(work));
     const { contract, context, facts } = snapshot;
+    if (snapshot.binding && (input.expectedWorkGeneration === undefined ||
+        input.expectedWorkGeneration !== work.generation || snapshot.binding.workGeneration !== input.expectedWorkGeneration))
+      throw new WorkError("routing_changed", "Native admission requires the current observed Work generation.");
     if (!matchesCurrentWork(work, contract, this.workStore.principal.scopeKind))
       throw new WorkError("route_contract_changed", "The route contract does not match current scoped Work.");
     const now = Date.now();
@@ -123,7 +128,7 @@ export class RouteAdmissionService {
          SELECT w.scope_id,w.scope_kind,w.id,w.version,w.generation
          FROM engineering_work w
          WHERE w.scope_id=$1 AND w.scope_kind=$2 AND w.id=$3
-           AND w.version=$4 AND w.criteria_version=$5
+           AND w.version=$4 AND w.criteria_version=$5 AND w.generation=$28
            AND w.lifecycle='active' AND w.control='agent'
            AND ($25::text IS NULL OR (w.generation=$27 AND EXISTS (SELECT 1 FROM agents a
              WHERE a.owner_id=w.scope_id AND a.id=$25 AND a.status='active' AND a.is_primary=true
@@ -185,7 +190,7 @@ export class RouteAdmissionService {
         admissionReason, facts.routePolicy.id, facts.routePolicy.version, JSON.stringify(input.request),
         JSON.stringify(context), JSON.stringify(authoritySnapshot),
         digest(context), digest(authoritySnapshot), transitionId, runId,
-        snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null,
+        snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null, input.expectedWorkGeneration ?? work.generation,
       ],
     ).catch((error: unknown) => {
       if (error && typeof error==="object" && "message" in error && String(error.message).startsWith("INSUFFICIENT_COMPLETION_BUDGET:"))

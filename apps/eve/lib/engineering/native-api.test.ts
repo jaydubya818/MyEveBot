@@ -9,12 +9,12 @@ beforeEach(()=>{vi.clearAllMocks();vi.stubEnv("MYEVE_ENGINEERING_MODE","dogfood"
 const request=(body:unknown,origin="https://local.example")=>new Request("https://local.example/api/engineering/work/"+id+"/native",{method:"POST",headers:{origin,"content-type":"application/json"},body:JSON.stringify(body)});
 describe("native admission owner boundary",()=>{
   it("requires authenticated same-origin owner input",async()=>{
-    expect((await handleNativeAdmission(request({expectedWorkVersion:2},"https://foreign.example"),id)).status).toBe(403);mocks.principal.mockReturnValue(null);expect((await handleNativeAdmission(request({expectedWorkVersion:2}),id)).status).toBe(401);expect(mocks.admit).not.toHaveBeenCalled();
+    expect((await handleNativeAdmission(request({expectedWorkVersion:2,expectedWorkGeneration:3},"https://foreign.example"),id)).status).toBe(403);mocks.principal.mockReturnValue(null);expect((await handleNativeAdmission(request({expectedWorkVersion:2,expectedWorkGeneration:3}),id)).status).toBe(401);expect(mocks.admit).not.toHaveBeenCalled();
   });
   it("rejects caller-supplied qualification",async()=>{
-    expect((await handleNativeAdmission(request({expectedWorkVersion:2,qualification:{status:"QUALIFIED"}}),id)).status).toBe(400);expect(mocks.admit).not.toHaveBeenCalled();
+    expect((await handleNativeAdmission(request({expectedWorkVersion:2,expectedWorkGeneration:3,qualification:{status:"QUALIFIED"}}),id)).status).toBe(400);expect(mocks.admit).not.toHaveBeenCalled();
   });
   it("passes only scoped Work and expected revision",async()=>{
-    expect((await handleNativeAdmission(request({expectedWorkVersion:2}),id)).status).toBe(200);expect(mocks.admit).toHaveBeenCalledWith(expect.anything(),id,2);
+    expect((await handleNativeAdmission(request({expectedWorkVersion:2,expectedWorkGeneration:3}),id)).status).toBe(200);expect(mocks.admit).toHaveBeenCalledWith(expect.anything(),id,2,3);
   });
 });

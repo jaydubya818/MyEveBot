@@ -146,8 +146,9 @@ try {
   assert.equal(queuedProjection.readiness.ready, false);
   assert.match(queuedProjection.nextStep, /no execution result exists yet/i);
   await assert.rejects(pool.query(
-    `INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,status)
-     VALUES($1,$2,$3,$4,'DIRECT','QUEUED')`,
+    `INSERT INTO engineering_route_runs(id,scope_id,scope_kind,work_id,route,status,provider_id,provider_version,decision_id,work_version,work_generation)
+     SELECT $1,scope_id,scope_kind,work_id,route,status,provider_id,provider_version,decision_id,work_version,work_generation
+     FROM engineering_route_runs WHERE scope_id=$2 AND scope_kind=$3 AND work_id=$4`,
     [randomUUID(), principal.scopeId, principal.scopeKind, work.id],
   ), error => error.code === "23505");
   const [admissionRow] = (await pool.query(

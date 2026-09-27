@@ -1,0 +1,40 @@
+{
+  "baseCommit": "1d73697",
+  "source": {
+    "apps/eve/agent/tools/engineering_direct.ts": "d30efe9a0093e4eff96cbb13d354820b5ee2aa886530023a6aa672c1d8fc1b1a",
+    "apps/eve/components/engineering/work-dashboard.tsx": "0fe8f5fa4d9ebbe3cbb1d6b7c626b8c657abe6675bc3e3ec8c506159ce151ac7",
+    "apps/eve/lib/engineering/conversation-model.ts": "0bc4a137dc2f3849eead1a6d302f90e50600ab0e13c08b5f7d125bc9e86b7906",
+    "apps/eve/lib/engineering/current-truth-lines.ts": "c74ae1d6bf68190bf4c2c7f7640892094b6e16ee994178a86b3f49c673b7efc2",
+    "apps/eve/lib/engineering/native-api.test.ts": "72d8cf2e2a038e90ef0ed4080cd23753a0291aa53f9a1fef13290c3721ce1a99",
+    "apps/eve/lib/engineering/native-api.ts": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e",
+    "apps/eve/lib/engineering/native-input.ts": "ad4ce171a26cfc5969fe6f7cc034ab4049f760e8d7ca31d7d5da81a6625e43e5",
+    "apps/eve/lib/engineering/native-model.ts": "0d68d798aa15fa1a644c27c3793ffa293d98a9e176497cb5221c22520b44e465",
+    "apps/eve/lib/engineering/native-routing.ts": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc",
+    "apps/eve/lib/engineering/route-admission.ts": "c02a740089b1ec44c7ceeec8425acf7598f7b852635498efb83175444f07bdd2",
+    "apps/eve/lib/engineering/worker-projection.ts": "d94a4cb04e4935edd90f644bde7815edecb88fe1425d9c3dcc98a4e1243fca91",
+    "apps/eve/scripts/executor-inventory.json": "fae0f9524388e3f860c01c785ab6f30f993e73f093ab71ca1f843ae979511afa",
+    "apps/eve/test/engineering-conversation.integration.mjs": "0130c611a0eea031a5b331ac8b766e5212acc0e51247fa4ff78d0e1adfdeb7b3",
+    "apps/eve/test/engineering-native-host.integration.mjs": "45b5f75b524afe609ef9e090966dfee773cfba4587f5842674e5f41e11153abc",
+    "apps/eve/test/engineering-native-live.mjs": "c5024ddaa8d41eee550fd4e18df0f9f43e3227ec4b808c93012cef678edc3b20",
+    "apps/eve/test/native-completion-process.mjs": "c0d26d32e2fea6f994469c20c058205106f96e0fe8f173360602142ce1f0c12d",
+    "apps/eve/test/native-completion.integration.mjs": "62c2c2e743848362228ef96fc57b2c688d57526219bb4d1b5762d52fc6da8d6b",
+    "apps/eve/test/route-admission.integration.mjs": "b55033a59e687d7290ee432f9568ff0cf4056cdabf1e047fc90ee7f05b9de134",
+    "apps/eve/test/work-model-ledger.integration.mjs": "edac225d594230bb75bdc9e5d52f66132e65c3573cfc69326fb95b144d9b451d",
+    "apps/eve/lib/engineering/admission-context.integration.test.ts": "e2f171ca72226b58af8389ffa5adeacf47bcc2ca9c2cdf02e3b23dc0f65aa61a"
+  },
+  "evidence": {
+    "REPORT.md": "9c1400369838361d811487f7aadfb5cae0c8767a286c320f08baad3f0ed03cfc",
+    "affected-tests.log": "9e53cbd1b2bd8baf8b3c54e44e55ac3dbe50b044d6d0d0b95629a171c1a6d5da",
+    "authenticated-context-final.log": "be2aad938972b15474064861718aaace94dc48903adef7ee76dcf2279783d85b",
+    "budget-telemetry.json": "3fd13a80c5a09e0d7b06b8c7e1acdae17ec08f531702328bd1045c6fb2bb34e0",
+    "build.log": "2b32be9d9979dd5c6c19de835de8f2f3818ef863f09e67282519a7cae72c10af",
+    "completion-regressions.log": "45b5f807ac5bc9241c09fdbac7156e1b53fad130bbda321ebd65066d170b9bb0",
+    "context-sql.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "historical-preservation.json": "4560cfb131aec9daf16898238feb5419dd04b49f89c0f52238f5fd7dcb64b8e1",
+    "projection-sql.log": "5d8e963f9362085e1967bbe3d22c7c02f13f1e5be0fbfd1055af76f586d68938",
+    "root-tests.log": "306dada3297712c2e142f1847eea7da8c5e2b9c206a10c8a791c157a4e0288be",
+    "route-admission-sql.log": "3334ecd699120e7abd727ea01d58b53c03c73512a8447c2f32b8babeafae2199",
+    "typecheck-governance.log": "315b3fd1f208a4bb8f06a34538224f10bbab9429a0e0c9a4d2208b374a3f9a12",
+    "vitest.log": "770877b714c45393071b35ca28f0c5dc2c9994a6d15477637c724204be2e4e6d"
+  }
+}

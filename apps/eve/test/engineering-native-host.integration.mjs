@@ -63,7 +63,7 @@ try {
     return workStore.change(work.id,{operation:"resume",expectedVersion:work.version});
   }
   const work=await prepare("Native host custody");
-  await assert.rejects(admitNativeWork(workStore,work.id,work.version,authority),/qualified/);
+  await assert.rejects(admitNativeWork(workStore,work.id,work.version,work.generation,authority),/qualified/);
   assert.equal((await new RoutingStore(workStore).snapshot(work.id)).decision,null);
   config.nativeQualification={provider:NATIVE_PROVIDER,modelId:"anthropic/claude-sonnet-5",scopeId:owner,
     profileHash:nativeProfileHash(config),evidenceRef:"fixture-only:synthetic-host-checks",qualifiedAt:new Date(Date.now()-1000).toISOString(),
@@ -76,9 +76,9 @@ try {
   for(const key of ["scope","humanOwnerId","coordinatingAgentId","allowedOperations","resourceRefs","budgetUsd","allowedRoutes","policyVersion"])
     assert.deepEqual(normal.contract[key],potato.contract[key]);
   config.nativeMode="normal";
-  const receipt=await admitNativeWork(workStore,work.id,work.version,authority);
+  const receipt=await admitNativeWork(workStore,work.id,work.version,work.generation,authority);
   assert.equal(receipt.status,"QUEUED");
-  assert.equal((await admitNativeWork(workStore,work.id,work.version,authority)).alreadyAdmitted,true);
+  assert.equal((await admitNativeWork(workStore,work.id,work.version,work.generation,authority)).alreadyAdmitted,true);
   assert.equal((await authority.assertEffect(work.id)).runId,receipt.runId);
   config.nativeQualification.profileHash="f".repeat(64);
   await assert.rejects(authority.assertEffect(work.id),/authority changed/);
@@ -132,7 +132,7 @@ try {
   // model is called: this checks durable host behavior, not provider cancellation.
   for(const settled of [false,true]) {
     const recovering=await prepare(settled?"Retained model process recovery":"Ambiguous model process loss");
-    await admitNativeWork(workStore,recovering.id,recovering.version,authority);
+    await admitNativeWork(workStore,recovering.id,recovering.version,recovering.generation,authority);
     const reservation={...input,workId:recovering.id,stepKey:`native-session:crash:${settled?1:0}`};
     const child=fork(new URL('./native-process-fixture.mjs',import.meta.url),[],{execArgv:['--import','tsx'],stdio:['ignore','ignore','pipe','ipc']});
     try {
@@ -162,11 +162,11 @@ try {
   await pool.query("UPDATE agents SET updated_at=clock_timestamp(),instructions='Changed policy' WHERE id=$1",[agentId]);
   await assert.rejects(authority.assertEffect(work.id),/authority changed/);
   const uncertain=await prepare("Ambiguous model outcome");
-  await admitNativeWork(workStore,uncertain.id,uncertain.version,authority);
+  await admitNativeWork(workStore,uncertain.id,uncertain.version,uncertain.generation,authority);
   const ambiguous={...input,workId:uncertain.id,stepKey:"native-session:turn:3"};
   await budget.reserve(ambiguous);await budget.unknown(ambiguous);
   await assert.rejects(budget.reserve({...ambiguous,stepKey:"native-session:turn:4"}),/denied|unavailable/);
-  const paused=await prepare("Pause fences provider calls");await admitNativeWork(workStore,paused.id,paused.version,authority);
+  const paused=await prepare("Pause fences provider calls");await admitNativeWork(workStore,paused.id,paused.version,paused.generation,authority);
   await workStore.change(paused.id,{operation:"pause",expectedVersion:paused.version});
   await assert.rejects(budget.reserve({...input,workId:paused.id}),/authority changed/);
   const historical=(await new EngineeringWorkerProjectionStore(workStore).get(work.id)).projection.nativeResult;

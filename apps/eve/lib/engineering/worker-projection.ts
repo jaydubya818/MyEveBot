@@ -15,6 +15,7 @@ export interface EngineeringWorkerProjection {
   title: string;
   objective: string;
   workVersion: number;
+  workGeneration: number;
   criteriaVersion: number;
   lifecycle: Work["lifecycle"];
   control: Work["control"];
@@ -99,7 +100,7 @@ function noExecutionNextStep(work: Work) {
   if (work.control === "human") return "Finish your changes, then hand Work back for a fresh admission decision.";
   if (work.control === "stopping") return "Wait for control to stop before changing Work.";
   if (work.control === "paused") return "Review the Work contract, then resume when ready. No execution has started.";
-  return "Execution cannot start until a qualified route and current authority are available.";
+  return "No route is admitted yet. Productive continuation may propose admission with the observed Work version and generation; the admission service must check current policy, qualification, budget and writer state. This observation grants no authority.";
 }
 
 function latestTime(a: string, b: string | undefined) {
@@ -401,6 +402,7 @@ export class EngineeringWorkerProjectionStore {
       title: work.title,
       objective: work.objective,
       workVersion: work.version,
+      workGeneration: work.generation,
       criteriaVersion: work.criteriaVersion,
       lifecycle: work.lifecycle,
       control: work.control,

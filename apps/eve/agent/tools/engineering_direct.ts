@@ -100,7 +100,7 @@ export default defineDynamic({
             async execute(parameters,handle) {
               await consumeActionAuthority(handle,parameters,action.capabilityId);
               await consumeProviderAuthority(handle,parameters,action.capabilityId);
-              if (input.operation==="admit") return admitNativeWork(runtime.store,selected,input.expectedWorkVersion,authority,toolCtx.session.id);
+              if (input.operation==="admit") return admitNativeWork(runtime.store,selected,input.expectedWorkVersion,input.expectedWorkGeneration,authority,toolCtx.session.id);
               await authority.assertEffect(selected);
               if (input.operation==="open") {
                 await service.requireAdmission(selected);

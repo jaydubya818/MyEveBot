@@ -1,9 +1,20 @@
 import type { EngineeringWorkerProjection } from "./worker-projection.ts";
 
+/** Persisted optimistic-concurrency tokens are observations, never execution grants. */
+export function currentWorkMetadata(projection: EngineeringWorkerProjection) {
+  const { workId, workVersion, workGeneration } = projection;
+  if (!workId || !Number.isSafeInteger(workVersion) || workVersion <= 0 ||
+      !Number.isSafeInteger(workGeneration) || workGeneration <= 0)
+    throw new Error("Current Work identity, version and generation are required.");
+  return { workId, expectedWorkVersion: workVersion, expectedWorkGeneration: workGeneration };
+}
+
 /** The same read-only facts are rendered in Work and selected-Work model context. */
 export function currentTruthLines(projection: EngineeringWorkerProjection): string[] {
   const truth=projection.runTruth;
+  const metadata = currentWorkMetadata(projection);
   return [
+    `Work identity: ${JSON.stringify(metadata)}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.`,
     truth.activeRun?`Active Run: ${truth.activeRun.id}; ${truth.activeRun.purpose}; ${truth.activeRun.effectiveStatus}. Fresh checks are required at every action boundary.`:"Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
     truth.latestRun?`Latest Run: ${truth.latestRun.id}; ${truth.latestRun.purpose}; ${truth.latestRun.effectiveStatus}; recorded ${truth.latestRun.storedStatus}; deadline ${truth.latestRun.deadline??"unavailable"}.`
       :truth.runHistory.length?"Latest Run: ordering unavailable; inspect retained Run history.":"Latest Run: none recorded.",

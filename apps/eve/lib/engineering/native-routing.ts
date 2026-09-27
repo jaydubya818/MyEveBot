@@ -1,3 +1,4 @@
+import { nativeDevelopmentInputSchema } from "./native-input.ts";
 import { prepareNativeCompletion } from "./native-completion.ts";
 import { nativeBehavior } from "./native-behavior.ts";
 import { digitalWorkContractSchema, contextPackageSchema, type RoutingProfile } from "../digital-worker/contracts.ts";
@@ -125,9 +126,10 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
   }
 }
 
-export async function admitNativeWork(store: WorkStore, id: string, expectedVersion: number, authority = new NativeRouteAuthority(store), sessionId?: string) {
+export async function admitNativeWork(store: WorkStore, id: string, expectedVersion: number, expectedGeneration: number, authority = new NativeRouteAuthority(store), sessionId?: string) {
+  nativeDevelopmentInputSchema.parse({operation:"admit",expectedWorkVersion:expectedVersion,expectedWorkGeneration:expectedGeneration});
   const work = await store.get(id);
-  if (work.version !== expectedVersion) throw new WorkError("routing_changed", "Reload the current Work before admission.");
+  if (work.version !== expectedVersion || work.generation !== expectedGeneration) throw new WorkError("routing_changed", "Reload the current Work before admission.");
   const routingStore = new RoutingStore(store);
   const existing = (await routingStore.snapshot(id)).decision;
   if (existing?.status === "ADMITTED") {
@@ -146,5 +148,5 @@ export async function admitNativeWork(store: WorkStore, id: string, expectedVers
     providerId: NATIVE_PROVIDER.id, providerVersion: String(NATIVE_PROVIDER.version),
   });
   const completion=sessionId ? await prepareNativeCompletion(store,authority,id,sessionId) : undefined;
-  return new RouteAdmissionService(store, authority).admit(id, { decisionId: proposal.id, expectedWorkVersion: work.version, request: assessment.request },completion);
+  return new RouteAdmissionService(store, authority).admit(id, { decisionId: proposal.id, expectedWorkVersion: expectedVersion, expectedWorkGeneration: expectedGeneration, request: assessment.request },completion);
 }

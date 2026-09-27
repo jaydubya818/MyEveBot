@@ -67,7 +67,7 @@ try {
   const store=new WorkStore({scopeId:owner,scopeKind:"personal",actorId:owner},database);
   const {work:created}=await store.create({title:"Synthetic native parser live test",objective:config.objective,repository:profile.repository,criteria:config.criteria,maxCostUsd:remainingBudget,maxDurationSeconds:1800,idempotencyKey:randomUUID()});
   const work=await store.change(created.id,{operation:"resume",expectedVersion:created.version});report.workId=work.id;
-  const authority=new NativeRouteAuthority(store,async()=>runtimeSchema.parse(config));await admitNativeWork(store,work.id,work.version,authority);
+  const authority=new NativeRouteAuthority(store,async()=>runtimeSchema.parse(config));await admitNativeWork(store,work.id,work.version,work.generation,authority);
   const direct=new DirectDevelopmentStore(store,{...config,issueNumber:1,assertCurrentAuthority:id=>authority.assertEffect(id)});
   const driver=new DirectVerificationDriver(direct,new DockerProtectedVerifier());
   const budget=new NativeModelBudget(store,authority);

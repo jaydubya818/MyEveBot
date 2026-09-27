@@ -204,11 +204,11 @@ export function WorkDashboard() {
   }
   async function admitNative() {
     if (!detail) return;
-    const id=detail.work.id, expectedWorkVersion=detail.work.version;
+    const id=detail.work.id, expectedWorkVersion=detail.work.version, expectedWorkGeneration=detail.work.generation;
     const version=++selection.current;
     setBusy(true);setError("");setNotice("");setDetailStale(true);
     try {
-      await api(`/${id}/native`, {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({expectedWorkVersion})});
+      await api(`/${id}/native`, {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({expectedWorkVersion,expectedWorkGeneration})});
       const updated=await api(`/${id}`);
       if (selection.current===version) {
         setDetail(updated);setDetailStale(false);
