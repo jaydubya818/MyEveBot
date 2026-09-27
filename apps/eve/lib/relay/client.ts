@@ -89,6 +89,12 @@ export class RelayClient {
   owner(command: unknown) {
     return this.request("/api/v2/operator/federation", command, true);
   }
+  delegatedOwner(command: unknown) {
+    return this.request("/api/v2/operator/federation", command);
+  }
+  revokeDelegation() {
+    return this.request("/api/v2/operator/message-delegations", undefined, false, "DELETE");
+  }
 }
 export async function connectRelayOwner(email: string, password: string) {
   const origin = relayOrigin();

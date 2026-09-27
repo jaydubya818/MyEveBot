@@ -10,9 +10,9 @@ import {
   viewSchema,
   recordSchema,
 } from "./contracts.ts";
-import { connectRelayOwner, RelayClient, relayOrigin } from "./client.ts";
+import { connectRelayOwner, RelayClient, RelayOperationError, relayOrigin } from "./client.ts";
 import { FederationStore } from "./store.ts";
-import { digest, encryptSecret } from "./transport.ts";
+import { decryptSecret, digest, encryptSecret } from "./transport.ts";
 
 const selectionSchema = z
   .object({
@@ -356,10 +356,10 @@ export async function grantPeer(store: FederationStore, value: unknown) {
   const grant = grantSchema.parse(value);
   if (grant.grantorAgentId !== connection.agentId)
     throw new Error("Grant must be scoped to your connected Agent.");
-  const result = await new RelayClient(
-    connection.credential,
-    connection.ownerSession,
-  ).owner({ operation: "grant", input: grant });
+  const delegation = await messageDelegation(store, connection, grant);
+  const result = delegation
+    ? await new RelayClient(delegation).delegatedOwner({ operation: "grant", input: grant })
+    : await new RelayClient(connection.credential, connection.ownerSession).owner({ operation: "grant", input: grant });
   await store.database.query(
     "INSERT INTO myeve_relay_grants(id,owner_id,document) VALUES($1,$2,$3::jsonb)",
     [result.grantId, store.ownerId, JSON.stringify(grant)],
@@ -369,18 +369,55 @@ export async function grantPeer(store: FederationStore, value: unknown) {
 export async function revokeGrant(store: FederationStore, id: string) {
   const connection = await store.connection();
   const [grant] = await store.database.query(
-    "SELECT id FROM myeve_relay_grants WHERE owner_id=$1 AND id=$2",
+    "SELECT id,document FROM myeve_relay_grants WHERE owner_id=$1 AND id=$2",
     [store.ownerId, id],
   );
   if (!grant) throw new Error("Grant not found.");
-  await new RelayClient(connection.credential, connection.ownerSession).owner({
-    operation: "revoke-grant",
-    id,
-  });
+  const delegation = await savedMessageDelegation(store, connection, grantSchema.parse(grant.document));
+  if (delegation)
+    await new RelayClient(delegation).delegatedOwner({ operation: "revoke-grant", id });
+  else
+    await new RelayClient(connection.credential, connection.ownerSession).owner({ operation: "revoke-grant", id });
   await store.database.query(
     "UPDATE myeve_relay_grants SET status='revoked' WHERE owner_id=$1 AND id=$2",
     [store.ownerId, id],
   );
+}
+
+async function savedMessageDelegation(store: FederationStore, connection: Awaited<ReturnType<FederationStore["connection"]>>, grant: z.infer<typeof grantSchema>) {
+  if (grant.capability !== "message.send" || !grant.granteeAgentId || !grant.conditions.expiresAt ||
+      grant.resource !== connection.address || grant.grantorAgentId !== connection.agentId ||
+      grant.conditions.rateLimit.calls > 20 || grant.conditions.rateLimit.windowSeconds < 3600) return null;
+  const [row] = await store.database.query(
+    "SELECT credential_encrypted,expires_at FROM myeve_relay_message_delegations WHERE owner_id=$1 AND agent_id=$2 AND grantee_owner_id=$3 AND grantee_agent_id=$4 AND expires_at>now()",
+    [store.ownerId, connection.agentId, grant.granteeOwnerId, grant.granteeAgentId],
+  );
+  if (!row || Date.parse(String(row.expires_at)) < Date.parse(grant.conditions.expiresAt)) return null;
+  return decryptSecret<string>(store.ownerId, row.credential_encrypted);
+}
+
+async function messageDelegation(store: FederationStore, connection: Awaited<ReturnType<FederationStore["connection"]>>, grant: z.infer<typeof grantSchema>) {
+  if (grant.capability !== "message.send" || !grant.granteeAgentId || !grant.conditions.expiresAt ||
+      grant.resource !== connection.address || grant.grantorAgentId !== connection.agentId ||
+      grant.conditions.rateLimit.calls > 20 || grant.conditions.rateLimit.windowSeconds < 3600) return null;
+  const saved = await savedMessageDelegation(store, connection, grant);
+  if (saved) return saved;
+  const issued = z.object({ delegationId: z.string(), credential: z.string(), expiresAt: z.string().datetime({ offset: true }) }).parse(
+    await new RelayClient("", connection.ownerSession).request(
+      "/api/v2/operator/message-delegations",
+      { agentId: connection.agentId, granteeOwnerId: grant.granteeOwnerId, granteeAgentId: grant.granteeAgentId },
+      true,
+    ),
+  );
+  if (Date.parse(grant.conditions.expiresAt) > Date.parse(issued.expiresAt))
+    throw new Error("Choose a message grant expiry within seven days and retry.");
+  await store.database.query(
+    `INSERT INTO myeve_relay_message_delegations(owner_id,agent_id,grantee_owner_id,grantee_agent_id,relay_delegation_id,credential_encrypted,expires_at)
+     VALUES($1,$2,$3,$4,$5,$6,$7) ON CONFLICT(owner_id,agent_id,grantee_owner_id,grantee_agent_id)
+     DO UPDATE SET relay_delegation_id=EXCLUDED.relay_delegation_id,credential_encrypted=EXCLUDED.credential_encrypted,expires_at=EXCLUDED.expires_at`,
+    [store.ownerId, connection.agentId, grant.granteeOwnerId, grant.granteeAgentId, issued.delegationId, encryptSecret(store.ownerId, issued.credential), issued.expiresAt],
+  );
+  return issued.credential;
 }
 export async function rotateOrRevoke(store: FederationStore, revoke = false) {
   const connection = await store.connection();
@@ -393,6 +430,7 @@ export async function rotateOrRevoke(store: FederationStore, revoke = false) {
       "UPDATE myeve_relay_connections SET status='paused' WHERE owner_id=$1",
       [store.ownerId],
     );
+    await revokeSavedDelegations(store);
     await client.request(
       `/api/agents/${encodeURIComponent(connection.agentId)}/credentials`,
       {},
@@ -420,4 +458,60 @@ export async function rotateOrRevoke(store: FederationStore, revoke = false) {
     { address: connection.address },
   );
   return { address: connection.address };
+}
+
+/** Fence local access first, then retire the exact Relay identity for owner-authorized deletion. */
+export async function retireOwnerConnection(store: FederationStore) {
+  const [row] = await store.database.query(
+    "SELECT relay_owner_id,relay_agent_id,address,status,owner_session_encrypted FROM myeve_relay_connections WHERE owner_id=$1",
+    [store.ownerId],
+  );
+  if (!row) return { connected: false, retired: true };
+  if (row.status === "revoked") return { connected: true, retired: true, address: row.address };
+  if (row.status !== "active" && row.status !== "paused") throw new Error("Relay connection is not in a retireable state.");
+  await store.database.query(
+    "UPDATE myeve_relay_connections SET status='paused',updated_at=now() WHERE owner_id=$1 AND status='active'",
+    [store.ownerId],
+  );
+  const client = new RelayClient("", decryptSecret(store.ownerId, row.owner_session_encrypted));
+  const grants = await store.database.query(
+    "SELECT id FROM myeve_relay_grants WHERE owner_id=$1 AND status<>'revoked' ORDER BY id",
+    [store.ownerId],
+  );
+  for (const grant of grants) {
+    await client.owner({ operation: "revoke-grant", id: grant.id });
+    await store.database.query(
+      "UPDATE myeve_relay_grants SET status='revoked' WHERE owner_id=$1 AND id=$2",
+      [store.ownerId, grant.id],
+    );
+  }
+  await revokeSavedDelegations(store);
+  await client.request(`/api/agents/${encodeURIComponent(row.relay_agent_id)}`,
+    { status: "DISABLED" }, true, "PATCH");
+  await client.request(`/api/agents/${encodeURIComponent(row.relay_agent_id)}/credentials`,
+    {}, true, "DELETE");
+  await store.database.query(
+    "UPDATE myeve_relay_connections SET status='revoked',agent_credential_encrypted='',owner_session_encrypted='',updated_at=now() WHERE owner_id=$1 AND relay_owner_id=$2 AND relay_agent_id=$3",
+    [store.ownerId, row.relay_owner_id, row.relay_agent_id],
+  );
+  await store.activity("agent-retired", null, { address: row.address });
+  return { connected: true, retired: true, address: row.address };
+}
+
+async function revokeSavedDelegations(store: FederationStore) {
+  const rows = await store.database.query(
+    "SELECT credential_encrypted,expires_at FROM myeve_relay_message_delegations WHERE owner_id=$1",
+    [store.ownerId],
+  );
+  for (const row of rows) {
+    if (Date.parse(String(row.expires_at)) > Date.now()) {
+      try {
+        await new RelayClient(decryptSecret<string>(store.ownerId, row.credential_encrypted)).revokeDelegation();
+      } catch (error) {
+        // Relay's 401 means the credential is already expired or revoked.
+        if (!(error instanceof RelayOperationError && error.status === 401)) throw error;
+      }
+    }
+  }
+  await store.database.query("DELETE FROM myeve_relay_message_delegations WHERE owner_id=$1", [store.ownerId]);
 }

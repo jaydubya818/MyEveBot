@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { DeployFile } from "./assemble";
 
 // Minimal typed client for the slice of the Vercel REST API the deploy
@@ -24,7 +25,7 @@ export class VercelApiError extends Error {
 interface RequestOptions {
   token: string;
   teamId?: string | null;
-  method?: "GET" | "POST" | "DELETE";
+  method?: "GET" | "POST" | "PATCH" | "DELETE";
   body?: unknown;
   stage: DeployStage;
 }
@@ -90,13 +91,25 @@ export async function createProject(
   token: string,
   teamId: string | null,
   name: string,
+  managedEnvironmentId?: string,
 ): Promise<CreatedProject> {
   try {
     const project = await api<{ id: string; name: string }>("/v11/projects", {
       token,
       teamId,
       method: "POST",
-      body: { name, framework: "nextjs" },
+      body: {
+        name,
+        framework: "nextjs",
+        ...(managedEnvironmentId ? {
+          environmentVariables: [{
+            key: "MYEVE_MANAGED_ENVIRONMENT_ID",
+            value: managedEnvironmentId,
+            type: "plain",
+            target: ["production", "preview", "development"],
+          }],
+        } : {}),
+      },
       stage: "project",
     });
     return { id: project.id, name: project.name, existed: false };
@@ -111,6 +124,29 @@ export async function createProject(
     }
     throw error;
   }
+}
+
+/** Production aliases remain public; generated deployment and preview URLs require Vercel auth. */
+export async function setStandardProtection(token: string, teamId: string | null, projectId: string): Promise<void> {
+  const project = await api<{ ssoProtection?: { deploymentType?: string } }>(
+    `/v9/projects/${encodeURIComponent(projectId)}`,
+    {
+      token, teamId, method: "PATCH", stage: "project",
+      body: { ssoProtection: { deploymentType: "prod_deployment_urls_and_all_previews" } },
+    },
+  );
+  if (project.ssoProtection?.deploymentType !== "prod_deployment_urls_and_all_previews") {
+    throw new VercelApiError("project", "Vercel did not confirm Standard Protection.");
+  }
+}
+
+/** Pausing one project fences its production deployment without affecting other Eves. */
+export async function setProjectPaused(
+  token: string, teamId: string, projectId: string, paused: boolean,
+): Promise<void> {
+  await api(`/v1/projects/${encodeURIComponent(projectId)}/${paused ? "pause" : "unpause"}`, {
+    token, teamId, method: "POST", stage: "project",
+  });
 }
 
 export interface StorageStore {
@@ -257,6 +293,20 @@ export async function listProjectEnvKeys(
   return (body.envs ?? []).map((entry) => entry.key);
 }
 
+/** Non-secret project-creation marker used to recover after a CLI interruption. */
+export async function managedProjectMarker(
+  token: string,
+  teamId: string | null,
+  projectId: string,
+): Promise<string | null> {
+  const body = await api<{ envs?: { key: string; value?: unknown }[] }>(
+    `/v10/projects/${encodeURIComponent(projectId)}/env`,
+    { token, teamId, stage: "project" },
+  );
+  const marker = body.envs?.find((entry) => entry.key === "MYEVE_MANAGED_ENVIRONMENT_ID");
+  return typeof marker?.value === "string" ? marker.value : null;
+}
+
 export function assertRequiredProjectEnvKeys(
   actualKeys: readonly string[],
   requiredKeys: readonly string[],
@@ -303,12 +353,46 @@ export interface CreatedDeployment {
   readyState: string;
 }
 
+async function uploadDeploymentFile(token: string, teamId: string | null, file: DeployFile): Promise<{
+  file: string; sha: string; size: number;
+}> {
+  const contents = Buffer.from(file.data, "base64");
+  const sha = createHash("sha1").update(contents).digest("hex");
+  const url = new URL(`${API}/v2/files`);
+  if (teamId) url.searchParams.set("teamId", teamId);
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/octet-stream",
+      "Content-Length": String(contents.length),
+      "x-vercel-digest": sha,
+    },
+    body: contents,
+  });
+  if (!response.ok) {
+    throw new VercelApiError("deploy", `Vercel file upload failed (${response.status}).`, response.status);
+  }
+  return { file: file.file, sha, size: contents.length };
+}
+
 export async function createDeployment(
   token: string,
   teamId: string | null,
   projectName: string,
   files: DeployFile[],
 ): Promise<CreatedDeployment> {
+  // Vercel caps a deployment-creation JSON request at 10 MB. Upload the
+  // largest files by digest first, leaving room for metadata and API growth.
+  const deploymentFiles: (DeployFile | { file: string; sha: string; size: number })[] = [...files];
+  let requestBytes = Buffer.byteLength(JSON.stringify(deploymentFiles));
+  for (const file of [...files].sort((a, b) => b.data.length - a.data.length)) {
+    if (requestBytes < 8_000_000) break;
+    const index = deploymentFiles.findIndex((item) => item.file === file.file);
+    const reference = await uploadDeploymentFile(token, teamId, file);
+    deploymentFiles[index] = reference;
+    requestBytes -= Buffer.byteLength(JSON.stringify(file)) - Buffer.byteLength(JSON.stringify(reference));
+  }
   const deployment = await api<{
     id: string;
     url: string;
@@ -324,7 +408,7 @@ export async function createDeployment(
       name: projectName,
       project: projectName,
       target: "production",
-      files,
+      files: deploymentFiles,
       projectSettings: { framework: "nextjs" },
     },
     stage: "deploy",
@@ -402,6 +486,13 @@ export async function getProject(
     if (error instanceof VercelApiError && error.status === 404) return null;
     throw error;
   }
+}
+
+/** Delete only after the caller verifies the exact managed project marker. */
+export async function deleteProject(token: string, teamId: string, projectId: string): Promise<void> {
+  await api(`/v9/projects/${encodeURIComponent(projectId)}`, {
+    token, teamId, method: "DELETE", stage: "project",
+  });
 }
 
 /** The most recent READY production deployment of a project, or null. */

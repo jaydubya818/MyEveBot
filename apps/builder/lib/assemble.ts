@@ -195,16 +195,33 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
     } else if (!input.features.includes("browser") && relative === "lib/computer-runtime-config.ts") {
       data = Buffer.from("export const COMPUTER_RUNTIME_ENABLED = false;\n");
     } else if (!input.features.includes("browser") && relative === "lib/computer-sandbox-backend.ts") {
-      // Keep an explicit deny backend: deleting the root definition enables Eve's default backend.
-      data = Buffer.from(`import type { SandboxBackend } from "eve/sandbox";
+      // Keep a type-compatible, explicit deny provider. Removing the root
+      // definition would let Eve select its default sandbox provider.
+      data = Buffer.from(`import { defineSandboxProvider } from "eve/sandbox/provider";
+import type { SandboxSession, SandboxNetworkPolicy } from "eve/sandbox";
 export class ComputerSandboxAuthorityRequired extends Error {}
 export async function bindPreparedComputer(..._args: unknown[]): Promise<never> { throw new Error("Computer is disabled in this deployment."); }
 export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new Error("Computer is disabled in this deployment."); }
-export const computerSandboxBackend: SandboxBackend = {
+export interface ComputerSandboxSession extends SandboxSession {
+  readonly id: string;
+  setNetworkPolicy(policy: SandboxNetworkPolicy): Promise<void>;
+}
+export const computerSandboxBackend = {
   name: "myeve-computer-disabled",
   async prewarm() { return { reused: false }; },
   async create() { throw new Error("Computer is disabled in this deployment."); },
 };
+export const ComputerSandbox = defineSandboxProvider<undefined, { networkPolicy?: SandboxNetworkPolicy }, { files: [] }, { lifecycleId: string }, ComputerSandboxSession>({
+  name: "myeve-computer-disabled",
+  environment() {
+    return {
+      async prepare() { return { files: [] as [] }; },
+      async start() { throw new ComputerSandboxAuthorityRequired(); },
+      async resume() { throw new ComputerSandboxAuthorityRequired(); },
+    };
+  },
+});
+export const computerEnvironment = ComputerSandbox.environment();
 `);
     } else if (!input.features.includes("browser") && relative === "lib/computer-resource-provider.ts") {
       data = Buffer.from(`import type { ComputerLifecycleProvider } from "./action-gateway.ts";

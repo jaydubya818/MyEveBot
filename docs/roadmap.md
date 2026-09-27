@@ -17,6 +17,10 @@ This is the canonical product roadmap as of 2026-09-18. Completed work is record
 
 ## P1 — Make MyEve genuinely useful
 
+### First external beta — managed Eve (product-owner priority, 2026-09-26)
+
+- Work order 031: operator-managed, isolated Eve per tester, with provisioning, upgrade, monitoring, spend controls, export, and deletion. BYO Vercel remains advanced. The existing Builder is not the first-beta onboarding route. This explicit release priority precedes broader P1 work until the first isolated hosted owner passes acceptance.
+
 ### 1. Data ownership and recovery — active
 
 - Work order 017: canonical ownership registry, provider-neutral backup contract, human-readable export, SHA-256 verification, deterministic completeness/portability status, file/reference inventory, safe connected-app metadata, retention visibility, and audit history.
