@@ -137,7 +137,7 @@ describe("durable Memory during semantic provider failure", () => {
         row = memoryRow({ id: String(args[0]), ownerId: String(args[1]), scopeType: String(args[2]), scopeId: String(args[3]), content: String(args[4]), provider: "local" });
         return [row];
       }
-      if (sql.includes("provider='supermemory_unknown'")) { row = { ...row!, provider: "supermemory_unknown" }; return []; }
+      if (sql.includes("provider='supermemory_unknown'")) { row = { ...row!, provider: "supermemory_unknown" }; return [{id: row.id}]; }
       if (sql.includes("SELECT * FROM memory_records")) return row ? [row] : [];
       return [];
     });
@@ -201,7 +201,7 @@ describe("durable Memory during semantic provider failure", () => {
         row = memoryRow({ id: String(args[0]), ownerId: String(args[1]), scopeType: String(args[2]), scopeId: String(args[3]), content: String(args[4]), provider: "local" });
         return [row];
       }
-      if (sql.includes("provider='supermemory_unknown'")) { row = { ...row!, provider: "supermemory_unknown" }; return []; }
+      if (sql.includes("provider='supermemory_unknown'")) { row = { ...row!, provider: "supermemory_unknown" }; return [{id: row.id}]; }
       if (sql.includes("SELECT * FROM memory_records") || sql.includes("SELECT provider,provider_id")) return row ? [row] : [];
       return [];
     });
@@ -216,6 +216,24 @@ describe("durable Memory during semantic provider failure", () => {
     await expect(memoryStore.correctForOwner(context.ownerId, saved.id, "Corrected decision")).rejects.toThrow(/remote state is unknown/);
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(mocks.query.mock.calls.some(([sql]) => String(sql).includes("status='deleted'"))).toBe(false);
+  });
+
+  it("never queries or uploads a different owner's private memory to the deployment container", async () => {
+    const otherContext = { ownerId: "other-container-owner", agentId: "agent_private" };
+    mocks.query.mockImplementation(async (sql: string, args: unknown[]) => {
+      if (sql.includes("INSERT INTO memory_records")) return [memoryRow({ id: String(args[0]), ownerId: otherContext.ownerId, scopeType: "owner", scopeId: otherContext.ownerId, content: String(args[4]), provider: "local" })];
+      return [];
+    });
+    const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
+    const result = await memoryStore.add("Private to the other owner", { context: otherContext, scope: { type: "owner", id: otherContext.ownerId } });
+    await memoryStore.search("Private", otherContext);
+    expect(result.syncState).toBe("local_only"); expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects secret-shaped content before persistence or provider calls", async () => {
+    const fetch = vi.fn(); vi.stubGlobal("fetch", fetch);
+    await expect(memoryStore.add("api_key=fixture-secret", { context, scope: ownerScope })).rejects.toThrow(/Secret/);
+    expect(mocks.query).not.toHaveBeenCalled(); expect(fetch).not.toHaveBeenCalled();
   });
 
   it("corrects local-only memory atomically without contacting the semantic provider", async () => {
@@ -237,7 +255,7 @@ describe("durable Memory during semantic provider failure", () => {
     expect(retired).toBe(true);
     expect(fetch).not.toHaveBeenCalled();
     const mutation = mocks.query.mock.calls.find(([sql]) => String(sql).includes("WITH retired AS"));
-    expect(mutation?.[0]).toContain("UPDATE memory_records SET status='deleted'");
+    expect(mutation?.[0]).toContain("UPDATE memory_records SET status='archived'");
     expect(mutation?.[0]).toContain("INSERT INTO memory_records");
   });
 });

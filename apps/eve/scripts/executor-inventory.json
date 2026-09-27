@@ -417,8 +417,8 @@
     },
     "agent/lib/memory-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Scoped Memory helper reached through owner-authenticated routes or the remember Action Gateway adapter; local rows remain available during provider failure, uncertain remote writes stay marked, and remote deletion requires verification.",
-      "sha256": "0c131f4069019d6d770c7624773164400e8e5d80ebc853d211b51855cd6957b2"
+      "reason": "Canonical owner/scope-filtered Memory storage; exact duplicate identities, local archive/replace correction and bounded reads. Remote deletion remains verified. No new authority consumers; existing remember Action Gateway caller unchanged. PostgreSQL concurrency, replay and isolation qualification in test/total-recall.integration.mjs.",
+      "sha256": "20f11e6538c0ed0f3b1fcf77ad63ee4c71cb99d6e339ca42328aa38aad87ec04"
     },
     "agent/lib/memory-tool-context.ts": {
       "classification": "INTERNAL",
@@ -567,8 +567,8 @@
     },
     "agent/schedules/memory-consolidation.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dce3b0aca2d1083de4fe04488cf3b7cceb5f8275481ec401370f63b3c6eb069d"
+      "reason": "Review-only nightly Memory instructions preserve conflicting observations and source history; no autonomous promotion, recency-based truth replacement or new tool authority.",
+      "sha256": "3ddc9ac2902a6845ab8fa843460e65b0c346ed39e1f6a273f6b945195a0bf3e5"
     },
     "agent/schedules/operations-monitor.ts": {
       "classification": "INTERNAL",
@@ -3309,6 +3309,26 @@
       "classification": "ENFORCED",
       "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant.",
       "sha256": "7a01cfebe33c28e4507c60fa8d3797fa53ebe15d5f3c24a6fd8028a4481842ca"
+    },
+    "lib/total-recall/learning.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure closed-vocabulary advisory learning, strict feedback schemas, secret exclusion, code-owned deterministic fixtures and version transitions. Evidence prose never becomes model instructions, Skills, policy, grants or execution parameters.",
+      "sha256": "1a79e4093024b334bced0b58c33abe3ed1d769fcd369efa9b760fb34b1e65554"
+    },
+    "lib/total-recall/store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-authenticated personal Work feedback and revision-CAS learning history; scoped promoted-only retrieval with usage receipts. No action, routing, writer, credential, approval, budget or publication writes. Proposed schema remains outside migration chain pending shared ownership integration.",
+      "sha256": "291e085721903f61f638198dbfd78eaf899908fa330dbc06734ffa86b1a0c0c1"
+    },
+    "lib/total-recall/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reuses authenticated same-origin Engineering owner principal; strict bounded bodies; server-run evaluation only; exact hash/revision owner decisions. Disabled except explicit local qualification and denied on hosted production. No model-callable promotion path.",
+      "sha256": "c5f6108721b7306123b9dd05e630568392a2eef889268e7700727f2d8c0adb6c"
+    },
+    "app/api/learning/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Thin Learning review route delegates GET/POST to authenticated same-origin, qualification-only handler; no independent execution or authority path.",
+      "sha256": "762bec2a570c42a57e7395dd2641eb7fd3b031f1eff0f1e830e0cb2de91bbd40"
     }
   }
 }

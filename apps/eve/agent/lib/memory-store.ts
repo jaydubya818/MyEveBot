@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 
 import { db } from "./receipts-db.ts";
 import {
@@ -10,6 +10,7 @@ import {
   type MemoryScope,
   type ScopedMemoryCandidate,
 } from "../../lib/memory-scopes.ts";
+import { assertNoSecrets } from "../../lib/total-recall/learning.ts";
 import { ownerName } from "./owner.ts";
 
 const API_BASE = "https://api.supermemory.ai";
@@ -33,6 +34,8 @@ export interface MemoryEntry {
   scope: MemoryScope;
   permanent: boolean;
   confidence: number;
+  truthState: "current" | "historical";
+  origin: "owner_correction" | "observation";
   sourceType: string;
   sourceId: string | null;
   updatedAt: string | null;
@@ -157,6 +160,9 @@ const semanticMemory = {
 
 type Row = Record<string, unknown>;
 const importedOwners = new Set<string>();
+function stableMemoryId(parts: string[]): string {
+  return `memory_${createHash("sha256").update(JSON.stringify(parts)).digest("hex")}`;
+}
 function text(value: unknown): string { return typeof value === "string" ? value : String(value ?? ""); }
 function nullableText(value: unknown): string | null { return value == null ? null : text(value); }
 function iso(value: unknown): string | null { return value instanceof Date ? value.toISOString() : nullableText(value); }
@@ -167,7 +173,9 @@ function rowEntry(row: Row, retrievalSource: MemoryEntry["retrievalSource"] = "l
     : providerId ? "synced" : text(row.provider) === "local" ? "local_only" : "remote_unknown";
   return {
     id: text(row.id), content: text(row.content), scope: { type: text(row.scope_type) as MemoryScope["type"], id: text(row.scope_id) },
-    permanent: row.permanent === true, confidence: Number(row.confidence), sourceType: text(row.source_type),
+    permanent: row.permanent === true, confidence: Number(row.confidence),
+    truthState: row.status === "active" ? "current" : "historical",
+    origin: row.source_type === "owner_correction" ? "owner_correction" : "observation", sourceType: text(row.source_type),
     sourceId: nullableText(row.source_id), updatedAt: iso(row.updated_at), lastConfirmedAt: iso(row.last_confirmed_at),
     syncState, retrievalSource, degraded: !providerAvailable || retrievalSource === "local_fallback" || syncState !== "synced",
   };
@@ -175,6 +183,10 @@ function rowEntry(row: Row, retrievalSource: MemoryEntry["retrievalSource"] = "l
 
 /** A provider read failure must not turn a local read or write into an outage. */
 async function tryImportLegacyOwnerMemories(ownerId: string): Promise<boolean> {
+  const configuredOwnerId = process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim();
+  // One configured semantic container belongs to one deployment owner. Other
+  // principals keep their memory local; neither queries nor writes cross it.
+  if (!configuredOwnerId || configuredOwnerId !== ownerId) return false;
   try {
     await importLegacyOwnerMemories(ownerId);
     return true;
@@ -205,9 +217,7 @@ async function importLegacyOwnerMemories(ownerId: string): Promise<void> {
     return;
   }
   const configuredOwnerId = process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim();
-  if (configuredOwnerId && configuredOwnerId !== ownerId) {
-    await db().query(`INSERT INTO memory_scope_migrations (owner_id) VALUES ($1) ON CONFLICT DO NOTHING`, [ownerId]);
-    importedOwners.add(ownerId);
+  if (!configuredOwnerId || configuredOwnerId !== ownerId) {
     return;
   }
   const entries = await semanticMemory.list();
@@ -252,21 +262,35 @@ export const memoryStore = {
     await assertOwnedScope(options.context, options.scope);
     const clean = content.replaceAll("\0", "").trim();
     if (!clean || clean.length > 4000) throw new Error("Memory must be between 1 and 4,000 characters.");
+    assertNoSecrets(clean);
     const providerAvailable = await tryImportLegacyOwnerMemories(options.context.ownerId);
     const confidence = Math.max(0, Math.min(1, options.confidence ?? 1));
-    const id = `memory_${randomUUID()}`;
+    // Exact duplicates share identity within a scope. A retired fact cannot be
+    // resurrected by replaying an old observation after an owner correction.
+    const id = stableMemoryId([options.context.ownerId, options.scope.type, options.scope.id, clean]);
     const [local] = await db().query(
       `INSERT INTO memory_records (id,owner_id,scope_type,scope_id,content,provider,source_type,source_id,confidence,permanent,status,last_confirmed_at)
-       VALUES ($1,$2,$3,$4,$5,'local',$6,$7,$8,$9,'active',now()) RETURNING *`,
+       VALUES ($1,$2,$3,$4,$5,'local',$6,$7,$8,$9,'active',now())
+       ON CONFLICT (id) DO UPDATE SET last_confirmed_at=now()
+       WHERE memory_records.owner_id=$2 AND memory_records.status='active'
+       RETURNING *`,
       [id, options.context.ownerId, options.scope.type, options.scope.id, clean, options.sourceType ?? "explicit", options.sourceId ?? null, confidence, options.permanent ?? false],
     ) as Row[];
+    if (!local) throw new Error("This memory was retired. Review its correction instead of restoring it.");
+    // A repeated observation must not create a second remote write. Claim the
+    // local-only row atomically before the external side effect below.
     // A previous legacy import may have succeeded while the key was present.
     // If it has since been removed, this write cannot have reached Supermemory.
     if (!providerAvailable || !process.env.SUPERMEMORY_API_KEY?.trim()) return rowEntry(local, "local", false);
 
     // Persist uncertainty before an external write. If the response is lost,
     // deletion and correction must not assume the remote copy is absent.
-    await db().query(`UPDATE memory_records SET provider='supermemory_unknown',updated_at=now() WHERE owner_id=$1 AND id=$2`, [options.context.ownerId, id]);
+    const [claimed] = await db().query(`UPDATE memory_records SET provider='supermemory_unknown',updated_at=now()
+      WHERE owner_id=$1 AND id=$2 AND provider='local' AND status='active' RETURNING id`, [options.context.ownerId, id]);
+    if (!claimed) {
+      const [existing] = await db().query(`SELECT * FROM memory_records WHERE owner_id=$1 AND id=$2`, [options.context.ownerId, id]);
+      return rowEntry(existing);
+    }
     let providerId: string;
     try {
       providerId = await semanticMemory.add(clean, options.permanent ?? false);
@@ -328,7 +352,7 @@ export const memoryStore = {
         : undefined;
       return [text(row.id), rowEntry(row, match ? "semantic" : "local_fallback", searchAvailable)] as const;
     }));
-    return ranked.map((candidate) => byId.get(candidate.id)!).filter(Boolean);
+    return ranked.slice(0, 20).map((candidate) => byId.get(candidate.id)!).filter(Boolean);
   },
 
   async list(context: MemoryAccessContext): Promise<MemoryEntry[]> {
@@ -395,13 +419,14 @@ export const memoryStore = {
     if (remoteStateUnknown(current)) throw new Error("Memory remote state is unknown; correction requires owner reconciliation.");
     const clean = content.replaceAll("\0", "").trim();
     if (!clean || clean.length > 4000) throw new Error("Memory must be between 1 and 4,000 characters.");
+    assertNoSecrets(clean);
     const replacementId = `memory_${randomUUID()}`;
     if (text(current.provider) === "local" && !nullableText(current.provider_id)) {
       // No remote effect was attempted for this record. Retire and replace it
       // in one statement so a failed insert cannot erase the original.
       const [replacement] = await db().query(
         `WITH retired AS (
-           UPDATE memory_records SET status='deleted',updated_at=now()
+           UPDATE memory_records SET status='archived',updated_at=now()
            WHERE owner_id=$1 AND id=$2 AND status='active' AND provider='local' AND provider_id IS NULL
            RETURNING *
          ), replacement AS (
@@ -415,28 +440,39 @@ export const memoryStore = {
       if (!replacement) throw new Error("Memory changed before the correction could be saved.");
       return { status: "completed", replacement: rowEntry(replacement), remoteDeletionVerified: true };
     }
-    const replacementProviderId = await semanticMemory.add(clean, current.permanent === true);
-    try {
-      await db().query(
-        `INSERT INTO memory_records
-          (id,owner_id,scope_type,scope_id,content,provider,provider_id,source_type,source_id,confidence,permanent,status,last_confirmed_at)
-         VALUES ($1,$2,$3,$4,$5,'supermemory',$6,'owner_correction',$7,$8,$9,'active',now())`,
-        [replacementId, ownerId, text(current.scope_type), text(current.scope_id), clean, replacementProviderId, memoryId, Number(current.confidence), current.permanent === true],
-      );
-    } catch (error) {
-      await semanticMemory.deleteVerified(replacementProviderId).catch(() => undefined);
-      throw error;
-    }
+    // Verify the old remote copy first. The canonical old fact remains intact
+    // if this external step fails. Only one concurrent corrector may retire it.
     const previousProviderId = nullableText(current.provider_id);
     const previousRemote = previousProviderId ? await semanticMemory.deleteVerified(previousProviderId) : { deleted: true, verifiedAbsent: true };
-    if (!previousRemote.verifiedAbsent) {
-      const rollback = await semanticMemory.deleteVerified(replacementProviderId).catch(() => ({ deleted: false, verifiedAbsent: false }));
-      if (rollback.verifiedAbsent) await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, replacementId]);
-      throw new Error(rollback.verifiedAbsent ? "The previous remote Memory could not be verified as deleted; the correction was rolled back." : "Memory correction partially completed and needs owner review.");
-    }
-    await db().query(`UPDATE memory_records SET status='deleted',updated_at=now() WHERE owner_id=$1 AND id=$2`, [ownerId, memoryId]);
-    const replacementRows = await db().query(`SELECT * FROM memory_records WHERE owner_id=$1 AND id=$2 LIMIT 1`, [ownerId, replacementId]) as Row[];
-    return { status: "completed", replacement: rowEntry(replacementRows[0]), remoteDeletionVerified: true };
+    if (!previousRemote.verifiedAbsent) throw new Error("The previous remote Memory could not be verified as deleted; correction was not applied.");
+    const [replacement] = await db().query(
+      `WITH retired AS (
+         UPDATE memory_records SET status='archived',updated_at=now()
+         WHERE owner_id=$1 AND id=$2 AND status='active' AND provider_id=$5
+         RETURNING *
+       ), replacement AS (
+         INSERT INTO memory_records
+           (id,owner_id,scope_type,scope_id,content,provider,source_type,source_id,confidence,permanent,status,last_confirmed_at)
+         SELECT $3,owner_id,scope_type,scope_id,$4,'local','owner_correction',$2,1,permanent,'active',now()
+         FROM retired RETURNING *
+       ) SELECT * FROM replacement`,
+      [ownerId, memoryId, replacementId, clean, previousProviderId],
+    ) as Row[];
+    if (!replacement) throw new Error("Memory changed before the correction could be saved.");
+    return { status: "completed", replacement: rowEntry(replacement), remoteDeletionVerified: true };
+  },
+
+  /** History is owner-only, never included in ordinary current-memory search. */
+  async historyForOwner(ownerId: string, memoryId: string): Promise<MemoryEntry[]> {
+    const rows = await db().query(
+      `WITH RECURSIVE history AS (
+         SELECT * FROM memory_records WHERE owner_id=$1 AND id=$2
+         UNION ALL
+         SELECT m.* FROM memory_records m JOIN history h ON h.source_type='owner_correction' AND h.source_id=m.id
+         WHERE m.owner_id=$1
+       ) SELECT * FROM history LIMIT 50`, [ownerId, memoryId],
+    ) as Row[];
+    return rows.map(row => rowEntry(row));
   },
 
   async healthcheck(): Promise<void> {
