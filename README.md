@@ -257,3 +257,16 @@ vercel deploy --prod --yes
 ```
 
 After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
+
+## Goal OS and proactive work candidate
+
+The durable Goal/Task orchestration candidate reuses existing Goal OS records and adds
+replay-safe Work correlation, evidence-backed progress, owner controls and bounded
+Today/Daily Brief contracts. It is locally qualified with PostgreSQL concurrency and
+process-loss fixtures, but is **not enabled for design partners**: migration ownership
+and canonical Work/Inbox/scheduler adapters remain integration dependencies.
+
+See [Goal OS](docs/goal-os.md), [proactive continuation](docs/proactive-work.md),
+[product contracts](docs/goal-work-product-contracts.md),
+[Digital Worker boundary](docs/digital-worker-goals-contract.md), and the
+[evidence dossier](docs/verification/goals-proactive-work/README.md).

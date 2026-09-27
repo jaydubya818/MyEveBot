@@ -2959,6 +2959,36 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+    },
+    "lib/goal-work/attention-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure structural mapping to the unmerged myeve.attention.v1 contract. No Inbox persistence, notifications, owner impersonation, approval grant or executor.",
+      "sha256": "bbfea88319901c40ea2c99fcb851cff8aa119931ad4cb6b0ec6eea08c2231b61"
+    },
+    "lib/goal-work/contracts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Server-only dependency ports; default Work adapter denies admission. Contracts carry references and criteria, never tool/provider/writer/budget grants.",
+      "sha256": "6a116b00a13bcceb781e3870e3f2f3fc1ec99f7bd85291dc5cbd8f5d796b852e"
+    },
+    "lib/goal-work/dispatcher.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded owner-scoped Goal cursor dispatcher calls the Goal admission service. No installed schedule, direct executor, connector call or authority grant.",
+      "sha256": "a758574e755f052dc3f8f3c26980ba07880de974c8dc30e9b111788906182960"
+    },
+    "lib/goal-work/projections.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Bounded owner-scoped read-only SQL projections for Today, Daily Brief, Goal and Task detail; no cross-owner joins or execution path.",
+      "sha256": "40a913054d1c1bfec55ab094d76e4a1907c9f74af8122c8a548a9867fab4bdd5"
+    },
+    "lib/goal-work/service.ts": {
+      "classification": "INTERNAL",
+      "reason": "Isolated Goal orchestration service using injected canonical Work/Result/Signal ports, durable correlation and row locks. No runtime route or tool registration. PostgreSQL replay, SIGKILL, owner isolation, stale generation and denied-authority fixtures qualified; live Work admission remains an integration dependency.",
+      "sha256": "bf8e72316d45302320be69ecc2dd7e6b07eff0b1dec3fbc49797658059e5a906"
+    },
+    "lib/goal-work/validation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded input validation for Goal orchestration, dependencies, signals and canonical Result envelopes. No execution or external effects.",
+      "sha256": "794389e7137459ec25bcb48bdd28882f59c27a25b2faa95902f27c82e834c037"
     }
   }
 }
