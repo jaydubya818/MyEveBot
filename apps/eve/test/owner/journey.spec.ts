@@ -19,10 +19,12 @@ test.beforeEach(async ({ context }) => {
     state.cookies.map((cookie) => ({ ...cookie, secure: false })),
   );
 });
-const output = path.resolve(
-  import.meta.dirname,
-  "../../../../output/playwright/beta-product-experience",
-);
+const output =
+  process.env.MYEVE_OWNER_EVIDENCE_DIR ??
+  path.resolve(
+    import.meta.dirname,
+    "../../../../output/playwright/beta-product-experience",
+  );
 async function capture(page: Page, name: string, project: string) {
   await mkdir(output, { recursive: true });
   await expect
@@ -181,9 +183,12 @@ test("new owner through results, proof, feedback and next-day brief (sample jour
   await page.getByRole("button", { name: "Load example journey" }).click();
   await page.goto("/beta-preview?view=work&id=preview-work");
   await expect(
-    page.getByText("Example delegation: Sofie asked MyFactory", {
-      exact: false,
-    }),
+    page.getByText(
+      "Sample execution. Any handoff described in its recorded milestones",
+      {
+        exact: false,
+      },
+    ),
   ).toBeVisible();
   await capture(page, "delegated-work", info.project.name);
   await accessibility(page);
@@ -299,6 +304,19 @@ test("partial data, expired session, stale decision and feedback retry remain ho
   ).toBeVisible();
   await capture(page, "partial-outage", info.project.name);
   await page.unroute("**/api/approvals");
+  await page.route("**/api/reviews?*", (route) =>
+    route.fulfill({ status: 503, body: "{}" }),
+  );
+  await page.goto("/brief");
+  await expect(
+    page.getByText(
+      "Upcoming commitments are unavailable until the brief can be read.",
+    ),
+  ).toBeVisible();
+  await expect(
+    page.getByText("No approaching commitments in this brief."),
+  ).toHaveCount(0);
+  await page.unroute("**/api/reviews?*");
   await page.route("**/api/approvals/*", (route) =>
     route.fulfill({ status: 409, body: "{}" }),
   );

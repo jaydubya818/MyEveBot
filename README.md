@@ -1,12 +1,23 @@
 # MyEveBot
 
-**Owner experience branch:** Today, Work, Needs you, Daily Brief, Results and Proof
-of Work are implemented against the existing stable APIs. Start at `/today`;
-use `/beta-preview` for the explicitly labeled sample journey. Read the
-[design partner guide](docs/beta-guide.md), [Digital Worker UX integration boundary](docs/digital-worker-ux.md),
-and [product audit](docs/verification/beta-product-experience/AUDIT.md), and
-[qualification dossier](docs/verification/beta-product-experience/README.md).
-Production execution and independent verification remain separate qualification gates.
+**READY FOR INTEGRATION — UI/API-contract qualified**
+
+**LIVE DESIGN-PARTNER E2E — NOT YET QUALIFIED**
+
+Accepted owner UX candidate: `ed0f6b5dad0e3a131a9f5332139e627245cbd4e8` on
+`codex/beta-product-experience` (baseline `d64f2f9`). Start at `/today`; use
+`/beta-preview` for the explicitly labeled sample journey. The
+[integration crosswalk](docs/beta-ux-integration-contract.md) identifies canonical
+Engineering Work/Current Truth, MyFactory, Sofie direct, Relay, protected verifier,
+Goal/Task, Inbox and recall/learning dependencies. Use the
+[Beta UX Integration Checklist](docs/beta-ux-integration-checklist.md) before
+replacing fixtures and qualifying authenticated live journeys.
+
+Read the [design partner guide](docs/beta-guide.md),
+[Digital Worker UX boundary](docs/digital-worker-ux.md),
+[product audit](docs/verification/beta-product-experience/AUDIT.md) and
+[qualification dossier with 27 preserved screenshots](docs/verification/beta-product-experience/README.md).
+No merge or live qualification is implied.
 
 [MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Cloudflare's [Kumo](https://github.com/cloudflare/kumo) components.
 

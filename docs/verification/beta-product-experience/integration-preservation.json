@@ -1,0 +1,156 @@
+{
+  "accepted_candidate": "ed0f6b5dad0e3a131a9f5332139e627245cbd4e8",
+  "comparison": "byte-for-byte against accepted Git objects; dossier README intentionally updated",
+  "original_files_unchanged": 37,
+  "screenshots_unchanged": 27,
+  "files": [
+    {
+      "path": "docs/verification/beta-product-experience/AUDIT.md",
+      "sha256": "078eea6517869c5388d46b5d6be574dc4d88052a7013f735dbc258ccf92bb933"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/application-tests.log",
+      "sha256": "9820c284910f9dc0576185819c8a85b4366632919da73c68b8bdc2a72bac921d"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/browser.log",
+      "sha256": "ab226cddab3ba168c1e7dbcd393139689ae57396d544ff7e8e91285439c9a032"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/build.log",
+      "sha256": "b99b60ef6d5666e259ce73d968a8aaac7fdf0682c56dc39d657ada54e65f26c0"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/root-tests.log",
+      "sha256": "ece79deda668d3b860a10ab50063271e01f1ad67b6e34a14816656eee9349a15"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/source-manifest.json",
+      "sha256": "f7e2d4248a0eb1292f264bdaf39710ae16947fb9dc55c2b930ce244d82a9297e"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/typecheck.log",
+      "sha256": "3f3ebf6ef61f9360707b5d584c9868697fa44742948d76609a476bb77a567506"
+    },
+    {
+      "path": "docs/verification/beta-product-experience/worktrees.json",
+      "sha256": "24b94ef2cdf37f4ce725cd617b025f4f7a0a7595fa2942fe363ba000dfa63b7c"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/accessibility.jsonl",
+      "sha256": "1e1c5123b695a45359b4a43f307b713bc2405ab108b8ee4c01b5fc87fc0d9bc4"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-conversation-draft.png",
+      "sha256": "1b75cea529fd939112555421e2b564a8298d83e6ba470d54d60f1118b96d9318"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-daily-brief.png",
+      "sha256": "c7928e7d7a543657b3903ce2918e5f78da246a537a0d8eceb5f91909134003df"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-delegated-work.png",
+      "sha256": "777a36ad814a41c0a85cc09678424cc64309c9234d1494ce29ff174e5f8253c4"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-empty-today.png",
+      "sha256": "37c7778a11d0da81cda4918a8eaaaf948d2e07ea02968e4661568a792ed4e171"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-expired-session.png",
+      "sha256": "fea24700bf71813865c382477e851a8c599e5784c3e455aff4368f93b5ecac4c"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-failure-recovery.png",
+      "sha256": "d080b2425ac0de0bace5c4ed0416edb0e2b511d7e19abf5e30ce563b0ba39e34"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-first-work.png",
+      "sha256": "e6386fd268781ae8ebaf88f38cfaf64ce328c0f507d2353e61defa29f26efe12"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-needs-you.png",
+      "sha256": "c1962edf73f4ddfbaed1f4db9292bef52eecf1c38083b76016b317089cd7fb60"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-onboarding.png",
+      "sha256": "8938b2d09f651d5da3d3feaa565034c5766a8b472edec100cd379c2596ef177b"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-partial-outage.png",
+      "sha256": "c8a22b4fec1ac9d1815e39400d54c854743c814e8156afb3cc928e8f76f13646"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-result-proof-feedback.png",
+      "sha256": "bbcaa59f2800310b980882da5fdd937a111554e376faeb8ea1bfeb4d906257d8"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-today-dark.png",
+      "sha256": "f2feb09cb4ee03762103b56a6d096ab78283099f4b762b0bcf191de720f4b0c6"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/desktop-today.png",
+      "sha256": "65788d2dd1d1ffa0df5c0fc0fd7ec674ea292182c8471e30eab440f0fa5191af"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-conversation-draft.png",
+      "sha256": "d0921048ee388b1d07a6766c10fce3c77087567c4041ffbc0b1d7d27d92b6983"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-daily-brief.png",
+      "sha256": "5ac8bd8bc7a8418d347a29ed9996e8413315edab67b3ec2ad95a153c46d3ca4c"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-delegated-work.png",
+      "sha256": "d05b56977be33ca013796bc46cae2a67e1fab3bf0e4d44d02fe26a4e5756a426"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-empty-today.png",
+      "sha256": "1954d1244ce4924a5638b22750a9d96aaf2ce2324c70034c2c1f407cead13d68"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-expired-session.png",
+      "sha256": "c1dcf2672726e4a23b697d7abc2b0c2464babbaf47d0a8122b916dead5be6ef8"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-failure-recovery.png",
+      "sha256": "3961a1fb77eb333dab8200c8f9dfe3a9eac8100251bf560f302acb4839172995"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-first-work.png",
+      "sha256": "59d1161bbb7313a5c51deac167756f86d7787677ddb5bbf43ac80b5107329c3f"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-navigation.png",
+      "sha256": "e851f870f40cba841890d56afa2ee06002f65ff8b7def02742b1700fd32b33b1"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-needs-you.png",
+      "sha256": "f8c817022865063abab392e31a844114b2618f040c8b7d02cff5f5f6519c0711"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-onboarding.png",
+      "sha256": "bb85273ab8f975ec72ae522478e832dfa78d55d7aa700608ad78d5bed38ffff2"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-partial-outage.png",
+      "sha256": "d62d9ebcafd5639d0d10231990e44b9416908c0e04447cc90a888ae60f5d3d07"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-result-proof-feedback.png",
+      "sha256": "6e84b0687d3d9fac2696df40c675d6c96799e4d9d210ef00301832c938e8adeb"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-today-dark.png",
+      "sha256": "5f8040d4f9590f2be37f82231ed4c246e4133934c139be6a50f7f11679550df0"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/mobile-today.png",
+      "sha256": "e8adc0c800f95edb225768a3884462302c3905c878e13bc5edab2fcf26fbed57"
+    },
+    {
+      "path": "output/playwright/beta-product-experience/report.json",
+      "sha256": "188aa8504ccfe3d435a72bb4fb8461aa34fdb6091d870d577bcb24752729677b"
+    }
+  ]
+}

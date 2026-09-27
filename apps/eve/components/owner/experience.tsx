@@ -754,7 +754,7 @@ export function OwnerExperience({
                           </p>
                           <p className="owner-muted">
                             {preview
-                              ? "Example delegation: Sofie asked MyFactory to prepare a candidate. This is a preview, not an observed handoff."
+                              ? "Sample execution. Any handoff described in its recorded milestones is illustrative; no live delegation is confirmed."
                               : "The current contract does not identify an execution provider. No MyFactory or Relay delegation is inferred."}
                           </p>
 
@@ -1100,7 +1100,9 @@ export function OwnerExperience({
                       ))
                     ) : (
                       <p className="owner-muted">
-                        No approaching commitments in this brief.
+                        {snapshot.brief
+                          ? "No approaching commitments in this brief."
+                          : "Upcoming commitments are unavailable until the brief can be read."}
                       </p>
                     )}
                     <p className="owner-muted">

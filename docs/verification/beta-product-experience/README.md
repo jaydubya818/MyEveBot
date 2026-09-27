@@ -1,15 +1,28 @@
 # Design partner beta UX qualification
 
-**Design partner UX: NOT READY for unattended live use.** The owner interface is
-implemented and qualified with explicit fixtures. Real engineering Work execution,
-provider provenance, protected verification, and authenticated database/model
-continuation remain integration gates owned by other workstreams.
+**READY FOR INTEGRATION — UI/API-contract qualified**
+
+**LIVE DESIGN-PARTNER E2E — NOT YET QUALIFIED**
+
+Accepted candidate: `ed0f6b5dad0e3a131a9f5332139e627245cbd4e8`.
+The UI is accepted for integration. The original qualification below uses explicit
+fixtures and intercepted API contracts; unattended live use remains unqualified.
+Canonical dependencies include Engineering Work/Current Truth, MyFactory receipts,
+Sofie direct admission, Relay collaboration, protected verification, Goal/Task
+projections, Inbox response binding and scoped recall/learning. Exact sources,
+fields and gaps are in the [integration crosswalk](../../beta-ux-integration-contract.md);
+follow the [Beta UX Integration Checklist](../../beta-ux-integration-checklist.md).
+
+The final preparation pass adds those documents and two bounded copy/fallback fixes.
+Its checks are recorded separately in [integration-preparation.md](integration-preparation.md).
+The original 27 screenshots, source manifest and qualification logs are retained
+unchanged and are not relabeled as evidence for the preparation changes.
 
 Branch: `codex/beta-product-experience`.
 Baseline: fetched `origin/main` at `d64f2f96003818b2f51341b54a2edd6f426a0dae`.
 Application code qualified: `e6ed1b2e5ed71459e9a57c3a6814c0b797b45554`.
-The final documentation commit adds this dossier, evidence, and a test-only wait
-for the mobile drawer animation before its screenshot; it does not change runtime
+The accepted candidate documentation commit added this dossier, evidence, and a test-only wait
+for the mobile drawer animation before its screenshot; it did not change runtime
 code. Exact file hashes are in [source-manifest.json](source-manifest.json).
 
 ## Acceptance matrix
@@ -104,13 +117,16 @@ node apps/eve/test/owner/local-server.cjs
 In another terminal, run:
 
 ```sh
-npm exec --workspace=eve-agent playwright -- test -c test/owner/playwright.config.ts
+MYEVE_OWNER_EVIDENCE_DIR=/tmp/myeve-beta-reproduction \
+  npm exec --workspace=eve-agent playwright -- test -c test/owner/playwright.config.ts
 ```
 
 The test server binds only `127.0.0.1:3091`. Stop that process after testing. It
 inherits only PATH/HOME/TMPDIR and its synthetic test auth values, not provider or
 database credentials. To use a different axe installation, set `MYEVE_AXE_PATH`.
-Test output goes to `output/playwright/beta-product-experience`.
+Use a fresh `MYEVE_OWNER_EVIDENCE_DIR` for reproduction to preserve the accepted
+evidence. Without the override, test output goes to
+`output/playwright/beta-product-experience`.
 
 ## Release gates left open
 

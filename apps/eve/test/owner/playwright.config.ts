@@ -1,5 +1,11 @@
 import path from "node:path";
 import { defineConfig } from "@playwright/test";
+const output =
+  process.env.MYEVE_OWNER_EVIDENCE_DIR ??
+  path.resolve(
+    import.meta.dirname,
+    "../../../../output/playwright/beta-product-experience",
+  );
 export default defineConfig({
   testDir: ".",
   testMatch: "*.spec.ts",
@@ -11,17 +17,11 @@ export default defineConfig({
     [
       "json",
       {
-        outputFile: path.resolve(
-          import.meta.dirname,
-          "../../../../output/playwright/beta-product-experience/report.json",
-        ),
+        outputFile: path.join(output, "report.json"),
       },
     ],
   ],
-  outputDir: path.resolve(
-    import.meta.dirname,
-    "../../../../output/playwright/beta-product-experience/artifacts",
-  ),
+  outputDir: path.join(output, "artifacts"),
   use: {
     baseURL: "http://127.0.0.1:3091",
     channel: "chrome",
