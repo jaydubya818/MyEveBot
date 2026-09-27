@@ -1,98 +1,63 @@
-import { createHash } from "node:crypto";
-import { z } from "zod";
-import { getHostedRequest, type Graphql, type HostedConfig } from "../myfactory-protocol.mjs";
-import { bindFactorySubmission } from "./factory-return.ts";
-import { factoryBindingSchema, factoryGitIdSchema, factorySubmissionSchema,
-  trustedFactorySourcePinSchema } from "./factory-return-contract.ts";
+import {createPublicKey} from 'node:crypto';
+import {z} from 'zod';
+import {canonical,digest,sha256,validateManifest,verifyResult,RESULT_PROTOCOL,MAX_RESULT_BYTES,
+ type ResultKey, type ResultManifest, type SignedResult} from './factory-producer-protocol.ts';
+import {verifyProtocolPayload} from './factory-producer-signature.ts';
+import {type FactoryBinding, type FactoryReceipt} from './factory-receipt-store.ts';
 
-const sha = (value: string) => createHash("sha256").update(value).digest("hex");
-const hex = z.string().regex(/^[a-f0-9]{64}$/);
-const stamp = z.iso.datetime();
-const artifact = z.object({ id: z.string(), kind: z.enum(["patch", "log"]),
-  byteLength: z.number().int().min(0).max(16000), sha256: hex,
-  bytes: z.string().max(22000) }).strict();
-const check = z.object({ id: z.uuid(), command: z.string().min(1).max(4000),
-  candidateCommit: factoryGitIdSchema, status: z.literal("passed"), exitCode: z.literal(0),
-  startedAt: stamp, finishedAt: stamp, logSha256: hex }).strict();
-const manifest = z.object({ requestBindingDigest: hex, workOrderId: z.uuid(), runId: z.uuid(),
-  attemptNumber: z.number().int().positive(), inputCommit: factoryGitIdSchema,
-  candidateCommit: factoryGitIdSchema, candidateTree: factoryGitIdSchema,
-  changedPaths: z.array(z.string().min(1).max(1024)).min(1).max(30),
-  commitObject: z.string().max(10000), checks: z.array(check).min(1).max(20),
-  artifacts: z.array(artifact).min(2).max(21) }).strict();
-const signedResult = z.object({ version: z.literal(1), keyVersion: z.literal("ed25519-v1"),
-  issueId: z.uuid(), operationId: hex, factoryId: z.string().min(1).max(160),
-  factoryVersion: z.object({ sourceCommit: factoryGitIdSchema, sourceTree: factoryGitIdSchema,
-    configurationDigest: hex }).strict(), manifestDigest: hex, manifest, issuedAt: stamp }).strict();
-
-/** Prepares the V1 hosted request extension from an independently pinned
- * Factory identity/version. This does not dispatch or grant a writer. */
-export function prepareAuthenticatedFactoryInput(rawSubmission: unknown, title: string, trustedPin: unknown) {
-  const submission = factorySubmissionSchema.parse(rawSubmission);
-  const pin = trustedFactorySourcePinSchema.parse(trustedPin);
-  if (JSON.stringify(submission.sourcePin) !== JSON.stringify(pin)) throw new Error("UNTRUSTED_FACTORY_PIN");
-  const binding = bindFactorySubmission(submission);
-  if (!title.trim() || title.length > 200) throw new Error("INVALID_FACTORY_TITLE");
-  return { binding, hostedInput: {
-    idempotencyKey: submission.idempotencyKey, title: title.trim(), description: submission.objective,
-    kind: submission.kind, acceptanceCriteria: submission.criteria, allowedPaths: submission.allowedPaths,
-    factoryBinding: { ownerId: submission.ownerId, agentId: submission.agentId, workId: submission.workId,
-      workVersion: submission.workVersion, workGeneration: submission.workGeneration,
-      criteriaVersion: submission.criteriaVersion, submissionDigest: binding.submissionDigest,
-      expectedFactoryId: pin.factoryId,
-      expectedFactoryVersion: { sourceCommit: pin.factoryVersion.myFactoryCommit,
-        sourceTree: pin.factoryVersion.sourceTree, configurationDigest: pin.factoryVersion.configurationDigest } },
-  } };
+const hash=z.string().regex(/^[a-f0-9]{64}$/), text=z.string().min(1).max(4000);
+const bindingSchema=z.object({workId:z.uuid(),workVersion:z.number().int().positive(),workGeneration:z.number().int().positive(),
+ criteriaVersion:z.number().int().positive(),agentId:text,factoryId:text,factoryVersion:hash,requestId:text,requestDigest:hash,
+ sourceDigest:hash,configurationDigest:hash,workOrderId:z.uuid(),runId:z.uuid(),attemptNumber:z.number().int().positive(),
+ inputCommit:z.string().regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/)}).strict();
+/** Values must originate from trusted request admission, never from a return.
+ * Registration creates receipt correlation only, no dispatch or writer grant. */
+export function prepareAuthenticatedFactoryInput(value: unknown): FactoryBinding {
+ const b=bindingSchema.parse(value);
+ if(digest({sourceDigest:b.sourceDigest,configurationDigest:b.configurationDigest})!==b.factoryVersion)
+  throw new Error('Untrusted FactoryVersion pin');
+ return {...b,operationId:digest([RESULT_PROTOCOL,b.factoryId,b.requestId,b.workOrderId,b.runId])};
+}
+export function authenticateFactoryResult(value: unknown, binding: FactoryBinding, keys: ResultKey[]) {
+ if(!value || typeof value!=='object' || Array.isArray(value) ||
+  Object.keys(value).sort().join(',')!=='artifacts,encoded,manifestDigest,protocol,signature') throw new Error('Malformed result envelope');
+ const result=value as SignedResult;
+ if(result.protocol!==RESULT_PROTOCOL || typeof result.encoded!=='string' || typeof result.signature!=='string') throw new Error('Unknown result protocol');
+ if(Buffer.byteLength(JSON.stringify(value))>MAX_RESULT_BYTES) throw new Error('Result size limit');
+ const raw=Buffer.from(result.encoded,'base64url').toString('utf8');
+ const untrusted=JSON.parse(raw);
+ // Only the untrusted key selector is read before signature verification. The
+ // Factory identity and public key source are independently stored expectations.
+ const selected=keys.filter(k=>k.factoryId===binding.factoryId && k.keyId===untrusted?.keyId);
+ if(selected.length!==1) throw new Error('Unknown or ambiguous producer key');
+ const key=selected[0];
+ if(!verifyProtocolPayload(RESULT_PROTOCOL,result.encoded,result.signature,key.publicKey)) throw new Error('Invalid producer signature');
+ if(canonical(untrusted)!==raw || Buffer.from(raw).toString('base64url')!==result.encoded || sha256(raw)!==result.manifestDigest)
+  throw new Error('Noncanonical or substituted manifest');
+ const fingerprint=sha256(createPublicKey(key.publicKey).export({type:'spki',format:'der'}));
+ return {result,manifest:untrusted as ResultManifest,key,fingerprint};
+}
+export function attestFactoryManifest(m: ResultManifest,b: FactoryBinding) {
+ validateManifest(m);
+ const e=m.execution;
+ if(m.producer!==b.factoryId || m.operationId!==b.operationId || e.factoryVersion!==b.factoryVersion ||
+  e.sourceDigest!==b.sourceDigest || e.configurationDigest!==b.configurationDigest || e.requestId!==b.requestId ||
+  e.requestDigest!==b.requestDigest || e.workOrderId!==b.workOrderId || e.runId!==b.runId ||
+  e.attemptNumber!==b.attemptNumber || e.inputCommit!==b.inputCommit) throw new Error('Factory attestation binding mismatch');
+}
+/** Q37-owned Current Truth seam; it never updates protected owner projections. */
+export function projectFactoryReceipt(row: FactoryReceipt,admission: Record<string,unknown>|null,keyCurrent: boolean,verified: boolean) {
+ return {receiptId:row.state==='ADMITTED' && typeof admission?.receipt_id==='string'?admission.receipt_id:row.id,deliveryId:row.id,admissionReceiptId:admission?.receipt_id??null,status:row.state,reason:row.reason,
+  factoryProvenance:verified?'VERIFIED':'UNVERIFIED',eligibleForCurrentAdmission:keyCurrent && row.state==='ADMITTED',
+  candidate:verified?row.provenance?.manifest.candidate??null:null,
+  manifestDigest:verified?row.provenance?.manifestDigest??null:null,receivedAt:row.received_at,
+  factoryGrantedAuthority:0,independentVerification:'NOT_RUN',readiness:'NOT_READY'} as const;
 }
 
-/** Hosted readback verifies the HMAC request and Ed25519 result before this
- * projection. No returned text, artifact path or status can confer authority. */
-export async function observeAuthenticatedFactoryResult(input: {
-  binding: unknown; hostedInput: unknown; currentWork: {
-    ownerId: string; agentId: string; workId: string; workVersion: number; workGeneration: number;
-    criteriaVersion: number; lifecycle: string; control: string;
-  }; expectedWorkOrderId: string; expectedRunId: string; expectedAttempt: number;
-  requiredChecks: string[]; trustedPin: unknown; previous?: { operationId: string; manifestDigest: string };
-  config: HostedConfig; graphql: Graphql;
-}) {
-  const bound = factoryBindingSchema.parse(input.binding);
-  const prepared = prepareAuthenticatedFactoryInput(bound.submission,
-    (input.hostedInput as { title?: string })?.title ?? "", input.trustedPin);
-  if (JSON.stringify(prepared.binding) !== JSON.stringify(bound) ||
-      JSON.stringify(prepared.hostedInput) !== JSON.stringify(input.hostedInput))
-    throw new Error("FACTORY_REQUEST_BINDING_CHANGED");
-  const sub = bound.submission;
-  const current = input.currentWork;
-  const stale = current.ownerId !== sub.ownerId || current.agentId !== sub.agentId ||
-    current.workId !== sub.workId || current.workVersion !== sub.workVersion ||
-    current.workGeneration !== sub.workGeneration || current.criteriaVersion !== sub.criteriaVersion ||
-    current.lifecycle !== "active" || current.control !== "agent";
-  let observed;
-  try { observed = await getHostedRequest(input.config, bound.requestId, input.graphql); }
-  catch { return { status: "UNKNOWN" as const, reconcileRequestId: bound.requestId,
-    authorityGranted: false, readiness: "NOT_READY" as const }; }
-  if (!observed.result) return { status: "AWAITING" as const, reconcileRequestId: bound.requestId,
-    authorityGranted: false, readiness: "NOT_READY" as const };
-  const result = signedResult.parse(observed.result);
-  const m = result.manifest;
-  const expected = prepared.hostedInput.factoryBinding;
-  if (observed.requestId !== bound.requestId || result.issueId !== bound.requestId ||
-      result.factoryId !== expected.expectedFactoryId ||
-      JSON.stringify(result.factoryVersion) !== JSON.stringify(expected.expectedFactoryVersion) ||
-      m.requestBindingDigest !== sha(JSON.stringify(expected)) ||
-      m.workOrderId !== input.expectedWorkOrderId || m.runId !== input.expectedRunId ||
-      m.attemptNumber !== input.expectedAttempt || m.inputCommit !== sub.baseCommit ||
-      m.candidateCommit === m.inputCommit ||
-      m.checks.length !== input.requiredChecks.length ||
-      m.checks.some((entry, index) => entry.command !== input.requiredChecks[index]) ||
-      !observed.receipt || observed.receipt.workOrderId !== m.workOrderId ||
-      observed.receipt.state !== "ready_for_review") throw new Error("FACTORY_RESULT_WRONG_REQUEST_OR_ATTEMPT");
-  if (input.previous && (input.previous.operationId !== result.operationId ||
-      input.previous.manifestDigest !== result.manifestDigest)) throw new Error("FACTORY_RESULT_CONFLICT");
-  return { status: stale ? "HISTORICAL" as const : input.previous ? "DEDUPED" as const : "INTEGRITY_VERIFIED" as const,
-    operationId: result.operationId, manifestDigest: result.manifestDigest,
-    candidateCommit: m.candidateCommit, candidateTree: m.candidateTree,
-    artifacts: m.artifacts, checks: m.checks, factoryVersion: result.factoryVersion,
-    authorityGranted: false, independentVerification: "NOT_RUN" as const,
-    readiness: "NOT_READY" as const };
+/** Read-only exact-protocol adapter. Durable processing is a separately governed
+ * Q37 receipt service, not a mutation hidden behind the old read-only entry. */
+export function observeAuthenticatedFactoryResult(value: unknown,binding: FactoryBinding,keys: ResultKey[],historical=false) {
+ const authenticated=authenticateFactoryResult(value,binding,keys);
+ attestFactoryManifest(authenticated.manifest,binding);
+ return verifyResult(value,{...binding,keys,historical});
 }

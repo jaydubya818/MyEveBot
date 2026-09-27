@@ -1,0 +1,17 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/q37-integration/Myeve/apps/eve
+
+ ✓ lib/engineering/github-app.test.ts (2 tests) 50ms
+ ✓ lib/engineering/factory-authenticated-result.test.ts (39 tests) 38ms
+ ✓ lib/engineering/factory-return.test.ts (78 tests) 28ms
+ ✓ lib/digital-worker/learning.test.ts (10 tests) 10ms
+ ✓ lib/engineering/relay-collaboration.test.ts (32 tests) 12ms
+ ✓ lib/engineering/factory-observation.test.ts (5 tests) 8ms
+ ✓ lib/engineering/github.test.ts (4 tests) 9ms
+ ✓ agent/lib/myfactory.test.ts (4 tests) 4ms
+ ✓ lib/relay/message-result.test.ts (4 tests) 4ms
+
+ Test Files  9 passed (9)
+      Tests  178 passed (178)
+   Start at  23:01:58
+   Duration  2.01s (transform 150ms, setup 0ms, collect 430ms, tests 162ms, environment 1ms, prepare 261ms)

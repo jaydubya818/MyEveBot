@@ -1,0 +1,150 @@
+{
+  "worktrees": [
+    {
+      "worktree": "/Users/jaywest/Myeve",
+      "HEAD": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "branch": "refs/heads/main",
+      "dirty": " M README.md\n M apps/eve/agent/connections/composio.ts\n M apps/eve/agent/instructions/computer-runtime.ts\n M apps/eve/scripts/executor-inventory.json\n?? .playwright-cli/\n?? docs/plans/2026-09-25-feat-myeve-engineering-plan.md\n?? docs/plans/2026-09-25-knowledge-verification.md\n?? docs/plans/2026-09-25-myeve-engineering-claude-review.md\n?? docs/plans/2026-09-25-myeve-engineering-source-ledger.md\n?? docs/plans/2026-09-25-myeve-engineering-verification.md\n?? docs/verification/digital-worker/\n?? output/knowledge-verification-2026-09-25.md\n?? output/playwright/knowledge-2026-09-25/\n",
+      "lastMigrations": [
+        "0031_computer_template_lifecycle.sql",
+        "0032_computer_resource_lifecycles.sql",
+        "0033_final_lineage_bridge.sql",
+        "0034_conversation_runs.sql",
+        "0035_peer_permissions.sql"
+      ]
+    },
+    {
+      "worktree": "/private/tmp/knowledge-production-source",
+      "HEAD": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+      "branch": "refs/heads/codex/knowledge-production",
+      "dirty": "",
+      "lastMigrations": [
+        "0034_conversation_runs.sql",
+        "0035_peer_permissions.sql",
+        "0036_owner_channel_handoff.sql",
+        "0037_owner_model_reservations.sql",
+        "0038_owner_qualification_budget.sql"
+      ]
+    },
+    {
+      "worktree": "/private/tmp/myfactory-myeve-main-merge",
+      "HEAD": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+      "dirty": "",
+      "lastMigrations": [
+        "0034_conversation_runs.sql",
+        "0035_peer_permissions.sql",
+        "0036_owner_channel_handoff.sql",
+        "0037_owner_model_reservations.sql",
+        "0038_owner_qualification_budget.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "HEAD": "acfe498a8eaf3a394087079d4a1978adcca3277d",
+      "branch": "refs/heads/codex/digital-worker-mvp",
+      "dirty": " M apps/eve/agent/tools/engineering_direct.ts\n M apps/eve/lib/database-schema.ts\n M apps/eve/lib/engineering/native-model.test.ts\n M apps/eve/lib/engineering/native-model.ts\n M apps/eve/lib/engineering/native-results.ts\n M apps/eve/lib/engineering/native-routing.ts\n M apps/eve/lib/engineering/route-admission.ts\n M apps/eve/lib/engineering/runtime.ts\n?? apps/eve/lib/engineering/native-completion.ts\n?? apps/eve/migrations/0053_native_completion_contract.sql\n?? apps/eve/test/native-completion-migration.integration.mjs\n?? apps/eve/test/native-completion-process.mjs\n?? apps/eve/test/native-completion.integration.mjs\n?? docs/verification/2026-09-26-p0-gap2b-implementation/\n",
+      "lastMigrations": [
+        "0049_telegram_owner_receipts.sql",
+        "0050_engineering_native_runtime.sql",
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql",
+        "0053_native_completion_contract.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+      "HEAD": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+      "branch": "refs/heads/codex/p0-gap-02-common-ledger",
+      "dirty": "",
+      "lastMigrations": [
+        "0048_engineering_direct_verification.sql",
+        "0049_telegram_owner_receipts.sql",
+        "0050_engineering_native_runtime.sql",
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+      "HEAD": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+      "branch": "refs/heads/codex/p0-gap2b-projection",
+      "dirty": "",
+      "lastMigrations": [
+        "0048_engineering_direct_verification.sql",
+        "0049_telegram_owner_receipts.sql",
+        "0050_engineering_native_runtime.sql",
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+      "HEAD": "84be8db765b738e62ef662164ac57cb1a4750361",
+      "branch": "refs/heads/codex/p0-gap2b-qualification",
+      "dirty": "",
+      "lastMigrations": [
+        "0049_telegram_owner_receipts.sql",
+        "0050_engineering_native_runtime.sql",
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql",
+        "0053_native_completion_contract.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+      "HEAD": "f32317bc73aaaa4ca8faac2f416296bf34491620",
+      "branch": "refs/heads/codex/q37-integration",
+      "dirty": "",
+      "lastMigrations": [
+        "0049_telegram_owner_receipts.sql",
+        "0050_engineering_native_runtime.sql",
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql",
+        "0053_native_completion_contract.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+      "HEAD": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+      "branch": "refs/heads/codex/sofie-chat-mainline",
+      "dirty": "",
+      "lastMigrations": [
+        "0034_conversation_runs.sql",
+        "0035_peer_permissions.sql",
+        "0036_owner_channel_handoff.sql",
+        "0037_owner_model_reservations.sql",
+        "0038_owner_qualification_budget.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+      "HEAD": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+      "branch": "refs/heads/codex/thread-owner-conflict",
+      "dirty": "",
+      "lastMigrations": [
+        "0034_conversation_runs.sql",
+        "0035_peer_permissions.sql",
+        "0036_owner_channel_handoff.sql",
+        "0037_owner_model_reservations.sql",
+        "0038_owner_qualification_budget.sql"
+      ]
+    },
+    {
+      "worktree": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+      "HEAD": "cab819bdd93ae1470925765728faacf8f6beab25",
+      "branch": "refs/heads/codex/myfactory-hosted-routing",
+      "dirty": "STATUS_TIMEOUT",
+      "lastMigrations": [
+        "0034_conversation_runs.sql",
+        "0035_peer_permissions.sql",
+        "0036_owner_channel_handoff.sql",
+        "0037_owner_model_reservations.sql",
+        "0038_owner_qualification_budget.sql"
+      ]
+    }
+  ],
+  "branchClaims54Plus": [],
+  "nextNumber": 54,
+  "owner": "Q37 MyFactory Gate C",
+  "purpose": "durable Factory result receipt/admission"
+}

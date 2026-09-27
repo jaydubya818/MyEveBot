@@ -110,69 +110,8 @@ export function readReceipt(description, publicKey, issueId) {
   return receipt;
 }
 
-/** A distinct signed result domain. The encoded bytes are the exact immutable
- * result saved by the producer; admission receipts cannot be replayed here. */
-export function resultDescription(description, encoded, privateKey) {
-  if (typeof encoded !== "string" || encoded.length > 48000 || !/^[A-Za-z0-9_-]+$/.test(encoded))
-    throw new Error("Invalid bounded factory result");
-  const signature = sign(null, Buffer.from(`${RESULT}\0${encoded}`), privateKey).toString("base64url");
-  const marker = `<!-- ${RESULT} -->`;
-  const receiptMarker = `<!-- ${RECEIPT} -->`;
-  const beforeReceipt = description.includes(receiptMarker) ? description.slice(0, description.indexOf(receiptMarker)).trimEnd() : description.trimEnd();
-  const oldResult = beforeReceipt.includes(marker) ? beforeReceipt.slice(0, beforeReceipt.indexOf(marker)).trimEnd() : beforeReceipt;
-  const receipt = description.includes(receiptMarker) ? description.slice(description.indexOf(receiptMarker)).trim() : "";
-  const updated = `${oldResult}\n\n${block(RESULT, { encoded, signature })}${receipt ? `\n\n${receipt}` : ""}`;
-  if (Buffer.byteLength(updated, "utf8") > 60000) throw new Error("Hosted result exceeds issue transport limit");
-  return updated;
-}
-
-export function readResult(description, publicKey, issueId) {
-  if (!description?.includes(`<!-- ${RESULT} -->`)) return null;
-  const { encoded, signature } = extract(description, RESULT);
-  if (typeof encoded !== "string" || encoded.length > 48000 || !/^[A-Za-z0-9_-]+$/.test(encoded) ||
-      typeof signature !== "string" || !/^[A-Za-z0-9_-]{86}$/.test(signature) ||
-      !verify(null, Buffer.from(`${RESULT}\0${encoded}`), publicKey, Buffer.from(signature, "base64url")))
-    throw new Error("Unverified factory result");
-  const bytes = Buffer.from(encoded, "base64url");
-  if (bytes.length > 36000 || bytes.toString("base64url") !== encoded) throw new Error("Invalid factory result encoding");
-  const result = JSON.parse(bytes.toString("utf8"));
-  if (result?.version !== 1 || result.issueId !== issueId || typeof result.operationId !== "string" ||
-      !hex64.test(result.manifestDigest) || result.keyVersion !== "ed25519-v1" ||
-      typeof result.factoryId !== "string" || !result.factoryVersion || !result.manifest)
-    throw new Error("Wrong factory result");
-  const manifest = result.manifest;
-  if (createHash("sha256").update(JSON.stringify(manifest)).digest("hex") !== result.manifestDigest ||
-      !Array.isArray(manifest.artifacts) || manifest.artifacts.length < 2 || manifest.artifacts.length > 21 ||
-      !Array.isArray(manifest.checks) || manifest.checks.length < 1 || manifest.checks.length > 20 ||
-      !gitId.test(manifest.inputCommit) || !gitId.test(manifest.candidateCommit) || !gitId.test(manifest.candidateTree) ||
-      !hex64.test(manifest.requestBindingDigest) ||
-      result.operationId !== createHash("sha256").update(JSON.stringify(["myfactory-result-v1", issueId, manifest.runId])).digest("hex"))
-    throw new Error("Invalid factory result manifest");
-  const ids = new Set();
-  for (const item of manifest.artifacts) {
-    if (!item || !["patch", "log"].includes(item.kind) || typeof item.id !== "string" || ids.has(item.id) ||
-        !hex64.test(item.sha256) || !Number.isSafeInteger(item.byteLength) || item.byteLength < 0 ||
-        item.byteLength > 16000 || typeof item.bytes !== "string") throw new Error("Invalid factory artifact");
-    const artifactBytes = Buffer.from(item.bytes, "base64url");
-    if (artifactBytes.toString("base64url") !== item.bytes || artifactBytes.length !== item.byteLength ||
-        createHash("sha256").update(artifactBytes).digest("hex") !== item.sha256 ||
-        item.id !== `${item.kind}:${item.sha256}`) throw new Error("Factory artifact integrity failed");
-    ids.add(item.id);
-  }
-  const rawCommit = Buffer.from(manifest.commitObject ?? "", "base64url");
-  const algorithm = manifest.candidateCommit.length === 64 ? "sha256" : "sha1";
-  const gitDigest = createHash(algorithm).update(`commit ${rawCommit.length}\0`).update(rawCommit).digest("hex");
-  if (rawCommit.toString("base64url") !== manifest.commitObject || gitDigest !== manifest.candidateCommit ||
-      !rawCommit.toString("utf8").includes(`tree ${manifest.candidateTree}\n`) ||
-      !rawCommit.toString("utf8").includes(`parent ${manifest.inputCommit}\n`))
-    throw new Error("Factory candidate commit object integrity failed");
-  if (manifest.checks.some(check => check.candidateCommit !== manifest.candidateCommit ||
-      check.status !== "passed" || check.exitCode !== 0 ||
-      !manifest.artifacts.some(item => item.kind === "log" && item.sha256 === check.logSha256)) ||
-      !manifest.artifacts.some(item => item.kind === "patch"))
-    throw new Error("Factory check evidence integrity failed");
-  return result;
-}
+// Gate C candidate results use the qualified exact-attempt result channel in
+// engineering/factory-result-channel.ts. Linear remains intake/status only.
 
 const FIELDS = "id identifier url title description team { id }";
 export async function submitHostedRequest(config, rawInput, graphql) {
@@ -190,7 +129,7 @@ export async function submitHostedRequest(config, rawInput, graphql) {
   if (JSON.stringify(payload.input) !== JSON.stringify(input)) throw new Error("Idempotency key belongs to another factory request");
   return { requestId: id, issueIdentifier: issue.identifier, issueUrl: issue.url,
     receipt: readReceipt(issue.description, config.receiptPublicKey, id),
-    result: readResult(issue.description, config.receiptPublicKey, id) };
+    result: null };
 }
 
 export async function getHostedRequest(config, id, graphql) {
@@ -200,5 +139,5 @@ export async function getHostedRequest(config, id, graphql) {
   readRequest(issue, { id: config.clientId, tokenSha256: createHash("sha256").update(config.token).digest("hex") }, config, 0);
   return { requestId: id, issueIdentifier: issue.identifier, issueUrl: issue.url,
     receipt: readReceipt(issue.description, config.receiptPublicKey, id),
-    result: readResult(issue.description, config.receiptPublicKey, id) };
+    result: null };
 }

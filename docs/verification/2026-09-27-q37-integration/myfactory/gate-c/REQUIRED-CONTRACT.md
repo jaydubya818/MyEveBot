@@ -1,6 +1,8 @@
 # Gate C requirements and Gate B single-writer handoff contract
 
-This records the full Gate C acceptance bar and the Gate B handoff interface. A bounded Gate C producer/consumer implementation now exists in the separate MyFactory `codex/q37-gate-c` and MyEve `codex/q37-integration` branches; its current qualification result is [PARTIAL](REPORT.md). This document's remaining requirements, especially trusted key lifecycle and durable admission, are not claims of completed implementation. No writer authority was added. Gate B must not execute until Gate C passes and the M1/ER1 owner integrates its shared writer service.
+Gate C is [PASS locally and CLOSED](durable/REPORT.md) with MyFactory producer `fcd8afd` and registered Q37 migration 0054. Gate B is READY FOR COORDINATION, not implemented. The original Gate C design below is retained as history; the qualified producer protocol and durable consumer evidence define the implemented contract.
+
+For Gate B coordination, use the actual content-derived FactoryVersion (`SHA256(canonical({sourceDigest, configurationDigest}))`), the producer's request/WorkOrder/exact Run operation identity, and Q37's immutable expected Work version/generation/Agent mapping. The producer does not sign a MyEve Work ID. `observeFactoryResult` can consume the Q37 receipt/admission projection; it must not infer writer authority or independent verification from ADMITTED. The local exact-attempt authenticated GET returns frozen manifest/artifact bytes. Candidate import into the protected writer/verifier remains a separate owner interface after the Factory fence is reconciled and closed. No shared writer interface is changed by this document.
 
 ## Gate C: smallest complete producer change
 
@@ -52,7 +54,7 @@ Required offline tests: the real supervisor captures F1 for R1/WO1/A1/C1/M1, the
 
 ## WRITER HANDOFF REQUIRED CONTRACT
 
-**Gate B status: CONTRACT DEFINED; IMPLEMENTATION BLOCKED.** This is the handoff contract for review with the existing M1/ER1 owner, not a second writer implementation or a claim that Gate C passed. Shared ownership overlap: **YES**. No cross-task message or protected writer edit was made.
+**Gate B status: READY FOR COORDINATION; IMPLEMENTATION PENDING.** Gate C has passed locally. This remains the handoff contract for review with the existing M1/ER1 owner; it does not implement or grant a second writer. Shared ownership overlap: **YES**. No cross-task message or protected writer edit was made.
 
 Invariant: **one authoritative candidate writer per Work generation**. Preserve existing owner/Agent scope and the common resource budget. Use the shared Work-row transaction and existing fencing/generation service. A provider-signed return never grants production or native authority.
 
