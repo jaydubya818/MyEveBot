@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
-      "sha256": "5adb5abf11a110365293b0a6a88a9bd00309e92446730d05baf01c4c79153070"
+      "sha256": "4b69480e5ffdff7eaa08c70e22f0dea41b51ebb6d93ad83e1f10d60d90c97012"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3001,7 +3001,7 @@
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
       "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged.",
-      "sha256": "fd102b7ca1b602dce7fd58cda48dc9382785ee02a33c4a3c9a27ad891138b9e7"
+      "sha256": "4b9da3d37fbcacc4e599a92333bc044183aa9e423eb786175b50396a0a6292bb"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3138,12 +3138,12 @@
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
       "reason": "Trusted server snapshot binds Agent revision and Work generation; SQL CAS admits current scoped Work without provider execution.",
-      "sha256": "3d56b003d117c0a6488c4f3835d08551c9104587a98602ee20c95a749a3c2470"
+      "sha256": "e01e27411b05bcbcfa6a4b0cbfd52ec4b687242aa44b7bf72d5c9f704ed3a6d5"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-scoped SELECT-only Work/native projection with current read-only authority observation; historical Run visibility never acquires writer custody.",
-      "sha256": "0ed60d29d215e3df01879053c07a88085c7e0c3590f6c09fe5c0487104351541"
+      "sha256": "eb4f7c8fa221b0396a5b5285de411f73d8d205d616d4196f600a64c25dbae1fa"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3153,12 +3153,12 @@
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
       "reason": "Existing authenticated owner/selected Work, Action Gateway, native session/route and revision checks unchanged. Inspect additionally reads shared UI truth, scoped active knowledge and behavior-only manifests; no writer or spend relaxation.",
-      "sha256": "209d1aa97d5adbc075d9d52545f9eac703d67ab9845a7c1744a2b82e6064348d"
+      "sha256": "482c821a911725fef9aba62249d93ea056cb35d6f167f06e02f12a856fed8f7b"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
       "reason": "Native effects require current Work, route, generation, revision and bound Agent revision; native admissions require trusted host rechecks. Independent verifier custody and SQL CAS fence evidence.",
-      "sha256": "7b93bc8aff5648fd69a2976d0632cf882c6d1cb4982fd8ed49bb262a03d2c58f"
+      "sha256": "47bd084456a050f8659807d139d0c72ff65a566e226f93c97f0ebecac08b486b"
     },
     "lib/engineering/direct-verification-driver.ts": {
       "classification": "ENFORCED",
@@ -3198,7 +3198,7 @@
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
       "reason": "Current authority, current pricing and durable reservation precede one model call. Only bounded text and native tool; no fallbacks or provider tools. Settle costs before exposure; unknown outcomes block retries.",
-      "sha256": "2968accfb0198247500bad0f5d1bcd6415cc546bd3ec546810f9376236947704"
+      "sha256": "e88320cf3de6dc064dc49c88f76944710fa021176204236dd93364f4a53b0295"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3208,12 +3208,12 @@
     "lib/engineering/native-results.ts": {
       "classification": "ENFORCED",
       "reason": "Immutable proof requires completed independent custody at exact candidate/profile/criteria/revision with artifact hashes. Local pass remains PARTIAL with explicit publication and cost limitations.",
-      "sha256": "6c96909f441075e6ee4aed70444a85c6030f54d1df1020d92d24e9f3ade64275"
+      "sha256": "4a9e5aea882a4f2de8162186fb4b543e3baf71bfbfc3adfa9db453ed8c906474"
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
       "reason": "Fresh native owner/Agent/policy/qualification/budget/writer checks unchanged. Contract records actual Software Engineer/JStack/mode versions; composition does not alter policy, resources, operations, owner or budget.",
-      "sha256": "662b148beafb654b363f7c1602a5b9f715e232a7c1fdfcadf7234fb9a86dba25"
+      "sha256": "7bc8892ea2505504a12bbcc1295006ac726efc999d97bef363be54c519598ada"
     },
     "lib/engineering/native-behavior.ts": {
       "classification": "INTERNAL",
@@ -3228,7 +3228,7 @@
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
       "reason": "Selected-Work model calls use common ledger before dispatch; native execution owns one canonical reservation, not a nested charge. Observation permits inspect only.",
-      "sha256": "37bd22c08c930c3a3d01a622fcd4b7a7c07349bb0fce52e10139631fc1e67d8b"
+      "sha256": "01481df3c3d350352840856dbf07f987c185025260a857a556b2527bad7c8ed4"
     },
     "lib/engineering/run-truth.ts": {
       "classification": "READ_ONLY",
@@ -3238,12 +3238,17 @@
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
       "reason": "Pure shared Work/chat formatting of observed Current Truth; no authority creation.",
-      "sha256": "d07f449742fb5cabff1ff5ab057030370ed1fd3555e3903302a6dd9a4755666b"
+      "sha256": "4366499891be5bb6c5f3fcc096a4f5819d8233c0aeee0df5cf839429cfff9fb6"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",
       "reason": "Pure conservative completion planning; always denies productive admission and creates no balance or reservation.",
       "sha256": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920"
+    },
+    "lib/engineering/native-completion.ts": {
+      "classification": "INTERNAL",
+      "reason": "Builds a bounded immutable completion contract from current Work/Agent/provider and reconciled admission pricing; reads stage state. Economic reservation is atomic in common-ledger SQL; this helper grants no independent authority. Qualified through concurrent admission, stage exhaustion, UNKNOWN, stale-authority and process-loss tests.",
+      "sha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8"
     }
   }
 }

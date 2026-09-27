@@ -1,0 +1,24 @@
+
+> eve-agent@0.0.0 typecheck
+> tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts
+
+capability registry ok: 147 definitions, 125 authored tools
+
+> eve-agent@0.0.0 skills:validate
+> node scripts/check-imported-skill-routing.mjs
+
+Imported routing: 93 checks, 50/57 rank one (87.7%).
+agent/tools/engineering_direct.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/database-schema.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/engineering/native-completion.ts: executor has no governance review
+lib/engineering/native-model.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/engineering/native-routing.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/engineering/route-admission.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+lib/engineering/runtime.ts: executor changed; review classification, target resolver, evidence and bypass tests before updating its fingerprint
+npm error Lifecycle script `typecheck` failed with error:
+npm error code 1
+npm error path /Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve
+npm error workspace eve-agent@0.0.0
+npm error location /Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve
+npm error command failed
+npm error command sh -c tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts

@@ -1,0 +1,19 @@
+{
+  "apps/eve/agent/tools/engineering_direct.ts": "482c821a911725fef9aba62249d93ea056cb35d6f167f06e02f12a856fed8f7b",
+  "apps/eve/lib/database-schema.ts": "4b69480e5ffdff7eaa08c70e22f0dea41b51ebb6d93ad83e1f10d60d90c97012",
+  "apps/eve/lib/engineering/native-model.test.ts": "9e4586607d7b186bc4848505c365d675dbec8bd67116a3af6da4b8914f74d0b4",
+  "apps/eve/lib/engineering/native-model.ts": "31d7de82416e6d597b4e0f7c227b6314ed43cff5c4c0bea791e4e28d02171650",
+  "apps/eve/lib/engineering/native-results.ts": "4a9e5aea882a4f2de8162186fb4b543e3baf71bfbfc3adfa9db453ed8c906474",
+  "apps/eve/lib/engineering/native-routing.ts": "2f79a321266c50d93e4534a6e91281fb25e2e4f05a5d56e8bfbaa659439c3788",
+  "apps/eve/lib/engineering/route-admission.ts": "2f05c5acf277d81ecbb81785d136595135eccfda3cc6f862627f223d4e7d5f52",
+  "apps/eve/lib/engineering/runtime.ts": "4b9da3d37fbcacc4e599a92333bc044183aa9e423eb786175b50396a0a6292bb",
+  "apps/eve/lib/engineering/native-completion.ts": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8",
+  "apps/eve/migrations/0053_native_completion_contract.sql": "a01c3b83a7d360216aa0bd11bb70319f0fc484efadbf31c19c565ac0ef869300",
+  "apps/eve/test/native-completion-process.mjs": "c13b241ae502895b7bfccab61cc8cc29084cc5e3404ee971929a86780dced686",
+  "apps/eve/test/native-completion.integration.mjs": "9932911e917daa79b20d000117eea418eeb312ba91ae52dec487c33968fe1a4b",
+  "docs/verification/2026-09-26-p0-gap2b-implementation/README.md": "a30961fca42a762cac02492e229a83c85a88d356ba16d43fd367647d8265a868",
+  "docs/verification/2026-09-26-p0-gap2b-implementation/isolated-postgres.log": "aaaf1300c66b2e1a4b52d7b7cfc70dfe323b6134b0202883715d02aef3064585",
+  "docs/verification/2026-09-26-p0-gap2b-implementation/manifest.json": "ea565dd62fb1b8e6913435df7d9d6110755a19f13844745a650ff495c36573b2",
+  "docs/verification/2026-09-26-p0-gap2b-implementation/retained-budget-finding.json": "32792360ee5760e008f49384ee408d42ad06b108b837d2a006397ba335764972",
+  "docs/verification/2026-09-26-p0-gap2b-implementation/typecheck-governance.log": "de8a9ccc3285d05e65cb35c55678d4197142228782904a55def74fe65482d2f3"
+}

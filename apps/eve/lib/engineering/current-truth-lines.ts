@@ -11,6 +11,8 @@ export function currentTruthLines(projection: EngineeringWorkerProjection): stri
     `Writer session: ${truth.writerSession.recordedId??"none recorded"}; ${truth.writerSession.productive?"current custody observed; recheck before effects":"not confirmed productive; historical identity grants no authority"}.`,
     `Candidate: ${projection.verification.candidateSha??projection.latestResult?.candidate??"none retained"}.`,
     projection.draft?`Draft: revision ${projection.draft.revision}; hash ${projection.draft.contentHash}; ${projection.draft.differsFromCandidate?"unverified changes beyond the frozen candidate":"matches retained candidate"}.`:"Draft: no native draft retained.",
+    `Candidate history: ${projection.candidateHistory.map(candidate=>`${candidate.sha}: ${candidate.checks}, ${candidate.evidenceCount} evidence records${candidate.failures.length?", failed checks "+candidate.failures.join(","):""}`).join("; ")||"none retained"}.`,
+    `Completion state: ${projection.completionStatus}.`,
     `Protected verification: ${projection.verification.status}; candidate ${projection.verification.candidateSha??"none"}; job ${projection.verification.jobStatus??"none"}; ${projection.verification.evidenceCount} bound evidence records.`,
     projection.latestResult?`Result: ${projection.latestResult.id}; candidate ${projection.latestResult.candidate}; ${projection.latestResult.summary}`:"Result: none retained.",
     projection.conversationRuntime?`Budget: $${projection.conversationRuntime.spentUsd.toFixed(6)} spent; $${projection.conversationRuntime.reservedUsd.toFixed(6)} reserved; ${projection.conversationRuntime.status}; unknown usage ${projection.conversationRuntime.usageUnknown}.`:"Budget: no common ledger grant observed.",

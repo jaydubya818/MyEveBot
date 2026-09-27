@@ -40,6 +40,8 @@ export interface EngineeringWorkerProjection {
   readiness: { ready: boolean; reasons: string[] };
   runTruth: ReturnType<typeof projectRuns>;
   verification: { candidateSha: string | null; status: string; jobStatus: string | null; evidenceCount: number; evidenceHashes: string[] };
+  candidateHistory: {sha:string;checks:string;failures:string[];evidenceCount:number}[];
+  completionStatus: string;
   completionBudget: { ceilingUsd: number; heldUsd: number | null; remainingUsd: number | null; observed: boolean };
   draft: { revision: number; contentHash: string; differsFromCandidate: boolean } | null;
   /** Compatibility alias for the observed active Run; historical identity lives in runTruth. */
@@ -119,6 +121,9 @@ export class EngineeringWorkerProjectionStore {
     const id = work.id;
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
+    const [completionFunction]=await this.workStore.database.query(
+      "SELECT to_regprocedure('engineering_completion_remaining(text,uuid)') AS present");
+    const holdExpression=completionFunction?.present ? "engineering_completion_remaining(b.scope_id,b.work_id)" : "NULL::bigint";
     const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows, runRows, verificationRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
@@ -151,19 +156,30 @@ export class EngineeringWorkerProjectionStore {
         `SELECT route_run_id,session_id,spent_microusd,reserved_microusd,usage_unknown,inflight FROM engineering_native_runtime
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
       this.workStore.database.query(
-        `SELECT b.ceiling_microusd,b.spent_microusd,b.reserved_microusd,b.status,
+        `SELECT b.ceiling_microusd,b.spent_microusd,b.reserved_microusd,b.status,${holdExpression} AS held_microusd,
            EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.scope_kind=b.scope_kind AND c.status='USAGE_UNKNOWN') AS usage_unknown,
            EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.work_id=b.work_id AND c.scope_id=b.scope_id AND c.scope_kind=b.scope_kind AND c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED')) AS inflight
          FROM engineering_work_model_budget b
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3
          UNION ALL
-         SELECT h.ceiling_microusd,h.spent_microusd,h.reserved_microusd,'HISTORICAL_RECONCILIATION' AS status,h.usage_unknown,h.inflight
+         SELECT h.ceiling_microusd,h.spent_microusd,h.reserved_microusd,'HISTORICAL_RECONCILIATION' AS status,NULL::bigint AS held_microusd,h.usage_unknown,h.inflight
          FROM engineering_conversation_budget h
          WHERE h.scope_id=$1 AND h.scope_kind=$2 AND h.work_id=$3
            AND NOT EXISTS(SELECT 1 FROM engineering_work_model_budget b WHERE b.scope_id=h.scope_id AND b.scope_kind=h.scope_kind AND b.work_id=h.work_id)`,scope),
       this.workStore.database.query(
         `SELECT r.id,r.route,r.status,r.work_version,r.work_generation,d.admitted_at,
-                d.admission_authority_snapshot->'contract'->>'deadline' AS deadline
+                d.admission_authority_snapshot->'contract'->>'deadline' AS deadline,
+                d.admission_authority_snapshot->'completion' AS completion,
+                (SELECT coalesce(jsonb_object_agg(stage,n),'{}'::jsonb) FROM (
+                  SELECT c.bounds#>>'{completion,stage}' stage,count(*) n FROM engineering_work_model_calls c
+                  WHERE c.scope_id=r.scope_id AND c.scope_kind=r.scope_kind AND c.work_id=r.work_id
+                    AND c.bounds#>>'{completion,id}'=r.id::text GROUP BY 1) counts) AS completion_used,
+                EXISTS(SELECT 1 FROM engineering_work_model_calls c WHERE c.scope_id=r.scope_id AND c.scope_kind=r.scope_kind
+                  AND c.work_id=r.work_id AND c.bounds#>>'{completion,id}'=r.id::text
+                  AND c.bounds#>>'{completion,stage}'='EXPLAIN' AND c.status='RECONCILED'
+                  AND jsonb_typeof(c.result->'content')='array' AND jsonb_array_length(c.result->'content')>0
+                  AND NOT EXISTS(SELECT 1 FROM jsonb_array_elements(c.result->'content') item
+                    WHERE item->>'type' IS DISTINCT FROM 'text' OR length(trim(coalesce(item->>'text','')))=0)) AS explanation_settled
          FROM engineering_route_runs r LEFT JOIN engineering_routing_decisions d
            ON d.id=r.decision_id AND d.scope_id=r.scope_id AND d.scope_kind=r.scope_kind AND d.work_id=r.work_id
          WHERE r.scope_id=$1 AND r.scope_kind=$2 AND r.work_id=$3`,scope),
@@ -171,15 +187,9 @@ export class EngineeringWorkerProjectionStore {
         `SELECT candidate_sha,status,evidence_count FROM engineering_direct_verification_jobs
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
     ]);
-    // Optional additive capability: 0052 observations do not assume a completion hold exists.
-    const [completionFunction]=await this.workStore.database.query(
-      "SELECT to_regprocedure('engineering_completion_remaining(text,uuid)') AS present");
-    const [completionRow]=completionFunction?.present ? await this.workStore.database.query(
-      "SELECT engineering_completion_remaining($1::text,$2::uuid) AS held_microusd",
-      [this.workStore.principal.scopeId,id]) : [];
     const accounting=conversationRows[0];
     const ceilingUsd=Math.min(work.maxCostUsd,Number(accounting?.ceiling_microusd??work.maxCostUsd*1_000_000)/1_000_000);
-    const heldUsd=completionRow ? Number(completionRow.held_microusd)/1_000_000 : null;
+    const heldUsd=accounting?.held_microusd!=null ? Number(accounting.held_microusd)/1_000_000 : completionFunction?.present && !accounting ? 0 : null;
     if(heldUsd!==null && (!Number.isFinite(heldUsd) || heldUsd<0))
       throw new WorkError("completion_projection","Completion capacity could not be observed safely.");
     const completionBudget={ceilingUsd,heldUsd,observed:heldUsd!==null,
@@ -212,6 +222,16 @@ export class EngineeringWorkerProjectionStore {
       contentHash:String(nativeRow.native_proof_hash),current:nativeProof.workVersion===work.version &&
         nativeProof.criteriaVersion===work.criteriaVersion && Number(nativeRow.native_result_generation)===work.generation} : null;
     const nativePhase = nativeRow?.phase as NonNullable<EngineeringWorkerProjection["nativeDevelopment"]>["phase"];
+    const completionRun=runRows.find(row=>row.id===(nativeRow?.route_run_id??currentRouteRun?.id));
+    const completion=completionRun?.completion;
+    const completionStage=nativePhase==="VERIFICATION_PASSED" || (nativePhase==="VERIFICATION_FAILED" && nativeRow?.candidates?.length>=2)?"EXPLAIN"
+      :nativeRow?.candidates?.length?"REPAIR":"IMPLEMENT";
+    const configuredSlots=completion?.stages?.find((stage:Record<string,unknown>)=>stage.id===completionStage)?.calls;
+    const usedSlots=Number(completionRun?.completion_used?.[completionStage]??0);
+    const completionStatus=!completion?"NO_CONTRACT":Date.parse(completion.expiresAt)<=Date.now()?"EXPIRED"
+      :nativePhase==="VERIFICATION_REQUESTED"?"WAITING_VERIFICATION"
+      :completionStage==="EXPLAIN"?(completionRun?.explanation_settled?"COMPLETE":usedSlots?"RECONCILIATION_REQUIRED":"EXPLANATION_REQUIRED")
+      :usedSlots>=Number(configuredSlots)?"STAGE_EXHAUSTED":"READY";
     let observedRunId: string | null = null;
     let authorityReason = "Current execution authority not established";
     if (nativeRow && conversationRows[0]?.status==="ACTIVE" && !conversationRows[0]?.usage_unknown && !nativeRuntimeRows[0]?.usage_unknown) {
@@ -231,6 +251,9 @@ export class EngineeringWorkerProjectionStore {
     for(const run of execution?.runs??[]) if(!observedInputs.some(item=>item.id===run.id)) observedInputs.push({
       id:run.id,purpose:run.reason,status:run.status,generation:run.generation,version:null,
       associatedAt:run.startedAt,timestampSource:"execution-start",deadline:execution!.contract.deadline});
+    if(["EXPIRED","COMPLETE","EXPLANATION_REQUIRED","RECONCILIATION_REQUIRED"].includes(completionStatus)) {
+      observedRunId=null;authorityReason=`Completion workflow is ${completionStatus}; history is read-only`;
+    }
     const runTruth=projectRuns(work,observedInputs,{runId:observedRunId,
       writerRunId:runtime?.route_run_id?String(runtime.route_run_id):null,
       writerSessionId:runtime?.session_id?String(runtime.session_id):null,reason:authorityReason});
@@ -261,6 +284,14 @@ export class EngineeringWorkerProjectionStore {
         :job?.status==="QUEUED" || job?.status==="RUNNING"?"PENDING":nativeCandidate?"UNKNOWN":"NOT_RUN",
       jobStatus:job?String(job.status):null,evidenceCount:candidateChecks.length,
       evidenceHashes:candidateChecks.map((item:Record<string,unknown>)=>String(item.artifactHash))};
+    const candidateHistory=(Array.isArray(nativeRow?.candidates)?nativeRow.candidates:[]).map((candidate:Record<string,unknown>)=>{
+      const checks=(Array.isArray(nativeRow?.evidence)?nativeRow.evidence:[]).filter((item:Record<string,unknown>)=>
+        item.candidate===candidate.sha && item.attemptId===candidate.attemptId && item.workId===work.id &&
+        item.criteriaVersion===Number(nativeRow?.criteria_version) && item.base===nativeRow?.base_sha && item.profileHash===nativeRow?.profile_hash &&
+        item.producer==="protected-supervisor" && typeof item.artifact==="string" && digest(item.artifact)===item.artifactHash);
+      return {sha:String(candidate.sha),checks:checks.some((e:Record<string,unknown>)=>e.result==="FAIL")?"FAIL":candidate.sha===verification.candidateSha && verification.status==="PASS"?"PASS":"UNKNOWN",
+        failures:checks.filter((e:Record<string,unknown>)=>e.result==="FAIL").map((e:Record<string,unknown>)=>String(e.check)),evidenceCount:checks.length};
+    });
     const nativeCheckUnknown = nativePhase === "VERIFICATION_FAILED" &&
       Array.isArray(nativeRow?.evidence) && nativeRow.evidence.some((item: Record<string, unknown>) =>
         item.candidate === nativeCandidate?.sha &&
@@ -301,6 +332,13 @@ export class EngineeringWorkerProjectionStore {
     const runtimeRow=nativeRuntimeRows[0];
     const nativeRuntime=runtimeRow ? {spentUsd:Number(runtimeRow.spent_microusd)/1_000_000,
       reservedUsd:Number(runtimeRow.reserved_microusd)/1_000_000,usageUnknown:!!runtimeRow.usage_unknown,inflight:!!runtimeRow.inflight} : null;
+    const completionBlocker=completion && completionStatus!=="READY" && completionStatus!=="WAITING_VERIFICATION"
+      ? {status:completionStatus==="COMPLETE"?"Local workflow complete":"Needs attention",
+         activity:`Completion workflow: ${completionStatus}. Candidate, draft and evidence remain retained.`,
+         nextStep:completionStatus==="EXPLANATION_REQUIRED"?"Use the reserved read-only final Work explanation; productive execution is finished."
+           :completionStatus==="COMPLETE"?"Review the immutable PARTIAL/FAILED local Result. Publication, CI and review require separate qualification."
+           :completionStatus==="STAGE_EXHAUSTED"?"No additional model call fits this stage. Only already-admitted guarded actions may finish; otherwise owner review is required. Do not expand the budget automatically."
+           :"Reconcile the completion contract and retained exposure before any new call. Do not revive an expired Run or release UNKNOWN reservations."} : null;
     const commonBudgetBlocker=conversationRows[0] && conversationRows[0].status!=="ACTIVE"
       ? {status:"Needs reconciliation",activity:`Common Work accounting is ${conversationRows[0].status}; history is retained.`,
           nextStep:"Reconcile historical Work liabilities and obtain current authority before productive continuation. Do not reset spent or reserved amounts."} : null;
@@ -358,7 +396,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      runTruth, verification, draft, completionBudget,
+      runTruth, verification, draft, completionBudget, candidateHistory, completionStatus,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -385,9 +423,9 @@ export class EngineeringWorkerProjectionStore {
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
-      status: truth?.status ?? commonBudgetBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
-      activity: truth?.activity ?? commonBudgetBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
+      status: truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
+      activity: truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
+      nextStep: truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? routeActivity?.nextStep ?? noExecutionNextStep(work),
       readiness: truth?.readiness ?? { ready: false, reasons: nativeResult
         ? [`Native protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },

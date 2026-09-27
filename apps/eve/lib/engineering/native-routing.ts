@@ -1,3 +1,4 @@
+import { prepareNativeCompletion } from "./native-completion.ts";
 import { nativeBehavior } from "./native-behavior.ts";
 import { digitalWorkContractSchema, contextPackageSchema, type RoutingProfile } from "../digital-worker/contracts.ts";
 import { decideExecutionRoute, routeFactsSchema } from "../digital-worker/routing.ts";
@@ -109,6 +110,9 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
          AND d.status='ADMITTED' AND r.work_generation=$5 AND r.status IN ('QUEUED','RUNNING')`,
       [this.store.principal.scopeId, this.store.principal.scopeKind, id, snapshot.contract.workVersion, snapshot.binding.workGeneration]);
     const prior = admitted?.admission_authority_snapshot;
+    if (!prior?.completion) throw new WorkError("completion_missing", "Historical routes without a completion contract are read-only.",403);
+    if (Date.parse(prior.completion.expiresAt)<=Date.now())
+      throw new WorkError("completion_expired", "The completion contract expired; historical custody is read-only.",403);
     if (!prior?.binding || digest(prior.binding) !== digest(snapshot.binding) ||
         digest(prior.contract.resourceRefs) !== digest(snapshot.contract.resourceRefs))
       throw new WorkError("native_authority_changed", "Execution authority changed; a fresh Work admission is required.", 403);
@@ -121,7 +125,7 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
   }
 }
 
-export async function admitNativeWork(store: WorkStore, id: string, expectedVersion: number, authority = new NativeRouteAuthority(store)) {
+export async function admitNativeWork(store: WorkStore, id: string, expectedVersion: number, authority = new NativeRouteAuthority(store), sessionId?: string) {
   const work = await store.get(id);
   if (work.version !== expectedVersion) throw new WorkError("routing_changed", "Reload the current Work before admission.");
   const routingStore = new RoutingStore(store);
@@ -141,5 +145,6 @@ export async function admitNativeWork(store: WorkStore, id: string, expectedVers
     ], constraints: ["One writer", "Approved source paths only", "No publication or Ready authority"],
     providerId: NATIVE_PROVIDER.id, providerVersion: String(NATIVE_PROVIDER.version),
   });
-  return new RouteAdmissionService(store, authority).admit(id, { decisionId: proposal.id, expectedWorkVersion: work.version, request: assessment.request });
+  const completion=sessionId ? await prepareNativeCompletion(store,authority,id,sessionId) : undefined;
+  return new RouteAdmissionService(store, authority).admit(id, { decisionId: proposal.id, expectedWorkVersion: work.version, request: assessment.request },completion);
 }

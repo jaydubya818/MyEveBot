@@ -1,0 +1,27 @@
+{
+  "status": "PRODUCT_POLICY_STOP",
+  "workId": "fb5a3dd2-e601-404c-8321-81f44ac2973d",
+  "workCeilingMicrousd": 1300000,
+  "historicalSpentMicrousd": 777654,
+  "historicalReservedMicrousd": 0,
+  "remainingMicrousd": 522346,
+  "slots": 9,
+  "maxOutputTokens": 2048,
+  "configuredInputBytes": 14336,
+  "configuredCompletionMicrousd": 1013760,
+  "minimumPolicyInputBytes": 5120,
+  "minimumPolicyCompletionMicrousd": 599040,
+  "minimumPolicyShortfallMicrousd": 76694,
+  "freshConversationIncluded": false,
+  "pricing": {
+    "inputUsdPerToken": "0.000002",
+    "outputUsdPerToken": "0.000010",
+    "maximumInputIncludingCacheCreationUsdPerToken": "0.0000025"
+  },
+  "pricingBasis": "Isolated qualification snapshot; no new live catalog fetched. Historical receipt base rates agree. Not a fresh provider authorization.",
+  "safetyMultiplier": 2,
+  "qualificationScope": "Proposed nine-call contract at output cap 2048. This does not prove every possible redesigned workflow impossible. A fresh zero-spend Work is not the retained Work.",
+  "retainedDatabaseAccessed": false,
+  "additionalLiveModelSpendMicrousd": 0,
+  "source": "../2026-09-26-m1er1-window/window-closure.json"
+}

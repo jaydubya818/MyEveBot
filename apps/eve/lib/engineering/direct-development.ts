@@ -220,7 +220,10 @@ export class DirectDevelopmentStore {
     if (!value || value.revision !== expectedRevision || !this.current(work,value) ||
         !["DRAFT","VERIFICATION_FAILED"].includes(value.phase))
       throw new WorkError("direct_changed", "Direct Work, control, deadline, or draft changed. Reload before editing.");
-    await this.requireAdmission(id);
+    const admission=await this.requireAdmission(id);
+    const completion=admission.admission_authority_snapshot.completion;
+    if (completion && value.candidates.length>=1+Number(completion.repairIterations))
+      throw new WorkError("completion_iterations", "The completion contract repair iteration is exhausted. Retain the candidates and request owner review.",403);
     return value;
   }
 

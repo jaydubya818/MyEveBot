@@ -1,3 +1,4 @@
+import { nativeCompletionPolicySchema } from "./native-completion.ts";
 import { nativeQualificationSchema } from "./native-qualification.ts";
 import { readFile } from "node:fs/promises";
 import { z } from "zod";
@@ -18,6 +19,7 @@ export const runtimeSchema=z.object({
   approvedBase:approvedBaseSchema,
   brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
   nativeQualification:nativeQualificationSchema.optional(),
+  nativeCompletion:nativeCompletionPolicySchema.default(() => nativeCompletionPolicySchema.parse({})),
   nativeMode:z.enum(["normal","potato"]).default("normal"),
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),

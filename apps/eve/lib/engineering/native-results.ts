@@ -14,10 +14,18 @@ export class NativeResultStore {
     const store = this.direct.workStore;
     const scope = [store.principal.scopeId, store.principal.scopeKind, id];
     const [source] = await store.database.query(
-      `SELECT d.admission_authority_snapshot,n.spent_microusd,n.reserved_microusd,n.usage_unknown
+      `SELECT d.admission_authority_snapshot,
+        CASE WHEN b.work_id IS NULL THEN n.spent_microusd ELSE costs.spent END AS spent_microusd,
+        CASE WHEN b.work_id IS NULL THEN n.reserved_microusd ELSE costs.reserved END AS reserved_microusd,
+        CASE WHEN b.work_id IS NULL THEN n.usage_unknown ELSE costs.unknown OR b.status<>'ACTIVE' END AS usage_unknown
        FROM engineering_routing_decisions d
        JOIN engineering_direct_verification_jobs j ON j.scope_id=d.scope_id AND j.scope_kind=d.scope_kind AND j.work_id=d.work_id
        LEFT JOIN engineering_native_runtime n ON n.scope_id=d.scope_id AND n.scope_kind=d.scope_kind AND n.work_id=d.work_id
+       LEFT JOIN engineering_work_model_budget b ON b.scope_id=d.scope_id AND b.scope_kind=d.scope_kind AND b.work_id=d.work_id
+       LEFT JOIN LATERAL (SELECT COALESCE(sum(c.spent_microusd) FILTER(WHERE c.status='RECONCILED'),0) AS spent,
+         COALESCE(sum(c.reserved_microusd) FILTER(WHERE c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED','USAGE_UNKNOWN')),0) AS reserved,
+         COALESCE(bool_or(c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED','USAGE_UNKNOWN')),false) AS unknown
+         FROM engineering_work_model_calls c WHERE c.scope_id=d.scope_id AND c.scope_kind=d.scope_kind AND c.work_id=d.work_id AND c.purpose='NATIVE_EXECUTION') costs ON true
        WHERE d.scope_id=$1 AND d.scope_kind=$2 AND d.work_id=$3 AND d.id=$4 AND j.candidate_sha=$5 AND j.status='COMPLETED'`,
       [...scope, workspace.decisionId, candidate.sha]);
     if (!source) throw new WorkError("native_result_unverified", "Protected verification must be durably completed before retaining Proof of Work.");

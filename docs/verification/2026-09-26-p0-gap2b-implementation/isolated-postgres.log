@@ -1,0 +1,38 @@
+PASS: minimum completion admitted within unchanged $1.30
+PASS: repair commitment protected, unknown exposure retained, exact replay not double-counted
+PASS: real SQL contention conversation [ 'rejected', 'fulfilled' ]
+PASS: real SQL contention native [ 'fulfilled', 'rejected' ]
+PASS: real SQL contention two-admissions [ 'fulfilled', 'rejected' ]
+PASS: real SQL contention fresh-chats [ 'fulfilled', 'rejected' ]
+PASS: stale Work, policy and Agent dispatch fenced
+PASS: actual SIGKILL after CONTRACT preserves contract/exposure without replay
+PASS: actual SIGKILL after RESERVED preserves contract/exposure without replay
+PASS: actual SIGKILL after DISPATCHED preserves contract/exposure without replay
+PASS: actual SIGKILL after RESULT_RETAINED preserves contract/exposure without replay
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /completion|qualification|stage/i. Input:
+
+'SyntaxError: "undefined" is not valid JSON'
+
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/test/native-completion.integration.mjs:108:3 {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: SyntaxError: "undefined" is not valid JSON
+      at JSON.parse (<anonymous>)
+      at Object.query (file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/test/native-completion.integration.mjs:105:136)
+      at RoutingStore.recordProposal (/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/lib/engineering/routing-store.ts:181:48)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async admitNativeWork (/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/lib/engineering/native-routing.ts:138:65)
+      at async waitForActual (node:assert:646:5)
+      at async strict.rejects (node:assert:769:25)
+      at async file:///Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve/apps/eve/test/native-completion.integration.mjs:108:3,
+  expected: /completion|qualification|stage/i,
+  operator: 'rejects',
+  diff: 'simple'
+}
+
+Node.js v24.18.1

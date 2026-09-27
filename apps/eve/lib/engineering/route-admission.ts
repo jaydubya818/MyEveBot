@@ -78,7 +78,7 @@ export class RouteAdmissionService {
     readonly authority: CurrentRouteAuthority,
   ) {}
 
-  async admit(id: string, value: unknown): Promise<RouteAdmissionReceipt> {
+  async admit(id: string, value: unknown, completion?: Record<string, unknown>): Promise<RouteAdmissionReceipt> {
     const input = admissionInputSchema.parse(value);
     if (input.request.route === "HUMAN")
       throw new WorkError("route_not_productive", "Human review is not a provider run.");
@@ -112,10 +112,11 @@ export class RouteAdmissionService {
       throw new WorkError("route_provider_changed", "The proposed provider no longer matches current qualification.");
 
     const admissionReason = "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.";
-    const authoritySnapshot = { contract, facts, ...(snapshot.binding ? { binding: snapshot.binding } : {}) };
+    const runId = randomUUID();
+    const authoritySnapshot = { contract, facts, ...(snapshot.binding ? { binding: snapshot.binding } : {}),
+      ...(completion ? {completion:{...completion,id:runId,runId}} : {}) };
     const decisionId = input.decisionId;
     const transitionId = randomUUID();
-    const runId = randomUUID();
     const { scopeId, scopeKind } = this.workStore.principal;
     const rows = await this.workStore.database.query(
       `WITH locked_work AS MATERIALIZED (
@@ -186,7 +187,11 @@ export class RouteAdmissionService {
         digest(context), digest(authoritySnapshot), transitionId, runId,
         snapshot.binding?.agentId ?? null, snapshot.binding?.agentRevision ?? null, snapshot.binding?.workGeneration ?? null,
       ],
-    );
+    ).catch((error: unknown) => {
+      if (error && typeof error==="object" && "message" in error && String(error.message).startsWith("INSUFFICIENT_COMPLETION_BUDGET:"))
+        throw new WorkError("INSUFFICIENT_COMPLETION_BUDGET",String(error.message),409);
+      throw error;
+    });
     if (!rows.length)
       throw new WorkError("routing_changed", "Work, provider, proposal or writer state changed. Reload before admission.");
     return {

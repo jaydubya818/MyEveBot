@@ -18,10 +18,10 @@ const work={...fixture().work,id:retained.workspace.work_id,version:2,generation
 function reader(authority=vi.fn().mockRejectedValue(new Error("revoked"))){
  const store={principal:{scopeId:"authenticated-native-fixture",scopeKind:"personal",actorId:"authenticated-native-fixture"},get:async()=>work,database:{query:async(sql:string)=>{
  queries.push(sql);if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
- if(sql.includes("SELECT engineering_completion_remaining"))return [{held_microusd:held}];
+ if(sql.includes("SELECT engineering_completion_remaining"))throw new Error("Budget and hold must use one SQL snapshot");
  if(sql.includes("FROM engineering_direct_workspaces n"))return[data.workspace];
  if(sql.includes("FROM engineering_native_runtime"))return[data.runtime];
- if(sql.includes("FROM engineering_work_model_budget b"))return[data.budget];
+ if(sql.includes("FROM engineering_work_model_budget b"))return[{...data.budget,held_microusd:held}];
  if(sql.includes("FROM engineering_route_runs r"))return[data.run];
  if(sql.includes("FROM engineering_direct_verification_jobs"))return[data.job];return[];
  }}} as unknown as WorkStore;
