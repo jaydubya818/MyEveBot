@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { getHostedRequest, type Graphql, type HostedConfig } from "../myfactory-protocol.mjs";
+import { retrieveFactoryArtifacts, type FactoryArtifact } from "./factory-artifact-transport.ts";
 import { bindFactorySubmission } from "./factory-return.ts";
 import { factoryBindingSchema, factoryGitIdSchema, factorySubmissionSchema,
   trustedFactorySourcePinSchema } from "./factory-return-contract.ts";
@@ -9,8 +10,9 @@ const sha = (value: string) => createHash("sha256").update(value).digest("hex");
 const hex = z.string().regex(/^[a-f0-9]{64}$/);
 const stamp = z.iso.datetime();
 const artifact = z.object({ id: z.string(), kind: z.enum(["patch", "log"]),
-  byteLength: z.number().int().min(0).max(16000), sha256: hex,
-  bytes: z.string().max(22000) }).strict();
+  byteLength: z.number().int().min(0).max(128000), sha256: hex,
+  bytes: z.string().max(22000).optional(), reference: z.object({ version: z.literal(1),
+    transport: z.literal("linear-comments-v1"), expiresAt: stamp }).strict().optional() }).strict();
 const check = z.object({ id: z.uuid(), command: z.string().min(1).max(4000),
   candidateCommit: factoryGitIdSchema, status: z.literal("passed"), exitCode: z.literal(0),
   startedAt: stamp, finishedAt: stamp, logSha256: hex }).strict();
@@ -74,6 +76,10 @@ export async function observeAuthenticatedFactoryResult(input: {
   if (!observed.result) return { status: "AWAITING" as const, reconcileRequestId: bound.requestId,
     authorityGranted: false, readiness: "NOT_READY" as const };
   const result = signedResult.parse(observed.result);
+  if (!observed.resultTrust || !["active", "rotated"].includes(observed.resultTrust.trustStatus))
+    throw new Error("FACTORY_RESULT_SIGNING_KEY_NOT_TRUSTED");
+  if (!observed.resultEnvelope || !observed.resultEnvelopeDigest)
+    throw new Error("FACTORY_RESULT_SIGNED_ENVELOPE_MISSING");
   const m = result.manifest;
   const expected = prepared.hostedInput.factoryBinding;
   if (observed.requestId !== bound.requestId || result.issueId !== bound.requestId ||
@@ -87,12 +93,18 @@ export async function observeAuthenticatedFactoryResult(input: {
       m.checks.some((entry, index) => entry.command !== input.requiredChecks[index]) ||
       !observed.receipt || observed.receipt.workOrderId !== m.workOrderId ||
       observed.receipt.state !== "ready_for_review") throw new Error("FACTORY_RESULT_WRONG_REQUEST_OR_ATTEMPT");
+  const artifactBytes = await retrieveFactoryArtifacts({ issueId: result.issueId,
+    operationId: result.operationId, workOrderId: m.workOrderId, runId: m.runId,
+    attemptNumber: m.attemptNumber, manifest: { ...m, artifacts: m.artifacts as FactoryArtifact[] },
+    graphql: input.graphql });
   if (input.previous && (input.previous.operationId !== result.operationId ||
       input.previous.manifestDigest !== result.manifestDigest)) throw new Error("FACTORY_RESULT_CONFLICT");
   return { status: stale ? "HISTORICAL" as const : input.previous ? "DEDUPED" as const : "INTEGRITY_VERIFIED" as const,
     operationId: result.operationId, manifestDigest: result.manifestDigest,
     candidateCommit: m.candidateCommit, candidateTree: m.candidateTree,
-    artifacts: m.artifacts, checks: m.checks, factoryVersion: result.factoryVersion,
+    artifacts: m.artifacts, artifactBytes, checks: m.checks, factoryVersion: result.factoryVersion,
+    signedResult: result, signedEnvelope: observed.resultEnvelope,
+    signedEnvelopeDigest: observed.resultEnvelopeDigest, resultTrust: observed.resultTrust,
     authorityGranted: false, independentVerification: "NOT_RUN" as const,
     readiness: "NOT_READY" as const };
 }

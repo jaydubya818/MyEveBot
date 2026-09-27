@@ -4,8 +4,8 @@
   "executors": {
     "lib/engineering/factory-authenticated-result.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN.",
-      "sha256": "a8779ae55de57db41701de468018bb5f210f2b4a05f6fb9e71a44cc53910ab3d"
+      "reason": "Authenticates signed Factory result and pinned Work/attempt/FactoryVersion; retrieves scoped artifact chunks and verifies digests. No writer, approval, budget or readiness effect.",
+      "sha256": "7a629e4c96c4989c8e225d3bedcd3574fbeaf373fc575ff3cb5ee2b469947e04"
     },
     "lib/engineering/factory-return-contract.ts": {
       "classification": "INTERNAL",
@@ -2149,9 +2149,9 @@
       "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315"
     },
     "lib/database-schema.ts": {
-      "classification": "NOT_APPLICABLE",
-      "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
-      "sha256": "4b69480e5ffdff7eaa08c70e22f0dea41b51ebb6d93ad83e1f10d60d90c97012"
+      "classification": "INTERNAL",
+      "reason": "Current additive migration manifest now includes 0054 Gate C Factory receipt custody; no runtime authority grant.",
+      "sha256": "71f51c483fe17fed0ab35a9cbaefe8db343ad355c1cb0dcfc8e99e0ecd122a6d"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3073,7 +3073,7 @@
     "agent/lib/myfactory.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
-      "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+      "sha256": "18c1e294be59777fe1a1fdd6b20bde7c968c1e930d2865385f76e2084851935c"
     },
     "lib/digital-worker/contracts.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3269,6 +3269,16 @@
       "classification": "INTERNAL",
       "reason": "Builds a bounded immutable completion contract from current Work/Agent/provider and reconciled admission pricing; reads stage state. Economic reservation is atomic in common-ledger SQL; this helper grants no independent authority. Qualified through concurrent admission, stage exhaustion, UNKNOWN, stale-authority and process-loss tests.",
       "sha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8"
+    },
+    "lib/engineering/factory-artifact-transport.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Uses scoped Linear GraphQL reads for bounded signed-manifest artifact chunks; checks exact issue/attempt, expiration, length and digest. No mutation or authority grant.",
+      "sha256": "0b8839cd164d3b15e12cc7389f267d5b2ff5e01443e439974915b1bcab5d95fa"
+    },
+    "lib/engineering/factory-result-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Writes only Work-scoped Gate C receipt/admission through additive SQL CAS functions after producer authentication; never grants writer, approval, budget, protected verification or Ready.",
+      "sha256": "62b929c3421ac12507d4ae7a664a9c01baa3600a689e3d1d47d9de6cca95ce4b"
     }
   }
 }

@@ -8,7 +8,12 @@ export const factoryInput = z.object({ idempotencyKey: z.string().min(1).max(160
   acceptanceCriteria: z.array(z.string().min(1).max(500)).min(1).max(30), allowedPaths: z.array(z.string().min(1).max(500)).min(1).max(30) }).strict();
 export function factoryConfig(): HostedConfig & { connector: string; workspaceId: string } {
   const value = (name: string) => { const v = process.env[name]?.trim(); if (!v) throw new Error("MyFactory host routing is not configured"); return v; };
-  return { clientId: "myeve", repository: value("MYFACTORY_REPOSITORY"), teamId: value("MYFACTORY_LINEAR_TEAM_ID"),
+  const rawTrust = process.env.MYFACTORY_SIGNING_TRUST_BUNDLE?.trim();
+  const signingKeyring = rawTrust ? z.object({ version: z.literal(1), activeKeyId: z.string(),
+    keys: z.array(z.object({ id: z.string(), version: z.literal("ed25519-v1"),
+      status: z.enum(["active", "rotated", "revoked"]), publicKeyPem: z.string(),
+      changedAt: z.iso.datetime() }).strict()).min(1).max(10) }).strict().parse(JSON.parse(rawTrust)) : undefined;
+  return { ...(signingKeyring ? { signingKeyring } : {}), clientId: "myeve", repository: value("MYFACTORY_REPOSITORY"), teamId: value("MYFACTORY_LINEAR_TEAM_ID"),
     connector: value("MYFACTORY_LINEAR_CONNECTOR"), workspaceId: value("MYFACTORY_LINEAR_WORKSPACE_ID"),
     token: value("MYFACTORY_CLIENT_TOKEN"), receiptPublicKey: value("MYFACTORY_RECEIPT_PUBLIC_KEY") };
 }
