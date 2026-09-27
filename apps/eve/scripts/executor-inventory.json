@@ -2959,6 +2959,51 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+    },
+    "lib/universal-inbox/adapters.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure normalization of already admitted source data. No polling, provider access, reply, grants or execution; trusted owner-scoped mappings are required.",
+      "sha256": "620c7cde60d0d109e4b133cd5c13f3b232ef329ed2fb6b2f140de2b261cd407f"
+    },
+    "lib/universal-inbox/api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Unmounted authenticated handler factory. Owner comes from the supplied server authenticator; bounded same-origin mutations only persist inbox metadata/response intents, never execute effects.",
+      "sha256": "4b3b1aec17404882c0e263a44ee2eb92227ccd5acaf7d00fc5eb443f473cdd9b"
+    },
+    "lib/universal-inbox/approval-consumer.ts": {
+      "classification": "INTERNAL",
+      "reason": "Delegates exact owner/hash approval decisions to canonical decideApproval and requires a canonical idempotent Work receiver. Grants no new authority; stale canonical decisions fail closed. Not mounted in production.",
+      "sha256": "8f6835fbdeaacf08f75b63d1b89ef6d9815b9f6f9b7800f1a49ecfe79278ae63"
+    },
+    "lib/universal-inbox/contracts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict attention and response schemas and types only; no provider effects or authority.",
+      "sha256": "bb733818e8d2fb1ebec00193cf772d0f426a23501132ebafbf7bd1fd2d836a53"
+    },
+    "lib/universal-inbox/domain.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure identity, priority, lifecycle, Needs You and presentation logic; no effects.",
+      "sha256": "e1303777b0c6b8c8e4b378d76418fb2ef70b349613499409a21b4f2f01f5fac4"
+    },
+    "lib/universal-inbox/fixture-repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Local SQLite qualification storage only; not imported by any production route/scheduler. Transactions persist synthetic attention and response evidence, never canonical Work or authority.",
+      "sha256": "865c8cbc44bad6378ac78ea086b9dc1745c0a4db509625c6025f356e601da0c7"
+    },
+    "lib/universal-inbox/fixtures.ts": {
+      "classification": "INTERNAL",
+      "reason": "Synthetic server-side fixtures only. No live accounts, source polling, delivery or canonical writes.",
+      "sha256": "c1c3accbb9ba6ceca39fa74283eda6cf9dace5d1adb4d6b0a439857338b1435d"
+    },
+    "lib/universal-inbox/repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped transactional persistence interface only; no implementation or external effects.",
+      "sha256": "cd5f53a3303f9f406d69ab5c00bdc56d723a54b3fa13cf5630fb877b7864218c"
+    },
+    "lib/universal-inbox/service.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped attention lifecycle and response intents. Provider handoff occurs only through an injected canonical consumer required to enforce authority and durable response-ID idempotency; no production registration.",
+      "sha256": "1b7b21027c135242afb21472eee65366d632f3c5d61a18cb54180db0daed5f81"
     }
   }
 }

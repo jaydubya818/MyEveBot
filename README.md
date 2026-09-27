@@ -257,3 +257,9 @@ vercel deploy --prod --yes
 ```
 
 After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
+
+## Universal Inbox and Needs You
+
+The isolated [Universal Inbox domain](docs/universal-inbox/README.md) provides normalized attention items, genuine owner-action semantics, correlation, deduplication, supersession, owner responses and [Beta UI fixtures](docs/universal-inbox/fixture-contract.md). Canonical approvals retain authority. Local crash/isolation qualification is documented in the [evidence dossier](docs/verification/universal-inbox/README.md).
+
+Production database and Digital Worker continuation wiring remain gated on shared schema ownership; the fixture adapter is not a live inbox or qualified external connector.
