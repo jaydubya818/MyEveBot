@@ -186,7 +186,16 @@ environment before qualification; do not weaken the auth boundary to make a prev
 
 Scoped Memory now deduplicates exact repeated writes, retains correction history, bounds recall, and keeps semantic-provider access within the configured owner. Nightly consolidation preserves conflicting evidence instead of treating the newest observation as truth.
 
-The [governed learning implementation and operator guide](docs/total-recall-learning.md) separates feedback, candidates, deterministic evaluation, owner promotion and rollback. **Learning is not design-partner ready:** shared migration ownership blocks schema activation; the service/UI are qualified only locally and live Sofie reuse remains unqualified. See the [qualification dossier](docs/verification/total-recall-learning/README.md).
+The [governed learning implementation and operator guide](docs/total-recall-learning.md) separates feedback, candidates, deterministic evaluation, owner promotion and rollback. **READY_FOR_INTEGRATION; schema activation remains BLOCKED.** Bounded Work retrieval, restart reuse, verified Result feedback, qualified-version restoration, Beta projections and the read-only Capsule contract pass local qualification. This does not qualify a live design-partner journey. See the [current evidence](docs/verification/total-recall-learning/integration-preparation/README.md) and [integration package](docs/integration/total-recall/README.md).
+
+| Area | Status |
+| --- | --- |
+| MEMORY CORE | LOCALLY QUALIFIED |
+| CANONICAL WORK RETRIEVAL | INTEGRATION PENDING |
+| LEARNING CORE | LOCALLY QUALIFIED / RUNTIME ACTIVATION PENDING |
+| LIVE SOFIE REUSE | NOT_RUN |
+| LIVE MODEL IMPROVEMENT | NOT_PROVEN |
+
 
 ## Chat and memory reliability
 

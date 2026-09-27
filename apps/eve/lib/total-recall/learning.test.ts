@@ -49,3 +49,33 @@ describe("governed learning", () => {
     expect(()=>transitionLearning(rolled,command(rolled,"promote"),"owner",now)).toThrow();
   });
 });
+
+
+describe("qualified replacement rollback",()=>{
+  function replacement(){
+    let f=fixture();f=transitionLearning(f,command(f,"evaluate"),"owner",now);f=transitionLearning(f,command(f,"promote"),"owner",now);
+    const v:LearningVersion={...structuredClone(f.versions[0]),version:2,behavior:"state_uncertainty",status:"CANDIDATE",evaluation:null,replacesVersion:1,
+      hash:candidateHash(scope,2,"state_uncertainty",{replacesVersion:1})};
+    f.versions.push(v);v.evaluation=evaluateCandidate(f,v,now);
+    return transitionLearning(f,{...command(f,"promote"),version:2,hash:v.hash},"owner",now);
+  }
+  it("restores the prior immutable qualified version with an idempotent event",()=>{
+    const f=replacement(),prior=structuredClone(f.versions[0]);
+    const c={...command(f,"rollback"),version:2,hash:f.versions[1].hash,restoreVersion:1};
+    const rolled=transitionLearning(f,c,"owner",now);
+    expect(rolled.versions.map(v=>v.status)).toEqual(["PROMOTED","ROLLED_BACK"]);
+    expect(rolled.versions[0].hash).toBe(prior.hash);expect(rolled.versions[0].evaluation).toEqual(prior.evaluation);
+    expect(transitionLearning(rolled,c,"owner",now)).toEqual(rolled);
+    expect(()=>transitionLearning(rolled,{...c,restoreVersion:2},"owner",now)).toThrow(/identity/);
+  });
+  it("cannot restore owner-corrected, unqualified, or unrelated guidance",()=>{
+    for(const failure of ["corrected","unqualified","unrelated"]){
+      const f=replacement();
+      if(failure==="corrected")f.versions.push({...structuredClone(f.versions[1]),version:3,correctionOf:1,status:"REJECTED"});
+      if(failure==="unqualified")f.versions[0].evaluation=null;
+      const c={...command(f,"rollback"),version:2,hash:f.versions[1].hash,restoreVersion:failure==="unrelated"?9:1};
+      expect(()=>transitionLearning(f,c,"owner",now)).toThrow(/prior qualified/);
+      expect(f.versions[1].status).toBe("PROMOTED");
+    }
+  });
+});

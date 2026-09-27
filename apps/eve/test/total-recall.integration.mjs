@@ -24,7 +24,8 @@ try {
     await runMigrations({query: async (s,p)=>(await client.query(s,p)).rows,transaction:async statements=>{
       await client.query('BEGIN'); try { for (const s of statements) await client.query(s.sql,s.params); await client.query('COMMIT'); } catch(e) {await client.query('ROLLBACK');throw e;}
     }},await loadMigrations(),()=>{});
-    await client.query(await readFile(new URL('../../../docs/verification/total-recall-learning/proposed-schema.sql',import.meta.url),'utf8'));
+    if(!(await client.query("SELECT to_regclass('recall_learning') AS installed")).rows[0].installed)
+      await client.query(await readFile(new URL('../../../docs/integration/total-recall/schema.sql',import.meta.url),'utf8'));
   } finally {client.release();}
   // Exercise unchanged Neon wire serialization against actual PostgreSQL.
   process.env.DATABASE_URL='postgresql://fixture:fixture@recall.neon.tech/qualification';
@@ -152,6 +153,6 @@ try {
   });
   await check('authority and approval row counts remain unchanged',async()=>assert.deepEqual(await authorityCounts(),initialAuthority));
   const report={scope:'Disposable PostgreSQL with UNAPPLIED proposed learning schema; no model/hosted qualification',checks,metrics,authorityTables,invariants:{memoryAuthorityGrants:0,learningAuthorityExpansions:0,secretPromotions:0,crossScopeLearningViolations:0},completedAt:new Date().toISOString()};
-  await writeFile(new URL('../../../docs/verification/total-recall-learning/results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
+  await writeFile(new URL('../../../docs/verification/total-recall-learning/integration-preparation/core-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 } finally { if(pool)await pool.end();await admin.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);await admin.end(); }

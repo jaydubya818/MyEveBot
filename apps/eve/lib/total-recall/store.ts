@@ -1,5 +1,5 @@
 import { WorkStore } from "../engineering/store.ts";
-import { assertSafeEvidence, behaviors, candidateHash, digest, familyId, feedbackInput, transitionLearning,
+import { assertLearningFamily, assertSafeEvidence, behaviors, candidateHash, digest, familyId, feedbackInput, transitionLearning,
   type FeedbackInput, type LearningFamily, type LearningCommand, type LearningScope } from "./learning.ts";
 
 /** Requires a server-authenticated personal Work owner. Never use a model-supplied principal. */
@@ -10,15 +10,17 @@ export class LearningStore {
   private get owner() { return this.work.principal.scopeId; }
   async get(id: string): Promise<LearningFamily | null> {
     const [row] = await this.work.database.query(`SELECT document FROM recall_learning WHERE owner_id=$1 AND id=$2`, [this.owner, id]);
+    if (row) assertLearningFamily(row.document,this.owner);
     return row?.document ?? null;
   }
   async list(): Promise<LearningFamily[]> {
     const rows = await this.work.database.query(`SELECT document FROM recall_learning WHERE owner_id=$1 ORDER BY updated_at DESC,id LIMIT 25`, [this.owner]);
-    return rows.map(r => r.document);
+    return rows.map(r => { assertLearningFamily(r.document,this.owner); return r.document; });
   }
   async feedback(value: unknown): Promise<LearningFamily> {
     const input = feedbackInput.parse(value);
     assertSafeEvidence(JSON.stringify(input));
+    if (input.correctionOf && input.replacesVersion) throw new Error("Choose correction or qualified replacement, not both.");
     const work = await this.work.get(input.workId);
     if (work.version !== input.workVersion) throw new Error("Work changed; reload before recording feedback.");
     // Snapshot content also passes secret exclusion; it is never guidance.
@@ -32,18 +34,20 @@ export class LearningStore {
       const duplicate = family.versions.flatMap(v => v.evidence).find(e => e.eventId === input.eventId);
       if (duplicate) {
         if (duplicate.note !== input.note || duplicate.type !== input.type || duplicate.targetRef !== input.targetRef || duplicate.workId !== work.id || duplicate.workVersion !== work.version ||
-            !family.versions.some(v => v.evidence.includes(duplicate) && v.behavior === input.behavior && v.correctionOf === (input.correctionOf ?? null))) throw new Error("Feedback event identity changed.");
+            !family.versions.some(v => v.evidence.includes(duplicate) && v.behavior === input.behavior && v.correctionOf === (input.correctionOf ?? null) && (v.replacesVersion ?? null) === (input.replacesVersion ?? null))) throw new Error("Feedback event identity changed.");
         return family;
       }
       if (family.events.length >= 400 || family.versions.length >= 40) throw new Error("Learning history needs operator archival before more versions.");
       const prior = input.correctionOf ? family.versions.find(v => v.version === input.correctionOf) : null;
       if (input.correctionOf && (!prior || prior.status !== "PROMOTED")) throw new Error("Correction must name the active version.");
+      const replaces = input.replacesVersion ? family.versions.find(v => v.version === input.replacesVersion) : null;
+      if (input.replacesVersion && (!replaces || replaces.status !== "PROMOTED")) throw new Error("Replacement must name the active version.");
       // Same proposed behavior adds evidence to a candidate only; evaluated and
       // promoted versions are immutable and new evidence creates a new version.
-      let candidate = family.versions.find(v => v.status === "CANDIDATE" && !v.evaluation && v.behavior === input.behavior && v.correctionOf === (input.correctionOf ?? null));
+      let candidate = family.versions.find(v => v.status === "CANDIDATE" && !v.evaluation && v.behavior === input.behavior && v.correctionOf === (input.correctionOf ?? null) && (v.replacesVersion ?? null) === (input.replacesVersion ?? null));
       if (!candidate) {
         const version = family.versions.length + 1;
-        candidate = { version, behavior: input.behavior, status: "CANDIDATE", hash: candidateHash(scope, version, input.behavior), evidence: [], evaluation: null, reason: null, correctionOf: input.correctionOf ?? null, createdAt: new Date().toISOString() };
+        candidate = { version, behavior: input.behavior, status: "CANDIDATE", hash: candidateHash(scope, version, input.behavior, input), evidence: [], evaluation: null, reason: null, correctionOf: input.correctionOf ?? null, replacesVersion: input.replacesVersion ?? null, createdAt: new Date().toISOString() };
         family.versions.push(candidate);
       }
       if (family.versions.reduce((count, v) => count + v.evidence.length, 0) >= 100) throw new Error("Evidence limit reached for this candidate.");
@@ -70,7 +74,7 @@ export class LearningStore {
       [this.owner, family.id, family.scope.repository, family.scope.workType, family.scope.workId, family.revision, JSON.stringify(family), revision, work?.id ?? null, work?.version ?? null]);
     return rows.length === 1;
   }
-  async command(id: string, revision: number, command: LearningCommand): Promise<LearningFamily> {
+  async command(id: string, revision: number, command: LearningCommand, workBinding?: { id: string; version: number }): Promise<LearningFamily> {
     const old = await this.get(id);
     if (!old) throw new Error("Learning not found.");
     const replay = old.events.some(e => e.id === command.eventId);
@@ -78,13 +82,17 @@ export class LearningStore {
     if (old.events.length >= 400) throw new Error("Learning history needs operator archival.");
     const next = transitionLearning(old, command, this.owner, new Date().toISOString());
     if (next.revision === old.revision) return next;
-    if (!await this.save(next, old.revision)) throw new Error("Learning changed concurrently; reload before deciding.");
+    if (!await this.save(next, old.revision, workBinding)) throw new Error("Learning changed concurrently; reload before deciding.");
     return next;
   }
   /** Retrieval and its usage receipt share one statement and lock. Work identity
    * comes from the authenticated current Work, never candidate text. */
   async retrieve(workId: string, workType: FeedbackInput["workType"], contextRef: string) {
     const work = await this.work.get(workId);
+    // Validate the matching aggregates before receipt creation, including
+    // provenance and malicious historical evidence, not merely display text.
+    const matching = await this.work.database.query(`SELECT document FROM recall_learning WHERE owner_id=$1 AND repository=$2 AND work_type=$3 AND (work_id IS NULL OR work_id=$4)`,[this.owner,work.repository,workType,work.id]);
+    matching.forEach(row => assertLearningFamily(row.document,this.owner));
     if (!contextRef || contextRef.length > 200) throw new Error("A bounded context receipt identity is required.");
     const rows = await this.work.database.query(
       `WITH eligible AS MATERIALIZED (
@@ -109,8 +117,8 @@ export class LearningStore {
     return rows.map(row => {
       const family = row.document as LearningFamily;
       const v = row.version as LearningFamily["versions"][number];
-      if (v.hash !== candidateHash(family.scope, v.version, v.behavior) || v.evaluation?.candidateHash !== v.hash || v.evaluation.result !== "PASS") throw new Error("Learning evidence is invalid.");
-      return { id: family.id, version: v.version, hash: v.hash, scope: family.scope, guidance: behaviors[v.behavior], evidence: v.evidence.map(e => ({ workId: e.workId, workVersion: e.workVersion, eventId: e.eventId, provenance: e.provenance })), trust: "ADVISORY_ONLY" as const };
+      if (v.hash !== candidateHash(family.scope, v.version, v.behavior, v) || v.evaluation?.candidateHash !== v.hash || v.evaluation.result !== "PASS") throw new Error("Learning evidence is invalid.");
+      return { id: family.id, version: v.version, hash: v.hash, scope: family.scope, behavior: v.behavior, guidance: behaviors[v.behavior], evidence: v.evidence.map(e => ({ workId: e.workId, workVersion: e.workVersion, eventId: e.eventId, provenance: e.provenance })), trust: "ADVISORY_ONLY" as const };
     });
   }
 }

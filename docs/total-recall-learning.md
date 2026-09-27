@@ -2,7 +2,16 @@
 
 Sofie’s continuity comes from scoped durable Memory, typed Knowledge with provenance, and Work history. Learning is separate: feedback proposes a bounded change, qualification measures it, and the authenticated owner decides whether it should apply. Neither store grants execution authority.
 
-**Status: not ready for design partners.** Memory improvements are locally qualified. Learning service, API and review UI are implemented and qualified against a disposable PostgreSQL database, but the proposed schema is not in the migration chain. There is no live model or design-partner golden journey yet. See [evidence and limitations](verification/total-recall-learning/README.md) and [inventory](verification/total-recall-learning/INVENTORY.md).
+**Status: READY_FOR_INTEGRATION; schema activation BLOCKED.** This continuation supersedes the previous partial integration status. Local contracts, restart reuse, lifecycle, rollback restoration and deterministic improvement are qualified; live design-partner readiness is not claimed. See the [current evidence](verification/total-recall-learning/integration-preparation/README.md), [integration package](integration/total-recall/README.md), [exact contracts](integration/total-recall/contracts.md), and [historical inventory](verification/total-recall-learning/INVENTORY.md).
+
+| Area | Status |
+| --- | --- |
+| MEMORY CORE | LOCALLY QUALIFIED |
+| CANONICAL WORK RETRIEVAL | INTEGRATION PENDING |
+| LEARNING CORE | LOCALLY QUALIFIED / RUNTIME ACTIVATION PENDING |
+| LIVE SOFIE REUSE | NOT_RUN |
+| LIVE MODEL IMPROVEMENT | NOT_PROVEN |
+
 
 ## For owners
 
@@ -12,9 +21,9 @@ In the isolated qualification environment, open `/learning` to review learning:
 
 1. Select Work and give feedback. Select only that Work, or comparable Work in the same repository and selected Work type. Feedback creates a candidate, never active guidance.
 2. Evaluate the candidate. The source-citation fixture measures original-source coverage; the uncertainty fixture measures origin/truth labeling. The page shows baseline and learned scores and keeps the evidence.
-3. Promote only after reviewing a passing evaluation. Promotion identifies the exact version/hash and scope. A competing active rule requires an explicit correction.
+3. Promote only after reviewing a passing evaluation. Promotion identifies the exact version/hash and scope. A competing active rule requires an explicit correction or a qualified replacement linked to the active version.
 4. Correct active guidance to withdraw it immediately and create a replacement candidate. Evaluate and promote the replacement separately.
-5. Roll back to withdraw a promoted version. Past Work keeps its usage attribution. Rollback does not silently restore a previously corrected rule; restoration requires a fresh candidate and evaluation.
+5. Roll back to withdraw a promoted version. Past Work keeps its usage attribution. The runtime contract also supports explicit restoration of the prior qualified version for a `replacesVersion` chain, retaining its original hash/evaluation. Owner-corrected rules can never be restored by rollback. The existing review page withdraws only; Beta can present the new restore action from its projection.
 
 The current behavior choices are citing original sources and labeling uncertainty. Arbitrary feedback text cannot become a system prompt, executable procedure, modified Skill, tool grant or policy. Feedback should describe what helped; do not include passwords or credentials.
 
@@ -24,7 +33,7 @@ Existing `memory_records` remain canonical for scoped Memory. Supermemory ranks 
 
 Existing Knowledge retains typed records, source identity, graph relationships and correction links. Work retains objectives, criteria and versioned activity. The memory-type and privacy matrix is in the inventory. No private memory is automatically shared with Relay, another owner, another Work, or a future Capsule.
 
-Learning uses `LearningStore` over the existing authenticated personal `WorkStore`. Each exact Work/repository+Work-type scope has one versioned aggregate with revision compare-and-swap. Sources retain owner feedback identity and Work revision. Criteria refer back to their immutable Work revision and content hash. The source target for Result/response/Skill/memory feedback remains an owner assertion until an artifact-specific verifier is added.
+Learning uses `LearningStore` over the existing authenticated personal `WorkStore`. Each exact Work/repository+Work-type scope has one versioned aggregate with revision compare-and-swap. Sources retain owner feedback identity and Work revision. Criteria refer back to their immutable Work revision and content hash. `LearningRuntime` verifies Result identity, canonical Proof of Work hash, owner and Work revision before retaining its reference; `/api/learning` requires `result_feedback` with its hash for Result targets. Response/Skill/memory target references remain owner assertions until their own verifier exists.
 
 Candidates follow `CANDIDATE → evaluation → PROMOTED / REJECTED`, followed by `SUPERSEDED` or `ROLLED_BACK`. Evaluation is synchronous and atomic; no partial `EVALUATING` record is made active. An interrupted transaction leaves either the prior state or the complete next state. Stable event IDs make lost-response retry idempotent. Hashes use canonical object ordering so PostgreSQL JSONB normalization does not change identity.
 
@@ -36,7 +45,7 @@ No component writes Action Gateway rules, grants, approvals, credentials, writer
 
 ## Operator integration boundary
 
-Do not deploy this feature by manually applying the proposed SQL to a live database. The integration owner must allocate the migration after their active migration, review the proposal, add it to the canonical registry, and qualify the combined schema. Existing `engineering_learning_drafts` remain unverified staging and are not silently imported.
+Do not deploy this feature by manually applying the proposed SQL to a live database. The integration owner must allocate the unnumbered [exact schema package](integration/total-recall/README.md) after their active migration, update the canonical registry, and qualify the combined chain. No contested migration or registry is changed here. Existing `engineering_learning_drafts` remain unverified staging and are not silently imported.
 
 The review API requires existing Engineering dogfood authentication, same-origin mutation checks, and `MYEVE_TOTAL_RECALL_MODE=qualification`. It returns unavailable without that mode and refuses hosted production (`VERCEL_ENV=production`). No agent tool can promote learning. There is no automatic hook injecting the new learning into Sofie until a trusted Work-type binding, final context budget and schema integration are qualified.
 
@@ -51,6 +60,7 @@ npm run test --workspace=eve-agent
 npm run typecheck --workspace=eve-agent
 npm run build
 node --import tsx apps/eve/test/total-recall.integration.mjs
+node --import tsx apps/eve/test/recall-integration-preparation.mjs
 ```
 
 The database qualification requires loopback PostgreSQL at `127.0.0.1:55479`, an administrative `postgres` database, and permission to create disposable databases. It applies canonical migrations plus the unapplied schema proposal only to a unique temporary database and drops that database afterward. It never reads a production DATABASE_URL. Use `RECALL_TEST_ADMIN_URL` only for that same loopback endpoint. Existing Knowledge qualification runs from `apps/eve` using `node --import tsx test/engineering-knowledge.integration.mjs` against its separately pinned local endpoint.

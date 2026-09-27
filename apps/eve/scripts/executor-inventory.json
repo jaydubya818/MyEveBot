@@ -3313,22 +3313,52 @@
     "lib/total-recall/learning.ts": {
       "classification": "INTERNAL",
       "reason": "Pure closed-vocabulary advisory learning, strict feedback schemas, secret exclusion, code-owned deterministic fixtures and version transitions. Evidence prose never becomes model instructions, Skills, policy, grants or execution parameters.",
-      "sha256": "1a79e4093024b334bced0b58c33abe3ed1d769fcd369efa9b760fb34b1e65554"
+      "sha256": "40afb274c4fa72f5672323bc171391b66f1e2d6b2fc7e249718c1559c3987ffe"
     },
     "lib/total-recall/store.ts": {
       "classification": "INTERNAL",
       "reason": "Owner-authenticated personal Work feedback and revision-CAS learning history; scoped promoted-only retrieval with usage receipts. No action, routing, writer, credential, approval, budget or publication writes. Proposed schema remains outside migration chain pending shared ownership integration.",
-      "sha256": "291e085721903f61f638198dbfd78eaf899908fa330dbc06734ffa86b1a0c0c1"
+      "sha256": "05d1fe34d7cb5e2c878e802b45aba8d93c19462549f228fb0cdb2c8f345ebbac"
     },
     "lib/total-recall/api.ts": {
       "classification": "INTERNAL",
       "reason": "Reuses authenticated same-origin Engineering owner principal; strict bounded bodies; server-run evaluation only; exact hash/revision owner decisions. Disabled except explicit local qualification and denied on hosted production. No model-callable promotion path.",
-      "sha256": "c5f6108721b7306123b9dd05e630568392a2eef889268e7700727f2d8c0adb6c"
+      "sha256": "8d65fdb1237d20d0a1e0d8c34cda8492b1086b519250e5f96a155baf20718f93"
     },
     "app/api/learning/route.ts": {
       "classification": "INTERNAL",
       "reason": "Thin Learning review route delegates GET/POST to authenticated same-origin, qualification-only handler; no independent execution or authority path.",
       "sha256": "762bec2a570c42a57e7395dd2641eb7fd3b031f1eff0f1e830e0cb2de91bbd40"
+    },
+    "lib/total-recall/retrieval-contract.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Strict Work/owner/repository retrieval DTOs, bounded limits, truth and provenance; selection defaults deny cross-Work/private context. No authority or I/O.",
+      "sha256": "755435ab99b1e29c63704da2dfe550738f2c4db1dfb9ca5680f8bf2ad9c54589"
+    },
+    "lib/total-recall/work-retrieval.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads canonical owner-bound Work, Knowledge and explicitly selected owner Memory with same-Work correction lineage, scope verification, relevance and full-item bounds. No writes or authority consumer. Disposable PostgreSQL isolation, quality and correction tests qualify the boundary.",
+      "sha256": "629704a9aba454848b9fc49e417dd3f3773961b6219f9bc605f93338a46dae21"
+    },
+    "lib/total-recall/sofie-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Composes bounded user-role evidence and code-owned advisory guidance. LearningStore writes scoped offered-context receipts only. No live agent hook, system authority, execution or approval changes.",
+      "sha256": "5510c0e2a2d524b56c72f017b7eafe9c1133813f1651086c50b54bb0bd8be7a9"
+    },
+    "lib/total-recall/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Verifies retained canonical Result proof/hash/Work and owner scope before feedback; exact Work binding accompanies version-CAS decisions. Reads immutable results; writes advisory learning only. No result writer, verifier or Factory execution.",
+      "sha256": "ac24b756686a95356ee6f95e41de8afc9321f51446cd70c9f16e147bb48a0724"
+    },
+    "lib/total-recall/projections.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Validated read-only Memory and Learning UI projections plus private/Work-scoped portability representation. Eligibility false, no grants, sharing or Capsule activation.",
+      "sha256": "dc7f22bc3204804842b7489455c2e2a9256b786d7f797ee210077e4f44ee061f"
+    },
+    "lib/total-recall/fixture-consumer.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Deterministic integration fixture parses bounded serialized evidence and compares plan facts to independent expected facts. No model, tools, production runtime hook or authority; metrics explicitly do not qualify live improvement.",
+      "sha256": "923560478aab5de1e7f72f62c31103d5bd4517b39494a998a4b6a25c8d0b19db"
     }
   }
 }

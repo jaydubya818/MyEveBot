@@ -1,6 +1,8 @@
-# Total Recall + governed learning qualification
+# Historical Total Recall + governed learning qualification
 
-**Design-partner status: NOT READY.** This branch completes safe local implementation and qualification while leaving shared schema activation blocked. It does not claim a production or live Sofie golden journey.
+**Superseded by:** [integration-preparation qualification](integration-preparation/README.md). The current outcome is READY_FOR_INTEGRATION with schema activation BLOCKED, canonical runtime NOT_RUN and live improvement NOT_PROVEN. All evidence and tables below describe the earlier checkpoint; their FAIL labels do not describe the now-passing integration fixture.
+
+**Historical design-partner status: NOT READY.** This branch completes safe local implementation and qualification while leaving shared schema activation blocked. It does not claim a production or live Sofie golden journey.
 
 - Branch: `codex/total-recall-learning`
 - Qualified implementation checkpoint: `3416014e9aba4aebd663e27db042ca76c6254c2b`
