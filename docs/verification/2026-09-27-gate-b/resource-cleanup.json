@@ -1,0 +1,9 @@
+{
+  "taskOwnedPostgresDirectory": "/private/tmp/gate-b-postgres",
+  "port": 55479,
+  "state": "STOPPED",
+  "remainingTaskDatabases": 0,
+  "retainedDatabasePort55468": "NOT_CONNECTED",
+  "originalCheckpoint": "UNCHANGED",
+  "liveMyFactory": "NOT_RUN"
+}

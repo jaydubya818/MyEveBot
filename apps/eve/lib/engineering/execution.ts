@@ -4,6 +4,9 @@ import { WorkError, type Work } from "./types.ts";
 
 export type EvidenceState = "PASS" | "FAIL" | "UNKNOWN" | "STALE" | "NOT_RUN";
 export interface Candidate {
+  producer?: "MYFACTORY";
+  factoryProvenance?: {receiptId:string;requestId:string;factoryId:string;factoryVersion:string;workOrderId:string;remoteRunId:string;attemptNumber:number;writerGeneration:number};
+  rawCommit?: string;
   id: string; workId: string; runId: string; attemptId: string; repository: string;
   baseSha: string; parentSha: string; sha: string; tree: string; files: Record<string,string>;
   changedPaths: string[]; patch: string; artifactHash: string; createdAt: string;

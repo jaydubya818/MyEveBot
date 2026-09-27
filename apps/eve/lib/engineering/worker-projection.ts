@@ -12,6 +12,7 @@ import { WorkError, type Work } from "./types.ts";
 type CurrentManifest = ReturnType<typeof manifest>;
 
 export interface EngineeringWorkerProjection {
+  factoryWriter?: {runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null};
   workId: string;
   title: string;
   objective: string;
@@ -154,7 +155,7 @@ export class EngineeringWorkerProjectionStore {
       ),
       this.workStore.database.query(
         `SELECT n.decision_id,n.route_run_id,n.work_version,n.work_generation,n.criteria_version,
-                n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,n.draft_files,n.profile_hash,n.base_sha,
+                n.producer,n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,n.draft_files,n.profile_hash,n.base_sha,
                 d.admission_authority_snapshot->'contract'->>'coordinatingAgentId' AS agent_id,
                 result.id AS native_result_id,result.proof AS native_proof,result.content_hash AS native_proof_hash,
                 result.work_generation AS native_result_generation
@@ -181,7 +182,7 @@ export class EngineeringWorkerProjectionStore {
          WHERE h.scope_id=$1 AND h.scope_kind=$2 AND h.work_id=$3
            AND NOT EXISTS(SELECT 1 FROM engineering_work_model_budget b WHERE b.scope_id=h.scope_id AND b.scope_kind=h.scope_kind AND b.work_id=h.work_id)`,scope),
       this.workStore.database.query(
-        `SELECT r.id,r.route,r.status,r.work_version,r.work_generation,d.admitted_at,
+        `SELECT r.id,r.factory_request_id,r.writer_generation,r.dispatch_state,r.stop_reason,r.fenced_at,r.custody_snapshot,r.factory_candidate,r.route,r.status,r.work_version,r.work_generation,d.admitted_at,
                 d.admission_authority_snapshot->'contract'->>'deadline' AS deadline,
                 d.admission_authority_snapshot->'completion' AS completion,
                 (SELECT coalesce(jsonb_object_agg(stage,n),'{}'::jsonb) FROM (
@@ -227,6 +228,14 @@ export class EngineeringWorkerProjectionStore {
       run.decisionId === admittedRoute.id && run.workVersion === work.version &&
       run.workGeneration === work.generation) ?? null : null;
     const nativeRow = nativeRows[0] ?? null;
+    const factoryRun=runRows.filter(row=>row.factory_request_id).sort((a,b)=>Number(b.writer_generation)-Number(a.writer_generation))[0];
+    const factoryWriter=factoryRun?{runId:String(factoryRun.id),writerGeneration:Number(factoryRun.writer_generation),state:String(factoryRun.dispatch_state),stopReason:factoryRun.stop_reason??null,candidateProducer:factoryRun.factory_candidate?"MYFACTORY":null}:undefined;
+    const factoryCurrent=!!factoryRun && factoryRun.id===currentRouteRun?.id;
+    const factoryActivity=factoryCurrent ? factoryRun.dispatch_state!=="TERMINAL"
+      ? {status:factoryRun.dispatch_state==="DISPATCHED"?"Working":"Needs reconciliation",activity:`MyFactory writer: ${factoryRun.dispatch_state}.`,nextStep:factoryRun.dispatch_state==="PREPARED"?"Dispatch the exact admitted request once.":"Inspect the exact Factory attempt. Stop or timeout is not quiescence; native and human productive access remain blocked."}
+      : {status:nativeRow?.producer==="MYFACTORY"?"Needs verification":"Needs attention",activity:"Factory writer is terminal and fenced. Retained provenance grants no writer authority.",nextStep:nativeRow?.producer!=="MYFACTORY"?"Inspect the terminal outcome and authenticated receipt; establish eligible candidate custody separately.":nativeRow.phase==="VERIFICATION_FAILED"?"Factory is off. Review protected failure and request a new normal native admission for repair.":nativeRow.phase==="VERIFICATION_PASSED"?"Review the PARTIAL local result. Publication and acceptance remain unqualified.":"Run MyEve protected verification against the exact Factory candidate in custody."}
+      :null;
+
     if (nativeRow && this.coordinatingAgentId && nativeRow.agent_id !== this.coordinatingAgentId)
       throw new WorkError("projection_binding", "Native development is bound to a different Agent.", 403);
     const nativeProof=nativeRow?.native_proof ? proofOfWorkSchema.parse(nativeRow.native_proof) : null;
@@ -324,14 +333,16 @@ export class EngineeringWorkerProjectionStore {
         :job?.status==="QUEUED" || job?.status==="RUNNING"?"PENDING":nativeCandidate?"UNKNOWN":"NOT_RUN",
       jobStatus:job?String(job.status):null,evidenceCount:candidateChecks.length,
       evidenceHashes:candidateChecks.map((item:Record<string,unknown>)=>String(item.artifactHash))};
-    const candidateHistory=(Array.isArray(nativeRow?.candidates)?nativeRow.candidates:[]).map((candidate:Record<string,unknown>)=>{
-      const checks=(Array.isArray(nativeRow?.evidence)?nativeRow.evidence:[]).filter((item:Record<string,unknown>)=>
+    const historicalWorkspaces=runRows.map(row=>row.custody_snapshot?.workspace).filter(row=>row && row.route_run_id!==nativeRow?.route_run_id);
+    const candidateHistory=[...historicalWorkspaces,...(nativeRow?[nativeRow]:[])].flatMap(custody=>
+     (Array.isArray(custody.candidates)?custody.candidates:[]).map((candidate:Record<string,unknown>)=>{
+      const checks=(Array.isArray(custody.evidence)?custody.evidence:[]).filter((item:Record<string,unknown>)=>
         item.candidate===candidate.sha && item.attemptId===candidate.attemptId && item.workId===work.id &&
-        item.criteriaVersion===Number(nativeRow?.criteria_version) && item.base===nativeRow?.base_sha && item.profileHash===nativeRow?.profile_hash &&
+        item.criteriaVersion===Number(custody.criteria_version) && item.base===custody.base_sha && item.profileHash===custody.profile_hash &&
         item.producer==="protected-supervisor" && typeof item.artifact==="string" && digest(item.artifact)===item.artifactHash);
       return {sha:String(candidate.sha),checks:checks.some((e:Record<string,unknown>)=>e.result==="FAIL")?"FAIL":candidate.sha===verification.candidateSha && verification.status==="PASS"?"PASS":"UNKNOWN",
         failures:checks.filter((e:Record<string,unknown>)=>e.result==="FAIL").map((e:Record<string,unknown>)=>String(e.check)),evidenceCount:checks.length};
-    });
+    }));
     const nativeCheckUnknown = nativePhase === "VERIFICATION_FAILED" &&
       Array.isArray(nativeRow?.evidence) && nativeRow.evidence.some((item: Record<string, unknown>) =>
         item.candidate === nativeCandidate?.sha &&
@@ -439,7 +450,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
+      factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -467,16 +478,16 @@ export class EngineeringWorkerProjectionStore {
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
-      status: truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
-      activity: truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
+      status: factoryActivity?.status ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
+      activity: factoryActivity?.activity ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
+      nextStep: factoryActivity?.nextStep ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
         ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
         : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."
         : `Native execution is blocked. ${executionController.known.plan?.blockers.join("; ") || (executionController.progress.recovery==="STOP" ? "Bounded no-progress recovery is exhausted." : "Recheck current authority and completion capacity.")} No productive operation is recommended.`
         : routeActivity?.nextStep) ?? noExecutionNextStep(work),
       readiness: truth?.readiness ?? { ready: false, reasons: nativeResult
-        ? [`Native protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
+        ? [`${nativeRow?.producer==="MYFACTORY"?"Factory candidate / MyEve":"Native"} protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },
       currentRun: runTruth.activeRun ? {id:runTruth.activeRun.id,status:runTruth.activeRun.storedStatus,
         startedAt:null,generationCurrent:runTruth.activeRun.generationCurrent} : null,
@@ -485,7 +496,7 @@ export class EngineeringWorkerProjectionStore {
       latestResult: result
         ? { id: result.id, version: result.version, summary: result.summary, candidate: result.candidate, createdAt: result.createdAt }
         : nativeResult ? {id:nativeResult.id,version:nativeResult.proof.workVersion,
-          summary:`Native development: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
+          summary:`${nativeRow?.producer==="MYFACTORY"?"Factory candidate":"Native development"}: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
           candidate:nativeResult.proof.resultRevision??"",createdAt:nativeResult.proof.createdAt} : null,
       nativeDevelopment,
       nativeResult,

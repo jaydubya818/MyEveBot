@@ -52,10 +52,11 @@ export class NativeResultStore {
     const proof = proofOfWorkSchema.parse({ contractVersion: 2, workId: id, workVersion: workspace.workVersion,
       criteriaVersion: workspace.criteriaVersion, outcome: evidence.every(item => item.state === "PASS") ? "PARTIAL" : "FAILED",
       resultRevision: candidate.sha, createdAt: workspace.updatedAt, evidence,
-      artifactRefs: [`native-candidate:${candidate.id}:sha256:${candidate.artifactHash}`,
+      artifactRefs: [`${candidate.producer==="MYFACTORY"?"factory-candidate":"native-candidate"}:${candidate.id}:sha256:${candidate.artifactHash}`,
+        ...(candidate.factoryProvenance ? [`factory-receipt:${candidate.factoryProvenance.receiptId}`,`factory-version:${candidate.factoryProvenance.factoryVersion}`] : []),
         ...checks.map(check => `protected-evidence:sha256:${check.artifactHash}`),
         ...candidate.changedPaths.map(path=>`changed-source:${path}`)],
-      limitations: ["This record covers native source development and protected local verification. GitHub publication, CI, review and owner acceptance have not been established.",
+      limitations: [`${candidate.producer==="MYFACTORY" ? "Factory-produced candidate in MyEve custody" : "Native source development"} and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.`,
         hasUsage ? `Recorded native model spend: $${(Number(source.spent_microusd) / 1_000_000).toFixed(6)}. Infrastructure costs are not covered.` :
           "Native model cost coverage is UNKNOWN. No zero-cost or complete-cost claim is made."],
     });

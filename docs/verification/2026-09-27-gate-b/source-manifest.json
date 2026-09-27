@@ -1,0 +1,25 @@
+{
+  "baseline": "7bf276493eb2b3206a50eea0c4c9c262b7396014",
+  "sha256": {
+    "apps/eve/lib/database-schema.ts": "8448c9b0e3980620c5b0db1eb6049e32d561d376f1ce0d998673fec459c46ab0",
+    "apps/eve/lib/digital-worker/routing.ts": "f548914ccab0b6b0d2ba657f011b686d78bd23114c0fb89b7bae866485e0c6ae",
+    "apps/eve/lib/engineering/current-truth-lines.ts": "976f5c5e7000c46a98e4f55bf41deddf4bf33d46a252afdaf5a1680a6e998e91",
+    "apps/eve/lib/engineering/direct-development.ts": "e0c1929b0d08ad008979c1bbb5ff68270739995e9e0fded2ea9266e1ccd29c8c",
+    "apps/eve/lib/engineering/direct-verification-driver.ts": "982727de74a045a925b5851b61d90c7aef58cdfa0386d3cd7b95f86d2806b25f",
+    "apps/eve/lib/engineering/execution.ts": "7fd28817b433ef3819dd5f020cae2c4d4589edf332a353db4e7c60725d668341",
+    "apps/eve/lib/engineering/factory-writer.test.ts": "f2426a2eb6af71e38030a3677505b16b013c7893281940706190ef18c50f93fd",
+    "apps/eve/lib/engineering/factory-writer.ts": "7a01cfebe33c28e4507c60fa8d3797fa53ebe15d5f3c24a6fd8028a4481842ca",
+    "apps/eve/lib/engineering/github.ts": "a54754d660d86d6a1b3e834f5932d68cdb3242ea57940362bafd0f43233a1ddf",
+    "apps/eve/lib/engineering/native-results.ts": "ebbc1f7faee880ac9f7bffb115e992a987d2704c21a9652a6de194dd6e08cf1f",
+    "apps/eve/lib/engineering/route-admission.ts": "c119b5427aea8ebbe8f566fa9fd6d7af2004019942817ac4029a892b7586f71a",
+    "apps/eve/lib/engineering/worker-projection.ts": "f72d03f931582228657f03a65560e6de995fee312559da554ce6cc7222f15f85",
+    "apps/eve/migrations/0056_factory_writer_handoff.sql": "dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc",
+    "apps/eve/scripts/executor-inventory.json": "fae66bfd1c04bea6b83c875119aaa17251bb7c370baf30c62f1d55f31ced297e",
+    "apps/eve/test/factory-receipt.integration.mjs": "f85e135085af4dc6bd684d39156a5154772872c3e3e2f637df7b435aabcfb31b",
+    "apps/eve/test/factory-writer-history.integration.mjs": "389105c503942d363b08bd45ba346501cbef4c0f3f5f600b168e56db111d02c4",
+    "apps/eve/test/factory-writer-process.mjs": "8d9990abf4acd1677508004327a56b6998a28e27f7d93d1add06a86d822b59c0",
+    "apps/eve/test/factory-writer.integration.mjs": "74b229d00727098f3457be7c39dec92737dd597dddf3a2d71ee76d4d7e552b81",
+    "apps/eve/test/legacy-factory-migration.integration.mjs": "fec4c69b306a10522a97ca8b7a65fea07b0a12c3930805c2a72082ff3d824abf",
+    "apps/eve/test/native-completion.integration.mjs": "ebfcfe430d8e3473a65615125c93ce7331fa7b2fc31a19c4f90e0a3c156543a5"
+  }
+}

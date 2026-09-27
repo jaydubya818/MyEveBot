@@ -1,0 +1,49 @@
+{
+  "baseline": "7bf276493eb2b3206a50eea0c4c9c262b7396014",
+  "branch": "codex/digital-worker-integration",
+  "gateB": "PASS_LOCAL",
+  "migration0056": {
+    "status": "PASS",
+    "sha256": "dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc",
+    "bytesChangedAfterQualification": 0,
+    "priorMigrationsChanged": 0
+  },
+  "gateBIntegrationChecks": 23,
+  "gateBUnitTests": 26,
+  "postgresqlRacePairs": 7,
+  "sigkillBoundaries": 8,
+  "appTests": {
+    "passed": 1542,
+    "skipped": 40
+  },
+  "rootTests": {
+    "passed": 151,
+    "skipped": 0
+  },
+  "gateCPostgresChecks": 47,
+  "producerTests": 72,
+  "M1Regression": "PASS",
+  "typecheck": "PASS",
+  "webpack": "PASS",
+  "governance": {
+    "status": "PASS",
+    "sources": 650,
+    "UNKNOWN": 0,
+    "unrelatedEntriesChanged": 0,
+    "removedEntries": 0
+  },
+  "safetyViolations": {
+    "concurrentProductiveWriters": 0,
+    "duplicateFactoryDispatches": 0,
+    "staleWriterMutations": 0,
+    "lostHistoricalCustody": 0,
+    "factoryGrantedAuthority": 0,
+    "falseReady": 0
+  },
+  "readmeUpdated": true,
+  "independentCodeReview": "PENDING",
+  "independentProtectedVerification": "PASS_LOCAL",
+  "liveMyFactory": "NOT_RUN",
+  "liveReadiness": "NOT_READY: concrete remote fencing/quiescence adapter not configured or qualified",
+  "M1Live": "NOT_QUALIFIED"
+}

@@ -1,0 +1,188 @@
+✔ persistent Agent runs use Eve's durable turn id (3.775ms)
+✔ chat runtime failures expose an actionable retry (7.202167ms)
+✔ Agent slugs are deterministic and distribution-generic (0.732375ms)
+✔ Agent validation rejects unknown and over-ceiling capabilities (0.182542ms)
+✔ secondary Agents cannot borrow unassigned or unavailable capabilities (1.198708ms)
+✔ paused, disabled, and archived Agents cannot execute (0.079ms)
+✔ primary Agent retains deployment capabilities and protection is separate from role (0.068875ms)
+✔ structured API errors preserve a bounded request id (24.769917ms)
+✔ database guard returns setup required instead of throwing (0.407875ms)
+✔ browser URLs derive a bounded apex and subdomain allowlist (1.570125ms)
+✔ only URL-based browser entry points expand network access (0.098875ms)
+✔ authorized browser tools provision on demand instead of advertising disabled stubs (4.202542ms)
+✔ builder requires a strong production access password (13.627959ms)
+✔ builder requires an IANA owner timezone (0.169875ms)
+✔ builder-generated identity is owner and agent configurable (0.2175ms)
+✔ builder-generated Knowledge guidance preserves the Memory boundary (0.084208ms)
+✔ builder bakes the configured primary Agent bootstrap without platform names (0.1005ms)
+✔ assembled deployments include every script referenced by package commands (0.11125ms)
+✔ builder requires a Telegram allowlist when the channel is enabled (0.161625ms)
+✔ provider-pruned deployments omit test imports and qualification fixtures (0.059166ms)
+✔ included capabilities report setup requirements instead of disappearing (0.736625ms)
+✔ configured capabilities report ready (0.0785ms)
+✔ builder feature selection marks omitted capabilities as excluded (0.071333ms)
+✔ limited-mode copy names only capabilities that need setup (1.318958ms)
+✔ limited-mode copy stays out of the way when everything is ready (0.2235ms)
+✔ registry ids and authored tool references are unique (0.713625ms)
+✔ availability distinguishes disabled features from missing configuration (0.910375ms)
+✔ available capability filtering respects risk and permission (0.129125ms)
+✔ computer capabilities are granular and require the durable control plane (0.178333ms)
+✔ objective discovery returns relevant available capabilities only (10.983041ms)
+✔ structured Knowledge is database-backed and independent of Supermemory (0.210708ms)
+✔ Channels consolidates provider state without weakening provider boundaries (5.485667ms)
+✔ a failed turn stays visible when the reusable session returns to waiting (0.648541ms)
+✔ a later turn clears the prior failure as soon as it starts (0.059084ms)
+✔ a later completed turn does not show an earlier failure (1.447459ms)
+✔ a new user message also clears a prior failure in a partial replay (0.107916ms)
+✔ a waiting session without a failed turn has no failure card (0.068667ms)
+✔ general work contracts preserve lineage, budgets, evidence, and owner review (5.599958ms)
+✔ computer takeover pauses tool access and exposes explicit recovery (1.137916ms)
+✔ routines retain approval boundaries and safe management controls (2.2655ms)
+✔ computer lifecycle is deterministic and terminal states stay terminal (0.641292ms)
+✔ computer limits are bounded by Agent runtime and platform ceilings (0.713625ms)
+✔ supported tools map to canonical action types (0.093791ms)
+✔ Phase 6 terminal allows read-only diagnostics and rejects shell/network execution (0.154042ms)
+✔ computer audit summaries omit typed values and file contents (0.279709ms)
+✔ computer network domains are explicit, normalized, and public hostnames (0.350625ms)
+✔ canonical integration cannot automatically deploy MyEve Production (17.831667ms)
+✔ one built-in catalog exposes one valid Founder OS Solution Pack (1.341583ms)
+✔ Solution Pack inventory is compact, complete, and carries authoritative counts (0.120167ms)
+✔ filtered Solution Pack lookup preserves full definitions (0.066208ms)
+✔ Founder OS has 21 native Roles and 29 distinct domain Roles (0.06ms)
+✔ Founder OS reuses canonical Marketing Engineering Roles by identity (0.079166ms)
+✔ Founder OS ships 11 Goal Templates with three ready templates (0.125375ms)
+✔ constraint diagnosis follows the Leads and Conversion revenue golden path (0.09375ms)
+✔ Founder Business Review spans all domains and stops before consequential action (0.089584ms)
+✔ Founder OS ships 31 artifacts, six templates, and 10 metrics (8.81ms)
+✔ approval defaults preserve Relay and deny implicit authority (0.241625ms)
+✔ Eve discovery and progressive-disclosure UI use the canonical catalog (0.807292ms)
+✔ goal and task transitions require explicit recovery paths (0.645209ms)
+✔ progress excludes cancelled work and remains derived (0.653625ms)
+✔ focus ranking excludes blocked work and explains the winner (0.185959ms)
+✔ UI fixture retains an exact candidate but never manufactures protected evidence (229.094083ms)
+✔ generated skill catalog matches every packaged skill (191.141709ms)
+✔ runtime skill packages preserve every installed skill and its supporting files (58.827833ms)
+✔ specialist assignment defaults reference real skills (28.804584ms)
+✔ Eve frontmatter normalization is idempotent (29.529416ms)
+✔ every skill from the pinned skillz import is packaged (23.455375ms)
+✔ curated agent-skills import preserves provenance, evals, and package references (57.096708ms)
+✔ approved awesome-llm-apps skills preserve provenance, evals, and activation policy (52.72025ms)
+✔ curated agent-skills pass combined-catalog routing checks (33.798375ms)
+✔ knowledge confidence accepts only the closed zero-to-one interval (0.6125ms)
+✔ knowledge lifecycle preserves terminal promotion and supersession history (0.12275ms)
+✔ relationship predicates use a controlled extensible vocabulary (0.093167ms)
+✔ Marketing Engineering pack is complete and discoverable (1.264625ms)
+✔ Marketing Engineering covers the complete operating lifecycle (0.092792ms)
+✔ marketing knowledge and campaign seams are explicit without a second store (0.054583ms)
+✔ Campaign Research to Brief is a bounded, checked owner-review workflow (0.063ms)
+✔ campaign skill enforces evidence, approval, and stop boundaries (33.661083ms)
+✔ Role Catalog UI exposes both on-demand and persistent actions (1.574292ms)
+✔ on-demand Role execution is attributed on canonical Agent Runs (3.093833ms)
+✔ scope validation rejects malformed identifiers (1.493959ms)
+✔ allowed scopes are derived from server execution identity (1.586791ms)
+✔ authorization filtering happens before deterministic ranking (0.425334ms)
+✔ context budgeting never silently drops mandatory Task or Goal constraints (0.333458ms)
+✔ context budget enforces HOT, WARM, then COLD before item scores (0.143125ms)
+✔ summary selection uses the newest active durable summary (5.994834ms)
+✔ operations report is healthy when every monitored signal is clear (0.677042ms)
+✔ stale Runs and orphaned Computer sessions are immediately critical (0.893041ms)
+✔ transient failures warn before their escalation threshold (0.163ms)
+✔ operations monitoring is wired through a guarded API, hook, schedule, and production canaries (3.29825ms)
+✔ outcome and notification policy vocabularies are explicit (1.197708ms)
+✔ daily brief reuses deterministic focus and gives every recommendation a why-now (1.316417ms)
+✔ dependency and unavailable capability risks are deterministic (0.098083ms)
+✔ long-horizon normal goals are not flagged solely for inactivity (0.083834ms)
+✔ explicitly blocked goals surface even before they have tasks (0.11125ms)
+✔ a task that just became overdue is not also described as approaching (0.115416ms)
+✔ paused and draft work do not create current or missed commitments (0.184291ms)
+✔ blocked and failed tasks appear as explicit weekly blockers (0.120375ms)
+✔ weekly review only reports outcomes in its period (0.107542ms)
+✔ owner file migration leaves legacy ownership for runtime attribution (15.7975ms)
+✔ file attribution requires durable thread evidence, never the deploying owner (4.2505ms)
+✔ persistent browser profiles preserve credential and Agent boundaries (5.606334ms)
+✔ Phone is fail-closed and enforces consent, quiet hours, and atomic caps (8.121667ms)
+✔ Phone retains signed webhooks, idempotent ingress, and bounded retry recovery (2.755292ms)
+✔ review periods follow owner-local calendar boundaries across DST (18.467042ms)
+✔ weekly periods and schedules use local weekdays (1.921667ms)
+✔ scheduled wall times remain single and deterministic through DST transitions (1.951917ms)
+✔ quiet hours defer only inside the configured local window (0.622541ms)
+✔ timezone, deduplication, and delivery failure classification are deterministic (0.888792ms)
+✔ proactive Telegram requires the configured owner and an explicit allowlist (0.115542ms)
+✔ work orders use unique identifiers and completed filenames agree with frontmatter (23.264667ms)
+✔ historical plans and README point to the canonical roadmap (4.243792ms)
+✔ built-in catalog exposes canonical Role Packs, including the internal Founder OS pack (1.273875ms)
+✔ Role inventory is compact, complete, and carries authoritative counts (0.198708ms)
+✔ filtered Role lookup preserves full definitions (0.067042ms)
+✔ shared roles are deduplicated and conflicting definitions are rejected (0.237833ms)
+✔ software development pack covers every lifecycle stage (0.071875ms)
+✔ marketing engineering pack covers its complete lifecycle (0.061ms)
+✔ all role lifecycle references and recommended capabilities are valid (0.162ms)
+✔ Verification remains the fixed three declared QA specialists (0.072667ms)
+✔ marketing execution roles retain explicit approval boundaries (0.129875ms)
+✔ creating a persistent Agent from a Role produces editable configuration defaults (0.169292ms)
+✔ general-purpose delegation is available while the QA panel stays specialized (0.085292ms)
+✔ catalog instructions prevent omitted packs and unsupported Agent claims (4.828292ms)
+✔ generic Role Catalog primitives contain no product, owner, or software assumptions (0.369208ms)
+✔ workflow consumes the shared 16-worker guardrail (0.352458ms)
+✔ Balanced QA contract is fixed and internally complete (1.201417ms)
+✔ task lifecycle accepts only explicit recovery paths (0.064375ms)
+✔ evidence text removes common secret shapes (0.237208ms)
+✔ production Telegram access fails closed without an allowlist (0.623791ms)
+✔ production Telegram access accepts only explicitly allowed users (0.066709ms)
+✔ local Telegram setup also requires an explicit allowlist (0.048542ms)
+✔ general Telegram webhook remains release blocked (1.345834ms)
+✔ routine Telegram send requires the exact owner, bot and allowlisted private DM at the send leaf (0.146584ms)
+[eve:telegram.channel] telegram inbound verification failed {
+  error: {
+    errorId: '9fb80d30-65fe-4584-b26d-3c4b046a347f',
+    message: 'Error: telegramChannel: inbound request secret-token mismatch.',
+    detail: 'Error: telegramChannel: inbound request secret-token mismatch.\n' +
+      '    at verifyTelegramRequest (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/node_modules/eve/dist/src/public/channels/telegram/verify.js:1:825)\n' +
+      '    at async verifyInbound (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/node_modules/eve/dist/src/public/channels/telegram/telegramChannel.js:1:6472)\n' +
+      '    at async Object.handler (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/node_modules/eve/dist/src/public/channels/telegram/telegramChannel.js:1:2216)\n' +
+      '    at async Object.webhook (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/test/telegram-owner-qualification.test.mjs:48:20)\n' +
+      '    at async TestContext.<anonymous> (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/test/telegram-owner-qualification.test.mjs:81:17)\n' +
+      '    at async Test.run (node:internal/test_runner/test:1332:7)\n' +
+      '    at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)'
+  }
+}
+[eve:telegram.channel] message handler failed {
+  error: {
+    errorId: 'b1752eec-b275-43ba-84d0-b439c7af99f8',
+    message: 'Error: simulated pre-dispatch setup failure',
+    detail: 'Error: simulated pre-dispatch setup failure\n' +
+      '    at rememberChat (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/test/telegram-owner-qualification.test.mjs:42:61)\n' +
+      '    at Object.onMessage (/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/agent/channels/telegram.ts:107:11)\n' +
+      '    at dispatchMessage (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/node_modules/eve/dist/src/public/channels/telegram/telegramChannel.js:1:6891)\n' +
+      '    at Object.handler (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/node_modules/eve/dist/src/public/channels/telegram/telegramChannel.js:1:2540)\n' +
+      '    at async Object.webhook (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/test/telegram-owner-qualification.test.mjs:48:20)\n' +
+      '    at async TestContext.<anonymous> (file:///Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/test/telegram-owner-qualification.test.mjs:109:3)\n' +
+      '    at async Test.run (node:internal/test_runner/test:1332:7)\n' +
+      '    at async Test.processPendingSubtests (node:internal/test_runner/test:911:7)'
+  }
+}
+✔ local owner DM crosses the real Eve Telegram adapter to one synthetic Sofie dispatch and fake Bot API reply (4.494125ms)
+✔ bad webhook secret and unauthorized private/group chats cannot dispatch or reply (3.167667ms)
+✔ duplicate delivery after adapter restart never dispatches a second turn; mounted route stays blocked (0.74425ms)
+✔ failed pre-dispatch setup leaves no claim, so an exact retry may dispatch (1.180958ms)
+✔ local qualification cannot be accidentally constructed in a hosted runtime (0.184375ms)
+✔ reply leaf independently rejects a disabled local gate and multi-message output before custody or provider write (0.138875ms)
+✔ builder forces a fresh production deployment (20.435083ms)
+✔ builder rejects a preview deployment returned for a production request (0.418459ms)
+✔ builder stops before build when Vercel drops required environment variables (0.097084ms)
+✔ engineering dogfood uses authenticated sessions instead of development bypass (2.147791ms)
+✔ signed owner sessions verify and reject tampering and expiry (0.132084ms)
+✔ password comparison and configuration validation fail closed (0.081167ms)
+✔ legacy Sofie auth variables and cookie remain compatible (0.150292ms)
+✔ deployment owner identity prefers MyEve configuration and has a stable fallback (0.058292ms)
+✔ production requests need the owner cookie and reject cross-site mutations (1.276916ms)
+✔ the Eve session auth chain rejects anonymous production origins (0.652375ms)
+✔ Engineering Work selection is a validated, per-request owner web auth claim (1.366625ms)
+ℹ tests 151
+ℹ suites 0
+ℹ pass 151
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 784.307375

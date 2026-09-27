@@ -5,7 +5,7 @@ import { routeRequestSchema } from "../digital-worker/routing.ts";
 import { preflightApprovedBase, type ApprovedBase } from "./base-preflight.ts";
 import { digest, pathSchema, type RepositoryProfile, type WorkContract } from "./contract.ts";
 import { nowIso, type Candidate, type EngineeringRun, type Evidence } from "./execution.ts";
-import { assertCandidateIdentity, createCandidate, type CandidateContract, type RepositorySnapshot } from "./github.ts";
+import { assertFactoryCandidateIdentity, assertCandidateIdentity, createCandidate, type CandidateContract, type RepositorySnapshot } from "./github.ts";
 import { WorkStore } from "./store.ts";
 import { WorkError, type Work } from "./types.ts";
 
@@ -38,6 +38,8 @@ export interface DirectWorkspace {
   candidates: Candidate[];
   evidence: Evidence[];
   updatedAt: string;
+  producer?: "NATIVE_SOFIE" | "MYFACTORY";
+  factoryReceiptId?: string | null;
 }
 
 export type DirectVerificationContract = Pick<WorkContract,
@@ -59,6 +61,7 @@ function assertOwner(store: WorkStore) {
 
 function workspace(row: Record<string, any>): DirectWorkspace {
   return {
+    producer: row.producer ?? "NATIVE_SOFIE", factoryReceiptId:row.factory_receipt_id ?? null,
     workId: row.work_id, workVersion: Number(row.work_version), workGeneration: Number(row.work_generation),
     criteriaVersion: Number(row.criteria_version), decisionId: row.decision_id,
     routeRunId: row.route_run_id, repository: row.repository, baseSha: row.base_sha,
@@ -165,6 +168,13 @@ export class DirectDevelopmentStore {
       throw new WorkError("direct_already_started", "The DEEP_AGENT route already has a writer. Inspect its retained workspace.");
     preflightApprovedBase(this.config.profile, this.config.approvedBase, observed, this.config.issueNumber);
     const files = boundFiles(observed.files);
+    const prior=(await this.inspect(id)).workspace;
+    // A fresh admitted native Run repairs the retained Factory draft, while
+    // its source/base remains the approved repository. 0056 seals the old
+    // workspace/candidate/evidence before this current projection is rebound.
+    const draftFiles=prior?.producer==="MYFACTORY" && prior.phase==="VERIFICATION_FAILED" &&
+      prior.baseSha===observed.sha && prior.profileHash===digest(this.config.profile)
+      ? boundFiles(prior.candidates.at(-1)!.files) : files;
     const deadline = new Date(Math.min(
       Date.parse(admission.admission_authority_snapshot.contract.deadline),
       Date.now() + work.maxDurationSeconds * 1000,
@@ -192,15 +202,17 @@ export class DirectDevelopmentStore {
            (scope_id,scope_kind,work_id,decision_id,route_run_id,work_version,work_generation,
             criteria_version,repository,base_sha,profile_hash,deadline,source_files,draft_files)
          SELECT scope_id,scope_kind,id,$9,$8,version,generation,criteria_version,repository,
-           $10,$11,$12::timestamptz,$13::jsonb,$13::jsonb FROM source
-         ON CONFLICT DO NOTHING RETURNING *
+           $10,$11,$12::timestamptz,$13::jsonb,$14::jsonb FROM source
+         ON CONFLICT(scope_id,scope_kind,work_id) DO UPDATE SET
+           decision_id=EXCLUDED.decision_id,route_run_id=EXCLUDED.route_run_id,work_version=EXCLUDED.work_version,work_generation=EXCLUDED.work_generation,criteria_version=EXCLUDED.criteria_version,repository=EXCLUDED.repository,base_sha=EXCLUDED.base_sha,profile_hash=EXCLUDED.profile_hash,deadline=EXCLUDED.deadline,source_files=EXCLUDED.source_files,draft_files=EXCLUDED.draft_files,plan='',phase='DRAFT',revision=engineering_direct_workspaces.revision+1,candidates='[]',evidence='[]',producer='NATIVE_SOFIE',factory_receipt_id=NULL,updated_at=clock_timestamp()
+         WHERE engineering_direct_workspaces.route_run_id<>EXCLUDED.route_run_id RETURNING *
        ), running AS (
          UPDATE engineering_route_runs r SET status='RUNNING',updated_at=now()
          FROM created c WHERE r.id=c.route_run_id AND r.status='QUEUED' RETURNING r.id
        ) SELECT c.* FROM created c JOIN running r ON r.id=c.route_run_id`,
       [...this.scope(id), work.version, work.generation, work.criteriaVersion, work.repository,
         admission.route_run_id, admission.decision_id, observed.sha, digest(this.config.profile),
-        deadline, JSON.stringify(files)]);
+        deadline, JSON.stringify(files),JSON.stringify(draftFiles)]);
     if (!row) throw new WorkError("direct_changed", "The Work, route or writer changed before the direct workspace opened.");
     return workspace(row);
   }
@@ -316,14 +328,24 @@ export class DirectDevelopmentStore {
     return {candidate, workspace:workspace(row)};
   }
 
+  async requireVerification(id: string) {
+    const {workspace:value}=await this.inspect(id);
+    if (value?.producer!=="MYFACTORY") return this.requireAdmission(id);
+    const [row]=await this.workStore.database.query(
+      `SELECT r.id AS route_run_id,r.status AS run_status FROM engineering_route_runs r
+       WHERE r.id=$4 AND engineering_candidate_verifiable($1,$2,$3)`,[...this.scope(id),value.routeRunId]);
+    if(!row) throw new WorkError("factory_verification_fenced","Factory candidate custody is no longer current.");
+    return row;
+  }
+
   /** Supervisor-only. The Agent tool does not expose this method or accept
    * evidence as input. A changed Work or candidate cannot receive a PASS. */
   async verifyRequested(id: string, verifier: DirectProtectedVerifier, claim: DirectVerificationClaim) {
     const {work,workspace:value}=await this.inspect(id);
     if (!value || value.phase!=="VERIFICATION_REQUESTED" || !this.current(work,value))
       throw new WorkError("direct_verification_changed", "No current frozen candidate is awaiting protected verification.");
-    const admission=await this.requireAdmission(id);
-    if (admission.route_run_id!==value.routeRunId || admission.run_status!=="RUNNING")
+    const admission=await this.requireVerification(id);
+    if (admission.route_run_id!==value.routeRunId || (value.producer!=="MYFACTORY" && admission.run_status!=="RUNNING"))
       throw new WorkError("direct_verification_changed", "The direct writer was fenced before protected verification.");
     const candidate=value.candidates.at(-1);
     if (!candidate) throw new WorkError("direct_candidate_missing", "The frozen candidate is missing.");
@@ -341,7 +363,8 @@ export class DirectDevelopmentStore {
       reason:"Sofie native direct development",generation:value.workGeneration,parentSha:value.baseSha,
       publicationParentSha:value.baseSha,status:"candidate",resource:`native-direct-${value.routeRunId}`,
       startedAt:candidate.createdAt};
-    assertCandidateIdentity(contract,run,{sha:value.baseSha,files:value.sourceFiles},candidate);
+    if(value.producer==="MYFACTORY") assertFactoryCandidateIdentity(contract,{sha:value.baseSha,files:value.sourceFiles},candidate);
+    else assertCandidateIdentity(contract,run,{sha:value.baseSha,files:value.sourceFiles},candidate);
     const checks=await verifier.verify({workId:id,baseSha:value.baseSha,
       criteriaVersion:value.criteriaVersion,profileHash:value.profileHash,profile:this.config.profile},candidate);
     const expected=this.config.profile.checks.map(check=>check.id);
@@ -353,7 +376,7 @@ export class DirectDevelopmentStore {
           check.producer!=="protected-supervisor" || check.artifactHash!==digest(check.artifact) ||
           !["PASS","FAIL","UNKNOWN"].includes(check.result)))
       throw new WorkError("direct_evidence_denied", "Protected evidence did not bind to the frozen candidate and profile.");
-    await this.requireAdmission(id);
+    await this.requireVerification(id);
     const passed=checks.every(check=>check.result==="PASS");
     const [row]=await this.workStore.database.query(
       `UPDATE engineering_direct_workspaces d SET evidence=d.evidence || $7::jsonb,
@@ -371,15 +394,15 @@ export class DirectDevelopmentStore {
            AND w.scope_kind=d.scope_kind AND w.id=d.work_id AND w.version=d.work_version
            AND w.generation=d.work_generation AND w.criteria_version=d.criteria_version
            AND w.lifecycle='active' AND w.control='agent')
-         AND EXISTS (SELECT 1 FROM engineering_route_runs r WHERE r.id=d.route_run_id
-           AND r.status='RUNNING' AND r.decision_id=d.decision_id)
-         AND EXISTS (SELECT 1 FROM engineering_routing_decisions decision
+         AND engineering_candidate_verifiable(d.scope_id,d.scope_kind,d.work_id)
+         AND (d.producer='MYFACTORY' OR EXISTS (
+           SELECT 1 FROM engineering_routing_decisions decision
            WHERE decision.id=d.decision_id AND decision.status='ADMITTED'
              AND decision.selected_route='DEEP_AGENT'
              AND (NOT (decision.admission_authority_snapshot ? 'binding') OR EXISTS (
                SELECT 1 FROM agents a WHERE a.owner_id=d.scope_id AND a.status='active' AND a.is_primary
                  AND a.id=decision.admission_authority_snapshot->'binding'->>'agentId'
-                 AND a.updated_at::text=decision.admission_authority_snapshot->'binding'->>'agentRevision')))
+                 AND a.updated_at::text=decision.admission_authority_snapshot->'binding'->>'agentRevision'))))
        RETURNING d.*`,
       [...this.scope(id),value.revision,value.workVersion,value.workGeneration,
         JSON.stringify(checks),passed?"VERIFICATION_PASSED":"VERIFICATION_FAILED",

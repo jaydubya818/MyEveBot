@@ -1,0 +1,225 @@
+{
+  "observedAt": "2026-09-27T16:43:32.362637+00:00",
+  "baseline": "7bf276493eb2b3206a50eea0c4c9c262b7396014",
+  "worktrees": [
+    {
+      "path": "/Users/jaywest/Myeve",
+      "head": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "branch": "refs/heads/main",
+      "status": [
+        " M README.md",
+        " M apps/eve/agent/connections/composio.ts",
+        " M apps/eve/agent/instructions/computer-runtime.ts",
+        " M apps/eve/scripts/executor-inventory.json",
+        "?? .playwright-cli/",
+        "?? docs/plans/2026-09-25-feat-myeve-engineering-plan.md",
+        "?? docs/plans/2026-09-25-knowledge-verification.md",
+        "?? docs/plans/2026-09-25-myeve-engineering-claude-review.md",
+        "?? docs/plans/2026-09-25-myeve-engineering-source-ledger.md",
+        "?? docs/plans/2026-09-25-myeve-engineering-verification.md",
+        "?? docs/verification/digital-worker/",
+        "?? output/knowledge-verification-2026-09-25.md",
+        "?? output/playwright/knowledge-2026-09-25/"
+      ],
+      "migrations51plus": []
+    },
+    {
+      "path": "/private/tmp/knowledge-production-source",
+      "head": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+      "branch": "refs/heads/codex/knowledge-production",
+      "status": [],
+      "migrations51plus": []
+    },
+    {
+      "path": "/private/tmp/myfactory-myeve-main-merge",
+      "head": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+      "branch": "DETACHED",
+      "status": [],
+      "migrations51plus": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+      "head": "7bf276493eb2b3206a50eea0c4c9c262b7396014",
+      "branch": "refs/heads/codex/digital-worker-integration",
+      "status": [],
+      "migrations51plus": [
+        {
+          "name": "0051_engineering_conversation_budget.sql",
+          "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+        },
+        {
+          "name": "0052_work_model_ledger.sql",
+          "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+        },
+        {
+          "name": "0053_native_completion_contract.sql",
+          "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+        },
+        {
+          "name": "0054_factory_result_receipts.sql",
+          "sha256": "722f6b24052f53cda67da755011438ceacf65aa0dfc0579d5afde998f64a6634"
+        },
+        {
+          "name": "0055_engineering_factory_results.sql",
+          "sha256": "a431db228036cc6fd07128db861c99ee4add2de6afe43f1ec5a4c32b83df2141"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "head": "acfe498a8eaf3a394087079d4a1978adcca3277d",
+      "branch": "refs/heads/codex/digital-worker-mvp",
+      "status": [
+        " M apps/eve/agent/tools/engineering_direct.ts",
+        " M apps/eve/lib/database-schema.ts",
+        " M apps/eve/lib/engineering/native-model.test.ts",
+        " M apps/eve/lib/engineering/native-model.ts",
+        " M apps/eve/lib/engineering/native-results.ts",
+        " M apps/eve/lib/engineering/native-routing.ts",
+        " M apps/eve/lib/engineering/route-admission.ts",
+        " M apps/eve/lib/engineering/runtime.ts",
+        "?? apps/eve/lib/engineering/native-completion.ts",
+        "?? apps/eve/migrations/0053_native_completion_contract.sql",
+        "?? apps/eve/test/native-completion-migration.integration.mjs",
+        "?? apps/eve/test/native-completion-process.mjs",
+        "?? apps/eve/test/native-completion.integration.mjs",
+        "?? docs/verification/2026-09-26-p0-gap2b-implementation/"
+      ],
+      "migrations51plus": [
+        {
+          "name": "0051_engineering_conversation_budget.sql",
+          "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+        },
+        {
+          "name": "0052_work_model_ledger.sql",
+          "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+        },
+        {
+          "name": "0053_native_completion_contract.sql",
+          "sha256": "a01c3b83a7d360216aa0bd11bb70319f0fc484efadbf31c19c565ac0ef869300"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+      "head": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+      "branch": "refs/heads/codex/p0-gap-02-common-ledger",
+      "status": [],
+      "migrations51plus": [
+        {
+          "name": "0051_engineering_conversation_budget.sql",
+          "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+        },
+        {
+          "name": "0052_work_model_ledger.sql",
+          "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+      "head": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+      "branch": "refs/heads/codex/p0-gap2b-projection",
+      "status": [],
+      "migrations51plus": [
+        {
+          "name": "0051_engineering_conversation_budget.sql",
+          "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+        },
+        {
+          "name": "0052_work_model_ledger.sql",
+          "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+      "head": "78b3333c93e21f3ac53457903c3b236afd91d063",
+      "branch": "refs/heads/codex/p0-gap2b-qualification",
+      "status": [],
+      "migrations51plus": [
+        {
+          "name": "0051_engineering_conversation_budget.sql",
+          "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+        },
+        {
+          "name": "0052_work_model_ledger.sql",
+          "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+        },
+        {
+          "name": "0053_native_completion_contract.sql",
+          "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+      "head": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+      "branch": "refs/heads/codex/q37-integration",
+      "status": [],
+      "migrations51plus": [
+        {
+          "name": "0051_engineering_conversation_budget.sql",
+          "sha256": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce"
+        },
+        {
+          "name": "0052_work_model_ledger.sql",
+          "sha256": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106"
+        },
+        {
+          "name": "0053_native_completion_contract.sql",
+          "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+        },
+        {
+          "name": "0054_factory_result_receipts.sql",
+          "sha256": "722f6b24052f53cda67da755011438ceacf65aa0dfc0579d5afde998f64a6634"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+      "head": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+      "branch": "refs/heads/codex/sofie-chat-mainline",
+      "status": [],
+      "migrations51plus": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+      "head": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+      "branch": "refs/heads/codex/thread-owner-conflict",
+      "status": [],
+      "migrations51plus": []
+    },
+    {
+      "path": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+      "head": "cab819bdd93ae1470925765728faacf8f6beab25",
+      "branch": "refs/heads/codex/myfactory-hosted-routing",
+      "status": [],
+      "migrations51plus": []
+    }
+  ],
+  "refs": [
+    {
+      "ref": "refs/heads/codex/digital-worker-integration",
+      "sha": "7bf276493eb2b3206a50eea0c4c9c262b7396014",
+      "migrations54plus": [
+        "apps/eve/migrations/0054_factory_result_receipts.sql",
+        "apps/eve/migrations/0055_engineering_factory_results.sql"
+      ]
+    },
+    {
+      "ref": "refs/heads/codex/q37-integration",
+      "sha": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+      "migrations54plus": [
+        "apps/eve/migrations/0054_factory_result_receipts.sql"
+      ]
+    },
+    {
+      "ref": "refs/remotes/origin/codex/q37-integration",
+      "sha": "83402ead63dc5565ea271f6410ff3ac1fd19fd8d",
+      "migrations54plus": [
+        "apps/eve/migrations/0054_engineering_factory_results.sql"
+      ]
+    }
+  ]
+}

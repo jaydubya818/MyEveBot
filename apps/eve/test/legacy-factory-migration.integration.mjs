@@ -16,7 +16,7 @@ async function snapshot(includeLedger=true){
  const result={};for(const {tablename:t} of tables){if(!includeLedger&&t==='sofie_schema_migrations')continue;result[t]=(await pool.query('SELECT to_jsonb(t) row FROM "'+t+'" t ORDER BY to_jsonb(t)::text')).rows;}return result;
 }
 try {
- const migrations=await loadMigrations();assert.equal(migrations.length,55);assert.equal(migrations.at(-1).name,'0055_engineering_factory_results.sql');
+ const migrations=(await loadMigrations()).slice(0,55);assert.equal(migrations.length,55);assert.equal(migrations.at(-1).name,'0055_engineering_factory_results.sql');
  assert.equal(migrations[52].checksum,'1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53');
  assert.equal(migrations[53].checksum,'722f6b24052f53cda67da755011438ceacf65aa0dfc0579d5afde998f64a6634');
  assert.equal(migrations[54].checksum,'a431db228036cc6fd07128db861c99ee4add2de6afe43f1ec5a4c32b83df2141');

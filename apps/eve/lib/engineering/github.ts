@@ -13,7 +13,7 @@ export interface EngineeringGitHub {
 function objectSha(kind: string, content: string | Buffer) {
   const body = Buffer.from(content); return createHash("sha1").update(`${kind} ${body.length}\0`).update(body).digest("hex");
 }
-function treeObjects(files: Record<string,string>) {
+export function treeObjects(files: Record<string,string>) {
   const objects: {sha:string; entries:{path:string;mode:"100644"|"040000";type:"blob"|"tree";sha:string}[]}[] = [];
   function tree(prefix: string): string {
     const children = new Map<string,boolean>();
@@ -67,6 +67,16 @@ export function assertCandidateIdentity(contract: CandidateContract, run: Engine
     candidate.commit.email!==expectedCommit.email ||
     candidate.sha!==candidateCommitSha(tree,run.publicationParentSha,candidate.commit))
     throw new WorkError("candidate_denied", "Candidate identity does not match the exact Work, Run, source and commit.");
+}
+export function assertFactoryCandidateIdentity(contract: CandidateContract, base: RepositorySnapshot, candidate: Candidate) {
+  const {paths,tree,patch}=candidateMaterial(contract,base,candidate.files);
+  const raw=candidate.rawCommit;
+  if(candidate.producer!=="MYFACTORY" || !candidate.factoryProvenance || !raw ||
+    candidate.workId!==contract.workId || candidate.repository!==contract.repository || base.sha!==contract.baseSha || candidate.baseSha!==base.sha || candidate.parentSha!==base.sha ||
+    candidate.tree!==tree || candidate.patch!==patch || JSON.stringify(candidate.changedPaths)!==JSON.stringify(paths) ||
+    candidate.artifactHash!==digest({files:candidate.files,patch}) || objectSha("commit",raw)!==candidate.sha ||
+    raw.split("\n\n")[0].split("\n").filter(x=>x.startsWith("parent ")).join("\n")!==`parent ${base.sha}` || !raw.startsWith(`tree ${tree}\n`))
+    throw new WorkError("factory_candidate_identity","Factory custody does not match the exact authenticated Git candidate.");
 }
 export function workBranch(workId: string) { return `myeve/work-${workId}`; }
 

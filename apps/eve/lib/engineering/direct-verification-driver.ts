@@ -111,8 +111,8 @@ export class DirectVerificationDriver {
     if (!candidate) throw new WorkError("direct_candidate_missing","The frozen candidate is missing.");
     await this.database().query(
       `INSERT INTO engineering_direct_verification_jobs
-         (scope_id,scope_kind,work_id,candidate_id,candidate_sha,workspace_revision)
-       SELECT d.scope_id,d.scope_kind,d.work_id,$4::uuid,$5,$6
+         (scope_id,scope_kind,work_id,candidate_id,candidate_sha,workspace_revision,route_run_id)
+       SELECT d.scope_id,d.scope_kind,d.work_id,$4::uuid,$5,$6,d.route_run_id
        FROM engineering_direct_workspaces d
        JOIN engineering_work w ON w.scope_id=d.scope_id AND w.scope_kind=d.scope_kind AND w.id=d.work_id
        JOIN engineering_route_runs r ON r.id=d.route_run_id AND r.decision_id=d.decision_id
@@ -123,8 +123,8 @@ export class DirectVerificationDriver {
          AND d.profile_hash=$7 AND d.deadline>clock_timestamp()
          AND w.version=d.work_version AND w.generation=d.work_generation
          AND w.criteria_version=d.criteria_version AND w.lifecycle='active' AND w.control='agent'
-         AND r.status='RUNNING' AND r.route='DEEP_AGENT'
-         AND route.status='ADMITTED' AND route.selected_route='DEEP_AGENT'
+         AND engineering_candidate_verifiable(d.scope_id,d.scope_kind,d.work_id)
+         AND route.status='ADMITTED'
        ON CONFLICT DO NOTHING`,
       [...this.scope(id),candidate.id,candidate.sha,value.revision,digest(this.direct.config.profile)]);
   }
@@ -160,8 +160,8 @@ export class DirectVerificationDriver {
              AND d.deadline>clock_timestamp()
              AND w.version=d.work_version AND w.generation=d.work_generation
              AND w.criteria_version=d.criteria_version AND w.lifecycle='active' AND w.control='agent'
-             AND r.status='RUNNING' AND r.route='DEEP_AGENT'
-             AND route.status='ADMITTED' AND route.selected_route='DEEP_AGENT')
+             AND engineering_candidate_verifiable(d.scope_id,d.scope_kind,d.work_id)
+             AND route.status='ADMITTED')
        RETURNING j.*`,
       [...this.scope(id),candidate.sha,value.revision,digest(this.direct.config.profile),token,this.leaseSeconds]);
     return row?{token,candidateSha:candidate.sha,workspaceRevision:value.revision}:null;
@@ -182,8 +182,8 @@ export class DirectVerificationDriver {
          AND d.candidates->-1->>'sha'=j.candidate_sha AND d.deadline>clock_timestamp()
          AND w.version=d.work_version AND w.generation=d.work_generation
          AND w.criteria_version=d.criteria_version AND w.lifecycle='active' AND w.control='agent'
-         AND r.status='RUNNING' AND r.route='DEEP_AGENT'
-         AND route.status='ADMITTED' AND route.selected_route='DEEP_AGENT'`,
+         AND engineering_candidate_verifiable(d.scope_id,d.scope_kind,d.work_id)
+         AND route.status='ADMITTED'`,
       [...this.scope(id),claim.candidateSha,claim.workspaceRevision,claim.token]);
     if (!row) throw new WorkError("direct_verification_lease","The verifier lease or Work writer was fenced.");
   }
@@ -256,7 +256,7 @@ export class DirectVerificationDriver {
       throw new WorkError("direct_verification_changed","No current frozen candidate is awaiting verification.");
     }
     if (!inspected.current) throw new WorkError("direct_verification_changed","Work changed before verification.");
-    await this.direct.requireAdmission(id);
+    await this.direct.requireVerification(id);
     await this.seed(id,value);
     await this.reapExpired(id,candidate.sha);
     const claim=await this.claim(id,value);
@@ -292,7 +292,7 @@ export class DirectVerificationDriver {
     const candidate=value?.candidates.at(-1);
     if (!current || value?.phase!=="VERIFICATION_REQUESTED" || candidate?.sha!==candidateSha)
       throw new WorkError("direct_verification_changed","The candidate or Work is no longer current.");
-    await this.direct.requireAdmission(id);
+    await this.direct.requireVerification(id);
     const existing=await this.inspectJob(id,candidateSha);
     if (existing?.status!=="RECOVERY_REQUIRED" || existing.attempt>=8)
       throw new WorkError("direct_verification_recovery","Only an interrupted attempt below the retry limit can be reconciled.");
@@ -313,8 +313,8 @@ export class DirectVerificationDriver {
              AND d.deadline>clock_timestamp()
              AND w.version=d.work_version AND w.generation=d.work_generation
              AND w.criteria_version=d.criteria_version AND w.lifecycle='active' AND w.control='agent'
-             AND r.status='RUNNING' AND r.route='DEEP_AGENT'
-             AND route.status='ADMITTED' AND route.selected_route='DEEP_AGENT')
+             AND engineering_candidate_verifiable(d.scope_id,d.scope_kind,d.work_id)
+             AND route.status='ADMITTED')
        RETURNING j.*`,
       [...this.scope(id),candidateSha,digest(this.direct.config.profile)]);
     if (!row) throw new WorkError("direct_verification_changed","The retry was fenced by changed Work or writer state.");

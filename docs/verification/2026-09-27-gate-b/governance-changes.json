@@ -1,0 +1,134 @@
+{
+  "changes": {
+    "lib/database-schema.ts": {
+      "before": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
+        "sha256": "610955355cc6371769f7c19a4ccb42c80f7d39a1dfebf332b0ef71f2b3b046bb"
+      },
+      "after": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Pure database readiness version constant; requires the registered 0056 single-writer handoff schema before runtime access.",
+        "sha256": "8448c9b0e3980620c5b0db1eb6049e32d561d376f1ce0d998673fec459c46ab0"
+      }
+    },
+    "lib/digital-worker/routing.ts": {
+      "before": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
+        "sha256": "e2d550b6a89ddc8d050a1da29c0fac5f62b6183fb7fff3eaa5f84b7b41d27dfc"
+      },
+      "after": {
+        "classification": "NOT_APPLICABLE",
+        "reason": "Pure scoped routing decisions; MYFACTORY supports its exact content-digest FactoryVersion while other provider versions remain numeric. No dispatch or authority effects.",
+        "sha256": "f548914ccab0b6b0d2ba657f011b686d78bd23114c0fb89b7bae866485e0c6ae"
+      }
+    },
+    "lib/engineering/current-truth-lines.ts": {
+      "before": {
+        "classification": "READ_ONLY",
+        "reason": "Pure Work/Chat formatter adds deterministic phase/next-action/no-progress guidance. Observations never grant authority.",
+        "sha256": "54a4afc426b714b48502427e2566539ef4889744c41d4db416bbe6a10594da83"
+      },
+      "after": {
+        "classification": "READ_ONLY",
+        "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority.",
+        "sha256": "976f5c5e7000c46a98e4f55bf41deddf4bf33d46a252afdaf5a1680a6e998e91"
+      }
+    },
+    "lib/engineering/direct-development.ts": {
+      "before": {
+        "classification": "ENFORCED",
+        "reason": "Native effects require current Work, route, generation, revision and bound Agent revision; native admissions require trusted host rechecks. Independent verifier custody and SQL CAS fence evidence.",
+        "sha256": "47bd084456a050f8659807d139d0c72ff65a566e226f93c97f0ebecac08b486b"
+      },
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Existing scoped native effects retain admission fences. Proven-terminal custody may be archived/rebound by 0056; Factory verification consumes immutable receipt-bound custody without a native writer grant.",
+        "sha256": "e0c1929b0d08ad008979c1bbb5ff68270739995e9e0fded2ea9266e1ccd29c8c"
+      }
+    },
+    "lib/engineering/direct-verification-driver.ts": {
+      "before": {
+        "classification": "ENFORCED",
+        "reason": "Independent protected verification claim/lease and exact resource reconciliation. Docker absence matching uses the shared exact-name parser; ambiguous resources require reconciliation.",
+        "sha256": "08c425b5dc38fcd7b22b9f775d430afa813a6c9ca1a105404d32605317d26903"
+      },
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Existing protected verifier lease/resource reconciliation reused for exact native or terminal Factory candidate custody. No Factory evidence accepted as independent proof and no productive writer acquired.",
+        "sha256": "982727de74a045a925b5851b61d90c7aef58cdfa0386d3cd7b95f86d2806b25f"
+      }
+    },
+    "lib/engineering/execution.ts": {
+      "before": {
+        "classification": "INTERNAL",
+        "reason": "Pure execution state, readiness, custody and manifest logic used by scoped worker; no direct provider effect.",
+        "sha256": "bb968ba60ce245b8a8c6101b7e8b27828f60b968ed3e5d3e882cd931a269780e"
+      },
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Pure execution state and candidate/evidence contracts; Factory candidate metadata retains exact producer receipt, writer generation and raw commit provenance. No provider effects.",
+        "sha256": "7fd28817b433ef3819dd5f020cae2c4d4589edf332a353db4e7c60725d668341"
+      }
+    },
+    "lib/engineering/github.ts": {
+      "before": {
+        "classification": "ENFORCED",
+        "reason": "Fixed GitHub publisher checks App authority, base/head, allowed paths and candidate object identities; non-force branch update and draft PR only.",
+        "sha256": "5a9f248159ab40726c2a1313b978ccb86c12d3f56c7d30ef965cb8b35f6a501c"
+      },
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Existing enforced GitHub publisher remains bounded. Added pure Factory identity validation recomputes allowed-path tree/material and exact producer raw commit without changing provenance or granting publication.",
+        "sha256": "a54754d660d86d6a1b3e834f5932d68cdb3242ea57940362bafd0f43233a1ddf"
+      }
+    },
+    "lib/engineering/native-results.ts": {
+      "before": {
+        "classification": "ENFORCED",
+        "reason": "Immutable proof requires completed independent custody at exact candidate/profile/criteria/revision with artifact hashes. Local pass remains PARTIAL with explicit publication and cost limitations.",
+        "sha256": "4a9e5aea882a4f2de8162186fb4b543e3baf71bfbfc3adfa9db453ed8c906474"
+      },
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority.",
+        "sha256": "ebbc1f7faee880ac9f7bffb115e992a987d2704c21a9652a6de194dd6e08cf1f"
+      }
+    },
+    "lib/engineering/route-admission.ts": {
+      "before": {
+        "classification": "INTERNAL",
+        "reason": "Atomic scoped admission checks Work version/generation, policy/provider/Agent, completion contract and budget, then binds the existing authenticated completion session as sole native writer in the same SQL statement. No model dispatch or independent money authority.",
+        "sha256": "d23e00eaffee8f5931d8da188cda990b24c97816b149922fe19bf609fbefe3cc"
+      },
+      "after": {
+        "classification": "INTERNAL",
+        "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget.",
+        "sha256": "c119b5427aea8ebbe8f566fa9fd6d7af2004019942817ac4029a892b7586f71a"
+      }
+    },
+    "lib/engineering/worker-projection.ts": {
+      "before": {
+        "classification": "READ_ONLY",
+        "reason": "Read-only canonical projection shares native phase/progress observations with Chat while retaining authority, generation, accounting, verification and readiness fences.",
+        "sha256": "2d3d2f109b7fb32786abbc0fbeb6746499c5406ad3b909204d99774f8b6b2286"
+      },
+      "after": {
+        "classification": "READ_ONLY",
+        "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
+        "sha256": "f72d03f931582228657f03a65560e6de995fee312559da554ce6cc7222f15f85"
+      }
+    },
+    "lib/engineering/factory-writer.ts": {
+      "before": null,
+      "after": {
+        "classification": "ENFORCED",
+        "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant.",
+        "sha256": "7a01cfebe33c28e4507c60fa8d3797fa53ebe15d5f3c24a6fd8028a4481842ca"
+      }
+    }
+  },
+  "unrelatedEntriesChanged": 0,
+  "removedEntries": 0
+}

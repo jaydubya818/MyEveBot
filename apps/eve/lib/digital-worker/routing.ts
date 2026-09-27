@@ -23,11 +23,14 @@ const dispatchOperation: Record<Exclude<ProductiveRoute, "DIRECT">, string> = {
   RELAY: "peer.request",
 };
 
+// Qualified FactoryVersion is a content digest; other providers retain numeric versions.
+const factoryReferenceSchema=versionedReferenceSchema.extend({version:z.union([z.number().int().positive(),z.string().regex(/^[a-f0-9]{64}$/)])});
+
 const routeProvidersSchema = z.object({
   DIRECT: versionedReferenceSchema.nullable(),
   DEEP_AGENT: versionedReferenceSchema.nullable(),
   EXECUTOR: versionedReferenceSchema.nullable(),
-  MYFACTORY: versionedReferenceSchema.nullable(),
+  MYFACTORY: factoryReferenceSchema.nullable(),
   RELAY: versionedReferenceSchema.nullable(),
 }).strict();
 
@@ -54,7 +57,7 @@ const qualificationsSchema = z.object({
   DIRECT: providerQualificationSchema.nullable(),
   DEEP_AGENT: providerQualificationSchema.nullable(),
   EXECUTOR: providerQualificationSchema.nullable(),
-  MYFACTORY: providerQualificationSchema.nullable(),
+  MYFACTORY: providerQualificationSchema.extend({provider:factoryReferenceSchema}).nullable(),
   RELAY: providerQualificationSchema.nullable(),
 }).strict();
 

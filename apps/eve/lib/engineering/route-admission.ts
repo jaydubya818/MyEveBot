@@ -25,6 +25,7 @@ const authoritySnapshotSchema = z.object({
   contract: digitalWorkContractSchema,
   context: contextPackageSchema,
   facts: routeFactsSchema,
+  factory: z.object({requestId:z.string().uuid(),repository:z.string(),baseSha:z.string().regex(/^[a-f0-9]{40}$/),profileHash:z.string().regex(/^[a-f0-9]{64}$/),allowedPaths:z.array(z.string().min(1)).min(1).max(100),deadline:z.string().datetime()}).strict().optional(),
   binding: z.object({agentId:z.string().min(1),agentRevision:z.string().min(1).max(100),
     configurationHash:z.string().regex(/^[a-f0-9]{64}$/),workGeneration:z.number().int().positive()}).strict().optional(),
 }).strict();
@@ -118,7 +119,7 @@ export class RouteAdmissionService {
 
     const admissionReason = "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.";
     const runId = randomUUID();
-    const authoritySnapshot = { contract, facts, ...(snapshot.binding ? { binding: snapshot.binding } : {}),
+    const authoritySnapshot = { contract, facts, ...(snapshot.factory ? {factory:snapshot.factory} : {}), ...(snapshot.binding ? { binding: snapshot.binding } : {}),
       ...(completion ? {completion:{...completion,id:runId,runId}} : {}) };
     const decisionId = input.decisionId;
     const transitionId = randomUUID();
@@ -130,7 +131,8 @@ export class RouteAdmissionService {
          WHERE w.scope_id=$1 AND w.scope_kind=$2 AND w.id=$3
            AND w.version=$4 AND w.criteria_version=$5 AND w.generation=$28
            AND ($29::text IS NULL OR NOT EXISTS (SELECT 1 FROM engineering_native_runtime n
-             WHERE n.scope_id=w.scope_id AND n.scope_kind=w.scope_kind AND n.work_id=w.id))
+             WHERE n.scope_id=w.scope_id AND n.scope_kind=w.scope_kind AND n.work_id=w.id
+             AND (n.inflight OR n.usage_unknown OR NOT EXISTS(SELECT 1 FROM engineering_route_runs prior WHERE prior.id=n.route_run_id AND prior.fenced_at IS NOT NULL AND prior.quiescence IS NOT NULL))))
            AND w.lifecycle='active' AND w.control='agent'
            AND ($25::text IS NULL OR (w.generation=$27 AND EXISTS (SELECT 1 FROM agents a
              WHERE a.owner_id=w.scope_id AND a.id=$25 AND a.status='active' AND a.is_primary=true
@@ -184,6 +186,7 @@ export class RouteAdmissionService {
        ), writer AS (
          INSERT INTO engineering_native_runtime(scope_id,scope_kind,work_id,route_run_id,session_id)
          SELECT $1,$2,$3,q.id,$29 FROM queued q WHERE $29::text IS NOT NULL
+         ON CONFLICT(scope_id,scope_kind,work_id) DO UPDATE SET route_run_id=EXCLUDED.route_run_id,session_id=EXCLUDED.session_id,updated_at=clock_timestamp()
          RETURNING route_run_id
        )
        SELECT a.id AS decision_id,t.id AS transition_id,q.id AS run_id,

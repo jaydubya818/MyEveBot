@@ -30,7 +30,7 @@ const name='gap2b_'+randomBytes(8).toString('hex');let pool;
 try {
  await admin.query('CREATE DATABASE '+name);const databaseURL='postgresql://postgres@127.0.0.1:55479/'+name;
  pool=new Pool({connectionString:databaseURL});const client=await pool.connect();
- const migrations=await loadMigrations();assert.equal(migrations.length,55);
+ const migrations=await loadMigrations();assert.equal(migrations.length,56);
  const migrationDb={query:async(s,p)=>(await client.query(s,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const x of statements)await client.query(x.sql,x.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}};
  await runMigrations(migrationDb,migrations,()=>{});client.release();
  const database={query:async(s,p)=>(await pool.query(s,p)).rows};const owner='completion-owner',agentId='completion-sofie';

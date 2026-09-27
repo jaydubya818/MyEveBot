@@ -1,0 +1,342 @@
+{
+  "kind": "LOCAL_SYNTHETIC_CONTROLLED_PROVIDER",
+  "ceilingMicrousd": 1300000,
+  "initialConversationBoundMicrousd": 85915,
+  "completionHoldMicrousd": 1013769,
+  "maximumPlannedMicrousd": 1099684,
+  "telemetry": [
+    {
+      "stage": "open",
+      "spent_microusd": "6000",
+      "reserved_microusd": "0",
+      "calls_admitted": 2,
+      "held": "901128"
+    },
+    {
+      "stage": "read",
+      "spent_microusd": "9000",
+      "reserved_microusd": "0",
+      "calls_admitted": 3,
+      "held": "788487"
+    },
+    {
+      "stage": "plan",
+      "spent_microusd": "12000",
+      "reserved_microusd": "0",
+      "calls_admitted": 4,
+      "held": "675846"
+    },
+    {
+      "stage": "write",
+      "spent_microusd": "15000",
+      "reserved_microusd": "0",
+      "calls_admitted": 5,
+      "held": "563205"
+    },
+    {
+      "stage": "submit",
+      "spent_microusd": "18000",
+      "reserved_microusd": "0",
+      "calls_admitted": 6,
+      "held": "450564"
+    },
+    {
+      "stage": "inspect",
+      "spent_microusd": "21000",
+      "reserved_microusd": "0",
+      "calls_admitted": 7,
+      "held": "337923"
+    },
+    {
+      "stage": "write",
+      "spent_microusd": "24000",
+      "reserved_microusd": "0",
+      "calls_admitted": 8,
+      "held": "225282"
+    },
+    {
+      "stage": "submit",
+      "spent_microusd": "27000",
+      "reserved_microusd": "0",
+      "calls_admitted": 9,
+      "held": "112641"
+    },
+    {
+      "stage": "fresh-explanation",
+      "spent_microusd": "30000",
+      "reserved_microusd": "0",
+      "calls_admitted": 10,
+      "held": "0"
+    }
+  ],
+  "finalTruth": {
+    "runTruth": {
+      "activeRun": null,
+      "latestRun": {
+        "id": "e0ca2e0c-3c17-47b3-a355-d82f56e90282",
+        "purpose": "DEEP_AGENT",
+        "storedStatus": "RUNNING",
+        "effectiveStatus": "NOT_EXECUTABLE",
+        "reasons": [
+          "Completion workflow is COMPLETE; history is read-only"
+        ],
+        "generationCurrent": true,
+        "associatedAt": "2026-09-27T17:37:46.814Z",
+        "timestampSource": "admission",
+        "deadline": "2026-09-27T18:37:46.813Z"
+      },
+      "runHistory": [
+        {
+          "id": "e0ca2e0c-3c17-47b3-a355-d82f56e90282",
+          "purpose": "DEEP_AGENT",
+          "storedStatus": "RUNNING",
+          "effectiveStatus": "NOT_EXECUTABLE",
+          "reasons": [
+            "Completion workflow is COMPLETE; history is read-only"
+          ],
+          "generationCurrent": true,
+          "associatedAt": "2026-09-27T17:37:46.814Z",
+          "timestampSource": "admission",
+          "deadline": "2026-09-27T18:37:46.813Z"
+        }
+      ],
+      "latestOrderCertain": true,
+      "writerSession": {
+        "recordedId": "writer",
+        "runId": "e0ca2e0c-3c17-47b3-a355-d82f56e90282",
+        "productive": false,
+        "boundaryRecheckRequired": true
+      }
+    },
+    "verification": {
+      "candidateSha": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+      "status": "PASS",
+      "jobStatus": "COMPLETED",
+      "evidenceCount": 10,
+      "evidenceHashes": [
+        "e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+        "eb663b97add1b0ab52abbd04f94d6bcfcb58fdba1eeb61a6f8a94891fe0ac139",
+        "f7c2885875a503a296a49b671ccf9e47922969a941acecc7b4191df3ae109104",
+        "206891bdfb5cdbad0f936b0c705fbb785c04e7e026ad89a9cfdd4b0eb7b79bfd",
+        "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+        "db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535"
+      ]
+    },
+    "draft": {
+      "revision": 8,
+      "contentHash": "3169cdce57ea420d4c6e13d710d97272e7d117d8eb847d41a213e40f8693e96f",
+      "differsFromCandidate": false
+    },
+    "completionBudget": {
+      "ceilingUsd": 1.3,
+      "heldUsd": 0,
+      "observed": true,
+      "remainingUsd": 1.27
+    },
+    "candidateHistory": [
+      {
+        "sha": "cf9855a671d79f83027b08aa2d1093a6163c3e54",
+        "checks": "FAIL",
+        "failures": [
+          "quantity-7",
+          "quantity-9"
+        ],
+        "evidenceCount": 10
+      },
+      {
+        "sha": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+        "checks": "PASS",
+        "failures": [],
+        "evidenceCount": 10
+      }
+    ],
+    "completionStatus": "COMPLETE",
+    "nativeExecution": {
+      "admissionStatus": "ALREADY_ADMITTED",
+      "phase": "COMPLETED",
+      "nextOperation": null,
+      "admissionRequired": false,
+      "runId": "e0ca2e0c-3c17-47b3-a355-d82f56e90282",
+      "writerSessionId": "writer",
+      "route": "NATIVE",
+      "control": "agent",
+      "completionContractId": "e0ca2e0c-3c17-47b3-a355-d82f56e90282"
+    },
+    "executionController": {
+      "phase": "COMPLETE",
+      "nextOperation": null,
+      "allowedOperations": [],
+      "runId": "e0ca2e0c-3c17-47b3-a355-d82f56e90282",
+      "writer": "writer",
+      "version": 2,
+      "generation": 2,
+      "base": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+      "revision": 8,
+      "candidate": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+      "targets": [],
+      "known": {
+        "opened": true,
+        "inspected": [],
+        "requiredReads": [
+          "README.md"
+        ],
+        "absentTargets": [],
+        "plan": null,
+        "diagnosed": null
+      },
+      "budget": {
+        "callsRemaining": 0,
+        "stageCallsRemaining": 0,
+        "repairRemaining": 0,
+        "heldMicrousd": 0,
+        "spentMicrousd": 30000
+      },
+      "progress": {
+        "fingerprint": "54f38602c2c9ae7399f96d447664dcd30d0b732681b6f39c09679792a7b1e470",
+        "consecutiveNoProgress": 0,
+        "recovery": "NONE"
+      },
+      "metrics": {
+        "modelCalls": 10,
+        "productiveCalls": 1,
+        "coordinationCalls": 9,
+        "noProgressCalls": 0,
+        "operations": 0,
+        "candidateRevisions": 2,
+        "verificationAttempts": 2,
+        "repairAttempts": 1,
+        "humanInterventions": 0,
+        "phaseTransitions": [
+          "COMPLETE"
+        ]
+      }
+    },
+    "workId": "f548c3b5-9ff4-46e8-8426-3c3631e364f9",
+    "title": "Fresh local M1 ER1",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "workVersion": 2,
+    "workGeneration": 2,
+    "criteriaVersion": 1,
+    "lifecycle": "active",
+    "control": "agent",
+    "workContract": null,
+    "authoritySummary": {
+      "admitted": true,
+      "generationCurrent": true,
+      "deadlineCurrent": true,
+      "boundaryRecheckRequired": true
+    },
+    "qualificationMode": null,
+    "status": "Local workflow complete",
+    "activity": "Completion workflow: COMPLETE. Candidate, draft and evidence remain retained.",
+    "nextStep": "Review the immutable PARTIAL/FAILED local Result. Publication, CI and review require separate qualification.",
+    "readiness": {
+      "ready": false,
+      "reasons": [
+        "Native protected verification: PASS. Retained Result: PARTIAL. Publication, CI, independent review and owner acceptance remain unverified."
+      ]
+    },
+    "currentRun": null,
+    "attention": null,
+    "pendingDecisions": [],
+    "latestResult": {
+      "id": "dbda3992-e35e-4b0c-a21f-e851142401e5",
+      "version": 2,
+      "summary": "Native development: PARTIAL. Publication and acceptance are not established.",
+      "candidate": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+      "createdAt": "2026-09-27T17:37:51.587Z"
+    },
+    "nativeDevelopment": {
+      "phase": "VERIFICATION_PASSED",
+      "label": "Candidate checks passed; Work not Ready",
+      "revision": 8,
+      "candidateSha": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+      "evidenceCount": 20,
+      "current": false,
+      "updatedAt": "2026-09-27T17:37:51.587Z"
+    },
+    "nativeResult": {
+      "id": "dbda3992-e35e-4b0c-a21f-e851142401e5",
+      "proof": {
+        "contractVersion": 2,
+        "workId": "f548c3b5-9ff4-46e8-8426-3c3631e364f9",
+        "workVersion": 2,
+        "criteriaVersion": 1,
+        "outcome": "PARTIAL",
+        "resultRevision": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+        "createdAt": "2026-09-27T17:37:51.587Z",
+        "evidence": [
+          {
+            "criterionId": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+            "resultRevision": "a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8",
+            "state": "PASS",
+            "producer": "trusted-verifier",
+            "sourceRef": "native-verification:f548c3b5-9ff4-46e8-8426-3c3631e364f9:a8b2c3772cb6637c40eb0561106d4ef1e05ca1d8:adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+            "contentHash": "sha256:8e265f48b320c48ac544f64560a00df1f484d847300dbf8f2d3aa1bc7abde659",
+            "observedAt": "2026-09-27T17:37:51.587Z"
+          }
+        ],
+        "artifactRefs": [
+          "native-candidate:dfb580cc-1c6f-4863-b4d5-0c96d93f27c0:sha256:5302b79f61e892a2a2a9a1b4a1c2cef19d63ef64e72ff421ffcb68a98cf1087c",
+          "protected-evidence:sha256:e2c843b0e19cc744aa803786e14b213ef7cedd128b80fb66980393f40a4868ed",
+          "protected-evidence:sha256:eb663b97add1b0ab52abbd04f94d6bcfcb58fdba1eeb61a6f8a94891fe0ac139",
+          "protected-evidence:sha256:f7c2885875a503a296a49b671ccf9e47922969a941acecc7b4191df3ae109104",
+          "protected-evidence:sha256:206891bdfb5cdbad0f936b0c705fbb785c04e7e026ad89a9cfdd4b0eb7b79bfd",
+          "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "protected-evidence:sha256:db5bde1545dd47df4b1782eb4c995a4064166568f73e3231c96e47fec3c8a535",
+          "changed-source:quantity.mjs"
+        ],
+        "limitations": [
+          "Native source development and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.",
+          "Recorded native model spend: $0.024000. Infrastructure costs are not covered."
+        ]
+      },
+      "contentHash": "42fcecdcd1afbb817986a35059dd000fc31edb2623d7c60dca40bb3224caf523",
+      "current": true
+    },
+    "nativeRuntime": {
+      "spentUsd": 0,
+      "reservedUsd": 0,
+      "usageUnknown": false,
+      "inflight": false
+    },
+    "conversationRuntime": {
+      "status": "ACTIVE",
+      "spentUsd": 0.03,
+      "reservedUsd": 0,
+      "usageUnknown": false,
+      "inflight": false
+    },
+    "routing": {
+      "decisionId": "50ccbc0a-2556-420a-9899-d3c0fae1730c",
+      "status": "ADMITTED",
+      "selectedRoute": "DEEP_AGENT",
+      "reason": "Bounded source development requires the qualified native Sofie provider and independent protected verification.",
+      "providerId": "myeve-native-sofie"
+    },
+    "repositoryObservation": null,
+    "lastMeaningfulActivity": "2026-09-27T17:37:51.587Z",
+    "lastChange": {
+      "kind": "native:verification_passed",
+      "at": "2026-09-27T17:37:51.587Z",
+      "actorId": null,
+      "version": 8
+    },
+    "source": {
+      "kind": "durable-engineering-work",
+      "readAt": "2026-09-27T17:37:51.631Z",
+      "workRef": "engineering-work:f548c3b5-9ff4-46e8-8426-3c3631e364f9:v2",
+      "executionRef": null,
+      "resultRef": "native-result:dbda3992-e35e-4b0c-a21f-e851142401e5",
+      "routingRef": "engineering-route-decision:50ccbc0a-2556-420a-9899-d3c0fae1730c"
+    }
+  }
+}
