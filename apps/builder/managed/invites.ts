@@ -1,6 +1,7 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID } from "node:crypto";
 import { inTransaction, managedDb } from "./db";
 import { managedProjectName, normalizeInviteEmail } from "./state";
+import { betaRelayOrigin } from "@/lib/relay-trust";
 
 export interface ManagedInvite {
   id: string;
@@ -25,9 +26,9 @@ export function encryptRelayInvite(url: string): string {
   const parsed = new URL(url);
   const fragment = new URLSearchParams(parsed.hash.slice(1));
   const token = fragment.get("invite");
-  if (parsed.origin !== "https://relay-sage-nine.vercel.app" || parsed.pathname !== "/signup" ||
+  if (parsed.origin !== betaRelayOrigin(process.env.BUILDER_RELAY_ORIGIN) || parsed.pathname !== "/signup" ||
       parsed.search || fragment.size !== 1 || !token || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
-    throw new Error("Relay invitation must be the approved production signup URL");
+    throw new Error("Relay invitation must use the configured Relay signup origin");
   }
   const nonce = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", inviteKey(), nonce);

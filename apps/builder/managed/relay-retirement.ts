@@ -1,7 +1,7 @@
 import { managedDb } from "./db";
 import { decryptRelayInvite } from "./invites";
+import { betaRelayOrigin } from "@/lib/relay-trust";
 
-const relayOrigin = "https://relay-sage-nine.vercel.app";
 const tokenPattern = /^[A-Za-z0-9_-]{43}$/;
 
 /** Read back the exact Relay identity associated with this managed invitation. */
@@ -14,6 +14,7 @@ export async function verifyRelayRetirement(inviteId: string | null | undefined)
   const ciphertext = result.rows[0]?.relay_invite_ciphertext;
   if (!ciphertext) throw new Error("Bound Relay invitation is unavailable");
   const invite = new URL(decryptRelayInvite(ciphertext));
+  const relayOrigin = betaRelayOrigin(process.env.BUILDER_RELAY_ORIGIN);
   const fragment = new URLSearchParams(invite.hash.slice(1));
   const token = fragment.get("invite");
   if (invite.origin !== relayOrigin || invite.pathname !== "/signup" || invite.search ||

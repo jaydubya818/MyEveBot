@@ -15,6 +15,7 @@ it("retires only the bound paused project and dedicated Neon store after export"
   process.env.MANAGED_EVE_VERCEL_TOKEN = "disposable-test-token";
   process.env.MANAGED_EVE_VERCEL_TEAM_ID = "team_qualificationtest";
   process.env.MANAGED_EVE_INVITE_KEY = Buffer.alloc(32, 7).toString("base64url");
+  process.env.BUILDER_RELAY_ORIGIN = "https://relay-sage-nine.vercel.app";
   const suffix = randomUUID().replaceAll("-", "").slice(0, 24);
   const id = `env_${suffix}`;
   const inviteId = `inv_${suffix}`;
@@ -133,6 +134,7 @@ it("recovers only an undeployed failed project once", { skip: !enabled }, async 
   process.env.MANAGED_EVE_VERCEL_TOKEN = "disposable-test-token";
   process.env.MANAGED_EVE_VERCEL_TEAM_ID = "team_qualificationtest";
   process.env.MANAGED_EVE_INVITE_KEY = Buffer.alloc(32, 7).toString("base64url");
+  process.env.BUILDER_RELAY_ORIGIN = "https://relay-sage-nine.vercel.app";
   const suffix = randomUUID().replaceAll("-", "").slice(0, 24);
   const id = `env_${suffix}`;
   const inviteId = `inv_${suffix}`;

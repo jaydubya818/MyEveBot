@@ -16,8 +16,9 @@ Configure these Builder server-side variables only in the deployment environment
 | `MANAGED_EVE_INVITE_KEY` | 32 random bytes encoded as base64url for Relay invitation encryption |
 | `MANAGED_EVE_ADMIN_TOKEN` | Random operator bearer token, at least 32 characters |
 | `MANAGED_EVE_VERCEL_TOKEN` | Operator Vercel token scoped to the beta account/team |
-| `MANAGED_EVE_VERCEL_TEAM_ID` | Team scope if managed projects live in a Vercel team |
-| `MANAGED_EVE_RELAY_FINGERPRINT` | Operator-reviewed production Relay signing-key SHA-256 fingerprint |
+| `MANAGED_EVE_VERCEL_TEAM_ID` | Required dedicated team scope for every managed provider operation |
+| `MANAGED_EVE_RELAY_FINGERPRINT` | Operator-reviewed Relay signing-key SHA-256 fingerprint for this deployment |
+| `BUILDER_RELAY_ORIGIN` | Exact public HTTPS Relay origin; pin the same candidate origin for invitation validation, trust, and retirement readback |
 | `MANAGED_EVE_PUBLIC_ORIGIN` | Exact public Builder origin, such as `https://myeve-builder.vercel.app` |
 | `MANAGED_EVE_MAX_ACTIVE` | Maximum reserved beta slots; defaults to 5 |
 | `MANAGED_EVE_PROVISIONING_ENABLED` | Set to `true` only after qualification |
