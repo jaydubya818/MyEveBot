@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { after, it } from "node:test";
 import { managedDb } from "./db";
+import { encryptRelayInvite } from "./invites";
 import { recoverFailedEmptyProject, retireManagedEve } from "./retire";
 import { managedProjectName } from "./state";
 
@@ -12,6 +13,7 @@ it("retires only the bound paused project and dedicated Neon store after export"
   process.env.MANAGED_EVE_DATABASE_URL = process.env.MANAGED_EVE_TEST_DATABASE_URL;
   process.env.MANAGED_EVE_RETIREMENT_ENABLED = "true";
   process.env.MANAGED_EVE_VERCEL_TOKEN = "disposable-test-token";
+  process.env.MANAGED_EVE_INVITE_KEY = Buffer.alloc(32, 7).toString("base64url");
   const suffix = randomUUID().replaceAll("-", "").slice(0, 24);
   const id = `env_${suffix}`;
   const inviteId = `inv_${suffix}`;
@@ -19,9 +21,11 @@ it("retires only the bound paused project and dedicated Neon store after export"
   const projectId = `prj_${suffix}`;
   const storeId = `store_${suffix}`;
   const exportSha256 = "d".repeat(64);
+  const relayToken = "r".repeat(43);
+  const relayInvite = encryptRelayInvite(`https://relay-sage-nine.vercel.app/signup#invite=${relayToken}`);
   await managedDb().query(
-    "INSERT INTO managed_beta_invites (id,email,token_hash,monthly_model_budget_usd,expires_at,claimed_at) VALUES ($1,$2,$3,5,now()+interval '1 day',now())",
-    [inviteId, `retire-${suffix}@example.test`, "e".repeat(40) + suffix],
+    "INSERT INTO managed_beta_invites (id,email,token_hash,relay_invite_ciphertext,monthly_model_budget_usd,expires_at,claimed_at) VALUES ($1,$2,$3,$4,5,now()+interval '1 day',now())",
+    [inviteId, `retire-${suffix}@example.test`, "e".repeat(40) + suffix, relayInvite],
   );
   await managedDb().query(
     `INSERT INTO managed_eve_environments
@@ -37,10 +41,19 @@ it("retires only the bound paused project and dedicated Neon store after export"
   let connected = true;
   let storeExists = true;
   let projectExists = true;
+  let relayRetired = false;
+  let relayActiveGrants = 0;
   globalThis.fetch = async (input, init) => {
     const url = new URL(String(input));
     const method = init?.method ?? "GET";
     calls.push(`${method} ${url.pathname}`);
+    if (method === "POST" && url.origin === "https://relay-sage-nine.vercel.app" && url.pathname === "/api/beta-invites/lifecycle") {
+      assert.deepEqual(JSON.parse(String(init?.body)), { token: relayToken });
+      return Response.json({ invitationId: "bin_test", state: "ACCEPTED", accountId: "acc_test",
+        accountState: relayRetired ? "RETIRED" : "ACTIVE", activeSessions: 0, activeCredentials: 0,
+        activeAgentIdentities: 0, activeDelegations: 0, activeGrants: relayActiveGrants, queuedDeliveries: 0,
+        publishedKnowledge: 0, privateDataObjects: 0 });
+    }
     if (method === "GET" && url.pathname === `/v9/projects/${projectName}`) {
       return projectExists
         ? Response.json({ id: projectId, name: projectName, paused: true, link: null })
@@ -68,6 +81,17 @@ it("retires only the bound paused project and dedicated Neon store after export"
     throw new Error(`Unexpected Vercel request: ${method} ${url.pathname}`);
   };
   try {
+    await assert.rejects(retireManagedEve({
+      id, confirmProjectName: projectName, confirmDatabaseStoreId: storeId, exportSha256,
+    }), /Retire the bound account in Relay Settings/);
+    assert.equal(calls.some((item) => item.startsWith("DELETE")), false);
+    relayRetired = true;
+    relayActiveGrants = 1;
+    await assert.rejects(retireManagedEve({
+      id, confirmProjectName: projectName, confirmDatabaseStoreId: storeId, exportSha256,
+    }), /Retire the bound account in Relay Settings/);
+    assert.equal(calls.some((item) => item.startsWith("DELETE")), false);
+    relayActiveGrants = 0;
     const outcome = await retireManagedEve({
       id, confirmProjectName: projectName, confirmDatabaseStoreId: storeId, exportSha256,
     });

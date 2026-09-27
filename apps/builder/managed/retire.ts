@@ -3,6 +3,7 @@ import { getProject, listStores, projectHasDeployments, type StorageStore } from
 import { managedDb } from "./db";
 import { transitionEnvironment } from "./environments";
 import { managedProjectName } from "./state";
+import { verifyRelayRetirement } from "./relay-retirement";
 
 interface RetirementRow {
   id: string;
@@ -14,6 +15,7 @@ interface RetirementRow {
   last_export_verified_at: Date | null;
   database_deleted_at: Date | null;
   project_deleted_at: Date | null;
+  invite_id?: string | null;
 }
 
 export function assertRetirementScope(input: {
@@ -77,7 +79,7 @@ export async function retireManagedEve(input: {
   const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
   if (!token) throw new Error("Operator deployment access is unavailable");
   const result = await managedDb().query<RetirementRow & { export_sha256: string | null }>(
-    `SELECT e.id,e.state,e.project_name,e.project_id,e.database_store_id,e.blob_store_id,
+    `SELECT e.id,e.state,e.project_name,e.project_id,e.database_store_id,e.blob_store_id,e.invite_id,
             e.last_export_verified_at,e.database_deleted_at,e.project_deleted_at,
             (SELECT detail->>'sha256' FROM managed_eve_events
              WHERE environment_id=e.id AND kind='owner_export_verified'
@@ -88,6 +90,9 @@ export async function retireManagedEve(input: {
   const row = result.rows[0];
   if (!row) throw new Error("Unknown managed Eve");
   assertRetirementScope({ ...input, row, recordedSha256: row.export_sha256 });
+  // Relay's owner must first retire the exact invited identity. Its invitation
+  // bearer is scoped to readback; Builder never receives account administration.
+  await verifyRelayRetirement(row.invite_id);
   const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
   const project = await getProject(token, teamId, row.project_name);
   if (project && (project.id !== row.project_id || project.paused !== true || project.hasGitRepository)) {
