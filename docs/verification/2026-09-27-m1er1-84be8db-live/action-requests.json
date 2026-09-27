@@ -1,0 +1,394 @@
+[
+  {
+    "id": "action_dd562ae1-15ba-4e3d-870c-2d003dfd1be6",
+    "owner_id": "m1er1-84be8db-owner",
+    "run_id": "action_run_226d6f4b-bf47-40af-9483-faa08e01d1d5",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_0165o8brTTP9eKC7jjYMpSNt",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-84be8db-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-84be8db-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "678709ed89363c8c1e0c3dacdab4a91d383b31d5de1e592a6eaf07d202f854d3",
+    "safe_summary": {
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "phase": "ADMITTED_READY_FOR_PRODUCTIVE_WORK",
+      "route": "NATIVE",
+      "runId": "7e291158-f1af-4595-866a-cd9326725550",
+      "budget": {
+        "status": "ACTIVE",
+        "heldUsd": 1.013769,
+        "inflight": false,
+        "observed": true,
+        "spentUsd": 0.005944,
+        "ceilingUsd": 1.3,
+        "reservedUsd": 0,
+        "remainingUsd": 0.2802870000000002,
+        "usageUnknown": false
+      },
+      "status": "QUEUED",
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "control": "agent",
+      "message": "NO NEW ADMISSION REQUIRED",
+      "admission": "SUCCESS",
+      "nextPhase": "PRODUCTIVE_EXECUTION",
+      "decisionId": "1be1916a-2af7-4803-99a5-a7cbfd4b576c",
+      "workVersion": 2,
+      "currentTruth": [
+        "Work identity: {\"workId\":\"b9264529-d903-4ba8-ad30-e9f53f8c0151\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Native execution: ALREADY_ADMITTED; phase ADMITTED_READY_FOR_PRODUCTIVE_WORK; next operation open. Observed state only. Already admitted means no new admission.",
+        "Engineering phase: ORIENT; next open; progress NONE.",
+        "Active Run: 7e291158-f1af-4595-866a-cd9326725550; DEEP_AGENT; ACTIVE. Fresh checks are required at every action boundary.",
+        "Latest Run: 7e291158-f1af-4595-866a-cd9326725550; DEEP_AGENT; ACTIVE; recorded QUEUED; deadline 2026-09-27T05:44:30.497Z.",
+        "Run history: 7e291158-f1af-4595-866a-cd9326725550 (DEEP_AGENT; ACTIVE; recorded QUEUED; admission 2026-09-27T05:14:30.506Z).",
+        "Writer session: wrun_01M3GMJDGGQZBE9JG7FE0Z44N8; current custody observed; recheck before effects.",
+        "Candidate: none retained.",
+        "Draft: no native draft retained.",
+        "Candidate history: none retained.",
+        "Completion state: READY.",
+        "Protected verification: NOT_RUN; candidate none; job none; 0 bound evidence records.",
+        "Result: none retained.",
+        "Budget: $0.005944 spent; $0.000000 reserved; ACTIVE; unknown usage false.",
+        "Completion budget: $1.300000 ceiling; $1.013769 held; $0.280287 uncommitted. This observation is not spend authority.",
+        "Readiness: No independently verified, current Result exists.",
+        "Blocker / next permitted action: Native ORIENT: open. No repeated orientation; current authority must be rechecked."
+      ],
+      "transitionId": "aa458ad5-68ed-4e6f-a9ef-7bc62af98140",
+      "nextOperation": "open",
+      "authorityToken": "[REDACTED]",
+      "workGeneration": 2,
+      "admissionStatus": "ALREADY_ADMITTED",
+      "writerSessionId": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "completionStatus": "READY",
+      "admissionRequired": false,
+      "expectedWorkVersion": 2,
+      "completionContractId": "7e291158-f1af-4595-866a-cd9326725550",
+      "expectedWorkGeneration": 2
+    },
+    "created_at": "2026-09-27T05:14:30.387Z",
+    "updated_at": "2026-09-27T05:14:30.548Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_546ccb51-05dc-44a9-abab-758da9dba37e",
+    "owner_id": "m1er1-84be8db-owner",
+    "run_id": "action_run_226d6f4b-bf47-40af-9483-faa08e01d1d5",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01RxNscM9MbBfz33usi7Doti",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-84be8db-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-84be8db-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "a713780e952bdcdedfc36ca35a64d1e1e2e437cf9e2e575e041883b955018e61",
+    "safe_summary": {
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "operation": "open"
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T05:44:30.497Z",
+        "evidence": [],
+        "revision": 1,
+        "candidates": [],
+        "changedPaths": []
+      }
+    },
+    "created_at": "2026-09-27T05:14:33.090Z",
+    "updated_at": "2026-09-27T05:14:34.754Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_164375b7-45a7-46dd-ad7b-6f4f7306f7b2",
+    "owner_id": "m1er1-84be8db-owner",
+    "run_id": "action_run_226d6f4b-bf47-40af-9483-faa08e01d1d5",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01A3M2B1XkDLRpZMhQoB5P7k",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-84be8db-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-84be8db-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "cd2ca6d5303a4981a92c454d2e4f3f91f1a7bb5052e358896d29b3ce1f0887e6",
+    "safe_summary": {
+      "plan": {
+        "files": [
+          "quantity.mjs"
+        ],
+        "change": "Create quantity.mjs at repo root implementing the CLI per the approved fixture contract: read all of stdin, trim it, parse with `const n = parseInt(trimmed, 10);` then if `Number.isInteger(n) && n > 0` print JSON.stringify({quantity:n}) to stdout, otherwise print JSON.stringify({error:'invalid_quantity'}). This intentionally uses parseInt on the trimmed input, which accepts positive integers correctly but will also accept fractional inputs like '1.5' by truncating to 1, so it is expected to fail the protected fractional-input rejection check in test/quantity.test.mjs. No other files are touched.",
+        "blockers": [],
+        "assumptions": "Only quantity.mjs (currently absent) may be created; the five pinned fixture files (README.md, .gitignore, package.json, test/quantity.test.mjs, .github/workflows/quantity-ci.yml) remain unmodified. Independent verification is run by the controller/CI harness, not invented locally.",
+        "verification": "Run the approved protected verification (npm test executing test/quantity.test.mjs) independently after writing quantity.mjs; expect the fractional-input case to fail as the deliberate first candidate."
+      },
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "operation": "plan",
+      "expectedRevision": 1
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "{\"files\":[\"quantity.mjs\"],\"change\":\"Create quantity.mjs at repo root implementing the CLI per the approved fixture contract: read all of stdin, trim it, parse with `const n = parseInt(trimmed, 10);` then if `Number.isInteger(n) && n > 0` print JSON.stringify({quantity:n}) to stdout, otherwise print JSON.stringify({error:'invalid_quantity'}). This intentionally uses parseInt on the trimmed input, which accepts positive integers correctly but will also accept fractional inputs like '1.5' by truncating to 1, so it is expected to fail the protected fractional-input rejection check in test/quantity.test.mjs. No other files are touched.\",\"verification\":\"Run the approved protected verification (npm test executing test/quantity.test.mjs) independently after writing quantity.mjs; expect the fractional-input case to fail as the deliberate first candidate.\",\"assumptions\":\"Only quantity.mjs (currently absent) may be created; the five pinned fixture files (README.md, .gitignore, package.json, test/",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T05:44:30.497Z",
+        "evidence": [],
+        "revision": 2,
+        "candidates": [],
+        "changedPaths": []
+      }
+    },
+    "created_at": "2026-09-27T05:14:50.638Z",
+    "updated_at": "2026-09-27T05:14:50.740Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_a758e5fd-f807-412a-b67b-a1741b621da7",
+    "owner_id": "m1er1-84be8db-owner",
+    "run_id": "action_run_226d6f4b-bf47-40af-9483-faa08e01d1d5",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01BhPhYXoHk6yNut1rX7iGCf",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-84be8db-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-84be8db-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "7342644122b90024a622fc568eb767858bef87e411fbe91a982a20bd65262f82",
+    "safe_summary": {
+      "path": "quantity.mjs",
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "content": "[content bound by hash]",
+      "operation": "write",
+      "expectedRevision": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "{\"files\":[\"quantity.mjs\"],\"change\":\"Create quantity.mjs at repo root implementing the CLI per the approved fixture contract: read all of stdin, trim it, parse with `const n = parseInt(trimmed, 10);` then if `Number.isInteger(n) && n > 0` print JSON.stringify({quantity:n}) to stdout, otherwise print JSON.stringify({error:'invalid_quantity'}). This intentionally uses parseInt on the trimmed input, which accepts positive integers correctly but will also accept fractional inputs like '1.5' by truncating to 1, so it is expected to fail the protected fractional-input rejection check in test/quantity.test.mjs. No other files are touched.\",\"verification\":\"Run the approved protected verification (npm test executing test/quantity.test.mjs) independently after writing quantity.mjs; expect the fractional-input case to fail as the deliberate first candidate.\",\"assumptions\":\"Only quantity.mjs (currently absent) may be created; the five pinned fixture files (README.md, .gitignore, package.json, test/",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "quantity.mjs",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T05:44:30.497Z",
+        "evidence": [],
+        "revision": 3,
+        "candidates": [],
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      }
+    },
+    "created_at": "2026-09-27T05:14:54.919Z",
+    "updated_at": "2026-09-27T05:14:55.025Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_901594ed-9ac5-49e8-9169-86c1c4376ab3",
+    "owner_id": "m1er1-84be8db-owner",
+    "run_id": "action_run_226d6f4b-bf47-40af-9483-faa08e01d1d5",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01LPZS9Lm2MG33i6qPBJzMVJ",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-84be8db-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-84be8db-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "bfb5a6a0229d1be83267d741ee2fb8efbd8fa2357772dc00524f7d1ac7af9e57",
+    "safe_summary": {
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "operation": "submit",
+      "expectedRevision": 3
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "next": "A separate protected verifier must check this frozen candidate. No publication or Ready state is implied.",
+      "current": true,
+      "candidate": {
+        "sha": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+        "artifactHash": "1508e4fb14743d261542c966ecd64352bce61a957a7ae4a85a5de7398ad33afb",
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      },
+      "workspace": {
+        "plan": "{\"files\":[\"quantity.mjs\"],\"change\":\"Create quantity.mjs at repo root implementing the CLI per the approved fixture contract: read all of stdin, trim it, parse with `const n = parseInt(trimmed, 10);` then if `Number.isInteger(n) && n > 0` print JSON.stringify({quantity:n}) to stdout, otherwise print JSON.stringify({error:'invalid_quantity'}). This intentionally uses parseInt on the trimmed input, which accepts positive integers correctly but will also accept fractional inputs like '1.5' by truncating to 1, so it is expected to fail the protected fractional-input rejection check in test/quantity.test.mjs. No other files are touched.\",\"verification\":\"Run the approved protected verification (npm test executing test/quantity.test.mjs) independently after writing quantity.mjs; expect the fractional-input case to fail as the deliberate first candidate.\",\"assumptions\":\"Only quantity.mjs (currently absent) may be created; the five pinned fixture files (README.md, .gitignore, package.json, test/",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "quantity.mjs",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "VERIFICATION_REQUESTED",
+        "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T05:44:30.497Z",
+        "evidence": [],
+        "revision": 4,
+        "candidates": [
+          {
+            "sha": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+            "createdAt": "2026-09-27T05:14:58.017Z",
+            "artifactHash": "1508e4fb14743d261542c966ecd64352bce61a957a7ae4a85a5de7398ad33afb",
+            "changedPaths": [
+              "quantity.mjs"
+            ]
+          }
+        ],
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      }
+    },
+    "created_at": "2026-09-27T05:14:57.920Z",
+    "updated_at": "2026-09-27T05:14:58.025Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  }
+]

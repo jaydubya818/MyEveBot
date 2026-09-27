@@ -1,0 +1,6 @@
+{
+  "id": "gap2b-m1er1-8dc623e8-5d30-4e60-bf2b-c912fa07ec78",
+  "status": "REVOKED",
+  "at": "2026-09-27T05:16:28.474Z",
+  "reason": "Repair continuation blocked by production completion_input before provider dispatch. No retry authorized."
+}

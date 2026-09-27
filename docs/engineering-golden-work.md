@@ -130,3 +130,13 @@ The compact per-turn capsule references unchanged source by digest and paths, re
 The full authenticated local fixture used ten controlled calls: one admission, eight productive engineering calls, and one fresh explanation (nine productive calls total). There were zero normal-path admission/open/read loops and zero false Ready events. The original full owner instruction fits the unchanged 14,336-byte admitted input envelope. Atomic operations remain separate; the aspirational roughly-five-turn journey has not been achieved.
 
 M1/ER1 is **NOT QUALIFIED live**. The prior failed windows remain preserved and revoked. Current app/security, completion accounting, protected verifier, PostgreSQL projection, governance and build checks pass. Two older standalone test failures reproduce unchanged on `caad506` and are documented in the dossier; they are not counted as passing current-contract tests. A real provider can still fail or exhaust the bounded window. No new live authority or ER2 work is initiated by local success.
+
+## Final 84be8db live outcome — BLOCKED
+
+The [final fresh authenticated qualification](verification/2026-09-27-m1er1-84be8db-live/REPORT.md) reached admission, repository orientation, structured planning, actual source mutation and protected verification failure. The controller drove these transitions with zero admission/open/equivalent-read loops, one Run and one writer.
+
+The post-failure neutral continuation was denied before a seventh provider call: production repair context measured **16040/14336 bytes**. Repair, repaired verification, immutable PARTIAL and fresh final explanation were not reached. The retained first candidate has an immutable FAILED Result; it is never Ready for Review.
+
+Six calls settled at **$0.061718**. Reserved and UNKNOWN exposure are zero. Provider and common-ledger authority are revoked; the new Work is paused and temporary resources stopped. The unused $0.450564 completion hold and all candidate/evidence history remain preserved. The preceding pricing check placed the full conservative economic plan at $1.126410 within $1.30; that did not prove the actual repair payload would fit.
+
+**P0 Gap #2B: PARTIAL. P0 Gap #2: PARTIAL. M1/ER1: NOT QUALIFIED.** The next Q37 blocker is bounded post-verification repair-context assembly and the remaining authenticated repair → protected PASS → PARTIAL → fresh explanation journey. No product-code fix, another window, ER2, or resumption of the paused MVP task was performed. Earlier status sections above remain historical evidence.

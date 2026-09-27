@@ -1,0 +1,17 @@
+{
+  "exactPayloadBindings": 6,
+  "settledCalls": 6,
+  "spentMicrousd": 61718,
+  "unknown": 0,
+  "reserved": 0,
+  "productiveOperations": 5,
+  "coordinationCalls": 1,
+  "pinnedSourcePreserved": true,
+  "onlyAddedSource": "quantity.mjs",
+  "exactCandidateProtectedChecks": 10,
+  "protectedResult": "FAILED",
+  "noProgressRecoveries": 0,
+  "loops": 0,
+  "roleJStackPotatoRetained": true,
+  "productionSourceChanged": false
+}

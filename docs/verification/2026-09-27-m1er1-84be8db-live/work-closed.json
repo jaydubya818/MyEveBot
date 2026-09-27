@@ -1,0 +1,463 @@
+{
+  "work": {
+    "id": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+    "scopeId": "m1er1-84be8db-owner",
+    "title": "Fresh authenticated M1/ER1 — 84be8db",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "repository": "jaydubya818/myeve-golden-work-qual",
+    "lifecycle": "active",
+    "control": "paused",
+    "version": 3,
+    "generation": 3,
+    "criteriaVersion": 1,
+    "criteria": [
+      {
+        "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+        "method": "test",
+        "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+      }
+    ],
+    "maxCostUsd": 1.3,
+    "maxDurationSeconds": 1800,
+    "createdAt": "2026-09-27T05:13:44.041Z",
+    "updatedAt": "2026-09-27T05:16:46.131Z"
+  },
+  "events": [
+    {
+      "id": "bc3b144f-bf93-4d10-822d-145671411829",
+      "kind": "pause",
+      "actorId": "m1er1-84be8db-owner",
+      "version": 3,
+      "createdAt": "2026-09-27T05:16:46.131Z"
+    },
+    {
+      "id": "3eccce9c-8b2c-43fc-b74a-df44d2841479",
+      "kind": "resume",
+      "actorId": "m1er1-84be8db-owner",
+      "version": 2,
+      "createdAt": "2026-09-27T05:14:25.771Z"
+    },
+    {
+      "id": "5334ce8d-48bc-43e7-bc34-1cd15eca6dca",
+      "kind": "created",
+      "actorId": "m1er1-84be8db-owner",
+      "version": 1,
+      "createdAt": "2026-09-27T05:13:44.041Z"
+    }
+  ],
+  "criteriaHistory": [
+    {
+      "version": 1,
+      "criteria": [
+        {
+          "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+          "method": "test",
+          "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+        }
+      ],
+      "createdAt": "2026-09-27T05:13:44.041Z"
+    }
+  ],
+  "execution": null,
+  "manifest": null,
+  "projection": {
+    "runTruth": {
+      "activeRun": null,
+      "latestRun": {
+        "id": "7e291158-f1af-4595-866a-cd9326725550",
+        "purpose": "DEEP_AGENT",
+        "storedStatus": "RUNNING",
+        "effectiveStatus": "STALE",
+        "reasons": [
+          "Work version or generation changed",
+          "Work is not under active Agent control",
+          "Common Work budget requires reconciliation or current authority"
+        ],
+        "generationCurrent": false,
+        "associatedAt": "2026-09-27T05:14:30.506Z",
+        "timestampSource": "admission",
+        "deadline": "2026-09-27T05:44:30.497Z"
+      },
+      "runHistory": [
+        {
+          "id": "7e291158-f1af-4595-866a-cd9326725550",
+          "purpose": "DEEP_AGENT",
+          "storedStatus": "RUNNING",
+          "effectiveStatus": "STALE",
+          "reasons": [
+            "Work version or generation changed",
+            "Work is not under active Agent control",
+            "Common Work budget requires reconciliation or current authority"
+          ],
+          "generationCurrent": false,
+          "associatedAt": "2026-09-27T05:14:30.506Z",
+          "timestampSource": "admission",
+          "deadline": "2026-09-27T05:44:30.497Z"
+        }
+      ],
+      "latestOrderCertain": true,
+      "writerSession": {
+        "recordedId": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+        "runId": "7e291158-f1af-4595-866a-cd9326725550",
+        "productive": false,
+        "boundaryRecheckRequired": true
+      }
+    },
+    "verification": {
+      "candidateSha": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+      "status": "FAIL",
+      "jobStatus": "COMPLETED",
+      "evidenceCount": 10,
+      "evidenceHashes": [
+        "6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004",
+        "27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+        "4e4aba212230627ca4d9f9c41ddfcf7c96768cfaf1083d81874703c65d920c05",
+        "2b2d55282035e9d3bdf3b4e19a35f420cca7601da6bfa94b775c0db3fe8f09bd",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004"
+      ]
+    },
+    "draft": {
+      "revision": 5,
+      "contentHash": "212a33932ccf862dd7fccd4a8ba300d17723ec617e590ec46f3277a69462da16",
+      "differsFromCandidate": false
+    },
+    "completionBudget": {
+      "ceilingUsd": 1.3,
+      "heldUsd": 0.450564,
+      "observed": true,
+      "remainingUsd": null
+    },
+    "candidateHistory": [
+      {
+        "sha": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+        "checks": "FAIL",
+        "failures": [
+          "quantity-0",
+          "quantity-1",
+          "quantity-2",
+          "quantity-3",
+          "quantity-4",
+          "quantity-5",
+          "quantity-6",
+          "quantity-7",
+          "quantity-8",
+          "quantity-9"
+        ],
+        "evidenceCount": 10
+      }
+    ],
+    "completionStatus": "READY",
+    "nativeExecution": {
+      "admissionStatus": "NEEDS_ADMISSION",
+      "phase": "NEEDS_ADMISSION",
+      "nextOperation": null,
+      "admissionRequired": true,
+      "runId": null,
+      "writerSessionId": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "route": null,
+      "control": "paused",
+      "completionContractId": "7e291158-f1af-4595-866a-cd9326725550"
+    },
+    "executionController": {
+      "phase": "BLOCKED",
+      "nextOperation": null,
+      "allowedOperations": [],
+      "runId": "7e291158-f1af-4595-866a-cd9326725550",
+      "writer": "wrun_01M3GMJDGGQZBE9JG7FE0Z44N8",
+      "version": 3,
+      "generation": 3,
+      "base": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+      "revision": 5,
+      "candidate": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+      "targets": [
+        "quantity.mjs"
+      ],
+      "known": {
+        "opened": true,
+        "inspected": [
+          {
+            "hash": "fd9a3c5b16902fd9b83cee6a1137367923df042ff57a5f4050b38100bb214c96",
+            "path": "README.md"
+          }
+        ],
+        "requiredReads": [
+          "README.md"
+        ],
+        "absentTargets": [
+          "quantity.mjs"
+        ],
+        "plan": {
+          "files": [
+            "quantity.mjs"
+          ],
+          "change": "Create quantity.mjs at repo root implementing the CLI per the approved fixture contract: read all of stdin, trim it, parse with `const n = parseInt(trimmed, 10);` then if `Number.isInteger(n) && n > 0` print JSON.stringify({quantity:n}) to stdout, otherwise print JSON.stringify({error:'invalid_quantity'}). This intentionally uses parseInt on the trimmed input, which accepts positive integers correctly but will also accept fractional inputs like '1.5' by truncating to 1, so it is expected to fail the protected fractional-input rejection check in test/quantity.test.mjs. No other files are touched.",
+          "verification": "Run the approved protected verification (npm test executing test/quantity.test.mjs) independently after writing quantity.mjs; expect the fractional-input case to fail as the deliberate first candidate.",
+          "assumptions": "Only quantity.mjs (currently absent) may be created; the five pinned fixture files (README.md, .gitignore, package.json, test/quantity.test.mjs, .github/workflows/quantity-ci.yml) remain unmodified. Independent verification is run by the controller/CI harness, not invented locally.",
+          "blockers": []
+        },
+        "diagnosed": null
+      },
+      "budget": {
+        "callsRemaining": 4,
+        "stageCallsRemaining": 3,
+        "repairRemaining": 1,
+        "heldMicrousd": 450564,
+        "spentMicrousd": 61718
+      },
+      "progress": {
+        "fingerprint": "6b39be68144be0401292df9690f684eb626dde878fce203750375a4839217d5a",
+        "consecutiveNoProgress": 0,
+        "recovery": "NONE"
+      },
+      "metrics": {
+        "modelCalls": 6,
+        "productiveCalls": 5,
+        "coordinationCalls": 1,
+        "noProgressCalls": 0,
+        "operations": 5,
+        "candidateRevisions": 1,
+        "verificationAttempts": 1,
+        "repairAttempts": 0,
+        "humanInterventions": 1,
+        "phaseTransitions": [
+          "ORIENT",
+          "PLAN",
+          "IMPLEMENT",
+          "VERIFY",
+          "BLOCKED"
+        ]
+      }
+    },
+    "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+    "title": "Fresh authenticated M1/ER1 — 84be8db",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "workVersion": 3,
+    "workGeneration": 3,
+    "criteriaVersion": 1,
+    "lifecycle": "active",
+    "control": "paused",
+    "workContract": null,
+    "authoritySummary": {
+      "admitted": false,
+      "generationCurrent": false,
+      "deadlineCurrent": false,
+      "boundaryRecheckRequired": true
+    },
+    "qualificationMode": null,
+    "status": "Needs reconciliation",
+    "activity": "Common Work accounting is REVOKED; history is retained.",
+    "nextStep": "Reconcile historical Work liabilities and obtain current authority before productive continuation. Do not reset spent or reserved amounts.",
+    "readiness": {
+      "ready": false,
+      "reasons": [
+        "Native protected verification: FAIL. Retained Result: FAILED. Publication, CI, independent review and owner acceptance remain unverified."
+      ]
+    },
+    "currentRun": null,
+    "attention": null,
+    "pendingDecisions": [],
+    "latestResult": {
+      "id": "b713af59-1d85-4dfd-870e-5c02d62806c0",
+      "version": 2,
+      "summary": "Native development: FAILED. Publication and acceptance are not established.",
+      "candidate": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+      "createdAt": "2026-09-27T05:15:01.046Z"
+    },
+    "nativeDevelopment": {
+      "phase": "VERIFICATION_FAILED",
+      "label": "Checks failed; revision needed",
+      "revision": 5,
+      "candidateSha": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+      "evidenceCount": 10,
+      "current": false,
+      "updatedAt": "2026-09-27T05:15:01.046Z"
+    },
+    "nativeResult": {
+      "id": "b713af59-1d85-4dfd-870e-5c02d62806c0",
+      "proof": {
+        "contractVersion": 2,
+        "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+        "workVersion": 2,
+        "criteriaVersion": 1,
+        "outcome": "FAILED",
+        "resultRevision": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+        "createdAt": "2026-09-27T05:15:01.046Z",
+        "evidence": [
+          {
+            "criterionId": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+            "resultRevision": "57f6df6c160f59ff52625e953adb88683ccd76c6",
+            "state": "FAIL",
+            "producer": "trusted-verifier",
+            "sourceRef": "native-verification:b9264529-d903-4ba8-ad30-e9f53f8c0151:57f6df6c160f59ff52625e953adb88683ccd76c6:adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+            "contentHash": "sha256:3033983d1fe83e7e0bf45fdc23b52bae620c43cebee95906e35ae0a86fc5b4ad",
+            "observedAt": "2026-09-27T05:15:01.046Z"
+          }
+        ],
+        "artifactRefs": [
+          "native-candidate:1a002b2f-1a9e-4dc0-bf59-dfcb4da8832b:sha256:1508e4fb14743d261542c966ecd64352bce61a957a7ae4a85a5de7398ad33afb",
+          "protected-evidence:sha256:6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004",
+          "protected-evidence:sha256:27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+          "protected-evidence:sha256:4e4aba212230627ca4d9f9c41ddfcf7c96768cfaf1083d81874703c65d920c05",
+          "protected-evidence:sha256:2b2d55282035e9d3bdf3b4e19a35f420cca7601da6bfa94b775c0db3fe8f09bd",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004",
+          "changed-source:quantity.mjs"
+        ],
+        "limitations": [
+          "This record covers native source development and protected local verification. GitHub publication, CI, review and owner acceptance have not been established.",
+          "Recorded native model spend: $0.055774. Infrastructure costs are not covered."
+        ]
+      },
+      "contentHash": "597406c0af11e6f567ea5dd7feb332b10989c3ce716d1c6405eed3782ea81aae",
+      "current": false
+    },
+    "nativeRuntime": {
+      "spentUsd": 0,
+      "reservedUsd": 0,
+      "usageUnknown": false,
+      "inflight": false
+    },
+    "conversationRuntime": {
+      "status": "REVOKED",
+      "spentUsd": 0.061718,
+      "reservedUsd": 0,
+      "usageUnknown": false,
+      "inflight": false
+    },
+    "routing": {
+      "decisionId": "1be1916a-2af7-4803-99a5-a7cbfd4b576c",
+      "status": "STALE",
+      "selectedRoute": "DEEP_AGENT",
+      "reason": "Bounded source development requires the qualified native Sofie provider and independent protected verification.",
+      "providerId": "myeve-native-sofie"
+    },
+    "repositoryObservation": null,
+    "lastMeaningfulActivity": "2026-09-27T05:16:46.131Z",
+    "lastChange": {
+      "kind": "pause",
+      "at": "2026-09-27T05:16:46.131Z",
+      "actorId": "m1er1-84be8db-owner",
+      "version": 3
+    },
+    "source": {
+      "kind": "durable-engineering-work",
+      "readAt": "2026-09-27T05:16:51.258Z",
+      "workRef": "engineering-work:b9264529-d903-4ba8-ad30-e9f53f8c0151:v3",
+      "executionRef": null,
+      "resultRef": "native-result:b713af59-1d85-4dfd-870e-5c02d62806c0",
+      "routingRef": "engineering-route-decision:1be1916a-2af7-4803-99a5-a7cbfd4b576c"
+    }
+  },
+  "executionHistory": [],
+  "routing": {
+    "decision": {
+      "id": "1be1916a-2af7-4803-99a5-a7cbfd4b576c",
+      "workId": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+      "workVersion": 2,
+      "selectedRoute": "DEEP_AGENT",
+      "reason": "Bounded source development requires the qualified native Sofie provider and independent protected verification.",
+      "source": "POLICY",
+      "profile": {
+        "risk": "isolated source changes",
+        "duration": "bounded by Work",
+        "ambiguity": "approved objective and criteria",
+        "workShape": "bounded repository change",
+        "interaction": "owner-selected chat",
+        "parallelism": "single writer",
+        "verification": "independent protected checks",
+        "decomposition": "one candidate at a time",
+        "humanJudgment": "owner controls Work; publication is separate",
+        "profileVersion": 1,
+        "externalExpertise": "none"
+      },
+      "eligibleRoutes": [
+        "DEEP_AGENT",
+        "HUMAN"
+      ],
+      "rejectedRoutes": [
+        {
+          "route": "DIRECT",
+          "reason": "Exploratory source development needs an Agent loop."
+        },
+        {
+          "route": "EXECUTOR",
+          "reason": "This native Work authorization does not admit another provider."
+        },
+        {
+          "route": "MYFACTORY",
+          "reason": "This native Work authorization does not admit another provider."
+        },
+        {
+          "route": "RELAY",
+          "reason": "This native Work authorization does not admit another provider."
+        }
+      ],
+      "constraints": [
+        "One writer",
+        "Approved source paths only",
+        "No publication or Ready authority"
+      ],
+      "providerId": "myeve-native-sofie",
+      "providerVersion": "1",
+      "status": "STALE",
+      "admission": {
+        "reason": "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.",
+        "policyId": "native-engineering",
+        "policyVersion": 1,
+        "request": {
+          "route": "DEEP_AGENT",
+          "resourceRefs": [
+            "repository:jaydubya818/myeve-golden-work-qual",
+            "engineering-profile:sha256:aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72"
+          ],
+          "requiredOperations": [
+            "deep-agent.start",
+            "repository.read",
+            "sandbox.write",
+            "candidate.create",
+            "verification.request"
+          ]
+        },
+        "contextHash": "sha256:cc77dcd99ad5054c631ffc43cc055b856c1005f75bfafb85311f9b4bc9918569",
+        "authorityHash": "sha256:0c0638400f80c1e192de9bf6048bd849c94113a25544d90465ed73921838ade3",
+        "admittedAt": "2026-09-27T05:14:30.506Z"
+      },
+      "createdAt": "2026-09-27T05:14:30.472Z"
+    },
+    "transitions": [
+      {
+        "id": "aa458ad5-68ed-4e6f-a9ef-7bc62af98140",
+        "fromRoute": "HUMAN",
+        "toRoute": "DEEP_AGENT",
+        "reason": "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.",
+        "trigger": "policy-admission",
+        "decisionId": "1be1916a-2af7-4803-99a5-a7cbfd4b576c",
+        "contextSnapshotRef": "sha256:cc77dcd99ad5054c631ffc43cc055b856c1005f75bfafb85311f9b4bc9918569",
+        "authoritySnapshotRef": "sha256:0c0638400f80c1e192de9bf6048bd849c94113a25544d90465ed73921838ade3",
+        "createdAt": "2026-09-27T05:14:30.505Z"
+      }
+    ],
+    "runs": [
+      {
+        "id": "7e291158-f1af-4595-866a-cd9326725550",
+        "route": "DEEP_AGENT",
+        "providerId": "myeve-native-sofie",
+        "providerVersion": "1",
+        "status": "RUNNING",
+        "decisionId": "1be1916a-2af7-4803-99a5-a7cbfd4b576c",
+        "workVersion": 2,
+        "workGeneration": 2,
+        "updatedAt": "2026-09-27T05:14:34.748Z"
+      }
+    ]
+  }
+}

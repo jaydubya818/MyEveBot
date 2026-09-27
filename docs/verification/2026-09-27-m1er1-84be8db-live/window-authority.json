@@ -1,0 +1,60 @@
+{
+  "id": "gap2b-m1er1-8dc623e8-5d30-4e60-bf2b-c912fa07ec78",
+  "createdAt": "2026-09-27T05:13:54.598Z",
+  "expiresAt": "2026-09-27T05:43:54.599Z",
+  "environment": "isolated-dogfood",
+  "candidate": "84be8db765b738e62ef662164ac57cb1a4750361",
+  "work": {
+    "id": "b9264529-d903-4ba8-ad30-e9f53f8c0151",
+    "initialVersion": 1,
+    "admittedVersion": 2,
+    "generation": 2
+  },
+  "ownerId": "m1er1-84be8db-owner",
+  "agent": {
+    "id": "m1er1-84be8db-sofie",
+    "owner_id": "m1er1-84be8db-owner",
+    "revision": "2026-09-26 22:13:44.040134-07",
+    "is_primary": true,
+    "status": "active",
+    "max_steps": 10,
+    "max_estimated_cost_usd": "1.3000",
+    "max_runtime_seconds": 1800
+  },
+  "modelId": "anthropic/claude-sonnet-5",
+  "provider": "Anthropic only through Vercel AI Gateway",
+  "profileHash": "aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72",
+  "base": {
+    "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+    "files": [
+      {
+        "path": ".github/workflows/quantity-ci.yml",
+        "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+      },
+      {
+        "path": ".gitignore",
+        "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+      },
+      {
+        "path": "package.json",
+        "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+      },
+      {
+        "path": "README.md",
+        "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+      },
+      {
+        "path": "test/quantity.test.mjs",
+        "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+      }
+    ]
+  },
+  "ceilingUsd": 1.3,
+  "maxCalls": 10,
+  "maxOutputTokens": 2048,
+  "inputEnvelopeBytes": 14336,
+  "repairIterations": 1,
+  "finalExplanations": 1,
+  "runtimeConfigHash": "50f2f7bdc03ad084a6869021b060f7d14a5810e6d0ddbcd0aada3012b8c3cbbb",
+  "approvalSha256": "265a2df8ab476efee40a0ebede2591908ffabe38e17535b0e90ca0539e40999a"
+}

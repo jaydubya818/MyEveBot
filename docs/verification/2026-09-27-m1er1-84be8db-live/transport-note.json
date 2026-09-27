@@ -1,0 +1,8 @@
+{
+  "firstContinuationHTTP": 400,
+  "reason": "Session-ID routes do not accept continuationToken",
+  "correctedContinuationHTTP": 202,
+  "messageUnchanged": true,
+  "providerCallsFromRejectedRequest": 0,
+  "operationOrPhaseInjected": false
+}
