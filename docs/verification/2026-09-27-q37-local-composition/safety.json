@@ -1,0 +1,17 @@
+{
+  "scope": "Observed violations in bounded local Gate B/C and connected fixture assertions; not live telemetry",
+  "concurrentWriters": 0,
+  "duplicateDispatches": 0,
+  "duplicateFactoryExecutions": 0,
+  "resultsAdmittedWithoutStage2": 0,
+  "conflictingStage2BindingsSilentlyAccepted": 0,
+  "postFenceStarts": 0,
+  "falseQuiescence": 0,
+  "staleWriterMutations": 0,
+  "lostCandidates": 0,
+  "lostCustody": 0,
+  "factoryGrantedAuthority": 0,
+  "unauthenticatedAdmissions": 0,
+  "falseReady": 0,
+  "manualCoordinationInterventionsInRestartedWorkerPath": 0
+}

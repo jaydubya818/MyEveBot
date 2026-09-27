@@ -74,7 +74,7 @@ try{
   journeys.push({workId:work.id,outcome:state.state,writer:truth.factoryWriter,explanation:currentTruthLines(truth),candidate:ws.candidates[0].sha,evidenceCount:ws.evidence.length,resultId:state.result.id});
   pass('Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification '+(failed?'FAIL':'PASS')+'; restarted driver replay cannot dispatch twice');
   if(!failed&&process.env.FACTORY_UI_FIXTURE){const detail=await new EngineeringWorkerProjectionStore(store,agentId).get(work.id);await writeFile(process.env.FACTORY_UI_FIXTURE,JSON.stringify({...detail,events:await store.events(work.id),criteriaHistory:await store.criteriaHistory(work.id),executionHistory:[]}));}
-  if(!failed){composition=await composeFactoryResult({work,agentId,profile:engineering.profile,source,workspace:(await direct.inspect(work.id)).workspace,result:state.result,relay});pass("Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract");}
+  if(!failed){composition=await composeFactoryResult({work,agentId,profile:engineering.profile,source,workspace:(await direct.inspect(work.id)).workspace,result:state.result,relay,store});pass("Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract");}
   if(failed){
    // Existing native admission and workspace chain, not a second repair architecture.
    engineering.nativeQualification={provider:NATIVE_PROVIDER,modelId:'anthropic/'+engineering.model,scopeId:owner,profileHash:nativeProfileHash(engineering),evidenceRef:'local native repair regression',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString()};

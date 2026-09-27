@@ -1,0 +1,269 @@
+{
+  "checks": 11,
+  "results": [
+    "0057 complete failure rollback",
+    "0056→0057 and idempotent rerun",
+    "Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification PASS; restarted driver replay cannot dispatch twice",
+    "Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract",
+    "Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification FAIL; restarted driver replay cannot dispatch twice",
+    "Connected Factory failure → normal new native Run → failed repair stays FAILED → bounded repair PASS; immutable Factory history survives",
+    "Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL",
+    "RESPONSE_LOST: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch",
+    "BEFORE_HTTP: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch",
+    "Connected RUNNING → STOPPING retains writer until actual executor settles → terminal tombstone rejects delayed START",
+    "Unavailable preparation retains request and grants no writer"
+  ],
+  "journeys": [
+    {
+      "workId": "d836aab5-b7f5-4711-83f6-05f6e9d4d098",
+      "outcome": "PARTIAL",
+      "writer": {
+        "requestId": "d9bd10f5-564c-4706-9ce0-71b3295325f8",
+        "dispatchIdentity": "e125ccef-6744-418b-913d-f103c92c0a54",
+        "remoteRunId": "a671e1f8-e25d-4414-877c-1361e2354066",
+        "runId": "d35bf5c2-9e82-42f3-8be1-031221f32799",
+        "writerGeneration": 1,
+        "state": "TERMINAL",
+        "stopReason": null,
+        "candidateProducer": "MYFACTORY",
+        "factoryId": "factory-beta",
+        "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+        "workOrderId": "b5da1332-8fd8-4b5b-a466-3f338f3ec0b7",
+        "attempt": 1,
+        "receiptId": "9588d446-1076-4f64-9c8e-d29d109c97d3",
+        "observation": {
+          "runId": "a671e1f8-e25d-4414-877c-1361e2354066",
+          "spend": {
+            "reason": "Backend-injected local fixture; no paid provider",
+            "status": "KNOWN",
+            "ceilingUsd": 0
+          },
+          "state": "COMPLETED",
+          "blocker": null,
+          "identity": {
+            "runId": "d35bf5c2-9e82-42f3-8be1-031221f32799",
+            "workId": "d836aab5-b7f5-4711-83f6-05f6e9d4d098",
+            "baseSha": "a94e1468c2cdf3d4b8fb5aaac55c8c5189a317f5",
+            "deadline": "2026-09-27T20:04:42.262Z",
+            "factoryId": "factory-beta",
+            "requestId": "d9bd10f5-564c-4706-9ce0-71b3295325f8",
+            "repository": "fixture/golden",
+            "remoteRunId": "a671e1f8-e25d-4414-877c-1361e2354066",
+            "workOrderId": "b5da1332-8fd8-4b5b-a466-3f338f3ec0b7",
+            "allowedPaths": [
+              "quantity.mjs"
+            ],
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "workGeneration": 2,
+            "dispatchIdentity": "e125ccef-6744-418b-913d-f103c92c0a54",
+            "writerGeneration": 1
+          },
+          "resultId": "bebc1d97-a780-4b5e-bb12-c89db2074ae1",
+          "snapshot": {
+            "runId": "a671e1f8-e25d-4414-877c-1361e2354066",
+            "version": 1,
+            "factoryId": "factory-beta",
+            "requestId": "d9bd10f5-564c-4706-9ce0-71b3295325f8",
+            "capturedAt": "2026-09-27T19:54:42.305Z",
+            "inputCommit": "a94e1468c2cdf3d4b8fb5aaac55c8c5189a317f5",
+            "workOrderId": "b5da1332-8fd8-4b5b-a466-3f338f3ec0b7",
+            "sourceDigest": "250be20ba5ee48c57032390c5867b4ef9b9c3d32ca16bcd9721bbbbc57bce6c3",
+            "attemptNumber": 1,
+            "configuration": {
+              "model": "gpt-5.5",
+              "commands": [
+                "node --test"
+              ],
+              "executor": "codex-cli",
+              "platform": "darwin",
+              "timeoutMs": 1800000,
+              "nodeVersion": "v24.18.1",
+              "allowedPaths": [
+                "quantity.mjs"
+              ],
+              "architecture": "arm64",
+              "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+              "workerProfile": "mac",
+              "executorVersion": "synthetic-codex-1",
+              "verificationImage": "node:22-bookworm"
+            },
+            "requestDigest": "6e1ffb38a9a3cac5e3e6be5eef40f58bc7eed6fb8b833017d9347b3e8e7dd687",
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "configurationDigest": "f9b8992920a1f12a99b764ca225374282d7699b69bfeb3c5a99f57c5ebf95bf3"
+          },
+          "quiescent": true,
+          "requestId": "d9bd10f5-564c-4706-9ce0-71b3295325f8",
+          "evidenceRef": "factory-event:b5da1332-8fd8-4b5b-a466-3f338f3ec0b7:terminal",
+          "workOrderId": "b5da1332-8fd8-4b5b-a466-3f338f3ec0b7",
+          "verification": "PARTIAL",
+          "coordinationDebt": 0
+        }
+      },
+      "explanation": [
+        "Work identity: {\"workId\":\"d836aab5-b7f5-4711-83f6-05f6e9d4d098\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
+        "Latest Run: d35bf5c2-9e82-42f3-8be1-031221f32799; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-09-27T20:04:42.262Z.",
+        "Run history: d35bf5c2-9e82-42f3-8be1-031221f32799 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-09-27T19:54:42.317Z).",
+        "Writer session: none recorded; not confirmed productive; historical identity grants no authority.",
+        "Factory preparation: d9bd10f5-564c-4706-9ce0-71b3295325f8; COMPLETED; blocker none. Intent alone grants no writer authority.",
+        "Factory writer: d35bf5c2-9e82-42f3-8be1-031221f32799; request d9bd10f5-564c-4706-9ce0-71b3295325f8; dispatch e125ccef-6744-418b-913d-f103c92c0a54; execution a671e1f8-e25d-4414-877c-1361e2354066; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version 28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c; WorkOrder b5da1332-8fd8-4b5b-a466-3f338f3ec0b7; attempt 1; receipt 9588d446-1076-4f64-9c8e-d29d109c97d3. Gate C grants no writer authority.",
+        "Factory observation: COMPLETED; blocker none; spend KNOWN; Backend-injected local fixture; no paid provider.",
+        "Candidate: 864aeca4f91b67e746ca5cc239f77f741cd13ca6.",
+        "Draft: revision 2; hash 3169cdce57ea420d4c6e13d710d97272e7d117d8eb847d41a213e40f8693e96f; matches retained candidate.",
+        "Candidate history: 864aeca4f91b67e746ca5cc239f77f741cd13ca6: PASS, 10 evidence records.",
+        "Completion state: NO_CONTRACT.",
+        "Protected verification: PASS; candidate 864aeca4f91b67e746ca5cc239f77f741cd13ca6; job COMPLETED; 10 bound evidence records.",
+        "Result: bebc1d97-a780-4b5e-bb12-c89db2074ae1; candidate 864aeca4f91b67e746ca5cc239f77f741cd13ca6; Factory candidate: PARTIAL. Publication and acceptance are not established.",
+        "Budget: no common ledger grant observed.",
+        "Completion budget: $1.300000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.",
+        "Readiness: Factory candidate / MyEve protected verification: PASS. Retained Result: PARTIAL. Publication, CI, independent review and owner acceptance remain unverified.",
+        "Blocker / next permitted action: Review the PARTIAL local result. Publication and acceptance remain unqualified."
+      ],
+      "candidate": "864aeca4f91b67e746ca5cc239f77f741cd13ca6",
+      "evidenceCount": 10,
+      "resultId": "bebc1d97-a780-4b5e-bb12-c89db2074ae1"
+    },
+    {
+      "workId": "c32a80ec-64cb-4d7e-9f8a-ecdf8ccff5bf",
+      "outcome": "FAILED",
+      "writer": {
+        "requestId": "ed65de46-da00-48cd-8912-2c79aece7f3b",
+        "dispatchIdentity": "c6a2d7ad-c476-41e1-a808-5a1a812ff528",
+        "remoteRunId": "56ac0a2c-16b4-441e-b159-744fd1ab6c3e",
+        "runId": "e68b4adf-e02b-4ba8-a3ee-fc729cdc4d77",
+        "writerGeneration": 1,
+        "state": "TERMINAL",
+        "stopReason": null,
+        "candidateProducer": "MYFACTORY",
+        "factoryId": "factory-beta",
+        "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+        "workOrderId": "20fa6dcf-40dc-42cb-a2ff-414ebdf12a9a",
+        "attempt": 1,
+        "receiptId": "52fc10a8-4964-4ff9-a89e-cd2c07287be0",
+        "observation": {
+          "runId": "56ac0a2c-16b4-441e-b159-744fd1ab6c3e",
+          "spend": {
+            "reason": "Backend-injected local fixture; no paid provider",
+            "status": "KNOWN",
+            "ceilingUsd": 0
+          },
+          "state": "COMPLETED",
+          "blocker": null,
+          "identity": {
+            "runId": "e68b4adf-e02b-4ba8-a3ee-fc729cdc4d77",
+            "workId": "c32a80ec-64cb-4d7e-9f8a-ecdf8ccff5bf",
+            "baseSha": "a94e1468c2cdf3d4b8fb5aaac55c8c5189a317f5",
+            "deadline": "2026-09-27T20:04:49.323Z",
+            "factoryId": "factory-beta",
+            "requestId": "ed65de46-da00-48cd-8912-2c79aece7f3b",
+            "repository": "fixture/golden",
+            "remoteRunId": "56ac0a2c-16b4-441e-b159-744fd1ab6c3e",
+            "workOrderId": "20fa6dcf-40dc-42cb-a2ff-414ebdf12a9a",
+            "allowedPaths": [
+              "quantity.mjs"
+            ],
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "workGeneration": 2,
+            "dispatchIdentity": "c6a2d7ad-c476-41e1-a808-5a1a812ff528",
+            "writerGeneration": 1
+          },
+          "resultId": "819db28d-5eaa-4948-b21d-2cf14763f622",
+          "snapshot": {
+            "runId": "56ac0a2c-16b4-441e-b159-744fd1ab6c3e",
+            "version": 1,
+            "factoryId": "factory-beta",
+            "requestId": "ed65de46-da00-48cd-8912-2c79aece7f3b",
+            "capturedAt": "2026-09-27T19:54:49.352Z",
+            "inputCommit": "a94e1468c2cdf3d4b8fb5aaac55c8c5189a317f5",
+            "workOrderId": "20fa6dcf-40dc-42cb-a2ff-414ebdf12a9a",
+            "sourceDigest": "250be20ba5ee48c57032390c5867b4ef9b9c3d32ca16bcd9721bbbbc57bce6c3",
+            "attemptNumber": 1,
+            "configuration": {
+              "model": "gpt-5.5",
+              "commands": [
+                "node --test"
+              ],
+              "executor": "codex-cli",
+              "platform": "darwin",
+              "timeoutMs": 1800000,
+              "nodeVersion": "v24.18.1",
+              "allowedPaths": [
+                "quantity.mjs"
+              ],
+              "architecture": "arm64",
+              "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+              "workerProfile": "mac",
+              "executorVersion": "synthetic-codex-1",
+              "verificationImage": "node:22-bookworm"
+            },
+            "requestDigest": "2dcfd4ac4d688b54fab60748e2e483e96fc405fd7388da2643379b3f931bf441",
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "configurationDigest": "f9b8992920a1f12a99b764ca225374282d7699b69bfeb3c5a99f57c5ebf95bf3"
+          },
+          "quiescent": true,
+          "requestId": "ed65de46-da00-48cd-8912-2c79aece7f3b",
+          "evidenceRef": "factory-event:20fa6dcf-40dc-42cb-a2ff-414ebdf12a9a:terminal",
+          "workOrderId": "20fa6dcf-40dc-42cb-a2ff-414ebdf12a9a",
+          "verification": "FAILED",
+          "coordinationDebt": 0
+        }
+      },
+      "explanation": [
+        "Work identity: {\"workId\":\"c32a80ec-64cb-4d7e-9f8a-ecdf8ccff5bf\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
+        "Latest Run: e68b4adf-e02b-4ba8-a3ee-fc729cdc4d77; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-09-27T20:04:49.323Z.",
+        "Run history: e68b4adf-e02b-4ba8-a3ee-fc729cdc4d77 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-09-27T19:54:49.362Z).",
+        "Writer session: none recorded; not confirmed productive; historical identity grants no authority.",
+        "Factory preparation: ed65de46-da00-48cd-8912-2c79aece7f3b; COMPLETED; blocker none. Intent alone grants no writer authority.",
+        "Factory writer: e68b4adf-e02b-4ba8-a3ee-fc729cdc4d77; request ed65de46-da00-48cd-8912-2c79aece7f3b; dispatch c6a2d7ad-c476-41e1-a808-5a1a812ff528; execution 56ac0a2c-16b4-441e-b159-744fd1ab6c3e; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version 28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c; WorkOrder 20fa6dcf-40dc-42cb-a2ff-414ebdf12a9a; attempt 1; receipt 52fc10a8-4964-4ff9-a89e-cd2c07287be0. Gate C grants no writer authority.",
+        "Factory observation: COMPLETED; blocker none; spend KNOWN; Backend-injected local fixture; no paid provider.",
+        "Candidate: f9ef75024a94a758fececeea19574aeb9eefcabd.",
+        "Draft: revision 2; hash c4e0088783868ed63705562f0020dcda05c41715de8a01438e4a580b982dae0b; matches retained candidate.",
+        "Candidate history: f9ef75024a94a758fececeea19574aeb9eefcabd: FAIL, 10 evidence records, failed checks quantity-7,quantity-9.",
+        "Completion state: NO_CONTRACT.",
+        "Protected verification: FAIL; candidate f9ef75024a94a758fececeea19574aeb9eefcabd; job COMPLETED; 10 bound evidence records.",
+        "Result: 819db28d-5eaa-4948-b21d-2cf14763f622; candidate f9ef75024a94a758fececeea19574aeb9eefcabd; Factory candidate: FAILED. Publication and acceptance are not established.",
+        "Budget: no common ledger grant observed.",
+        "Completion budget: $1.300000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.",
+        "Readiness: Factory candidate / MyEve protected verification: FAIL. Retained Result: FAILED. Publication, CI, independent review and owner acceptance remain unverified.",
+        "Blocker / next permitted action: Factory is off. Review protected failure and request a new normal native admission for repair."
+      ],
+      "candidate": "f9ef75024a94a758fececeea19574aeb9eefcabd",
+      "evidenceCount": 10,
+      "resultId": "819db28d-5eaa-4948-b21d-2cf14763f622"
+    }
+  ],
+  "composition": {
+    "status": "PASS_LOCAL_CONTRACT",
+    "workId": "d836aab5-b7f5-4711-83f6-05f6e9d4d098",
+    "candidate": "864aeca4f91b67e746ca5cc239f77f741cd13ca6",
+    "ciCandidate": "927bf55d747aea5887d35a146b35788e784cd825",
+    "reviewCandidate": "992d55ed04992e5d154336ba867f9a20358e9d5f",
+    "continuationTransitions": [
+      "ci_continuation",
+      "review_continuation"
+    ],
+    "staleEvidenceInvalidated": true,
+    "freshProtectedChecks": true,
+    "durableLearningDraft": "PASS",
+    "laterComparableWork": "5c45a47d-dc7f-45db-942c-bc377643984d",
+    "relayTrust": "ADVISORY_ONLY",
+    "publisherIdentity": "SYNTHETIC",
+    "rawCommitPreserved": true,
+    "publicationMutations": 37,
+    "ciFailureBlocks": true,
+    "reviewFeedbackBlocks": true,
+    "learningTrust": "ADVISORY_ONLY",
+    "livePublication": "NOT_RUN",
+    "durableLearningPromotion": "NOT_IMPLEMENTED"
+  },
+  "executions": 4,
+  "counters": {
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "falseReady": 0,
+    "unauthenticatedAdmissions": 0
+  },
+  "liveMyFactory": "NOT_RUN",
+  "qualification": "Local real transport, synthetic executor, real independent Docker verifier"
+}

@@ -37,3 +37,5 @@ The pinned producer advertises only LOCAL_FIXTURE execution when backend-injecte
 ## Local versus live status
 
 Connected Gate B/C, routing, operator recovery, protected verification and native repair are LOCAL QUALIFIED. Native live remains EXPERIMENTAL. GitHub/CI/review and Relay/learning composition use synthetic contracts; no real draft PR, Relay peer call or paid Sofie explanation was made. Durable learning drafts exist; promotion/reuse qualification here is advisory contract preparation, not a production promotion service. The [live proposal](verification/2026-09-27-myfactory-beta/LIVE-PROPOSAL.md) is blocked and must not be executed.
+
+The [expanded Q37 local composition](verification/2026-09-27-q37-local-composition/REPORT.md) qualifies existing CI/review continuations and fresh protected checks against synthetic publication, plus durable learning drafts and scoped advisory promotion/reuse preparation. This does not enable live publication or a production learning promotion service.

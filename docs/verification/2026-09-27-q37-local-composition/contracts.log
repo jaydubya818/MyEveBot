@@ -1,0 +1,14 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve
+
+ ✓ components/engineering/routing-summary.test.tsx (4 tests) 17ms
+ ✓ lib/engineering/relay-collaboration.test.ts (32 tests) 12ms
+ ✓ lib/digital-worker/learning.test.ts (10 tests) 10ms
+ ✓ lib/engineering/execution.test.ts (34 tests) 18ms
+ ✓ lib/engineering/factory-beta.test.ts (12 tests) 9ms
+
+ Test Files  5 passed (5)
+      Tests  92 passed (92)
+   Start at  12:54:45
+   Duration  623ms (transform 309ms, setup 0ms, collect 599ms, tests 67ms, environment 0ms, prepare 220ms)
+
