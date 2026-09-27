@@ -4,6 +4,12 @@
 
 Each deployment serves one owner by default for a simple security boundary. MyEve, Relay, and MyFactory keep separate authority and state: MyEve is the owner's agent, Relay is an optional governed capability plane, and MyFactory is a local software-delivery supervisor. Connecting them is explicit and does not grant an agent permission to approve, merge, or deploy its own work.
 
+**Orchis → Sofie guided beta (September 27, 2026 UTC):** `WAITING_FOR_TESTER`.
+Relay's exact seven-day, message-only grant is active. Sofie's automatic reply
+is configured but has not been live-qualified because no message from Orchis's
+Eve has reached Sofie's authorized inbox. Reciprocal communication is not a
+pass. See the [live qualification record](docs/federation/orchis-sofie-live-qualification.md).
+
 ## Finding current priorities
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.
