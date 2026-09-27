@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { OutcomeView, OwnerFeedback } from "@/lib/outcome-types";
 import type { TaskRunView } from "@/lib/task-types";
 import { verificationSummary } from "@/components/owner/projection";
@@ -7,7 +7,7 @@ import { ownerRequest } from "./data";
 import { Card, date, State } from "./primitives";
 
 export function Proof({
-  task,
+  task: suppliedTask,
   result,
   preview = false,
 }: {
@@ -15,9 +15,54 @@ export function Proof({
   result?: OutcomeView;
   preview?: boolean;
 }) {
+  const [loadedTask, setLoadedTask] = useState<TaskRunView | null>(null);
+  const [readError, setReadError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
+  // Evidence belongs to one run. Never join a result to the latest unrelated attempt.
+  const task = result
+    ? [suppliedTask, loadedTask].find((item) => item?.id === result.runId)
+    : suppliedTask;
+  const runId = result?.runId;
+  useEffect(() => {
+    setLoadedTask(null);
+    setReadError(null);
+    if (!runId || suppliedTask?.id === runId || preview) return;
+    const abort = new AbortController();
+    void ownerRequest<{ task: TaskRunView }>(
+      `/api/task-runs/${encodeURIComponent(runId)}`,
+      { signal: AbortSignal.any([abort.signal, AbortSignal.timeout(15000)]) },
+    )
+      .then((body) => {
+        if (!body.task || body.task.id !== runId)
+          throw new Error(
+            "The result’s evidence could not be matched to its recorded execution.",
+          );
+        if (!abort.signal.aborted) setLoadedTask(body.task);
+      })
+      .catch((cause) => {
+        if (!abort.signal.aborted)
+          setReadError(
+            cause instanceof Error ? cause.message : "Evidence is unavailable.",
+          );
+      });
+    return () => abort.abort();
+  }, [runId, suppliedTask?.id, preview, retry]);
   return (
     <Card title="Proof of Work">
-      <p>{verificationSummary(task)}</p>
+      {readError ? (
+        <p role="alert">
+          {readError}{" "}
+          <button onClick={() => setRetry((value) => value + 1)}>
+            Retry evidence
+          </button>
+        </p>
+      ) : runId && !task && !preview ? (
+        <p role="status">
+          Loading evidence from this result’s recorded execution…
+        </p>
+      ) : (
+        <p>{verificationSummary(task)}</p>
+      )}
       <div className="owner-proof">
         <div>
           <h3>What changed</h3>

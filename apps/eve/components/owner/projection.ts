@@ -144,6 +144,20 @@ export function activityItems(
   detail?: GoalDetailView | null,
 ) {
   return [
+    ...snapshot.goals.map((goal) => ({
+      id: `created:${goal.id}`,
+      at: goal.createdAt,
+      text: `Work created: ${goal.title}`,
+      source: "Work record",
+    })),
+    ...snapshot.tasks.flatMap((task) =>
+      task.milestones.map((milestone) => ({
+        id: `${task.id}:${milestone.id}`,
+        at: milestone.createdAt,
+        text: milestone.summary,
+        source: "Recorded work update",
+      })),
+    ),
     ...(detail?.events ?? []).map((event) => ({
       id: event.id,
       at: event.occurredAt,

@@ -650,7 +650,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     const previous = document.activeElement as HTMLElement | null;
     const drawer = sidebarRef.current;
     const controls = () => Array.from(drawer?.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), input:not(:disabled), a[href], [tabindex="0"]',
+      'button:not(:disabled), input:not(:disabled), a[href], summary, [tabindex="0"]',
     ) ?? []).filter((element) => element.getClientRects().length > 0);
     controls()[0]?.focus();
     function onKeyDown(event: KeyboardEvent) {
@@ -1288,7 +1288,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           </button>
           <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
-          <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-subtle">Advanced tools</summary>
+          <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
             {goalsIncluded && <Button
               variant="ghost"
@@ -1439,7 +1439,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
           {sections.map((section) => (
             <div key={section.label ?? "results"} className="pb-2">
               {section.label && (
-                <p className="px-2.5 pt-2 pb-1 text-[11px] font-medium text-kumo-subtle">
+                <p className="px-2.5 pt-2 pb-1 text-[11px] font-medium text-kumo-default">
                   {section.label}
                 </p>
               )}
@@ -1746,7 +1746,7 @@ function SidebarThread({
             />
           )}
         </span>
-        <span className="block text-xs text-kumo-subtle">
+        <span className="block text-xs text-kumo-default">
           {formatThreadDate(thread.updatedAt)}
         </span>
       </button>
@@ -2410,7 +2410,7 @@ function ChatThread({
               <MessageScrollerContent className="gap-5 py-6">
                 {!hasMessages && (
                   <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{activeLabel}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-strong">{activeLabel}</p>
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
                       {roleId && roleName

@@ -20,7 +20,7 @@ export class OwnerRequestError extends Error {
           ? "This capability or record is not available in this environment."
           : status === 409
             ? "This record changed or the decision expired. Refresh before trying again."
-            : "The service could not confirm this request. Your saved data has not been replaced. Try again when the connection recovers.",
+            : "The service could not confirm this request. Refresh to check its latest state before trying again.",
     );
   }
 }
@@ -28,11 +28,18 @@ export async function ownerRequest<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
-  const response = await fetch(path, {
-    ...init,
-    cache: "no-store",
-    signal: init?.signal ?? AbortSignal.timeout(15000),
-  });
+  let response: Response;
+  try {
+    response = await fetch(path, {
+      ...init,
+      cache: "no-store",
+      signal: init?.signal ?? AbortSignal.timeout(15000),
+    });
+  } catch {
+    throw new Error(
+      "The connection could not be confirmed. Refresh to check the latest state before trying again.",
+    );
+  }
   if (!response.ok) throw new OwnerRequestError(response.status);
   return response.json() as Promise<T>;
 }
