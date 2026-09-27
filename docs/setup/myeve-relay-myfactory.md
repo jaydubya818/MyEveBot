@@ -10,6 +10,8 @@ Use separate credentials and data stores for each installation. Keep secrets in 
 
 ## 2. Connect MyFactory for local software work
 
+For the Digital Worker integration, this setup establishes intake/status only. The [Gate C audit](../verification/2026-09-27-q37-integration/myfactory/gate-c/REPORT.md) records **PARTIAL authenticated candidate return transport** and **missing FactoryVersion attestation**. Synthetic request/return semantics are locally qualified; shared writer handoff and independent MyEve verification through Factory remain pending. The Q37 live Factory gate is **NOT_RUN / NOT_READY**. These instructions do not authorize a Digital Worker production run or writer transfer.
+
 MyFactory runs on the owner's Mac. In its [source repository](https://github.com/jaydubya818/MyFactory), follow [Run the work desk](https://github.com/jaydubya818/MyFactory#run-the-work-desk) and [hosted routing](https://github.com/jaydubya818/MyFactory/blob/codex/local-factory/docs/hosted-routing.md). Register a `myeve` client for the approved repository, configure its route (repository path, base ref, and check commands), enable `FACTORY_HOSTED_INTAKE=true`, and configure the host's Linear connection. Start the connected supervisor with `npm run start:connected`; its work desk is loopback-only at `http://127.0.0.1:8788`. The host polls Linear every 15 seconds, so the Mac must be awake and the supervisor running to admit queued requests. The [connection guide](https://github.com/jaydubya818/MyFactory/blob/codex/local-factory/docs/connections.md) covers registration, token custody, and read-only Linear verification.
 
 Attach the approved Linear connector to **your MyEve Vercel project**. Set these values in that project's server-side environment and redeploy:
