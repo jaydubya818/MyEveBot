@@ -224,3 +224,9 @@ vercel deploy --prod --yes
 ```
 
 After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
+
+### Memory Capsules (local qualification; live activation pending)
+
+[Memory Capsules](docs/capsules/user-guide.md) add owner selection, integrity-bound export, import preview, duplicate/conflict review and private staging at `/capsules`. Experience can transfer; credentials, permissions, sessions and active Work cannot. Canonical exports fail closed until the Memory workstream provides source portability policy. Production imports remain inert review material; no Current Truth, Skill, Role, Pack or learning activates automatically.
+
+See the [format specification](docs/capsules/specification.md), [portability inventory](docs/capsules/portability-inventory.md), [security boundary](docs/capsules/security.md), [Memory dependency](docs/capsules/memory-integration.md), [Digital Worker/Builder addendum](docs/capsules/digital-worker-integration.md) and [local qualification evidence](docs/verification/portable-sofie-capsules/README.md).

@@ -1,0 +1,37 @@
+- generic [ref=f3e1]:
+  - main [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - navigation "Capsule navigation" [ref=f3e4]:
+        - link "← Knowledge" [ref=f3e5] [cursor=pointer]:
+          - /url: /knowledge
+        - generic [ref=f3e6]: MYEVE / MEMORY CAPSULES
+      - generic [ref=f3e7]:
+        - paragraph [ref=f3e8]: A considered head start
+        - heading "Take experience with you." [level=1] [ref=f3e9]
+        - paragraph [ref=f3e10]: Choose the context that helps another Eve understand you. Keep account access where it belongs.
+      - complementary "Authority exclusions" [ref=f3e11]:
+        - strong [ref=f3e12]: This transfers experience, not account access.
+        - paragraph [ref=f3e13]: Credentials, connected apps, permissions, and active Work are not included. The destination Eve needs its own connections and permissions.
+      - paragraph [ref=f3e37]: Local qualification · Synthetic Sofie A → independent Sofie B. This workspace tests the full review journey without using your live Memory.
+      - status [ref=f3e297]: 1 items retained. Review saved. Current Truth is unchanged; Skills and behavior remain inactive until destination qualification.
+      - generic "Capsule operation" [ref=f3e15]:
+        - button "Create Capsule" [ref=f3e16] [cursor=pointer]
+        - button "Import Capsule" [pressed] [ref=f3e17] [cursor=pointer]
+      - region "Capsule import" [ref=f3e129]:
+        - paragraph [ref=f3e130]: 01 / Inspect a Capsule
+        - heading "A fresh start, with context" [level=2] [ref=f3e131]
+        - paragraph [ref=f3e132]: Choose a Capsule from an owner you trust. Its checksum detects changes; it does not authenticate the sender.
+        - generic [ref=f3e133]:
+          - text: Capsule file
+          - button "Capsule file Up to 1 MiB · formats 1.0 and 1.1 · text-only content" [ref=f3e134]
+          - generic [ref=f3e135]: Up to 1 MiB · formats 1.0 and 1.1 · text-only content
+        - button "Inspect again" [ref=f3e298] [cursor=pointer]
+      - generic [ref=f3e27]: Experience can transfer. Authority cannot. Private by default · Explicit selection · No automatic activation
+  - button "Open Next.js Dev Tools" [ref=f3e299] [cursor=pointer]:
+    - generic [ref=f3e302]:
+      - text: Rendering
+      - generic [ref=f3e303]:
+        - generic [ref=f3e304]: .
+        - generic [ref=f3e305]: .
+        - generic [ref=f3e306]: .
+  - alert [ref=f3e93]

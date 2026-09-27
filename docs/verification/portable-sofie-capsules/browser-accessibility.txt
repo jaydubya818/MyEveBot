@@ -1,0 +1,38 @@
+### Result
+{
+  "focus": "SELECT",
+  "label": "Decision for Planning rhythmKeep existing duplicateSkip",
+  "overflow": false,
+  "selects": [
+    {
+      "label": "Decision for Planning rhythmKeep existing duplicateSkip",
+      "height": 46
+    },
+    {
+      "label": "Decision for SellerFi project conventionsKeep existing duplicateSkip",
+      "height": 46
+    },
+    {
+      "label": "Decision for Concise project updatesKeep existing duplicateSkip",
+      "height": 46
+    }
+  ],
+  "buttons": [
+    {
+      "label": "Create Capsule",
+      "height": 54.5
+    },
+    {
+      "label": "Import Capsule",
+      "height": 54.5
+    },
+    {
+      "label": "Save reviewed import",
+      "height": 47.5
+    }
+  ]
+}
+### Ran Playwright code
+```js
+await page.evaluate('() => (({focus:document.activeElement?.tagName,label:document.activeElement?.closest("label")?.textContent,overflow:document.documentElement.scrollWidth>window.innerWidth,selects:[...document.querySelectorAll("select")].map(e=>({label:e.labels[0]?.textContent,height:e.getBoundingClientRect().height})),buttons:[...document.querySelectorAll("main button")].map(e=>({label:e.textContent,height:e.getBoundingClientRect().height}))}))');
+```

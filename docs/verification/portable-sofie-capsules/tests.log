@@ -1,0 +1,12 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve/apps/eve
+
+ ✓ lib/capsules/memory-adapter.test.ts (2 tests) 2ms
+ ✓ app/api/capsules/route.test.ts (5 tests) 27ms
+ ✓ lib/capsules/staging-store.test.ts (4 tests) 50ms
+ ✓ lib/capsules/capsules.test.ts (91 tests) 1202ms
+
+ Test Files  4 passed (4)
+      Tests  102 passed (102)
+   Start at  13:16:12
+   Duration  1.51s (transform 108ms, setup 0ms, collect 298ms, tests 1.28s, environment 0ms, prepare 123ms)

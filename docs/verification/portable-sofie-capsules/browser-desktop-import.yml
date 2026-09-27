@@ -1,0 +1,177 @@
+- generic [ref=f3e1]:
+  - main [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - navigation "Capsule navigation" [ref=f3e4]:
+        - link "← Knowledge" [ref=f3e5] [cursor=pointer]:
+          - /url: /knowledge
+        - generic [ref=f3e6]: MYEVE / MEMORY CAPSULES
+      - generic [ref=f3e7]:
+        - paragraph [ref=f3e8]: A considered head start
+        - heading "Take experience with you." [level=1] [ref=f3e9]
+        - paragraph [ref=f3e10]: Choose the context that helps another Eve understand you. Keep account access where it belongs.
+      - complementary "Authority exclusions" [ref=f3e11]:
+        - strong [ref=f3e12]: This transfers experience, not account access.
+        - paragraph [ref=f3e13]: Credentials, connected apps, permissions, and active Work are not included. The destination Eve needs its own connections and permissions.
+      - paragraph [ref=f3e37]: Local qualification · Synthetic Sofie A → independent Sofie B. This workspace tests the full review journey without using your live Memory.
+      - generic "Capsule operation" [ref=f3e15]:
+        - button "Create Capsule" [ref=f3e16] [cursor=pointer]
+        - button "Import Capsule" [pressed] [ref=f3e17] [cursor=pointer]
+      - region "Capsule import" [ref=f3e129]:
+        - paragraph [ref=f3e130]: 01 / Inspect a Capsule
+        - heading "A fresh start, with context" [level=2] [ref=f3e131]
+        - paragraph [ref=f3e132]: Choose a Capsule from an owner you trust. Its checksum detects changes; it does not authenticate the sender.
+        - generic [ref=f3e133]:
+          - text: Capsule file
+          - button "Capsule file Up to 1 MiB · formats 1.0 and 1.1 · text-only content" [ref=f3e134]
+          - generic [ref=f3e135]: Up to 1 MiB · formats 1.0 and 1.1 · text-only content
+        - region "Import preview" [ref=f3e312]:
+          - paragraph [ref=f3e313]: 02 / Choose what to retain
+          - heading "Review incoming experience" [active] [level=2] [ref=f3e314]
+          - paragraph [ref=f3e315]: "Source: sofie-a (unverified) · format 1.1Destination: sofie-b · private"
+          - generic [ref=f3e316]:
+            - generic [ref=f3e317]:
+              - strong [ref=f3e318]: "6"
+              - text: new
+            - generic [ref=f3e319]:
+              - strong [ref=f3e320]: "1"
+              - text: duplicate
+            - generic [ref=f3e321]:
+              - strong [ref=f3e322]: "2"
+              - text: conflict
+            - generic [ref=f3e323]:
+              - strong [ref=f3e324]: "0"
+              - text: unsupported
+          - group "Import decisions" [ref=f3e325]:
+            - article [ref=f3e327]:
+              - generic [ref=f3e328]:
+                - heading "Engineering Role" [level=3] [ref=f3e329]
+                - generic [ref=f3e330]: new
+              - paragraph [ref=f3e331]: Retained for destination qualification; no behavior or tools are enabled.
+              - strong [ref=f3e332]: Incoming · v1.0.0
+              - paragraph [ref=f3e333]: Prefer readable code, focused changes, and explicit state transitions.
+              - paragraph [ref=f3e334]: "Scope: owner → agent: sofie-bSource: source-engineering-role · revision revision-1Destination qualification required. No automatic activation."
+              - generic [ref=f3e335]:
+                - text: Decision for Engineering Role
+                - combobox "Decision for Engineering Role" [ref=f3e336]:
+                  - option "Do not import" [selected]
+                  - option "Include in reviewed import"
+            - article [ref=f3e337]:
+              - generic [ref=f3e338]:
+                - heading "Launch Pack" [level=3] [ref=f3e339]
+                - generic [ref=f3e340]: new
+              - paragraph [ref=f3e341]: Retained for destination qualification; no behavior or tools are enabled.
+              - strong [ref=f3e342]: Incoming · v1.0.0
+              - paragraph [ref=f3e343]: Use product review and release review procedures for launch preparation.
+              - paragraph [ref=f3e344]: "Scope: owner → agent: sofie-bSource: source-launch-pack · revision revision-1Destination qualification required. No automatic activation."
+              - generic [ref=f3e345]:
+                - text: Decision for Launch Pack
+                - combobox "Decision for Launch Pack" [ref=f3e346]:
+                  - option "Do not import" [selected]
+                  - option "Include in reviewed import"
+            - article [ref=f3e347]:
+              - generic [ref=f3e348]:
+                - heading "Planning rhythm" [level=3] [ref=f3e349]
+                - generic [ref=f3e350]: conflict
+              - paragraph [ref=f3e351]: Destination information differs. Keep it, or retain the incoming version for later correction review.
+              - generic [ref=f3e352]:
+                - strong [ref=f3e353]: Existing · v2.0.0
+                - paragraph [ref=f3e354]: Planning meetings happen on Mondays.
+              - strong [ref=f3e355]: Incoming · v1.0.0
+              - paragraph [ref=f3e356]: Planning meetings happen on Tuesdays.
+              - paragraph [ref=f3e357]: "Scope: owner → agent: sofie-bSource: source-meeting-day · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e358]:
+                - text: Decision for Planning rhythm
+                - combobox "Decision for Planning rhythm" [ref=f3e359]:
+                  - option "Keep destination information" [selected]
+                  - option "Retain incoming for correction review"
+                  - option "Skip"
+            - article [ref=f3e360]:
+              - generic [ref=f3e361]:
+                - heading "SellerFi project conventions" [level=3] [ref=f3e362]
+                - generic [ref=f3e363]: duplicate
+              - paragraph [ref=f3e364]: Already present; the existing item and provenance will be kept.
+              - generic [ref=f3e365]:
+                - strong [ref=f3e366]: Existing · v1.0.0
+                - paragraph [ref=f3e367]: Show loading, empty, error, and success states for buyer and seller flows.
+              - strong [ref=f3e368]: Incoming · v1.0.0
+              - paragraph [ref=f3e369]: Show loading, empty, error, and success states for buyer and seller flows.
+              - paragraph [ref=f3e370]: "Scope: project → project: project-sellerfiSource: source-project-convention · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e371]:
+                - text: Decision for SellerFi project conventions
+                - combobox "Decision for SellerFi project conventions" [ref=f3e372]:
+                  - option "Keep existing duplicate" [selected]
+                  - option "Skip"
+            - article [ref=f3e373]:
+              - generic [ref=f3e374]:
+                - heading "Project note.txt" [level=3] [ref=f3e375]
+                - generic [ref=f3e376]: new
+              - paragraph [ref=f3e377]: Owner-selected context; private and limited to this destination Eve.
+              - strong [ref=f3e378]: Incoming · v1.0.0
+              - paragraph [ref=f3e379]: SellerFi helps buyers evaluate opportunities and sellers manage a safe closing process.
+              - paragraph [ref=f3e380]: "Scope: owner → agent: sofie-bSource: source-project-note · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e381]:
+                - text: Decision for Project note.txt
+                - combobox "Decision for Project note.txt" [ref=f3e382]:
+                  - option "Do not import" [selected]
+                  - option "Include in reviewed import"
+            - article [ref=f3e383]:
+              - generic [ref=f3e384]:
+                - heading "Qualified recovery lesson" [level=3] [ref=f3e385]
+                - generic [ref=f3e386]: new
+              - paragraph [ref=f3e387]: Retained for destination qualification; no behavior or tools are enabled.
+              - strong [ref=f3e388]: Incoming · v1.0.0
+              - paragraph [ref=f3e389]: On a retry, check the stored operation result before repeating a write.
+              - paragraph [ref=f3e390]: "Scope: owner → agent: sofie-bSource: source-recovery-lesson · revision revision-1Destination qualification required. No automatic activation."
+              - generic [ref=f3e391]:
+                - text: Decision for Qualified recovery lesson
+                - combobox "Decision for Qualified recovery lesson" [ref=f3e392]:
+                  - option "Do not import" [selected]
+                  - option "Include in reviewed import"
+            - article [ref=f3e393]:
+              - generic [ref=f3e394]:
+                - heading "Release notes Skill" [level=3] [ref=f3e395]
+                - generic [ref=f3e396]: new
+              - paragraph [ref=f3e397]: Retained for destination qualification; no behavior or tools are enabled.
+              - strong [ref=f3e398]: Incoming · v1.0.0
+              - paragraph [ref=f3e399]: Describe the customer-visible change and its validation evidence.
+              - paragraph [ref=f3e400]: "Scope: owner → agent: sofie-bSource: source-release-notes · revision revision-1Destination qualification required. No automatic activation."
+              - generic [ref=f3e401]:
+                - text: Decision for Release notes Skill
+                - combobox "Decision for Release notes Skill" [ref=f3e402]:
+                  - option "Do not import" [selected]
+                  - option "Include in reviewed import"
+            - article [ref=f3e403]:
+              - generic [ref=f3e404]:
+                - heading "Release review checklist" [level=3] [ref=f3e405]
+                - generic [ref=f3e406]: new
+              - paragraph [ref=f3e407]: Retained for destination qualification; no behavior or tools are enabled.
+              - strong [ref=f3e408]: Incoming · v1.0.0
+              - paragraph [ref=f3e409]: Check the buyer journey, seller journey, keyboard navigation, and error recovery before release.
+              - paragraph [ref=f3e410]: "Scope: owner → agent: sofie-bSource: source-release-review · revision revision-1Destination qualification required. No automatic activation."
+              - generic [ref=f3e411]:
+                - text: Decision for Release review checklist
+                - combobox "Decision for Release review checklist" [ref=f3e412]:
+                  - option "Do not import" [selected]
+                  - option "Include in reviewed import"
+            - article [ref=f3e413]:
+              - generic [ref=f3e414]:
+                - heading "Concise project updates" [level=3] [ref=f3e415]
+                - generic [ref=f3e416]: conflict
+              - paragraph [ref=f3e417]: Destination information differs. Keep it, or retain the incoming version for later correction review.
+              - generic [ref=f3e418]:
+                - strong [ref=f3e419]: Existing · v2.0.0
+                - paragraph [ref=f3e420]: Give detailed project updates with the full evidence trail.
+              - strong [ref=f3e421]: Incoming · v1.0.0
+              - paragraph [ref=f3e422]: Use a short summary, evidence, and one next step.
+              - paragraph [ref=f3e423]: "Scope: owner → agent: sofie-bSource: source-response-style · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e424]:
+                - text: Decision for Concise project updates
+                - combobox "Decision for Concise project updates" [ref=f3e425]:
+                  - option "Keep destination information" [selected]
+                  - option "Retain incoming for correction review"
+                  - option "Skip"
+          - paragraph [ref=f3e426]: Saving a review does not replace Current Truth, install Skills, activate Roles or Packs, or promote learning.
+          - button "Save reviewed import" [disabled] [ref=f3e427]
+      - generic [ref=f3e27]: Experience can transfer. Authority cannot. Private by default · Explicit selection · No automatic activation
+  - button "Open Next.js Dev Tools" [ref=f3e33] [cursor=pointer]
+  - alert [ref=f3e93]

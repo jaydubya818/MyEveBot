@@ -1,0 +1,104 @@
+### Page
+- Page URL: http://localhost:3217/capsules
+- Page Title: Memory Capsules · MyEve
+- Console: 0 errors, 27 warnings
+### Snapshot
+```yaml
+- generic [ref=f3e1]:
+  - main [ref=f3e2]:
+    - generic [ref=f3e3]:
+      - navigation "Capsule navigation" [ref=f3e4]:
+        - link "← Knowledge" [ref=f3e5] [cursor=pointer]:
+          - /url: /knowledge
+        - generic [ref=f3e6]: MYEVE / MEMORY CAPSULES
+      - generic [ref=f3e7]:
+        - paragraph [ref=f3e8]: A considered head start
+        - heading "Take experience with you." [level=1] [ref=f3e9]
+        - paragraph [ref=f3e10]: Choose the context that helps another Eve understand you. Keep account access where it belongs.
+      - complementary "Authority exclusions" [ref=f3e11]:
+        - strong [ref=f3e12]: This transfers experience, not account access.
+        - paragraph [ref=f3e13]: Credentials, connected apps, permissions, and active Work are not included. The destination Eve needs its own connections and permissions.
+      - paragraph [ref=f3e37]: Local qualification · Synthetic Sofie A → independent Sofie B. This workspace tests the full review journey without using your live Memory.
+      - generic "Capsule operation" [ref=f3e15]:
+        - button "Create Capsule" [ref=f3e16] [cursor=pointer]
+        - button "Import Capsule" [pressed] [ref=f3e17] [cursor=pointer]
+      - region "Capsule import" [ref=f3e129]:
+        - paragraph [ref=f3e130]: 01 / Inspect a Capsule
+        - heading "A fresh start, with context" [level=2] [ref=f3e131]
+        - paragraph [ref=f3e132]: Choose a Capsule from an owner you trust. Its checksum detects changes; it does not authenticate the sender.
+        - generic [ref=f3e133]:
+          - text: Capsule file
+          - button "Capsule file Up to 1 MiB · formats 1.0 and 1.1 · text-only content" [ref=f3e134]
+          - generic [ref=f3e135]: Up to 1 MiB · formats 1.0 and 1.1 · text-only content
+        - region "Import preview" [ref=f3e185]:
+          - paragraph [ref=f3e186]: 02 / Choose what to retain
+          - heading "Review incoming experience" [active] [level=2] [ref=f3e187]
+          - paragraph [ref=f3e188]: "Source: sofie-a (unverified) · format 1.1Destination: sofie-b · private"
+          - generic [ref=f3e189]:
+            - generic [ref=f3e190]:
+              - strong [ref=f3e191]: "0"
+              - text: new
+            - generic [ref=f3e192]:
+              - strong [ref=f3e193]: "3"
+              - text: duplicate
+            - generic [ref=f3e194]:
+              - strong [ref=f3e195]: "0"
+              - text: conflict
+            - generic [ref=f3e196]:
+              - strong [ref=f3e197]: "0"
+              - text: unsupported
+          - group "Import decisions" [ref=f3e198]:
+            - article [ref=f3e200]:
+              - generic [ref=f3e201]:
+                - heading "Planning rhythm" [level=3] [ref=f3e202]
+                - generic [ref=f3e203]: duplicate
+              - paragraph [ref=f3e204]: Already present; the existing item and provenance will be kept.
+              - generic [ref=f3e205]:
+                - strong [ref=f3e206]: Existing · v1.0.0
+                - paragraph [ref=f3e207]: Planning meetings happen on Tuesdays.
+              - strong [ref=f3e208]: Incoming · v1.0.0
+              - paragraph [ref=f3e209]: Planning meetings happen on Tuesdays.
+              - paragraph [ref=f3e210]: "Scope: owner → agent: sofie-bSource: source-meeting-day · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e211]:
+                - text: Decision for Planning rhythm
+                - combobox "Decision for Planning rhythm" [ref=f3e212]:
+                  - option "Keep existing duplicate" [selected]
+                  - option "Skip"
+            - article [ref=f3e213]:
+              - generic [ref=f3e214]:
+                - heading "SellerFi project conventions" [level=3] [ref=f3e215]
+                - generic [ref=f3e216]: duplicate
+              - paragraph [ref=f3e217]: Already present; the existing item and provenance will be kept.
+              - generic [ref=f3e218]:
+                - strong [ref=f3e219]: Existing · v1.0.0
+                - paragraph [ref=f3e220]: Show loading, empty, error, and success states for buyer and seller flows.
+              - strong [ref=f3e221]: Incoming · v1.0.0
+              - paragraph [ref=f3e222]: Show loading, empty, error, and success states for buyer and seller flows.
+              - paragraph [ref=f3e223]: "Scope: project → project: project-sellerfiSource: source-project-convention · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e224]:
+                - text: Decision for SellerFi project conventions
+                - combobox "Decision for SellerFi project conventions" [ref=f3e225]:
+                  - option "Keep existing duplicate" [selected]
+                  - option "Skip"
+            - article [ref=f3e226]:
+              - generic [ref=f3e227]:
+                - heading "Concise project updates" [level=3] [ref=f3e228]
+                - generic [ref=f3e229]: duplicate
+              - paragraph [ref=f3e230]: Already present; the existing item and provenance will be kept.
+              - generic [ref=f3e231]:
+                - strong [ref=f3e232]: Existing · v1.0.0
+                - paragraph [ref=f3e233]: Use a short summary, evidence, and one next step.
+              - strong [ref=f3e234]: Incoming · v1.0.0
+              - paragraph [ref=f3e235]: Use a short summary, evidence, and one next step.
+              - paragraph [ref=f3e236]: "Scope: owner → agent: sofie-bSource: source-response-style · revision revision-1Retained as untrusted imported context."
+              - generic [ref=f3e237]:
+                - text: Decision for Concise project updates
+                - combobox "Decision for Concise project updates" [ref=f3e238]:
+                  - option "Keep existing duplicate" [selected]
+                  - option "Skip"
+          - paragraph [ref=f3e239]: Saving a review does not replace Current Truth, install Skills, activate Roles or Packs, or promote learning.
+          - button "Save reviewed import" [disabled] [ref=f3e240]
+      - generic [ref=f3e27]: Experience can transfer. Authority cannot. Private by default · Explicit selection · No automatic activation
+  - button "Open Next.js Dev Tools" [ref=f3e33] [cursor=pointer]
+  - alert [ref=f3e93]
+```

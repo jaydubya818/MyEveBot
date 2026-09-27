@@ -1,0 +1,105 @@
+{
+  "generatedAt": "2026-09-27T20:14:37.869Z",
+  "qualification": "local fixtures only",
+  "performance": [
+    {
+      "label": "small",
+      "items": 1,
+      "payloadBytes": 1084,
+      "manifestBytes": 456,
+      "exportMs": 4.7,
+      "importMs": 1.23,
+      "heapDeltaBytes": 1459152
+    },
+    {
+      "label": "medium",
+      "items": 25,
+      "payloadBytes": 113846,
+      "manifestBytes": 3160,
+      "exportMs": 14.11,
+      "importMs": 16.41,
+      "heapDeltaBytes": 3618712
+    },
+    {
+      "label": "maximum-1MiB",
+      "items": 62,
+      "payloadBytes": 1048576,
+      "manifestBytes": 7403,
+      "exportMs": 81.8,
+      "importMs": 120.3,
+      "heapDeltaBytes": -9901224
+    }
+  ],
+  "benefit": {
+    "method": "Deterministic scoped retrieval for a new Work fixture after process-independent reopen; not an LLM or live Work evaluation.",
+    "task": "Prepare the SellerFi project update with the owner's preferred format, UI conventions and planning day.",
+    "withoutCapsule": {
+      "contextKeysFound": 0,
+      "clarificationInputsNeeded": 3
+    },
+    "withCapsule": {
+      "contextKeysFound": 3,
+      "clarificationInputsNeeded": 0
+    },
+    "evidence": [
+      {
+        "key": "meeting-day",
+        "text": "Planning meetings happen on Tuesdays.",
+        "provenance": {
+          "capsuleId": "72699142-a63f-4dd8-adde-dccd5fa6bbe6",
+          "capsuleDigest": "sha256:6d91d221edb6e05a189f11b937339827e7c1964c2dcaedac662733e65ab27ea9",
+          "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
+          "sourceEveRef": "sofie-a",
+          "importedAt": "2026-09-27T20:14:37.864Z",
+          "itemDigest": "sha256:ed0690fbd650328379273048752c83bdd71b8bb2494be003d0318150c577da7e"
+        }
+      },
+      {
+        "key": "project-convention",
+        "text": "Show loading, empty, error, and success states for buyer and seller flows.",
+        "provenance": {
+          "capsuleId": "72699142-a63f-4dd8-adde-dccd5fa6bbe6",
+          "capsuleDigest": "sha256:6d91d221edb6e05a189f11b937339827e7c1964c2dcaedac662733e65ab27ea9",
+          "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
+          "sourceEveRef": "sofie-a",
+          "importedAt": "2026-09-27T20:14:37.864Z",
+          "itemDigest": "sha256:99a5e787bcec26663d8b45c94af81edd23d617eea9524b1afdb63a1098fd47cb"
+        }
+      },
+      {
+        "key": "response-style",
+        "text": "Use a short summary, evidence, and one next step.",
+        "provenance": {
+          "capsuleId": "72699142-a63f-4dd8-adde-dccd5fa6bbe6",
+          "capsuleDigest": "sha256:6d91d221edb6e05a189f11b937339827e7c1964c2dcaedac662733e65ab27ea9",
+          "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
+          "sourceEveRef": "sofie-a",
+          "importedAt": "2026-09-27T20:14:37.864Z",
+          "itemDigest": "sha256:9a558d1d0866f6de27c3e206b2b1aae166531ef5ee30144a626f20111888d77f"
+        }
+      }
+    ]
+  },
+  "counters": {
+    "credentialsTransferred": 0,
+    "sessionsTransferred": 0,
+    "grantsTransferred": 0,
+    "approvalsTransferred": 0,
+    "activeWorkAuthorityTransferred": 0,
+    "writerAuthorityTransferred": 0,
+    "providerAuthorityTransferred": 0,
+    "billingAuthorityTransferred": 0,
+    "publicationAuthorityTransferred": 0,
+    "credentialsExported": 0,
+    "credentialsImported": 0,
+    "unauthorizedPrivateDataTransferred": 0,
+    "tamperedCapsulesSilentlyAccepted": 0
+  },
+  "securityCorpus": {
+    "secretCases": 8,
+    "tamperCases": 3,
+    "unauthorizedPolicyCases": 2
+  },
+  "sourceAuthorityUsed": false,
+  "productionMemoryPromotion": false
+}
