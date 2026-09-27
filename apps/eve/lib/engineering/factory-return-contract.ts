@@ -11,10 +11,18 @@ export const factoryGitIdSchema = z.string().regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64
 /** MyEve-local provenance, NOT an existing MyFactory API field. MyFactory at
  * 543906d exposes no Factory/FactoryVersion attestation. A live adapter needs
  * an independently established source/config pin before replacing this fixture. */
-export const factorySourcePinSchema = z.object({
+const syntheticFactorySourcePinSchema = z.object({
   kind: z.literal("SYNTHETIC_LOCAL_SOURCE_PIN"), factoryId: ref,
   factoryVersion: z.object({ myFactoryCommit: factoryGitIdSchema, configurationDigest: factoryDigestSchema }).strict(),
 }).strict();
+export const trustedFactorySourcePinSchema = z.object({
+  kind: z.literal("TRUSTED_FACTORY_EXPECTATION"), factoryId: ref,
+  factoryVersion: z.object({ myFactoryCommit: factoryGitIdSchema,
+    sourceTree: factoryGitIdSchema, configurationDigest: factoryDigestSchema }).strict(),
+}).strict();
+export const factorySourcePinSchema = z.discriminatedUnion("kind", [
+  syntheticFactorySourcePinSchema, trustedFactorySourcePinSchema,
+]);
 
 export const factorySubmissionSchema = z.object({
   ownerId: ref, agentId: ref, workId: z.uuid(), workVersion: version, workGeneration: version,

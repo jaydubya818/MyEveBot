@@ -1,90 +1,31 @@
-# MyFactory Gate C: stopped at producer attestation prerequisite
+# MyFactory Gate C — bounded offline candidate-return qualification
 
-**Integration BLOCKED. Authenticated candidate return transport PARTIAL. FactoryVersion attestation FAIL / MISSING. Gate B BLOCKED. Live Factory NOT_RUN; readiness NOT_READY.**
+**Gate C: PARTIAL / NOT QUALIFIED. Gate B: CONTRACT DEFINED, IMPLEMENTATION BLOCKED ON M1/ER1 COORDINATION. Live MyFactory: NOT_RUN. Digital Worker readiness: NOT_READY.**
 
-This continuation starts at MyEve `56e5f30d91694e87f55234307cf946bc6a2b9772` on `codex/q37-integration`. MyFactory remains clean at `543906dc20fefed2def97e43953095ea0b7c60bc`. All 14 previously inspected producer source fingerprints match. No producer or MyEve runtime implementation changed in this tranche.
+This continuation starts from MyEve `56e5f30d91694e87f55234307cf946bc6a2b9772` on `codex/q37-integration` (the local checkout also contained documentation commit `63131a8`). MyFactory started at `543906dc20fefed2def97e43953095ea0b7c60bc` on `codex/local-factory`; the Gate C implementation is on `codex/q37-gate-c`. The previous read-only finding is preserved in [PRIOR-AUDIT.md](PRIOR-AUDIT.md). No live MyFactory execution, external issue, writer transfer, production deployment, or M1/ER1-owned writer mutation occurred.
 
-Request §3 explicitly permits stopping and identifying the exact MyFactory change if the producing system cannot attest its execution version. This report takes that option. It does not claim that a producer worktree was forbidden or that a migration has been proven necessary. The missing boundary spans authenticated request binding, immutable execution configuration, signed result persistence and artifact delivery; signing more caller-supplied JSON in MyEve would not close it. The [required producer contract](REQUIRED-CONTRACT.md) makes this prerequisite concrete.
+## Implemented and exercised locally
 
-## What the current producer actually authenticates
-
-Source paths below are relative to the pinned MyFactory repository. No runtime credentials, connection data, private keys or live WorkOrders were read. Audit signatures use freshly generated in-memory test keys only.
-
-| Boundary | Classification | Source-backed finding |
+| Boundary | Evidence | Result |
 |---|---|---|
-| Service identity | ADAPT | `connections.ts:45` authenticates a loopback client token; hosted receipt public-key pin authenticates the receipt signer. Neither defines a versioned execution service identity. |
-| Request authentication | REUSE | `packages/hosted-routing/src/index.mjs:43–63`: HMAC binds client, repository, team, deterministic issue/request ID, input and expiry. |
-| Response authentication | ADAPT | Same file `70–84`: Ed25519 verifies receipt bytes and issue ID. Complete candidate/evidence response authentication is absent. |
-| Factory identity | MISSING | No signed Factory ID or producer registry in the inspected contract. A local label is not producer proof. |
-| FactoryVersion | MISSING | No signed source/build/config snapshot tied to a Run. Package `0.1.0` and the inspected Git commit are source facts, not actual execution attestation. |
-| WorkOrder | REUSE | `hosted-intake.ts:69–81`: durable issue → WorkOrder link; signed receipt contains that ID. |
-| Attempt | ADAPT | `packages/contracts/src/index.ts:87`: Run ID, WorkOrder, attempt number and candidate exist, but are absent from the signed receipt. |
-| Signing primitive | REUSE | Existing domain-prefixed Ed25519 receipt signing; no new crypto algorithm needed. |
-| Receipt | ADAPT | `hosted-intake.ts:80–87` signs only version, issueId, workOrderId, state, updatedAt, workOrderUrl. |
-| Candidate/artifact integrity | ADAPT | `jobs.ts` records commit/tree/paths/patch SHA-256 and check log hashes. Those records are not one authenticated exported manifest. Full candidate-object transfer is absent. |
-| Result transport | MISSING | `server.ts:257–283` offers scoped connected-client detail reads, not result/artifact export. Diff/log reads are separate browser routes. `packages/client/src/index.ts` is loopback-only. |
-| Callback/webhook | MISSING | Hosted intake polls Linear; no candidate-result callback protocol found in the inspected surfaces. Notification loss needs durable readback, not redispatch. |
-| Replay protection | ADAPT | Deterministic hosted request and transactional intake idempotency exist. Immutable signed result operation/digest dedupe and consumer concurrency protection do not. |
-| Key/version rotation | MISSING | One configured receipt key; no protocol key ID, lifecycle/revocation registry or historical admission policy. |
-| Request/result correlation | ADAPT | Signed issue → WorkOrder exists; Work version/generation, Run/attempt and candidate/manifest are unbound by that signature. |
+| Authenticated request binding | Optional HMAC-protected owner/Agent/Work/version/generation/criteria/submission/Factory pin, stored with originating client and WorkOrder; conflicting replay rejected | PASS in protocol and storage fixtures |
+| Actual FactoryVersion capture | Clean installed Git commit/tree and effective model, agent/skill version, worker/verifier/check/scope/input configuration digest captured before hosted work; expected pin mismatch fails closed | IMPLEMENTED; no real hosted worker run in this qualification |
+| Candidate/evidence/artifact export | Saved completed attempt, exact Run, candidate Git object/tree, patch reconstruction, check records, log/patch byte hashes and size limits | PASS with a real temporary Git candidate and saved SQLite records |
+| Result authentication and transport | Distinct Ed25519 `MYFACTORY_RESULT_V1` block in the original HMAC-authenticated Linear issue; bounded readback through originating-client loopback route; re-read reconciles a lost response | PASS in local protocol and producer fixtures; no live Linear delivery |
+| MyEve receipt projection | Q37 adapter checks trusted Factory pin, signed request/result, WorkOrder/Run/attempt, check list and current Work generation; never grants authority or Ready | PASS in synthetic consumer fixtures |
+| Replay and mutation | Frozen producer bytes survive artifact mutation; conflicting storage save fails; wrong signer, changed artifact, wrong version/attempt, stale Work and lost readback are denied or non-authoritative | PASS in focused fixtures |
+| Key lifecycle | Trusted activation/retirement/revocation registry and durable observed-time admission are absent | FAIL / REQUIRED |
+| Durable consumer admission | Concurrent consumers, restart and conflict decisions are not persisted in a Q37-owned receipt; writer-side admission belongs with M1/ER1 | FAIL / COORDINATION REQUIRED |
+| Full affected suite | Focused protocol/storage/producer tests and MyEve adapter TypeScript/Vitest pass; the existing supervisor hosted-intake test did not complete in this environment and was interrupted | INCOMPLETE |
 
-`jobs.ts:209–224` persists `run.started` with input commit, worker profile, model and a skill reference. It does not persist actual Factory source/config identity. The model is read again from the environment at invocation (`jobs.ts:327`), rather than executed from an immutable version snapshot. Attesting today's process configuration later cannot establish what a prior attempt used.
+The producer fixture uses a real temporary Git repository: it commits a base and candidate, exports `git show --binary`, stores one check log, freezes the result, verifies the Ed25519 block and candidate identity, then mutates the original log and confirms replay returns the previously frozen bytes. This is stronger than the earlier synthetic candidate fixture, but it does not prove a live hosted run or provider delivery. The signed result is a claim by a trusted software supervisor, not hardware attestation. MyEve still needs independent protected verification of the imported exact candidate.
 
-## Executable evidence and its limits
+**Executed commands:** MyFactory focused `node --test packages/storage/test/storage.test.mjs apps/supervisor/test/hosted-result.test.mjs packages/hosted-routing/test/protocol.test.mjs` passed 18/18. MyEve `vitest run lib/engineering/factory-authenticated-result.test.ts --maxWorkers=1` passed 3/3, and `tsc --noEmit --incremental false` passed. The broader MyFactory workspace run was interrupted after the storage migration assertions were updated; its completed packages included agent, app builder, hosted routing and verification, but it is not reported as a suite pass. The supervisor hosted-intake test remained pending for over two minutes and was interrupted; its result is unknown. No live tests were attempted.
 
-[audit-receipt.mjs](audit-receipt.mjs) imports the actual pinned producer protocol, after checking all 14 source hashes. [receipt-audit.json](receipt-audit.json) records **nine successful assertions**: five existing authentication/protocol checks and four confirmed gaps. Wrong signer, changed signed bytes, wrong request and unsupported receipt protocol are denied. The same valid receipt authenticates alongside either of two different unsigned candidate/manifest pairs. The reader accepts replay without admission state; the receipt lacks execution attestation fields; the legacy request parser rejects an added Work binding field.
+## Gate decision and owner boundary
 
-These gap assertions passing means the limitation was reproduced. It does **not** mean candidate return authentication passed. The script never admits a candidate, creates a WorkOrder, starts a supervisor or worker, or persists a key. No fake attestation or replacement golden fixture was added. The earlier [synthetic semantic qualification](../REPORT.md) and its fixture remain unchanged.
+The bounded authenticated candidate-return transport and FactoryVersion path exist, but **Gate C does not pass the complete required contract** while key lifecycle, durable admission and the unresolved integration test remain. A signed result has `authorityGranted=false`, independent verification `NOT_RUN`, and readiness `NOT_READY`. No candidate is imported into MyEve production custody. The size-limited Linear issue channel fails closed for larger candidates; a separate authenticated artifact channel is needed before general use.
 
-Validation for this continuation:
+The [Gate B single-writer handoff contract](REQUIRED-CONTRACT.md#writer-handoff-required-contract) is defined as a reviewable interface: one Work generation, one fenced productive writer, terminal remote reconciliation before reacquisition, immutable result observation, and protected candidate import only after Factory authority closes. It is **not implemented or granted**. M1/ER1 owns the shared writer persistence and transitions. Coordination with that owner is required before changing its files; no protected writer file or migration was changed here. The current Gate B contract must be reconciled with the owner's latest branch before implementation.
 
-- **139 Q37 tests PASS** across eight files, including existing Factory semantic/byte-integrity/replay/stale cases, signed intake observation, Relay, GitHub and learning regressions: [tests.log](tests.log).
-- **Six real producer protocol tests PASS**, using mocked provider calls and ephemeral keys: [producer-protocol-tests.log](producer-protocol-tests.log). These include signed intake and lost-response request reconciliation; they do not test candidate-result delivery.
-- Full app TypeScript **PASS**: [typecheck.log](typecheck.log).
-- Governance **PASS**, **641 classified sources / UNKNOWN=0**: [governance.log](governance.log). Inventory unchanged byte-for-byte; no new runtime source or inventory entry.
-- Migration manifest **PASS**, 53 ordered migrations: [migrations.log](migrations.log). No schema edit, migration creation, DB connection or application.
-
-Authenticated candidate attestation/manifest/replay/consumer-restart/callback/cancellation/key-lifecycle qualification is **NOT_RUN because the producer primitive does not exist**. Existing synthetic contract tests cannot substitute for these. Independent protected verification through Factory remains NOT_RUN.
-
-Reproduce the signature audit and producer tests from the Q37 repository root (substitute the producer path only if the pinned source is elsewhere):
-
-```sh
-node docs/verification/2026-09-27-q37-integration/myfactory/gate-c/audit-receipt.mjs /Users/jaywest/Documents/ChatGPT/MyFactory
-node --test /Users/jaywest/Documents/ChatGPT/MyFactory/packages/hosted-routing/test/protocol.test.mjs
-```
-
-The Q37 test/typecheck/governance/migration commands are unchanged from [the semantic dossier](../REPORT.md#validation). Evidence and preservation hashes are in [manifest.json](manifest.json).
-
-## Required final matrix
-
-For the complete Gate C boundary, FAIL below means the required authenticated candidate-return property is missing/unqualified, not that the earlier semantic tests regressed. Partial primitive coverage is stated separately.
-
-| Finding | Result |
-|---|---|
-| AUTHENTICATED RETURN TRANSPORT | **PARTIAL** — authenticated admission/status only |
-| FACTORYVERSION ATTESTATION | **FAIL / MISSING** — no producer execution snapshot/attestation |
-| PRODUCER IDENTITY | **FAIL** for candidate return; existing pinned receipt key tests PASS |
-| REQUEST CORRELATION | **FAIL** for request → exact producing attempt/result; issue → WorkOrder PASS |
-| WORK LINKAGE | **FAIL** for authenticated Work/version/generation; synthetic local checks PASS |
-| MANIFEST INTEGRITY | **FAIL** — no signed canonical producer result manifest |
-| CANDIDATE INTEGRITY | **FAIL** for authenticated complete candidate; synthetic pin/patch checks PASS |
-| EVIDENCE / ARTIFACT INTEGRITY | **FAIL** for authenticated export; synthetic received-byte checks PASS |
-| REPLAY SAFETY | **FAIL** for durable authenticated result; prior sequential synthetic replay PASS |
-| STALE RESULT HANDLING | **FAIL** for authenticated result lifecycle; prior synthetic stale checks PASS |
-| FACTORY-GRANTED AUTHORITY | **0** in the bounded offline checks; no authority path invoked |
-| UNAUTHENTICATED CANDIDATE ADMISSION | **0** in this audit; no production candidate admission invoked or qualified |
-| FALSE READY | **0** in the bounded offline checks |
-| README UPDATED | **PASS** — root README, setup guide and Digital Worker plan |
-| GOVERNANCE | **PASS**, unchanged inventory, UNKNOWN=0 |
-| GATE B — WRITER HANDOFF CONTRACT | **BLOCKED** — conditional required interface documented; Gate C prerequisite unmet |
-| SHARED OWNERSHIP CONFLICT | **YES** for implementing Gate B; no protected change made |
-| LIVE MYFACTORY | **NOT_RUN** |
-| MYFACTORY INTEGRATION | **BLOCKED** |
-
-Zero counters are limited to the checks actually executed and the absence of any admission/authority mutation in this audit. They are not live safety qualification or coverage of the missing authenticated-return implementation.
-
-## Ownership and next boundary
-
-`origin` was fetched. `origin/main` remains `c8c160a`; local main `a793689` is dirty and ahead 1 / behind 43. Q37 retained its requested `56e5f30` lineage because the required Digital Worker implementation is unmerged. No merge, rebase or cherry-pick occurred. Open MyEve PRs were inspected read-only, including protected draft #34; no PR was modified. Protected qualification work independently advanced to `6630363` with dirty source. Active worktrees and migration ownership were inspected read-only; the hosted MyEve status read timed out and was treated as protected. Migrations 0051–0053 remain owned elsewhere. No shared inventory, protected fixture, other worktree or producer source was edited. No cross-task message was retried or sent.
-
-**Next independent capability:** implement the producer-owned immutable attempt-version snapshot plus authenticated result manifest/export described in [REQUIRED-CONTRACT.md](REQUIRED-CONTRACT.md), then qualify Gate C against that actual producer code. If its persistence needs a schema change, stop before creating it. Gate B remains the existing M1/ER1 owner's shared writer-fencing interface; its conditional commands, fields, exact affected files and failure tests are documented without implementation. Both gates must pass before any live production dispatch, writer transfer or paid Factory execution.
+**Safety counters for this offline tranche:** live Factory runs 0; writer grants 0; unauthorized candidate admissions 0; false Ready transitions 0. These are counts of this work, not live qualification claims.
