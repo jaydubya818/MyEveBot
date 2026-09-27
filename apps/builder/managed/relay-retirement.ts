@@ -40,7 +40,8 @@ export async function verifyRelayRetirement(inviteId: string | null | undefined)
       record.state !== "ACCEPTED" || typeof record.accountId !== "string" || !record.accountId ||
       record.accountState !== "RETIRED" ||
       ["activeSessions", "activeCredentials", "activeAgentIdentities", "activeDelegations",
-        "activeGrants", "queuedDeliveries", "publishedKnowledge", "privateDataObjects"]
+        "activeGrants", "pendingInvites", "queuedDeliveries", "publishedKnowledge",
+        "privateDataObjects", "unsupportedResources"]
         .some((key) => record[key] !== 0)) {
     throw new Error("Retire the bound account in Relay Settings and verify zero live authority before managed resource deletion");
   }

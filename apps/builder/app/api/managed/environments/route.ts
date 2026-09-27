@@ -1,6 +1,7 @@
 import { adminDenied, isManagedAdmin } from "@/managed/admin-auth";
 import { managedDb } from "@/managed/db";
 import { listProjectModelBudgets } from "@/lib/vercel-api";
+import { requireManagedTeamId } from "@/managed/state";
 
 export async function GET(request: Request): Promise<Response> {
   if (!isManagedAdmin(request)) return adminDenied();
@@ -15,7 +16,7 @@ export async function GET(request: Request): Promise<Response> {
     const vercelToken = process.env.MANAGED_EVE_VERCEL_TOKEN;
     let budgets = null;
     if (vercelToken) {
-      budgets = await listProjectModelBudgets(vercelToken, process.env.MANAGED_EVE_VERCEL_TEAM_ID || null).catch(() => null);
+      budgets = await listProjectModelBudgets(vercelToken, requireManagedTeamId()).catch(() => null);
     }
     const byProject = new Map((budgets ?? []).map((budget) => [budget.projectId, budget]));
     return Response.json({

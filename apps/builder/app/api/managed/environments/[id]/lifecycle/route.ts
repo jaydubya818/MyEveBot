@@ -1,7 +1,7 @@
 import { adminDenied, isManagedAdmin } from "@/managed/admin-auth";
 import { managedDb } from "@/managed/db";
 import { transitionEnvironment } from "@/managed/environments";
-import { managedProjectName } from "@/managed/state";
+import { managedProjectName, requireManagedTeamId } from "@/managed/state";
 import { pauseProject, unpauseProject } from "@/lib/vercel-api";
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }): Promise<Response> {
@@ -28,7 +28,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
   if (!token) return Response.json({ error: "Operator deployment access is unavailable" }, { status: 503 });
   try {
-    const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+    const teamId = requireManagedTeamId();
     if (body.action === "pause") await pauseProject(token, teamId, row.project_id);
     else await unpauseProject(token, teamId, row.project_id);
     await transitionEnvironment({ id, from, to, kind: body.action === "pause" ? "project_paused" : "project_resumed" });

@@ -2,7 +2,7 @@ import { POST as updateBuilderProject } from "@/app/api/update/route";
 import { adminDenied, isManagedAdmin } from "@/managed/admin-auth";
 import { managedDb } from "@/managed/db";
 import { markProvisionFailure, recordUpgradeDeployment, transitionEnvironment } from "@/managed/environments";
-import { managedProjectName } from "@/managed/state";
+import { managedProjectName, requireManagedTeamId } from "@/managed/state";
 import { getProject } from "@/lib/vercel-api";
 
 export const maxDuration = 120;
@@ -22,7 +22,9 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
   const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
   if (!token) return Response.json({ error: "Operator deployment access is unavailable" }, { status: 503 });
-  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  let teamId: string;
+  try { teamId = requireManagedTeamId(); }
+  catch { return Response.json({ error: "Dedicated managed-beta Vercel team is not configured" }, { status: 503 }); }
   try {
     const project = await getProject(token, teamId, projectName);
     if (!project || project.id !== row.project_id || project.hasGitRepository) {

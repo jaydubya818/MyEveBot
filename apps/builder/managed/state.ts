@@ -28,6 +28,14 @@ export function managedProjectName(environmentId: string): string {
   return `myeve-beta-${environmentId.slice(4)}`;
 }
 
+export function requireManagedTeamId(): string {
+  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID;
+  if (!teamId || !/^team_[A-Za-z0-9]+$/.test(teamId)) {
+    throw new Error("Dedicated managed-beta Vercel team is not configured");
+  }
+  return teamId;
+}
+
 export function normalizeInviteEmail(email: string): string {
   const normalized = email.trim().toLowerCase();
   if (normalized.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {

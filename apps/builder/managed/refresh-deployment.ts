@@ -1,7 +1,7 @@
 import { getDeploymentStatus, getProject, listProjectModelBudgets } from "@/lib/vercel-api";
 import { managedDb } from "./db";
 import { markProvisionFailure, transitionEnvironment } from "./environments";
-import { managedProjectName } from "./state";
+import { managedProjectName, requireManagedTeamId } from "./state";
 
 export interface DeploymentRow {
   id: string;
@@ -23,7 +23,7 @@ export async function refreshManagedDeployment(row: DeploymentRow): Promise<{
   if (!token || !row.project_id || row.project_name !== managedProjectName(row.id)) {
     throw new Error("Managed project identity could not be verified");
   }
-  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  const teamId = requireManagedTeamId();
   const project = await getProject(token, teamId, row.project_name);
   if (!project || project.id !== row.project_id) throw new Error("Managed project identity changed");
   const budget = (await listProjectModelBudgets(token, teamId)).find((item) => item.projectId === row.project_id);

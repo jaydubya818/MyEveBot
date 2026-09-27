@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { getProject, listStores, projectHasDeployments, type StorageStore } from "@/lib/vercel-api";
 import { managedDb } from "./db";
 import { transitionEnvironment } from "./environments";
-import { managedProjectName } from "./state";
+import { managedProjectName, requireManagedTeamId } from "./state";
 import { verifyRelayRetirement } from "./relay-retirement";
 
 interface RetirementRow {
@@ -93,7 +93,7 @@ export async function retireManagedEve(input: {
   // Relay's owner must first retire the exact invited identity. Its invitation
   // bearer is scoped to readback; Builder never receives account administration.
   await verifyRelayRetirement(row.invite_id);
-  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  const teamId = requireManagedTeamId();
   const project = await getProject(token, teamId, row.project_name);
   if (project && (project.id !== row.project_id || project.paused !== true || project.hasGitRepository)) {
     throw new Error("The exact managed project is not paused and verified");
@@ -147,7 +147,7 @@ export async function recoverFailedEmptyProject(input: {
   const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
   if (!token) throw new Error("Operator deployment access is unavailable");
   const result = await managedDb().query<RetirementRow & { deployment_id: string | null; public_url: string | null }>(
-    `SELECT id,state,project_name,project_id,database_store_id,blob_store_id,deployment_id,public_url,
+    `SELECT id,state,project_name,project_id,database_store_id,blob_store_id,deployment_id,public_url,invite_id,
             last_export_verified_at,database_deleted_at,project_deleted_at
      FROM managed_eve_environments WHERE id=$1`, [input.id],
   );
@@ -157,7 +157,10 @@ export async function recoverFailedEmptyProject(input: {
       row.database_store_id || row.blob_store_id || row.deployment_id || row.public_url) {
     throw new Error("Failed provisioning is not an empty project; inspect resources before recovery");
   }
-  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  // An undeployed project is still bound to a Relay invitation. Recovery must
+  // not report the tester retired while that invited identity can act.
+  await verifyRelayRetirement(row.invite_id);
+  const teamId = requireManagedTeamId();
   const project = await getProject(token, teamId, row.project_name);
   if (project && (!row.project_id || project.id !== row.project_id || project.hasGitRepository)) {
     throw new Error("Failed project identity could not be verified");

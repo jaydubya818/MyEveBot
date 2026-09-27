@@ -13,6 +13,7 @@ import {
 import { buildEnv, connectStorage } from "@/lib/deploy-service";
 import { managedDb } from "./db";
 import { recordProvisionedDeployment } from "./environments";
+import { requireManagedTeamId } from "./state";
 
 const MANAGED_FEATURES: AgentConfig["features"] = ["knowledge", "goals", "proactive"];
 
@@ -67,7 +68,7 @@ export async function provisionManagedEve(input: {
   const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
   const fingerprint = process.env.MANAGED_EVE_RELAY_FINGERPRINT;
   if (!token || !fingerprint) throw new Error("Managed Eve operator credentials or Relay key pin are unavailable");
-  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  const teamId = requireManagedTeamId();
   const config = managedConfig({
     ownerName: input.ownerName,
     agentName: input.agentName,

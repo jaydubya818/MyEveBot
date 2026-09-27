@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { getProject, listProjectModelBudgets, type ProjectModelBudget } from "@/lib/vercel-api";
 import { managedDb } from "./db";
-import { managedProjectName } from "./state";
+import { managedProjectName, requireManagedTeamId } from "./state";
 
 export interface ManagedHealthResult {
   id: string;
@@ -34,7 +34,7 @@ export async function checkManagedHealth(id: string): Promise<ManagedHealthResul
   }
   const token = process.env.MANAGED_EVE_VERCEL_TOKEN;
   if (!token) throw new Error("Operator deployment access is unavailable");
-  const teamId = process.env.MANAGED_EVE_VERCEL_TEAM_ID || null;
+  const teamId = requireManagedTeamId();
   let status: ManagedHealthResult["status"] = "unverifiable";
   let budget: ProjectModelBudget | null = null;
   let httpStatus: number | null = null;

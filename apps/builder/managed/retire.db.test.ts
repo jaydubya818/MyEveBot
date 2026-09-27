@@ -13,6 +13,7 @@ it("retires only the bound paused project and dedicated Neon store after export"
   process.env.MANAGED_EVE_DATABASE_URL = process.env.MANAGED_EVE_TEST_DATABASE_URL;
   process.env.MANAGED_EVE_RETIREMENT_ENABLED = "true";
   process.env.MANAGED_EVE_VERCEL_TOKEN = "disposable-test-token";
+  process.env.MANAGED_EVE_VERCEL_TEAM_ID = "team_qualificationtest";
   process.env.MANAGED_EVE_INVITE_KEY = Buffer.alloc(32, 7).toString("base64url");
   const suffix = randomUUID().replaceAll("-", "").slice(0, 24);
   const id = `env_${suffix}`;
@@ -43,6 +44,8 @@ it("retires only the bound paused project and dedicated Neon store after export"
   let projectExists = true;
   let relayRetired = false;
   let relayActiveGrants = 0;
+  let relayActiveSessions = 0;
+  let relayUnsupportedResources = 0;
   globalThis.fetch = async (input, init) => {
     const url = new URL(String(input));
     const method = init?.method ?? "GET";
@@ -50,9 +53,9 @@ it("retires only the bound paused project and dedicated Neon store after export"
     if (method === "POST" && url.origin === "https://relay-sage-nine.vercel.app" && url.pathname === "/api/beta-invites/lifecycle") {
       assert.deepEqual(JSON.parse(String(init?.body)), { token: relayToken });
       return Response.json({ invitationId: "bin_test", state: "ACCEPTED", accountId: "acc_test",
-        accountState: relayRetired ? "RETIRED" : "ACTIVE", activeSessions: 0, activeCredentials: 0,
-        activeAgentIdentities: 0, activeDelegations: 0, activeGrants: relayActiveGrants, queuedDeliveries: 0,
-        publishedKnowledge: 0, privateDataObjects: 0 });
+        accountState: relayRetired ? "RETIRED" : "ACTIVE", activeSessions: relayActiveSessions, activeCredentials: 0,
+        activeAgentIdentities: 0, activeDelegations: 0, activeGrants: relayActiveGrants, pendingInvites: 0,
+        queuedDeliveries: 0, publishedKnowledge: 0, privateDataObjects: 0, unsupportedResources: relayUnsupportedResources });
     }
     if (method === "GET" && url.pathname === `/v9/projects/${projectName}`) {
       return projectExists
@@ -92,6 +95,18 @@ it("retires only the bound paused project and dedicated Neon store after export"
     }), /Retire the bound account in Relay Settings/);
     assert.equal(calls.some((item) => item.startsWith("DELETE")), false);
     relayActiveGrants = 0;
+    relayActiveSessions = 1;
+    await assert.rejects(retireManagedEve({
+      id, confirmProjectName: projectName, confirmDatabaseStoreId: storeId, exportSha256,
+    }), /Retire the bound account in Relay Settings/);
+    assert.equal(calls.some((item) => item.startsWith("DELETE")), false);
+    relayActiveSessions = 0;
+    relayUnsupportedResources = 1;
+    await assert.rejects(retireManagedEve({
+      id, confirmProjectName: projectName, confirmDatabaseStoreId: storeId, exportSha256,
+    }), /Retire the bound account in Relay Settings/);
+    assert.equal(calls.some((item) => item.startsWith("DELETE")), false);
+    relayUnsupportedResources = 0;
     const outcome = await retireManagedEve({
       id, confirmProjectName: projectName, confirmDatabaseStoreId: storeId, exportSha256,
     });
@@ -116,14 +131,18 @@ it("recovers only an undeployed failed project once", { skip: !enabled }, async 
   process.env.MANAGED_EVE_DATABASE_URL = process.env.MANAGED_EVE_TEST_DATABASE_URL;
   process.env.MANAGED_EVE_RETIREMENT_ENABLED = "true";
   process.env.MANAGED_EVE_VERCEL_TOKEN = "disposable-test-token";
+  process.env.MANAGED_EVE_VERCEL_TEAM_ID = "team_qualificationtest";
+  process.env.MANAGED_EVE_INVITE_KEY = Buffer.alloc(32, 7).toString("base64url");
   const suffix = randomUUID().replaceAll("-", "").slice(0, 24);
   const id = `env_${suffix}`;
   const inviteId = `inv_${suffix}`;
   const projectName = managedProjectName(id);
   const projectId = `prj_${suffix}`;
+  const relayToken = "s".repeat(43);
+  const relayInvite = encryptRelayInvite(`https://relay-sage-nine.vercel.app/signup#invite=${relayToken}`);
   await managedDb().query(
-    "INSERT INTO managed_beta_invites (id,email,token_hash,monthly_model_budget_usd,expires_at,claimed_at) VALUES ($1,$2,$3,5,now()+interval '1 day',now())",
-    [inviteId, `recover-${suffix}@example.test`, "f".repeat(40) + suffix],
+    "INSERT INTO managed_beta_invites (id,email,token_hash,relay_invite_ciphertext,monthly_model_budget_usd,expires_at,claimed_at) VALUES ($1,$2,$3,$4,5,now()+interval '1 day',now())",
+    [inviteId, `recover-${suffix}@example.test`, "f".repeat(40) + suffix, relayInvite],
   );
   await managedDb().query(
     `INSERT INTO managed_eve_environments
@@ -134,9 +153,17 @@ it("recovers only an undeployed failed project once", { skip: !enabled }, async 
   let projectExists = true;
   let deployments = false;
   let deletions = 0;
+  let relayRetired = false;
   globalThis.fetch = async (input, init) => {
     const url = new URL(String(input));
     const method = init?.method ?? "GET";
+    if (method === "POST" && url.origin === "https://relay-sage-nine.vercel.app" && url.pathname === "/api/beta-invites/lifecycle") {
+      assert.deepEqual(JSON.parse(String(init?.body)), { token: relayToken });
+      return Response.json({ invitationId: "bin_recovery", state: "ACCEPTED", accountId: "acc_recovery",
+        accountState: relayRetired ? "RETIRED" : "ACTIVE", activeSessions: 0, activeCredentials: 0,
+        activeAgentIdentities: 0, activeDelegations: 0, activeGrants: 0, pendingInvites: 0,
+        queuedDeliveries: 0, publishedKnowledge: 0, privateDataObjects: 0, unsupportedResources: 0 });
+    }
     if (method === "GET" && url.pathname === `/v9/projects/${projectName}`) {
       return projectExists ? Response.json({ id: projectId, name: projectName, link: null })
         : Response.json({ error: { message: "Not found" } }, { status: 404 });
@@ -153,6 +180,9 @@ it("recovers only an undeployed failed project once", { skip: !enabled }, async 
     throw new Error(`Unexpected Vercel request: ${method} ${url.pathname}`);
   };
   try {
+    await assert.rejects(recoverFailedEmptyProject({ id, confirmProjectName: projectName }), /Retire the bound account in Relay Settings/);
+    assert.equal(deletions, 0);
+    relayRetired = true;
     deployments = true;
     await assert.rejects(recoverFailedEmptyProject({ id, confirmProjectName: projectName }), /deployment exists/);
     assert.equal(deletions, 0);
