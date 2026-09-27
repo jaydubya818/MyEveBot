@@ -1,0 +1,80 @@
+{
+  "originalBytes": 16040,
+  "hardLimit": 14336,
+  "overage": 1704,
+  "method": "Ordered disjoint deletion deltas from the exact wire JSON, including nested escaping. Remaining scaffolding and the existing 4096-byte allowance close the sum; no character-count approximations.",
+  "table": [
+    {
+      "category": "System / Role / JStack / mode",
+      "bytes": 1141
+    },
+    {
+      "category": "Work objective",
+      "bytes": 83
+    },
+    {
+      "category": "Criteria",
+      "bytes": 285
+    },
+    {
+      "category": "Plan",
+      "bytes": 1200
+    },
+    {
+      "category": "Candidate identity",
+      "bytes": 214
+    },
+    {
+      "category": "Candidate change/source",
+      "bytes": 496
+    },
+    {
+      "category": "Repository context",
+      "bytes": 314
+    },
+    {
+      "category": "Previously inspected source",
+      "bytes": 227
+    },
+    {
+      "category": "Verifier logs/output",
+      "bytes": 1533
+    },
+    {
+      "category": "Protected verification bindings",
+      "bytes": 1935
+    },
+    {
+      "category": "Current Truth",
+      "bytes": 2208
+    },
+    {
+      "category": "Run/writer and Work identity",
+      "bytes": 597
+    },
+    {
+      "category": "Budget / repair state",
+      "bytes": 479
+    },
+    {
+      "category": "Duplicated tool-history feedback",
+      "bytes": 72
+    },
+    {
+      "category": "Owner continuation intent / wrapper",
+      "bytes": 138
+    },
+    {
+      "category": "Tool schema",
+      "bytes": 780
+    },
+    {
+      "category": "Other serialization scaffolding",
+      "bytes": 242
+    },
+    {
+      "category": "Existing dispatch safety allowance",
+      "bytes": 4096
+    }
+  ]
+}

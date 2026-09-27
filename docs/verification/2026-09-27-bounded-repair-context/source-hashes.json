@@ -1,0 +1,12 @@
+{
+  "apps/eve/lib/engineering/native-model.ts": "7b57f2ee6687c600d147b761911fc5d165b55ace6f8622dbfe53394e58874846",
+  "apps/eve/lib/engineering/native-repair-context.ts": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652",
+  "apps/eve/lib/engineering/native-repair-context.test.ts": "25ed9cc154a0dcb21ec16cd555e67d0e552d30ec7ee02b5b5fba99176fdcca78",
+  "apps/eve/lib/engineering/admission-context.integration.test.ts": "8e1a4818b4c0274435d1ae76e62741f8fcd08d0c7228b01a003c8e3098a988ba",
+  "apps/eve/test/native-completion.integration.mjs": "390eded8e2149dddbf2b2dd07c8510de8976f4f68942edc53cc105963e52fa08",
+  "apps/eve/scripts/executor-inventory.json": "cec9e7548ebb160888ba7f639b70cf60f296ef49c8f878a1c1d06ede0ff6c8ac",
+  "apps/eve/test/fixtures/repair-context/inputs.json": "cca7400050f1dbfc87a1afbccd2767fc3775bd1aa8205d42ca411abb246cf730",
+  "apps/eve/test/fixtures/repair-context/legacy-payload.json": "d4794944a2edfccb1d3b8a06fe6b70b68cfa4252fc3bfd5c219757577e274001",
+  "README.md": "38704bf5603914dc0af0c3e46422eeaf31b961b4847d5b14cec7d0f49ad0c648",
+  "docs/engineering-golden-work.md": "cc1c8169881e610f74e328d4dd84ebb4634f315676867bf2730b0b74ac14af80"
+}

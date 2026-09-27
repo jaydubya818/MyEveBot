@@ -3198,7 +3198,7 @@
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
       "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged.",
-      "sha256": "959a3173c3987c2e30de2adcb70f79a8f23e9f5259942c1fa067b4c803bad315"
+      "sha256": "7b57f2ee6687c600d147b761911fc5d165b55ace6f8622dbfe53394e58874846"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3254,6 +3254,11 @@
       "classification": "INTERNAL",
       "reason": "Native-only derived phase and progress read model with scoped idempotent eve_events observations. No authority, accounting or verification mutation. Event writes require current Work version/generation and same writer. Existing services authorize every effect.",
       "sha256": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1"
+    },
+    "lib/engineering/native-repair-context.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure deterministic repair-context projection. Exact candidate/diagnostic bindings, explicit UTF-8 truncation and pre-reservation byte enforcement; no I/O, model call, writer grant, ledger mutation or phase transition. Exact-live and adversarial authenticated tests cover oversized-dispatch denial.",
+      "sha256": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652"
     }
   }
 }

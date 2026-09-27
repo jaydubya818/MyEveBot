@@ -1,0 +1,19 @@
+{
+  "unchangedArchitecture": {
+    "apps/eve/lib/engineering/native-routing.ts": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc",
+    "apps/eve/lib/engineering/native-completion.ts": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8",
+    "apps/eve/lib/engineering/native-model-budget.ts": "a3c61e6c932aa981ef6de532cbb244fa2555cd9fc987f645f58a82ace4221048",
+    "apps/eve/lib/engineering/native-execution-controller.ts": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1",
+    "apps/eve/lib/engineering/current-truth-lines.ts": "54a4afc426b714b48502427e2566539ef4889744c41d4db416bbe6a10594da83",
+    "apps/eve/lib/engineering/worker-projection.ts": "2d3d2f109b7fb32786abbc0fbeb6746499c5406ad3b909204d99774f8b6b2286",
+    "apps/eve/lib/engineering/direct-verification-driver.ts": "08c425b5dc38fcd7b22b9f775d430afa813a6c9ca1a105404d32605317d26903",
+    "apps/eve/lib/engineering/native-results.ts": "4a9e5aea882a4f2de8162186fb4b543e3baf71bfbfc3adfa9db453ed8c906474",
+    "apps/eve/migrations/0051_engineering_conversation_budget.sql": "49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce",
+    "apps/eve/migrations/0052_work_model_ledger.sql": "a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106",
+    "apps/eve/migrations/0053_native_completion_contract.sql": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+  },
+  "priorLiveArtifactsVerified": 49,
+  "priorLiveAuthority": "REVOKED unchanged",
+  "retainedWorkResumed": false,
+  "liveProviderCalls": 0
+}

@@ -140,3 +140,13 @@ The post-failure neutral continuation was denied before a seventh provider call:
 Six calls settled at **$0.061718**. Reserved and UNKNOWN exposure are zero. Provider and common-ledger authority are revoked; the new Work is paused and temporary resources stopped. The unused $0.450564 completion hold and all candidate/evidence history remain preserved. The preceding pricing check placed the full conservative economic plan at $1.126410 within $1.30; that did not prove the actual repair payload would fit.
 
 **P0 Gap #2B: PARTIAL. P0 Gap #2: PARTIAL. M1/ER1: NOT QUALIFIED.** The next Q37 blocker is bounded post-verification repair-context assembly and the remaining authenticated repair → protected PASS → PARTIAL → fresh explanation journey. No product-code fix, another window, ER2, or resumption of the paused MVP task was performed. Earlier status sections above remain historical evidence.
+
+## Bounded repair context — LOCAL PASS
+
+The [repair-context dossier](verification/2026-09-27-bounded-repair-context/REPORT.md) reproduces the exact 16040-byte rejected payload and reduces it to **12488 bytes** with **1848 bytes of headroom** under the unchanged 14336-byte ceiling. A repair-specific capsule keeps objective/criteria, exact candidate and changed source, complete failure diagnostics and verifier identity, and minimal current Work/Run/writer/budget state. Repeated history and state prose are omitted.
+
+Compaction is deterministic and uses no model call. Lower-priority plan narrative is reduced before diagnostic excerpts; any excerpt identifies truncation, original/included UTF-8 bytes and retained artifact reference. In the exact live case, all diagnostics remain complete; only the plan narrative is explicitly shortened. Essential oversized context fails before reservation or dispatch with REPAIR_CONTEXT_TOO_LARGE. Repair requests target at most 13000 bytes including existing overhead.
+
+The controller and effect boundaries are unchanged. Local authenticated controlled-provider tests use the preserved failed plan/source and complete inspect → repair write → submit → independent protected PASS → immutable PARTIAL → fresh explanation in ten total calls. Oversized essential evidence creates no extra reservation or call. Full app/root regression, accounting, projection, verifier, typecheck/governance and production build pass.
+
+**Live M1/ER1: READY FOR FINAL REQUALIFICATION, NOT QUALIFIED. Gap #2B and Gap #2 remain PARTIAL.** No live authority was issued, no prior Work resumed, and no ER2 work started.

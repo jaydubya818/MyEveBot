@@ -260,7 +260,13 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     const beforeModel=(await new EngineeringWorkerProjectionStore(store,agentId).get(a.ctx.session.auth.current.attributes.myeveEngineeringWorkId)).projection;
     const result=await selected.model.doGenerate(a.options);
     const supplied=payloadState(captured.at(-1));
-    if(supplied.executionController) {
+    if(supplied.failure) {
+      const c=beforeModel.executionController!;
+      expect(supplied.executionController).toEqual({phase:c.phase,nextOperation:c.nextOperation,allowedOperations:c.allowedOperations,targets:c.targets,budget:c.budget,progress:c.progress.recovery});
+      expect(supplied.nativeExecution).toEqual({admissionRequired:false,runId:c.runId,writerSessionId:c.writer});
+      expect(supplied).toMatchObject({...currentWorkMetadata(beforeModel),revision:c.revision,candidate:{sha:c.candidate}});
+      expect(Buffer.byteLength(JSON.stringify({prompt:captured.at(-1).prompt,tools:captured.at(-1).tools}))+4096).toBeLessThanOrEqual(13000);
+    } else if(supplied.executionController) {
       expect(supplied.executionController).toEqual(JSON.parse(JSON.stringify({...beforeModel.executionController,metrics:undefined})));
       expect(supplied.currentTruth).toEqual(currentTruthLines(beforeModel));
     }
@@ -295,7 +301,7 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     }));
   }
 
-  function controlledProductionProvider(duplicate=false,alwaysDuplicate=false) {
+  function controlledProductionProvider(duplicate=false,alwaysDuplicate=false,liveFixture?:any) {
     let duplicateSent=false;
     local.provider.mockImplementation(async options=>{
       captured.push(options);
@@ -319,11 +325,11 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
           switch(controller.nextOperation) {
             case "open": request={operation:"open"};break;
             case "read": request={operation:"read",path:controller.known.requiredReads.find((p:string)=>!controller.known.inspected.some((i:any)=>i.path===p))};break;
-            case "plan": request={operation:"plan",expectedRevision:state.revision,plan:{files:controller.targets,change:"Implement the approved parser, first using the requested negative parseInt fixture.",verification:"Submit for independent protected checks, then repair exact failures once.",assumptions:"Pinned Node ESM fixture",blockers:[]}};break;
-            case "inspect": expect(state.evidence.some((e:any)=>e.result==="FAIL")).toBe(true);request={operation:"inspect"};break;
+            case "plan": request={operation:"plan",expectedRevision:state.revision,plan:liveFixture?JSON.parse(liveFixture.plan):{files:controller.targets,change:"Implement the approved parser, first using the requested negative parseInt fixture.",verification:"Submit for independent protected checks, then repair exact failures once.",assumptions:"Pinned Node ESM fixture",blockers:[]}};break;
+            case "inspect": expect(state.failure.checks.some((e:any)=>e.result==="FAIL")).toBe(true);request={operation:"inspect"};break;
             case "write": request={operation:"write",expectedRevision:state.revision,path:controller.targets[0],content:controller.phase==="REPAIR"
               ? 'import fs from "node:fs"; const raw=fs.readFileSync(0,"utf8").trim(); const n=Number(raw); console.log(JSON.stringify(/^\\d+$/.test(raw)&&Number.isSafeInteger(n)&&n>0?{quantity:n}:{error:"invalid_quantity"}));\n'
-              : 'import fs from "node:fs"; const n=parseInt(fs.readFileSync(0,"utf8").trim(),10); console.log(JSON.stringify(n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};break;
+              : liveFixture?.draft_files["quantity.mjs"] ?? 'import fs from "node:fs"; const n=parseInt(fs.readFileSync(0,"utf8").trim(),10); console.log(JSON.stringify(n>0?{quantity:n}:{error:"invalid_quantity"}));\n'};break;
             case "submit": request={operation:"submit",expectedRevision:state.revision};break;
             default: throw new Error("No deterministic productive operation");
           }
@@ -333,8 +339,9 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     });
   }
 
-  it("authenticated production continuation opens, reads, implements, fails protected checks, repairs and retains PARTIAL",async()=>{
-    await localRepository();controlledProductionProvider();
+  it.each(["controlled", "exact-live-failure"])("authenticated production continuation repairs and retains PARTIAL: %s",async variant=>{
+    const live=variant==="exact-live-failure"?JSON.parse(await readFile(new URL("../../test/fixtures/repair-context/inputs.json",import.meta.url),"utf8")).state.workspace:undefined;
+    await localRepository();controlledProductionProvider(false,false,live);
     const work=await freshWork(),a=await assembled(work.id),seen:string[]=[];
     a.options.prompt.at(-1).content[0].text=await readFile(new URL("../../../../docs/verification/2026-09-27-m1er1-b3bff2b-live/owner-message.txt",import.meta.url),"utf8");
     let admittedProjection: any;
@@ -367,6 +374,20 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
       if(proposal.operation==="submit") {
         await driver.run(work.id);const retained=await new NativeResultStore(direct).retain(work.id);
         expect(retained.proof.outcome).toBe(step===5?"FAILED":"PARTIAL");
+        if(step===5) a.options.prompt.push({role:"user",content:[{type:"text",text:"Continue the existing authorized Work from its persisted Current Truth within the unchanged qualification envelope."}]});
+        if(live && step===5) {
+          const [saved]=await local.query("SELECT evidence FROM engineering_direct_workspaces WHERE work_id=$1",[work.id]);
+          const providerBefore=local.provider.mock.calls.length;
+          const [budgetBefore]=await local.query("SELECT calls_admitted,spent_microusd,reserved_microusd FROM engineering_work_model_budget WHERE work_id=$1",[work.id]);
+          // Adversarial local fixture only: too many essential failed checks must
+          // not consume a call or reservation. Restore the exact verifier output.
+          await local.query("UPDATE engineering_direct_workspaces SET evidence=$2 WHERE work_id=$1",[work.id,JSON.stringify(Array.from({length:100},(_,i)=>({...saved.evidence[0],check:"oversize-"+i})))]);
+          try { await expect(nextStep(a,6)).rejects.toThrow(/REPAIR_CONTEXT_TOO_LARGE/); }
+          finally {await local.query("UPDATE engineering_direct_workspaces SET evidence=$2 WHERE work_id=$1",[work.id,JSON.stringify(saved.evidence)]);}
+          expect(local.provider.mock.calls.length).toBe(providerBefore);
+          const [budgetAfter]=await local.query("SELECT calls_admitted,spent_microusd,reserved_microusd FROM engineering_work_model_budget WHERE work_id=$1",[work.id]);
+          expect(budgetAfter).toEqual(budgetBefore);
+        }
       }
     }
     expect(seen).toEqual(["admit","open","read","plan","write","submit","inspect","write","submit"]);
@@ -387,7 +408,7 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     expect(final.executionController?.metrics.phaseTransitions).toEqual(["ORIENT","PLAN","IMPLEMENT","VERIFY","REPAIR","VERIFY","COMPLETE"]);
     expect(final.completionStatus).toBe("COMPLETE");expect(final.readiness.ready).toBe(false);
     expect(await counts(work.id)).toEqual({runs:1,writers:1});
-    if(process.env.NATIVE_CONTROLLER_EVIDENCE)await writeFile(process.env.NATIVE_CONTROLLER_EVIDENCE,JSON.stringify({kind:"LOCAL_CONTROLLED_PROVIDER_REAL_AUTHENTICATED_ASSEMBLY",operations:seen,finalProjection:final,providerPayloads:captured.slice(-10)},null,2));
+    if(process.env.NATIVE_CONTROLLER_EVIDENCE)await writeFile(process.env.NATIVE_CONTROLLER_EVIDENCE+"-"+variant+".json",JSON.stringify({kind:"LOCAL_CONTROLLED_PROVIDER_REAL_AUTHENTICATED_ASSEMBLY",operations:seen,finalProjection:final,providerPayloads:captured.slice(-10)},null,2));
   },120000);
 
   it("one duplicate admission returns current state without effects and the next model chooses repository open",async()=>{
