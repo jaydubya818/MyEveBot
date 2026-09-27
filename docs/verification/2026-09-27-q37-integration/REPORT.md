@@ -19,7 +19,8 @@ Returned receipts retain exact Work/request/peer/grant/disclosure provenance and
 | New Relay fixture and existing peer, Factory observation, GitHub adapter/App, learning unit tests | 57 PASS across 6 files |
 | App TypeScript (`tsc --noEmit --incremental false`) | PASS |
 | Migration manifest (`migrate-database.ts --check`) | PASS, 53 ordered migrations; none applied |
-| Executor governance | Pending one new reviewed inventory entry; current check rejects the unlisted module |
+| Executor governance | PASS after approved additive entry: 639 classified sources, UNKNOWN=0 |
+| Existing governance entries | All 638 preserved exactly; removing the insertion recovers the original inventory bytes |
 | Diff whitespace | PASS |
 | Live provider / authenticated Sofie / reciprocal Relay / shared database | NOT RUN |
 
@@ -44,4 +45,10 @@ No-babysitting is NOT QUALIFIED. Necessary Human Judgment and Coordination Debt 
 
 ## Shared inventory decision
 
-The mandatory governance scan found exactly the new source missing from its inventory. A single `INTERNAL` entry is prepared in `governance-entry.json`. Existing entries must remain byte-for-byte unchanged. The active M1/ER1 owner is also modifying the shared inventory, so the addition was held for coordination. Automatic approval review rejected the cross-task coordination message as unauthorized sensitive egress. Direct user approval for this isolated additive entry was requested; no inventory edit was made while pending.
+The user explicitly approved the single Q37-owned `INTERNAL` entry in `governance-entry.json`. It was added only to this branch's inventory, with no removals, replacements, reclassifications, renames or changes to existing entries. `governance-addition.json` records the parent commit, inventory hashes and preservation checks. Governance and all 57 affected tests were rerun and passed after the addition. Type checking and migration results above remain from the unchanged implementation source.
+
+Protected worktrees and their inventories were not modified. The previously rejected cross-task coordination message was not retried, and no further information was shared with that task. No live qualification was performed.
+
+## Next independent P0 capability
+
+MyFactory candidate/evidence return validation is the next bounded independent capability: bind the return to the exact submitted request, MyEve Work revision/generation and Factory WorkOrder; validate candidate/artifact identities and provenance; reject duplicates with conflicting content, stale returns, cancellation and timeout/UNKNOWN ambiguity. Start with a synthetic contract fixture and retain MyEve ownership and independent verification. Stop before dispatch, writer handoff, shared schema or Current Truth changes owned by M1/ER1. This recommendation is not implemented by the governance-only approval.

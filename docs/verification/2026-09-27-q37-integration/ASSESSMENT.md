@@ -35,7 +35,7 @@ Protected M1/ER1 contracts: `engineering_direct.ts`; native admission/API/input/
 
 Migration ownership: 0039–0050 already belong to the inherited Digital Worker lineage. 0051, 0052 and 0053 belong to Gap #2/M1/ER1; 0053 exists both in the preserved dirty original tranche and committed qualification lineage. **No migration allocated or modified.** No shared database accessed.
 
-Safe Q37-owned files: new `apps/eve/lib/engineering/relay-collaboration.ts`, its synthetic test, and this evidence directory. Existing Relay result projection is imported without edits. Existing dependencies are linked read-only for tests; no env files or credentials are copied.
+Safe Q37-owned files: new `apps/eve/lib/engineering/relay-collaboration.ts`, its synthetic test, and this evidence directory. The subsequent explicit approval also permits exactly one additive entry for that module in this branch's executor inventory; all 638 pre-existing entries are preserved exactly. Existing Relay result projection is imported without edits. Existing dependencies are linked read-only for tests; no env files or credentials are copied.
 
 ## Workstream assessment
 
