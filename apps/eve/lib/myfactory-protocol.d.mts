@@ -1,7 +1,9 @@
-export interface HostedInput { idempotencyKey: string; title: string; description: string; kind: "feature" | "defect" | "investigation"; acceptanceCriteria: string[]; allowedPaths: string[] }
+export interface FactoryVersion { sourceCommit: string; sourceTree: string; configurationDigest: string }
+export interface FactoryBinding { ownerId: string; agentId: string; workId: string; workVersion: number; workGeneration: number; criteriaVersion: number; submissionDigest: string; expectedFactoryId: string; expectedFactoryVersion: FactoryVersion }
+export interface HostedInput { idempotencyKey: string; title: string; description: string; kind: "feature" | "defect" | "investigation"; acceptanceCriteria: string[]; allowedPaths: string[]; factoryBinding?: FactoryBinding }
 export interface HostedConfig { clientId: string; repository: string; teamId: string; token: string; labelId?: string; receiptPublicKey: string }
 export interface HostedReceipt { version: number; issueId: string; workOrderId: string; state: string; updatedAt: string; workOrderUrl: string }
-export interface HostedResult { requestId: string; issueIdentifier: string; issueUrl: string; receipt: HostedReceipt | null }
+export interface HostedResult { requestId: string; issueIdentifier: string; issueUrl: string; receipt: HostedReceipt | null; result: null }
 export type Graphql = (query: string, variables: Record<string, unknown>) => Promise<any>;
 export function parseInput(input: unknown): HostedInput;
 export function requestId(clientId: string, key: string): string;

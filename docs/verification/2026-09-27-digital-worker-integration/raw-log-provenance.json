@@ -1,0 +1,122 @@
+[
+  {
+    "original": "/private/tmp/dwi-worker-projection.log",
+    "sha256": "870323b6130456d79674715ba93974c576a5ea9136676ad2919cfb32067e6ba2",
+    "stored": "worker-projection.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-migrations.log",
+    "sha256": "0f5205ef2bece58a961250f48f067b12dce083955415ad66ebb947cd75867add",
+    "stored": "migrations.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-historical-projection.log",
+    "sha256": "01188473bc5f56a3eb5993545dafd459b97ee730be7438494ea9a35f09da0ba6",
+    "stored": "historical-projection.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-route-admission-first-attempt.log",
+    "sha256": "0d2cd12336704d83d0dd74a59a9bba7de93f5dcfe1eb35f4b3db994bcb0a615c",
+    "stored": "route-admission-first-attempt.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-producer-typecheck.log",
+    "sha256": "44dbf928da296d82a66f0cbd7dbf3946390f8cb1807b360dc024abb5c09d70c1",
+    "stored": "producer-typecheck.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-engineering-direct-verifier.log",
+    "sha256": "da10261672b770eb7356dc426e7e1496466596082b538123b8e2e41e58c319a1",
+    "stored": "engineering-direct-verifier.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-native-completion.log",
+    "sha256": "a3643da7d0889ccaead130f1e32e06c29795e38e8d3942111080e41f6c56f611",
+    "stored": "native-completion.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-webpack.log",
+    "sha256": "20bdb0e8088dae9c0897bfe662b3ab9cbc00fda1f683c6aecc9fdc54427a4953",
+    "stored": "webpack.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-gatec.log",
+    "sha256": "aa15f78268d10d26215a2323b0d7b250fe2054f83fd955d8fa30e21dd19f8574",
+    "stored": "gatec.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-route-admission.log",
+    "sha256": "3334ecd699120e7abd727ea01d58b53c03c73512a8447c2f32b8babeafae2199",
+    "stored": "route-admission.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-0055.log",
+    "sha256": "c6ba348482f0e04da4eea1678f76d52f400354a22e0192b25063b6c382631d31",
+    "stored": "0055.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-producer-strict.log",
+    "sha256": "247507db1666eaee967518862e13b11cf971880c0986999b5993c5b0e94e3eed",
+    "stored": "producer-strict.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-producer-governance-first-attempt.log",
+    "sha256": "a6f08e4b13aa915377754d39699edbe25f9f5dff590042b62b883a0f7a4a45b7",
+    "stored": "producer-governance-first-attempt.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-root-tests.log",
+    "sha256": "35aa85d3a1e5edb8b6863b455332a792a3554d7bc2ef3a139cb18ba6eec5eb60",
+    "stored": "root-tests.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-producer-tests.log",
+    "sha256": "9f662ef13cdf70bfe2167cad8a7c2024604c979361ca146ad39b73c5f16b32d7",
+    "stored": "producer-tests.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-0053.log",
+    "sha256": "11e6e0288a845eecb44840f66022f2829de19aa73b841fe2fb69ae0c99749d43",
+    "stored": "0053.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-app-tests.log",
+    "sha256": "b39a171a83bcc781c6fba4ef72428339685b6610cee29377d97ce54444fba790",
+    "stored": "app-tests.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-producer-governance.log",
+    "sha256": "d3d9d5e6f1a6c5d1ec809e7f652c2a43baf557e3cdf37df7a2471dc15ecef634",
+    "stored": "producer-governance.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-typecheck.log",
+    "sha256": "9f22b59de18a852019d9d064d9d675aeea2e70645b5ad0ed8dc0f66df0e4f7e0",
+    "stored": "typecheck.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  },
+  {
+    "original": "/private/tmp/dwi-engineering-work-context.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stored": "engineering-work-context.log",
+    "normalization": "trailing whitespace and trailing blank lines stripped for git diff hygiene"
+  }
+]

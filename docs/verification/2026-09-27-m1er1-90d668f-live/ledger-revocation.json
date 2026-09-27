@@ -1,0 +1,53 @@
+{
+  "at": "2026-09-27T06:55:17.578Z",
+  "before": {
+    "scope_id": "m1er1-90d668f-owner",
+    "scope_kind": "personal",
+    "work_id": "5f658138-b176-40a3-a12e-873b21abbe74",
+    "actor_id": "m1er1-90d668f-owner",
+    "agent_id": "m1er1-90d668f-sofie",
+    "agent_revision": "2026-09-26 23:52:29.613072-07",
+    "policy_hash": "c49a6f163f0e9a8bc562b0c0adfd2657848cb2dabc87d334f539840a52bdc0b1",
+    "policy_version": 1,
+    "budget_version": 1,
+    "ceiling_microusd": "1300000",
+    "spent_microusd": "118796",
+    "reserved_microusd": "0",
+    "max_calls": 10,
+    "calls_admitted": 9,
+    "deadline": "2026-09-27T07:22:39.553Z",
+    "status": "ACTIVE",
+    "historical": {
+      "native": null,
+      "executor": null,
+      "conversation": null
+    },
+    "created_at": "2026-09-27T06:53:09.997Z"
+  },
+  "after": {
+    "scope_id": "m1er1-90d668f-owner",
+    "scope_kind": "personal",
+    "work_id": "5f658138-b176-40a3-a12e-873b21abbe74",
+    "actor_id": "m1er1-90d668f-owner",
+    "agent_id": "m1er1-90d668f-sofie",
+    "agent_revision": "2026-09-26 23:52:29.613072-07",
+    "policy_hash": "c49a6f163f0e9a8bc562b0c0adfd2657848cb2dabc87d334f539840a52bdc0b1",
+    "policy_version": 1,
+    "budget_version": 1,
+    "ceiling_microusd": "1300000",
+    "spent_microusd": "118796",
+    "reserved_microusd": "0",
+    "max_calls": 10,
+    "calls_admitted": 9,
+    "deadline": "2026-09-27T07:22:39.553Z",
+    "status": "REVOKED",
+    "historical": {
+      "native": null,
+      "executor": null,
+      "conversation": null
+    },
+    "created_at": "2026-09-27T06:53:09.997Z"
+  },
+  "receiptsUnchanged": true,
+  "reason": "Administrative revocation of this qualification grant at explicit failure stop boundary; no amount/counter/receipt changed."
+}

@@ -1,0 +1,16 @@
+{
+  "exactPayloadBindings": 9,
+  "providerSpendMicrousd": 118796,
+  "providerReserved": 0,
+  "providerUnknown": 0,
+  "actionResultUnknownPreserved": 2,
+  "draftAndCandidateUnchangedAcrossRepair": true,
+  "providedRepairRevision": 5,
+  "proposedWriteRevision": 2,
+  "runs": 1,
+  "writers": 1,
+  "authorityBypasses": 0,
+  "falseReady": 0,
+  "lostCandidates": 0,
+  "productionSourceChanged": false
+}

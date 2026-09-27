@@ -1,0 +1,33 @@
+
+> sellerfi-local-factory@0.1.0 check:producer-governance
+> node scripts/check-producer-governance.mjs
+
+fatal: not a git repository (or any of the parent directories): .git
+node:internal/errors:985
+  const err = new Error(message);
+              ^
+
+Error: Command failed: git ls-tree -r --name-only 8c5de7794ffa377420ef5dcdbda44aa9fa2328b8
+fatal: not a git repository (or any of the parent directories): .git
+
+    at genericNodeError (node:internal/errors:985:15)
+    at wrappedFn (node:internal/errors:539:14)
+    at checkExecSyncError (node:child_process:925:11)
+    at execFileSync (node:child_process:961:15)
+    at file:///private/tmp/q37-producer-fcd-consumer-check/scripts/check-producer-governance.mjs:8:24
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:643:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  status: 128,
+  signal: null,
+  output: [
+    null,
+    '',
+    'fatal: not a git repository (or any of the parent directories): .git\n'
+  ],
+  pid: 47228,
+  stdout: '',
+  stderr: 'fatal: not a git repository (or any of the parent directories): .git\n'
+}
+
+Node.js v24.18.1

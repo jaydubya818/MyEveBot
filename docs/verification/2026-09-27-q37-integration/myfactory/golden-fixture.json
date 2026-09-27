@@ -1,0 +1,220 @@
+{
+  "label": "SYNTHETIC ONLY: no Factory execution, credentials, authority or protected verification",
+  "now": "2026-09-27T03:00:10.000Z",
+  "currentWork": {
+    "ownerId": "fixture-owner",
+    "agentId": "sofie-fixture",
+    "workId": "d3cf913a-f352-41d6-953e-2207d3f32c51",
+    "workVersion": 3,
+    "workGeneration": 2,
+    "criteriaVersion": 1,
+    "lifecycle": "active",
+    "control": "agent"
+  },
+  "expectation": {
+    "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+    "repositoryPath": "/fixture/repository",
+    "baseRef": "ab88495ee4b022ce5ff2ada69295ac5c9c713a51",
+    "requiredChecks": [
+      "node check-answer.mjs",
+      "git diff --check"
+    ],
+    "activeRunId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+    "attempts": [
+      {
+        "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+        "attemptNumber": 1,
+        "candidatePin": {
+          "candidateCommit": "8b06af3758dc109ba0903db23db8076e867ca22f",
+          "candidateTree": "550c60f1cf6a7fac320c5f824f76d2af506940b6",
+          "diffSha256": "2667ecfc62348ed791b9e0f22c489e45391f99ad260de6062c38c23b78b1fc5c",
+          "changedPaths": [
+            "answer.ts"
+          ]
+        }
+      }
+    ]
+  },
+  "envelope": {
+    "format": "MYEVE_FACTORY_RETURN_FIXTURE_V1",
+    "binding": {
+      "submission": {
+        "ownerId": "fixture-owner",
+        "agentId": "sofie-fixture",
+        "workId": "d3cf913a-f352-41d6-953e-2207d3f32c51",
+        "workVersion": 3,
+        "workGeneration": 2,
+        "criteriaVersion": 1,
+        "objective": "Change the synthetic answer from one to two.",
+        "criteria": [
+          "The answer is two."
+        ],
+        "repository": "fixture/synthetic",
+        "baseCommit": "ab88495ee4b022ce5ff2ada69295ac5c9c713a51",
+        "allowedPaths": [
+          "answer.ts"
+        ],
+        "sourcePin": {
+          "kind": "SYNTHETIC_LOCAL_SOURCE_PIN",
+          "factoryId": "local-fixture-factory",
+          "factoryVersion": {
+            "myFactoryCommit": "543906dc20fefed2def97e43953095ea0b7c60bc",
+            "configurationDigest": "186d0018a0c98593885c92cded6876ca3e63eeb5cd8d465bf1f2960bca3910ce"
+          }
+        },
+        "clientId": "myeve",
+        "idempotencyKey": "q37-factory-fixture-w1",
+        "policyReference": null,
+        "budgetReference": null,
+        "submittedAt": "2026-09-27T03:00:00.000Z",
+        "kind": "feature"
+      },
+      "requestId": "37512507-729c-4bae-a4a9-24960c71a550",
+      "submissionDigest": "ce861b3a830ee4e5fe4a874cfa531f4b50dc37ff13c987f3ea5c9d3beedfa34e"
+    },
+    "sourcePin": {
+      "kind": "SYNTHETIC_LOCAL_SOURCE_PIN",
+      "factoryId": "local-fixture-factory",
+      "factoryVersion": {
+        "myFactoryCommit": "543906dc20fefed2def97e43953095ea0b7c60bc",
+        "configurationDigest": "186d0018a0c98593885c92cded6876ca3e63eeb5cd8d465bf1f2960bca3910ce"
+      }
+    },
+    "reported": {
+      "receipt": {
+        "version": 1,
+        "issueId": "37512507-729c-4bae-a4a9-24960c71a550",
+        "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+        "state": "ready_for_review",
+        "updatedAt": "2026-09-27T03:00:06.000Z",
+        "workOrderUrl": "http://127.0.0.1:8788/?workOrder=72f98da9-9f85-41e2-8aba-342c925b9c09"
+      },
+      "workOrder": {
+        "id": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+        "state": "ready_for_review",
+        "repositoryPath": "/fixture/repository",
+        "baseRef": "ab88495ee4b022ce5ff2ada69295ac5c9c713a51",
+        "description": "Change the synthetic answer from one to two.",
+        "acceptanceCriteria": [
+          "The answer is two."
+        ],
+        "allowedPaths": [
+          "answer.ts"
+        ],
+        "checkCommands": [
+          "node check-answer.mjs",
+          "git diff --check"
+        ],
+        "workerProfile": "mac",
+        "updatedAt": "2026-09-27T03:00:06.000Z",
+        "kind": "feature",
+        "reproductionCommand": null
+      },
+      "run": {
+        "id": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+        "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+        "attemptNumber": 1,
+        "state": "ready_for_review",
+        "workerProfile": "mac",
+        "inputCommit": "ab88495ee4b022ce5ff2ada69295ac5c9c713a51",
+        "candidateCommit": "8b06af3758dc109ba0903db23db8076e867ca22f",
+        "workspacePath": "/fixture/workspace",
+        "startedAt": "2026-09-27T03:00:01.000Z",
+        "finishedAt": "2026-09-27T03:00:06.000Z",
+        "failure": null
+      },
+      "candidateEvent": {
+        "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+        "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+        "id": 3,
+        "type": "run.candidate_committed",
+        "createdAt": "2026-09-27T03:00:03.000Z",
+        "payload": {
+          "candidateCommit": "8b06af3758dc109ba0903db23db8076e867ca22f",
+          "candidateTree": "550c60f1cf6a7fac320c5f824f76d2af506940b6",
+          "diffSha256": "2667ecfc62348ed791b9e0f22c489e45391f99ad260de6062c38c23b78b1fc5c",
+          "changedPaths": [
+            "answer.ts"
+          ],
+          "diffPath": "/fixture/artifacts/candidate.patch"
+        }
+      },
+      "checks": [
+        {
+          "id": "657cf806-849b-43c0-a936-000000000001",
+          "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+          "candidateCommit": "8b06af3758dc109ba0903db23db8076e867ca22f",
+          "command": "node check-answer.mjs",
+          "status": "passed",
+          "exitCode": 0,
+          "startedAt": "2026-09-27T03:00:04.000Z",
+          "finishedAt": "2026-09-27T03:00:05.000Z",
+          "logPath": "/fixture/artifacts/check-1.log",
+          "logSha256": "51128947b41d47385010640ce678e71fadc4cdcdc8dc87c2ace3c12852f684d2"
+        },
+        {
+          "id": "657cf806-849b-43c0-a936-000000000002",
+          "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+          "candidateCommit": "8b06af3758dc109ba0903db23db8076e867ca22f",
+          "command": "git diff --check",
+          "status": "passed",
+          "exitCode": 0,
+          "startedAt": "2026-09-27T03:00:04.000Z",
+          "finishedAt": "2026-09-27T03:00:05.000Z",
+          "logPath": "/fixture/artifacts/check-2.log",
+          "logSha256": "d732952941b6634c0dd4a3891cd3b2d21a7a859ccb7051b651a183105c312d64"
+        }
+      ],
+      "startedEvent": {
+        "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+        "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+        "id": 1,
+        "type": "run.started",
+        "createdAt": "2026-09-27T03:00:01.000Z",
+        "payload": {
+          "inputCommit": "ab88495ee4b022ce5ff2ada69295ac5c9c713a51",
+          "workerProfile": "mac",
+          "model": "synthetic-model",
+          "skillReferenceCommit": "fd8f20a879b507cf09feba08663a1edf7a949353"
+        }
+      },
+      "implementingEvent": {
+        "workOrderId": "72f98da9-9f85-41e2-8aba-342c925b9c09",
+        "runId": "3818b254-e0ee-44f1-a8f2-59719b58ba05",
+        "id": 2,
+        "type": "run.implementing",
+        "createdAt": "2026-09-27T03:00:02.000Z",
+        "payload": {
+          "agentVersion": "fixture-not-a-live-executor"
+        }
+      },
+      "actionError": null
+    },
+    "artifacts": [
+      {
+        "reference": "/fixture/artifacts/candidate.patch",
+        "kind": "patch",
+        "sha256": "2667ecfc62348ed791b9e0f22c489e45391f99ad260de6062c38c23b78b1fc5c",
+        "content": "diff --git a/answer.ts b/answer.ts\nindex 2a51623..848e1a0 100644\n--- a/answer.ts\n+++ b/answer.ts\n@@ -1 +1 @@\n-export const answer = 1;\n+export const answer = 2;\n"
+      },
+      {
+        "reference": "/fixture/artifacts/check-1.log",
+        "kind": "log",
+        "sha256": "51128947b41d47385010640ce678e71fadc4cdcdc8dc87c2ace3c12852f684d2",
+        "content": "SYNTHETIC node check-answer.mjs: passed; no process executed\n"
+      },
+      {
+        "reference": "/fixture/artifacts/check-2.log",
+        "kind": "log",
+        "sha256": "d732952941b6634c0dd4a3891cd3b2d21a7a859ccb7051b651a183105c312d64",
+        "content": "SYNTHETIC git diff --check: passed; no process executed\n"
+      }
+    ]
+  },
+  "gitFixture": {
+    "baseObject": "tree f4c59d9edc8d856c3545efb7ed46092ef5c214cf\nauthor Fixture <fixture@localhost.invalid> 1790474400 +0000\ncommitter Fixture <fixture@localhost.invalid> 1790474400 +0000\n\nSynthetic base\n",
+    "candidateObject": "tree 550c60f1cf6a7fac320c5f824f76d2af506940b6\nparent ab88495ee4b022ce5ff2ada69295ac5c9c713a51\nauthor Fixture <fixture@localhost.invalid> 1790474401 +0000\ncommitter Fixture <fixture@localhost.invalid> 1790474401 +0000\n\nFactory candidate change\n",
+    "before": "export const answer = 1;\n",
+    "after": "export const answer = 2;\n"
+  }
+}

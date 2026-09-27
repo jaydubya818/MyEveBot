@@ -1,0 +1,488 @@
+[
+  {
+    "id": "action_a36b8236-f25a-4b72-bd17-243e9994f3fa",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_018XUGqy1UydYZJ8gFnue8oC",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "955e9c09c5f71df8c5fc59c37f698dc68fcc79659454b6321c2133d716b9ee54",
+    "safe_summary": {
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "phase": "ADMITTED_READY_FOR_PRODUCTIVE_WORK",
+      "route": "NATIVE",
+      "runId": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+      "budget": {
+        "status": "ACTIVE",
+        "heldUsd": 1.013769,
+        "inflight": false,
+        "observed": true,
+        "spentUsd": 0.006002,
+        "ceilingUsd": 1.3,
+        "reservedUsd": 0,
+        "remainingUsd": 0.28022900000000006,
+        "usageUnknown": false
+      },
+      "status": "QUEUED",
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "control": "agent",
+      "message": "NO NEW ADMISSION REQUIRED",
+      "admission": "SUCCESS",
+      "nextPhase": "PRODUCTIVE_EXECUTION",
+      "decisionId": "7cd9ea54-052c-42f4-ad6e-bf461dde3099",
+      "workVersion": 2,
+      "currentTruth": [
+        "Work identity: {\"workId\":\"5f658138-b176-40a3-a12e-873b21abbe74\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Native execution: ALREADY_ADMITTED; phase ADMITTED_READY_FOR_PRODUCTIVE_WORK; next operation open. Observed state only. Already admitted means no new admission.",
+        "Engineering phase: ORIENT; next open; progress NONE.",
+        "Active Run: b60922a0-d00d-4ed5-bf0b-016508db8f0c; DEEP_AGENT; ACTIVE. Fresh checks are required at every action boundary.",
+        "Latest Run: b60922a0-d00d-4ed5-bf0b-016508db8f0c; DEEP_AGENT; ACTIVE; recorded QUEUED; deadline 2026-09-27T07:23:13.936Z.",
+        "Run history: b60922a0-d00d-4ed5-bf0b-016508db8f0c (DEEP_AGENT; ACTIVE; recorded QUEUED; admission 2026-09-27T06:53:13.945Z).",
+        "Writer session: wrun_01M3GT75DM563MVX72DTXPCPVW; current custody observed; recheck before effects.",
+        "Candidate: none retained.",
+        "Draft: no native draft retained.",
+        "Candidate history: none retained.",
+        "Completion state: READY.",
+        "Protected verification: NOT_RUN; candidate none; job none; 0 bound evidence records.",
+        "Result: none retained.",
+        "Budget: $0.006002 spent; $0.000000 reserved; ACTIVE; unknown usage false.",
+        "Completion budget: $1.300000 ceiling; $1.013769 held; $0.280229 uncommitted. This observation is not spend authority.",
+        "Readiness: No independently verified, current Result exists.",
+        "Blocker / next permitted action: Native ORIENT: open. No repeated orientation; current authority must be rechecked."
+      ],
+      "transitionId": "17c17666-a2ad-4a8b-86e2-361d02c8f561",
+      "nextOperation": "open",
+      "authorityToken": "[REDACTED]",
+      "workGeneration": 2,
+      "admissionStatus": "ALREADY_ADMITTED",
+      "writerSessionId": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "completionStatus": "READY",
+      "admissionRequired": false,
+      "expectedWorkVersion": 2,
+      "completionContractId": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+      "expectedWorkGeneration": 2
+    },
+    "created_at": "2026-09-27T06:53:13.837Z",
+    "updated_at": "2026-09-27T06:53:13.989Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_6d6933c0-966e-4bd2-9793-3da188e5b9a2",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01HSKiegoXhNaANmYCJ7TJT5",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "de596805df77eb02a070cd6bfb6ba6b6090f39fb8c40e7d36818b404617927c5",
+    "safe_summary": {
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "operation": "open"
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T07:23:13.936Z",
+        "evidence": [],
+        "revision": 1,
+        "candidates": [],
+        "changedPaths": []
+      }
+    },
+    "created_at": "2026-09-27T06:53:17.184Z",
+    "updated_at": "2026-09-27T06:53:18.847Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_b9667e88-fcf7-48b5-b7e9-3aa720ee637b",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01SNdWQQi9n42ELCTptM2jTu",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "cdb367045727886fd9a1a4214375885fc921664bc905ceb6c4313b2eba352a2b",
+    "safe_summary": {
+      "plan": {
+        "files": [
+          "quantity.mjs"
+        ],
+        "change": "Create quantity.mjs at repo root as an ES module. Read all of stdin, trim it, then parse with `const n = parseInt(input, 10);` and check `Number.isInteger(n) && n > 0`. If true, print JSON.stringify({quantity: n}) to stdout; otherwise print JSON.stringify({error: \"invalid_quantity\"}). This is the first candidate implementation, using parseInt on the trimmed input to accept positive integers.",
+        "blockers": [],
+        "assumptions": "parseInt-based parsing is expected to be accepted for integer-looking positive inputs but will incorrectly accept the leading-numeric portion of fractional strings like '1.5' (parseInt('1.5',10) === 1), so the protected fractional-input check is expected to fail for this first candidate, per the qualification design.",
+        "verification": "Independent protected verification will run the pinned test/quantity.test.mjs via npm test to check behavior against the fixture contract, including the fractional-input case (e.g. '1.5')."
+      },
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "operation": "plan",
+      "expectedRevision": 1
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "{\"files\":[\"quantity.mjs\"],\"change\":\"Create quantity.mjs at repo root as an ES module. Read all of stdin, trim it, then parse with `const n = parseInt(input, 10);` and check `Number.isInteger(n) && n > 0`. If true, print JSON.stringify({quantity: n}) to stdout; otherwise print JSON.stringify({error: \\\"invalid_quantity\\\"}). This is the first candidate implementation, using parseInt on the trimmed input to accept positive integers.\",\"verification\":\"Independent protected verification will run the pinned test/quantity.test.mjs via npm test to check behavior against the fixture contract, including the fractional-input case (e.g. '1.5').\",\"assumptions\":\"parseInt-based parsing is expected to be accepted for integer-looking positive inputs but will incorrectly accept the leading-numeric portion of fractional strings like '1.5' (parseInt('1.5',10) === 1), so the protected fractional-input check is expected to fail for this first candidate, per the qualification design.\",\"blockers\":[]}",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T07:23:13.936Z",
+        "evidence": [],
+        "revision": 2,
+        "candidates": [],
+        "changedPaths": []
+      }
+    },
+    "created_at": "2026-09-27T06:53:31.102Z",
+    "updated_at": "2026-09-27T06:53:31.203Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_049800d3-a981-408d-ab6e-b0b9abab5e60",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01E9iwgrJUhEPu6UFnKXVP7Y",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "e0e2e39d1ad51ea77af9a66fa03d084875638cad1aa9e1808ba0d72c2b8a9a01",
+    "safe_summary": {
+      "path": "quantity.mjs",
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "content": "[content bound by hash]",
+      "operation": "write",
+      "expectedRevision": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "{\"files\":[\"quantity.mjs\"],\"change\":\"Create quantity.mjs at repo root as an ES module. Read all of stdin, trim it, then parse with `const n = parseInt(input, 10);` and check `Number.isInteger(n) && n > 0`. If true, print JSON.stringify({quantity: n}) to stdout; otherwise print JSON.stringify({error: \\\"invalid_quantity\\\"}). This is the first candidate implementation, using parseInt on the trimmed input to accept positive integers.\",\"verification\":\"Independent protected verification will run the pinned test/quantity.test.mjs via npm test to check behavior against the fixture contract, including the fractional-input case (e.g. '1.5').\",\"assumptions\":\"parseInt-based parsing is expected to be accepted for integer-looking positive inputs but will incorrectly accept the leading-numeric portion of fractional strings like '1.5' (parseInt('1.5',10) === 1), so the protected fractional-input check is expected to fail for this first candidate, per the qualification design.\",\"blockers\":[]}",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "quantity.mjs",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T07:23:13.936Z",
+        "evidence": [],
+        "revision": 3,
+        "candidates": [],
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      }
+    },
+    "created_at": "2026-09-27T06:53:37.377Z",
+    "updated_at": "2026-09-27T06:53:37.478Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_ee70cfd5-7793-4183-87f7-4fbeaed51370",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01HFcYknwv2qbKNnM2XR1gsf",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "e453771ca0c92b614a15c3a955f3d909ce123384f0fca7040a14368ce4c29233",
+    "safe_summary": {
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "operation": "submit",
+      "expectedRevision": 3
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "next": "A separate protected verifier must check this frozen candidate. No publication or Ready state is implied.",
+      "current": true,
+      "candidate": {
+        "sha": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+        "artifactHash": "756588c965d00aca33fced39825ae3712a5b576e2d796f54f79ec46a24f25e06",
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      },
+      "workspace": {
+        "plan": "{\"files\":[\"quantity.mjs\"],\"change\":\"Create quantity.mjs at repo root as an ES module. Read all of stdin, trim it, then parse with `const n = parseInt(input, 10);` and check `Number.isInteger(n) && n > 0`. If true, print JSON.stringify({quantity: n}) to stdout; otherwise print JSON.stringify({error: \\\"invalid_quantity\\\"}). This is the first candidate implementation, using parseInt on the trimmed input to accept positive integers.\",\"verification\":\"Independent protected verification will run the pinned test/quantity.test.mjs via npm test to check behavior against the fixture contract, including the fractional-input case (e.g. '1.5').\",\"assumptions\":\"parseInt-based parsing is expected to be accepted for integer-looking positive inputs but will incorrectly accept the leading-numeric portion of fractional strings like '1.5' (parseInt('1.5',10) === 1), so the protected fractional-input check is expected to fail for this first candidate, per the qualification design.\",\"blockers\":[]}",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "quantity.mjs",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "VERIFICATION_REQUESTED",
+        "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T07:23:13.936Z",
+        "evidence": [],
+        "revision": 4,
+        "candidates": [
+          {
+            "sha": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+            "createdAt": "2026-09-27T06:53:41.942Z",
+            "artifactHash": "756588c965d00aca33fced39825ae3712a5b576e2d796f54f79ec46a24f25e06",
+            "changedPaths": [
+              "quantity.mjs"
+            ]
+          }
+        ],
+        "changedPaths": [
+          "quantity.mjs"
+        ]
+      }
+    },
+    "created_at": "2026-09-27T06:53:41.856Z",
+    "updated_at": "2026-09-27T06:53:41.948Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_afa4a9b5-e506-4beb-b070-a901d5429366",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01CrXPaakfruAB9jjLNUQSmy",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "a7c662dcb256d917d831bdf577c5a58c530fe87e3b8367783e0cb28bef0eea0d",
+    "safe_summary": {
+      "path": "quantity.mjs",
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "content": "[content bound by hash]",
+      "operation": "write",
+      "expectedRevision": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "result_unknown",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {},
+    "created_at": "2026-09-27T06:54:40.675Z",
+    "updated_at": "2026-09-27T06:54:40.749Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_a3a1f40b-068e-4d29-8eae-b7a1621424f6",
+    "owner_id": "m1er1-90d668f-owner",
+    "run_id": "action_run_c8c69881-74c1-4fba-98e0-2e373232981c",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01BGgWQSq8fqaSD2JUTCVBiV",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-90d668f-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-90d668f-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "8bed7bbc795555ccf87d3e19a073bac024ab0c340915c8cfdb9b30b60d8efa1c",
+    "safe_summary": {
+      "path": "quantity.mjs",
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "content": "[content bound by hash]",
+      "operation": "write",
+      "expectedRevision": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "result_unknown",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {},
+    "created_at": "2026-09-27T06:54:50.008Z",
+    "updated_at": "2026-09-27T06:54:50.083Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  }
+]

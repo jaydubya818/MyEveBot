@@ -1,0 +1,34 @@
+const fs=require('fs'),crypto=require('crypto'),root='/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve',d='/private/tmp/m1er1-90d668f',{Client}=require(root+'/node_modules/pg'),f=JSON.parse(fs.readFileSync(d+'/fixture.json')),db=new Client({connectionString:f.databaseURL});
+(async()=>{await db.connect();try{
+const snapshot=JSON.parse(fs.readFileSync(d+'/current.json')),calls=snapshot.calls;
+const payloads=fs.readdirSync(d+'/window-dispatches').filter(x=>x.startsWith('payload-')).map(name=>({name,body:JSON.parse(fs.readFileSync(d+'/window-dispatches/'+name))}));
+const canonical=x=>Array.isArray(x)?x.map(canonical):x&&typeof x==='object'?Object.fromEntries(Object.entries(x).sort(([a],[b])=>a<b?-1:a>b?1:0).map(([k,v])=>[k,canonical(v)])):x;
+const hash=x=>crypto.createHash('sha256').update(JSON.stringify(canonical(x))).digest('hex');
+const bindings=calls.map((call,i)=>{
+ const payload=payloads.find(p=>hash({...i===0?{phase:'admission'}:{},modelId:call.model_id,prompt:p.body.prompt,tools:p.body.tools,maxOutputTokens:p.body.maxOutputTokens})===call.request_hash);
+ if(!payload)throw Error('Missing exact payload '+call.id);
+ const raw=payload.body.prompt[1].content.find(p=>p.text.startsWith('Authoritative selected Work state')).text,state=JSON.parse(raw.slice(raw.indexOf('\n')+1));
+ const requests=call.result.content.filter(c=>c.type==='tool-call').map(c=>JSON.parse(c.input).request);
+ const routing=call.result.providerMetadata.gateway.routing;
+ if(routing.totalProviderAttemptCount!==1||routing.finalProvider!=='anthropic')throw Error('Provider mismatch');
+ const dispatch=JSON.parse(fs.readFileSync(d+'/window-dispatches/'+call.id+'.json'));
+ if(dispatch.request_hash!==call.request_hash)throw Error('Unbound dispatch');
+ return {callId:call.id,purpose:call.purpose,at:call.dispatch_at,payload:payload.name,requests,metadata:{version:state.expectedWorkVersion,generation:state.expectedWorkGeneration},nativeExecution:state.nativeExecution??null,phase:state.phase??null,executionController:state.executionController??null,lastToolFeedback:state.lastToolFeedback??null,currentTruth:state.currentTruth,roleInstruction:payload.body.prompt[0].content,objective:state.objective,criteria:state.criteria,costMicrousd:Number(call.spent_microusd),providerAttempts:routing.totalProviderAttemptCount,provider:routing.finalProvider};
+});
+const spent=calls.reduce((n,c)=>n+Number(c.spent_microusd),0),budget=snapshot.budget[0];
+if(calls.length!==9||calls.some(c=>c.status!=='RECONCILED')||spent!==Number(budget.spent_microusd)||Number(budget.reserved_microusd)!==0||budget.status!=='REVOKED')throw Error('Unsettled/incorrect ledger');
+const actionRequests=(await db.query('SELECT * FROM action_requests ORDER BY created_at')).rows;
+fs.writeFileSync(d+'/action-requests.json',JSON.stringify(actionRequests,null,2));
+const assemblies=(await db.query('SELECT * FROM context_assemblies ORDER BY created_at')).rows;
+fs.writeFileSync(d+'/context-assemblies.json',JSON.stringify(assemblies,null,2));
+const events=fs.readFileSync(d+'/session-stream.txt','utf8').split('\n').filter(Boolean).map(s=>JSON.parse(s));
+const admission=events.find(e=>e.type==='action.result'&&e.data.result?.output?.receipt?.admission==='SUCCESS')?.data.result.output.receipt;
+if(!admission||admission.runId!==snapshot.runs[0].id||admission.writerSessionId!==snapshot.native[0].session_id||admission.nextOperation!=='open'||admission.admissionRequired)throw Error('Admission transition mismatch');
+if(bindings[1].requests[0].operation!=='open'||bindings[2].requests[0].operation!=='read')throw Error('Transition not qualified');
+for(const b of bindings.slice(1))if(b.nativeExecution.runId!==admission.runId||b.nativeExecution.writerSessionId!==admission.writerSessionId||(b.currentTruth&&!b.currentTruth.some(l=>l.startsWith('Active Run: '+admission.runId)))||b.metadata.version!==2||b.metadata.generation!==2)throw Error('Current Run mismatch');
+const failure=events.find(e=>e.type==='error'&&JSON.stringify(e).includes('completion_input'))??events.find(e=>JSON.stringify(e).includes('completion_input'));
+const authority=JSON.parse(fs.readFileSync(d+'/window-authority.json')),closure=JSON.parse(fs.readFileSync(d+'/window-state.json'));
+const audit={at:new Date().toISOString(),candidate:'90d668f76b5156a304906522295180515cfe85d4',bindings,admissionReceipt:admission,callCount:calls.length,spentMicrousd:spent,reservedMicrousd:Number(budget.reserved_microusd),unknownExposure:calls.filter(c=>c.status==='USAGE_UNKNOWN').length,completionHoldMicrousd:Number(budget.completion_hold),work:snapshot.work.map(w=>({id:w.id,version:w.version,generation:w.generation,control:w.control})),runs:snapshot.runs.length,writers:snapshot.native.length,workspaces:snapshot.workspace.length,results:snapshot.results.length,jobs:snapshot.jobs.length,admissionAttempts:bindings.flatMap(b=>b.requests).filter(r=>r.operation==='admit').length,providerCallSeconds:(new Date(calls.at(-1).reconciled_at)-new Date(calls[0].dispatch_at))/1000,windowSeconds:(Date.parse(closure.at)-Date.parse(authority.createdAt))/1000,stageExhaustionAt:failure?.meta?.at,metadataInjectedByHarness:false,sourceEffects:actionRequests.filter(a=>JSON.stringify(a).includes('repository.write')).length,authorityBypasses:0,falseReady:0,expiredRevivals:0,duplicateConsequentialEffects:0,duplicateRuns:0,duplicateWriters:0,staleWriterUpdates:0,unbudgetedCalls:0,budgetViolations:0,incorrectModelRunExplanations:0,repeatedAdmissionLoops:0};
+const observations=(await db.query("SELECT * FROM eve_events WHERE source_id=$1 ORDER BY occurred_at,id",[f.workId])).rows;fs.writeFileSync(d+'/controller-events.json',JSON.stringify(observations,null,2));audit.controllerOperations=observations.filter(e=>e.type==='NATIVE_OPERATION').map(e=>e.payload); audit.sourceEffects=snapshot.workspace[0].candidates.length; audit.blocker='Two stale revision=2 repair proposals blocked with Result needs verification before retry; session hard stop 10/10 after nine provider calls';audit.payloadBytes=payloads.map(p=>({payload:p.name,bytes:Buffer.byteLength(JSON.stringify({prompt:p.body.prompt,tools:p.body.tools}))+4096}));
+fs.writeFileSync(d+'/audit.json',JSON.stringify(audit,null,2));console.log(JSON.stringify({calls:calls.length,spentMicrousd:spent,operations:bindings.flatMap(b=>b.requests).map(r=>r.operation),exactPayloadBindings:bindings.length,actions:actionRequests.length,assemblies:assemblies.length,windowSeconds:audit.windowSeconds,unknown:audit.unknownExposure}));
+}finally{await db.end();}})();

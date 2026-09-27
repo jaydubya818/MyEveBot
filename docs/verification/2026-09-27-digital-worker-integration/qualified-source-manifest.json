@@ -1,0 +1,3258 @@
+{
+  "m1": "90d668f76b5156a304906522295180515cfe85d4",
+  "m1DocumentationOnly": "78b6befb1139b8bf9b3b806f8bbef2fbb6408e90",
+  "gateC": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+  "sourceMismatches": 0,
+  "sources": [
+    {
+      "path": "apps/eve/agent/agent.ts",
+      "sha256": "4e225a249034b9f6963d4b55612ad438d1a00664b6a8ce40abe617edcb030e76",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/agentphone-voice.ts",
+      "sha256": "be9c374aca63cbba15ccd4ac9843d047353b19831d73ac43a4e13a6f180dab31",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/agentphone.ts",
+      "sha256": "e9a2c9c6ff5009f293dc7a87a7c22d614c4cc0a70f78f802ddb7bad9667da60d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/email.ts",
+      "sha256": "46048a032ae6426fc6b5c674a831258cb9203ebb3ec54a2d631bf4a1ac3cd5d9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/eve.ts",
+      "sha256": "d31c08d00a868100f8fa9abec77aa771f74db58afba9cce64a8ff23337bbb51f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/hooks.ts",
+      "sha256": "31d062331af7d3536a0cd4fb56cb09acab09ba465eb06e8a9f3c8c44127430c6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/imessage.ts",
+      "sha256": "e3a89e72e04f5255e4fbee62ce2809d484af970c6473bbd9b418a73a88df7bc5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/slack.ts",
+      "sha256": "702dddfd12d98e01b331086a827dbe88ed176bfee35cf51634144484f9f7c40a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/channels/telegram.ts",
+      "sha256": "57ccd28c3de624359f44ed2c22731aaa4c11b8dc7685a315814de06afccce2af",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/connections/agentcard.ts",
+      "sha256": "3e6b127e6549684b39a937386c2b7f478fe6438aad9b2b861a63f8e7c3f05524",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/connections/composio.ts",
+      "sha256": "113c4eb5b7777f86fd20fcecd2123361df57a628543b1d8c6afc5a24af796eb5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/connections/local-computer.ts",
+      "sha256": "fa8caef35297f210b3c59f53b36fea4e29507dab5b177f4e830f58cdf49883d5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/agent-runs.ts",
+      "sha256": "1d92c3d3f902d1b3a88bec3f3e70968b87fee9223312b773bcdbf15d856817c4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/computer-runtime.ts",
+      "sha256": "b78740d6088abc9782e33912c620e046225dc054a40c52bd9ee8327723b107a4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/execution-authority.ts",
+      "sha256": "5b0b2ec7a73178f30f62dd26484761155c72f99839909118a7bd1dfc50200f55",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/operations-telemetry.ts",
+      "sha256": "fd3e60df370e692d61b9b9f65d7251376e95e3a9b0b1d8ad6e177441b5c9d50c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/raindrop.ts",
+      "sha256": "45061ce938301b30054837eb6af8be0a653a452fa1935fdd1501999859b31045",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/skill-telemetry.ts",
+      "sha256": "23e927d631949436f1f6d7968453a36bc5e2bae37ef95563eaf6c2a88241628d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/task-ledger.ts",
+      "sha256": "f60c19d555f969af3100b69462aa2f776b817672edc05eaa937371751e6da786",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/agentcard.ts",
+      "sha256": "5ab7c282d45606350e16e4ddea305a0fbee403ab3389640c45a176ad951054ee",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/agentphone.ts",
+      "sha256": "cafedf58cd5140b47644cd502566b558f381d68e70feedd4a33ac0847a37088c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/artifacts.ts",
+      "sha256": "aa4997cb7934aa9ba67c5e60b6292980975f0ecf5b1f58a466bf98a97cd892d6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/capabilities.ts",
+      "sha256": "389aa428b102041dab31786ff7975bf65d4a8230a6d7c666013af5ac42d78846",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/channel.ts",
+      "sha256": "7302112d5042e149b7c7c04229968002e0d8a383d69491592da431453ed1e327",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/computer-runtime.ts",
+      "sha256": "8937a397fb6d0d4c28517a2c062e7088515d8dc591134727012fcb52404e2eda",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/computer.ts",
+      "sha256": "cfa8bec410665d8892f89922b9bd3e188d80dfdcf8201fcbd6b3eaa03e175de5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/custom-skills.ts",
+      "sha256": "1a46728fd9ba056e45a9f9201fbd36cd635253556ecc440bc8b76904ac4c8095",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/delegation.ts",
+      "sha256": "380cb45dfd3726a9396b804d9447c13107252d2d79a9604330ac573bb761af38",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/goals.ts",
+      "sha256": "8fec97f6ee0cd6c2391137eb154cf961827e094148a1c0cbfaeb7f64a75b640a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/installed-skills.ts",
+      "sha256": "8ab46408cda2f96292715ab405c005f043d74b4119d866cfeb9263bafdb851e9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/local-computer.ts",
+      "sha256": "de44df74c9ff5be268a9bb10564f1a681d484c0260ef49c388c1e305f2a37eba",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/on-demand-role.ts",
+      "sha256": "418ae0aaa9e53b7f7534f39f41d468740ac30305ba36b08109bb3b6389e1e432",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/outcomes.ts",
+      "sha256": "2e414924fb09332bff9f1949d0d58049fc96d1d732971378f41b055f42d2799f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/persistent-agent.ts",
+      "sha256": "c40f4fe4a7455980a2a6a42f9cd828d71a1b803a0a0c11139ffff9374648d2f9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instructions/time.ts",
+      "sha256": "5f797fdacb94e1ce313b4cf5d3527efba0cb1373c20c119fa0066452e51ad1d0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/action-context.ts",
+      "sha256": "dd7577ca07aa5f4b5cc25687676b312e9ec74f0c3cebae609e99e9b17add6812",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/agentmail.ts",
+      "sha256": "39b481b4c19446bdb5239c168b93865d1cc01d93787e07124b7a223c3dd90e64",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/agentphone-policy.ts",
+      "sha256": "4fa05840256fa220da47cad73a111bd22f35232e9387e19c0764452fdf67d556",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/agentphone-signature.ts",
+      "sha256": "cce69d33a297babf4e698ff2f9528acdea78007d143e6ff4fa30b2c42ef39e57",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/agentphone-voice-stream.ts",
+      "sha256": "704f489b346adb18f4c8931b17b1c64c986e7257ab6a2b776ff2c476ff7b1877",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/blob-share.ts",
+      "sha256": "2a27d0548749ee59dd8128335e134dff25806490c9a2f67bcb7bc9517b7f8572",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/blocked-channel.ts",
+      "sha256": "8507ec17edb93368c3eca31fb50c688f0b89d56e437dd4612668f104222066a5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/browser-action.ts",
+      "sha256": "0c90fcbb12ad75d7a4f0cfeb5066400d715604d2a20f7911bf2937a2c8fa6e41",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/claim-task-specialist-tool.ts",
+      "sha256": "684c5b7a3e5b9fa0f85c8e9f60f3be349c893e4c58d63d4398eba1b5efdc43f3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/computer-context.ts",
+      "sha256": "736796f1528114d974e025b64ac3c7ec967ca9f23dfa73c8fa38f43f1c8cca23",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/computer-use-loop.ts",
+      "sha256": "249ca184d7d6422bafdb14120a140854a0c91252ab9afd86a4a3bb7c2f6fcafd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/context-assembly.ts",
+      "sha256": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/create-skill-telemetry-hook.ts",
+      "sha256": "6aead72f5d310044af5f7515b0968f598bc02cdbaadff28b87bd5794f2e7ead5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/delivery.ts",
+      "sha256": "cca6dc992591a4db6ef61c33fdd1b12ebe85f55a624ad1b2b255a78e8557b370",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentcard-connect.ts",
+      "sha256": "737f59e9e7b79adf7eb611449c6a93e9f320b15e592a4d1d41f9d9d72c5e1c30",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentcard.testing.ts",
+      "sha256": "2c85e891a1e29c541759b12446afe725e06b8edeb8fd1b92c4436babe61adf03",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentcard.ts",
+      "sha256": "c924709376c6927df7ce51d01accd6705910c3475d178dc4bd69ac6aab61899e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/agentphone.ts",
+      "sha256": "dba248d61874ec781b3043a33f0421e3cf1ce51bef5a99b954d19daeb2ec630c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/anonymous-eve-rate-limit.ts",
+      "sha256": "45bd1cd041605c7750dbcf73c0e00ef40d3a2081e144e03b13ba4dfa8c0ae78a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/artifacts.ts",
+      "sha256": "be4191161294161d41e0cc321ed2e9c2e4152c20939a5d58924e340441d463d9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/chat-files.ts",
+      "sha256": "0caf7338e9d83749daf68ce1032c69a1109a94a4b309864be25fe6f81a023dee",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/db.ts",
+      "sha256": "c847d3218a1f40e4fad1f2253d59b71bbe760066a5e462fd949296723158dc99",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/imessage.ts",
+      "sha256": "7c6119b4083a36daa28f6bdc372737355b5a4dff9d53bb88767541f441b1ae9a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/local-computer.ts",
+      "sha256": "8591b501f6581eda14bbf523075db7621e097698f6c7b5e5193410d02b64a9e7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/receipts.ts",
+      "sha256": "ac3128f22ffa36b97431a39c258d7128e68cff4ffe661dd8a15807e05e7b3bf4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/remotion.ts",
+      "sha256": "fda92269d4c28cf8f0c0c7ee9183f63d3eeee0a525a3da4ef8266816cc89a37e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/runtime.ts",
+      "sha256": "f5ef93e4bf4b95f720e9cc7a97e0cdc02375ab76cced0aa30a26a5bd190bbb32",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/tool-schema.ts",
+      "sha256": "3dc371314ab898aaf173f3a7bfac64ff6507795a57b8d28f700b0fe69abdde93",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/effect/voice.ts",
+      "sha256": "d8414fb34c4cc25917dcee141b8b48d83fa185d0f5dac4e5c44096748a466604",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/email-db.ts",
+      "sha256": "bbf294f44ba084a0c2d881d6094dcda26c87f0dd8afcb1be959ca45888f25148",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/email-domain.ts",
+      "sha256": "622bb8820c44b686a8c26a3169e0584795e9db61f7597e3800c74b55976d9cbc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/email-inbound.ts",
+      "sha256": "7e2157a2eb61c2a7bc15071eedf61ebb37b230fce1848912d902a9376138da34",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/email-send-adapter.ts",
+      "sha256": "84e80af90a262d09dd8cc94c64486b08cd94cfcbbc4f0533c91de884f013f227",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/gateway-models.ts",
+      "sha256": "3fba530f81b54f1e2b281803c5f0e4869bd716d763407b7a76c5c7ec07b699da",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/imessage-session.ts",
+      "sha256": "fae24ea8352369d4d91273952fcb58d86696bffa07961ef31cf439143bbf388a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/imessage-signature.ts",
+      "sha256": "d2d3edbca4ce05111d604b2cbed368660215a4460a7a51856cac6f699871c931",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/knowledge-context.ts",
+      "sha256": "c47ce9273a031b1862183fa26577cde2846255f5b12447f633a59521912ca5e9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/local-computer-url.ts",
+      "sha256": "69a0da91db7dc214556426523b81e414d14ae681848bf1dded7368586c8d32fa",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/memory-store.ts",
+      "sha256": "0c131f4069019d6d770c7624773164400e8e5d80ebc853d211b51855cd6957b2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/memory-tool-context.ts",
+      "sha256": "d413c72c175337d9200aa4222108f913a9bb58d3552059ddf9553e2880b1c9f2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/neon.ts",
+      "sha256": "c0ee54654e0d101a0eb652d40a32c0f4b440493f6d8505bcbf27448484325669",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/orgo.ts",
+      "sha256": "c32467adac423034b0c8aa4de16d8cb023c8a4ca6cc2a36e3a39688b76582032",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/owner-gate.ts",
+      "sha256": "bd1d31a089f7545e39e51fe253eafc16dffbf09d0a8936e2e8d59540e3c95b90",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/owner.ts",
+      "sha256": "9a8a84812c479967860839fbbeea64d56324e8e7d672edb45defc171f681e6bb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/qa-browser-tool.ts",
+      "sha256": "08668f4cc0a50c5a7feb1cc230b4cf2004a23911bf33fb2124e2bf018674d026",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/qa-sandbox.ts",
+      "sha256": "a7ecaf34ea287a8abcaeb02d33de9bfa4225b3d40f77df45b92f7ed9e3480076",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/receipts-db.ts",
+      "sha256": "1170582127a23fd9b59ed7ce9b5878e5391f74a9cf9f20b0b72f05e6ec1c3a42",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/reminders-db.ts",
+      "sha256": "44007513dc78ff4e02470898b8d941e522c9bd79de39c27fbb74fe8b7591dacb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/routine-runner.ts",
+      "sha256": "df4fd3088a71dea320c104fb1d3ea90058037df84dbcbf7a6a26f75722431d7e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/run-assigned-qa-suite-tool.ts",
+      "sha256": "18a0dd1708eaec10427afc202c860e35a94a09a3c5783b5cb2d3574b8cd6532c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/runs-db.ts",
+      "sha256": "18d3bddadc00f3c68f2a833703c232a2518506be5f39fa343ec33bba54201e77",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/session-settings.ts",
+      "sha256": "dc57bf4d99b9af8a142cb6077a010861e0ba2aa462f83815c3f374f006ccf5c1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/settings-db.ts",
+      "sha256": "7f71faf0c56c0cb46f161de17a0ce7a7f0c6510d6531c7cfe2f737fcc586e988",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/skill-manager.ts",
+      "sha256": "8cc1747c0a9ad9460ce2679639d3fc596ce5a1bec4aeee75bfc919ba7630e8f0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/skill-store.ts",
+      "sha256": "15bfb3ad771a9a1d0c78b681e8394c329f676613494b953e0e9f86d295677369",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/slack-events.ts",
+      "sha256": "2eed4db55dfd7ec00a3c1edd23f2108c626732af2e167608bb15f8837959011c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/slack-reactions.ts",
+      "sha256": "06ffad01edbbdd8e88695f6c4bf085b3667c99cb9cb5ed5ad0dd4bab5e8ee117",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/slack.ts",
+      "sha256": "f374947a7aa7f7e28f3a3a6c0974f8023b47376c39b72a42635cb8cb70ca1b68",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/swr-cache.ts",
+      "sha256": "4ce2be17ce22c2f9b62935d48305a4a3585f84dc9e19586e185622d121e5fd32",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/telemetry-privacy.ts",
+      "sha256": "392cccf78ddba16dea90890d173f62790b741e464f17b4823a416aaa0d1cd05a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/unqualified-executor.ts",
+      "sha256": "a4ff2a11d8346a7a70953865dd408a23c8f48ad8e3cd4124e7bd5d313814596f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/web-client-context.ts",
+      "sha256": "14dc0fd3c13765cadd258b102e69484a1fa6bc11dea1336eb696198b7656a566",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/web-thread-delivery.ts",
+      "sha256": "5fcb79e4c895cffb5402cb2369a4ec29ea78a4cc65c5d64c8bd9800e1ed55c9b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/webhook-signature.ts",
+      "sha256": "a95285f3db8ee63cc6802439d6432ef711344fadff44575e9a9c96f155d9eae5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/webhooks-db.ts",
+      "sha256": "9707a1448967a86f3b0f99433de28b0090896e13f561c040c02e951527b579cf",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/with-timeout.ts",
+      "sha256": "500c67ca469b9b2dc8fc44ac6bf92fea617f13c59cf731b1b9467f4b185fc3dc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/sandbox.ts",
+      "sha256": "b50d268aed9904e3960bde4a4c2d7d0d1e53db9d47bbbb1cf8aef96226b4305a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/schedules/email.ts",
+      "sha256": "5cfc2e08145446c69f8b3f2ea9a852241633fd9fa17fdc65cd0c50141ac557f9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/schedules/memory-consolidation.ts",
+      "sha256": "dce3b0aca2d1083de4fe04488cf3b7cceb5f8275481ec401370f63b3c6eb069d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/schedules/operations-monitor.ts",
+      "sha256": "7e6d195b2adc97daa7a3a47cf77a65c0f5d47a4ba05f7131d2db2c5d5aa93aa9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/schedules/reminders.ts",
+      "sha256": "b9a222433592a94b0d2105d7c47c78e6b0d22a1cce047838c379ca439c94f837",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/schedules/review-delivery.ts",
+      "sha256": "0dd45793550de5d2f20b5d249f0d8d6c114c8a03964bf37b3385a8858bc0a0a9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/bootstrap.ts",
+      "sha256": "36215bd8092e12a9d9bc1619878f94df241472b4c18a28bc19ea3b04a07b8634",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/orch/frontier.ts",
+      "sha256": "4bd3439db42afb6ddcff33217419c5e769a795e17ea7d5b5a578d00331cf76b3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/orch/orch.ts",
+      "sha256": "f091687df627a0b75fabd54af58945a9cd6c7039ef0622012ac9ed60cd8ec434",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/orch/status.ts",
+      "sha256": "d38f6d80b3af9870e30266ee7f04d690107e69e7a6fbfb4eeb2b71917c5695ea",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/orch/store.ts",
+      "sha256": "ae80a992cc3b29f6a4de92097ea1c8171059451ab12c3d94d92edfacea19fbc9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/orch/types.ts",
+      "sha256": "d5d357cad1093fa5996a7abe56e8fc2fa057eb03a51644e2d4e00d31a6e6001a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/cli.ts",
+      "sha256": "b114d0edb946ae8fe411647554e80796ebeaca087ec605e721ad2ac7aa291ab4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/deadline.ts",
+      "sha256": "3cba55d57bb3adc5cabb291d13884d3247170d581fe32ffe69aec12562d97e10",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/fakes.test-helper.ts",
+      "sha256": "0fb213dc940d05791de47beeb6cb406b862cf4ca1c785e96f4a8c79a8964bb28",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/github.ts",
+      "sha256": "61c60ff7dc9c8016f4669e2087f53c335788aed3263e225f6efe8063dce3b79d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/policy.ts",
+      "sha256": "d7bd7bbe0c08e3e6302dbbcfbb7a8390051d339cc865b46ec6b75797d1c6ed17",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/render.ts",
+      "sha256": "2b709e86628d5b8fdb61f860e60ababc342b0626c67576305442cf548283a604",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/types.compile.ts",
+      "sha256": "eaa0ee2bac338119c6eb08bf7b55a57adf5658e3460e9827ae1ecfbbd7e0542c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/skills/poteto-mode/scripts/watch-pr/types.ts",
+      "sha256": "d310f97aa36e217eb428c23613da10f5442cec27209a5a135377c010f0b44801",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/agent.ts",
+      "sha256": "c3caf8ccf0f8e846bd51408aed16d4e7c627abada31f90b505ffa187a52ca33a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/hooks/skill-telemetry.ts",
+      "sha256": "f3102d2452e744b6953e74a98caccbca501ec4fcf3ee32a037a0d5662cc8442d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/hooks/task-ledger.ts",
+      "sha256": "46a9cdaf94cc2c3361c10f9bfecc89f344e5f8ee9a8b74ed0e2042034cd226d0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/sandbox.ts",
+      "sha256": "268902fbd76737610ed9fe87ed9b33905942f9e1f22242131ad3d710d115ca9b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/skills/assigned.ts",
+      "sha256": "59ed01e0568b43be90b13fa3b3f2d5c73ea54e5c992bf98ba888eb5578c0bb3f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/bash.ts",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_click.ts",
+      "sha256": "265b75a1e8dd1ea7dbb5feb9a0695beedece9b19235badc48ad523522a49ad76",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_navigate.ts",
+      "sha256": "f4afb2adc3d6e8bea39c1f1fa05a88d2c558dc8d4ea0a30b3a99b2a3a3628f2d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_press_key.ts",
+      "sha256": "2a1a4f428773ebec8026b02ece38b329c335d17567b0d34ed702e0697091fbb1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_read.ts",
+      "sha256": "f764e1f0584396283aff3842bbd864ff1be5ab1c2acb9800bd4a92debec4bb36",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_screenshot.ts",
+      "sha256": "ac0b8d82b1a37f150ccf422839ab3b501be3c420d527d3953dc7efa1fd098cd4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_snapshot.ts",
+      "sha256": "1a56dfc86f31ea6030f26284d7ede3ce58d17d9663463640d323803ca1c4c8dd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/browser_wait.ts",
+      "sha256": "6c401bd5bafce29721adda40d800fb6650f78ae4f923301fc97f49ea751a9388",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/claim_task_specialist.ts",
+      "sha256": "b21f47be744fe2e55aa6526511c832813e9658f6473e1541574b268af0d460a2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/record_task_evidence.ts",
+      "sha256": "4272b105644a8db4f66f638f70a68cf5766f82488b5027ee345cbb16d999f72f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/run_assigned_suite.ts",
+      "sha256": "75420c7c3633864c3ead5719a5c66acf5a195da67eb572df651d47ab52b30b19",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/functional-state/tools/write_file.ts",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/agent.ts",
+      "sha256": "86687d9a4f65c713257605587d3dd7b498d3e520e25b2bfda3b5669aa8a25aa9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/hooks/skill-telemetry.ts",
+      "sha256": "ece203619cff31d1506f988accbf3e3c87b3dc7119d9d12d1ede5f69ccd338bb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/hooks/task-ledger.ts",
+      "sha256": "46a9cdaf94cc2c3361c10f9bfecc89f344e5f8ee9a8b74ed0e2042034cd226d0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/sandbox.ts",
+      "sha256": "268902fbd76737610ed9fe87ed9b33905942f9e1f22242131ad3d710d115ca9b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/skills/assigned.ts",
+      "sha256": "8be361d2006cb942f4df2a27d364a02b3ca58fb5d332fe81cbadd5be17987611",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/bash.ts",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_click.ts",
+      "sha256": "f21c3fbdf6425c5ba15e30a7ff7a775fc5d3979587cc9386f6880820096c3541",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_navigate.ts",
+      "sha256": "572b4a097f10956023e0b9b0c94ef2bb689574a15ee6c228a47c6218756eb29e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_press_key.ts",
+      "sha256": "c12a05f04adb37bf2609092af76e55735756dc8ed29d51b3429189a7be223782",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_read.ts",
+      "sha256": "940033b5b9aa36ab4c86fa891867d1daee912ce60f7320e3b6b6b18bc3a341bf",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_screenshot.ts",
+      "sha256": "c9eb6cd7ad1bea3b4e5c0676be28552d6ea497730e0bd31dbdbc5bb9de2dcf7b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_snapshot.ts",
+      "sha256": "9a2dbffd239e7bb633bfb74c8211e8ceae6d4a80db850d87666b78c748abb530",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/browser_wait.ts",
+      "sha256": "932d1a7083066103e87c20462da75b487f87187ce3513da090fb24b57333d59e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/claim_task_specialist.ts",
+      "sha256": "2d97c3ee0985b055f949c16b8a1420811d02916115eb3652a844c6bd1dae19eb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/probe_preview_auth.ts",
+      "sha256": "537fa2e5e5b61a79f8f602da16bacef9aeedb85e9b95ddfd88b87751437066cb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/record_task_evidence.ts",
+      "sha256": "4272b105644a8db4f66f638f70a68cf5766f82488b5027ee345cbb16d999f72f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/run_assigned_suite.ts",
+      "sha256": "1fde2efec4bf16b4f3c278ca5c3e104bb85d6237e00e5a3dc5a2fdcbc3467ac8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/trust-resilience/tools/write_file.ts",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/agent.ts",
+      "sha256": "6a8011fa672379dbf34d35faa996850108b2579df705f903dea5cc417c67f01b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/hooks/skill-telemetry.ts",
+      "sha256": "e6967f13097500ad376e1fa2f42403260194f22b2ea90ff2f98f2426e86e9f46",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/hooks/task-ledger.ts",
+      "sha256": "46a9cdaf94cc2c3361c10f9bfecc89f344e5f8ee9a8b74ed0e2042034cd226d0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/sandbox.ts",
+      "sha256": "268902fbd76737610ed9fe87ed9b33905942f9e1f22242131ad3d710d115ca9b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/skills/assigned.ts",
+      "sha256": "16bce33905d918ef051b5cdec6f8517849701c3f274616ca42a9aaa47a842852",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/bash.ts",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_click.ts",
+      "sha256": "737fc504575203b071b63b79dd13cda93330a67a093f0b5fed0434b47222dc1f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_navigate.ts",
+      "sha256": "e28961477e28481a695a5941a0796edc6df37d6693c79f666a975446af530800",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_press_key.ts",
+      "sha256": "ed61f17b632ea1aafc71057b1a680b947f8ee9407a4967f7fae5562b98536ab2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_read.ts",
+      "sha256": "52a88edbd5924007c1810670b5fe31edf07c0187c6a2fba9d169a6bedb2f7517",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_screenshot.ts",
+      "sha256": "1c7ae3f9d9546e41f3e62c7618354540b320333c3fa636fbf8d6689310c085f1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_snapshot.ts",
+      "sha256": "605f137a3c45982cb8d382e083cfeef4bb0cf29e8e7ecfc4905d384513d86a9e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/browser_wait.ts",
+      "sha256": "fee163ab031392e77214ae0e4a334edfe37399788f3b37074576861386ac502a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/claim_task_specialist.ts",
+      "sha256": "05816962d153aa695239ce420ef2c9777340c61d3be93ea79d82bbc0fc0b2b4c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/record_task_evidence.ts",
+      "sha256": "4272b105644a8db4f66f638f70a68cf5766f82488b5027ee345cbb16d999f72f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/run_assigned_suite.ts",
+      "sha256": "51a301d306f06f81a306db713a2f75931c96b164231121dd446e6e31de42bb63",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/subagents/ux-accessibility/tools/write_file.ts",
+      "sha256": "a33418de3193bc43a0a1994628f4372ffbbb57675c44735a72e9879c33b98fe1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/agentphone.ts",
+      "sha256": "25eb64335207a1e4877f0e683fe42fc56dfcf1fad50c42153f82b562af2f2485",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/artifacts.ts",
+      "sha256": "4f5418679a077f436a46c11a8d31ec4657371ac2a9a4a488638864585f767673",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/assign_skill.ts",
+      "sha256": "7d63d8536bf1b955f0d722658d6b3540efffe2cb802f282933c41ea10059efa7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/attach_own_card.ts",
+      "sha256": "4d31ef1367995bb5366973a2f966c11fb892641f7cf295b4579168ac23c4aea5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/bash.ts",
+      "sha256": "b8de381280849ba884c2ecdf1075e4cd7981fbeb29cee4f7cf6b8d6e26ea4891",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/cancel_reminder.ts",
+      "sha256": "b89c20d90ac6dc003c1c13a2410405d06392724d8eae63961ea83e8741dffe50",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/check_card_attachment.ts",
+      "sha256": "6729dc1683a1d2e74ebd55fd97cb1d4b3396f90c03de86d7cbef3b83867d7605",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/check_email_domain.ts",
+      "sha256": "f8616328779ce222f517fb23bbe9583d9fa15d1fb3eb82a28445d12ab8f7f5ab",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/complete_task.ts",
+      "sha256": "0d2850508dcf59fee097a90b979992b35f7fd7f7038d1b5b1ede40ac97839e86",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/complete_work.ts",
+      "sha256": "86c18de39e3ff9a9ba2316e943748e2467567b59fdc9801e9114e8a9b4e8eaa8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/computer.ts",
+      "sha256": "4824569c45e995a794cee8a370fcd62b386430b6916f2288d2fd80d13347780a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/connect_card.ts",
+      "sha256": "f2c3d005eac045cf584f9a4b2f2fce626cb405fc1391b4c19980ede78ff65295",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/connect_email_domain.ts",
+      "sha256": "faa706e6936e63523c8fba1bc20a53d24e85d1813ed1d4d71200d303901df7f0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/create_goal.ts",
+      "sha256": "b8095d3b50e23c77bac019ec6a13e7cb76bd653735f318cdde64e8815907d2bd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/create_reminder.ts",
+      "sha256": "cd079a359464a36705c4b83eb3e786c9ade3b576f670850dc52f49a962de2520",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/create_skill.ts",
+      "sha256": "d8cef7b3cf1116fbef650460dba366eb8cb9f99e6be84b6ea37f4e13310e7002",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/create_webhook.ts",
+      "sha256": "e85503efa3cc021980aeee3204b2d5d91e7579fd9da401c8614ff7e6d8ca1a8b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/delete_outcome.ts",
+      "sha256": "ebcf122e9d5eb96e7a9d6a9599ffc8bcb4dc36b11288f93602f238805903beac",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/delete_receipt.ts",
+      "sha256": "e8b2ca32f2250f5f6e3ef050fc7c9e33d320d0ce33c58f1c0fb0b5a15f04fd17",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/delete_skill.ts",
+      "sha256": "f2778711ed56015ebe13229a1120671197304d2e96373f41c3fa3e2a3b39b92d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/delete_webhook.ts",
+      "sha256": "601c22b191dd4337a91f5420e1cf1f9d34757412e173ce547b1b0582410aa915",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/discover_capabilities.ts",
+      "sha256": "8fe9cfda690b80622339cb44eac0ae67d7f11e652adf5f92b3b1ef518a797a7b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/email_address.ts",
+      "sha256": "a7af2b6a5f1983f286231652b3c7ec64b8b393d96d3753221d62c87545004182",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/forget.ts",
+      "sha256": "cabf148c75a80135bfc37f210b9631d49385bd78aaf32d874d4a4785d47e260f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/fund_agentcard_wallet.ts",
+      "sha256": "800add8430cf5005e044aa1969dfa592cd005402a3da614aeb78ec6d5ccbf8a5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_agent.ts",
+      "sha256": "1666c5291edc82755c2387a410b1bce6dc8f40df108858aa6ab8f3d0d0b9ea83",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_computer_session.ts",
+      "sha256": "ca34c3b197b0895a1de738ac68626e98d934debe980f6ece2620fe261400af90",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_goal.ts",
+      "sha256": "d6415ee9d1f65d77ea97e4e179182cd82544110240f6be49af28a3eeb65fe036",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_review_schedule.ts",
+      "sha256": "c8dbf23c53b1330ec8c0705ba4ab9905fb46d233b2ee1e47763240369a73eab5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_routine_readiness.ts",
+      "sha256": "a6a04cc992c5e580e210824840873d5dea7038419fe31195782f2ec1e57c50fb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_weather.ts",
+      "sha256": "aeedd23a652b17052ee505d88ddde917ca4a3e4bd9fcf46f2cc1168575d3a8c7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/goal_focus.ts",
+      "sha256": "fdd8fed09886a1907191d57ea844faebd2cbbb81b2e8dd7c4f52704bd43c5104",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/imessage.ts",
+      "sha256": "9707c6c0c0f9f2f4249e9c3ae79e6861ebd107f320c8a17559bd62525610cc7c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/inspect_owner_knowledge.ts",
+      "sha256": "2ec8e76e123aafeaf7f272c3a8e83d40e89a4616d7b53590d928dd5837ac9994",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/inspect_skills.ts",
+      "sha256": "a5d89388a43f683e15f0224addddf5393905ecef814616c8d0fbe2fe5afcaa75",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/inspect_tasks.ts",
+      "sha256": "89ab79d80529adf38618c09adbff46c5c89ff3517dded6b069f78bb060e526a5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/label_email.ts",
+      "sha256": "722fb4b4f6bb9cda2f2ee4155491d35c145b237105d0157c289f54ba760aae3a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_agents.ts",
+      "sha256": "816c588d9914829521b4081b87a96581c0eec1fbcb296f0372f302969d5a9a0c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_commitments.ts",
+      "sha256": "482ba59d5df66c72aa037bcd027c8444c71f31632170fd45b6bee460d2199425",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_decisions.ts",
+      "sha256": "ed099525c7df09d3558c7074d3068aa18e338a411c36e2ccb34940e7874604c6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_emails.ts",
+      "sha256": "60634a306a5e3e8c8472ec38b68958925e7bc57ceaa16e38cd2101c9cc53e6ab",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_goals.ts",
+      "sha256": "a3e36cc87b5eaa7449a5d491c3419c0b26c3459d845df6a25edb2c4d3431914f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_memories.ts",
+      "sha256": "56df5955dcc7913bf141879a54f2b491e02b0843964e291342b9a1df9da27c07",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_outcomes.ts",
+      "sha256": "3182adaf73e80921b21a3942598b606a9e5ec6858d8ca7b6a0731caefc570561",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_reminders.ts",
+      "sha256": "ec5960425267f5447e6a46cb9d853fba111da83fa709b69cb754fd4034ebda54",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_roles.ts",
+      "sha256": "b188ea2deaaadd99b1951d40109df8d45ce1f8881880d76192a3a947d00541ff",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_routines.ts",
+      "sha256": "bad1ac2c11b7e145b7de8f3eb98f745a9cd0ec06cdac3426e2fba7ff30b6ef2e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_solution_packs.ts",
+      "sha256": "be990478728f001d7c18ba7fd2efb050cc1d228194c3b59120af32a2f61fa1e6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/list_webhooks.ts",
+      "sha256": "54ab6f374d1dbe8469a4a3d71e8485fdfd58daf1714fcb5a6cb2ed592153b4e5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/local_computer_task.ts",
+      "sha256": "7d848db0eb7c6740e1e6a4642379efb57d7b7818bdd756228cd8170cebda0935",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/log_receipt.ts",
+      "sha256": "e93f19d7731a1e7fc98c2288ec2ff1360e8efc495ec21a91ea99e0d7f2f0d5d8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/make_routine.ts",
+      "sha256": "b84ce860835e37677c35d68f89ad2b541387926e3e22a803fdb1f532080f8ae2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/manage_agent.ts",
+      "sha256": "f0a812a316bff5388b3c6fca1eb748bef4008f49a3bfebe23c8c97d4d26d8e50",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/manage_computer_session.ts",
+      "sha256": "fb318ad6a8d2bae62a0c055e112ca4fdae6be001612de406935c279ceefdf529",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/manage_goal_structure.ts",
+      "sha256": "11bc8eccbd3e9d7d95b442da62695779f8afc40779949d654a92c0fe068cfc54",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/manage_goal_task.ts",
+      "sha256": "764a77f40302e3ac3266fec1a5aa78b9547c49593cdf3722d193ec4b11e39e85",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/manage_routine.ts",
+      "sha256": "17dfa81a14ddfa90f4dbce6fa4dc1eee6567c576afe8edccd7120b2f93151001",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/persistent-agent-policy.ts",
+      "sha256": "1c9b2b41625eac7c41a5f640876ce8e693874da73d4055d8d4c7d55a856d20c6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/query_receipts.ts",
+      "sha256": "319ce7f0b647e76c37174313ca1fc50b09043dfc54b6566566efb247f081def2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/read_email.ts",
+      "sha256": "09d727a46c95d434df360a0c5031cdc13957cab8b5ef2268a6867ef064ec6d3a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/read_file.ts",
+      "sha256": "09c40f6d391f07bf67dc580f7b80b64676ccb167487909941701c7940904e04f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_agentcard_consent.ts",
+      "sha256": "db6db67ee47d812ce17cad11d95483cc5605572098e7952f17b292c3a6d725e7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_commitment.ts",
+      "sha256": "643812b85f120848bd30cdeb10e8cfdcf9579f8927cce4847969f4bfabe1d2d6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_computer_artifact.ts",
+      "sha256": "1db0d223030fddf0895f5fa203d37e6a100ad00936f8c5cf74be5ae9f9f92375",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_decision.ts",
+      "sha256": "b15ee182753bafa4266e810518c6ccf20f8b5aeca6690e42da72b6cc0e98bb1a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_fact.ts",
+      "sha256": "70ef363307b0b689986f6088bdb91e6f80c659d11104688eba30fdba35f721c7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_observation.ts",
+      "sha256": "34ca43679c120610de439658a65066a12ff91888d3ae70937d6b7904f4219974",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_outcome.ts",
+      "sha256": "a9f3ffca52dde89e39e8196db5ec4a949d6fe2c5cbc791e2888ae8d5ce114eac",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_task_evidence.ts",
+      "sha256": "cdb26dd1590819815b782e345b1ed3d0306fc84cc9f8b73c9bccf8b68e327a9a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/recover_computer_session.ts",
+      "sha256": "4f180cdf06266d00349c97f279d9c393e56cbe9fea923e98a6481366a83d99ab",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/remember.ts",
+      "sha256": "60304791ee82fe04cc3de632a942d5d8e757c5d136fee6bd426a905c446394ad",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/remove_email_domain.ts",
+      "sha256": "43da4b18e7193081f19b90ebc2cffacfbb3efada778f7c2575745fe2dd277389",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/render_video.ts",
+      "sha256": "b338be54b2067a3cbe47866efcc421f579fa8ae4512fedf8a7bc5d1c744e0b6c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/reply_to_email.ts",
+      "sha256": "fb2cff8db37b13246c34344e6bca2c4ac76d8da38d45be06276b6b17c8db9d48",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/review_progress.ts",
+      "sha256": "abf84bc932a7fcf18aad49bb44c5468068ded62e015986f8d2361f33230020fd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/roll_dice.ts",
+      "sha256": "508c9e71a22cd98ea3960ad0bc1223dab6c84a000b8d091273db8b8d517bcd34",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/run_skill_evals.ts",
+      "sha256": "6bbec7c8ecf0218dff7baf772cd2bca130c90b9b23595516c24a88057567c99b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/search_emails.ts",
+      "sha256": "f3e4d2b2de496eefeb9e0b1425b03295b54ea0fe8175b8b2cb2d5843a8ca5248",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/search_knowledge.ts",
+      "sha256": "1d8d452d16cc02b7510fe0dd12a3e538436b8a328a5b20d78dc77ed36e877f82",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/search_memory.ts",
+      "sha256": "3b7c99f1b11e992368e4da6bfc4651df53aba33c35c7b954b4005bd7cf477a94",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/search_owner_knowledge.ts",
+      "sha256": "84a0c78e9a810e13bd419bf99651d669e802d8a86deba9c71923e5d80d435210",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/send_attachment.ts",
+      "sha256": "ff7be731c86f303f1da223e0d7f41abfdb7eea123c8e9fa9c2f85b7c5a35e799",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/send_email.ts",
+      "sha256": "1bda8990ce066ec915b1a7f174d8fd9cc7390cbf13949187b64b8e40b4bca6d4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/share_file.ts",
+      "sha256": "4a1d24c74a75e7da8196d76781303d1f7f952d17936cb4a04bc329c64d78ab19",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/spending_summary.ts",
+      "sha256": "28c6d3b7a4a07df5c5dc65a6dbfedd8dc0f0f6d8bc64cc87c1180277bcfb1d67",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/start_agentcard_phone_verification.ts",
+      "sha256": "a98dad538728bfc0c8dbe914eb116a38aba367edaf04fd9cf8e9a95ebb69e631",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/start_computer_session.ts",
+      "sha256": "4a15f84db2cca58d75a4e3e341e0133679b07f6dc90097c6d2141c7f02642231",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/start_product_qa.ts",
+      "sha256": "cf185c5d1219394dd93b286ec52d3b8527f25b335b5acabdbc0bf7827a3ca4ec",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/start_task.ts",
+      "sha256": "ac768b550cda7e51c95c5b3e3216959fa63d20defb960e1ba0b83842b0d4265a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/stop_computer_session.ts",
+      "sha256": "c1f5ac9850594a0134a8c8a75b3304bc2ea5c1e6efcd62c862d7dc5d23ba579c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/unassign_skill.ts",
+      "sha256": "2007785775f5466d7ec5bbf62933c735e3767c814b0afb1194bb233485c86efa",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/update_goal.ts",
+      "sha256": "f7a6f987501660e28739e652757ad2224f4caf315e61809b1599f88cf1c2b510",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/update_outcome_feedback.ts",
+      "sha256": "f6820d2c31fa25a0093e9681cabe66d56b2266d22734e9ce56fb1770742241a7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/update_review_schedule.ts",
+      "sha256": "0abc3cb626fbd569716a697da61208f0151338fa93b060eb5f1ba908c16e4f45",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/update_task.ts",
+      "sha256": "096c65231ea65d041c06485a1b1fd3b941364f5a1c72828d02b4407e1e773c4e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/verify_agentcard_phone.ts",
+      "sha256": "238cf2de03bf9c8a124bef1588877309622d16d045698182008f7368c91763b1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/verify_card_code.ts",
+      "sha256": "7df6152ffb34c3d677e2ec3a4654f0310101a33bd474438150d91cb47bf60bd8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/workflow.ts",
+      "sha256": "4dc227ac5e8508067ddf8b93aaf3bd70279cd0bd7b4cc8204910bd3a73257eda",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/write_file.ts",
+      "sha256": "45b45ca508306b7099d4b556583d05099a791c64e516ca0eb91653741d43cfac",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/actions/[id]/recover/route.ts",
+      "sha256": "bdf330e244dd94f2ca5f9a3d7e2944b26d4f76be605d0f1ce13181a4d71c9e3b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/actions/[id]/resolve/route.ts",
+      "sha256": "5f8b82d28c0acbd6a9552f2db2f8c04050a4d483ea33f6c9743595aedc08bfa3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/actions/route.ts",
+      "sha256": "9f4f95f3bb4942c49aeffee15879ae201b3c8f5e27743d95c8f491a57a84b4f2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agentcard/connect/start/route.ts",
+      "sha256": "62e8bae55ee4dcd346506ada7ac3dcba10b179ccb2ee16062ebd496f712995d7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agentcard/connect/verify/route.ts",
+      "sha256": "f8c4d4e226ff2215b23fbde2f306c55449bd035183fea61443b7b9318447577b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agentcard/route.ts",
+      "sha256": "bf8cc34ffad8d4380fe0fd71050d7c5978b40d1faa7429962e107c9215b74dd7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agents/[id]/[action]/route.ts",
+      "sha256": "3cf56afc54aa0834ea453f7a11bef61b30c43a0d23096e876358f3456057cbc2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agents/[id]/route.ts",
+      "sha256": "c23ef2a67d3c30a0586aceacc79518c121da360cc9e3bca3fe633470a9057ec9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agents/activity/route.ts",
+      "sha256": "4e9ef10dc6bd3de916880b79a7de9507b0c0eb5de9d2a79809ebb8e6810ab877",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/agents/route.ts",
+      "sha256": "e75b15805aed9c0501b53dbe72e9633ba1cb01911680b638b70c7a512b1ab9c6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/approvals/[id]/route.ts",
+      "sha256": "cac558e6a4cb4b230e6adabace8d40f01dc2409b8f305dd63ef2cfc6e1e972f3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/approvals/route.ts",
+      "sha256": "0c772adf2ea9a4fdd5706eabfce9d9036523061a79611fbc575af3b009b5bce7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/comments/route.ts",
+      "sha256": "3d0ec144f540db5b3364051c2f40a22d15edcb125a20dcfe13bfbe5365aae9b9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/content/route.ts",
+      "sha256": "61492330c68c96fd928c7e95564ef022d8216bf23ead233e136e3dc35ec8fa8d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/draft/route.ts",
+      "sha256": "0e280c034d1aa8f4beb552ae1d1032aeb468b17cb54aec5070b0ab03b865f044",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/restore/route.ts",
+      "sha256": "e60a6c35c086d38d2a4c6ce418cea4502bf93e652e6ed75f64edc105db5bbe40",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/route.ts",
+      "sha256": "8023c58d90412e62d01a7375a64006fa3b8f3f72a72c91e149e13ae2f85435a9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/shares/[shareId]/route.ts",
+      "sha256": "f9d74fcbdb10ac9499bd64ba3765d3139cb24854e2c840c34c391787409dc38f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/shares/route.ts",
+      "sha256": "2642b745d18af329a50a94fa93f517155fdc1d11ba7b49fe2746f9edda4cefb1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/[id]/versions/route.ts",
+      "sha256": "b17c594ce5b07ce7d10017fcf8b374817abab2472bddf91e0369c173b7194368",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/route.ts",
+      "sha256": "d87dc2bd2e26ffe22941aef4734e73ced53f7ada1d3420300ab81ff1269ade28",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/artifacts/upload/route.ts",
+      "sha256": "16614fd2f449dde79a5a17d96c1f77823f3b4498154be71732ff68dff51112c0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/auth/login/route.ts",
+      "sha256": "50e8c9379f421999068378e8d65c39a8c6e15c48fa65f7638c797e7ab49458fe",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/auth/logout/route.ts",
+      "sha256": "cb7a3ac5281d085223e1b6d85f71cdac6f4a55edd4bdfdca474352353ffecbfa",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/auth/status/route.ts",
+      "sha256": "011db9d524e5843d3e160779ab16e5768c533ae7c53c3e620ffd7f070fa38447",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/automations/route.ts",
+      "sha256": "c522734f843f5310e90f00f18cf053709b32eed3b9433c8783cf23fd53eddac9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/capabilities/route.ts",
+      "sha256": "14a9de28a5236c85e8dc1920ce6afd16c106a5b5815df3c8d36c8a91483948ef",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/channels/route.ts",
+      "sha256": "af873437137eff556e918412266b0de0710eaae755ee96ba399914478533880a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/channels/search/route.ts",
+      "sha256": "65e3cc112bf8f5df27d4ae5f4eba34bb351ab35c9878e05328f27fddf1efa48f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/commands/route.ts",
+      "sha256": "b4d29b93a1491a1e94e63748ee264738a25751cc6c717b8c1a382bb5947f08d7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-profiles/route.ts",
+      "sha256": "84c3e7f083b01bc3e27db8504a292764d35d29d6be7233d66dba1ebd4e146260",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-runtime/route.ts",
+      "sha256": "7d625b931908e5ce02cd20d6efae4c4d6692b9667250cefeb4ffcacf56fca13a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-sessions/[id]/actions/route.ts",
+      "sha256": "27830e4cc4b5d9db4dae0e8b73d1d0c4c6084c8609bfc6d333f8904f460a5231",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-sessions/[id]/artifacts/[artifactId]/route.ts",
+      "sha256": "29f649dbd8bdb0f6a9d481256ed5f3b91aef256f0aacaf7743a8986863629318",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-sessions/[id]/live-view/route.ts",
+      "sha256": "62a19a8a98f03fc7b836bac7cc6548ea3dc567993cdb173ac944fdb236d5812d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-sessions/[id]/owner-input/route.ts",
+      "sha256": "ce405d52314d7a2ea01628dba51df1160a7f9b6dfa442724495684932541140c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-sessions/[id]/route.ts",
+      "sha256": "0ba3f9b246d10f6eb32f6a3188e5bd8fb534829dc33a0c86557a0bf173d9214f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer-sessions/route.ts",
+      "sha256": "92b9f3adc2397155bf4a9adfa5e6c6f9b8ea6a7a47e2e6daf80043238ca86975",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer/route.ts",
+      "sha256": "5c1c523e8abeb3586deb75eeea94bdd2a687643148ed5585f92b7b1e51a66ac6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/computer/ws/route.ts",
+      "sha256": "71d4b251ddafd1ef0e85ce5b0ef47947d3ae579a4426f4013747b73ef84c63a0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/connections/route.ts",
+      "sha256": "ba28afd3c9271f092d0f6ce6c07e96248e1a9b206595b579a01dcb6371640a12",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/control/route.ts",
+      "sha256": "559d27f69fc1cb73ee765fbc33d5efa31e89714402bdb90dc1c76b8466ffead7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/decision-intelligence/route.ts",
+      "sha256": "40405ab62f7c4a2fba04f913df4ca21feba3d5ac2a01921634d457d4b29837a9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/email/attachments/[messageId]/[attachmentId]/route.ts",
+      "sha256": "17e02c2c05abae890f4bf01a48d245ee2425c67265b91b51a629f1673f2dc05b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/email/domain/route.ts",
+      "sha256": "1ee87d87c76542353eb50cd84fe6f78c9026e6588d91a7af7d543d2332e5e7e2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/email/key/route.ts",
+      "sha256": "eecbfaef57db020bbebf55a67bf42a9b37145f3daa2f689be0f6fb4465aabb66",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/email/route.ts",
+      "sha256": "d911a38685165f78212024efdf6530a85e44bd51a0845511893914b23148e2a8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/email/send/route.ts",
+      "sha256": "edc10c1a795e083cfde9da9992d261f8177ca28e6afea1654f08c313a162fb6d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/email/threads/[id]/route.ts",
+      "sha256": "1f69132856b498afbb9d21d877c5ed16f64600853a4c0ec50b8b7dd0736b0002",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/features/route.ts",
+      "sha256": "1934f86aa6e4d4373b69c458ea76b464722203c37a426aff59481bed5282dfe9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/files/[id]/content/route.ts",
+      "sha256": "182fa187d0501204823a107a14eb9cbc178b6422f3b141045f3219f45d54057a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/files/route.ts",
+      "sha256": "88aacc9e774ef1110ca62baf88fe1bc12486fd39633cf92e71125e97c64e84b7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/files/upload/route.ts",
+      "sha256": "14a5d829bc9ba5c87bb4bc6085b5b3e809e97f02c48d8191cddecf345d2202a9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/finance/route.ts",
+      "sha256": "23efd23c7395d8347858a1f4a16fc6cb0eff223d0b4e84ddce3b42a3269409e5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/goals/[id]/route.ts",
+      "sha256": "3187dec10843bca51fe4f8a71a7039d0987f5f2f98d198e2227b8098c3c82780",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/goals/focus/route.ts",
+      "sha256": "ad153b26353cc8f778f41bfbc639f314e5724cb86b06cac0e27a009add11591f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/goals/route.ts",
+      "sha256": "0050310d4088010407f11d278f1124f7b24485a59119d7ed1660ac3828066e6a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/attachment/route.ts",
+      "sha256": "2489ce81f2010fb21f517713905fc59e7bd7c1a9c1cdcf23e9fcf821a7ed9923",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/pair/route.ts",
+      "sha256": "3994a612df5ae2e0ff8f36e2c5700e65484d246c3afefe26d844f561c7eb40cb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/pair/verify/route.ts",
+      "sha256": "f6e7f80ee1ced3c743f6584bf9290a6343fb4f5b4ccf0719fdbf098239150c69",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/route.ts",
+      "sha256": "20c1287ae1b3af2b6639ab557fac32149022c29547f978971e37be37e3aedcc2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/send/route.ts",
+      "sha256": "c3a27ca7a04d6a70dd1d23c233b7e9e61fd646dd79dcbd997f748751dca1e722",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/spectrum/route.ts",
+      "sha256": "7a1a66d8dc63ae2cd2ba1b422a9e2facdffa75d5a46723dd3b64bbd0335bb813",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/transcript/route.ts",
+      "sha256": "95420fd1b67ec3255b83070bc672da41bbd2e936433a6495b7c2e17ee653ecce",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/typing/route.ts",
+      "sha256": "8f66b8e7e10b461987fd34ce38080cb2f09ef1ce4769981a3b5ab767fe965425",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/imessage/unpair/route.ts",
+      "sha256": "e3d5da536e6fef52093d999f4220b65696f03bd86d194b910a0c2be8111910f2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/knowledge/[id]/route.ts",
+      "sha256": "676122d1842a466ed4678589d4b274cb216c957a0bc1845ca5eab8673b792837",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/knowledge/relationships/route.ts",
+      "sha256": "68f6e9f6c23fea38285253bfca0a4d4ef23d2164dbd3dece4410bfa1f9d63d5d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/knowledge/route.ts",
+      "sha256": "16bcb6785a8bd72e30420866bd0182ca69346e7abd3bc9bf0e5afe04339c9183",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/knowledge/sources/route.ts",
+      "sha256": "ea4c278ec7b53436f8783a6c6860925b1c9120111e62ee4c66d681fc6244bf26",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/memories/route.ts",
+      "sha256": "112f1b68b59472e19003a93fe83ab3c866c74a07b20327d7b90f61f6c3085c23",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/models/route.ts",
+      "sha256": "8e458aaaf0667e4282f09550c61feb6771d184f62b33d74f8289258f143ef33e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/operations/route.ts",
+      "sha256": "df5da07c0a0f464bf30a350ebf9853d16b3687180edb31beb3336278df9d3d56",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/outcomes/[id]/route.ts",
+      "sha256": "776d71f2cfc8fe425974d9dcd6f200bb05627ef417a8251215aca7ffde6274d9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/outcomes/route.ts",
+      "sha256": "a03ff4595aab68fec47a8fdb0544f2a009d4a901b68b2131caa12e4dbfb1ece9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/owner-data/route.ts",
+      "sha256": "d698a3ac22b12e4be65a4afca6a147efff1ec76d08a9857ea50d2bcc1cabeb05",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/owner-knowledge/route.ts",
+      "sha256": "f9da99130785010f32122236a471aefcb22eafa6ca77664a2d17e3c447ba3a79",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/phone/route.ts",
+      "sha256": "993d0cc271cba2d91fe144af14aff51c54df80582c1fde6ee9c251990b038de9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/push/route.ts",
+      "sha256": "0eb661fb2d619f68cae42e990459f10747639dd18e3bc9f7fb76572699f7bc32",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/readiness/route.ts",
+      "sha256": "9fd936c6ca810bb86270208c05c1d579f006926bf0e8df059303fae62f55f81f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/relay/artifacts/[id]/route.ts",
+      "sha256": "7bfeea76f313451949509ad5df435bd175c46cc07f02f5f8e49802e02b8e785e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/relay/qualification-artifacts/route.ts",
+      "sha256": "875f33b3b4a05c5686afd5b031cc5253b7d113477a2ed55f3078a510a5acffa5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/relay/route.ts",
+      "sha256": "695dc0fef735c4af67701699d6a312e0d1819667f58b1ce56f7469331286a539",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/review-schedule/route.ts",
+      "sha256": "ed387df4b88e77e7150c26ad29d08f0297fd599f35384b6a900dc771a6646490",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/reviews/route.ts",
+      "sha256": "3e7452d12e1e6aab968709a5e5de69312aef1942ecbc6f8997a4d3509f59bd64",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/routines/[id]/readiness/route.ts",
+      "sha256": "9390ad2d8d6e17a87de6c5a736b0bde0f11806d8326ba144e12709af592dcd68",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/routines/[id]/run/route.ts",
+      "sha256": "750de443723237309413eff2606daba87fc6c3444cdce14e617ffe8feaab33c0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/routines/route.ts",
+      "sha256": "efb0f425f4291468b8d87488b54d3aefc4ad9e09bbe30b7d36ffec74442c7460",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/shared/[token]/content/route.ts",
+      "sha256": "c307c4acbcfb182e8bee080fab14040cdabe201454016c125abd1ad719de8eca",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/skills/route.ts",
+      "sha256": "99207267dab8148fef01010870d58556b6be4b6762d186cf15b3962a4fd91bbe",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/slack/route.ts",
+      "sha256": "19d831c4c9f5e33239eac3b96122133a5015267d85fa6a1cfd35e0e1af842e22",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/task-runs/[id]/artifacts/[artifactId]/route.ts",
+      "sha256": "f1ded4bdc5a7b124ed2b5a52aa8c27d21fd13cb78f418decab2eed746aa0088f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/task-runs/[id]/route.ts",
+      "sha256": "491307e770d71684679fd21e4a97bf4768bb3d87c4f1a465c454261578372a0d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/task-runs/route.ts",
+      "sha256": "dd82a452df3b729ae7f6f6b29eeb69826fc9994bc9deb2ce4af20ade80455880",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/threads/[id]/route.ts",
+      "sha256": "975c1f0d0a10318ff1e67c6e03cf756ab96a6bb50ad68fd7d4aa9d58ac4eb57e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/threads/route.ts",
+      "sha256": "b78ce0ccec682b0446a368bdfc96b7322bb6f4c18a4f0b12cbe2447b8c2c680a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/threads/search/route.ts",
+      "sha256": "254f3edf3b2d40dff69445bcc5bb599f228b34e59c7af75877dac0e126c7618e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/update-check/route.ts",
+      "sha256": "c0c95a5224241bbbe405957ce885893b7948622e93c24dd716408c6661f3e50b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/videos/[file]/route.ts",
+      "sha256": "991362d28d09a6253f3919cacb3fa17a899237e6ff6d163a35303428b37c13dd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/voice/token/route.ts",
+      "sha256": "19ee91a253e6a6df5752843cb6a75bd375a732b7cd34b523553a39f187461391",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/action-adapters.ts",
+      "sha256": "a6c4252faea60d6dff950115d4d0af1f30cf887f207681df164e1d641b481702",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/action-gateway.ts",
+      "sha256": "00ccc457cda1caeaee249e88954fffa5132b6218bb308bcd13ad514034882e24",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/action-recovery.ts",
+      "sha256": "7070eae51732762be8514582218ac6762dfdc3b2d8886d907004acf86954d08f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/activation.ts",
+      "sha256": "2785278defea7573bfb84709ced55310624d0b008fd900a83c0ca334a4d4e415",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/admin-auth.ts",
+      "sha256": "d2b1d5af4adf4d518d60b8af38bd625f3058f9829bb21d5f8112a630c9ac464c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/agent-api.ts",
+      "sha256": "cc5b89f7267280b530a5db89c973caa23af29b2fa3235b926aa460af994ee174",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/agentcard-http.ts",
+      "sha256": "c970b28eccf7ced380838b3a72c2da01850c22c87beefc8e746fe770ebdd5d00",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/agents.ts",
+      "sha256": "8d4bba986df2827f178669d72e3492b351722a2f92c42ff1c7f2f79fd5200d48",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/api-errors.ts",
+      "sha256": "9ccf927c0e2a5b8a161589fdc6b2b3cd9aea35370f475250719d6e31beb89bbd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/app-url.ts",
+      "sha256": "8913e101fec281adf94723e15b4c340831b847bcf2b38c38849fefe3bdb79aaf",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/appearance.ts",
+      "sha256": "0c7c0a7703846b4e86b8636425a41df63b31bab0be63e14ac5d94bfbaea9696b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/approvals.ts",
+      "sha256": "90b05c895dc2f4664cbe992ffd156880869b54e29165a3c613f7908a792e224d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/artifact-api.ts",
+      "sha256": "26552201d1e1e27146dcd7f532c65f767e83739568146ec735dedac5db2a4b19",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/artifact-client.ts",
+      "sha256": "62f39b42a2ee0d37dc7c9a0b27228f18be297b83e307b2b7117462d8a67f9a90",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/artifact-workspace-state.ts",
+      "sha256": "c218159423c330a0616a796ffcdc776154bd8939a35375ff6db0145cc0a93a06",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/async-lru-cache.ts",
+      "sha256": "d19f64e9132f5258b1a671aa4a57d958e9d1c1bd851edcfdb60d4b3f2e2875e0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/browser-effect.ts",
+      "sha256": "0ca93d6dd793dffc762a930eb5fb8832d88ab4e1b68b33932654ac16d28945c4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/browser-profiles.ts",
+      "sha256": "f01e2180c064ef5d53bfcd0d74815e61332e82e4fe0e9d34f01e92bb764d9b18",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/builtin-role-catalog.ts",
+      "sha256": "0e784526e14d9fc5c36b25392b38e0a4e3d4ca8d52734ff1dd5ad5c0f007e474",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/builtin-solution-packs.ts",
+      "sha256": "b1a9d1c823334cf93d60e1f2e4e6c3df66ec5061eee982b9c09c873109d34114",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/capabilities.ts",
+      "sha256": "926b3edeb9b1eb53c90dcb735002cc3414d5cb76f21d10f8a96e0a2eac538a7f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/capability-notice.ts",
+      "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/capability-registry.ts",
+      "sha256": "90b6d1030efa7d25aba7ac250dd9bb9ab9f5ef957ab357ca785bd1f699e70765",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/card-auth.ts",
+      "sha256": "8e9a9d01a055c51a3b26bfc46b75153ea36543059e5129785c7e7a62c05a1595",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/channels.ts",
+      "sha256": "a086b3457206116a2aa9efcccca3ae6307932a1debc13d1ffb94332252f443b9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/chat-attachments.ts",
+      "sha256": "43015bc058ae2f5bf2c47774801308380d1a3ad054d32023964bd82c72a8d11a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/chat-file-client.ts",
+      "sha256": "77dd15f1a23d295005e04c875a38891c6a2760d7c1854fb59a0e3f2c28c40bef",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/composio-connect.ts",
+      "sha256": "c0dd3bc8e8ff32cb7652e7d5a487e82640b767c80eec46e37b6228a04ce57755",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-api-errors.ts",
+      "sha256": "c49d315c7b6256466cf073b9d81208d88b1ec1013a3d580449ced76a535240ae",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-control.ts",
+      "sha256": "063aca74175fcb051a98a3ee3a2b7ced0c9df572781e7ed956294b38983b1720",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-resource-provider.ts",
+      "sha256": "c5aa06b63f33b2cb8ee5d68b7c36616f5cf97e08c6895d20f2881e1cbdde3fa5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-resource-recovery.ts",
+      "sha256": "4b9e954485f344808e9fdb427a01604cb821f8fe0e40d25ae3c303f707f764cc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-resource-store.ts",
+      "sha256": "f8dedb81dc2a2a9c5cc65de1c4ac506c5139a3db5a1d26d28c153d11d3b444e8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-runtime-config.ts",
+      "sha256": "ceee4e3907fb89e98e1de4d8de72ace6eaffa869eb16e04b49ade07382fe34f6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-runtime.ts",
+      "sha256": "630b7873683d3b68887c2cba563f988088f602d35a9f2c5bbfb6ad18b46ae047",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-sandbox-backend.ts",
+      "sha256": "1fc2a4f8d82149c35f46a2fb94ecf126623371ca3f9018a2b4d0b54f3fdfebc1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-selection.ts",
+      "sha256": "692f91f298253f01ddd781b047d3a65dea5029be025a07bf3d1a41fe4ce0a915",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-sessions.ts",
+      "sha256": "2fbf9a710b117cc6736c2ce501c0e85de792b8e82565a6c67d2ed0932d2c6be6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-template-lifecycle.ts",
+      "sha256": "806f2cbae0556a906cbe36dcbb2e8e9da83507eadd122631956d1caaa7f2e2cb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-template-store.ts",
+      "sha256": "4f0c29d7ce60f3f9d9ea310795bbda94bfbdd957597dbe1d6dd963ea02140254",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-template-vercel.ts",
+      "sha256": "5a4a2a1380ea36d341944c905a4da6cebfeed005fec463817e18b30c856f6433",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/computer-types.ts",
+      "sha256": "0bdc90e175141bc90d6ea2aa7c64674ff35c6aa0ab81119be7e1c32b76ff5e13",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/context-repository.ts",
+      "sha256": "2bfb7b882bf0bdf35823063c8ed59d9573b52301f04b07d8dd551b5331b3953e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/control-center-types.ts",
+      "sha256": "c5453babb238983ea344606c74dd2d55bf5c32f26665f56534b0a838dc71d2ad",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/control-center.ts",
+      "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/challenge-cohorts.ts",
+      "sha256": "7deadb2d3aa00c7e87610803f9aac8d3e3c7b43bee4fe2ee313243ded4d1a763",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/challenge-review.ts",
+      "sha256": "3b400eb1371c2997f5b3743da0161b37dfb2d5f477a88eeacf2ace652dad597f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/contract.ts",
+      "sha256": "8d1b68b2c50b48993851f04605fface2494b1a21993b0fc622da011b57334617",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/dataset.ts",
+      "sha256": "0da75a446843f015695412185aa7e5e0ebf3f0ea4ae20535763ef5bd316a3447",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/evaluation.ts",
+      "sha256": "d0d5994307fc5cdd912b732556ebbc3bc97109fbb7e85e712f96fa6666d0ca93",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/evidence-store.ts",
+      "sha256": "e1c5073a7aaff2c9d607c1a77fa93821e0d71046eaff72db8a41ad0314248c73",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/experiment-metrics.ts",
+      "sha256": "04a9f22f80554ebf937be64385566b1f994716c039656bc27b91842c9593c183",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/experiment.ts",
+      "sha256": "f2fe789f40fd41e1804b5565e3d2bd3b73d96a2a62d52d0fe38069e39db7b273",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/fixtures.ts",
+      "sha256": "18ae86dea773182e5372ba6b6b450ec399950ee9765186ca22e12f9e39c7aeb0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/jev-provider.ts",
+      "sha256": "63108ab54d7c6d4026cff27c5c9eb3555ed7d707655fc5b4c07d895c8ce73738",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/metrics.ts",
+      "sha256": "068329c9d96be868b1a1c6c1b416b68c521b9290c2bcb19352ba64416add6454",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/retained-evidence.ts",
+      "sha256": "4b9f47ca0fb4d32a95a5b1874cf235310d7d6931fdff2cd336c1b9de180ba6a6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/shadow.ts",
+      "sha256": "24bfb74aa5280095ad33035f46d5b933c677de27ef68fdaa6d2c92872027c01f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/decision-intelligence/view.ts",
+      "sha256": "cec68b094919d1d0ebc14d30be6342f0dfef22d155fd9a8df06200f7859a6656",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/delegation-policy.ts",
+      "sha256": "a51e5160e875721a764256eb0c09210253a868f49785c3193ad7b8fc8a77bf39",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/dev-vnc-relay.ts",
+      "sha256": "2648a5f19c91c60b307a0c3ee08554699715e29265f07627086f9901d8fb8ec7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/email-api.ts",
+      "sha256": "132da3314ab90d52c3f937a91438ea96f48c6a80c1f2edd42fe07f543029e0c8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/eve-template-stamp.ts",
+      "sha256": "25ec42545a5f2a0a1c323639fe6a5dd61d7798221f40feabafdca2c8634f9791",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/execution-auth.ts",
+      "sha256": "256d88eb268caa54fd5dd18abe9200b25f61a53c67cbd226108046efff4ec861",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/execution-delivery.ts",
+      "sha256": "5d9558c732b5ded8c308e8d685958ebb9e9e98d23563830fb79e41bb34c58c76",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/execution-store.ts",
+      "sha256": "f54b6818043e9a3b3618c4500b1a3a52c78a4a4b466d85598e34f717f5f147d1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/execution-types.ts",
+      "sha256": "7fd610ca60ec02445dfe56d417f281b091e93c86e673109ad4b6bd3691625156",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/execution-worker.ts",
+      "sha256": "69b210a05919306382f7866e76f215c81ad609a9c99dd61017255197bc69d057",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/external-write-policy.ts",
+      "sha256": "dc4905f3c95d7f88c7f30ee41add6e275b186b16fab51218864e599fa0ce28a8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/files-api.ts",
+      "sha256": "71370048dcaf2a9d05a1f82eb07bfe0e6dc00604015d959e2508ca1e924de10c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/goal-focus.ts",
+      "sha256": "f66ca2e458fd45acc4f9e00f20c298f04100d487a910f94a9e23e6d4620640d4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/goal-insights.ts",
+      "sha256": "bf160d2672362772ca8e88df9a18162247145bdc1cc64d603637a309ce7c8b06",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/goal-types.ts",
+      "sha256": "aa28fbb8c3b0b8d9839f1b755b3f97105d8c3f06c85da12e969171ccb6ee9fc0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/goals.ts",
+      "sha256": "b73b329645ac4b7f4e0c7bed90aeb6fdd567cb73413d22e2c0447cdb7546300b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/identity.ts",
+      "sha256": "02a368339bdbaef939fc34c0cd2d011773d72c4909f328e922351599580c34cd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/imessage-api.ts",
+      "sha256": "7ef039651cb930d154d5f4b0c7ce4eaf93ad702fef27e92a3aac4449dc2f9b8a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/imessage-auth.ts",
+      "sha256": "89d7c15974c0f71abe527fd4e97b5cac10a9e19d60cd8121ecc4684ff14f1699",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/installed-skills.ts",
+      "sha256": "403adff0bc82674978e6bb76a2988fa9d217ee7d7719cb806ebeb40490a415dd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/knowledge-types.ts",
+      "sha256": "ac8d5c58fb20be13b139d14818777717b09f38764bd1ab7893422383b1d7af7b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/knowledge.ts",
+      "sha256": "da0d8f86fc7b4197ae5f7aa4b6f4375f723eaaf9e4b46bc7a236f6bbe3dd788e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/live-session-provider.ts",
+      "sha256": "92cbb752bc43ab9886343b726215f33a5281d52b042b4ccdf9346dd6bfd357cd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/mask-email.ts",
+      "sha256": "cae3d4eba5a70a31e5e8a4e3be878fcfe54123ee46369b2553450ede7d4ac8c9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/memory-scopes.ts",
+      "sha256": "f28f409e09e29c9a9842d4ec38fd758721ca9a440f7ccf5f80191f68e73a7d6a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/missed-occurrences.ts",
+      "sha256": "159efe6b7c381c981d1e509a1274afc1f2f7525700a535edd2773f1ff2dd70d7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/operations.ts",
+      "sha256": "92b9d437b6dd4594b8601603ae0d73e3f556eecb24be6f927bfb739a55599e97",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/outcome-types.ts",
+      "sha256": "a10b2b30cd0c521665a3a0872a838904319315c3c312894b923e1492a4c6f8a5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/outcomes.ts",
+      "sha256": "2365dc2466262ee59f1385e5b1de9f848461efa614f3873d78270715e08f3327",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-archive-zip.ts",
+      "sha256": "1b81a6b79e5fe6327084bcf22228327dae4400b9f88dc28a3ef4c89d6e3f14c5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-data-domains.ts",
+      "sha256": "d2687059aa8cf73ed467b7a29dd8e3508f045ebd172ea8244a21cb794c359597",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-data-operations.ts",
+      "sha256": "63017725fce1bc35488f309745036a556b958c52877dbcfbb109c5df5ce2bd0f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-data.ts",
+      "sha256": "89f6fba3312a934b21e42f67d8e0e0bcc42b2fa9abbfca57d979f3d72fc5fcae",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-identity.ts",
+      "sha256": "f140e1c6c9a23c190e93f3b4bb71ee3a7f54d72ac8d55ba18a6f288a7d1ac23d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-knowledge-types.ts",
+      "sha256": "3370dd49f53557fe927474751583d087219162d7594dc76c0c7fe1bb7811cbce",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/owner-knowledge.ts",
+      "sha256": "a594ece58c7efc1503d6fc55992d87d1238f19afb67977b7b18c3137d3b4a44f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/phone-auth.ts",
+      "sha256": "f99d24c538231f78af8e3cbd75917fbb681f9deae39e69feafb03f3a0ebf7414",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/primary-agent-bootstrap.ts",
+      "sha256": "c47cc4de82e15f013e9f5807b520febbae895fd5f421030b3b4612c9ece6e099",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/push-db.ts",
+      "sha256": "f49c38ed4848e5f2dcfca89ba7e3e4764a18ad5c4d36dcc618ed5ae9947fd74b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/qualification/artifact-storage.ts",
+      "sha256": "bf86f2fbceb639f9d3b678b49d37818c6daf7d269d4d2e5512bb901a7ec0e545",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/qualification/client.ts",
+      "sha256": "4e942e2567ec5baacba88596b5279a9aeffa3c8bbca489089bc1e3eeb5d25b83",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/readiness.ts",
+      "sha256": "f8d8481b104426097a95077f86d57b89b6b9aa8ba5a80116dc6dc2665d82862b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/artifacts.ts",
+      "sha256": "0673e096f114cd88daa277bce3e391c48a8b39f3c9983252bf3097b56c477c39",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/client.ts",
+      "sha256": "765ca7e925f3e3c22514d865ddae473076f836f3145dec3de3f0be971cdbce26",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/contracts.ts",
+      "sha256": "db22686ac1d13936c00f0c2de0af415dd412cd09f3bfb34be03f078d03c7f658",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/inbox.ts",
+      "sha256": "304e7bcde99daa357f66635120fc2a5132eced11b41c07951ad57626497b7b8a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/ingress.ts",
+      "sha256": "a70d8bb31deb3901224cd66730d6309395966e7b70155258ca8dda80c0ea7ec8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner-api.ts",
+      "sha256": "5ad918c0d85491aa60643e79c533fe49fa4c0b595567e9ad7b6593eeec19e89a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner.ts",
+      "sha256": "1bc99625896de1553e13105a073ab25560ca252c65ba9d99fdeb68197f5ecdb3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/projection.ts",
+      "sha256": "a766f568c0cb9b71f3fddb86bfb8d0f74dfe37ce4c76a6dddcc0a6fabf474469",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/receipts.ts",
+      "sha256": "3d12bc74fb1856355142a35713f377e9fd9f5e5c3be379301bdf7ed875345515",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/store.ts",
+      "sha256": "72ea4bebd9118c6b87294beddf2c73b95e4a1037eaff784cc49241dc34634c17",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/transport.ts",
+      "sha256": "ea6a7c671e058ff34b367a4ea66e788e5a34726f8b1ee8803468d216d42d4125",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/work.ts",
+      "sha256": "3a7b4806d376a68341bcca20f55ddeaf049c711d3bf4a77a65f54513367c144c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/reminder-execution.ts",
+      "sha256": "9b6af3429f86f4aa5be0cf191f828e33a3479d5935f68749d14aa52fc921d4ab",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/review-delivery-db.ts",
+      "sha256": "c7df117ba2ee318331011e4ce41b49717b6d3a96b558ab45945f0463578717ee",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/review-delivery.ts",
+      "sha256": "0adcdb7324ff6df1a2c46ca55c8e66e78642194b75d90982b2e0b0a7aac0e656",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/review-schedule-types.ts",
+      "sha256": "0b988a7d561839746550312cc272ef3c577002bc534361cf3641e24339cad4a3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/review-time.ts",
+      "sha256": "de56bebe024126f7df8341e3a121db969a636fc329ecba7416cb03a054715ff8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/review-types.ts",
+      "sha256": "abdcec418fdd704bed9f6e90b238c3a65da4e74913135fb5b7aec5e94504ab02",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/reviews.ts",
+      "sha256": "b0c51ad34c98b44f76102acbf517d8ac87a01c74a7da5d6eb787d43144cbd828",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/role-catalog.ts",
+      "sha256": "21ddf1732c732c765075565d89972952b12781ed2892975d88223438aa14c53e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/role-packs/founder-os.ts",
+      "sha256": "7eeb9cd9d048b360a72fdb7ee010884dab6113dada6632714a713e61112345b1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/role-packs/general.ts",
+      "sha256": "d6a2dd646670f4a432744b6892ab63d55e2761e9c85395e8624ec20ac0c274c6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/role-packs/marketing-engineering.ts",
+      "sha256": "72039dfe78537724b629a2699954c54de9bd4ef17d812c3264e93b85b7a17f69",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/role-packs/software-development.ts",
+      "sha256": "35410f9ba966d838fb3db8ede3f4a682711ab9582bbe6936917e6d935b819348",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/role-packs/verification.ts",
+      "sha256": "dec07f9b9bc14f272e64538ea6ed943bc7d90d8a6231a955607993f072101748",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-admission.ts",
+      "sha256": "7d7bfe353d2c17821e393cf9d6075974a0995bbdbcf885b56fd04ea71a6d11db",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-availability.ts",
+      "sha256": "5f8c83d7b7ced7a15590849f434f70cc1e10ddd9e8799a5fbdfa69d292d1a0c6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-capabilities.ts",
+      "sha256": "c0e750b3386b22bb77925b27d9d1dd35acf775ce92ad47b8598bf6cb594cd670",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-notifications.ts",
+      "sha256": "3215a173b043c3f0d90bcad88c78c891116cf3d9af14dd9ecd4a1aaf1937ffb1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-pending-send.ts",
+      "sha256": "25046d4b772188ac1ee204a3cda2d1f69179a3be31ee39dfabaa4da1d97726aa",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-release.ts",
+      "sha256": "a769e24a1fe596175ddbc72969376fa3b19d6cd174431bf0bcc01b6a9da07a31",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-review.ts",
+      "sha256": "8034e6fec098d1573a1d30ed85b96e800487c64e65aae817528638639e6ddff3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/routine-run-now.ts",
+      "sha256": "423653aa9bf8bef45c665fda334c69937a53ab60d53c0a8a82c56d1700d0682a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/skill-content-hash.ts",
+      "sha256": "bab5953363f352a8147dd2907076e22e2f246c3e37f35eb1f5b34b3b44a30bfd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/skill-eval-runner.ts",
+      "sha256": "65c95e59e02dbe4c64aa853f2410ed65deb8c216e561edc58abdffb780cf1756",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/skill-manager-types.ts",
+      "sha256": "f1b6ab8e3ab98ce0ffac4cfe3fb054c8042999d484ac89d1a6e43b373a86b160",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/solution-packs.ts",
+      "sha256": "dbe1147d5b2dd1e7697b9c0fa7e324c3061b04d833d2d6a6eebfb8af439b23d8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/task-runs.ts",
+      "sha256": "fffbe4937c016afdfed11007ad3bdcf12945ecb0db8423be17a72836726f10e0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/task-types.ts",
+      "sha256": "a2aed290680411ef85372657f747e36d56be488ec515836e9f5c88c990df0d84",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/thread-owner-conflict.ts",
+      "sha256": "279a736ce844106f140a4bdb4ca66b531c9e2f28c3f54f364304ad3eab2f94a9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/thread-sync.ts",
+      "sha256": "adc569a3a18d6609319a2c2189bd6d8fb173791accf5735ce18a249b8763cca6",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/threads-db.ts",
+      "sha256": "dba323c10ddd2deed3dae9ebf4fcb3714e58c4318315edd4d6cece29b282047d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/utils.ts",
+      "sha256": "7c8c3dfc0cdd370d44932828eb067ef771c8fe7996693221d5d4b90af6d54f2d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/vnc-relay.ts",
+      "sha256": "2b5c2c8ffb641916e3b53a38517fd6853c0bf5535c5f6c45744be6c8be1e549d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/voice/attachments.ts",
+      "sha256": "a89537f002c605beafc5959fd0da0f26ea0ec58f50bffc16ff27205d78082cb8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/voice/bridge.ts",
+      "sha256": "8b3447fa81c87382b8e53a78e820a64d877ab4458c7b8af44a4a415ec29de1e7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/voice/dispatch.ts",
+      "sha256": "7a859691d94fa52d7c54cf85d0846a313cd7730f0713118fde781a130444c62a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/voice/realtime.ts",
+      "sha256": "3850b9129619a6ac606612e69dcc9318f917bc468c73f26761fd0d4f13edd886",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/voice/thread.ts",
+      "sha256": "a84a3c6cda645575a3fa7d147439377eadada01225cb7993f914ed6c17e018fb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/web-auth.ts",
+      "sha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/federation_request.ts",
+      "sha256": "6d53f68b0a3b94a9a7424de63e576e24fee2c4b993e0673afa102c34b53f2078",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/federation-tool.ts",
+      "sha256": "e2144138621ec49b8f0240dd4be1c1233918899f2bf1fd1967703de370c71cd1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/owner-chat-run.ts",
+      "sha256": "fd0c08600d0f9c6cdf4365079c9c6ca4fd0198cf0d7c81e5e7367dda3c501914",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/peer-permissions.ts",
+      "sha256": "5f9e77cc572968d2ae4a7cec0a8fcf69a2952caf4aed51164529ae3f890ff723",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/incoming-permissions.ts",
+      "sha256": "122ca0235d09f1791c00a9b26e8193192ec72f6f1cf4057f351b059cf7db2509",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/relay/peer-permissions/route.ts",
+      "sha256": "7ab43883083e7b437fa1a91659eca453601c04a77e8e794cc1243b81fb7522fb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/jev-chat.ts",
+      "sha256": "a6531917a90181370685042f257d8bea88b347de55b1ba2f81f3475d3f67594c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/evaluate_with_jev.ts",
+      "sha256": "dc234bab59ada600c0f8dad3cdd5f3059d0e28bb8bbe845c29e9d69f64346556",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_hypothesis.ts",
+      "sha256": "1e327aefee1a657e32c4fef4fffb49f1ae5cda8163f1fe4bc0cf5175f9295264",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/record_preference.ts",
+      "sha256": "8ec34c45dad7391d7351063c943ff0023f4930874a38ae7f5b80c2b191433e3a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_knowledge.ts",
+      "sha256": "b5a2278e814bbe53e3c5a00d60b95e35fc14c97cfae068bd624c20e996a56d69",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/update_knowledge_status.ts",
+      "sha256": "38a45c368cf64bf04d13f104707b05764323c6f18a4e75c9eb6aaeb802fb082e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/grant-duration.ts",
+      "sha256": "38061ac276a25aa18e746431edd4abd66ab6d05bf7c6001665baecb9b65bc819",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/message-draft.ts",
+      "sha256": "e0c6e182b4eabf46f06a2f8a79cdf0388c5c7a03d503f41d915fc3c8ecbe1026",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/admin-guides.ts",
+      "sha256": "dbb2b896ae994f281816afc434ae89a00b7ded151ad383e936de155df51710a1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/message-reply-settings.ts",
+      "sha256": "7e7e3e11529aa0e327f0a7a1e6b85d8ae64803b6185a32c5f4c2879af38f4937",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/message-reply.ts",
+      "sha256": "8e9b949b6982ef68e3bef7026641a4a9a5ac52da277e938cb1428ced5a5ae09d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/chat-session.ts",
+      "sha256": "348179c0e2f4a2b839110a6439901e40db92564312c5894fea58474c4d10948e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__read.ts",
+      "sha256": "c30c1a08a7f0fb1de94a99b3830253d06df50bb9c1d1f2590813793ddb71e3c9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__snapshot.ts",
+      "sha256": "c9a2beaa8c79ce1428caa13be5ef08dd9eb6c02745c92d75da71481f311dabb3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__get.ts",
+      "sha256": "7ced6e68878d8ab6b2809f16b33e6cedec2b7c61b8dff575f0f7034a464e9b90",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__press_key.ts",
+      "sha256": "edda7641b8a221e607651e5d06e77ddf91594a7df70fca0ed26e05729ed7ea16",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__screenshot.ts",
+      "sha256": "839f642f9a40837aa1fd23daad1b954c928d375855ed1d7f679a298fdfbfe08f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__find.ts",
+      "sha256": "4f138b45cbf497f0ed80b8e7fc3d476279443ce17edf7ece66e07e31d9785dcd",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__select_option.ts",
+      "sha256": "902957f8a0cdc51e1814a165d1306cf33e5aabbe3c88c9e438d675718384d481",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__navigate.ts",
+      "sha256": "ff232b530b6249e60e8d63fff24163c04c6e0fa665a4f2cc5a85f1835a689e86",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__scroll.ts",
+      "sha256": "c284dcca6f0ccb047455799e9649fb6e715be8c692d60f8244e9355b45e45720",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__fill.ts",
+      "sha256": "70088728d00af426f9537f5cc253321bf722a723b4856703290612c490b55428",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__close.ts",
+      "sha256": "e7339e584decc390574b1966d737066fbd1a92a5f1b97faf64bdb4262f660f99",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__wait_for.ts",
+      "sha256": "924496a32d5a40d23d51cd00ce13c7c2e18ce877c3724cf25edcd7345d2ef94f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/browser__click.ts",
+      "sha256": "a372da4a1aeebc4d6fcca13e1474198bab4d83e2183613c45d6e4a42c9c09e3c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instrumentation/telemetry.ts",
+      "sha256": "2218f372e69946547ae511c9469a3031aca691d3e0ad81f97f6e9d0a0a3a502b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/ask_question.ts",
+      "sha256": "081bef1e4d88c6942d5f8e07be242a0f81e7107c56d0210399e0c31894795cd9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/schedules/owner-channel.ts",
+      "sha256": "6c0bf95d5e4a698976253f080840444f0b5423953891c0529745ec76aed34d53",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/relay/owner-execution/route.ts",
+      "sha256": "9311af128567514dfb4d6d34ab38799fba2c3e42ffa6f5743d34e732b490e077",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/pending-action-continuation.ts",
+      "sha256": "bf2f73dd5dca0abfc0cb9ed791da3303ed3640a1530859e20cefa2eef5eb7c11",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/config.ts",
+      "sha256": "fc24c7f42bfa86d7b67216e1069e3fefc9be71bb19d8555ad4da02efe8e7ff3f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/contracts.ts",
+      "sha256": "671e700df092348961fa583f6a1e4361ce009ad08d21aaf3ba594c443a380c24",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/control.ts",
+      "sha256": "89209aff488b10b4a41a683b0346c2b2ce29793a66bb1df83b1b20283f0d4854",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/handoff.ts",
+      "sha256": "fa3c7c93f6ee325e797647fc450a2cdd92bc383de0f8ced7436ddeb7dc4c8676",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/runtime.ts",
+      "sha256": "a12c76ad4c1a6ba3d6986ca778021468ce0e0fc2e4654ae5b719eb40870f868d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/signing.ts",
+      "sha256": "b2c45d46287fdd515f579af669a3a10be719b0b03bafb4dacbab2287a4c0808d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/snapshot.ts",
+      "sha256": "7a124436351ff90878ff047166c65f6f9e562eb4de7731121bf220a509934edb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/worker.ts",
+      "sha256": "bccb86876597ccd1e4198af1728ac69694dd5428aba5a66eb22f83ffbc5b3a73",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/model-budget.ts",
+      "sha256": "5b537913f6394a54bc8053e976eec5a49181fc46ae339e80377559e38058b560",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/owner/model.ts",
+      "sha256": "6f7af8e32e1e8b721f8e96f4d82f3c311039e61d1534e343862c01c8c112aa72",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/web_fetch.ts",
+      "sha256": "9e68e5f82ae65e8971768be176500b7c886bdc5175bfd8be66b5c48d6939aa64",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/foreman-description.ts",
+      "sha256": "4d83ecddddc7096f18786886da7c459a0245aa96d93585ebdc290afd66d11fb5",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/foreman.ts",
+      "sha256": "7c45788984101dbe4f95f4e6206afa84c080545679c1d8bd4f89c1f2f74ad96d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/delegate_foreman_issue.ts",
+      "sha256": "f346ba4cc1e092685f22258f0d87fe63a4719abf352a35fe21ffb88ee58da706",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instrumentation/braintrust.ts",
+      "sha256": "2e45aeec72da5c2d4006c3a1eb3e9030cb09b106c856289a7d0a5c55d0cb9ded",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instrumentation/otel.ts",
+      "sha256": "79a38b365ef8151f3e91c45a8c2e20684fd8a9474196e237be3982cd827bc8b9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instrumentation/otlp.ts",
+      "sha256": "ac4f4e85ea6979f690ef6c9cabe7aacb33644ccff8621d041f8169d90a64b9c4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/instrumentation/raindrop.ts",
+      "sha256": "2e839f197edbcffa6a8d4d9c40d681ef572c3a3b27d8d62a1fc2ff9c4e6a9db2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/api.ts",
+      "sha256": "ce04d2f2dc052d30e4f6c6c5c75986995d2ed82ff606e5a47c2b1b4845f32c5f",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/store.ts",
+      "sha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/types.ts",
+      "sha256": "ecf374f124980ec9e96f95aa771e692d002c6ef53c0a1840731e647af7a608c4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/route.ts",
+      "sha256": "6e566b61c90d16832e1a90c8249133320bff3b274f9d5303d089a7ec9414d009",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/[id]/route.ts",
+      "sha256": "3d393ee0bbae3758bd8a4af52858f6f32ea545fb71e1b2514205048e542c6b7e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/engineering_work.ts",
+      "sha256": "be096b0af57e4cc12996890f5f1b07772dafed0294e31e5b3bfe00c7663f8ad9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/contract.ts",
+      "sha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/execution.ts",
+      "sha256": "bb968ba60ce245b8a8c6101b7e8b27828f60b968ed3e5d3e882cd931a269780e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/execution-store.ts",
+      "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/execution-api.ts",
+      "sha256": "791e70e298c638a3f8017aaf7fe9ea304c0dc772302d2fe024d00acdafbfafaa",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/executor.ts",
+      "sha256": "0fa3cf521d64d10008a5adba186917ab7524887bf092204f7afcde0a25d9deb3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/runtime.ts",
+      "sha256": "4b9da3d37fbcacc4e599a92333bc044183aa9e423eb786175b50396a0a6292bb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/worker.ts",
+      "sha256": "d63518d634c19d2b002b195e473a60989b2badf848c9a080e5ec0b7c63207318",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/model-broker.ts",
+      "sha256": "bd40b8d96577782c16a1c5dca2c8ec00f453c4c0578edb49580d21a134326b27",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/docker-executor.ts",
+      "sha256": "50b0019b2939b15cc7cd87b9baedc8c220aa1bdd2654cf3bdb12209ee6a09d08",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/github.ts",
+      "sha256": "5a9f248159ab40726c2a1313b978ccb86c12d3f56c7d30ef965cb8b35f6a501c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/intake/route.ts",
+      "sha256": "cb7f6c761f841d7ffe4024419199f99cdb6fef76e9be7df71825c1f9486300b4",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/[id]/execution/route.ts",
+      "sha256": "c7f03910ccc968934da5478c49292151b31b6adfddfecb3f32af2f769de6ab72",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/github-app.ts",
+      "sha256": "99b1e9cd47e3c584423167e77ebcba24ac52675b9e8b41e00e3546d57a93a2a2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/create_factory_work_order.ts",
+      "sha256": "cceac2e5595bf3306a40baf19b01d2667f3a90fce1092db79923180a2b3b3aa7",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/get_factory_work_order.ts",
+      "sha256": "4b28255d2fcc0ccfa1c834ec00764e8808bf23f93fbb57cf230343ca946ddc95",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/myfactory.ts",
+      "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/contracts.ts",
+      "sha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/packs.ts",
+      "sha256": "fb2bcdc62f0fb4b6cd083e06a434474c25970fb46f955a2bee6215e3d3f72f06",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/routing.ts",
+      "sha256": "e2d550b6a89ddc8d050a1da29c0fac5f62b6183fb7fff3eaa5f84b7b41d27dfc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/engineering-work-binding.ts",
+      "sha256": "7219b83174bf0ef1343fa1090860134f1ba46be4934ff6c6ed25e178ccb56da9",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/providers.ts",
+      "sha256": "5acea9b98284a8e9d4f08aa7aca65d3cf21854c1d0292a0c28ebe39841d39d98",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/routing-store.ts",
+      "sha256": "0a8c92b2f7736dde3d549717e7d0f5d6441cbaf80bf7d37b09e291215371f1ec",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/hooks/engineering-work-context.ts",
+      "sha256": "d6923254b83b2e6cdb2168852b99ccd3a2c7741ae2ba6ce374f8395dd487a646",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/lib/engineering-knowledge-binding.ts",
+      "sha256": "d179231105f3225fd1c6d5d8cfe96987de97ed4a8cb7c6045670c4e8589322fe",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/capsules.ts",
+      "sha256": "e9fa47847d66575beb0d1e501e8a97fa095c4277e70efa7e3c57075c149f6533",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/effective-packs.ts",
+      "sha256": "724c9d7779dba7dfbb4e2a1bc41a79deca02aa77a469e729cec56d1ff8bfbaf2",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/experimental-harness-boundary.ts",
+      "sha256": "cb8b16db8f826cc677ce4d5d280e0f4fdf1e10105ddc21f91e85d43ee940e340",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/digital-worker/learning.ts",
+      "sha256": "1c57c7f39b066d7aa890000d8ebd7acd6de525bafc4a6851614cfb6a9b45a02c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/base-preflight.ts",
+      "sha256": "d3e41cd7bfeafea521586c774038b0fadf213e887ae010ad945450bf8c91f66e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-observation.ts",
+      "sha256": "faa9d014609de6de4b1b39b4943bfbc44cb2c06a18e2297d388010630013707e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/knowledge.ts",
+      "sha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/learning-drafts.ts",
+      "sha256": "f8a505f0634c30f375fbbf93bf09ba53281159456853aeb6311f2f03fc49396e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/route-admission.ts",
+      "sha256": "d23e00eaffee8f5931d8da188cda990b24c97816b149922fe19bf609fbefe3cc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/worker-projection.ts",
+      "sha256": "2d3d2f109b7fb32786abbc0fbeb6746499c5406ad3b909204d99774f8b6b2286",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/relay/message-result.ts",
+      "sha256": "dea9632c11719392c56b43bc8ce3bf8f2ced8ce0966d099e791c99cf21b42f0a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/agent/tools/engineering_direct.ts",
+      "sha256": "4adedda1c41fe9759f24b0cf87d50a276b50ebbe2578d65e1e9243533d323fc0",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/direct-development.ts",
+      "sha256": "47bd084456a050f8659807d139d0c72ff65a566e226f93c97f0ebecac08b486b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/direct-verification-driver.ts",
+      "sha256": "08c425b5dc38fcd7b22b9f775d430afa813a6c9ca1a105404d32605317d26903",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/scripts/engineering-direct-verifier.ts",
+      "sha256": "1a8c37888e66775c2192ae9bdb5a6afbda55fbef7fcb2deaf139a60b058853f8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/telegram-owner-receipts.ts",
+      "sha256": "08de60977f4dc328ed48904a55413e4012aeb9a6da9e568c61f1e91526f17f8e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/app/api/engineering/work/[id]/native/route.ts",
+      "sha256": "f5c02fd1ff0837fb2f9e343a240c60beda638d1b22fdbacbe02da47150cd50b3",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-api.ts",
+      "sha256": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-input.ts",
+      "sha256": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-model-budget.ts",
+      "sha256": "a3c61e6c932aa981ef6de532cbb244fa2555cd9fc987f645f58a82ace4221048",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-model.ts",
+      "sha256": "7b57f2ee6687c600d147b761911fc5d165b55ace6f8622dbfe53394e58874846",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-qualification.ts",
+      "sha256": "b0045e346ae0439565e3629952ee9e0b26c992d2b618c538dacc71c75da82289",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-results.ts",
+      "sha256": "4a9e5aea882a4f2de8162186fb4b543e3baf71bfbfc3adfa9db453ed8c906474",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-routing.ts",
+      "sha256": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-behavior.ts",
+      "sha256": "b4509c08d422ebb773f8016998856843566d810da79974896e9740568f78bafa",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/conversation-budget.ts",
+      "sha256": "6daee5d7a1c191aa3aabb90dc89b9b4435a8f36ab6f23dc1939b8e7218d8910a",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/conversation-model.ts",
+      "sha256": "65198c09664523152bcde2f7992dac6db1c111a099cdd031a39a7286609c644c",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/run-truth.ts",
+      "sha256": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/current-truth-lines.ts",
+      "sha256": "54a4afc426b714b48502427e2566539ef4889744c41d4db416bbe6a10594da83",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/completion-budget-plan.ts",
+      "sha256": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-completion.ts",
+      "sha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-execution-controller.ts",
+      "sha256": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/native-repair-context.ts",
+      "sha256": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652",
+      "input": "90d668f76b5156a304906522295180515cfe85d4"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-producer-protocol.ts",
+      "sha256": "c6266eb0e64974577ef5df3bc8db21ac497b86910aed336bfab444dec0807c26",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-producer-signature.ts",
+      "sha256": "6a2e40d3e5b3ee04e675e15a6f89d0c11412569f9a8fc5f27615583e8d9b90cb",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-receipt-store.ts",
+      "sha256": "dae0b2761be5ad50c22073772939d58435c10b38eb9557619e1663970ccb9aa1",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-result-consumer.ts",
+      "sha256": "a71a41799af92b7d1a2c97d8651eda15ce127cd123f4e0ada1b1a8f555bcbae3",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-result-channel.ts",
+      "sha256": "98f389bb9b7a2f7461230b056acbd9fc7eeb1f819f1a3fed16563508aa941966",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-authenticated-result.ts",
+      "sha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-return-contract.ts",
+      "sha256": "c49d20666fd59d3d79928958178e8be56e46d7bef256c3639e6c8882732e3b89",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/factory-return.ts",
+      "sha256": "c6d665a212940b9a29866dfb803f13ab687aa2cdeded979df3deb1bdb0c6e9df",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/engineering/relay-collaboration.ts",
+      "sha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/myfactory-protocol.mjs",
+      "sha256": "91a1f513108437fa641b61dde6d6b1fc53c4a8dc36493c58d6f631573333b075",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    },
+    {
+      "path": "apps/eve/lib/myfactory-protocol.d.mts",
+      "sha256": "bd4584d0cc4d466ee16e25619db6f79390bc894d805f644ec963b91a3e6d192c",
+      "input": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d"
+    }
+  ]
+}

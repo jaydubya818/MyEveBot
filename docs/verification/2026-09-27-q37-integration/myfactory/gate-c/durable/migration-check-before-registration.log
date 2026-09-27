@@ -1,0 +1,8 @@
+file:///Users/jaywest/.codex/worktrees/q37-integration/Myeve/apps/eve/scripts/migrate-database.ts:7
+  throw new Error(`CURRENT_DATABASE_MIGRATION must match the newest migration (${migrations.at(-1)?.name}).`);
+        ^
+
+Error: CURRENT_DATABASE_MIGRATION must match the newest migration (0054_factory_result_receipts.sql).
+    at file:///Users/jaywest/.codex/worktrees/q37-integration/Myeve/apps/eve/scripts/migrate-database.ts:7:9
+
+Node.js v24.18.1

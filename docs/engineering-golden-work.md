@@ -1,5 +1,8 @@
 # Golden Work: isolated internal implementation
 
+**Canonical Digital Worker integration (2026-09-27):** `codex/digital-worker-integration` combines M1 implementation `90d668f`, its documentation-only `78b6bef` update, and qualified Gate C `96ae446`. [Combined evidence and canonical commit identity](verification/2026-09-27-digital-worker-integration/REPORT.md) record local M1 **PASS** (Result **PARTIAL**), M1 live **NOT QUALIFIED**, Gate C **PASS / CLOSED**, and **zero cross-boundary authority violations / false Ready**. Migration 0053 and Gate C 0054 are unchanged; the legacy remote migration is renumbered byte-for-byte to registered 0055. The dirty older Digital Worker implementation is superseded, with its historical evidence preserved under its owner. Gate B is **PENDING / READY TO IMPLEMENT only from the final integration commit**; live MyFactory and independent verification of Factory output remain **NOT_RUN**. This baseline adds no Factory writer or dispatch authority.
+
+
 This branch implements a bounded internal engineering workflow. **It is not a qualified external Alpha or an approved Production release.** The qualification dossier distinguishes live executor evidence, real PostgreSQL/Docker tests, provider simulations and blocked live GitHub gates.
 
 ## Supported scope
@@ -150,3 +153,11 @@ Compaction is deterministic and uses no model call. Lower-priority plan narrativ
 The controller and effect boundaries are unchanged. Local authenticated controlled-provider tests use the preserved failed plan/source and complete inspect → repair write → submit → independent protected PASS → immutable PARTIAL → fresh explanation in ten total calls. Oversized essential evidence creates no extra reservation or call. Full app/root regression, accounting, projection, verifier, typecheck/governance and production build pass.
 
 **Live M1/ER1: READY FOR FINAL REQUALIFICATION, NOT QUALIFIED. Gap #2B and Gap #2 remain PARTIAL.** No live authority was issued, no prior Work resumed, and no ER2 work started.
+
+## Fresh 90d668f live outcome — BLOCKED
+
+The [new authenticated live qualification](verification/2026-09-27-m1er1-90d668f-live/REPORT.md) proves bounded repair context dispatch within 12355–12574 bytes. It reached protected failure and failure inspection, then proposed two writes using stale revision 2 despite current revision 5 in production context. Both returned “Result needs verification before retry”; neither altered the candidate/draft. The session hard-stop ended the attempt after nine paid calls.
+
+Spend is **$0.118796**, with provider reservations and UNKNOWN exposure zero. The new Work is paused and authority revoked; temporary resources are stopped. Two action-level result_unknown records and both rejected proposals remain preserved, separately from settled provider accounting. No repaired candidate, protected PASS, successful PARTIAL or final explanation was reached.
+
+**M1/ER1: NOT QUALIFIED. Gap #2B and Gap #2: PARTIAL.** Next blocker: repair tool/revision continuity and the remaining protected PASS → PARTIAL → fresh explanation path. No harness fix, extra window, peer resumption or ER2 was started.

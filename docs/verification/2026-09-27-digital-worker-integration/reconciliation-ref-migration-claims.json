@@ -1,0 +1,27 @@
+[
+  {
+    "ref": "refs/heads/codex/p0-gap2b-qualification",
+    "file": "apps/eve/migrations/0053_native_completion_contract.sql",
+    "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+  },
+  {
+    "ref": "refs/heads/codex/q37-integration",
+    "file": "apps/eve/migrations/0053_native_completion_contract.sql",
+    "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+  },
+  {
+    "ref": "refs/heads/codex/q37-integration",
+    "file": "apps/eve/migrations/0054_factory_result_receipts.sql",
+    "sha256": "722f6b24052f53cda67da755011438ceacf65aa0dfc0579d5afde998f64a6634"
+  },
+  {
+    "ref": "refs/remotes/origin/codex/q37-integration",
+    "file": "apps/eve/migrations/0053_native_completion_contract.sql",
+    "sha256": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53"
+  },
+  {
+    "ref": "refs/remotes/origin/codex/q37-integration",
+    "file": "apps/eve/migrations/0054_engineering_factory_results.sql",
+    "sha256": "a431db228036cc6fd07128db861c99ee4add2de6afe43f1ec5a4c32b83df2141"
+  }
+]

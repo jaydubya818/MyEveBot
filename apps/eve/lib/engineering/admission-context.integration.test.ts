@@ -115,9 +115,9 @@ async function counts(workId: string) {
 describe.skipIf(!enabled)("authenticated production admission context with real PostgreSQL", () => {
   beforeAll(async () => {
     vi.stubGlobal("fetch", vi.fn(() => { throw new Error("Network forbidden in local admission qualification"); }));
-    admin = new Client({ connectionString: "postgresql://postgres@127.0.0.1:55468/postgres" });
+    admin = new Client({ connectionString: "postgresql://postgres@127.0.0.1:55479/postgres" });
     await admin.connect(); await admin.query(`CREATE DATABASE ${name}`);
-    pool = new Pool({ connectionString: `postgresql://postgres@127.0.0.1:55468/${name}` });
+    pool = new Pool({ connectionString: `postgresql://postgres@127.0.0.1:55479/${name}` });
     local.query.mockImplementation(async (sql, params) => {
       if (admissionRace && sql.includes("WITH locked_work AS MATERIALIZED") && sql.includes("), admitted AS (")) { const race = admissionRace; admissionRace = undefined; await race(); }
       return (await pool.query(sql, params)).rows;
@@ -140,7 +140,7 @@ describe.skipIf(!enabled)("authenticated production admission context with real 
     await writeFile(join(directory, "config.json"), JSON.stringify(config));
     for (const [key, value] of Object.entries({ MYEVE_ENGINEERING_MODE: "dogfood", VERCEL_ENV: "development",
       MYEVE_ENGINEERING_CONFIG: join(directory, "config.json"), MYEVE_OWNER_ID: owner,
-      DATABASE_URL: `postgresql://postgres@127.0.0.1:55468/${name}`,
+      DATABASE_URL: `postgresql://postgres@127.0.0.1:55479/${name}`,
       MYEVE_ACCESS_PASSWORD: "local-only-test", MYEVE_SESSION_SECRET: "0123456789abcdef0123456789abcdef" })) vi.stubEnv(key, value);
     await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
       VALUES($1,$2,'Sofie','sofie','engineer','Bounded local contract test',true,'active',1.3,1800,10)`, [agentId, owner]);

@@ -1,0 +1,191 @@
+{
+  "worktrees": [
+    {
+      "path": "/Users/jaywest/Myeve",
+      "registration": [
+        "HEAD a7936898c77d157aa66c222b86aedce07e265e16",
+        "branch refs/heads/main"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "M README.md\n M apps/eve/agent/connections/composio.ts\n M apps/eve/agent/instructions/computer-runtime.ts\n M apps/eve/scripts/executor-inventory.json\n?? .playwright-cli/\n?? docs/plans/2026-09-25-feat-myeve-engineering-plan.md\n?? docs/plans/2026-09-25-knowledge-verification.md\n?? docs/plans/2026-09-25-myeve-engineering-claude-review.md\n?? docs/plans/2026-09-25-myeve-engineering-source-ledger.md\n?? docs/plans/2026-09-25-myeve-engineering-verification.md\n?? docs/verification/digital-worker/\n?? output/knowledge-verification-2026-09-25.md\n?? output/playwright/knowledge-2026-09-25/",
+        "error": ""
+      },
+      "migrations": []
+    },
+    {
+      "path": "/private/tmp/knowledge-production-source",
+      "registration": [
+        "HEAD 47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+        "branch refs/heads/codex/knowledge-production"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": []
+    },
+    {
+      "path": "/private/tmp/myfactory-myeve-main-merge",
+      "registration": [
+        "HEAD f6c645844c009e4e3acdec56b9ad08b72660f670",
+        "detached"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/digital-worker-mvp/Myeve",
+      "registration": [
+        "HEAD acfe498a8eaf3a394087079d4a1978adcca3277d",
+        "branch refs/heads/codex/digital-worker-mvp"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "M apps/eve/agent/tools/engineering_direct.ts\n M apps/eve/lib/database-schema.ts\n M apps/eve/lib/engineering/native-model.test.ts\n M apps/eve/lib/engineering/native-model.ts\n M apps/eve/lib/engineering/native-results.ts\n M apps/eve/lib/engineering/native-routing.ts\n M apps/eve/lib/engineering/route-admission.ts\n M apps/eve/lib/engineering/runtime.ts\n?? apps/eve/lib/engineering/native-completion.ts\n?? apps/eve/migrations/0053_native_completion_contract.sql\n?? apps/eve/test/native-completion-migration.integration.mjs\n?? apps/eve/test/native-completion-process.mjs\n?? apps/eve/test/native-completion.integration.mjs\n?? docs/verification/2026-09-26-p0-gap2b-implementation/",
+        "error": ""
+      },
+      "migrations": [
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql",
+        "0053_native_completion_contract.sql"
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+      "registration": [
+        "HEAD f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+        "branch refs/heads/codex/p0-gap-02-common-ledger"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": [
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql"
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+      "registration": [
+        "HEAD 55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+        "branch refs/heads/codex/p0-gap2b-projection"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": [
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql"
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+      "registration": [
+        "HEAD 6630363618612826e322590f450afc1185e9aaea",
+        "branch refs/heads/codex/p0-gap2b-qualification"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "M apps/eve/agent/tools/engineering_direct.ts\n M apps/eve/lib/engineering/current-truth-lines.ts\n M apps/eve/lib/engineering/native-model.ts\n M apps/eve/lib/engineering/route-admission.ts\n M apps/eve/lib/engineering/worker-projection.ts",
+        "error": ""
+      },
+      "migrations": [
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql",
+        "0053_native_completion_contract.sql"
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+      "registration": [
+        "HEAD 56e5f30d91694e87f55234307cf946bc6a2b9772",
+        "branch refs/heads/codex/q37-integration"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": [
+        "0051_engineering_conversation_budget.sql",
+        "0052_work_model_ledger.sql",
+        "0053_native_completion_contract.sql"
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+      "registration": [
+        "HEAD 6ed31375d773f534d8ca9409581bd21bd2d2627a",
+        "branch refs/heads/codex/sofie-chat-mainline"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+      "registration": [
+        "HEAD fc31671ffc17a660aab575ee7ae67f166fc68877",
+        "branch refs/heads/codex/thread-owner-conflict"
+      ],
+      "status": {
+        "exit": 0,
+        "output": "",
+        "error": ""
+      },
+      "migrations": []
+    },
+    {
+      "path": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+      "registration": [
+        "HEAD cab819bdd93ae1470925765728faacf8f6beab25",
+        "branch refs/heads/codex/myfactory-hosted-routing"
+      ],
+      "status": {
+        "status": "TIMEOUT_PROTECTED"
+      },
+      "migrations": []
+    }
+  ],
+  "originMain": {
+    "exit": 0,
+    "output": "c8c160abab7dd7d13cdfbb9bc0924b09d2e99ae1",
+    "error": ""
+  },
+  "localMain": {
+    "exit": 0,
+    "output": "a7936898c77d157aa66c222b86aedce07e265e16",
+    "error": ""
+  },
+  "mainDivergence": {
+    "exit": 0,
+    "output": "1\t43",
+    "error": ""
+  },
+  "factory": {
+    "head": {
+      "exit": 0,
+      "output": "543906dc20fefed2def97e43953095ea0b7c60bc",
+      "error": ""
+    },
+    "status": {
+      "exit": 0,
+      "output": "",
+      "error": ""
+    }
+  },
+  "scope": "Read-only checkout and migration-ownership snapshot; unrelated changes belong to their existing owners."
+}

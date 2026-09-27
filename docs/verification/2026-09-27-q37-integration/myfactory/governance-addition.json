@@ -1,0 +1,19 @@
+{
+  "baseline": "3c030bc364bd0ff787053b855994b21fc86f7a74",
+  "entries": {
+    "lib/engineering/factory-return-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict bounded synthetic MyFactory return and local source/candidate pin schemas using actual Factory receipt, Run, Check and event fields. No provider, filesystem, authority or execution effects.",
+      "sha256": "678f9d0150bc1d9dd8865ab771bcc1d546e6564c3a9508fd244d998bb12313be"
+    },
+    "lib/engineering/factory-return.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure synthetic MyEve-owned submission, candidate/evidence custody, duplicate, historical, UNKNOWN and cancellation projections. Reported Factory claims never grant authority or protected verification/readiness; no I/O, dispatch or durable writer mutations.",
+      "sha256": "c6d665a212940b9a29866dfb803f13ab687aa2cdeded979df3deb1bdb0c6e9df"
+    }
+  },
+  "preservedExistingEntries": 639,
+  "existingBytesPreserved": true,
+  "beforeSha256": "3fedd0e7ed308f12deb8a51658ebb63d4b99ee44e1ac348a857ba02ac5320625",
+  "afterSha256": "a65692bc8de57b97fc497004fec5bf58ca4f224dfc514ec075bc45ffce84387c"
+}

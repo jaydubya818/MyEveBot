@@ -1,3 +1,4 @@
+import {assertReceiptDoesNotGrantAuthority} from './integration-authority-boundary.mjs';
 import {engineeringConversationModel} from '../lib/engineering/conversation-model.ts';
 import {EngineeringWorkerProjectionStore} from '../lib/engineering/worker-projection.ts';
 import {currentTruthLines} from '../lib/engineering/current-truth-lines.ts';
@@ -24,12 +25,12 @@ import {nativeBudgetedModel} from '../lib/engineering/native-model.ts';
 import {DirectDevelopmentStore} from '../lib/engineering/direct-development.ts';
 import {DirectVerificationDriver} from '../lib/engineering/direct-verification-driver.ts';
 import {NativeResultStore} from '../lib/engineering/native-results.ts';
-const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55468/postgres'});await admin.connect();
+const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55479/postgres'});await admin.connect();
 const name='gap2b_'+randomBytes(8).toString('hex');let pool;
 try {
- await admin.query('CREATE DATABASE '+name);const databaseURL='postgresql://postgres@127.0.0.1:55468/'+name;
+ await admin.query('CREATE DATABASE '+name);const databaseURL='postgresql://postgres@127.0.0.1:55479/'+name;
  pool=new Pool({connectionString:databaseURL});const client=await pool.connect();
- const migrations=await loadMigrations();assert.equal(migrations.length,53);
+ const migrations=await loadMigrations();assert.equal(migrations.length,55);
  const migrationDb={query:async(s,p)=>(await client.query(s,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const x of statements)await client.query(x.sql,x.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}};
  await runMigrations(migrationDb,migrations,()=>{});client.release();
  const database={query:async(s,p)=>(await pool.query(s,p)).rows};const owner='completion-owner',agentId='completion-sofie';
@@ -176,6 +177,7 @@ try {
  const admissionResponse=await initialModel.doGenerate(freshOptions);assert.equal(JSON.parse(admissionResponse.content[0].input).request.operation,'admit');
  const proposalFromModel=nativeDevelopmentToolSchema.parse(JSON.parse(admissionResponse.content[0].input)).request;
  await admitNativeWork(store,journey.id,proposalFromModel.expectedWorkVersion,proposalFromModel.expectedWorkGeneration,authority,'writer');
+ const assertFactoryUnchanged=explanationVariant==='valid'?await assertReceiptDoesNotGrantAuthority(pool,store,journey,agentId):null;
  const initialReceipt=(await pool.query("SELECT reserved_microusd,spent_microusd FROM engineering_work_model_calls WHERE work_id=$1",[journey.id])).rows[0];
  assert(Number(initialReceipt.reserved_microusd)+await held(journey)<=1300000);
  console.log('PASS: actual fresh conversation wrapper/schema/Current Truth plus full completion maximum fit unchanged $1.30',JSON.stringify({conversationBound:Number(initialReceipt.reserved_microusd),completionHold:await held(journey)}));
@@ -235,6 +237,7 @@ try {
  await assert.rejects(direct.plan(journey.id,final.revision,'Third attempt'),/repair iteration/);
  await assert.rejects(direct.submit(journey.id,final.revision),/repair iteration/);
  if(explanationVariant==='valid' && process.env.NATIVE_COMPLETION_TELEMETRY)await writeFile(process.env.NATIVE_COMPLETION_TELEMETRY,JSON.stringify({kind:'LOCAL_SYNTHETIC_CONTROLLED_PROVIDER',ceilingMicrousd:1300000,initialConversationBoundMicrousd:Number(initialReceipt.reserved_microusd),completionHoldMicrousd:initialHold,maximumPlannedMicrousd:Number(initialReceipt.reserved_microusd)+initialHold,telemetry,finalTruth},null,2)+'\n');
+ if(assertFactoryUnchanged)await assertFactoryUnchanged();
  console.log('PASS: '+explanationVariant+' fresh explanation truth/charge; third source repair denied');
  }
 

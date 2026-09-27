@@ -1,0 +1,62 @@
+{
+  "sourceCommit": "543906dc20fefed2def97e43953095ea0b7c60bc",
+  "sourceFilesMatched": 14,
+  "checks": [
+    {
+      "name": "expected receipt key authenticates the actual status shape",
+      "kind": "PRIMITIVE",
+      "result": "PASS"
+    },
+    {
+      "name": "wrong producer key rejected",
+      "kind": "PRIMITIVE",
+      "result": "PASS"
+    },
+    {
+      "name": "wrong request rejected",
+      "kind": "PRIMITIVE",
+      "result": "PASS"
+    },
+    {
+      "name": "changed signed bytes rejected",
+      "kind": "PRIMITIVE",
+      "result": "PASS"
+    },
+    {
+      "name": "unknown receipt protocol rejected",
+      "kind": "PRIMITIVE",
+      "result": "PASS"
+    },
+    {
+      "name": "producer receipt lacks required execution attestation fields",
+      "kind": "GAP_CONFIRMED",
+      "result": "PASS"
+    },
+    {
+      "name": "unchanged receipt authenticates alongside substituted unsigned candidate data",
+      "kind": "GAP_CONFIRMED",
+      "result": "PASS"
+    },
+    {
+      "name": "receipt reader has no replay admission state",
+      "kind": "GAP_CONFIRMED",
+      "result": "PASS"
+    },
+    {
+      "name": "legacy request rejects a new Work binding field",
+      "kind": "GAP_CONFIRMED",
+      "result": "PASS"
+    }
+  ],
+  "checksPassed": 9,
+  "scope": "Ephemeral in-memory keys, real protocol code, synthetic receipt; no service or candidate admission",
+  "conclusion": "Admission/status authentication exists; authenticated candidate return and execution-version attestation are missing",
+  "gateC": "PARTIAL",
+  "factoryVersionAttestation": "FAIL",
+  "factoryGrantedAuthority": 0,
+  "unauthenticatedCandidateAdmission": 0,
+  "falseReady": 0,
+  "liveFactory": "NOT_RUN",
+  "independentVerification": "NOT_RUN",
+  "readiness": "NOT_READY"
+}

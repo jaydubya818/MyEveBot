@@ -5,9 +5,9 @@ import { Client, Pool } from "pg";
 import { requireSelectedWorkContext } from "../agent/hooks/engineering-work-context.ts";
 import { loadMigrations, runMigrations } from "../scripts/migration-runner.ts";
 
-const adminUrl = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? "postgresql://postgres@127.0.0.1:55468/postgres");
+const adminUrl = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? "postgresql://postgres@127.0.0.1:55479/postgres");
 assert.equal(adminUrl.hostname, "127.0.0.1");
-assert.equal(adminUrl.port, "55468");
+assert.equal(adminUrl.port, "55479");
 assert.equal(adminUrl.pathname, "/postgres");
 
 const admin = new Client({ connectionString: adminUrl.href });

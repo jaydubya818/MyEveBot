@@ -11,9 +11,9 @@ import {digest} from '../lib/engineering/contract.ts';
 // quiescent checkpoint is read, then restored into newly created local clones.
 const checkpoint=process.env.GAP2B_CHECKPOINT;
 assert(checkpoint,'GAP2B_CHECKPOINT must identify the approved offline checkpoint.');
-const adminURL='postgresql://postgres@127.0.0.1:55468/postgres';
+const adminURL='postgresql://postgres@127.0.0.1:55479/postgres';
 const bin='/opt/homebrew/opt/postgresql@17/bin/';
-const migrations=await loadMigrations();
+const migrations=(await loadMigrations()).slice(0,53);
 assert.equal(migrations.length,53);
 assert.equal(migrations[50].checksum,'49806249a1b105cda3724372d9bc9b6afd66d1292e5c461eccbb31581a094fce');
 assert.equal(migrations[51].checksum,'a6958d75de012f257c5a4378cd2828b422806f776bc9462689077a93dd9fe106');
@@ -79,7 +79,7 @@ try{
  for(const mode of ['fresh','populated-0052','checkpoint-clone']){
   const name='gap2b_migration_'+randomBytes(8).toString('hex');let client;
   try{
-   await admin.query('CREATE DATABASE '+name);const url='postgresql://postgres@127.0.0.1:55468/'+name;
+   await admin.query('CREATE DATABASE '+name);const url='postgresql://postgres@127.0.0.1:55479/'+name;
    if(mode==='checkpoint-clone')execFileSync(bin+'pg_restore',['--no-owner','--no-acl','--dbname',url,checkpoint],{stdio:'pipe'});
    client=new Client({connectionString:url});await client.connect();const db=database(client);
    let before,authorityBefore;

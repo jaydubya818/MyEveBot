@@ -1,0 +1,7 @@
+{
+  "commit": "fcd8afd6fbaa2b9045b9e9700608d546edf011a9",
+  "regularFilesByteEqual": 296,
+  "symlinkTargetsEqual": 2,
+  "mismatches": 0,
+  "gitMetadataForGovernance": "Read-only GIT_DIR for ls-tree; the producer source remains in the disposable archive."
+}

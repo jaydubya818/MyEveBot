@@ -8,12 +8,12 @@ import {EngineeringWorkerProjectionStore} from '../lib/engineering/worker-projec
 import {currentTruthLines} from '../lib/engineering/current-truth-lines.ts';
 const checkpoint=process.env.GAP2B_CHECKPOINT;
 assert(checkpoint,'Provide a private retained checkpoint; this test never connects to the retained database.');
-const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55468/postgres'});
+const admin=new Client({connectionString:'postgresql://postgres@127.0.0.1:55479/postgres'});
 const name=`gap2b_projection_${randomBytes(8).toString('hex')}`;
 await admin.connect();let pool;
 try{
  await admin.query(`CREATE DATABASE ${name}`);
- const url=`postgresql://postgres@127.0.0.1:55468/${name}`;
+ const url=`postgresql://postgres@127.0.0.1:55479/${name}`;
  execFileSync('/opt/homebrew/opt/postgresql@17/bin/pg_restore',['--no-owner','--no-acl','--dbname',url,checkpoint]);
  const migration=new Client({connectionString:url});await migration.connect();
  try{await runMigrations({query:async(s,p)=>(await migration.query(s,p)).rows,transaction:async statements=>{await migration.query('BEGIN');try{for(const s of statements)await migration.query(s.sql,s.params);await migration.query('COMMIT');}catch(e){await migration.query('ROLLBACK');throw e;}}},await loadMigrations(),()=>{});}finally{await migration.end();}

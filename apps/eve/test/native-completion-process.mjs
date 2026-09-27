@@ -7,7 +7,7 @@ import {DirectVerificationDriver} from '../lib/engineering/direct-verification-d
 import {DockerProtectedVerifier} from '../lib/engineering/docker-executor.ts';
 import {NativeResultStore} from '../lib/engineering/native-results.ts';
 process.once('message',async ({databaseURL,config,workId,stage,reservation,action})=>{
- const url=new URL(databaseURL);if(url.hostname!=='127.0.0.1'||url.port!=='55468'||!/^\/gap2b_[a-f0-9]{16}$/.test(url.pathname))throw Error('Disposable database only');
+ const url=new URL(databaseURL);if(url.hostname!=='127.0.0.1'||url.port!=='55479'||!/^\/gap2b_[a-f0-9]{16}$/.test(url.pathname))throw Error('Disposable database only');
  const pool=new Pool({connectionString:url.href}),store=new WorkStore({scopeId:config.ownerId,scopeKind:'personal',actorId:config.ownerId},{query:async(s,p)=>(await pool.query(s,p)).rows});
  const authority=new NativeRouteAuthority(store,async()=>config),budget=new NativeModelBudget(store,authority);
  if(stage==='CONTRACT'){const w=await store.get(workId);await admitNativeWork(store,workId,w.version,w.generation,authority,'writer');}

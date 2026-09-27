@@ -2,13 +2,37 @@ import { createHash, createHmac, timingSafeEqual, sign, verify } from "node:cryp
 
 const REQUEST = "MYFACTORY_REQUEST_V1";
 const RECEIPT = "MYFACTORY_RECEIPT_V1";
+const RESULT = "MYFACTORY_RESULT_V1";
+const hex64 = /^[a-f0-9]{64}$/;
+const gitId = /^[a-f0-9]{40,64}$/;
+function binding(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid factory binding");
+  const keys = ["ownerId", "agentId", "workId", "workVersion", "workGeneration", "criteriaVersion",
+    "submissionDigest", "expectedFactoryId", "expectedFactoryVersion"];
+  if (Object.keys(value).some(key => !keys.includes(key))) throw new Error("Unsupported factory binding field");
+  const version = value.expectedFactoryVersion;
+  if (!version || typeof version !== "object" || Array.isArray(version) ||
+      Object.keys(version).some(key => !["sourceCommit", "sourceTree", "configurationDigest"].includes(key)) ||
+      !gitId.test(version.sourceCommit) || !gitId.test(version.sourceTree) ||
+      !hex64.test(version.configurationDigest)) throw new Error("Invalid expected FactoryVersion");
+  for (const key of ["ownerId", "agentId", "workId", "expectedFactoryId"])
+    text(value[key], key, 160);
+  for (const key of ["workVersion", "workGeneration", "criteriaVersion"])
+    if (!Number.isSafeInteger(value[key]) || value[key] < 1) throw new Error(`Invalid ${key}`);
+  if (!hex64.test(value.submissionDigest)) throw new Error("Invalid submission digest");
+  return { ownerId: value.ownerId, agentId: value.agentId, workId: value.workId,
+    workVersion: value.workVersion, workGeneration: value.workGeneration, criteriaVersion: value.criteriaVersion,
+    submissionDigest: value.submissionDigest, expectedFactoryId: value.expectedFactoryId,
+    expectedFactoryVersion: { sourceCommit: version.sourceCommit, sourceTree: version.sourceTree,
+      configurationDigest: version.configurationDigest } };
+}
 function text(value, name, max) {
   if (typeof value !== "string" || !value.trim() || value.length > max) throw new Error(`Invalid ${name}`);
   return value.trim();
 }
 export function parseInput(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error("Invalid factory request");
-  const keys = ["idempotencyKey", "title", "description", "kind", "acceptanceCriteria", "allowedPaths"];
+  const keys = ["idempotencyKey", "title", "description", "kind", "acceptanceCriteria", "allowedPaths", "factoryBinding"];
   if (Object.keys(input).some(key => !keys.includes(key))) throw new Error("Unsupported factory request field");
   if (Buffer.byteLength(JSON.stringify(input), "utf8") > 20000) throw new Error("Factory request exceeds the 20 KB intake limit");
   if (!["feature", "defect", "investigation"].includes(input.kind)) throw new Error("Invalid work kind");
@@ -18,10 +42,12 @@ export function parseInput(input) {
   };
   const allowedPaths = list(input.allowedPaths, "allowed paths");
   if (allowedPaths.some(path => path.startsWith("/") || path.includes("\\") || path.split("/").includes("..") || path.includes("\0"))) throw new Error("Invalid allowed path");
-  if (JSON.stringify(input).includes("MYFACTORY_REQUEST_V1") || JSON.stringify(input).includes("MYFACTORY_RECEIPT_V1")) throw new Error("Reserved factory envelope marker");
+  if ([REQUEST, RECEIPT, RESULT].some(marker => JSON.stringify(input).includes(marker)))
+    throw new Error("Reserved factory envelope marker");
   return { idempotencyKey: text(input.idempotencyKey, "idempotencyKey", 160),
     title: text(input.title, "title", 200), description: text(input.description, "description", 12000), kind: input.kind,
-    acceptanceCriteria: list(input.acceptanceCriteria, "acceptance criteria"), allowedPaths };
+    acceptanceCriteria: list(input.acceptanceCriteria, "acceptance criteria"), allowedPaths,
+    ...(input.factoryBinding === undefined ? {} : { factoryBinding: binding(input.factoryBinding) }) };
 }
 export function requestId(clientId, key) {
   const hash = createHash("sha256").update(JSON.stringify(["myfactory-linear-v1", clientId, key])).digest("hex");
@@ -84,6 +110,9 @@ export function readReceipt(description, publicKey, issueId) {
   return receipt;
 }
 
+// Gate C candidate results use the qualified exact-attempt result channel in
+// engineering/factory-result-channel.ts. Linear remains intake/status only.
+
 const FIELDS = "id identifier url title description team { id }";
 export async function submitHostedRequest(config, rawInput, graphql) {
   const input = parseInput(rawInput), id = requestId(config.clientId, input.idempotencyKey);
@@ -99,7 +128,8 @@ export async function submitHostedRequest(config, rawInput, graphql) {
   const payload = readRequest(issue, { id: config.clientId, tokenSha256: createHash("sha256").update(config.token).digest("hex") }, config);
   if (JSON.stringify(payload.input) !== JSON.stringify(input)) throw new Error("Idempotency key belongs to another factory request");
   return { requestId: id, issueIdentifier: issue.identifier, issueUrl: issue.url,
-    receipt: readReceipt(issue.description, config.receiptPublicKey, id) };
+    receipt: readReceipt(issue.description, config.receiptPublicKey, id),
+    result: null };
 }
 
 export async function getHostedRequest(config, id, graphql) {
@@ -108,5 +138,6 @@ export async function getHostedRequest(config, id, graphql) {
   if (!issue) throw new Error("Factory request was not found");
   readRequest(issue, { id: config.clientId, tokenSha256: createHash("sha256").update(config.token).digest("hex") }, config, 0);
   return { requestId: id, issueIdentifier: issue.identifier, issueUrl: issue.url,
-    receipt: readReceipt(issue.description, config.receiptPublicKey, id) };
+    receipt: readReceipt(issue.description, config.receiptPublicKey, id),
+    result: null };
 }

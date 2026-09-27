@@ -1,0 +1,36 @@
+{
+  "baseline": "e36b6b25a1d1093c20cd9216ff8ee474631b25a3",
+  "producerCommit": "fcd8afd6fbaa2b9045b9e9700608d546edf011a9",
+  "checks": [
+    {
+      "command": "node scripts/check-executor-governance.ts",
+      "exitCode": 0,
+      "stdout": "executor governance ok: 642 classified sources; UNKNOWN=0; Routine activation remains disabled\n",
+      "stderr": ""
+    },
+    {
+      "command": "node scripts/migrate-database.ts --check",
+      "exitCode": 0,
+      "stdout": "Validated 53 ordered database migration(s).\n",
+      "stderr": ""
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "inventoryByteForBytePreserved": true,
+  "inventorySha256": "c64996a408eb7e643c09c7aa10025fd3ef15784180f7068c396961da2e8033d2",
+  "producerGoldenReferenceVerification": "PASS; reference verifier only, no MyEve admission",
+  "producerGoldenSha256": "97bee4233701ce3d110201ad74aaed54e56a96676dc07d3b3a700c817e3d8da1",
+  "actualProtocolConsumerTests": "NOT_RUN: required migration stop",
+  "typecheck": "NOT_RUN: documentation-only change",
+  "productionBuild": "NOT_RUN: documentation-only change",
+  "independentVerification": "NOT_RUN",
+  "liveFactory": "NOT_RUN",
+  "factoryGrantedAuthority": 0,
+  "falseReady": 0,
+  "unauthenticatedAdmissions": 0
+}

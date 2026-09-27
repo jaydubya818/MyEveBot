@@ -1,0 +1,7 @@
+{
+  "lib/engineering/relay-collaboration.ts": {
+    "classification": "INTERNAL",
+    "reason": "Pure Work-bound Relay disclosure and reply validation. No provider calls, memory enumeration or durable writes; trusted caller must supply current exact Work/grant/transport identity and atomically persist advisory receipts through existing authority guards.",
+    "sha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb"
+  }
+}

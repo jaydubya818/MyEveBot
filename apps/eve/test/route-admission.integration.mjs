@@ -7,9 +7,9 @@ import { RoutingStore } from "../lib/engineering/routing-store.ts";
 import { EngineeringWorkerProjectionStore } from "../lib/engineering/worker-projection.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
 
-const url = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? "postgresql://postgres@127.0.0.1:55468/postgres");
+const url = new URL(process.env.ENGINEERING_TEST_ADMIN_URL ?? "postgresql://postgres@127.0.0.1:55479/postgres");
 assert.equal(url.hostname, "127.0.0.1");
-assert.equal(url.port, "55468");
+assert.equal(url.port, "55479");
 assert.equal(url.pathname, "/postgres");
 const admin = new Client({ connectionString: url.href });
 await admin.connect();

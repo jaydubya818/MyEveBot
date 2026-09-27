@@ -1,0 +1,16 @@
+--- a/apps/eve/lib/database-schema.ts
++++ b/apps/eve/lib/database-schema.ts
+@@ -1 +1 @@
+-export const CURRENT_DATABASE_MIGRATION = "0053_native_completion_contract.sql";
++export const CURRENT_DATABASE_MIGRATION = "0054_factory_result_receipts.sql";
+--- a/apps/eve/scripts/executor-inventory.json
++++ b/apps/eve/scripts/executor-inventory.json
+@@ -2176,7 +2176,7 @@
+     "lib/database-schema.ts": {
+       "classification": "NOT_APPLICABLE",
+       "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
+-      "sha256": "4b69480e5ffdff7eaa08c70e22f0dea41b51ebb6d93ad83e1f10d60d90c97012"
++      "sha256": "072e1d5286be2e1e0b06731f71a3f211f78d82adfb5809a23ea98221fe09522a"
+     },
+     "lib/decision-intelligence/challenge-cohorts.ts": {
+       "classification": "INTERNAL",

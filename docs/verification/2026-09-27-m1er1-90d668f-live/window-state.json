@@ -1,0 +1,6 @@
+{
+  "id": "gap2b-m1er1-b076a7b5-582a-4461-8ca7-803a6deea992",
+  "status": "REVOKED",
+  "at": "2026-09-27T06:55:17.263Z",
+  "reason": "Repair allowance exhausted after two stale expectedRevision=2 write proposals; no repair mutation/submission. Stop without retry."
+}

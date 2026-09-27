@@ -1,0 +1,42 @@
+{
+  "migration": "0054_factory_result_receipts.sql",
+  "owner": "Q37 / MyFactory Gate C durable receipt admission",
+  "migrationSha256": "722f6b24052f53cda67da755011438ceacf65aa0dfc0579d5afde998f64a6634",
+  "migrationBytesChangedAfterQualification": 0,
+  "registered": true,
+  "canonicalMigrationCount": 54,
+  "postgresChecks": 47,
+  "myeveTests": 178,
+  "producerTests": 72,
+  "exitCodes": {
+    "canonicalMigrationValidation": 0,
+    "postgresQualification": 0,
+    "myeveRegression": 0,
+    "producerRegression": 0,
+    "myeveTypecheck": 0,
+    "producerStrictTypecheck": 0,
+    "producerWebTypecheck": 0,
+    "webpackBuild": 0,
+    "governance": 0
+  },
+  "governanceSources": 647,
+  "unknownGovernanceEntries": 0,
+  "unrelatedGovernanceEntriesChanged": 0,
+  "safetyCounters": {
+    "unauthenticatedAdmissions": 0,
+    "factoryGrantedWriterAuthority": 0,
+    "factoryGrantedPublicationAuthority": 0,
+    "factoryGrantedApprovalAuthority": 0,
+    "factoryGrantedReady": 0,
+    "duplicateAdmissions": 0,
+    "silentConflictingManifestAcceptance": 0,
+    "crossWorkResultAttachment": 0,
+    "falseReady": 0
+  },
+  "gateC": "PASS_LOCALLY_CLOSED",
+  "gateB": "READY_FOR_COORDINATION_NOT_IMPLEMENTED",
+  "independentVerification": "NOT_RUN",
+  "liveFactory": "NOT_RUN",
+  "readiness": "NOT_READY",
+  "defaultTurbopack": "Existing dependency symlinks outside filesystem root; retained environment/tooling limitation; dependency layout unchanged"
+}

@@ -1,0 +1,9 @@
+{
+  "baseCommit": "3ebd510db294565642dbcbce5d507cdf2beba13b",
+  "addedEntry": "lib/engineering/relay-collaboration.ts",
+  "existingEntryCount": 638,
+  "existingEntriesUnchanged": true,
+  "originalBytesRecoveredByRemovingInsertion": true,
+  "beforeSha256": "8fa66f83e6133f3636284aff7cee0cbf38b0782fb4719bb84497aa7e167bf623",
+  "afterSha256": "3fedd0e7ed308f12deb8a51658ebb63d4b99ee44e1ac348a857ba02ac5320625"
+}

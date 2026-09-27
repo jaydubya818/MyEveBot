@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "branch": "codex/digital-worker-integration",
+  "m1Implementation": "90d668f76b5156a304906522295180515cfe85d4",
+  "m1Documentation": "78b6befb1139b8bf9b3b806f8bbef2fbb6408e90",
+  "gateCInput": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+  "producerInput": "fcd8afd6fbaa2b9045b9e9700608d546edf011a9",
+  "app": {
+    "pass": 1516,
+    "skip": 40,
+    "filesPass": 176,
+    "filesSkip": 3,
+    "authenticatedPostgresIntegration": "ENABLED"
+  },
+  "root": {
+    "pass": 151,
+    "fail": 0
+  },
+  "gateCPostgres": {
+    "pass": 47
+  },
+  "legacy0055": {
+    "pass": 11
+  },
+  "producer": {
+    "pass": 72,
+    "typecheck": "PASS",
+    "governance": "PASS"
+  },
+  "migrationManifest": {
+    "status": "PASS",
+    "count": 55
+  },
+  "nativeCompletion": "PASS",
+  "migration0053": "PASS",
+  "historicalProjection": "PASS",
+  "routeAdmission": "PASS_ON_ISOLATED_RERUN",
+  "workContext": "PASS",
+  "workerProjection": "PASS",
+  "protectedVerifier": "PASS",
+  "typecheck": "PASS",
+  "webpack": "PASS",
+  "governance": {
+    "status": "PASS",
+    "sources": 649,
+    "UNKNOWN": 0,
+    "unrelatedEntriesChanged": 0
+  },
+  "M1Local": "PASS",
+  "M1LocalResult": "PARTIAL",
+  "M1Live": "NOT QUALIFIED",
+  "GateC": "PASS / CLOSED",
+  "GateB": "PENDING / READY TO IMPLEMENT FROM FINAL COMMIT ONLY",
+  "independentFactoryVerification": "NOT_RUN",
+  "liveMyFactory": "NOT_RUN",
+  "safety": {
+    "factoryGrantedAuthority": 0,
+    "crossBoundaryAuthorityViolations": 0,
+    "falseReady": 0,
+    "retainedDatabaseWrites": 0,
+    "liveProviderCalls": 0
+  },
+  "disposablePostgresCleanup": {
+    "remainingNonTemplateDatabases": [
+      "postgres"
+    ],
+    "cluster": "/private/tmp/digital-worker-integration-pg",
+    "port": 55479,
+    "status": "STOPPED"
+  }
+}

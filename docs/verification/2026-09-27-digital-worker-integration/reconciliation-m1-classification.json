@@ -1,0 +1,219 @@
+[
+  {
+    "path": "README.md",
+    "m1": "38704bf5603914dc0af0c3e46422eeaf31b961b4847d5b14cec7d0f49ad0c648",
+    "dirty": "6c425e88960ab3117747538b2c39e18e384e2460ac71d84d1c6d3b23cc86dea1",
+    "classification": "C",
+    "reason": "Keep prior ownership/qualification history; use current qualified implementation evidence rather than the older status prose."
+  },
+  {
+    "path": "apps/eve/agent/tools/engineering_direct.ts",
+    "m1": "4adedda1c41fe9759f24b0cf87d50a276b50ebbe2578d65e1e9243533d323fc0",
+    "dirty": "482c821a911725fef9aba62249d93ea056cb35d6f167f06e02f12a856fed8f7b",
+    "classification": "A",
+    "reason": "90d668f includes exact-generation admission, same-session duplicate handling, deterministic productive phases, bounded no-progress recovery and guarded operation observations."
+  },
+  {
+    "path": "apps/eve/components/engineering/work-dashboard.tsx",
+    "m1": "0fe8f5fa4d9ebbe3cbb1d6b7c626b8c657abe6675bc3e3ec8c506159ce151ac7",
+    "dirty": "149c602a85582f00d2bf4a1f8c6bfbfd69cf2da053357a72f16f89c1b992f9b7",
+    "classification": "A",
+    "reason": "Owner UI submits both observed Work version and generation."
+  },
+  {
+    "path": "apps/eve/lib/engineering/admission-context.integration.test.ts",
+    "m1": "8e1a4818b4c0274435d1ae76e62741f8fcd08d0c7228b01a003c8e3098a988ba",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New authenticated production-path PostgreSQL coverage: admission, writer identity, stale tokens, phase controller, repair and protected verification."
+  },
+  {
+    "path": "apps/eve/lib/engineering/conversation-model.ts",
+    "m1": "65198c09664523152bcde2f7992dac6db1c111a099cdd031a39a7286609c644c",
+    "dirty": "37bd22c08c930c3a3d01a622fcd4b7a7c07349bb0fce52e10139631fc1e67d8b",
+    "classification": "A",
+    "reason": "Retains common ledger; adds canonical admission context, preflight of complete budget and fresh read-only final explanation."
+  },
+  {
+    "path": "apps/eve/lib/engineering/current-truth-lines.ts",
+    "m1": "54a4afc426b714b48502427e2566539ef4889744c41d4db416bbe6a10594da83",
+    "dirty": "d07f449742fb5cabff1ff5ab057030370ed1fd3555e3903302a6dd9a4755666b",
+    "classification": "A",
+    "reason": "Retains shared formatter; adds exact generation, admitted-ready state, controller, candidate history and completion status."
+  },
+  {
+    "path": "apps/eve/lib/engineering/direct-development.ts",
+    "m1": "47bd084456a050f8659807d139d0c72ff65a566e226f93c97f0ebecac08b486b",
+    "dirty": "7b93bc8aff5648fd69a2976d0632cf882c6d1cb4982fd8ed49bb262a03d2c58f",
+    "classification": "A",
+    "reason": "Adds bounded repair-iteration denial; existing candidate and mutation fences remain."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-api.test.ts",
+    "m1": "72d8cf2e2a038e90ef0ed4080cd23753a0291aa53f9a1fef13290c3721ce1a99",
+    "dirty": "efa65282413e7ab0fd91d24da8774f72efa9e22124a0948cdf81d98a3fa56ae4",
+    "classification": "A",
+    "reason": "Same auth/origin/forged-input boundaries plus required generation in admission inputs."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-api.ts",
+    "m1": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e",
+    "dirty": "3293b935dc6019d497485badd2f80f800dfbeba325d87fe49260bc0c19e0d9d9",
+    "classification": "A",
+    "reason": "Requires and passes observed generation through the existing native admission service."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-execution-controller.ts",
+    "m1": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New read-derived phase/next-operation/controller and scoped progress observations; not a new writer grant."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-input.ts",
+    "m1": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712",
+    "dirty": "9f9113f536788326ee3ae015db0d3fd1379159984dbf0e0625c6dad1a4485ce1",
+    "classification": "A",
+    "reason": "Adds required generation, reasoned dependency reads and structured plan; retains bounded legacy text plans."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-model.test.ts",
+    "m1": "b29bd536855537c8d945d60650ed98b3a9691bb8e6a7259efa0861790cc1f1df",
+    "dirty": "9e4586607d7b186bc4848505c365d675dbec8bd67116a3af6da4b8914f74d0b4",
+    "classification": "A",
+    "reason": "Dependency fixture updated for canonical Current Truth; original denial/accounting behavior retained."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-model.ts",
+    "m1": "7b57f2ee6687c600d147b761911fc5d165b55ace6f8622dbfe53394e58874846",
+    "dirty": "31d7de82416e6d597b4e0f7c227b6314ed43cff5c4c0bea791e4e28d02171650",
+    "classification": "A",
+    "reason": "Extends bounded completion context with canonical metadata/controller, stops productive EXPLAIN and no-progress calls, invokes bounded repair assembler."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-repair-context.test.ts",
+    "m1": "25ed9cc154a0dcb21ec16cd555e67d0e552d30ec7ee02b5b5fba99176fdcca78",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New exact 16040-byte regression and adversarial coverage; protected diagnostics and hard limits preserved."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-repair-context.ts",
+    "m1": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New qualified bounded repair assembler retains candidate/criteria/verifier evidence and explicit truncation provenance."
+  },
+  {
+    "path": "apps/eve/lib/engineering/native-routing.ts",
+    "m1": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc",
+    "dirty": "2f79a321266c50d93e4534a6e91281fb25e2e4f05a5d56e8bfbaa659439c3788",
+    "classification": "A",
+    "reason": "Rejects historical routes without completion; requires exact generation and preserves admission continuity."
+  },
+  {
+    "path": "apps/eve/lib/engineering/route-admission.ts",
+    "m1": "d23e00eaffee8f5931d8da188cda990b24c97816b149922fe19bf609fbefe3cc",
+    "dirty": "2f05c5acf277d81ecbb81785d136595135eccfda3cc6f862627f223d4e7d5f52",
+    "classification": "A",
+    "reason": "Atomic route/completion/native-session creation under Work lock, generation CAS, existing-runtime denial and explicit budget error."
+  },
+  {
+    "path": "apps/eve/lib/engineering/worker-projection.test.ts",
+    "m1": "e22103a1c7198c1f905fa6cfe1c5221226f0d05a332d8950d07b93fddabfffdd",
+    "dirty": "cba6ac29e9b972749ae4e7f2ebf6375cb93362e8d149ed09fe4f28df1d6d1747",
+    "classification": "A",
+    "reason": "Fixtures reflect one-snapshot held capacity and required qualified native provider/completion; original A-I historical/current distinctions retained."
+  },
+  {
+    "path": "apps/eve/lib/engineering/worker-projection.ts",
+    "m1": "2d3d2f109b7fb32786abbc0fbeb6746499c5406ad3b909204d99774f8b6b2286",
+    "dirty": "0ed60d29d215e3df01879053c07a88085c7e0c3590f6c09fe5c0487104351541",
+    "classification": "A",
+    "reason": "Retains historical/current run separation and adds atomic budget observation, candidate history, explanation status and productive controller."
+  },
+  {
+    "path": "apps/eve/migrations/0053_native_completion_contract.sql",
+    "m1": "1f3fd2316758e547608fb4e23480105d1ce3a1dcb93a04a4c5be69841f2c5a53",
+    "dirty": "a01c3b83a7d360216aa0bd11bb70319f0fc484efadbf31c19c565ac0ef869300",
+    "classification": "A",
+    "reason": "Qualified lineage protects call slots as well as money, retains unfinished obligations past expiry, separates read-only EXPLAIN, and rechecks expiry/call limits on dispatch."
+  },
+  {
+    "path": "apps/eve/scripts/executor-inventory.json",
+    "m1": "cec9e7548ebb160888ba7f639b70cf60f296ef49c8f878a1c1d06ede0ff6c8ac",
+    "dirty": "cdd634a55907847e3084369b5c2a37e6393670f51281228079d75ab3eeeed72c",
+    "classification": "A",
+    "reason": "Qualified M1 inventory has 3 added native entries and 13 reviewed existing-entry changes; no removed entries. Preserve those native decisions during future Q37 union."
+  },
+  {
+    "path": "apps/eve/test/engineering-conversation.integration.mjs",
+    "m1": "0130c611a0eea031a5b331ac8b766e5212acc0e51247fa4ff78d0e1adfdeb7b3",
+    "dirty": "144b8f4f802f2072ad6ba126a01e6ad66596cbae469a9277ad496c861c4174c9",
+    "classification": "A",
+    "reason": "Same regression updated to supply observed generation."
+  },
+  {
+    "path": "apps/eve/test/engineering-native-host.integration.mjs",
+    "m1": "45b5f75b524afe609ef9e090966dfee773cfba4587f5842674e5f41e11153abc",
+    "dirty": "f498d50ee8053282a33fb46069fefb080b8c12e361cd20f300e72dd1cf26ec00",
+    "classification": "A",
+    "reason": "Observed-generation API update; pre-completion-contract fixture failure remains documented, not silently waived."
+  },
+  {
+    "path": "apps/eve/test/engineering-native-live.mjs",
+    "m1": "c5024ddaa8d41eee550fd4e18df0f9f43e3227ec4b808c93012cef678edc3b20",
+    "dirty": "d3e6fb34c101c05d0e574e515f9ab1e99cf79cb07b9137b432ca7ac4a3cf7c1b",
+    "classification": "A",
+    "reason": "Observed-generation API update only; not run by reconciliation."
+  },
+  {
+    "path": "apps/eve/test/fixtures/repair-context/inputs.json",
+    "m1": "cca7400050f1dbfc87a1afbccd2767fc3775bd1aa8205d42ca411abb246cf730",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New frozen repair-context reproduction fixture, supporting exact bounded-repair qualification."
+  },
+  {
+    "path": "apps/eve/test/fixtures/repair-context/legacy-payload.json",
+    "m1": "d4794944a2edfccb1d3b8a06fe6b70b68cfa4252fc3bfd5c219757577e274001",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New exact oversized historical payload fixture; preserved as regression evidence."
+  },
+  {
+    "path": "apps/eve/test/gap2b-prepare-fresh.mjs",
+    "m1": "3f58c25822aa81f13a99a76d4aeb7a144f7c154d5853d118f469e8f186d4a153",
+    "dirty": null,
+    "classification": "A",
+    "reason": "New bounded fresh-fixture preparation; retains historical Work and grants no provider authority. Not executed."
+  },
+  {
+    "path": "apps/eve/test/native-completion-process.mjs",
+    "m1": "c0d26d32e2fea6f994469c20c058205106f96e0fe8f173360602142ce1f0c12d",
+    "dirty": "c13b241ae502895b7bfccab61cc8cc29084cc5e3404ee971929a86780dced686",
+    "classification": "A",
+    "reason": "Crash fixture updated to observed-generation admission."
+  },
+  {
+    "path": "apps/eve/test/native-completion.integration.mjs",
+    "m1": "390eded8e2149dddbf2b2dd07c8510de8976f4f68942edc53cc105963e52fa08",
+    "dirty": "9932911e917daa79b20d000117eea418eeb312ba91ae52dec487c33968fe1a4b",
+    "classification": "A",
+    "reason": "Supersedes incomplete dirty harness: fixes exact SQL interception, malformed stages, real mode change, atomic custody after crash, ten calls with fresh explanation and protected verification."
+  },
+  {
+    "path": "apps/eve/test/route-admission.integration.mjs",
+    "m1": "b55033a59e687d7290ee432f9568ff0cf4056cdabf1e047fc90ee7f05b9de134",
+    "dirty": "7cb3a1813ab786b66cff2038f4067058c41a5eee678ef98d88f294e4e9a0b799",
+    "classification": "A",
+    "reason": "Competing writer fixture satisfies completion admission schema; original contention gate retained."
+  },
+  {
+    "path": "apps/eve/test/work-model-ledger.integration.mjs",
+    "m1": "edac225d594230bb75bdc9e5d52f66132e65c3573cfc69326fb95b144d9b451d",
+    "dirty": "d32399050a978c7d54e62eb0ae1b441323dba6d9155ba2f49839606ee51b74a9",
+    "classification": "A",
+    "reason": "Common-ledger native calls updated to supply observed generation; no replacement ledger."
+  }
+]

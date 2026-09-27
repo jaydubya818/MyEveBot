@@ -2,6 +2,51 @@
   "version": 2,
   "note": "Source-level inventory: classifications describe consequential effects; mixed sources may also contain reads/internal state. Every helper/API change requires review. See docs/action-executor-audit.md.",
   "executors": {
+    "lib/engineering/factory-producer-protocol.ts": {
+      "classification": "INTERNAL",
+      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects.",
+      "sha256": "c6266eb0e64974577ef5df3bc8db21ac497b86910aed336bfab444dec0807c26"
+    },
+    "lib/engineering/factory-producer-signature.ts": {
+      "classification": "INTERNAL",
+      "reason": "Qualified producer Ed25519 domain-separated signing/verification primitive with TypeScript key guards. Keys must be supplied explicitly; no key creation, storage, provider calls or authority grants.",
+      "sha256": "6a2e40d3e5b3ee04e675e15a6f89d0c11412569f9a8fc5f27615583e8d9b90cb"
+    },
+    "lib/engineering/factory-receipt-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 Work-scoped receipt custody through the additive engineering_factory_receipt SQL boundary. Immutable request/envelope identities and serialized staged admission; no protected writer, budget, approval, publication or verification mutation.",
+      "sha256": "dae0b2761be5ad50c22073772939d58435c10b38eb9557619e1663970ccb9aa1"
+    },
+    "lib/engineering/factory-result-consumer.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition.",
+      "sha256": "a71a41799af92b7d1a2c97d8651eda15ce127cd123f4e0ada1b1a8f555bcbae3"
+    },
+    "lib/engineering/factory-result-channel.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect.",
+      "sha256": "98f389bb9b7a2f7461230b056acbd9fc7eeb1f819f1a3fed16563508aa941966"
+    },
+    "lib/engineering/factory-authenticated-result.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN.",
+      "sha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf"
+    },
+    "lib/engineering/factory-return-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict bounded MyFactory synthetic return and trusted expected FactoryVersion schemas using actual receipt, Run, Check and event fields. No provider, filesystem, authority or execution effects.",
+      "sha256": "c49d20666fd59d3d79928958178e8be56e46d7bef256c3639e6c8882732e3b89"
+    },
+    "lib/engineering/factory-return.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure synthetic MyEve-owned submission, candidate/evidence custody, duplicate, historical, UNKNOWN and cancellation projections. Reported Factory claims never grant authority or protected verification/readiness; no I/O, dispatch or durable writer mutations.",
+      "sha256": "c6d665a212940b9a29866dfb803f13ab687aa2cdeded979df3deb1bdb0c6e9df"
+    },
+    "lib/engineering/relay-collaboration.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure Work-bound Relay disclosure and reply validation. No provider calls, memory enumeration or durable writes; trusted caller must supply current exact Work/grant/transport identity and atomically persist advisory receipts through existing authority guards.",
+      "sha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb"
+    },
     "agent/agent.ts": {
       "classification": "INTERNAL",
       "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards.",
@@ -2131,7 +2176,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Database readiness requires migration 0050 before native runtime or proof queries; pure schema-version constant, no effects.",
-      "sha256": "4b69480e5ffdff7eaa08c70e22f0dea41b51ebb6d93ad83e1f10d60d90c97012"
+      "sha256": "610955355cc6371769f7c19a4ccb42c80f7d39a1dfebf332b0ef71f2b3b046bb"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",

@@ -1,0 +1,464 @@
+{
+  "work": {
+    "id": "5f658138-b176-40a3-a12e-873b21abbe74",
+    "scopeId": "m1er1-90d668f-owner",
+    "title": "Fresh authenticated M1/ER1 — 90d668f",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "repository": "jaydubya818/myeve-golden-work-qual",
+    "lifecycle": "active",
+    "control": "paused",
+    "version": 3,
+    "generation": 3,
+    "criteriaVersion": 1,
+    "criteria": [
+      {
+        "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+        "method": "test",
+        "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+      }
+    ],
+    "maxCostUsd": 1.3,
+    "maxDurationSeconds": 1800,
+    "createdAt": "2026-09-27T06:52:29.614Z",
+    "updatedAt": "2026-09-27T06:55:17.501Z"
+  },
+  "events": [
+    {
+      "id": "18396de3-44bf-4270-8f88-429b3bccb820",
+      "kind": "pause",
+      "actorId": "m1er1-90d668f-owner",
+      "version": 3,
+      "createdAt": "2026-09-27T06:55:17.501Z"
+    },
+    {
+      "id": "a5df8483-8391-4904-800c-85712dbdc221",
+      "kind": "resume",
+      "actorId": "m1er1-90d668f-owner",
+      "version": 2,
+      "createdAt": "2026-09-27T06:53:08.537Z"
+    },
+    {
+      "id": "2ad4b03e-1cec-4632-abc0-6fba56780cb9",
+      "kind": "created",
+      "actorId": "m1er1-90d668f-owner",
+      "version": 1,
+      "createdAt": "2026-09-27T06:52:29.614Z"
+    }
+  ],
+  "criteriaHistory": [
+    {
+      "version": 1,
+      "criteria": [
+        {
+          "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+          "method": "test",
+          "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+        }
+      ],
+      "createdAt": "2026-09-27T06:52:29.614Z"
+    }
+  ],
+  "execution": null,
+  "manifest": null,
+  "projection": {
+    "runTruth": {
+      "activeRun": null,
+      "latestRun": {
+        "id": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+        "purpose": "DEEP_AGENT",
+        "storedStatus": "RUNNING",
+        "effectiveStatus": "STALE",
+        "reasons": [
+          "Work version or generation changed",
+          "Work is not under active Agent control",
+          "Completion workflow is STAGE_EXHAUSTED; history is read-only"
+        ],
+        "generationCurrent": false,
+        "associatedAt": "2026-09-27T06:53:13.945Z",
+        "timestampSource": "admission",
+        "deadline": "2026-09-27T07:23:13.936Z"
+      },
+      "runHistory": [
+        {
+          "id": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+          "purpose": "DEEP_AGENT",
+          "storedStatus": "RUNNING",
+          "effectiveStatus": "STALE",
+          "reasons": [
+            "Work version or generation changed",
+            "Work is not under active Agent control",
+            "Completion workflow is STAGE_EXHAUSTED; history is read-only"
+          ],
+          "generationCurrent": false,
+          "associatedAt": "2026-09-27T06:53:13.945Z",
+          "timestampSource": "admission",
+          "deadline": "2026-09-27T07:23:13.936Z"
+        }
+      ],
+      "latestOrderCertain": true,
+      "writerSession": {
+        "recordedId": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+        "runId": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+        "productive": false,
+        "boundaryRecheckRequired": true
+      }
+    },
+    "verification": {
+      "candidateSha": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+      "status": "FAIL",
+      "jobStatus": "COMPLETED",
+      "evidenceCount": 10,
+      "evidenceHashes": [
+        "6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004",
+        "27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+        "4e4aba212230627ca4d9f9c41ddfcf7c96768cfaf1083d81874703c65d920c05",
+        "2b2d55282035e9d3bdf3b4e19a35f420cca7601da6bfa94b775c0db3fe8f09bd",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+        "5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+        "6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004"
+      ]
+    },
+    "draft": {
+      "revision": 5,
+      "contentHash": "5cbbc7353174a22be994b136ed24e1ed2949601b80fde3ea0a0d54821d2a09ce",
+      "differsFromCandidate": false
+    },
+    "completionBudget": {
+      "ceilingUsd": 1.3,
+      "heldUsd": 0.112641,
+      "observed": true,
+      "remainingUsd": null
+    },
+    "candidateHistory": [
+      {
+        "sha": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+        "checks": "FAIL",
+        "failures": [
+          "quantity-0",
+          "quantity-1",
+          "quantity-2",
+          "quantity-3",
+          "quantity-4",
+          "quantity-5",
+          "quantity-6",
+          "quantity-7",
+          "quantity-8",
+          "quantity-9"
+        ],
+        "evidenceCount": 10
+      }
+    ],
+    "completionStatus": "STAGE_EXHAUSTED",
+    "nativeExecution": {
+      "admissionStatus": "NEEDS_ADMISSION",
+      "phase": "NEEDS_ADMISSION",
+      "nextOperation": null,
+      "admissionRequired": true,
+      "runId": null,
+      "writerSessionId": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "route": null,
+      "control": "paused",
+      "completionContractId": "b60922a0-d00d-4ed5-bf0b-016508db8f0c"
+    },
+    "executionController": {
+      "phase": "BLOCKED",
+      "nextOperation": null,
+      "allowedOperations": [],
+      "runId": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+      "writer": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+      "version": 3,
+      "generation": 3,
+      "base": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+      "revision": 5,
+      "candidate": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+      "targets": [
+        "quantity.mjs"
+      ],
+      "known": {
+        "opened": true,
+        "inspected": [
+          {
+            "hash": "fd9a3c5b16902fd9b83cee6a1137367923df042ff57a5f4050b38100bb214c96",
+            "path": "README.md"
+          }
+        ],
+        "requiredReads": [
+          "README.md"
+        ],
+        "absentTargets": [
+          "quantity.mjs"
+        ],
+        "plan": {
+          "files": [
+            "quantity.mjs"
+          ],
+          "change": "Create quantity.mjs at repo root as an ES module. Read all of stdin, trim it, then parse with `const n = parseInt(input, 10);` and check `Number.isInteger(n) && n > 0`. If true, print JSON.stringify({quantity: n}) to stdout; otherwise print JSON.stringify({error: \"invalid_quantity\"}). This is the first candidate implementation, using parseInt on the trimmed input to accept positive integers.",
+          "verification": "Independent protected verification will run the pinned test/quantity.test.mjs via npm test to check behavior against the fixture contract, including the fractional-input case (e.g. '1.5').",
+          "assumptions": "parseInt-based parsing is expected to be accepted for integer-looking positive inputs but will incorrectly accept the leading-numeric portion of fractional strings like '1.5' (parseInt('1.5',10) === 1), so the protected fractional-input check is expected to fail for this first candidate, per the qualification design.",
+          "blockers": []
+        },
+        "diagnosed": "1ebf8daabccfd741559dbb6e8aac511ab7330bef"
+      },
+      "budget": {
+        "callsRemaining": 1,
+        "stageCallsRemaining": 0,
+        "repairRemaining": 1,
+        "heldMicrousd": 112641,
+        "spentMicrousd": 118796
+      },
+      "progress": {
+        "fingerprint": "5de60365357ec0b848a2a7d16eee5d032bfe3ae5da24e3fd89e37a651f493fdd",
+        "consecutiveNoProgress": 2,
+        "recovery": "NO_PROGRESS"
+      },
+      "metrics": {
+        "modelCalls": 9,
+        "productiveCalls": 6,
+        "coordinationCalls": 3,
+        "noProgressCalls": 2,
+        "operations": 8,
+        "candidateRevisions": 1,
+        "verificationAttempts": 1,
+        "repairAttempts": 0,
+        "humanInterventions": 1,
+        "phaseTransitions": [
+          "ORIENT",
+          "PLAN",
+          "IMPLEMENT",
+          "VERIFY",
+          "REPAIR",
+          "BLOCKED"
+        ]
+      }
+    },
+    "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+    "title": "Fresh authenticated M1/ER1 — 90d668f",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "workVersion": 3,
+    "workGeneration": 3,
+    "criteriaVersion": 1,
+    "lifecycle": "active",
+    "control": "paused",
+    "workContract": null,
+    "authoritySummary": {
+      "admitted": false,
+      "generationCurrent": false,
+      "deadlineCurrent": false,
+      "boundaryRecheckRequired": true
+    },
+    "qualificationMode": null,
+    "status": "Needs reconciliation",
+    "activity": "Common Work accounting is REVOKED; history is retained.",
+    "nextStep": "Reconcile historical Work liabilities and obtain current authority before productive continuation. Do not reset spent or reserved amounts.",
+    "readiness": {
+      "ready": false,
+      "reasons": [
+        "Native protected verification: FAIL. Retained Result: FAILED. Publication, CI, independent review and owner acceptance remain unverified."
+      ]
+    },
+    "currentRun": null,
+    "attention": null,
+    "pendingDecisions": [],
+    "latestResult": {
+      "id": "d5dd4b09-f10f-4004-b7e2-cb977ee2eeaf",
+      "version": 2,
+      "summary": "Native development: FAILED. Publication and acceptance are not established.",
+      "candidate": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+      "createdAt": "2026-09-27T06:53:46.924Z"
+    },
+    "nativeDevelopment": {
+      "phase": "VERIFICATION_FAILED",
+      "label": "Checks failed; revision needed",
+      "revision": 5,
+      "candidateSha": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+      "evidenceCount": 10,
+      "current": false,
+      "updatedAt": "2026-09-27T06:53:46.924Z"
+    },
+    "nativeResult": {
+      "id": "d5dd4b09-f10f-4004-b7e2-cb977ee2eeaf",
+      "proof": {
+        "contractVersion": 2,
+        "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+        "workVersion": 2,
+        "criteriaVersion": 1,
+        "outcome": "FAILED",
+        "resultRevision": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+        "createdAt": "2026-09-27T06:53:46.924Z",
+        "evidence": [
+          {
+            "criterionId": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+            "resultRevision": "1ebf8daabccfd741559dbb6e8aac511ab7330bef",
+            "state": "FAIL",
+            "producer": "trusted-verifier",
+            "sourceRef": "native-verification:5f658138-b176-40a3-a12e-873b21abbe74:1ebf8daabccfd741559dbb6e8aac511ab7330bef:adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+            "contentHash": "sha256:a35be84ad934f55df4dd08bd563a71797edc9753dfb7588d4c070d5ca72c2417",
+            "observedAt": "2026-09-27T06:53:46.924Z"
+          }
+        ],
+        "artifactRefs": [
+          "native-candidate:adaa6f78-5201-4581-b3b7-19dd7967de94:sha256:756588c965d00aca33fced39825ae3712a5b576e2d796f54f79ec46a24f25e06",
+          "protected-evidence:sha256:6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004",
+          "protected-evidence:sha256:27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+          "protected-evidence:sha256:4e4aba212230627ca4d9f9c41ddfcf7c96768cfaf1083d81874703c65d920c05",
+          "protected-evidence:sha256:2b2d55282035e9d3bdf3b4e19a35f420cca7601da6bfa94b775c0db3fe8f09bd",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:27518fae0e1ce5549ca91c261770cd615ee78e526bdc1513515c15dac8bb18ab",
+          "protected-evidence:sha256:5da3a4da54773a56deafd9eda7ccf121017f27ce34e46a439395ed3cd3d69e7a",
+          "protected-evidence:sha256:6ad8209deca79f633db9e9bfc1b1ea0f3bbd76c8bf63633908c4fdef1fed8004",
+          "changed-source:quantity.mjs"
+        ],
+        "limitations": [
+          "This record covers native source development and protected local verification. GitHub publication, CI, review and owner acceptance have not been established.",
+          "Recorded native model spend: $0.054428. Infrastructure costs are not covered."
+        ]
+      },
+      "contentHash": "6938803a191212d71222e633a975698e70068f60fc937f1fd3c6c0693f6fcce4",
+      "current": false
+    },
+    "nativeRuntime": {
+      "spentUsd": 0,
+      "reservedUsd": 0,
+      "usageUnknown": false,
+      "inflight": false
+    },
+    "conversationRuntime": {
+      "status": "REVOKED",
+      "spentUsd": 0.118796,
+      "reservedUsd": 0,
+      "usageUnknown": false,
+      "inflight": false
+    },
+    "routing": {
+      "decisionId": "7cd9ea54-052c-42f4-ad6e-bf461dde3099",
+      "status": "STALE",
+      "selectedRoute": "DEEP_AGENT",
+      "reason": "Bounded source development requires the qualified native Sofie provider and independent protected verification.",
+      "providerId": "myeve-native-sofie"
+    },
+    "repositoryObservation": null,
+    "lastMeaningfulActivity": "2026-09-27T06:55:17.501Z",
+    "lastChange": {
+      "kind": "pause",
+      "at": "2026-09-27T06:55:17.501Z",
+      "actorId": "m1er1-90d668f-owner",
+      "version": 3
+    },
+    "source": {
+      "kind": "durable-engineering-work",
+      "readAt": "2026-09-27T06:55:35.065Z",
+      "workRef": "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74:v3",
+      "executionRef": null,
+      "resultRef": "native-result:d5dd4b09-f10f-4004-b7e2-cb977ee2eeaf",
+      "routingRef": "engineering-route-decision:7cd9ea54-052c-42f4-ad6e-bf461dde3099"
+    }
+  },
+  "executionHistory": [],
+  "routing": {
+    "decision": {
+      "id": "7cd9ea54-052c-42f4-ad6e-bf461dde3099",
+      "workId": "5f658138-b176-40a3-a12e-873b21abbe74",
+      "workVersion": 2,
+      "selectedRoute": "DEEP_AGENT",
+      "reason": "Bounded source development requires the qualified native Sofie provider and independent protected verification.",
+      "source": "POLICY",
+      "profile": {
+        "risk": "isolated source changes",
+        "duration": "bounded by Work",
+        "ambiguity": "approved objective and criteria",
+        "workShape": "bounded repository change",
+        "interaction": "owner-selected chat",
+        "parallelism": "single writer",
+        "verification": "independent protected checks",
+        "decomposition": "one candidate at a time",
+        "humanJudgment": "owner controls Work; publication is separate",
+        "profileVersion": 1,
+        "externalExpertise": "none"
+      },
+      "eligibleRoutes": [
+        "DEEP_AGENT",
+        "HUMAN"
+      ],
+      "rejectedRoutes": [
+        {
+          "route": "DIRECT",
+          "reason": "Exploratory source development needs an Agent loop."
+        },
+        {
+          "route": "EXECUTOR",
+          "reason": "This native Work authorization does not admit another provider."
+        },
+        {
+          "route": "MYFACTORY",
+          "reason": "This native Work authorization does not admit another provider."
+        },
+        {
+          "route": "RELAY",
+          "reason": "This native Work authorization does not admit another provider."
+        }
+      ],
+      "constraints": [
+        "One writer",
+        "Approved source paths only",
+        "No publication or Ready authority"
+      ],
+      "providerId": "myeve-native-sofie",
+      "providerVersion": "1",
+      "status": "STALE",
+      "admission": {
+        "reason": "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.",
+        "policyId": "native-engineering",
+        "policyVersion": 1,
+        "request": {
+          "route": "DEEP_AGENT",
+          "resourceRefs": [
+            "repository:jaydubya818/myeve-golden-work-qual",
+            "engineering-profile:sha256:aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72"
+          ],
+          "requiredOperations": [
+            "deep-agent.start",
+            "repository.read",
+            "sandbox.write",
+            "candidate.create",
+            "verification.request"
+          ]
+        },
+        "contextHash": "sha256:c440a6c1572ffdb8ab0788feced9975d0bddfd1ac4b3d84a8eb9526df0d33757",
+        "authorityHash": "sha256:0c849d501084889752d5259f0764ba0bd3e007d2df665b3fea05f3545533d8cb",
+        "admittedAt": "2026-09-27T06:53:13.945Z"
+      },
+      "createdAt": "2026-09-27T06:53:13.913Z"
+    },
+    "transitions": [
+      {
+        "id": "17c17666-a2ad-4a8b-86e2-361d02c8f561",
+        "fromRoute": "HUMAN",
+        "toRoute": "DEEP_AGENT",
+        "reason": "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.",
+        "trigger": "policy-admission",
+        "decisionId": "7cd9ea54-052c-42f4-ad6e-bf461dde3099",
+        "contextSnapshotRef": "sha256:c440a6c1572ffdb8ab0788feced9975d0bddfd1ac4b3d84a8eb9526df0d33757",
+        "authoritySnapshotRef": "sha256:0c849d501084889752d5259f0764ba0bd3e007d2df665b3fea05f3545533d8cb",
+        "createdAt": "2026-09-27T06:53:13.944Z"
+      }
+    ],
+    "runs": [
+      {
+        "id": "b60922a0-d00d-4ed5-bf0b-016508db8f0c",
+        "route": "DEEP_AGENT",
+        "providerId": "myeve-native-sofie",
+        "providerVersion": "1",
+        "status": "RUNNING",
+        "decisionId": "7cd9ea54-052c-42f4-ad6e-bf461dde3099",
+        "workVersion": 2,
+        "workGeneration": 2,
+        "updatedAt": "2026-09-27T06:53:18.842Z"
+      }
+    ]
+  }
+}

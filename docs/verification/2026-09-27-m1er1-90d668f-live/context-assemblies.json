@@ -1,0 +1,57 @@
+[
+  {
+    "id": "context_4c61a262-4721-4d1d-9c31-4e8ec232acc7",
+    "owner_id": "m1er1-90d668f-owner",
+    "agent_id": "m1er1-90d668f-sofie",
+    "session_id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+    "agent_run_id": "agent_run_wrun_01M3GT75DM563MVX72DTXPCPVW_turn_0",
+    "thread_id": "09ab9834-08e4-498b-94b3-a969af882bab",
+    "goal_id": null,
+    "goal_task_id": null,
+    "task_run_id": null,
+    "memory_refs": [],
+    "thread_summary_id": null,
+    "source_refs": [
+      "agent:m1er1-90d668f-sofie",
+      "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74:v2",
+      "engineering-criteria:5f658138-b176-40a3-a12e-873b21abbe74:v1"
+    ],
+    "estimated_tokens": 4767,
+    "budget": {
+      "maximumTokens": 12000,
+      "retrievalTokens": 4000,
+      "reservedInstructionTokens": 4000
+    },
+    "created_at": "2026-09-27T06:53:09.740Z"
+  },
+  {
+    "id": "context_41464390-21f0-44e3-b67a-4bb5026943bd",
+    "owner_id": "m1er1-90d668f-owner",
+    "agent_id": "m1er1-90d668f-sofie",
+    "session_id": "wrun_01M3GT75DM563MVX72DTXPCPVW",
+    "agent_run_id": "agent_run_wrun_01M3GT75DM563MVX72DTXPCPVW_turn_1",
+    "thread_id": "09ab9834-08e4-498b-94b3-a969af882bab",
+    "goal_id": null,
+    "goal_task_id": null,
+    "task_run_id": null,
+    "memory_refs": [],
+    "thread_summary_id": null,
+    "source_refs": [
+      "agent:m1er1-90d668f-sofie",
+      "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74",
+      "engineering-work:5f658138-b176-40a3-a12e-873b21abbe74:v2",
+      "engineering-criteria:5f658138-b176-40a3-a12e-873b21abbe74:v1",
+      "engineering-route-decision:7cd9ea54-052c-42f4-ad6e-bf461dde3099",
+      "native-result:d5dd4b09-f10f-4004-b7e2-cb977ee2eeaf",
+      "conversation:recent-native"
+    ],
+    "estimated_tokens": 5825,
+    "budget": {
+      "maximumTokens": 12000,
+      "retrievalTokens": 4000,
+      "reservedInstructionTokens": 4000
+    },
+    "created_at": "2026-09-27T06:54:15.023Z"
+  }
+]

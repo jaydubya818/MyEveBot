@@ -1,0 +1,14 @@
+✔ signed intake binds caller, repository, team, issue and expiry (3.631125ms)
+✔ only the local host key can produce an accepted receipt (0.994167ms)
+✔ lost provider response is reconciled without a duplicate and changed requests conflict (0.51625ms)
+✔ remote intake cannot introduce arbitrary execution fields or escape paths (0.086208ms)
+✔ Linear blank-line serialization preserves signed requests and receipts (0.294792ms)
+✔ oversized envelopes fail before an external issue is created (0.20025ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 89.532875
