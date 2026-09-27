@@ -1,12 +1,9 @@
 /** Local qualification storage ONLY. Never import into production routes or schedulers. */
 import { DatabaseSync } from "node:sqlite";
-import { z } from "zod";
+import { queryPlan } from "./query.ts";
 import type { AttentionItem, Evidence, InboxQuery, OwnerResponse } from "./contracts.ts";
 import type { AttentionRepository, AttentionTransaction } from "./repository.ts";
 
-const cursorSchema = z.tuple([z.number().int(), z.string().max(40), z.string().max(255)]);
-const querySchema = z.object({ view: z.enum(["inbox", "needs_you", "waiting", "archive"]).default("inbox"),
-  limit: z.number().int().min(1).max(100).default(50), cursor: z.string().max(1024).optional() }).strict();
 const decode = <T>(row: Record<string, unknown> | undefined): T | null => row ? JSON.parse(String(row.data)) as T : null;
 
 export class FixtureAttentionRepository implements AttentionRepository {
@@ -21,6 +18,10 @@ export class FixtureAttentionRepository implements AttentionRepository {
         PRIMARY KEY(owner_id,id));
       CREATE INDEX IF NOT EXISTS fixture_inbox_page ON fixture_attention_items(owner_id,score DESC,deadline,id);
       CREATE INDEX IF NOT EXISTS fixture_needs_you ON fixture_attention_items(owner_id,needs_action,score DESC,deadline,id);
+      CREATE INDEX IF NOT EXISTS fixture_work_thread ON fixture_attention_items(owner_id,json_extract(data,'$.workId'),score DESC,deadline,id);
+      CREATE INDEX IF NOT EXISTS fixture_correlation_thread ON fixture_attention_items(owner_id,json_extract(data,'$.correlationId'),score DESC,deadline,id);
+      CREATE INDEX IF NOT EXISTS fixture_resolution_window ON fixture_attention_items(owner_id,json_extract(data,'$.resolvedAt'));
+      CREATE INDEX IF NOT EXISTS fixture_reply_window ON fixture_attention_items(owner_id,json_extract(data,'$.lastExternalReplyAt'));
       CREATE TABLE IF NOT EXISTS fixture_attention_evidence (
         owner_id TEXT NOT NULL, id TEXT NOT NULL, item_id TEXT NOT NULL, data TEXT NOT NULL,
         PRIMARY KEY(owner_id,id), FOREIGN KEY(owner_id,item_id) REFERENCES fixture_attention_items(owner_id,id));
@@ -70,24 +71,12 @@ export class FixtureAttentionRepository implements AttentionRepository {
   }
   get(ownerId: string, id: string) { return this.serial(async () => this.readItem(ownerId, id)); }
   list(ownerId: string, raw: InboxQuery, now: string) {
-    const query = querySchema.parse(raw);
+    const plan = queryPlan(ownerId, raw, now, "sqlite");
     return this.serial(async () => {
-      const params: Array<string | number> = [ownerId];
-      const where = ["owner_id=?"];
-      if (query.view === "needs_you") { where.push("needs_action=1 AND (expires_at IS NULL OR expires_at>?)"); params.push(now); }
-      else if (query.view === "waiting") where.push("status='WAITING'");
-      else if (query.view === "archive") where.push("status IN ('RESOLVED','DISMISSED','SUPERSEDED')");
-      else where.push("(status NOT IN ('RESOLVED','DISMISSED','SUPERSEDED') OR (status='RESOLVED' AND kind='RESULT'))");
-      if (query.cursor) {
-        const [score, deadline, id] = cursorSchema.parse(JSON.parse(Buffer.from(query.cursor, "base64url").toString()));
-        where.push("(score<? OR (score=? AND deadline>?) OR (score=? AND deadline=? AND id>?))");
-        params.push(score, score, deadline, score, deadline, id);
-      }
-      params.push(query.limit + 1);
-      const rows = this.database.prepare(`SELECT data FROM fixture_attention_items WHERE ${where.join(" AND ")} ORDER BY score DESC,deadline,id LIMIT ?`).all(...params);
-      const items = rows.slice(0, query.limit).map(row => decode<AttentionItem>(row)!);
+      const rows = this.database.prepare(`SELECT data FROM fixture_attention_items WHERE ${plan.where} ORDER BY score DESC,deadline,id LIMIT ?`).all(...plan.params);
+      const items = rows.slice(0, plan.query.limit).map(row => decode<AttentionItem>(row)!);
       const last = items.at(-1);
-      return { items, nextCursor: rows.length > query.limit && last ? Buffer.from(JSON.stringify([last.priorityScore, last.priority.deadlineAt ?? "9999", last.id])).toString("base64url") : null };
+      return { items, nextCursor: rows.length > plan.query.limit && last ? Buffer.from(JSON.stringify([last.priorityScore, last.priority.deadlineAt ?? "9999", last.id, plan.binding])).toString("base64url") : null };
     });
   }
   evidence(ownerId: string, itemId: string, afterId = "") {

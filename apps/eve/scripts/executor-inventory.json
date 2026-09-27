@@ -2963,32 +2963,32 @@
     "lib/universal-inbox/adapters.ts": {
       "classification": "INTERNAL",
       "reason": "Pure normalization of already admitted source data. No polling, provider access, reply, grants or execution; trusted owner-scoped mappings are required.",
-      "sha256": "620c7cde60d0d109e4b133cd5c13f3b232ef329ed2fb6b2f140de2b261cd407f"
+      "sha256": "c809900aeaaca7f3fa8a4814216331bbe82a35acde2ccb0b73bb1adede8a5c7f"
     },
     "lib/universal-inbox/api.ts": {
       "classification": "INTERNAL",
-      "reason": "Unmounted authenticated handler factory. Owner comes from the supplied server authenticator; bounded same-origin mutations only persist inbox metadata/response intents, never execute effects.",
-      "sha256": "4b3b1aec17404882c0e263a44ee2eb92227ccd5acaf7d00fc5eb443f473cdd9b"
+      "reason": "Unmounted authenticated owner API factory with mandatory retained-source visibility checks, bounded pages/body and same-origin response intents. No execution or provider authority.",
+      "sha256": "76734e5bb5476af38c463a266f5bd3972271b5556fc7c4dec78a4e4f89b9bff0"
     },
     "lib/universal-inbox/approval-consumer.ts": {
       "classification": "INTERNAL",
-      "reason": "Delegates exact owner/hash approval decisions to canonical decideApproval and requires a canonical idempotent Work receiver. Grants no new authority; stale canonical decisions fail closed. Not mounted in production.",
-      "sha256": "8f6835fbdeaacf08f75b63d1b89ef6d9815b9f6f9b7800f1a49ecfe79278ae63"
+      "reason": "Exact canonical approval read/decision interface with interrupted-write reconciliation. Formal approval remains canonical; decisions bypass it. No Work execution or new authority.",
+      "sha256": "13b9ace437c42314b5faa1225dfee25b46dddfbfc19911c4f7c6063c7ac36dd6"
     },
     "lib/universal-inbox/contracts.ts": {
       "classification": "INTERNAL",
       "reason": "Strict attention and response schemas and types only; no provider effects or authority.",
-      "sha256": "bb733818e8d2fb1ebec00193cf772d0f426a23501132ebafbf7bd1fd2d836a53"
+      "sha256": "fb74550b339b57c70442e9c18abe6eb65250a34953b38c962c7863fe3c4f0a01"
     },
     "lib/universal-inbox/domain.ts": {
       "classification": "INTERNAL",
       "reason": "Pure identity, priority, lifecycle, Needs You and presentation logic; no effects.",
-      "sha256": "e1303777b0c6b8c8e4b378d76418fb2ef70b349613499409a21b4f2f01f5fac4"
+      "sha256": "384eed3f73156c1dec9582a43e08f0d1fdfe41d89a118502816b081aba79d9b3"
     },
     "lib/universal-inbox/fixture-repository.ts": {
       "classification": "INTERNAL",
       "reason": "Local SQLite qualification storage only; not imported by any production route/scheduler. Transactions persist synthetic attention and response evidence, never canonical Work or authority.",
-      "sha256": "865c8cbc44bad6378ac78ea086b9dc1745c0a4db509625c6025f356e601da0c7"
+      "sha256": "2252f4ef4d8d7b7887830ae680c087aeac413e9e588cfce613b126c22d91917f"
     },
     "lib/universal-inbox/fixtures.ts": {
       "classification": "INTERNAL",
@@ -3003,7 +3003,52 @@
     "lib/universal-inbox/service.ts": {
       "classification": "INTERNAL",
       "reason": "Owner-scoped attention lifecycle and response intents. Provider handoff occurs only through an injected canonical consumer required to enforce authority and durable response-ID idempotency; no production registration.",
-      "sha256": "1b7b21027c135242afb21472eee65366d632f3c5d61a18cb54180db0daed5f81"
+      "sha256": "11ff58dcf1439acaa3837c765fcd165e29a3be0ef5aeb48ab2f33041046730fb"
+    },
+    "lib/universal-inbox/goals-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure structural Goal NeedsYouItem normalization preserving owner and existing Goal/Task/dependency generations; no Goal OS state or execution.",
+      "sha256": "309cd8fb646101d55af05b2e8c0f52b77794b87de31d0fbaead6fb849f8467e9"
+    },
+    "lib/universal-inbox/admission.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner/account/audience/grant/projection-hash admission and bounded retained-source visibility checks. No provider calls or authority grants; source authority is injected by the owning backend.",
+      "sha256": "ee24c4a3aabcfcb56584bfbe7ca0fca800fffd9fa400c0a6b121ba47fca84198"
+    },
+    "lib/universal-inbox/source-adapters.ts": {
+      "classification": "INTERNAL",
+      "reason": "Thin local normalization of already fetched/verified provider data; explicit local triage. No credential access, provider fetches, replies, grants or live ingestion registration.",
+      "sha256": "e942b9b48d42db50b38b319724f96296b1455b23b1a7f02f905c96a02db26533"
+    },
+    "lib/universal-inbox/continuation-fixture.ts": {
+      "classification": "INTERNAL",
+      "reason": "Local-only durable fake continuation authority for stale/replay contract qualification; no production registration or canonical Work mutation.",
+      "sha256": "96a8bddd01f5861547ea925049278228d07763c91d0f0d64573ddb2cdd574d67"
+    },
+    "lib/universal-inbox/continuation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict generation/version-bound owner response and Goal dependency signal contract; canonical receiver owns atomic authority checks, eligibility and idempotency. No canonical Work execution.",
+      "sha256": "f49510770c61f985db62c195417a5ff467e09325f4006b558c8188d53c238963"
+    },
+    "lib/universal-inbox/postgres-repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Unmounted activation candidate with owner-scoped transactions, RLS context and serialized attention writes. Injected restricted pool; no DDL, environment credentials, canonical Work writes or source permissions.",
+      "sha256": "2aacbc0eb6677688952316d80d594fbfd09cd49a65939bd92ed4637583e24ea7"
+    },
+    "lib/universal-inbox/feeds.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded Today/Daily Brief projections and deterministic notification/follow-up intents only; no scheduler, push or delivery execution. Production uses an authorized reader.",
+      "sha256": "ae934f45f8020c04c1f9828961abee931b6a784ae837d6621075fd6ffc2b0068"
+    },
+    "lib/universal-inbox/beta-crosswalk.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure pinned-Beta presentation handoff; canonical approval view joined by exact binding, no fabricated authority, TaskRun or product UI edits.",
+      "sha256": "f0ebd977e9c8ea81e3244e9798983fbe2d8fa9b8ff48b8f7705248c3560b5f6e"
+    },
+    "lib/universal-inbox/query.ts": {
+      "classification": "INTERNAL",
+      "reason": "Validated bounded owner-scoped cursor/window/filter query construction with constant SQL field names; no execution effects.",
+      "sha256": "980d3f87daa0be1df1d58619226cd1a8a537cdcfdb2fa1983285b07b0dcb6c35"
     }
   }
 }

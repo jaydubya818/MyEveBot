@@ -1,4 +1,6 @@
-# Universal Inbox evidence dossier
+# Universal Inbox evidence dossier — accepted baseline
+
+Superseded-by: [integration-preparation dossier](integration-preparation/README.md). This historical report is pinned to accepted SHA `36675bd5c64fa848b32f7dfbbb349957b5853498`; its source hashes describe that commit, not later working files.
 
 Qualified on 2026-09-27, branch `codex/universal-inbox`, published baseline `d64f2f96003818b2f51341b54a2edd6f426a0dae`.
 

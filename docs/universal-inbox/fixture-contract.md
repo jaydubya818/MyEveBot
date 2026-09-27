@@ -27,3 +27,9 @@ Each page has `{ version, items, nextCursor }`. Each item includes its rendered 
 Render loading locally, distinguish empty results from a failed load, preserve a pending answer during retries, and show “Answer recorded; waiting for Work” for 202. Only a subsequent RESOLVED item with a canonical acknowledgment indicates the handoff completed. Approval 202 never means the underlying action has executed. Source content is text, not HTML or agent instructions; attachment references do not authorize downloads.
 
 No live endpoint is mounted by this branch. No Relay, Gmail, Slack or external account connectivity is qualified by these fixtures.
+
+## Integration-preparation handoff
+
+The API factory additionally requires `sourceAuthority` and rechecks every retained source entitlement before returning an item or accepting a response. Scope-bound cursors are opaque and are invalidated when query/owner changes. Additive query fields support bounded Work/correlation threads and feed buckets; see `query.ts`.
+
+The original fixture JSON remains preserved at accepted commit `36675bd`. Current [Beta/feed fixtures](../verification/universal-inbox/integration-preparation/beta-feed-fixtures.json) and [pinned UX crosswalk](beta-ux-crosswalk.md) supersede assumptions that the candidate already has an attention slot. Event additions include optional Work generation/version, Goal context, relation and waiting reason; response inputs remain unchanged. Never manufacture generation values for historical items.

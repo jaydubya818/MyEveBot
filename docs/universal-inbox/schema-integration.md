@@ -1,5 +1,11 @@
 # Production schema gate
 
+Superseded-by: [exact activation package](activation/README.md) and [persistence contract](persistence-contract.md).
+
+The initial sketch below describes the accepted `36675bd` baseline. The integration-preparation tranche now includes unnumbered `activation/schema.sql` and an unmounted `PostgresAttentionRepository`, qualified in a disposable local PostgreSQL 17 cluster. No shared migration number, schema registry, hosted database, owning Work implementation or production route has been changed. Canonical activation remains INTEGRATION PENDING.
+
+## Historical baseline sketch
+
 No migration is authored or applied in this branch. The active Digital Worker worktree has dirty schema ownership and migration 0057. This follows the request's explicit conflict fallback. Do not choose a competing migration number or embed runtime DDL into the Inbox.
 
 The existing durable `eve_events` ledger is append-only activity; overwriting those events with inbox read state would destroy its semantics. Existing reminders, `review_deliveries`, `task_approval_decisions`, Work and source stores remain their respective authorities. The proposed production adapter adds only attention projection/evidence and owner response intent records after schema ownership is coordinated.

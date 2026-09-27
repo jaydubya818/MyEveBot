@@ -33,6 +33,18 @@ export class UniversalInbox {
       return view(next, now);
     });
   }
+  async replace(previous: unknown, replacement: unknown) {
+    const oldEvent = eventSchema.parse(previous);
+    const newEvent = eventSchema.parse(replacement);
+    if (oldEvent.disposition !== "supersede" || !newEvent.action || oldEvent.correlationId !== newEvent.correlationId ||
+        newEvent.episode <= oldEvent.episode || oldEvent.workId !== newEvent.workId) throw new Error("INVALID_REPLACEMENT");
+    return this.repository.transaction(async tx => {
+      // Reuse the service inside the existing transaction; no nested database transaction.
+      const local = new UniversalInbox(this.ownerId, { ...this.repository, transaction: async run => run(tx) } as AttentionRepository, this.clock);
+      await local.ingest(oldEvent);
+      return local.ingest(newEvent);
+    });
+  }
   async list(query: InboxQuery = {}) {
     const now = this.clock();
     const result = await this.repository.list(this.ownerId, query, now);
@@ -72,7 +84,7 @@ export class UniversalInbox {
       if (!item) throw new Error("NOT_FOUND");
       if (item.revision !== input.expectedRevision || !needsYou(item, this.clock()) || !item.action || item.action.id !== input.actionId || item.actionBinding !== input.actionBinding) throw new Error("STALE_ACTION");
       if (item.action.options.length && !item.action.options.includes(input.answer)) throw new Error("INVALID_CHOICE");
-      const response: OwnerResponse = { id, ownerId: this.ownerId, itemId: item.id, workId: item.workId, action: item.action,
+      const response: OwnerResponse = { correlationId: item.correlationId, episode: item.episode, workGeneration: item.workGeneration, workVersion: item.workVersion, goal: item.goal, id, ownerId: this.ownerId, itemId: item.id, workId: item.workId, action: item.action,
         actionBinding: input.actionBinding, answer: input.answer, createdAt: this.clock(), status: "PENDING", receipt: null };
       item.responseId = id; item.status = "WAITING"; item.notification = "READ"; item.seenAt = this.clock(); item.updatedAt = this.clock(); item.revision++;
       await tx.saveResponse(response);
@@ -87,15 +99,18 @@ export class UniversalInbox {
       const item = await this.repository.get(this.ownerId, response.itemId);
       if (!item || isTerminal(item)) continue;
       // A crash after accept() is safe only when the consumer uses the stable idempotency key.
-      const receipt = await consumer.accept(response);
+      const result = await consumer.accept(response);
+      const receipt = typeof result === "string" ? result : result.receipt;
+      const stale = typeof result !== "string" && result.status === "stale";
       if (!receipt || receipt.length > 2000) throw new Error("INVALID_CONSUMER_RECEIPT");
       await this.repository.transaction(async tx => {
         const current = await tx.getItem(this.ownerId, response.itemId);
         const pending = await tx.getResponse(this.ownerId, response.id);
         if (!current || pending?.status !== "PENDING") return;
-        await tx.saveResponse({ ...pending, status: "DELIVERED", receipt });
+        await tx.saveResponse({ ...pending, status: stale ? "STALE" : "DELIVERED", receipt });
         if (!isTerminal(current)) {
-          current.status = "RESOLVED"; current.action = null; current.actionBinding = null;
+          current.status = stale ? "SUPERSEDED" : "RESOLVED";
+          if (stale) current.supersededAt = this.clock(); else current.resolvedAt = this.clock(); current.action = null; current.actionBinding = null;
           current.updatedAt = this.clock(); current.revision++;
           await tx.saveItem(current);
         }
@@ -107,5 +122,5 @@ export class UniversalInbox {
 }
 export interface ResponseConsumer {
   /** Durable idempotency by response.id is required; receiving a response grants no execution authority. */
-  accept(response: OwnerResponse): Promise<string>;
+  accept(response: OwnerResponse): Promise<string | { status: "accepted" | "stale"; receipt: string }>;
 }

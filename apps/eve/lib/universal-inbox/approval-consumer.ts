@@ -34,14 +34,11 @@ export function approvalConsumer(authority: CanonicalApprovals, work: ResponseCo
   };
 }
 
-/** Production authority adapter. Lazy imports keep fixture/browser contracts dependency-free. */
-export function canonicalApprovals(): CanonicalApprovals {
+/** Integration composition: the authority owner supplies an exact, owner-scoped effective-state read.
+ * A bounded list scan is intentionally insufficient for historical response replay. */
+export function canonicalApprovals(readExact: CanonicalApprovals["get"]): CanonicalApprovals {
   return {
-    async get(ownerId, id) {
-      const { listApprovalRequests } = await import("../approvals.ts");
-      // Existing owner-scoped API is bounded to 100. Missing historical records fail closed.
-      return (await listApprovalRequests(ownerId)).find(approval => approval.id === id) ?? null;
-    },
+    get: readExact,
     async decide(input) { return (await import("../approvals.ts")).decideApproval(input); },
   };
 }

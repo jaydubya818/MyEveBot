@@ -28,7 +28,12 @@ export function priorityScore(priority: AttentionEvent["priority"]): number {
 /** A closed episode never reopens. A new request requires a new explicit episode. */
 export function project(ownerId: string, event: AttentionEvent, current: AttentionItem | null, now: string): AttentionItem {
   if (current?.workId && event.workId && current.workId !== event.workId) throw new Error("WORK_LINK_CHANGED");
+  if (current?.workGeneration != null && event.workGeneration != null &&
+      (current.workGeneration !== event.workGeneration || current.workVersion !== event.workVersion)) throw new Error("WORK_BINDING_REQUIRES_NEW_EPISODE");
+  if (current?.goal && event.goal && hash(current.goal) !== hash(event.goal)) throw new Error("GOAL_BINDING_CHANGED");
   if (current && event.sequence <= current.sourceSequence) return current;
+  if (current?.responseId && ((event.workGeneration != null && current.workGeneration !== event.workGeneration) ||
+      (event.goal && hash(current.goal) !== hash(event.goal)))) throw new Error("RESPONSE_WORK_LINK_FROZEN");
   if (current?.responseId && event.workId && current.workId !== event.workId) throw new Error("RESPONSE_WORK_LINK_FROZEN");
   if (current && !isTerminal(current) && event.action && current.action && hash(event.action) !== current.actionBinding) throw new Error("ACTION_REQUIRES_NEW_EPISODE");
   const item: AttentionItem = current ? { ...current } : {
@@ -36,8 +41,17 @@ export function project(ownerId: string, event: AttentionEvent, current: Attenti
     workId: event.workId, kind: event.kind, status: "NEW", title: event.title, summary: event.summary,
     revision: 0, sourceSequence: -1, createdAt: now, updatedAt: now, seenAt: null, notification: "UNREAD",
     source: event.source, priority: event.priority, priorityScore: 0, action: null, actionBinding: null, followUpAt: null, responseId: null,
+    workGeneration: event.workGeneration, workVersion: event.workVersion, goal: event.goal, waitingFor: event.waitingFor,
+    actionRequiredAt: null, resolvedAt: null, supersededAt: null, lastExternalReplyAt: null, lastMessageAt: null,
   };
   item.workId = item.workId ?? event.workId;
+  item.workGeneration = item.workGeneration ?? event.workGeneration;
+  item.workVersion = item.workVersion ?? event.workVersion;
+  item.goal = item.goal ?? event.goal;
+  if (["relay", "email", "slack", "webhook"].includes(event.source.system)) {
+    item.lastMessageAt = now;
+    if (event.relation === "reply") item.lastExternalReplyAt = now;
+  }
   item.sourceSequence = event.sequence;
   item.revision++;
   item.updatedAt = now;
@@ -57,12 +71,16 @@ export function project(ownerId: string, event: AttentionEvent, current: Attenti
   item.priority = event.priority;
   item.priorityScore = priorityScore(event.priority);
   item.followUpAt = event.followUpAt;
+  item.waitingFor = event.waitingFor;
   item.notification = "UNREAD";
   if (event.disposition === "resolve" || event.disposition === "supersede") {
     item.status = event.disposition === "resolve" ? "RESOLVED" : "SUPERSEDED";
+    if (item.status === "RESOLVED") item.resolvedAt = now;
+    else item.supersededAt = now;
     item.action = null;
     item.actionBinding = null;
   } else if (!item.responseId && event.action) {
+    item.actionRequiredAt ??= now;
     item.action = event.action;
     item.actionBinding = hash(event.action);
     item.status = event.action.involvement === "NECESSARY_JUDGMENT" ? "NEEDS_ACTION" : "WAITING";

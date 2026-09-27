@@ -4,7 +4,7 @@ import { eventSchema, type AttentionEvent, type OwnerAction } from "./contracts.
 
 /** Local mapping, obtained after source authentication and owner-scoped Work lookup. */
 export interface SourceContext {
-  accountId: string; correlationId: string; workId: string | null; sequence: number; episode?: number;
+  accountId: string; correlationId: string; workId: string | null; sequence: number; episode?: number; workGeneration?: number | null; workVersion?: number | null;
 }
 export function relayMessage(envelope: Envelope, context: SourceContext): AttentionEvent {
   if (envelope.capability !== "message.send") throw new Error("NOT_A_RELAY_MESSAGE");
@@ -54,15 +54,16 @@ export function reminderOccurrence(input: { id: string; scheduledFor: string; pr
     source: { system: "reminder", accountId, eventId: `${input.id}:${new Date(input.scheduledFor).toISOString()}`,
       sender: "Sofie", occurredAt: input.scheduledFor, reference: input.id } });
 }
-export function workEvent(input: { id: string; state: "internal" | "waiting" | "decision" | "retryable_failure" | "owner_recovery" | "completed" | "superseded";
+export function workEvent(input: { id: string; state: "internal" | "waiting" | "blocked" | "decision" | "retryable_failure" | "owner_recovery" | "completed" | "superseded";
   title: string; summary: string; at: string; action?: OwnerAction; followUpAt?: string }, context: SourceContext): AttentionEvent | null {
   // Coordination and retry loops never produce owner-facing notifications.
   if (input.state === "internal" || input.state === "retryable_failure") return null;
   if (["decision", "owner_recovery"].includes(input.state) && !input.action) throw new Error("OWNER_REASON_REQUIRED");
   const { accountId, ...mapping } = context;
   return eventSchema.parse({ ...mapping, title: input.title, summary: input.summary,
-    kind: input.state === "completed" ? "RESULT" : input.state === "waiting" ? "FOLLOW_UP" : input.state === "owner_recovery" ? "EXCEPTION" : "DECISION",
-    disposition: input.state === "completed" ? "resolve" : input.state === "superseded" ? "supersede" : input.state === "waiting" ? "waiting" : "update",
+    kind: input.state === "blocked" ? "BLOCKER" : input.state === "completed" ? "RESULT" : input.state === "waiting" ? "FOLLOW_UP" : input.state === "owner_recovery" ? "EXCEPTION" : "DECISION",
+    disposition: input.state === "completed" ? "resolve" : input.state === "superseded" ? "supersede" : (input.state === "waiting" || (input.state === "blocked" && !input.action)) ? "waiting" : "update",
+    priority: { blockingActiveWork: input.state === "blocked" && context.workId !== null },
     action: input.action ?? null, followUpAt: input.followUpAt ?? null,
     source: { system: "work", accountId, eventId: input.id, sender: "Sofie", occurredAt: input.at, reference: context.workId ?? input.id } });
 }

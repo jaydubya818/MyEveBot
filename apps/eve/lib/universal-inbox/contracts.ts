@@ -29,6 +29,10 @@ export const sourceSchema = z.object({
   // References to source-owned evidence only. No credentials or private peer state.
   evidence: z.array(ref).max(30).default([]),
 }).strict();
+export const goalLinkSchema = z.object({
+  goalId: ref, taskId: ref, goalGeneration: z.number().int().positive(), taskGeneration: z.number().int().positive(),
+  dependencyId: ref, reference: ref,
+}).strict();
 export const eventSchema = z.object({
   kind: z.enum(kinds), title: z.string().trim().min(1).max(500),
   summary: z.string().max(4000), source: sourceSchema,
@@ -36,6 +40,11 @@ export const eventSchema = z.object({
   correlationId: ref, episode: z.number().int().min(1).max(1_000_000).default(1),
   sequence: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
   workId: ref.nullable().default(null),
+  workGeneration: z.number().int().positive().nullable().default(null),
+  workVersion: z.number().int().positive().nullable().default(null),
+  goal: goalLinkSchema.nullable().default(null),
+  relation: z.enum(["request", "reply", "update"]).default("update"),
+  waitingFor: z.enum(["external", "owner", "schedule", "provider"]).nullable().default(null),
   action: actionSchema.nullable().default(null),
   disposition: z.enum(["update", "waiting", "resolve", "supersede"]).default("update"),
   priority: z.object({ blockingActiveWork: z.boolean().default(false), deadlineAt: time.nullable().default(null),
@@ -44,6 +53,8 @@ export const eventSchema = z.object({
   }).strict().default({ blockingActiveWork: false, deadlineAt: null, urgency: "normal", ownerRequested: false, dependencyCount: 0, sourceImportance: 0 }),
   followUpAt: time.nullable().default(null),
 }).strict().superRefine((event, ctx) => {
+  if ((event.workGeneration !== null || event.workVersion !== null) && !event.workId) ctx.addIssue({ code: "custom", message: "Work generation/version require Work identity." });
+  if ((event.workGeneration === null) !== (event.workVersion === null)) ctx.addIssue({ code: "custom", message: "Work generation/version must be bound together." });
   if (event.action && event.disposition !== "update") ctx.addIssue({ code: "custom", message: "Settlement/waiting events cannot request action." });
   if (event.action && ["MESSAGE", "RESULT", "FOLLOW_UP", "REMINDER"].includes(event.kind)) ctx.addIssue({ code: "custom", message: "Informational events cannot request owner action." });
   if (event.priority.blockingActiveWork && !event.workId) ctx.addIssue({ code: "custom", message: "Blocking priority requires Work." });
@@ -58,6 +69,10 @@ export interface AttentionItem {
   source: AttentionEvent["source"]; priority: AttentionEvent["priority"]; priorityScore: number;
   action: OwnerAction | null; actionBinding: string | null; followUpAt: string | null;
   responseId: string | null;
+  workGeneration: number | null; workVersion: number | null; goal: z.infer<typeof goalLinkSchema> | null;
+  waitingFor: AttentionEvent["waitingFor"];
+  actionRequiredAt: string | null; resolvedAt: string | null; supersededAt: string | null;
+  lastExternalReplyAt: string | null; lastMessageAt: string | null;
 }
 export interface AttentionView extends AttentionItem {
   needsYou: boolean;
@@ -72,11 +87,18 @@ export type OwnerResponseInput = z.infer<typeof responseSchema>;
 export interface OwnerResponse {
   id: string; ownerId: string; itemId: string; workId: string | null;
   action: OwnerAction; actionBinding: string; answer: string; createdAt: string;
-  status: "PENDING" | "DELIVERED" | "CANCELLED"; receipt: string | null;
+  correlationId: string; episode: number; workGeneration: number | null; workVersion: number | null;
+  goal: z.infer<typeof goalLinkSchema> | null;
+  status: "PENDING" | "DELIVERED" | "CANCELLED" | "STALE"; receipt: string | null;
 }
 export interface Evidence {
   id: string; itemId: string; ownerId: string; digest: string;
   event: AttentionEvent; receivedAt: string; deliveries: number;
 }
 export interface InboxPage { version: typeof CONTRACT_VERSION; items: AttentionView[]; nextCursor: string | null }
-export interface InboxQuery { view?: "inbox" | "needs_you" | "waiting" | "archive"; limit?: number; cursor?: string }
+export interface InboxQuery {
+  view?: "inbox" | "needs_you" | "waiting" | "archive" | "thread";
+  limit?: number; cursor?: string; workId?: string; correlationId?: string;
+  bucket?: "new_needs_you" | "unresolved_important" | "important" | "resolved" | "external_replies" | "follow_up" | "blocked";
+  since?: string; until?: string;
+}

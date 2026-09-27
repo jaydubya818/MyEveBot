@@ -2,7 +2,10 @@
 
 Sofie watches the work. The owner looks at what needs them.
 
-Status: the domain, transactional API contract, source adapters, and Beta UI fixtures are implemented and locally qualified. Production ingestion, database persistence, and canonical Work continuation are **not connected**. This is not a production-ready inbox.
+INBOX DOMAIN: LOCALLY QUALIFIED. NEEDS YOU: LOCALLY QUALIFIED. BETA UI CONTRACT: READY.
+CANONICAL DATABASE ACTIVATION: INTEGRATION PENDING. LIVE INGESTION: NOT_RUN. CANONICAL WORK CONTINUATION: INTEGRATION PENDING.
+
+The [integration-preparation tranche](../verification/universal-inbox/integration-preparation/README.md) supersedes the initial handoff at accepted commit `36675bd5c64fa848b32f7dfbbb349957b5853498`. An unnumbered PostgreSQL candidate and pool adapter are now locally qualified, but neither is activated. This is not a production-ready inbox.
 
 ## Scope and baseline
 
@@ -76,7 +79,7 @@ The UI submits the item revision, action ID, binding hash, stable idempotency ke
 
 Supersession cancels queued responses. A consumer already in flight must recheck canonical generation/authority: an inbox-side check alone cannot revoke an external side effect. The consumer may accept an answer as context; it must never interpret receipt as general execution authority.
 
-Approval handling calls the existing `decideApproval` with owner, exact ID/hash, approved/denied choice and response provenance. Interrupted writes are reconciled by reading canonical status. Expired, invalidated, changed or contrary decisions fail closed. The helper's canonical lookup is capped by the existing 100-row approval API; an absent older record fails closed. Production must add a canonical exact-ID read through the approval owner if needed. No new approval store or execution grant exists here.
+Approval handling calls the existing `decideApproval` with owner, exact ID/hash, approved/denied choice and response provenance. Interrupted writes are reconciled by reading canonical status. Expired, invalidated, changed or contrary decisions fail closed. The integration composition requires the approval owner to supply an exact owner-scoped effective-state read. The earlier 100-row list fallback is superseded; historical replay cannot depend on list position. No new approval store or execution grant exists here.
 
 ## Priority and queries
 
@@ -95,3 +98,12 @@ npm run build
 ```
 
 See [Needs You semantics](needs-you.md), [Beta UI contract](fixture-contract.md), [Digital Worker integration](digital-worker-architecture.md), [schema integration gate](schema-integration.md) and [evidence dossier](../verification/universal-inbox/README.md).
+
+## Integration-preparation additions
+
+- [Canonical persistence dictionary](persistence-contract.md) and [activation package](activation/README.md).
+- [Work, Goal, Relay, approval and scheduler dependencies](integration-crosswalk.md).
+- [Pinned Beta UI crosswalk](beta-ux-crosswalk.md).
+- [Today, Daily Brief, notification and follow-up policies](feeds-and-followups.md).
+
+New isolated sources: admission, provider adapters, generation-bound continuation, durable continuation fixture, Goals adapter, bounded shared queries, feed policy, Beta adapter and PostgreSQL pool adapter. The HTTP factory now requires source visibility authority; feed composition must use `authorizedReader`. No owning backend, canonical execution route or UI component has been modified.

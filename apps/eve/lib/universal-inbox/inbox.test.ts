@@ -181,7 +181,7 @@ it.each(["expired", "invalidated", "denied"] as const)("fails closed for canonic
 
 it("exposes an owner-scoped API with no arbitrary source ingestion or authority endpoint", async () => {
   const { inbox, repository } = setup(); const item = await inbox.ingest(decisionEvent());
-  const api = createInboxApi({ repository, authenticate: async request => request.headers.get("authorization") === "owner-a" ? { id: "owner-a" } : null, clock: () => FIXTURE_NOW });
+  const api = createInboxApi({ sourceAuthority: { admit: async () => null, canRead: async () => true }, repository, authenticate: async request => request.headers.get("authorization") === "owner-a" ? { id: "owner-a" } : null, clock: () => FIXTURE_NOW });
   const request = (body?: unknown, headers = {}) => new Request("https://myeve.test/api/inbox", { method: body ? "POST" : "GET", headers: { authorization: "owner-a", origin: "https://myeve.test", ...headers }, ...(body ? { body: JSON.stringify(body) } : {}) });
   expect((await api(request(undefined, { authorization: "unknown" }))).status).toBe(401);
   expect((await api(request(answerFor(item), { origin: "https://evil.test" }))).status).toBe(403);
@@ -272,10 +272,10 @@ it("leaves pending answers durable through downstream outage and rejects forged 
 
 it("rejects oversized streamed API writes and returns a bounded storage failure", async () => {
   const { repository } = setup();
-  const api = createInboxApi({ repository, authenticate: async () => ({ id: "owner-a" }) });
+  const api = createInboxApi({ sourceAuthority: { admit: async () => null, canRead: async () => true }, repository, authenticate: async () => ({ id: "owner-a" }) });
   const response = await api(new Request("https://myeve.test/api/inbox", { method: "POST", headers: { origin: "https://myeve.test" }, body: "x".repeat(20_000) }));
   expect(response.status).toBe(413);
-  const failed = createInboxApi({ repository, authenticate: async () => { throw new Error("sensitive backend details"); } });
+  const failed = createInboxApi({ sourceAuthority: { admit: async () => null, canRead: async () => true }, repository, authenticate: async () => { throw new Error("sensitive backend details"); } });
   const unavailable = await failed(new Request("https://myeve.test/api/inbox"));
   expect(unavailable.status).toBe(503); expect(await unavailable.json()).toEqual({ error: "inbox_unavailable" });
 });

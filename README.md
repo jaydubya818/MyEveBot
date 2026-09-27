@@ -263,3 +263,14 @@ After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health
 The isolated [Universal Inbox domain](docs/universal-inbox/README.md) provides normalized attention items, genuine owner-action semantics, correlation, deduplication, supersession, owner responses and [Beta UI fixtures](docs/universal-inbox/fixture-contract.md). Canonical approvals retain authority. Local crash/isolation qualification is documented in the [evidence dossier](docs/verification/universal-inbox/README.md).
 
 Production database and Digital Worker continuation wiring remain gated on shared schema ownership; the fixture adapter is not a live inbox or qualified external connector.
+
+Universal Inbox integration preparation status:
+
+- INBOX DOMAIN: LOCALLY QUALIFIED
+- NEEDS YOU: LOCALLY QUALIFIED
+- BETA UI CONTRACT: READY
+- CANONICAL DATABASE ACTIVATION: INTEGRATION PENDING
+- LIVE INGESTION: NOT_RUN
+- CANONICAL WORK CONTINUATION: INTEGRATION PENDING
+
+The [integration-preparation dossier](docs/verification/universal-inbox/integration-preparation/README.md) supersedes the initial fixture-only handoff and includes the [unnumbered schema activation package](docs/universal-inbox/activation/README.md), generation-bound continuation, source admission, and the [exact Beta UX crosswalk](docs/universal-inbox/beta-ux-crosswalk.md). Accepted base `36675bd5c64fa848b32f7dfbbb349957b5853498` is preserved.
