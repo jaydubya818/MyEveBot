@@ -20,7 +20,7 @@ for(const directory of ["agent","lib","app/api"]) {
 // This standalone worker invokes the protected Docker verifier outside the
 // Agent/API tree. Review it as a consequential entrypoint without treating
 // every build, test, and migration script as a runtime executor.
-files.push("scripts/engineering-direct-verifier.ts");
+files.push("scripts/engineering-direct-verifier.ts", "scripts/factory-worker.ts");
 const errors:string[]=[];
 for(const file of files) {
   const policy=inventory.executors[file];

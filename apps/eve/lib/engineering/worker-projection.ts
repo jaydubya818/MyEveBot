@@ -12,7 +12,8 @@ import { WorkError, type Work } from "./types.ts";
 type CurrentManifest = ReturnType<typeof manifest>;
 
 export interface EngineeringWorkerProjection {
-  factoryWriter?: {runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null};
+  factoryPreparation?: {requestId:string;state:string;blocker:string|null};
+  factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:{status:string;ceilingUsd:number;reason?:string}}};
   workId: string;
   title: string;
   objective: string;
@@ -139,7 +140,7 @@ export class EngineeringWorkerProjectionStore {
     const [completionFunction]=await this.workStore.database.query(
       "SELECT to_regprocedure('engineering_completion_remaining(text,uuid)') AS present");
     const holdExpression=completionFunction?.present ? "engineering_completion_remaining(b.scope_id,b.work_id)" : "NULL::bigint";
-    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows, runRows, verificationRows] = await Promise.all([
+    const [execution, route, eventRows, historyRows, nativeRows, nativeRuntimeRows, conversationRows, runRows, verificationRows, preparationRows] = await Promise.all([
       executionStore.get(id),
       new RoutingStore(this.workStore).snapshot(id),
       this.workStore.database.query(
@@ -182,7 +183,9 @@ export class EngineeringWorkerProjectionStore {
          WHERE h.scope_id=$1 AND h.scope_kind=$2 AND h.work_id=$3
            AND NOT EXISTS(SELECT 1 FROM engineering_work_model_budget b WHERE b.scope_id=h.scope_id AND b.scope_kind=h.scope_kind AND b.work_id=h.work_id)`,scope),
       this.workStore.database.query(
-        `SELECT r.id,r.factory_request_id,r.writer_generation,r.dispatch_state,r.stop_reason,r.fenced_at,r.custody_snapshot,r.factory_candidate,r.route,r.status,r.work_version,r.work_generation,d.admitted_at,
+        `SELECT r.id,r.dispatch_identity,r.factory_request_id,r.writer_generation,r.dispatch_state,r.stop_reason,r.fenced_at,r.custody_snapshot,r.factory_candidate,r.route,r.status,r.work_version,r.work_generation,d.admitted_at,d.factory_observation,
+                (SELECT q.binding FROM engineering_factory_requests q WHERE q.id=r.factory_request_id) AS factory_binding,
+                (SELECT a.receipt_id FROM engineering_factory_admissions a WHERE a.request_id=r.factory_request_id) AS factory_receipt_id,
                 d.admission_authority_snapshot->'contract'->>'deadline' AS deadline,
                 d.admission_authority_snapshot->'completion' AS completion,
                 (SELECT coalesce(jsonb_object_agg(stage,n),'{}'::jsonb) FROM (
@@ -201,6 +204,10 @@ export class EngineeringWorkerProjectionStore {
       this.workStore.database.query(
         `SELECT candidate_sha,status,evidence_count FROM engineering_direct_verification_jobs
          WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3`,scope),
+      this.workStore.database.query(
+        `SELECT factory_preparation,factory_observation FROM engineering_routing_decisions
+         WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND work_version=$4
+           AND factory_preparation IS NOT NULL ORDER BY created_at DESC LIMIT 1`,[...scope,work.version]),
     ]);
     const accounting=conversationRows[0];
     const ceilingUsd=Math.min(work.maxCostUsd,Number(accounting?.ceiling_microusd??work.maxCostUsd*1_000_000)/1_000_000);
@@ -229,11 +236,13 @@ export class EngineeringWorkerProjectionStore {
       run.workGeneration === work.generation) ?? null : null;
     const nativeRow = nativeRows[0] ?? null;
     const factoryRun=runRows.filter(row=>row.factory_request_id).sort((a,b)=>Number(b.writer_generation)-Number(a.writer_generation))[0];
-    const factoryWriter=factoryRun?{runId:String(factoryRun.id),writerGeneration:Number(factoryRun.writer_generation),state:String(factoryRun.dispatch_state),stopReason:factoryRun.stop_reason??null,candidateProducer:factoryRun.factory_candidate?"MYFACTORY":null}:undefined;
+    const factoryWriter=factoryRun?{requestId:factoryRun.factory_binding?.requestId,dispatchIdentity:factoryRun.dispatch_identity,remoteRunId:factoryRun.factory_binding?.runId,runId:String(factoryRun.id),writerGeneration:Number(factoryRun.writer_generation),state:String(factoryRun.dispatch_state),stopReason:factoryRun.stop_reason??null,candidateProducer:factoryRun.factory_candidate?"MYFACTORY":null,factoryId:factoryRun.factory_binding?.factoryId,factoryVersion:factoryRun.factory_binding?.factoryVersion,workOrderId:factoryRun.factory_binding?.workOrderId,attempt:factoryRun.factory_binding?.attemptNumber,receiptId:factoryRun.factory_receipt_id??undefined,observation:factoryRun.factory_observation?.value}:undefined;
+    const preparation=preparationRows[0],observation=preparation?.factory_observation?.value;
+    const factoryPreparation=preparation?{requestId:String(preparation.factory_preparation.request.requestId),state:String(observation?.state??'PREPARING'),blocker:observation?.reason??observation?.blocker??null}:undefined;
     const factoryCurrent=!!factoryRun && factoryRun.id===currentRouteRun?.id;
     const factoryActivity=factoryCurrent ? factoryRun.dispatch_state!=="TERMINAL"
       ? {status:factoryRun.dispatch_state==="DISPATCHED"?"Working":"Needs reconciliation",activity:`MyFactory writer: ${factoryRun.dispatch_state}.`,nextStep:factoryRun.dispatch_state==="PREPARED"?"Dispatch the exact admitted request once.":"Inspect the exact Factory attempt. Stop or timeout is not quiescence; native and human productive access remain blocked."}
-      : {status:nativeRow?.producer==="MYFACTORY"?"Needs verification":"Needs attention",activity:"Factory writer is terminal and fenced. Retained provenance grants no writer authority.",nextStep:nativeRow?.producer!=="MYFACTORY"?"Inspect the terminal outcome and authenticated receipt; establish eligible candidate custody separately.":nativeRow.phase==="VERIFICATION_FAILED"?"Factory is off. Review protected failure and request a new normal native admission for repair.":nativeRow.phase==="VERIFICATION_PASSED"?"Review the PARTIAL local result. Publication and acceptance remain unqualified.":"Run MyEve protected verification against the exact Factory candidate in custody."}
+      : {status:nativeRow?.producer==="MYFACTORY"?(nativeRow.phase==="VERIFICATION_PASSED"?"Partial result":"Needs verification"):"Needs attention",activity:"Factory writer is terminal and fenced. Retained provenance grants no writer authority.",nextStep:nativeRow?.producer!=="MYFACTORY"?"Inspect the terminal outcome and authenticated receipt; establish eligible candidate custody separately.":nativeRow.phase==="VERIFICATION_FAILED"?"Factory is off. Review protected failure and request a new normal native admission for repair.":nativeRow.phase==="VERIFICATION_PASSED"?"Review the PARTIAL local result. Publication and acceptance remain unqualified.":"Run MyEve protected verification against the exact Factory candidate in custody."}
       :null;
 
     if (nativeRow && this.coordinatingAgentId && nativeRow.agent_id !== this.coordinatingAgentId)
@@ -450,7 +459,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
+      factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -478,9 +487,9 @@ export class EngineeringWorkerProjectionStore {
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
-      status: factoryActivity?.status ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
-      activity: factoryActivity?.activity ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: factoryActivity?.nextStep ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
+      status: factoryActivity?.status ?? (factoryPreparation?.blocker?"Needs reconciliation":null) ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
+      activity: factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
+      nextStep: factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
         ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
         : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."

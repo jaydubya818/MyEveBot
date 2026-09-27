@@ -22,12 +22,12 @@ async function snapshot() {
  return data;
 }
 try {
- const allMigrations=await loadMigrations();assert.equal(allMigrations.at(-1).name,'0056_factory_writer_handoff.sql');
+ const allMigrations=await loadMigrations();assert.equal(allMigrations.at(-1).name,'0057_factory_preparation_intent.sql');
  const migrations=allMigrations.slice(0,54);assert.equal(migrations.at(-1).name,'0054_factory_result_receipts.sql');
  const freshName='q37_gatec_'+randomBytes(8).toString('hex');await admin.query('CREATE DATABASE '+freshName);
  const fresh=new Client({connectionString:adminURL.replace('/postgres','/'+freshName)});await fresh.connect();
  try {await runMigrations({query:async(s,p)=>(await fresh.query(s,p)).rows,transaction:async ss=>{await fresh.query('BEGIN');try{for(const s of ss)await fresh.query(s.sql,s.params);await fresh.query('COMMIT');}catch(e){await fresh.query('ROLLBACK');throw e;}}},allMigrations,()=>{});
-  assert.equal((await fresh.query('SELECT count(*)::int n FROM sofie_schema_migrations')).rows[0].n,56);pass('fresh complete 55 migration chain');
+  assert.equal((await fresh.query('SELECT count(*)::int n FROM sofie_schema_migrations')).rows[0].n,57);pass('fresh complete 57 migration chain');
  } finally {await fresh.end();await dropQuiescentDatabase(freshName);}
  await runMigrations(db,migrations.slice(0,-1),()=>{});
  await fixtureSeedOnly();

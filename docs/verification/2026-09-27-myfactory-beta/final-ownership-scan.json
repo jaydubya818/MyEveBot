@@ -1,0 +1,100 @@
+{
+  "consumerHead": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+  "worktrees": [
+    {
+      "path": "/Users/jaywest/Myeve",
+      "head": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "migrationOwners": []
+    },
+    {
+      "path": "/private/tmp/knowledge-production-source",
+      "head": "47aa6ff1bcad9ffdaba0204d078ed3491e345225",
+      "migrationOwners": []
+    },
+    {
+      "path": "/private/tmp/myfactory-myeve-main-merge",
+      "head": "f6c645844c009e4e3acdec56b9ad08b72660f670",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/beta-product-experience/Myeve",
+      "head": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+      "head": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+      "migrationOwners": [
+        {
+          "file": "apps/eve/migrations/0057_factory_preparation_intent.sql",
+          "sha256": "787b26a37700c890d0cee38ab47bb2b5e51c24cd70a28568f98d7d009072f057"
+        },
+        {
+          "file": "apps/eve/migrations/0056_factory_writer_handoff.sql",
+          "sha256": "dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2-common-ledger/Myeve",
+      "head": "f3a5de879ec48a6e65faf9e9dcac9e5441a024c5",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2b-projection/Myeve",
+      "head": "55544fb797b77bfe9e7ca2a3c11a10ec8535c8f4",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve",
+      "head": "a00e8f46f348a6a38fdb2e9dcae954147aac0d92",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/goals-proactive-work/Myeve",
+      "head": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve",
+      "head": "a7936898c77d157aa66c222b86aedce07e265e16",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+      "head": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/sofie-chat-mainline/Myeve",
+      "head": "6ed31375d773f534d8ca9409581bd21bd2d2627a",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/sofie-thread-owner-conflict/Myeve",
+      "head": "fc31671ffc17a660aab575ee7ae67f166fc68877",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve",
+      "head": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+      "migrationOwners": [
+        {
+          "file": "apps/eve/migrations/0056_factory_writer_handoff.sql",
+          "sha256": "dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc"
+        }
+      ]
+    },
+    {
+      "path": "/Users/jaywest/.codex/worktrees/universal-inbox/Myeve",
+      "head": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+      "migrationOwners": []
+    },
+    {
+      "path": "/Users/jaywest/Documents/ChatGPT/MyFactory/data/hosted-myeve",
+      "head": "cab819bdd93ae1470925765728faacf8f6beab25",
+      "migrationOwners": []
+    }
+  ],
+  "note": "Read-only scan. Only canonical owned consumer contains 0057; prior immediate allocation check remains authoritative."
+}

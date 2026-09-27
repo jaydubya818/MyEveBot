@@ -78,6 +78,24 @@ export function assertFactoryCandidateIdentity(contract: CandidateContract, base
     raw.split("\n\n")[0].split("\n").filter(x=>x.startsWith("parent ")).join("\n")!==`parent ${base.sha}` || !raw.startsWith(`tree ${tree}\n`))
     throw new WorkError("factory_candidate_identity","Factory custody does not match the exact authenticated Git candidate.");
 }
+/** Preserve Factory's authenticated author, committer, timestamp offsets and message.
+ * GitHub cannot represent extra raw commit headers; reject those before mutation. */
+export function publicationCommit(candidate:Candidate) {
+  if(candidate.producer!=='MYFACTORY'){
+    const person={name:candidate.commit.name,email:candidate.commit.email,date:candidate.commit.date};
+    return {message:candidate.commit.message,tree:candidate.tree,parents:[candidate.parentSha],author:person,committer:person};
+  }
+  const raw=candidate.rawCommit,match=raw?.match(/^tree ([a-f0-9]{40})\nparent ([a-f0-9]{40})\nauthor ([^\n]+)\ncommitter ([^\n]+)\n\n([\s\S]*)$/);
+  if(!raw||!match||match[1]!==candidate.tree||match[2]!==candidate.parentSha||objectSha('commit',raw)!==candidate.sha)throw new WorkError('factory_publication_format','Factory commit cannot be published without rewriting provenance.');
+  function person(line:string){
+    const m=/^([^<>\n]+) <([^<>\n]+)> ([0-9]+) ([+-])([0-9]{2})([0-9]{2})$/.exec(line);
+    if(!m||Number(m[5])>23||Number(m[6])>59)throw new WorkError('factory_publication_format','Unsupported Factory commit identity.');
+    const offset=(m[4]==='-'?-1:1)*(Number(m[5])*60+Number(m[6]));
+    const date=new Date(Number(m[3])*1000+offset*60000).toISOString().replace('.000Z',m[4]+m[5]+':'+m[6]);
+    return {name:m[1],email:m[2],date};
+  }
+  return {message:match[5],tree:candidate.tree,parents:[candidate.parentSha],author:person(match[3]),committer:person(match[4])};
+}
 export function workBranch(workId: string) { return `myeve/work-${workId}`; }
 
 /** This client exposes no merge, deployment, workflow, secret or repository-admin operation. */
@@ -149,6 +167,8 @@ export class GitHubAdapter implements EngineeringGitHub {
     const base=await this.snapshot(expectedHead??contract.baseSha);
     const changes=[...new Set([...Object.keys(base.files),...Object.keys(candidate.files)])].filter(path=>base.files[path]!==candidate.files[path]);
     if(!changes.length||changes.some(path=>!contract.profile.allowedPaths.includes(path)))throw new Error("Publication changes exceed the admitted source paths.");
+    if(candidate.producer==='MYFACTORY')assertFactoryCandidateIdentity(contract,base,candidate);
+    const commitBody=publicationCommit(candidate);
     for (const content of new Set(Object.values(candidate.files))) {
       const blob=await this.api("git/blobs",{content,encoding:"utf-8"});
       if (blob.sha!==objectSha("blob",content)) throw new Error("GitHub blob identity mismatch.");
@@ -157,8 +177,7 @@ export class GitHubAdapter implements EngineeringGitHub {
       const result=await this.api("git/trees",{tree:tree.entries});
       if (result.sha!==tree.sha) throw new Error("GitHub tree identity mismatch.");
     }
-    const person={name:candidate.commit.name,email:candidate.commit.email,date:candidate.commit.date};
-    const commit=await this.api("git/commits",{message:candidate.commit.message,tree:candidate.tree,parents:[candidate.parentSha],author:person,committer:person});
+    const commit=await this.api("git/commits",commitBody);
     if (commit.sha!==candidate.sha) throw new Error("GitHub candidate identity mismatch.");
     // Never force-update. A concurrent divergent human commit causes GitHub to reject this write.
     if (expectedHead) await this.api(`git/refs/heads/${branch}`,{sha:candidate.sha,force:false},"PATCH");

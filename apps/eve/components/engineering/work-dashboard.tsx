@@ -202,6 +202,18 @@ export function WorkDashboard() {
       }
     }
   }
+  async function factoryAction(operation:"start"|"reconcile"|"stop"|"takeover") {
+    if(!detail)return;
+    const id=detail.work.id,version=++selection.current;
+    setBusy(true);setError("");setNotice("");setDetailStale(true);
+    try {
+      await api(`/${id}/factory`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({operation,expectedWorkVersion:detail.work.version,expectedWorkGeneration:detail.work.generation})});
+      const updated=await api(`/${id}`);
+      if(selection.current===version){setDetail(updated);setDetailStale(false);setNotice(operation==="stop"?"Stop requested. The writer stays reserved until Factory proves it has stopped.":"Factory state refreshed. Protected verification and recovery continue through the local worker.");}
+      await refresh();
+    }catch(e){if(selection.current===version)setError((e as Error).message);}
+    finally{if(selection.current===version)setBusy(false);}
+  }
   async function admitNative() {
     if (!detail) return;
     const id=detail.work.id, expectedWorkVersion=detail.work.version, expectedWorkGeneration=detail.work.generation;
@@ -590,7 +602,7 @@ export function WorkDashboard() {
                   </div>
                   {detail.projection?.nativeResult && (
                     <section className="grid gap-3 rounded-xl border border-kumo-line p-4" aria-label="Native Proof of Work">
-                      <h3 className="font-semibold">Native Proof of Work</h3>
+                      <h3 className="font-semibold">Proof of Work</h3>
                       <p className="text-sm">{detail.projection.nativeResult.proof.outcome} · Candidate <code>{detail.projection.nativeResult.proof.resultRevision?.slice(0,12)}</code>
                         {!detail.projection.nativeResult.current && " · historical Work revision"}</p>
                       <ul className="grid gap-2 text-sm">{detail.projection.nativeResult.proof.evidence.map(item=>(
@@ -601,10 +613,20 @@ export function WorkDashboard() {
                     </section>
                   )}
                   <RoutingSummary routing={detail.routing} stale={detailStale} />
+                  {(detail.projection?.factoryWriter || detail.projection?.factoryPreparation) && <section className="grid gap-3 rounded-xl border border-kumo-line p-4" aria-label="Factory controls">
+                    <h3 className="font-semibold">MyFactory · {detail.projection.factoryWriter?.state??detail.projection.factoryPreparation?.state}</h3>
+                    <p className="text-sm">{detail.projection.factoryPreparation?.blocker??detail.projection.factoryWriter?.observation?.reason??detail.projection.factoryWriter?.observation?.blocker??"Results and protected verification appear in Current Truth."}</p>
+                    <div className="flex flex-wrap gap-2">
+                      <button className={button} disabled={busy||detailStale} onClick={()=>void factoryAction("reconcile")}>Reconcile Factory</button>
+                      <button className={button} disabled={busy||detailStale||(!detail.projection.factoryWriter||detail.projection.factoryWriter.state==="TERMINAL")} onClick={()=>void factoryAction("stop")}>Stop Factory</button>
+                      <button className={button} disabled={busy||detailStale} onClick={()=>void factoryAction("takeover")}>Stop and take over</button>
+                    </div>
+                  </section>}
                   {!detail.execution && detail.work.lifecycle==="active" && detail.work.control==="agent" && detail.routing?.decision?.status!=="ADMITTED" && (
                     <div className="grid gap-2">
-                      <button className={button} disabled={busy || detailStale} onClick={()=>void admitNative()}>Admit native development</button>
-                      <p className="text-xs text-kumo-subtle">Checks the current owner, Agent, Work limits and provider qualification before reserving one writer. No model or repository action starts here.</p>
+                      <button className={button} disabled={busy || detailStale} onClick={()=>void factoryAction("start")}>Start with MyFactory</button>
+                      <button className={button} disabled={busy || detailStale} onClick={()=>void admitNative()}>Admit native repair · experimental</button>
+                      <p className="text-xs text-kumo-subtle">Checks the current owner, Agent, Work limits and provider qualification before reserving one writer. Factory execution starts only after those checks pass.</p>
                     </div>
                   )}
                   <section>

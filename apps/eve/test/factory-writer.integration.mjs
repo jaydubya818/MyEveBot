@@ -39,7 +39,7 @@ const migrationDB={...database,transaction:async ss=>{const c=await pool.connect
 let checks=0;const results=[],journeys=[];function pass(label){checks++;results.push(label);console.log('PASS',label);}
 async function snapshot(){const out={};for(const {tablename:t} of (await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows)out[t]=(await pool.query('SELECT to_jsonb(t) row FROM "'+t+'" t ORDER BY to_jsonb(t)::text')).rows;return out;}
 try{
- const migrations=await loadMigrations();assert.equal(migrations.length,56);
+ const allMigrations=await loadMigrations(),migrations=allMigrations.slice(0,56);assert.equal(migrations.length,56);
  const pin=JSON.parse(await readFile(new URL('../../../docs/verification/2026-09-27-gate-b/0056-ownership-and-checksum.json',import.meta.url),'utf8'));assert.equal(migrations[55].checksum,pin.sha256);
  await runMigrations(migrationDB,migrations.slice(0,55),()=>{});
  const old=await receiptFixture(pool);assert.equal((await admitFactoryResult(old.store,old.request.id,golden.result,{keys:async()=>golden.expected.keys})).status,'ADMITTED');
@@ -53,6 +53,7 @@ try{
  const stable=await snapshot();await runMigrations(migrationDB,migrations,()=>{});assert.deepEqual(await snapshot(),stable);pass('0056 rerun is exact no-op');
  assert.equal((await old.store.get(old.request.id,(await old.store.admission(old.request.id)).receipt_id)).state,'ADMITTED');
  assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_route_runs')).rows[0].n,0);pass('migration and authenticated receipts create no writer authority');
+ await runMigrations(migrationDB,allMigrations,()=>{});
  const owner='gate-b-'+randomUUID(),agentId='agent-'+randomUUID();
  await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps) VALUES($1,$2,'Sofie','sofie','engineer','Gate B local qualification',true,'active',1.3,3600,30)`,[agentId,owner]);
  const store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database),writers=new FactoryWriterStore(store),receipts=new FactoryReceiptStore(store.principal,database);

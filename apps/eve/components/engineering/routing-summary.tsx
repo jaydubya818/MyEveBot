@@ -81,7 +81,7 @@ export function RoutingSummary({ routing, stale = false }: { routing: RoutingSna
       <p className="mt-3"><span className="font-medium">Why:</span> {decision.reason}</p>
       <dl className="mt-3 grid gap-3 text-xs sm:grid-cols-2">
         <div><dt className="text-kumo-subtle">Decision source</dt><dd className="mt-1">{fieldLabel(decision.source)}</dd></div>
-        <div><dt className="text-kumo-subtle">{decision.status === "PROPOSED" ? "Provider in proposal" : decision.status === "STALE" ? "Previously selected provider" : "Admitted provider"}</dt><dd className="mt-1">{decision.providerId ? `${decision.providerId}${decision.providerVersion ? ` · ${decision.providerVersion}` : ""}` : "Not assigned"}</dd></div>
+        <div><dt className="text-kumo-subtle">{decision.status === "PROPOSED" ? "Provider in proposal" : decision.status === "STALE" ? "Previously selected provider" : "Admitted provider"}</dt><dd className="mt-1 break-all">{decision.providerId ? `${decision.providerId}${decision.providerVersion ? ` · ${decision.providerVersion}` : ""}` : "Not assigned"}</dd></div>
         <div><dt className="text-kumo-subtle">Work version</dt><dd className="mt-1">{decision.workVersion}</dd></div>
         <div><dt className="text-kumo-subtle">Recorded</dt><dd className="mt-1"><time dateTime={decision.createdAt}>{date(decision.createdAt)}</time></dd></div>
       </dl>
@@ -94,7 +94,7 @@ export function RoutingSummary({ routing, stale = false }: { routing: RoutingSna
     </>}
     {runs.length > 0 && <div className="mt-4 border-t border-kumo-line pt-4 text-xs">
       <h4 className="font-medium">Provider runs</h4>
-      <ul className="mt-2 space-y-2">{runs.map((run) => <li key={run.id} className="rounded-lg border border-kumo-line p-2"><span className="font-medium">{routeLabel(run.route)} · {run.status}</span><span className="mt-1 block text-kumo-subtle">{run.providerId ?? "Provider not assigned"}{run.providerVersion ? ` · ${run.providerVersion}` : ""} · Updated {date(run.updatedAt)}</span></li>)}</ul>
+      <ul className="mt-2 space-y-2">{runs.map((run) => <li key={run.id} className="rounded-lg border border-kumo-line p-2"><span className="font-medium">{routeLabel(run.route)} · {run.status}</span><span className="mt-1 block break-all text-kumo-subtle">{run.providerId ?? "Provider not assigned"}{run.providerVersion ? ` · ${run.providerVersion}` : ""} · Updated {date(run.updatedAt)}</span></li>)}</ul>
     </div>}
   </section>;
 }

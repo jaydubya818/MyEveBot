@@ -1,5 +1,8 @@
 # Set up MyEve, Relay, and MyFactory together
 
+For the canonical Digital Worker connected protocol, local qualification and recovery controls, use [MyFactory Work routing and recovery](../myfactory-operator.md). Paid Factory execution remains disabled; these instructions grant no live execution authority.
+
+
 **Gate B local qualification (2026-09-27): PASS.** From canonical baseline `7bf276493eb2b3206a50eea0c4c9c262b7396014`, registered migration **0056** extends the existing route Run, session fencing, Gate C admission and protected verifier. One scoped Work has at most one current productive writer; immutable historical Runs and custody remain available. Both Factory success and Factory-failure → new native repair journeys end in protected verification PASS and a **PARTIAL Result**, never Ready. [Implementation, immutable migration checksum, exact journey evidence and validation](../verification/2026-09-27-gate-b/REPORT.md). M1 local regression is PASS; M1 live remains NOT QUALIFIED; Gate C remains PASS/CLOSED. **Live MyFactory = NOT READY / NOT_RUN**: the local synthetic transport is qualified, but a concrete live adapter proving durable remote fencing/quiescence is not configured or qualified. Independent review of this implementation is pending.
 
 

@@ -1,0 +1,10 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve
+
+ ✓ components/engineering/routing-summary.test.tsx (4 tests) 16ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:46:38
+   Duration  236ms (transform 26ms, setup 0ms, collect 35ms, tests 16ms, environment 0ms, prepare 31ms)
+

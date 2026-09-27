@@ -1,0 +1,10 @@
+{
+  "consumerBaseline": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+  "producer": "d9564beef41590c3700069ec340d926db23b7ba7",
+  "ownership": "Sole implementation owner confirmed by user and reviewer; reviewer is read-only",
+  "preservedFilesVerified": 27,
+  "competingWritesObserved": 0,
+  "reviewerDraftImported": false,
+  "mainModified": false,
+  "otherWorktreesModified": false
+}

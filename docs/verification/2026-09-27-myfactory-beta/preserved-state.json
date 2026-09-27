@@ -1,0 +1,32 @@
+{
+  "head": "be090db93b35c8edb9f38a3cac1344a2289c49bc",
+  "hashes": {
+    "apps/eve/agent/tools/engineering_factory.ts": "98196e58449301fac36f1fb03bbef263b340a76e9b01f6886f40f9ec52805bc2",
+    "apps/eve/app/api/engineering/work/[id]/factory/route.ts": "7d8eb02b772f373b825ccf7b6a38793c9de961a4962c4f51d8e07c2c46465c8c",
+    "apps/eve/lib/engineering/factory-api.ts": "523357b2d598e97068fbcccb293c2a0ac48e7297681210e0e88249e775736ec2",
+    "apps/eve/lib/engineering/factory-beta.test.ts": "2c3546a0326a539549891fb93382a4d7a6a37ef46dbb4634394a1aa692837d36",
+    "apps/eve/lib/engineering/factory-live-adapter.ts": "b999214f29d6c3f71e6b8cedaac42dcb618a65f367951ff9979db1c78fe31d64",
+    "apps/eve/lib/engineering/factory-routing.ts": "47e4ead410824c2effa2f76c340bc5ca6a4e39e6f0c299ac31f98b70b8da2322",
+    "apps/eve/lib/engineering/factory-runtime.ts": "689a6b10b332626eff3c80648403965ccf8763d006ae100ce542da8afd0f649b",
+    "apps/eve/lib/engineering/factory-work-driver.ts": "9001e43851d6dc08e5f05bd66504422c5d9cd3cc8320950b4627d36f84781b4c",
+    "apps/eve/migrations/0057_factory_preparation_intent.sql": "787b26a37700c890d0cee38ab47bb2b5e51c24cd70a28568f98d7d009072f057",
+    "apps/eve/scripts/factory-worker.ts": "56ed5cfca04065e4021ccf9c40add2b1a88e39ec13c00a8e631d4dbacf074e99",
+    "apps/eve/test/factory-live.integration.mjs": "43ba862822ac40d36c0b0cf384811ba245deae7318d823f997d625d0df7b69a0",
+    "apps/eve/test/factory-q37-composition.mjs": "dd06eaf38cc1fbd8164a757705461ff974a9b5da1f643d26ed0a3441b4758fc7",
+    "docs/verification/2026-09-27-myfactory-beta/0057-ownership.json": "14ecb116638d2867981ed972c5feab5b066355dbbc55694576f17c7c21a9593f",
+    "docs/verification/2026-09-27-myfactory-beta/REVIEW.md": "29b24ad69a515c6b427af893a41d7091d4702471c85997a28d17200e6418d48c",
+    "docs/verification/2026-09-27-myfactory-beta/governance-scope.json": "cd702539d8b0171c472f0c42935c3d885566d39115ffb11f1eb0cfb4ce4b05cf",
+    "apps/eve/agent/instructions/persistent-agent.ts": "0e56f2cbbc49c807254f6633ebd425dcad20c299bc200a8000060dd23e87280d",
+    "apps/eve/components/engineering/work-dashboard.tsx": "3b1d6959d850c6a3fef47c3a5efd3a0eedc3c53f7b7c76e48cc27b81e322d79b",
+    "apps/eve/lib/capability-registry.ts": "af337ff209dd331c3371839e9bd633a18b531f12ff9694f52e537a810022d029",
+    "apps/eve/lib/database-schema.ts": "559640a851492db50ba6bb3cba8ca1ec8898f4ce93ad40482a654d3fba01e31f",
+    "apps/eve/lib/engineering/current-truth-lines.ts": "40d6ae6187c9cfb0afeaae1c08ab40c85cb67e7a1694515f78a1bca004e4b988",
+    "apps/eve/lib/engineering/github.ts": "e22c65ba27584ab846dc4d7fb0a059180cf82de5341657b0db65b024e2eee06f",
+    "apps/eve/lib/engineering/worker-projection.ts": "f219569527014516cd242ad70746fc96f17ca5030a953f723fa5f47a92e0d9e8",
+    "apps/eve/scripts/check-executor-governance.ts": "3636d6d3158c9e5e1c3dcb26fa7bf043c7c1a6d1da6b2cde2804aead681b9099",
+    "apps/eve/scripts/executor-inventory.json": "02e15d3a277624388c231ed144d7533716b12501189e02b5ee78cd1d80d85541",
+    "apps/eve/test/factory-receipt.integration.mjs": "9d13fb130d482315bbc4bbe95aeb500b6dc014a6b9d4b8d723e9e609e7f7d3de",
+    "apps/eve/test/factory-writer.integration.mjs": "661da74cbd5283fe8e2f9f10fbe9cc575c5eff7eb1249024139aeba47b781e90",
+    "apps/eve/test/native-completion.integration.mjs": "0f402900117d52b3c414305d1e2bce236932a07758e5455f08c602a5a3b52ebc"
+  }
+}

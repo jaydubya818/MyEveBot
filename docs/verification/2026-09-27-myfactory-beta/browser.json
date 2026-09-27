@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "mode": "Real browser, final production build, intercepted responses from connected fixture",
+  "liveBackendBrowserJourney": false,
+  "terminalStopDisabled": true,
+  "reconcileControl": "PASS",
+  "mobileHorizontalOverflow": 0,
+  "viewports": [
+    "390x844",
+    "1440x1000"
+  ],
+  "screenshots": [
+    "work-controls-mobile.png",
+    "work-controls-desktop.png"
+  ]
+}
