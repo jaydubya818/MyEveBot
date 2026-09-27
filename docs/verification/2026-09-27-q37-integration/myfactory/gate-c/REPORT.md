@@ -1,6 +1,6 @@
 # MyFactory Gate C — bounded offline candidate-return qualification
 
-**Current Gate C: PASS offline. Gate B: READY FOR COORDINATION, NOT IMPLEMENTED. Live MyFactory: NOT_RUN. Digital Worker readiness: NOT_READY.** Earlier sections preserve the prior partial-gate finding; the final qualification is in the addendum below.
+**Current Gate C: PARTIAL / NOT QUALIFIED. Gate B: BLOCKED PENDING COORDINATION. Live MyFactory: NOT_RUN. Digital Worker readiness: NOT_READY.** Earlier sections preserve the prior partial-gate finding; the final qualification is in the addendum below.
 
 This continuation starts from MyEve `56e5f30d91694e87f55234307cf946bc6a2b9772` on `codex/q37-integration` (the local checkout also contained documentation commit `63131a8`). MyFactory started at `543906dc20fefed2def97e43953095ea0b7c60bc` on `codex/local-factory`; the Gate C implementation is on `codex/q37-gate-c`. The previous read-only finding is preserved in [PRIOR-AUDIT.md](PRIOR-AUDIT.md). No live MyFactory execution, external issue, writer transfer, production deployment, or M1/ER1-owned writer mutation occurred.
 
@@ -67,4 +67,11 @@ A new `hosted-golden.test.mjs` uses `JobManager` to create a real temporary Git 
 
 Final disposable PostgreSQL 17 checks cover fresh 54-migration chain, 0053→0054 upgrade with a retained historical Work row, injected failed-migration rollback, idempotent rerun, six concurrent real-client replays, same-operation changed-manifest conflict, stale generation, admission racing with cancellation and supersession, restricted-role denial, and resume from every stored admission stage. MyEve full `npm run typecheck` passed with governance UNKNOWN=0. MyFactory full `npm test` passed including the new Golden attempt, `npm run typecheck` passed, and its web build passed in the existing clean offline build fixture after source comparison; the original checkout's Vite step still stalls on its local dependency installation. The build fixture has identical web and contracts sources and lockfile.
 
-**Gate C: PASS for offline qualification.** No live MyFactory execution, Gate B writer transfer, provider deployment, or main-branch change occurred. Gate B remains ready for coordination with the M1/ER1 owner; this receipt is not a writer handoff.
+**Gate C: PARTIAL.** The offline legacy-hosted path passed, but it is not the separately qualified producer contract. No live MyFactory execution, Gate B writer transfer, provider deployment, or main-branch change occurred. Gate B remains ready for coordination with the M1/ER1 owner; this receipt is not a writer handoff.
+
+
+### Stop: concurrent protocol and migration ownership
+
+After the offline run, read-only inspection found another clean producer checkout at `codex/q37-producer-attestation` commit `fcd8afd`. Its `MYFACTORY_RESULT_V1` payload has fields `protocol`, `encoded`, `signature`, `manifestDigest`, and `artifacts`, with up to 12 MiB and an exact-attempt local GET transport. The `codex/q37-gate-c` path qualified above descends from `13d9fc8` and uses a smaller Linear issue envelope plus comment chunks. The signatures, FactoryVersion identity and artifact transport are incompatible; the test above does **not** qualify admission of `fcd8afd` results.
+
+The canonical MyEve Q37 worktree advanced independently to `f32317b` and now has uncommitted `0054_factory_result_receipts.sql` and related consumer files. This branch already committed `0054_engineering_factory_results.sql`. Both claim migration 0054, and they cannot coexist in the manifest. No canonical worktree files were changed or reset. Migration ownership and the producer/consumer protocol must be coordinated before choosing a schema and merging. Gate B and live MyFactory remain NOT_RUN.

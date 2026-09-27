@@ -1,6 +1,6 @@
 # Gate C requirements and Gate B single-writer handoff contract
 
-This records the Gate C acceptance bar and Gate B handoff interface. Gate C now passes the bounded **offline** producer-to-durable-consumer qualification described in [REPORT.md](REPORT.md). It grants no writer authority. Gate B remains unimplemented and requires coordination with the M1/ER1 owner before any protected writer mutation or live Factory execution.
+This records the Gate C acceptance bar and Gate B handoff interface. One legacy hosted path passes bounded offline tests, but Gate C is **PARTIAL** because the separately qualified producer contract and the concurrent 0054 migration have not been reconciled. It grants no writer authority. Gate B remains unimplemented and requires coordination with the M1/ER1 owner before any protected writer mutation or live Factory execution.
 
 ## Gate C: smallest complete producer change
 
@@ -52,7 +52,7 @@ Required offline tests: the real supervisor captures F1 for R1/WO1/A1/C1/M1, the
 
 ## WRITER HANDOFF REQUIRED CONTRACT
 
-**Gate B status: READY FOR COORDINATION; IMPLEMENTATION NOT STARTED.** This is the handoff contract for review with the existing M1/ER1 owner, not a second writer implementation. Shared ownership overlap: **YES**. No cross-task message or protected writer edit was made.
+**Gate B status: BLOCKED PENDING COORDINATION; IMPLEMENTATION NOT STARTED.** This is the handoff contract for review with the existing M1/ER1 owner, not a second writer implementation. Shared ownership overlap: **YES**. No cross-task message or protected writer edit was made.
 
 Invariant: **one authoritative candidate writer per Work generation**. Preserve existing owner/Agent scope and the common resource budget. Use the shared Work-row transaction and existing fencing/generation service. A provider-signed return never grants production or native authority.
 
