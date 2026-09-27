@@ -1,0 +1,208 @@
+[
+  {
+    "id": "action_f19ba846-e7e1-4f31-b0fe-d1a93c2814aa",
+    "owner_id": "m1er1-b3bff2b-owner",
+    "run_id": "action_run_27fd0325-d2b9-4fca-81ed-fe532228f11f",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01JzyUKuQWsUwqgVzicQpBsa",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b3bff2b-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GGF0878V69040AE3J46K9S",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b3bff2b-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:8d58e8a6-3d59-4296-9751-2479075661a3",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "1a1dde00eb7f23ab04b5f0690890356af282e70900ad12d117f63e43f0ba3359",
+    "safe_summary": {
+      "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+      "operation": "admit",
+      "expectedWorkVersion": 2,
+      "expectedWorkGeneration": 2
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "phase": "ADMITTED_READY_FOR_PRODUCTIVE_WORK",
+      "route": "NATIVE",
+      "runId": "ab5fb30d-fc1b-476f-b07f-0b26737c0eb8",
+      "budget": {
+        "status": "ACTIVE",
+        "heldUsd": 1.013769,
+        "inflight": false,
+        "observed": true,
+        "spentUsd": 0.005702,
+        "ceilingUsd": 1.3,
+        "reservedUsd": 0,
+        "remainingUsd": 0.28052900000000003,
+        "usageUnknown": false
+      },
+      "status": "QUEUED",
+      "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+      "control": "agent",
+      "message": "NO NEW ADMISSION REQUIRED",
+      "admission": "SUCCESS",
+      "nextPhase": "PRODUCTIVE_EXECUTION",
+      "decisionId": "becb3e8e-cd2b-49bb-9faa-69e1c4a2b471",
+      "workVersion": 2,
+      "currentTruth": [
+        "Work identity: {\"workId\":\"8d58e8a6-3d59-4296-9751-2479075661a3\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Native execution: ALREADY_ADMITTED; phase ADMITTED_READY_FOR_PRODUCTIVE_WORK; next operation open. Observed state only. Already admitted means no new admission.",
+        "Active Run: ab5fb30d-fc1b-476f-b07f-0b26737c0eb8; DEEP_AGENT; ACTIVE. Fresh checks are required at every action boundary.",
+        "Latest Run: ab5fb30d-fc1b-476f-b07f-0b26737c0eb8; DEEP_AGENT; ACTIVE; recorded QUEUED; deadline 2026-09-27T04:32:44.257Z.",
+        "Run history: ab5fb30d-fc1b-476f-b07f-0b26737c0eb8 (DEEP_AGENT; ACTIVE; recorded QUEUED; admission 2026-09-27T04:02:44.268Z).",
+        "Writer session: wrun_01M3GGF0878V69040AE3J46K9S; current custody observed; recheck before effects.",
+        "Candidate: none retained.",
+        "Draft: no native draft retained.",
+        "Candidate history: none retained.",
+        "Completion state: READY.",
+        "Protected verification: NOT_RUN; candidate none; job none; 0 bound evidence records.",
+        "Result: none retained.",
+        "Budget: $0.005702 spent; $0.000000 reserved; ACTIVE; unknown usage false.",
+        "Completion budget: $1.300000 ceiling; $1.013769 held; $0.280529 uncommitted. This observation is not spend authority.",
+        "Readiness: No independently verified, current Result exists.",
+        "Blocker / next permitted action: Open the pinned repository with engineering_direct open. No new admission is required; each effect still rechecks authority."
+      ],
+      "transitionId": "4f42c061-2618-4986-802a-cdd543916916",
+      "nextOperation": "open",
+      "authorityToken": "[REDACTED]",
+      "workGeneration": 2,
+      "admissionStatus": "ALREADY_ADMITTED",
+      "writerSessionId": "wrun_01M3GGF0878V69040AE3J46K9S",
+      "completionStatus": "READY",
+      "admissionRequired": false,
+      "expectedWorkVersion": 2,
+      "completionContractId": "ab5fb30d-fc1b-476f-b07f-0b26737c0eb8",
+      "expectedWorkGeneration": 2
+    },
+    "created_at": "2026-09-27T04:02:44.148Z",
+    "updated_at": "2026-09-27T04:02:44.305Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_6fefaedf-9678-4096-8679-b5cb97074d19",
+    "owner_id": "m1er1-b3bff2b-owner",
+    "run_id": "action_run_27fd0325-d2b9-4fca-81ed-fe532228f11f",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01Vbr5G8aAQnbY7cf9VXbuRe",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b3bff2b-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GGF0878V69040AE3J46K9S",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b3bff2b-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:8d58e8a6-3d59-4296-9751-2479075661a3",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "02dbd570cf90be93ec634f947435479594d9c11e917175afb4053bba9f56e975",
+    "safe_summary": {
+      "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+      "operation": "open"
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "completed",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {
+      "current": true,
+      "workspace": {
+        "plan": "",
+        "files": [
+          ".github/workflows/quantity-ci.yml",
+          ".gitignore",
+          "README.md",
+          "package.json",
+          "test/quantity.test.mjs"
+        ],
+        "phase": "DRAFT",
+        "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+        "baseSha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+        "deadline": "2026-09-27T04:32:44.257Z",
+        "evidence": [],
+        "revision": 1,
+        "candidates": [],
+        "changedPaths": []
+      }
+    },
+    "created_at": "2026-09-27T04:02:53.734Z",
+    "updated_at": "2026-09-27T04:02:55.509Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  },
+  {
+    "id": "action_fe932aeb-24ed-4974-a41b-59f8082d2f11",
+    "owner_id": "m1er1-b3bff2b-owner",
+    "run_id": "action_run_27fd0325-d2b9-4fca-81ed-fe532228f11f",
+    "occurrence_id": null,
+    "action_key": "tool:toolu_01Rt7DWPZRYPhuCphe5DT37T",
+    "executor": {
+      "kind": "primary-agent",
+      "agentId": "m1er1-b3bff2b-sofie"
+    },
+    "trigger": {
+      "id": "wrun_01M3GGF0878V69040AE3J46K9S",
+      "kind": "owner_chat"
+    },
+    "capability_id": "tool.engineering_direct",
+    "action_class": "write",
+    "target": {
+      "account": "m1er1-b3bff2b-owner",
+      "provider": "myeve-native-sofie",
+      "resource": "engineering-work:8d58e8a6-3d59-4296-9751-2479075661a3",
+      "environment": "isolated-dogfood"
+    },
+    "parameter_hash": "02dbd570cf90be93ec634f947435479594d9c11e917175afb4053bba9f56e975",
+    "safe_summary": {
+      "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+      "operation": "open"
+    },
+    "decision": "ALLOW",
+    "authority_source": "local",
+    "approval_id": null,
+    "status": "result_unknown",
+    "attempt_count": 1,
+    "computer_session_id": null,
+    "control_version": null,
+    "provider_receipt": {},
+    "created_at": "2026-09-27T04:03:19.771Z",
+    "updated_at": "2026-09-27T04:03:21.510Z",
+    "reason_code": "capability_allowed",
+    "policy_version": "local-v1",
+    "recovery_token": null,
+    "recovery_expires_at": null,
+    "recovery_result": null,
+    "approval_generation": 0
+  }
+]

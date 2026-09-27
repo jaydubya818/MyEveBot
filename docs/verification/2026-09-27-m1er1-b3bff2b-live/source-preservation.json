@@ -1,0 +1,18 @@
+{
+  "candidate": "b3bff2b1bf620552a394b9579460a642d713d56e",
+  "productSourceChanged": false,
+  "historicalEvidence": {
+    "2026-09-27-gap2b-live": {
+      "artifacts": 23,
+      "status": "UNCHANGED"
+    },
+    "2026-09-27-m1er1-b4801cb-live": {
+      "artifacts": 38,
+      "status": "UNCHANGED"
+    },
+    "2026-09-27-post-admission-continuity": {
+      "artifacts": 14,
+      "status": "UNCHANGED"
+    }
+  }
+}

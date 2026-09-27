@@ -1,0 +1,6 @@
+{
+  "id": "gap2b-m1er1-76b22b77-5ece-4251-8060-4f090b8e6629",
+  "status": "REVOKED",
+  "at": "2026-09-27T04:03:54.437Z",
+  "reason": "Productive continuation repeated repository open/read; bounded implementation progress blocked. No retry or coaching."
+}

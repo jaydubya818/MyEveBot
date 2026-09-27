@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-27T04:04:24.317852+00:00",
+  "targets": [
+    {
+      "pid": 46692,
+      "command": "node /private/tmp/m1er1-b3bff2b/server.cjs"
+    },
+    {
+      "pid": 46762,
+      "command": "node /private/tmp/m1er1-b3bff2b/verifier.cjs"
+    }
+  ]
+}

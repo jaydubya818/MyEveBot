@@ -1,0 +1,125 @@
+Bounded authenticated runtime started gap2b-m1er1-76b22b77-5ece-4251-8060-4f090b8e6629 2026-09-27T04:32:10.245Z
+▲ Next.js 16.3.5 (webpack)
+- Local:         http://127.0.0.1:3108
+- Network:       http://127.0.0.1:3108
+✓ Ready in 355ms
+✓ Running next.config.ts took 104ms
+[eve:dev] [33m[PLUGIN_TIMINGS] [0mJavaScript callbacks ran for 2.5s of this 3.2s build (78%).
+[eve:dev] The slowest callbacks, timed inside each callback (the wait before a callback starts is excluded, the time it awaits is included):
+[eve:dev]   - plugin eve-node-esm-compat-banner renderChunk (46%, 1.4s, 1 call)
+[eve:dev] Additional callback time came from the callbacks below and from callbacks under 1s.
+[eve:dev] 2 callbacks are listed without a time. Their calls overlapped, so the time inside one call includes work from other calls. To find their cost, profile the build with `node --cpu-prof`:
+[eve:dev]   - plugin eve-package-tsconfig-paths resolveId (1993 calls)
+[eve:dev]   - plugin eve-generation-package-boundary resolveId (2593 calls)
+[eve:dev] See https://rolldown.rs/reference/InputOptions.checks#bundlertimings for more details.
+[eve:dev] ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js (23:28893) [33m[EVAL] [0mUse of direct `eval` function is strongly discouraged as it poses security risks and may cause issues with minification.
+[eve:dev]  - Use of direct `eval` here. in ../../../../../../Myeve/node_modules/@vercel/otel/dist/node/index.js at 254579..254583
+[eve:dev]  [38;5;240m │[0m 
+[eve:dev]  [38;5;240m │[0m [38;5;115mHelp[0m: Consider using indirect eval. For more information, check the documentation: https://rolldown.rs/guide/troubleshooting#avoiding-direct-eval
+[eve:dev] server listening at http://127.0.0.1:62584/
+
+ POST /api/auth/login 200 in 685ms (next.js: 664ms, proxy.ts: 3ms, application-code: 19ms)
+ GET /api/engineering/work/8d58e8a6-3d59-4296-9751-2479075661a3 200 in 595ms (next.js: 501ms, proxy.ts: 6ms, application-code: 89ms)
+ PATCH /api/engineering/work/8d58e8a6-3d59-4296-9751-2479075661a3 200 in 18ms (next.js: 4ms, proxy.ts: 1.9ms, application-code: 12ms)
+ GET /api/engineering/work/8d58e8a6-3d59-4296-9751-2479075661a3 200 in 31ms (next.js: 1.5ms, proxy.ts: 1.5ms, application-code: 28ms)
+ PUT /api/threads/6163e70d-6f8d-41fe-b0a6-3b9f24ebbf36 200 in 726ms (next.js: 681ms, proxy.ts: 1.7ms, application-code: 43ms)
+ GET /api/engineering/work/8d58e8a6-3d59-4296-9751-2479075661a3 200 in 109ms (next.js: 14ms, proxy.ts: 3ms, application-code: 92ms)
+[eve:dev] [eve:harness.tool-loop] tool execution failed {
+[eve:dev]   toolName: 'engineering_direct',
+[eve:dev]   toolCallId: 'toolu_01Rt7DWPZRYPhuCphe5DT37T',
+[eve:dev]   error: {
+[eve:dev]     errorId: 'c7d1c9ce-f5a1-4bfb-b24a-4389908d949a',
+[eve:dev]     message: 'Error: Result needs verification before retry.',
+[eve:dev]     detail: 'ActionBlocked [Error]: Result needs verification before retry.\n' +
+[eve:dev]       '    at ActionGateway.run (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:282102:11)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/types/execute-tool.ts:45:36)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:145:32)\n' +
+[eve:dev]       '    at async executeTool (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:270:14)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:126:9)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async Object.runInTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:179:7)\n' +
+[eve:dev]       '    at async executeToolCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tool-call.ts:109:10)\n' +
+[eve:dev]       '    at async <anonymous> (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/execute-tools-from-stream.ts:235:34) {\n' +
+[eve:dev]       "  status: 'result_unknown',\n" +
+[eve:dev]       "  actionId: 'action_fe932aeb-24ed-4974-a41b-59f8082d2f11'\n" +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] tool-loop stream error {
+[eve:dev]   error: {
+[eve:dev]     errorId: 'e7c40fca-7216-4e0d-83cb-224d88f6a62e',
+[eve:dev]     message: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}',
+[eve:dev]     name: 'NeonDbError',
+[eve:dev]     detail: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}\n' +
+[eve:dev]       '    at dr.execute (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:8244:17)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async NativeModelBudget.reserve (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:35570:17)\n' +
+[eve:dev]       '    at async Object.generate [as doGenerate] (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:35916:17)\n' +
+[eve:dev]       '    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:36183:19)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n' +
+[eve:dev]       '    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n' +
+[eve:dev]       '    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {\n' +
+[eve:dev]       '  severity: undefined,\n' +
+[eve:dev]       '  code: undefined,\n' +
+[eve:dev]       '  detail: undefined,\n' +
+[eve:dev]       '  hint: undefined,\n' +
+[eve:dev]       '  position: undefined,\n' +
+[eve:dev]       '  internalPosition: undefined,\n' +
+[eve:dev]       '  internalQuery: undefined,\n' +
+[eve:dev]       '  where: undefined,\n' +
+[eve:dev]       '  schema: undefined,\n' +
+[eve:dev]       '  table: undefined,\n' +
+[eve:dev]       '  column: undefined,\n' +
+[eve:dev]       '  dataType: undefined,\n' +
+[eve:dev]       '  constraint: undefined,\n' +
+[eve:dev]       '  file: undefined,\n' +
+[eve:dev]       '  line: undefined,\n' +
+[eve:dev]       '  routine: undefined,\n' +
+[eve:dev]       '  sourceError: undefined\n' +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+[eve:dev] [eve:harness.tool-loop] model call failed — parking session for retry by the user {
+[eve:dev]   errorId: '1aa5e03d-ea81-46b0-aa45-bedbd5cca716',
+[eve:dev]   sessionId: 'wrun_01M3GGF0878V69040AE3J46K9S',
+[eve:dev]   turnId: 'turn_0',
+[eve:dev]   error: {
+[eve:dev]     errorId: '8d419484-0ee1-4fdf-99f7-4c9d35413016',
+[eve:dev]     message: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}',
+[eve:dev]     name: 'NeonDbError',
+[eve:dev]     detail: 'NeonDbError: Server error (HTTP status 403): {"message":"Completion stage allowance exhausted","code":"P0001"}\n' +
+[eve:dev]       '    at dr.execute (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:8244:17)\n' +
+[eve:dev]       '    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n' +
+[eve:dev]       '    at async NativeModelBudget.reserve (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:35570:17)\n' +
+[eve:dev]       '    at async Object.generate [as doGenerate] (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:35916:17)\n' +
+[eve:dev]       '    at async Object.doStream (file:///Users/jaywest/.codex/worktrees/gap2b-qualification/Myeve/apps/eve/.eve/dev-runtime/snapshots/mujalmrj-26e34361-c305-41b1-b751-6fddf4058a32/source/apps/eve/.eve/compile/authored-modules/48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs?generation=authored-modules%2F48a84ba0249f0fa9a61ccee2db478e71d2565ada4a46a8b31b3e23a0a47c9b03.mjs:36183:19)\n' +
+[eve:dev]       '    at async execute (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:357:7)\n' +
+[eve:dev]       '    at async runWithTracingChannelSpan (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/tracing-channel-publisher.ts:76:12)\n' +
+[eve:dev]       '    at async executeLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/telemetry/create-telemetry-dispatcher.ts:248:14)\n' +
+[eve:dev]       '    at async streamLanguageModelCall (/Users/jaywest/Myeve/node_modules/ai/src/generate-text/stream-language-model-call.ts:354:7)\n' +
+[eve:dev]       '    at async retryWithExponentialBackoffInternal (/Users/jaywest/Myeve/node_modules/ai/node_modules/@ai-sdk/provider-utils/src/retry-with-exponential-backoff.ts:87:12) {\n' +
+[eve:dev]       '  severity: undefined,\n' +
+[eve:dev]       '  code: undefined,\n' +
+[eve:dev]       '  detail: undefined,\n' +
+[eve:dev]       '  hint: undefined,\n' +
+[eve:dev]       '  position: undefined,\n' +
+[eve:dev]       '  internalPosition: undefined,\n' +
+[eve:dev]       '  internalQuery: undefined,\n' +
+[eve:dev]       '  where: undefined,\n' +
+[eve:dev]       '  schema: undefined,\n' +
+[eve:dev]       '  table: undefined,\n' +
+[eve:dev]       '  column: undefined,\n' +
+[eve:dev]       '  dataType: undefined,\n' +
+[eve:dev]       '  constraint: undefined,\n' +
+[eve:dev]       '  file: undefined,\n' +
+[eve:dev]       '  line: undefined,\n' +
+[eve:dev]       '  routine: undefined,\n' +
+[eve:dev]       '  sourceError: undefined\n' +
+[eve:dev]       '}'
+[eve:dev]   }
+[eve:dev] }
+ GET /api/engineering/work/8d58e8a6-3d59-4296-9751-2479075661a3 200 in 34ms (next.js: 3ms, proxy.ts: 1.8ms, application-code: 30ms)
+[?25h

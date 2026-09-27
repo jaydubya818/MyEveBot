@@ -1,0 +1,35 @@
+{
+  "database": "golden_m1er1_b3bff2b_d9d80eabbfdb",
+  "databaseURL": "postgresql://postgres@127.0.0.1:55468/golden_m1er1_b3bff2b_d9d80eabbfdb",
+  "ownerId": "m1er1-b3bff2b-owner",
+  "owner": "m1er1-b3bff2b-owner",
+  "agentId": "m1er1-b3bff2b-sofie",
+  "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+  "profileHash": "aaf54927d1f4d8731cc38736f7aed6e65573b3ee344d2c4052c1e3aefc772a72",
+  "approvedBase": {
+    "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+    "files": [
+      {
+        "path": ".github/workflows/quantity-ci.yml",
+        "sha256": "6b7960de6f37f2fba179c49d74d210852e59d2cf8e92930920bfd39d1f677d33"
+      },
+      {
+        "path": ".gitignore",
+        "sha256": "4d56952b0fb13bf8f9b6c13a6d4c34a075bac3af447636a1df4335d7576e2f97"
+      },
+      {
+        "path": "package.json",
+        "sha256": "7bb5659366f4879ecfd073521e61f2771bcb5ae64d2197a7d2cc5e59621a9f2e"
+      },
+      {
+        "path": "README.md",
+        "sha256": "a1c5506192b8bde454928918182768533db4cf77aa51224366ff353d33d73f73"
+      },
+      {
+        "path": "test/quantity.test.mjs",
+        "sha256": "b5e06e0cb6a395fe521f7b3262da40574a74c2aae3ead8bfee9244b447aa11a5"
+      }
+    ]
+  },
+  "unqualifiedConfigPath": "/private/tmp/m1er1-b3bff2b/unqualified-config.json"
+}

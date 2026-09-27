@@ -1,0 +1,28 @@
+[
+  {
+    "id": "context_de6d8af1-620a-4b2b-8d57-bf05cddfd539",
+    "owner_id": "m1er1-b3bff2b-owner",
+    "agent_id": "m1er1-b3bff2b-sofie",
+    "session_id": "wrun_01M3GGF0878V69040AE3J46K9S",
+    "agent_run_id": "agent_run_wrun_01M3GGF0878V69040AE3J46K9S_turn_0",
+    "thread_id": "6163e70d-6f8d-41fe-b0a6-3b9f24ebbf36",
+    "goal_id": null,
+    "goal_task_id": null,
+    "task_run_id": null,
+    "memory_refs": [],
+    "thread_summary_id": null,
+    "source_refs": [
+      "agent:m1er1-b3bff2b-sofie",
+      "engineering-work:8d58e8a6-3d59-4296-9751-2479075661a3",
+      "engineering-work:8d58e8a6-3d59-4296-9751-2479075661a3:v2",
+      "engineering-criteria:8d58e8a6-3d59-4296-9751-2479075661a3:v1"
+    ],
+    "estimated_tokens": 4767,
+    "budget": {
+      "maximumTokens": 12000,
+      "retrievalTokens": 4000,
+      "reservedInstructionTokens": 4000
+    },
+    "created_at": "2026-09-27T04:02:40.829Z"
+  }
+]

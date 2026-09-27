@@ -1,0 +1,37 @@
+{
+  "at": "2026-09-27T04:04:06.256Z",
+  "providerStatus": "UNQUALIFIED",
+  "effectDenied": true,
+  "work": {
+    "id": "8d58e8a6-3d59-4296-9751-2479075661a3",
+    "version": 3,
+    "generation": 3,
+    "control": "paused"
+  },
+  "budget": {
+    "scope_id": "m1er1-b3bff2b-owner",
+    "scope_kind": "personal",
+    "work_id": "8d58e8a6-3d59-4296-9751-2479075661a3",
+    "actor_id": "m1er1-b3bff2b-owner",
+    "agent_id": "m1er1-b3bff2b-sofie",
+    "agent_revision": "2026-09-26 21:01:41.231831-07",
+    "policy_hash": "b94b09f371548bec42777c5460fa7d624155a401142b5a95d2d828799df212a7",
+    "policy_version": 1,
+    "budget_version": 1,
+    "ceiling_microusd": "1300000",
+    "spent_microusd": "88092",
+    "reserved_microusd": "0",
+    "max_calls": 10,
+    "calls_admitted": 6,
+    "deadline": "2026-09-27T04:32:10.245Z",
+    "status": "ACTIVE",
+    "historical": {
+      "native": null,
+      "executor": null,
+      "conversation": null
+    },
+    "created_at": "2026-09-27T04:02:41.100Z",
+    "held": "450564"
+  },
+  "cleanup": "Administrative Work pause only; no source edits, no model retries, no balances cleared."
+}

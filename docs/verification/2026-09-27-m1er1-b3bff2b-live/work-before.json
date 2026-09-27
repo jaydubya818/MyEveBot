@@ -1,0 +1,146 @@
+{
+  "work": {
+    "id": "8d58e8a6-3d59-4296-9751-2479075661a3",
+    "scopeId": "m1er1-b3bff2b-owner",
+    "title": "Fresh authenticated M1/ER1 — b3bff2b",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "repository": "jaydubya818/myeve-golden-work-qual",
+    "lifecycle": "active",
+    "control": "paused",
+    "version": 1,
+    "generation": 1,
+    "criteriaVersion": 1,
+    "criteria": [
+      {
+        "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+        "method": "test",
+        "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+      }
+    ],
+    "maxCostUsd": 1.3,
+    "maxDurationSeconds": 1800,
+    "createdAt": "2026-09-27T04:01:41.232Z",
+    "updatedAt": "2026-09-27T04:01:41.232Z"
+  },
+  "events": [
+    {
+      "id": "ab3eaa5f-ab32-42db-b929-de64f47b576e",
+      "kind": "created",
+      "actorId": "m1er1-b3bff2b-owner",
+      "version": 1,
+      "createdAt": "2026-09-27T04:01:41.232Z"
+    }
+  ],
+  "criteriaHistory": [
+    {
+      "version": 1,
+      "criteria": [
+        {
+          "id": "adee18e6-0076-45e7-b8e9-cccb2a898f4d",
+          "method": "test",
+          "statement": "Implement quantity.mjs: read trimmed stdin, print JSON {quantity:n} for positive integers; otherwise {error:\"invalid_quantity\"}. Follow the approved Node ESM fixture contract."
+        }
+      ],
+      "createdAt": "2026-09-27T04:01:41.232Z"
+    }
+  ],
+  "execution": null,
+  "manifest": null,
+  "projection": {
+    "runTruth": {
+      "activeRun": null,
+      "latestRun": null,
+      "runHistory": [],
+      "latestOrderCertain": true,
+      "writerSession": {
+        "recordedId": null,
+        "runId": null,
+        "productive": false,
+        "boundaryRecheckRequired": true
+      }
+    },
+    "verification": {
+      "candidateSha": null,
+      "status": "NOT_RUN",
+      "jobStatus": null,
+      "evidenceCount": 0,
+      "evidenceHashes": []
+    },
+    "draft": null,
+    "completionBudget": {
+      "ceilingUsd": 1.3,
+      "heldUsd": 0,
+      "observed": true,
+      "remainingUsd": null
+    },
+    "candidateHistory": [],
+    "completionStatus": "NO_CONTRACT",
+    "nativeExecution": {
+      "admissionStatus": "NEEDS_ADMISSION",
+      "phase": "NEEDS_ADMISSION",
+      "nextOperation": "admit",
+      "admissionRequired": true,
+      "runId": null,
+      "writerSessionId": null,
+      "route": null,
+      "control": "paused",
+      "completionContractId": null
+    },
+    "workId": "8d58e8a6-3d59-4296-9751-2479075661a3",
+    "title": "Fresh authenticated M1/ER1 — b3bff2b",
+    "objective": "Implement the approved quantity CLI and verify it independently.",
+    "workVersion": 1,
+    "workGeneration": 1,
+    "criteriaVersion": 1,
+    "lifecycle": "active",
+    "control": "paused",
+    "workContract": null,
+    "authoritySummary": {
+      "admitted": false,
+      "generationCurrent": false,
+      "deadlineCurrent": false,
+      "boundaryRecheckRequired": true
+    },
+    "qualificationMode": null,
+    "status": "Paused",
+    "activity": "Work intent is saved; no execution has been admitted.",
+    "nextStep": "Review the Work contract, then resume when ready. No execution has started.",
+    "readiness": {
+      "ready": false,
+      "reasons": [
+        "No independently verified, current Result exists."
+      ]
+    },
+    "currentRun": null,
+    "attention": null,
+    "pendingDecisions": [],
+    "latestResult": null,
+    "nativeDevelopment": null,
+    "nativeResult": null,
+    "nativeRuntime": null,
+    "conversationRuntime": null,
+    "routing": null,
+    "repositoryObservation": null,
+    "lastMeaningfulActivity": "2026-09-27T04:01:41.232Z",
+    "lastChange": {
+      "kind": "created",
+      "at": "2026-09-27T04:01:41.232Z",
+      "actorId": "m1er1-b3bff2b-owner",
+      "version": 1
+    },
+    "source": {
+      "kind": "durable-engineering-work",
+      "readAt": "2026-09-27T04:02:39.699Z",
+      "workRef": "engineering-work:8d58e8a6-3d59-4296-9751-2479075661a3:v1",
+      "executionRef": null,
+      "resultRef": null,
+      "routingRef": null
+    }
+  },
+  "executionHistory": [],
+  "routing": {
+    "decision": null,
+    "transitions": [],
+    "runs": []
+  }
+}
