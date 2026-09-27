@@ -230,3 +230,17 @@ After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health
 [Memory Capsules](docs/capsules/user-guide.md) add owner selection, integrity-bound export, import preview, duplicate/conflict review and private staging at `/capsules`. Experience can transfer; credentials, permissions, sessions and active Work cannot. Canonical exports fail closed until the Memory workstream provides source portability policy. Production imports remain inert review material; no Current Truth, Skill, Role, Pack or learning activates automatically.
 
 See the [format specification](docs/capsules/specification.md), [portability inventory](docs/capsules/portability-inventory.md), [security boundary](docs/capsules/security.md), [Memory dependency](docs/capsules/memory-integration.md), [Digital Worker/Builder addendum](docs/capsules/digital-worker-integration.md) and [local qualification evidence](docs/verification/portable-sofie-capsules/README.md).
+
+### Capsule integration preparation
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
+The Capsule core is **READY_FOR_INTEGRATION**. The read-only Total Recall adapter, canonical policy/atomic activation ports, security corpus and reusable acceptance suite are documented in [the integration crosswalk](docs/capsules/integration-crosswalk.md). Production imports remain inert. Scoped canonical learning transport awaits an appropriate wire revision; no Work restrictions are flattened. Dedicated browser accessibility checks are recorded separately from the unavailable native VoiceOver speech test.

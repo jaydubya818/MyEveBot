@@ -2845,12 +2845,12 @@
     "lib/capsules/format.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "62b0147b211612b071697ee6faa305d23acd689dcd55660df6c9fc9f53561cdc"
+      "sha256": "a9a01a0633742e3edccc833fdc82cd906c55ca1bde3950aa15016ea1a8d90de4"
     },
     "lib/capsules/import.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "0de42c815d41366414eeb7dd1721c34323845e0765ff6479ebe9a9d3168a510e"
+      "sha256": "46de039c9a10b013ee44ff946323d06945a0066daf088c23ab162dedb1dacb2f"
     },
     "lib/capsules/memory-adapter.ts": {
       "classification": "INTERNAL",
@@ -2865,7 +2865,7 @@
     "lib/capsules/security.ts": {
       "classification": "INTERNAL",
       "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
-      "sha256": "b6c9c39dfc48a8e7a292cf3c8b987e537aee69e2ec8958aa2c7329ce2a52e4c4"
+      "sha256": "ad202fc05d6d6ca49c9cd6cffd677279cd053fb3be9fb56531e00198eadeb3fa"
     },
     "lib/capsules/service.ts": {
       "classification": "INTERNAL",
@@ -2881,6 +2881,16 @@
       "classification": "INTERNAL",
       "reason": "Owner-authenticated bounded Capsule data operations; same-origin enforcement, server-resolved source facts, integrity checks and inert staging only. No authority or Memory activation; API boundary tests in adjacent route.test.ts.",
       "sha256": "2e74cbf3d475b085203d2cf5f54cc3dc8af204559fc4f7a19f1d616f822c998c"
+    },
+    "lib/capsules/total-recall-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned read-only contract/validation only; no canonical persistence, authority or production activation. Covered by Capsule integration acceptance and adversarial tests.",
+      "sha256": "ebb64bf118a525d6a18b7c86d46488a9e34854606b61266c18ec8e56a416ae00"
+    },
+    "lib/capsules/integration-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned read-only contract/validation only; no canonical persistence, authority or production activation. Covered by Capsule integration acceptance and adversarial tests.",
+      "sha256": "79ec57d25215f4b345af154b5f8bed44acd260b8f1f9877487023e4d2913f30f"
     }
   }
 }

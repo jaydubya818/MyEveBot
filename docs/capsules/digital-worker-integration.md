@@ -1,5 +1,17 @@
 # Digital Worker / Builder architecture addendum
 
+Integration-preparation update (2026-09-27): [current crosswalk and boundaries](integration-crosswalk.md). Supersedes older readiness/dependency notes below; core behavior remains accepted.
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
 A Memory Capsule sits before context selection, outside execution routing and authority custody:
 
 ```mermaid

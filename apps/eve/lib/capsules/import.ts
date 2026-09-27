@@ -49,7 +49,7 @@ export function previewImport(raw: string, destination: Destination) {
     formatVersion: capsule.manifest.formatVersion, source: capsule.manifest.source,
     destinationEveRef: destination.eveRef, items,
     reviewDigest: digest({ capsuleDigest: capsule.digest, destination }),
-    warnings: ["This transfers experience, not account access.", "Source identity is an unverified provenance claim. Verify the sender independently.", "Imported text is untrusted data. Skills, procedures, Roles, Packs and learning require destination qualification."],
+    warnings: ["This transfers selected experience, not access.", "Source identity is an unverified provenance claim. Verify the sender independently.", "Imported text is untrusted data. Skills, procedures, Roles, Packs and learning require destination qualification."],
   };
 }
 

@@ -1,0 +1,33 @@
+async (page) => {
+  const report = [];
+  await page.getByRole('button',{name:'Review for Sofie B',exact:true}).click();
+  await page.getByRole('heading',{name:'Review incoming experience',exact:true}).waitFor();
+  await page.waitForFunction(()=>document.activeElement?.textContent==='Review incoming experience');
+  const focus=await page.evaluate(()=>document.activeElement?.textContent);
+  if(focus!=='Review incoming experience') throw new Error('Import heading not focused');
+  const conflict=page.getByRole('combobox',{name:'Decision for Concise project updates',exact:true});
+  if(await conflict.inputValue()!=='keep_existing') throw new Error('Conflict is not safe by default');
+  const described=await conflict.getAttribute('aria-describedby');
+  if(!described || !await page.locator('[id="'+described+'"]').textContent()) throw new Error('Conflict explanation missing');
+  await conflict.focus(); await page.keyboard.press('Tab');
+  const keyboardTarget=await page.evaluate(()=>document.activeElement?.outerHTML);
+  report.push('KEYBOARD AFTER CONFLICT\n'+keyboardTarget);
+  const skill=page.getByRole('combobox',{name:'Decision for Release notes Skill',exact:true});
+  await skill.selectOption('include'); await skill.focus(); await page.keyboard.press('Tab');
+  if(await skill.inputValue()!=='include') throw new Error('Labeled Skill choice failed');
+  report.push('IMPORT CONFLICTS AND INACTIVE STATE\n'+await page.locator('main').ariaSnapshot());
+  report.push('ACTIVATION STATE\n'+await page.getByRole('note',{name:'Activation state',exact:true}).innerText());
+  await page.setViewportSize({width:390,height:844});
+  if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)) throw new Error('Mobile import overflow');
+  await page.screenshot({path:'output/playwright/capsules/integration-mobile-conflicts.png',fullPage:true});
+  await page.setViewportSize({width:1440,height:1000});
+  await page.screenshot({path:'output/playwright/capsules/integration-desktop-conflicts.png',fullPage:true});
+  await page.getByRole('button',{name:'Save reviewed import',exact:true}).click();
+  await page.getByRole('status').filter({hasText:'1 items retained'}).waitFor();
+  report.push('SAVED INACTIVE REVIEW\n'+await page.locator('main').ariaSnapshot());
+  await page.waitForFunction(()=>document.activeElement?.textContent?.includes('1 items retained'));
+  const state=await page.evaluate(()=>({focus:document.activeElement?.textContent,announcements:[...document.querySelectorAll('[role=status]')].map(n=>({text:n.textContent,busyAncestor:!!n.closest('[aria-busy=true]')}))}));
+  report.push('FOCUS AND ANNOUNCEMENTS\n'+JSON.stringify(state));
+  if(!state.focus?.includes('1 items retained') || state.announcements.some(s=>s.busyAncestor)) throw new Error('Status focus or live-region regression');
+  return report;
+}

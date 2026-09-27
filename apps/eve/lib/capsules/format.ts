@@ -20,7 +20,10 @@ export function validateItem(input: unknown): CapsuleItem {
   if (item.kind === "file" && !item.mediaType) throw new CapsuleError("file_type", "Files must declare plain text or Markdown. Executable and binary files are not supported.");
   if (item.kind !== "file" && item.mediaType) throw new CapsuleError("file_type", "Only file items can declare a media type.");
   if (item.kind === "learning" && (item.provenance.sourceType !== "qualified_learning" || !item.provenance.qualificationRef)) throw new CapsuleError("learning", "Learning requires promoted-source qualification provenance.");
-  if (item.kind === "file" && /\b(?:myeve-memory-capsule|MYEVE_EXPERIENCE_CAPSULE)\b/.test(item.text)) throw new CapsuleError("nested_capsule", "Nested Capsules are not supported.");
+  if (/\b(?:myeve-memory-capsule|MYEVE_EXPERIENCE_CAPSULE)\b/.test(item.text)) throw new CapsuleError("nested_capsule", "Nested Capsules are not supported.");
+  for (const reference of [item.id, item.scope.id, item.provenance.sourceRef, item.provenance.revision, item.provenance.policyRef, item.provenance.qualificationRef ?? ""]) {
+    if (/(?:^|[\/\\])\.\.(?:[\/\\]|$)|%2e|%2f|%5c/i.test(reference)) throw new CapsuleError("reference", "Traversal references are not supported.");
+  }
   return item;
 }
 

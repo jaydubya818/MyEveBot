@@ -48,6 +48,32 @@ await destination.commit(prepareImport(raw, state, preview.reviewDigest, preview
 destination.close(); destination = new FixtureDestination(dbPath);
 const after = destination.retrieveForNewWork("project-sellerfi");
 const benefit = { method: "Deterministic scoped retrieval for a new Work fixture after process-independent reopen; not an LLM or live Work evaluation.", task: "Prepare the SellerFi project update with the owner's preferred format, UI conventions and planning day.", withoutCapsule: { contextKeysFound: requiredKeys.filter(key => before.some(r => r.item.key === key)).length, clarificationInputsNeeded: 3 }, withCapsule: { contextKeysFound: requiredKeys.filter(key => after.some(r => r.item.key === key)).length, clarificationInputsNeeded: requiredKeys.filter(key => !after.some(r => r.item.key === key)).length }, evidence: after.filter(r => requiredKeys.includes(r.item.key)).map(r => ({ key: r.item.key, text: r.item.text, provenance: r.provenance })) };
+// Scenario 2 deliberately exports only the three inputs needed for a project review.
+const scenario2Candidates = fixtureCandidates();
+const scenario2Ids = ["fixture-project-convention", "fixture-project-note", "fixture-response-style"];
+const scenario2Owner = scenario2Candidates[0].policy.ownerRef;
+const scenario2Preview = exportPreview(scenario2Candidates, scenario2Ids, scenario2Owner);
+const scenario2Capsule = exportCapsule({ candidates: scenario2Candidates, selectedIds: scenario2Ids, ownerRef: scenario2Owner, eveRef: "sofie-a", reviewedDigest: scenario2Preview.reviewDigest });
+const scenario2Path = join(directory, "project-benefit.sqlite");
+let projectDestination = new FixtureDestination(scenario2Path);
+const scenario2Keys = ["project-convention", "project-note", "response-style"];
+const projectBefore = projectDestination.retrieveForNewWork("project-sellerfi");
+const projectState = await projectDestination.snapshot();
+const projectPreview = previewImport(canonicalJson(scenario2Capsule), projectState);
+await projectDestination.commit(prepareImport(canonicalJson(scenario2Capsule), projectState, projectPreview.reviewDigest, projectPreview.items.map(row => ({ id: row.item.id, choice: "include" }))));
+projectDestination.close(); projectDestination = new FixtureDestination(scenario2Path);
+const projectAfter = projectDestination.retrieveForNewWork("project-sellerfi");
+const missing = (rows: typeof projectAfter) => scenario2Keys.filter(key => !rows.some(r => r.item.key === key)).length;
+const scenario2 = { method: "Deterministic scoped retrieval after reopen; fixed setup checklist, not an LLM evaluation.", task: "Set up a SellerFi UX review with product context, required interface states and concise reporting.",
+  withoutCapsule: { contextKeysFound: 3 - missing(projectBefore), clarificationInputsNeeded: missing(projectBefore), setupSteps: missing(projectBefore) + 1 },
+  withCapsule: { contextKeysFound: 3 - missing(projectAfter), clarificationInputsNeeded: missing(projectAfter), setupSteps: missing(projectAfter) + 1 },
+  setupDefinition: "One input-entry step per missing context key plus one review-start step. Capsule selection/import effort is separate and not claimed as time saved.",
+  projectConventionVisibleOutsideProject: projectDestination.retrieveForNewWork("other-project").some(r => r.item.key === "project-convention"),
+  evidence: projectAfter.map(r => ({ key: r.item.key, scope: r.targetScope, provenance: r.provenance })) };
+const minimization = { selectedItems: scenario2Ids, exportedItems: scenario2Capsule.items.map(i => i.id), excludedItems: scenario2Preview.excluded,
+  capsuleBytes: byteSize(scenario2Capsule), redundantItems: scenario2Capsule.items.filter(i => !scenario2Keys.includes(i.key)).map(i => i.id),
+  rationale: "Only the three named task inputs; six unrelated source items excluded. Credentials/connections/authority absent by schema and scrubber." };
+projectDestination.close();
 const counters: Record<string, number> = {};
 const authorityFields = ["credentials", "sessions", "grants", "approvals", "activeWorkAuthority", "writerAuthority", "providerAuthority", "billingAuthority", "publicationAuthority"];
 const importedState = await destination.snapshot();
@@ -64,9 +90,9 @@ for (const secret of secrets) {
 }
 let unauthorizedPrivateData = 0;
 for (const classification of ["corporate", "third_party_private"] as const) { const candidates = fixtureCandidates(); candidates[0].policy.classification = classification; try { build(candidates); unauthorizedPrivateData++; } catch {} }
-const report = { generatedAt: new Date().toISOString(), qualification: "local fixtures only", performance: performanceResults, benefit, counters: { ...counters, credentialsExported: secretsExported, credentialsImported: secretsImported, unauthorizedPrivateDataTransferred: unauthorizedPrivateData, tamperedCapsulesSilentlyAccepted: tamperedAccepted }, securityCorpus: { secretCases: secrets.length, tamperCases: 3, unauthorizedPolicyCases: 2 }, sourceAuthorityUsed: false, productionMemoryPromotion: false };
+const report = { generatedAt: new Date().toISOString(), qualification: "local fixtures only", performance: performanceResults, benefit, scenario2, minimization, counters: { ...counters, credentialsExported: secretsExported, credentialsImported: secretsImported, unauthorizedPrivateDataTransferred: unauthorizedPrivateData, tamperedCapsulesSilentlyAccepted: tamperedAccepted }, securityCorpus: { secretCases: secrets.length, tamperCases: 3, unauthorizedPolicyCases: 2 }, sourceAuthorityUsed: false, productionMemoryPromotion: false };
 writeFileSync(join(output, "qualification.json"), JSON.stringify(report, null, 2) + "\n");
 writeFileSync(join(output, "design-partner.memory-capsule.json"), raw + "\n");
 destination.close(); rmSync(directory, { recursive: true, force: true });
-if (Object.values(report.counters).some(value => value !== 0) || benefit.withCapsule.contextKeysFound !== 3) throw new Error("Capsule qualification failed");
+if (Object.values(report.counters).some(value => value !== 0) || benefit.withCapsule.contextKeysFound !== 3 || scenario2.withCapsule.contextKeysFound !== 3 || scenario2.projectConventionVisibleOutsideProject || minimization.redundantItems.length) throw new Error("Capsule qualification failed");
 console.log(JSON.stringify(report, null, 2));

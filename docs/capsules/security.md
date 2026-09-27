@@ -1,5 +1,17 @@
 # Capsule security boundary
 
+Integration-preparation update (2026-09-27): [current crosswalk and boundaries](integration-crosswalk.md). Supersedes older readiness/dependency notes below; core behavior remains accepted.
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
 The security boundary is an allowlisted data representation plus trusted source policy and inert destination staging. Text scanning is defense in depth, not the authority boundary.
 
 There are no fields for credentials, sessions, approvals, grants, connected accounts, account roles, organization membership, execution eligibility, active Work/Run state, writer leases, completion budgets, Factory dispatch, Relay grants, provider, publication or billing authority. Strict schemas reject extra fields at every level. Raw JSON is size/depth limited and rejects shadowed keys before parsing can discard them. Source adapters classify records separately from their text. Unknown source policy blocks export.

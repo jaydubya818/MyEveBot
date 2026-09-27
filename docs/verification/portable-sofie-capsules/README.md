@@ -1,5 +1,7 @@
 # Portable Sofie / Memory Capsules — local qualification
 
+**Superseded by:** [integration-preparation qualification](integration-preparation/README.md) for current status, adapter contracts, security and accessibility results. The initial core evidence below remains accepted historical evidence. Overall is now READY_FOR_INTEGRATION; live design-partner remains NOT_RUN.
+
 **Verdict: local qualification passes; design-partner live activation is NOT READY.**
 
 Branch: `codex/portable-sofie-capsules`. Dedicated worktree: `/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve`. Baseline: `a7936898c77d157aa66c222b86aedce07e265e16`, the committed Knowledge browsing fix beyond fetched origin/main `d64f2f96003818b2f51341b54a2edd6f426a0dae`. No merge, deployment, source credentials, account connection or new migration was performed.

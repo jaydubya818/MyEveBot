@@ -1,0 +1,162 @@
+{
+  "mode": "actual draft pure projection; synthetic inputs only",
+  "sourcePath": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve/apps/eve/lib/total-recall/projections.ts",
+  "sourceSha256": "dc7f22bc3204804842b7489455c2e2a9256b786d7f797ee210077e4f44ee061f",
+  "results": [
+    {
+      "kind": "OWNER",
+      "representation": {
+        "contractVersion": 1,
+        "type": "MEMORY_REPRESENTATION",
+        "identity": "synthetic-memory-1",
+        "kind": "memory",
+        "text": "Project reviews include loading and recovery states.",
+        "ownerId": "capsule-contract-fixture",
+        "scope": {
+          "kind": "OWNER",
+          "workId": null,
+          "repository": null
+        },
+        "privacy": "PRIVATE",
+        "provenance": [
+          {
+            "sourceId": "synthetic-source",
+            "type": "owner_statement",
+            "reference": "synthetic-reference",
+            "contentHash": null,
+            "origin": "OWNER",
+            "relation": "supports"
+          }
+        ],
+        "currentTruth": {
+          "status": "CURRENT",
+          "supersedesId": null,
+          "supersededById": null
+        },
+        "confidence": 1,
+        "learningVersion": null,
+        "contentHash": "97f844fc03904335c1c3105cb83dd5e30085f44d16f4990e980c6053b49c4fe9",
+        "portability": {
+          "eligible": false,
+          "reason": "Requires separate owner selection, source policy and Capsule qualification"
+        },
+        "authorityGrants": []
+      },
+      "mapped": {
+        "sourceIdentity": "synthetic-memory-1",
+        "sourceContentHash": "97f844fc03904335c1c3105cb83dd5e30085f44d16f4990e980c6053b49c4fe9",
+        "kind": "memory",
+        "text": "Project reviews include loading and recovery states.",
+        "scope": {
+          "ownerRef": "sha256:18993ecd1719e8c7569d0e09acdef2a690f6fe61d297a40f6cb176d0c1bf0156",
+          "projectId": null,
+          "repository": null,
+          "workType": null,
+          "workId": null
+        },
+        "privacy": "PRIVATE",
+        "currentTruth": {
+          "status": "CURRENT",
+          "supersedesId": null,
+          "supersededById": null
+        },
+        "provenance": [
+          {
+            "sourceId": "synthetic-source",
+            "type": "owner_statement",
+            "reference": "synthetic-reference",
+            "contentHash": null,
+            "origin": "OWNER",
+            "relation": "supports"
+          }
+        ],
+        "learningVersion": null,
+        "classification": "UNKNOWN",
+        "exportAllowed": false,
+        "activationAllowed": false,
+        "blockers": [
+          "Requires separate owner selection, source policy and Capsule qualification",
+          "Canonical export policy and explicit selection are required."
+        ]
+      }
+    },
+    {
+      "kind": "WORK",
+      "representation": {
+        "contractVersion": 1,
+        "type": "MEMORY_REPRESENTATION",
+        "identity": "synthetic-memory-1",
+        "kind": "memory",
+        "text": "Project reviews include loading and recovery states.",
+        "ownerId": "capsule-contract-fixture",
+        "scope": {
+          "kind": "WORK",
+          "workId": "5fbb377b-64c4-47b8-a6c1-46cd893e5156",
+          "repository": "synthetic/repo"
+        },
+        "privacy": "WORK_SCOPED",
+        "provenance": [
+          {
+            "sourceId": "synthetic-source",
+            "type": "owner_statement",
+            "reference": "synthetic-reference",
+            "contentHash": null,
+            "origin": "OWNER",
+            "relation": "supports"
+          }
+        ],
+        "currentTruth": {
+          "status": "CURRENT",
+          "supersedesId": null,
+          "supersededById": null
+        },
+        "confidence": 1,
+        "learningVersion": null,
+        "contentHash": "b816bc1d4a33e489b12dd6029ef2126253d382ae0160744304fd322deb4d2053",
+        "portability": {
+          "eligible": false,
+          "reason": "Requires separate owner selection, source policy and Capsule qualification"
+        },
+        "authorityGrants": []
+      },
+      "mapped": {
+        "sourceIdentity": "synthetic-memory-1",
+        "sourceContentHash": "b816bc1d4a33e489b12dd6029ef2126253d382ae0160744304fd322deb4d2053",
+        "kind": "memory",
+        "text": "Project reviews include loading and recovery states.",
+        "scope": {
+          "ownerRef": "sha256:18993ecd1719e8c7569d0e09acdef2a690f6fe61d297a40f6cb176d0c1bf0156",
+          "projectId": null,
+          "repository": "synthetic/repo",
+          "workType": null,
+          "workId": "5fbb377b-64c4-47b8-a6c1-46cd893e5156"
+        },
+        "privacy": "WORK_SCOPED",
+        "currentTruth": {
+          "status": "CURRENT",
+          "supersedesId": null,
+          "supersededById": null
+        },
+        "provenance": [
+          {
+            "sourceId": "synthetic-source",
+            "type": "owner_statement",
+            "reference": "synthetic-reference",
+            "contentHash": null,
+            "origin": "OWNER",
+            "relation": "supports"
+          }
+        ],
+        "learningVersion": null,
+        "classification": "WORK_SCOPED",
+        "exportAllowed": false,
+        "activationAllowed": false,
+        "blockers": [
+          "Requires separate owner selection, source policy and Capsule qualification",
+          "Canonical export policy and explicit selection are required.",
+          "Capsule 1.1 cannot encode Work/repository restrictions; never flatten to owner scope."
+        ]
+      }
+    }
+  ]
+}

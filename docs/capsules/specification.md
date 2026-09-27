@@ -1,5 +1,17 @@
 # Memory Capsule specification — 1.1
 
+Integration-preparation update (2026-09-27): [current crosswalk and boundaries](integration-crosswalk.md). Supersedes older readiness/dependency notes below; core behavior remains accepted.
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
 A Capsule transfers explicitly selected experience. It cannot grant authority. This is a bounded portable representation and review workflow, not a Memory database, account backup, or executable package.
 
 ## Envelope and integrity

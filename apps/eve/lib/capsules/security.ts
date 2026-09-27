@@ -1,7 +1,7 @@
 import { CapsuleError, CAPSULE_LIMITS } from "./schema";
 
 // Structural exclusion complements strict schemas and trusted source policy.
-const forbiddenKey = /^(?:.*(?:password|credential|secret|token|cookie|privatekey)|grants?|permissions?|approvals?|authorizations?|writer(?:lease|state|authority)|active(?:work|run)|workownership|pendingactions?|executioneligibility|factorydispatch|completionbudget|accountroles?|organizationmembership|provider(?:access|authority)|billingauthority|publicationauthority|repositoryaccess|connectedapps?|relaygrants?)$/i;
+const forbiddenKey = /^(?:.*(?:passwords?|credentials?|secrets?|tokens?|cookies?|privatekeys?)|grants?|permissions?|approvals?|authorizations?|writer(?:lease|state|authority)|active(?:work|run)|workownership|pendingactions?|executioneligibility|factorydispatch|completionbudget|accountroles?|organizationmembership|provider(?:access|authority)|billingauthority|publicationauthority|approvalreceipts?|repositorygrants?|sessions?|billingconfig(?:uration)?|publicationconfig(?:uration)?|repositoryaccess|connectedapps?|relaygrants?)$/i;
 const secrets = [
   /-----BEGIN (?:[A-Z ]*PRIVATE KEY|OPENSSH PRIVATE KEY)-----/i,
   /\b(?:sk-(?:proj-|ant-)?[a-zA-Z0-9_-]{12,}|gh[pousr]_[a-zA-Z0-9]{12,}|github_pat_[a-zA-Z0-9_]{12,}|vcp_[a-zA-Z0-9_]{12,}|xox[baprs]-[a-zA-Z0-9-]{10,}|AKIA[A-Z0-9]{16})\b/,
@@ -11,14 +11,15 @@ const secrets = [
   /\b(?:api[ _-]?key|oauth|access[ _-]?token|refresh[ _-]?token|password|session[ _-]?(?:cookie|id)|secret|vercel[ _-]?token|relay[ _-]?(?:credential|token)|one[ _-]?time[ _-]?(?:code|secret)|otp)\b\s*["']?\s*[:=]\s*\S+/i,
   /\b(?:set-cookie|cookie)\s*:/i,
 ];
-const authorityAssignment = /["']?\b(?:grants?|(?:tool|factory|repository|relay)[ _-]?permissions?|permissions?|approvals?|approval[ _-]?state|account[ _-]?roles?|organization[ _-]?membership|execution[ _-]?eligibility|active[ _-]?(?:work|run)|writer[ _-]?(?:lease|authority)|provider[ _-]?authority|billing[ _-]?authority|completion[ _-]?budget|factory[ _-]?dispatch)["']?\s*[:=]\s*\S+/i;
-const unsafeInstructions = /(?:ignore|override|bypass|disable)\s+(?:all\s+|the\s+|previous\s+|system\s+)*(?:instructions|polic(?:y|ies)|safety|permissions|approvals|guards)|(?:grant|enable)\s+(?:yourself|all tools|repository access)|<\/?(?:system|tool_call|script|iframe)\b|javascript:/i;
+const authorityAssignment = /["']?\b(?:grants?|(?:tool|factory|repository|relay)[ _-]?permissions?|permissions?|approvals?|approval[ _-]?(?:state|receipt)|(?:repository|relay)[ _-]?grants?|publication[ _-]?authority|billing[ _-]?config(?:uration)?|account[ _-]?roles?|organization[ _-]?membership|execution[ _-]?eligibility|active[ _-]?(?:work|run)|writer[ _-]?(?:lease|authority)|provider[ _-]?authority|billing[ _-]?authority|completion[ _-]?budget|factory[ _-]?dispatch)["']?\s*[:=]\s*\S+/i;
+const unsafeInstructions = /(?:ignore|override|bypass|disable)\s+(?:all\s+|the\s+|previous\s+|system\s+)*(?:instructions|polic(?:y|ies)|safety|permissions|approvals|guards)|(?:grant|enable)\s+(?:yourself|all tools|repository access)|<\/?(?:system|tool_call|script|iframe)\b|javascript:|<!--|<(?:tool|function|assistant|developer)\b|(?:hidden|silent)\s+(?:tool|function)\s*(?:call|instruction)/i;
 
 export function scanText(text: string): void {
   const normalized = text.normalize("NFKC").replace(/[\u200B-\u200F\u202A-\u202E\u2060-\u206F\uFEFF]/g, "");
+  if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/.test(normalized)) throw new CapsuleError("binary", "Binary, compressed and executable content is not supported.");
   if (secrets.some(pattern => pattern.test(normalized))) throw new CapsuleError("secret", "Sensitive credential material detected. Remove it at the source before exporting or importing.");
   if (authorityAssignment.test(normalized)) throw new CapsuleError("authority", "Embedded authority configuration is not portable. Remove grants, permissions and live execution state.");
-  if (/data:[^\s]*;base64,|\bbase64\s*[:=]/i.test(normalized)) throw new CapsuleError("encoding", "Encoded payloads are not supported. Use readable experience text only.");
+  if (/data:[^\s]*;base64,|\b(?:base64|hex|rot13)\s*[:=]|(?:%[0-9a-f]{2}){3,}|(?:\\x[0-9a-f]{2}){3,}/i.test(normalized)) throw new CapsuleError("encoding", "Encoded payloads are not supported. Use readable experience text only.");
   if (unsafeInstructions.test(normalized)) throw new CapsuleError("unsafe_guidance", "Possible policy override or executable content detected. Review and remove the unsafe guidance.");
   // Opaque encoded strings are not needed for this text-only portable format.
   for (const token of normalized.match(/[A-Za-z0-9+/_=-]{40,}/g) ?? []) {

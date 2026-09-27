@@ -1,5 +1,17 @@
 # Portability inventory
 
+Integration-preparation update (2026-09-27): [current crosswalk and boundaries](integration-crosswalk.md). Supersedes older readiness/dependency notes below; core behavior remains accepted.
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
 | Existing surface | Decision | Capsule use |
 |---|---|---|
 | `lib/owner-data.ts`, owner archive ZIP and domain inventory | ADAPT | Keep account backup separate. It includes broad history and authority-related metadata that must not become portable experience. Reuse its strict allowlist principle and owner-auth patterns. |

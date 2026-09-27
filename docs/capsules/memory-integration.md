@@ -1,5 +1,17 @@
 # Canonical Memory integration contract
 
+Integration-preparation update (2026-09-27): [current crosswalk and boundaries](integration-crosswalk.md). Supersedes older readiness/dependency notes below; core behavior remains accepted.
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
 The Total Recall + Learning workstream owns Memory/Knowledge persistence, Current Truth, scoped retrieval and learning promotion. Capsule-owned modules live under `lib/capsules`; they do not change those internals.
 
 The initial read-only adapter consumes `OwnerKnowledgeView` from `searchOwnerKnowledge`. Missing source portability policy is represented as `unknown`; source content from ineligible records is not sent to the builder. Owner visibility is insufficient evidence of shareability.

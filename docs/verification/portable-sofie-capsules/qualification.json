@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-27T20:14:37.869Z",
+  "generatedAt": "2026-09-27T20:55:08.337Z",
   "qualification": "local fixtures only",
   "performance": [
     {
@@ -7,27 +7,27 @@
       "items": 1,
       "payloadBytes": 1084,
       "manifestBytes": 456,
-      "exportMs": 4.7,
-      "importMs": 1.23,
-      "heapDeltaBytes": 1459152
+      "exportMs": 5.21,
+      "importMs": 1,
+      "heapDeltaBytes": 1615936
     },
     {
       "label": "medium",
       "items": 25,
       "payloadBytes": 113846,
       "manifestBytes": 3160,
-      "exportMs": 14.11,
-      "importMs": 16.41,
-      "heapDeltaBytes": 3618712
+      "exportMs": 14.24,
+      "importMs": 15.84,
+      "heapDeltaBytes": -3597040
     },
     {
       "label": "maximum-1MiB",
       "items": 62,
       "payloadBytes": 1048576,
       "manifestBytes": 7403,
-      "exportMs": 81.8,
-      "importMs": 120.3,
-      "heapDeltaBytes": -9901224
+      "exportMs": 80.56,
+      "importMs": 119.19,
+      "heapDeltaBytes": 36860608
     }
   ],
   "benefit": {
@@ -46,11 +46,11 @@
         "key": "meeting-day",
         "text": "Planning meetings happen on Tuesdays.",
         "provenance": {
-          "capsuleId": "72699142-a63f-4dd8-adde-dccd5fa6bbe6",
-          "capsuleDigest": "sha256:6d91d221edb6e05a189f11b937339827e7c1964c2dcaedac662733e65ab27ea9",
+          "capsuleId": "41fce8f3-a0c4-4f62-a1fe-d4e8d22476bc",
+          "capsuleDigest": "sha256:d46507a1611b9f109bf456c93e8e6955c7b6e0fa03729b1e53df47674b05faec",
           "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
           "sourceEveRef": "sofie-a",
-          "importedAt": "2026-09-27T20:14:37.864Z",
+          "importedAt": "2026-09-27T20:55:08.331Z",
           "itemDigest": "sha256:ed0690fbd650328379273048752c83bdd71b8bb2494be003d0318150c577da7e"
         }
       },
@@ -58,11 +58,11 @@
         "key": "project-convention",
         "text": "Show loading, empty, error, and success states for buyer and seller flows.",
         "provenance": {
-          "capsuleId": "72699142-a63f-4dd8-adde-dccd5fa6bbe6",
-          "capsuleDigest": "sha256:6d91d221edb6e05a189f11b937339827e7c1964c2dcaedac662733e65ab27ea9",
+          "capsuleId": "41fce8f3-a0c4-4f62-a1fe-d4e8d22476bc",
+          "capsuleDigest": "sha256:d46507a1611b9f109bf456c93e8e6955c7b6e0fa03729b1e53df47674b05faec",
           "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
           "sourceEveRef": "sofie-a",
-          "importedAt": "2026-09-27T20:14:37.864Z",
+          "importedAt": "2026-09-27T20:55:08.331Z",
           "itemDigest": "sha256:99a5e787bcec26663d8b45c94af81edd23d617eea9524b1afdb63a1098fd47cb"
         }
       },
@@ -70,15 +70,119 @@
         "key": "response-style",
         "text": "Use a short summary, evidence, and one next step.",
         "provenance": {
-          "capsuleId": "72699142-a63f-4dd8-adde-dccd5fa6bbe6",
-          "capsuleDigest": "sha256:6d91d221edb6e05a189f11b937339827e7c1964c2dcaedac662733e65ab27ea9",
+          "capsuleId": "41fce8f3-a0c4-4f62-a1fe-d4e8d22476bc",
+          "capsuleDigest": "sha256:d46507a1611b9f109bf456c93e8e6955c7b6e0fa03729b1e53df47674b05faec",
           "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
           "sourceEveRef": "sofie-a",
-          "importedAt": "2026-09-27T20:14:37.864Z",
+          "importedAt": "2026-09-27T20:55:08.331Z",
           "itemDigest": "sha256:9a558d1d0866f6de27c3e206b2b1aae166531ef5ee30144a626f20111888d77f"
         }
       }
     ]
+  },
+  "scenario2": {
+    "method": "Deterministic scoped retrieval after reopen; fixed setup checklist, not an LLM evaluation.",
+    "task": "Set up a SellerFi UX review with product context, required interface states and concise reporting.",
+    "withoutCapsule": {
+      "contextKeysFound": 0,
+      "clarificationInputsNeeded": 3,
+      "setupSteps": 4
+    },
+    "withCapsule": {
+      "contextKeysFound": 3,
+      "clarificationInputsNeeded": 0,
+      "setupSteps": 1
+    },
+    "setupDefinition": "One input-entry step per missing context key plus one review-start step. Capsule selection/import effort is separate and not claimed as time saved.",
+    "projectConventionVisibleOutsideProject": false,
+    "evidence": [
+      {
+        "key": "project-convention",
+        "scope": {
+          "type": "project",
+          "id": "project-sellerfi"
+        },
+        "provenance": {
+          "capsuleId": "416f14d6-c115-4c16-966b-bcb769d76f70",
+          "capsuleDigest": "sha256:0b222a41746c173bd0f940d6a16c0bce085d600c741039892f865ae504b54096",
+          "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
+          "sourceEveRef": "sofie-a",
+          "importedAt": "2026-09-27T20:55:08.333Z",
+          "itemDigest": "sha256:99a5e787bcec26663d8b45c94af81edd23d617eea9524b1afdb63a1098fd47cb"
+        }
+      },
+      {
+        "key": "project-note",
+        "scope": {
+          "type": "agent",
+          "id": "sofie-b"
+        },
+        "provenance": {
+          "capsuleId": "416f14d6-c115-4c16-966b-bcb769d76f70",
+          "capsuleDigest": "sha256:0b222a41746c173bd0f940d6a16c0bce085d600c741039892f865ae504b54096",
+          "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
+          "sourceEveRef": "sofie-a",
+          "importedAt": "2026-09-27T20:55:08.333Z",
+          "itemDigest": "sha256:e2dbeff8e9744968e30a1bc1d126989fdcecb4522f94deea7889d64acac6097d"
+        }
+      },
+      {
+        "key": "response-style",
+        "scope": {
+          "type": "agent",
+          "id": "sofie-b"
+        },
+        "provenance": {
+          "capsuleId": "416f14d6-c115-4c16-966b-bcb769d76f70",
+          "capsuleDigest": "sha256:0b222a41746c173bd0f940d6a16c0bce085d600c741039892f865ae504b54096",
+          "sourceOwnerRef": "sha256:e09494b6c1bda9903d448616dff0c0336ae7bd02c160ed3eaa091e209089bd4c",
+          "sourceEveRef": "sofie-a",
+          "importedAt": "2026-09-27T20:55:08.333Z",
+          "itemDigest": "sha256:9a558d1d0866f6de27c3e206b2b1aae166531ef5ee30144a626f20111888d77f"
+        }
+      }
+    ]
+  },
+  "minimization": {
+    "selectedItems": [
+      "fixture-project-convention",
+      "fixture-project-note",
+      "fixture-response-style"
+    ],
+    "exportedItems": [
+      "fixture-project-convention",
+      "fixture-project-note",
+      "fixture-response-style"
+    ],
+    "excludedItems": [
+      {
+        "id": "fixture-meeting-day",
+        "reason": "Not selected by the owner."
+      },
+      {
+        "id": "fixture-release-review",
+        "reason": "Not selected by the owner."
+      },
+      {
+        "id": "fixture-release-notes",
+        "reason": "Not selected by the owner."
+      },
+      {
+        "id": "fixture-engineering-role",
+        "reason": "Not selected by the owner."
+      },
+      {
+        "id": "fixture-launch-pack",
+        "reason": "Not selected by the owner."
+      },
+      {
+        "id": "fixture-recovery-lesson",
+        "reason": "Not selected by the owner."
+      }
+    ],
+    "capsuleBytes": 2341,
+    "redundantItems": [],
+    "rationale": "Only the three named task inputs; six unrelated source items excluded. Credentials/connections/authority absent by schema and scrubber."
   },
   "counters": {
     "credentialsTransferred": 0,

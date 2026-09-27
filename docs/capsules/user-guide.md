@@ -1,5 +1,17 @@
 # Memory Capsules: owner guide
 
+Integration-preparation update (2026-09-27): [current crosswalk and boundaries](integration-crosswalk.md). Supersedes older readiness/dependency notes below; core behavior remains accepted.
+
+CAPSULE CORE: LOCALLY QUALIFIED
+
+SECOND-EVE BENEFIT: PASS — deterministic fixtures
+
+CANONICAL MEMORY EXPORT POLICY: INTEGRATION PENDING
+
+CANONICAL ACTIVATION: INTEGRATION PENDING
+
+LIVE DESIGN-PARTNER CAPSULE: NOT_RUN
+
 Open **Knowledge → Memory Capsules**, or visit `/capsules`.
 
 **Current integration status:** canonical source export awaits Memory portability policy. Import reviews can be saved privately, but they do not activate Memory or Skills. The clearly labeled local qualification workspace uses synthetic examples and an independent destination fixture. Do not mistake it for your live Sofie.
