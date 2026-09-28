@@ -240,6 +240,6 @@ try {
   await check('recall and learning leave all authority stores unchanged',async()=>assert.deepEqual(await authorityCounts(),originalAuthority));
   const report={status:'READY_FOR_INTEGRATION',canonicalRuntime:'NOT_RUN',schemaActivation:'BLOCKED',liveModelImprovement:'NOT_PROVEN',checks,metrics,
     invariants:{memoryAuthorityGrants:0,learningAuthorityExpansions:0,secretPromotions:0,crossScopeViolations:0},authorityTables,completedAt:new Date().toISOString()};
-  await writeFile(new URL('../../../docs/verification/beta-integration/regressions/recall/results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
+  await writeFile(new URL('../../../docs/verification/beta-integration/phase2/regressions/recall/results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify({checks:checks.length,comparison:metrics.deterministicComparison,invariants:report.invariants},null,2));
 } finally { if(pool)await pool.end();await admin.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);if(roleCreated)await admin.query(`DROP ROLE ${readerRole}`);await admin.end(); }

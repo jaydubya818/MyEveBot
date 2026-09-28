@@ -152,7 +152,7 @@ try {
     assert.equal((await learning.get(competing.id)).versions.filter(v=>v.status==='PROMOTED').length,1);
   });
   await check('authority and approval row counts remain unchanged',async()=>assert.deepEqual(await authorityCounts(),initialAuthority));
-  const report={scope:'Disposable PostgreSQL with UNAPPLIED proposed learning schema; no model/hosted qualification',checks,metrics,authorityTables,invariants:{memoryAuthorityGrants:0,learningAuthorityExpansions:0,secretPromotions:0,crossScopeLearningViolations:0},completedAt:new Date().toISOString()};
-  await writeFile(new URL('../../../docs/verification/beta-integration/regressions/recall/core-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
+  const report={scope:'Disposable PostgreSQL with reconciled canonical schema; no model/hosted qualification',checks,metrics,authorityTables,invariants:{memoryAuthorityGrants:0,learningAuthorityExpansions:0,secretPromotions:0,crossScopeLearningViolations:0},completedAt:new Date().toISOString()};
+  await writeFile(new URL('../../../docs/verification/beta-integration/phase2/regressions/recall/core-results.json',import.meta.url),JSON.stringify(report,null,2)+'\n');
   console.log(JSON.stringify(report,null,2));
 } finally { if(pool)await pool.end();await admin.query(`DROP DATABASE IF EXISTS ${name}`);await admin.end(); }

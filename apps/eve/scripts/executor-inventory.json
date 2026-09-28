@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "84407bc0caf5d48ec8a80833d4062cc36b2ff466f3a13c71206fdf10a1d116b0"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards.",
+      "sha256": "4e225a249034b9f6963d4b55612ad438d1a00664b6a8ce40abe617edcb030e76"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -25,7 +25,7 @@
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7ef69f8915236e4b93ca6a948b83a08d37fb247f82179a7ee6f72b5c9059ed7c"
+      "sha256": "d31c08d00a868100f8fa9abec77aa771f74db58afba9cce64a8ff23337bbb51f"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -172,8 +172,8 @@
     },
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "c8c038363642ade73888891d052a1ab0be460b1b1e49397e2a73b7d2d4e69d79"
+      "reason": "Authenticated selected Work instructions request fresh engineering_direct inspect and distinguish native PARTIAL from readiness; instructions grant no effects.",
+      "sha256": "0e56f2cbbc49c807254f6633ebd425dcad20c299bc200a8000060dd23e87280d"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "67bbbc0780c6cc48effded9d80e8cd45de1fd83410e62d96b2d492ed322a6cdc"
+      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants.",
+      "sha256": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -527,8 +527,8 @@
     },
     "agent/schedules/operations-monitor.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7e6d195b2adc97daa7a3a47cf77a65c0f5d47a4ba05f7131d2db2c5d5aa93aa9"
+      "reason": "Existing operations monitor calls bounded owner-scoped retained due-dependency Goal adapter only in loopback qualification mode. No timer, provider, Work control, admission or writer grant. Repeated wakes deduplicate paused Work under canonical Goal service.",
+      "sha256": "54a3bba81413945bcdc9a85ed14cdc929d11000861d07e601c30640218094d8f"
     },
     "agent/schedules/reminders.ts": {
       "classification": "INTERNAL",
@@ -2015,8 +2015,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "5e59217cf52eac4be9c2cd660c3b9177ae7bd43df2d3742a453019a75bb6ee66"
+      "reason": "Canonical tool metadata imported with unconditional disabled availability pending wiring approval; all prior registry definitions and gates preserved.",
+      "sha256": "4ec1c4596babbebff8ab552e1ff31f9f649cfa73cebbec9e8d6a0deeacc70221"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Migration head 0061; constant only, preserves NOT_APPLICABLE. Forward hardening invalidates superseded Result completion; no executor effects.",
-      "sha256": "c133a37b974ccb97be0c6e5a0c9e3b45530337e7c7590819ef35491fa6a6c114"
+      "reason": "Schema readiness head is reconciled additive 0066; fresh chain, canonical 0057 upgrade, no-op replay and preserved Phase 1 rejection passed.",
+      "sha256": "70c90e2a57c21e6575a99fec5f406b8eeed6842415e42abbfd608105d20a97bd"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2655,8 +2655,8 @@
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "ca22b41a0a795172eb18676e36dc29c03688698f2c7cf3f336d88a70f7c6d98d"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -3201,14 +3201,14 @@
       "sha256": "762bec2a570c42a57e7395dd2641eb7fd3b031f1eff0f1e830e0cb2de91bbd40"
     },
     "lib/engineering/api.ts": {
-      "classification": "READ_ONLY",
-      "reason": "Extracted signed-session principal and same-origin validation from frozen engineering API. No database mutation or executor imports.",
-      "sha256": "fa48459655a2bb996a8172d51e86d1ff0a727d5f56c65387610a9abe8f1dc7fb"
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work CRUD and read projections with scoped SQL; no provider dispatch or publication.",
+      "sha256": "ce04d2f2dc052d30e4f6c6c5c75986995d2ed82ff606e5a47c2b1b4845f32c5f"
     },
     "lib/beta-integration/runtime.ts": {
-      "classification": "INTERNAL",
-      "reason": "Reviewed retained Result generation/hash/latest-revision checks, exact retained owner-signal binding, restricted Goal/Inbox roles, signed owner and same-origin boundary. Qualification-only loopback database; Work intent creation still cannot admit or dispatch providers. No new authority or external effects.",
-      "sha256": "4ccc435df9db8b986a8e2a24072be8d7e2b8a4610232929cf8e2fdd09f9947a0"
+      "classification": "ENFORCED",
+      "reason": "Signed-owner and same-origin composition; restricted Goal/Inbox transactions; retained canonical Result readers; no Work command endpoints mounted. Integrated adversarial and browser auth checks.",
+      "sha256": "82a02b897f30367d8263889810a91209479a67679fc5972729f2ce45d28815e4"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3249,6 +3249,266 @@
       "classification": "READ_ONLY",
       "reason": "GET delegates to authenticated owner-scoped Work intent projection. POST has no mutation handler and returns unavailable.",
       "sha256": "cba71244615e45dd2a1da0e200ea9c53816accbae3ab4b921a81eb45d7ab4ce7"
+    },
+    "agent/hooks/engineering-work-context.ts": {
+      "classification": "INTERNAL",
+      "reason": "Fails selected Work model steps closed absent scoped primary-Agent context assembly; no provider call or grant.",
+      "sha256": "d6923254b83b2e6cdb2168852b99ccd3a2c7741ae2ba6ce374f8395dd487a646"
+    },
+    "agent/lib/engineering-knowledge-binding.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated current/initiating principals and same-turn primary-Agent Work assembly receipt; SELECT only.",
+      "sha256": "d179231105f3225fd1c6d5d8cfe96987de97ed4a8cb7c6045670c4e8589322fe"
+    },
+    "agent/lib/engineering-work-binding.ts": {
+      "classification": "INTERNAL",
+      "reason": "Validates authenticated owner, thread and primary-Agent Work binding before context assembly; no provider effect.",
+      "sha256": "7219b83174bf0ef1343fa1090860134f1ba46be4934ff6c6ed25e178ccb56da9"
+    },
+    "agent/tools/engineering_direct.ts": {
+      "classification": "ENFORCED",
+      "reason": "Existing authenticated binding, current writer and Action Gateway remain required. Native controller only narrows productive operations; scoped idempotent events record successful inspections and progress. Duplicate/no-op requests receive guidance without effects. Beta resolver additionally requires registry availability; both entries are unconditionally disabled pending approval. Primary-owner dogfood denial is directly tested.",
+      "sha256": "d370dc49ac5790d040261b6954df7826889f0b805a12a309c56f4b4a3f179d27"
+    },
+    "agent/tools/engineering_work.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner-only tool prepares and inspects scoped Work intent/control; provider execution and publication remain separate. Beta resolver additionally requires registry availability; both entries are unconditionally disabled pending approval. Primary-owner dogfood denial is directly tested.",
+      "sha256": "e34120b2aded00941ad0fa23b768439fba170e2384e20817606e2ce18be766c9"
+    },
+    "lib/digital-worker/learning.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure learning candidate/qualification/review data validation; no persistence, activation, grant, or provider effect.",
+      "sha256": "1c57c7f39b066d7aa890000d8ebd7acd6de525bafc4a6851614cfb6a9b45a02c"
+    },
+    "lib/engineering/base-preflight.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure reviewed-base manifest/profile validation; no provider request, write, or grant.",
+      "sha256": "d3e41cd7bfeafea521586c774038b0fadf213e887ae010ad945450bf8c91f66e"
+    },
+    "lib/engineering/completion-budget-plan.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure conservative completion planning; always denies productive admission and creates no balance or reservation.",
+      "sha256": "37eff6100c903533816059f11b0b1c91e6cf584dea8beb4608aef238211d5920"
+    },
+    "lib/engineering/conversation-budget.ts": {
+      "classification": "INTERNAL",
+      "reason": "Canonical Work cost-ledger service: bounded reservation, exclusive dispatch claim, retained result and exact-call reconciliation. Native spending consumes this same ledger; read authority grants no writer.",
+      "sha256": "6daee5d7a1c191aa3aabb90dc89b9b4435a8f36ab6f23dc1939b8e7218d8910a"
+    },
+    "lib/engineering/conversation-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority.",
+      "sha256": "0e1c1188e59cba0c341d03837f748d4995677cd1fe62f9f84c58d367d8b8bfad"
+    },
+    "lib/engineering/current-truth-lines.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority.",
+      "sha256": "e2834a2f0da1c43533a69c265c0fc0d16766418a65dd327ef0cb0c3fc4830db6"
+    },
+    "lib/engineering/direct-development.ts": {
+      "classification": "ENFORCED",
+      "reason": "Existing scoped native effects retain admission fences. Proven-terminal custody may be archived/rebound by 0056; Factory verification consumes immutable receipt-bound custody without a native writer grant.",
+      "sha256": "e0c1929b0d08ad008979c1bbb5ff68270739995e9e0fded2ea9266e1ccd29c8c"
+    },
+    "lib/engineering/direct-verification-driver.ts": {
+      "classification": "ENFORCED",
+      "reason": "Existing protected verifier lease/resource reconciliation reused for exact native or terminal Factory candidate custody. No Factory evidence accepted as independent proof and no productive writer acquired.",
+      "sha256": "982727de74a045a925b5851b61d90c7aef58cdfa0386d3cd7b95f86d2806b25f"
+    },
+    "lib/engineering/docker-executor.ts": {
+      "classification": "ENFORCED",
+      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows.",
+      "sha256": "50b0019b2939b15cc7cd87b9baedc8c220aa1bdd2654cf3bdb12209ee6a09d08"
+    },
+    "lib/engineering/execution-api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "791e70e298c638a3f8017aaf7fe9ea304c0dc772302d2fe024d00acdafbfafaa"
+    },
+    "lib/engineering/execution-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "521e2f10f9f80d180e1b7b3a4664dbd843b80bac9aba7b2f4d35ab8babb6e42d"
+    },
+    "lib/engineering/execution.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure execution state and candidate/evidence contracts; Factory candidate metadata retains exact producer receipt, writer generation and raw commit provenance. No provider effects.",
+      "sha256": "7fd28817b433ef3819dd5f020cae2c4d4589edf332a353db4e7c60725d668341"
+    },
+    "lib/engineering/executor.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
+      "sha256": "0fa3cf521d64d10008a5adba186917ab7524887bf092204f7afcde0a25d9deb3"
+    },
+    "lib/engineering/factory-authenticated-result.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads one authenticated hosted Factory request/result through the configured GraphQL readback, then validates the signed producer claim against a trusted Factory pin and supplied Work/attempt context. It performs no candidate attachment, durable admission, writer grant, protected verification or readiness transition; read failure remains UNKNOWN.",
+      "sha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf"
+    },
+    "lib/engineering/factory-producer-protocol.ts": {
+      "classification": "INTERNAL",
+      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects.",
+      "sha256": "c6266eb0e64974577ef5df3bc8db21ac497b86910aed336bfab444dec0807c26"
+    },
+    "lib/engineering/factory-producer-signature.ts": {
+      "classification": "INTERNAL",
+      "reason": "Qualified producer Ed25519 domain-separated signing/verification primitive with TypeScript key guards. Keys must be supplied explicitly; no key creation, storage, provider calls or authority grants.",
+      "sha256": "6a2e40d3e5b3ee04e675e15a6f89d0c11412569f9a8fc5f27615583e8d9b90cb"
+    },
+    "lib/engineering/factory-receipt-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 Work-scoped receipt custody through the additive engineering_factory_receipt SQL boundary. Immutable request/envelope identities and serialized staged admission; no protected writer, budget, approval, publication or verification mutation.",
+      "sha256": "dae0b2761be5ad50c22073772939d58435c10b38eb9557619e1663970ccb9aa1"
+    },
+    "lib/engineering/factory-result-channel.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect.",
+      "sha256": "98f389bb9b7a2f7461230b056acbd9fc7eeb1f819f1a3fed16563508aa941966"
+    },
+    "lib/engineering/factory-result-consumer.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 durable receive/authenticate/attest/integrity/admit processing. Revalidates trust on resume, retains conflicts/stale provenance, and reconciles only the existing attempt. No redispatch, writer grant, protected verification or Ready transition.",
+      "sha256": "a71a41799af92b7d1a2c97d8651eda15ce127cd123f4e0ada1b1a8f555bcbae3"
+    },
+    "lib/engineering/github-app.ts": {
+      "classification": "ENFORCED",
+      "reason": "Trusted local dogfood publisher reads the exact App private key from macOS Keychain in memory, signs a short-lived App JWT and requests an installation token restricted to the configured single repository and minimal permissions. No executor receives this credential.",
+      "sha256": "99b1e9cd47e3c584423167e77ebcba24ac52675b9e8b41e00e3546d57a93a2a2"
+    },
+    "lib/engineering/github.ts": {
+      "classification": "ENFORCED",
+      "reason": "Existing enforced GitHub publisher remains bounded. Added pure Factory identity validation recomputes allowed-path tree/material and exact producer raw commit without changing provenance or granting publication.",
+      "sha256": "e22c65ba27584ab846dc4d7fb0a059180cf82de5341657b0db65b024e2eee06f"
+    },
+    "lib/engineering/learning-drafts.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped staging/lookup of unverified learning drafts; no qualification, promotion, grant, or provider operation.",
+      "sha256": "f8a505f0634c30f375fbbf93bf09ba53281159456853aeb6311f2f03fc49396e"
+    },
+    "lib/engineering/model-broker.ts": {
+      "classification": "ENFORCED",
+      "reason": "Attempt-scoped HMAC, current generation/attempt/deadline, exact model and provider-feature bounds, atomic finite PostgreSQL reservations, host-only provider credential.",
+      "sha256": "bd40b8d96577782c16a1c5dca2c8ec00f453c4c0578edb49580d21a134326b27"
+    },
+    "lib/engineering/native-api.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-scoped same-origin native admission requires both version and generation; no caller qualification or authority snapshots accepted. Deterministic service rechecks current persisted Work.",
+      "sha256": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e"
+    },
+    "lib/engineering/native-behavior.ts": {
+      "classification": "INTERNAL",
+      "reason": "Composes existing versioned role/pack/mode guidance only; contains no grants, providers, effect dispatch or budget values.",
+      "sha256": "b4509c08d422ebb773f8016998856843566d810da79974896e9740568f78bafa"
+    },
+    "lib/engineering/native-completion.ts": {
+      "classification": "INTERNAL",
+      "reason": "Builds a bounded immutable completion contract from current Work/Agent/provider and reconciled admission pricing; reads stage state. Economic reservation is atomic in common-ledger SQL; this helper grants no independent authority. Qualified through concurrent admission, stage exhaustion, UNKNOWN, stale-authority and process-loss tests.",
+      "sha256": "d21ea58454f19edb17c38baeaafb1b9234aeff6dc0d601b9291773f53b2fb0b8"
+    },
+    "lib/engineering/native-execution-controller.ts": {
+      "classification": "INTERNAL",
+      "reason": "Native-only derived phase and progress read model with scoped idempotent eve_events observations. No authority, accounting or verification mutation. Event writes require current Work version/generation and same writer. Existing services authorize every effect.",
+      "sha256": "c8504c301442170c6dcb6a15cf23dab46eb2c6b68753ab8c563cbd7087f770f1"
+    },
+    "lib/engineering/native-input.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded native input schema adds explicit implementation intent and reasoned dependency reads. No authority fields or new executor capability.",
+      "sha256": "78f665d05f649d2cce626187900adc6e16605ee7c0c4559047e191906c9b5712"
+    },
+    "lib/engineering/native-model-budget.ts": {
+      "classification": "ENFORCED",
+      "reason": "Native productive authority and writer/session custody plus mandatory common Work budget; legacy ledger grants no new spend.",
+      "sha256": "a3c61e6c932aa981ef6de532cbb244fa2555cd9fc987f645f58a82ace4221048"
+    },
+    "lib/engineering/native-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority.",
+      "sha256": "8c154a747d6abff9b39077f32b977babaf35169eb124bc2be6decafef4036ecb"
+    },
+    "lib/engineering/native-qualification.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict independent operator qualification schema for provider/model/profile/scope/evidence; no activation or effects.",
+      "sha256": "b0045e346ae0439565e3629952ee9e0b26c992d2b618c538dacc71c75da82289"
+    },
+    "lib/engineering/native-repair-context.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure deterministic repair-context projection. Exact candidate/diagnostic bindings, explicit UTF-8 truncation and pre-reservation byte enforcement; no I/O, model call, writer grant, ledger mutation or phase transition. Exact-live and adversarial authenticated tests cover oversized-dispatch denial.",
+      "sha256": "bf84740c8a307075ea549c3f9e491dd08909d390f618a126c9a160dd5fbaf652"
+    },
+    "lib/engineering/native-results.ts": {
+      "classification": "ENFORCED",
+      "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority.",
+      "sha256": "ebbc1f7faee880ac9f7bffb115e992a987d2704c21a9652a6de194dd6e08cf1f"
+    },
+    "lib/engineering/native-routing.ts": {
+      "classification": "ENFORCED",
+      "reason": "Native admission validates both optimistic-concurrency tokens and rejects stale persisted Work before route proposal; original values continue to final atomic admission. Qualification, completion capacity, scope and writer guards remain authoritative.",
+      "sha256": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc"
+    },
+    "lib/engineering/relay-collaboration.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure Work-bound Relay disclosure and reply validation. No provider calls, memory enumeration or durable writes; trusted caller must supply current exact Work/grant/transport identity and atomically persist advisory receipts through existing authority guards.",
+      "sha256": "9dc086ea6b3eb2f8ed0e4dca0a951ba5ed4230d61d15df05c2da0fb2ae8be4fb"
+    },
+    "lib/engineering/route-admission.ts": {
+      "classification": "INTERNAL",
+      "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget.",
+      "sha256": "c119b5427aea8ebbe8f566fa9fd6d7af2004019942817ac4029a892b7586f71a"
+    },
+    "lib/engineering/routing-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped SQL route proposals/transitions/history; no dispatch, credential, or external effect.",
+      "sha256": "0a8c92b2f7736dde3d549717e7d0f5d6441cbaf80bf7d37b09e291215371f1ec"
+    },
+    "lib/engineering/run-truth.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure immutable Run history projection; no database, provider, grant or writer mutation.",
+      "sha256": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b"
+    },
+    "lib/engineering/runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged.",
+      "sha256": "4b9da3d37fbcacc4e599a92333bc044183aa9e423eb786175b50396a0a6292bb"
+    },
+    "lib/engineering/worker-projection.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
+      "sha256": "f7dfbc80a5e6bb83529bac463903cf9bd4b4530c6872053af23ae5f6552c732f"
+    },
+    "lib/engineering/worker.ts": {
+      "classification": "ENFORCED",
+      "reason": "Durable lease/generation fencing, current Agent/repository checks, exact candidate identity and protected evidence precede bounded GitHub publication; no blind retry.",
+      "sha256": "d63518d634c19d2b002b195e473a60989b2badf848c9a080e5ec0b7c63207318"
+    },
+    "lib/relay/message-result.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure validation/projection of correlated peer result; no network call, durable write, or grant.",
+      "sha256": "dea9632c11719392c56b43bc8ce3bf8f2ced8ce0966d099e791c99cf21b42f0a"
+    },
+    "lib/beta-integration/canonical-work.ts": {
+      "classification": "ENFORCED",
+      "reason": "Unmounted trusted adapter: exact canonical owner/version/generation/admission and budgeted-conversation receipt; retained Inbox response dedupe/generation locks; eligibility grants no control. Controlled canonical journey tests denial, admission, duplicates and stale responses.",
+      "sha256": "c385b0b33ddbb4d425445b2429ba9d37066ef5f80dbda911dd971988e0e4bcac"
+    },
+    "lib/engineering/work-recall-context.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner/Work-scoped bounded Recall data only; persists attribution receipt, rejects any authority grant; canonical model context test proves supersession and separate Work exclusion. A same-step changed context hash/version is rejected before provider dispatch; the original retained receipt is preserved. PostgreSQL recall-replay test passes.",
+      "sha256": "0de9d957349e0a9ec492df746882a6f3ac41c084fbeeaa1fc42e18a298119e8f"
+    },
+    "app/api/beta/activity/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only delegation to signed-owner same-origin betaRequest; owner-filtered memory and learning projection.",
+      "sha256": "f8c29c675779a36e3dace75e69fe18076ed77f58cdca9d06c71437624c7c60b1"
+    },
+    "lib/beta-integration/scheduler.ts": {
+      "classification": "INTERNAL",
+      "reason": "Existing operations monitor calls bounded owner-scoped retained due-dependency Goal adapter only in loopback qualification mode. No timer, provider, Work control, admission or writer grant. Repeated wakes deduplicate paused Work under canonical Goal service.",
+      "sha256": "1a7eff9160dffaa51844523b43e35b6a03b57ab1ad890802dce5c1fad1fe89ff"
+    },
+    "lib/engineering/factory-spend.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
+      "sha256": "8f8fe02871543e55246736ad6e094caa27765f6c4c1a5b287ae5d3b2ab4f4079"
     }
   }
 }

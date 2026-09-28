@@ -26,6 +26,9 @@ type Result = {
   content_hash: string;
   source: "LOCAL_FIXTURE" | "CANONICAL";
   created_at: string;
+  candidate_sha: string;
+  route: "DIRECT_SOFIE" | "MYFACTORY" | "HUMAN" | null;
+  verification_mode: "CONTROLLED_LOCAL_FIXTURE" | "NOT_LIVE_QUALIFIED";
 };
 type View =
   | "today"
@@ -70,6 +73,18 @@ export function IntegratedExperience({
     [brief, setBrief] = useState<Brief | null>(null),
     [facts, setFacts] = useState<EngineeringFact[]>([]),
     [families, setFamilies] = useState<LearningFamily[]>([]);
+  const [activity, setActivity] = useState<
+    Array<{
+      id: string;
+      kind: string;
+      summary: string;
+      at: string;
+      work_id: string | null;
+    }>
+  >([]);
+  const [feedbackScope, setFeedbackScope] = useState<"WORK" | "REPOSITORY">(
+    "WORK",
+  );
   const [loading, setLoading] = useState(true),
     [errors, setErrors] = useState<string[]>([]),
     [notice, setNotice] = useState(""),
@@ -116,6 +131,7 @@ export function IntegratedExperience({
             setFacts([]);
             setFamilies([]);
             setBrief(null);
+            setActivity([]);
           }
           setErrors((old) => [
             ...old,
@@ -125,6 +141,11 @@ export function IntegratedExperience({
       }
     };
     const jobs = [
+      read<{ changes: typeof activity }>(
+        "/api/beta/activity",
+        "Memory and learning changes",
+        (d) => setActivity(d.changes),
+      ),
       selectedKind === "goal" && selectedId
         ? read<{ goal: Today["goals"][number] }>(
             `/api/beta/goals?goalId=${encodeURIComponent(selectedId)}`,
@@ -346,6 +367,15 @@ export function IntegratedExperience({
               · {date(r.created_at)}
             </p>
             <p>
+              {r.route ? `Route: ${r.route}` : "Route not recorded"} ·{" "}
+              {r.verification_mode === "CONTROLLED_LOCAL_FIXTURE"
+                ? "Controlled local verification fixture · No live verification"
+                : "Live verification not qualified"}
+            </p>
+            <p className="owner-muted">
+              Candidate: {r.candidate_sha ?? r.proof.resultRevision}
+            </p>
+            <p>
               Work revision {r.proof.workVersion} · Criteria revision{" "}
               {r.proof.criteriaVersion}
             </p>
@@ -359,19 +389,41 @@ export function IntegratedExperience({
                   </li>
                 ))}
               </ul>
+              <p className="owner-muted">Result digest: {r.content_hash}</p>
+              <ul className="owner-list">
+                {r.proof.artifactRefs.map((ref) => (
+                  <li key={ref}>{ref}</li>
+                ))}
+              </ul>
               {r.proof.limitations.map((l, i) => (
                 <p key={i}>{l}</p>
               ))}
             </details>
             <div className="owner-actions">
               <Link href={`/work?kind=work&id=${r.work_id}`}>Open Work</Link>
+              <label>
+                Learning scope
+                <select
+                  value={feedbackScope}
+                  onChange={(e) =>
+                    setFeedbackScope(e.target.value as "WORK" | "REPOSITORY")
+                  }
+                  disabled={busy}
+                >
+                  <option value="WORK">This Work only</option>
+                  <option value="REPOSITORY">
+                    Comparable Work in this repository
+                  </option>
+                </select>
+              </label>
               <button
                 disabled={busy}
                 onClick={() => {
-                  let eventId = feedbackIds.current.get(r.id);
+                  const feedbackKey = r.id + ":" + feedbackScope;
+                  let eventId = feedbackIds.current.get(feedbackKey);
                   if (!eventId) {
                     eventId = crypto.randomUUID();
-                    feedbackIds.current.set(r.id, eventId);
+                    feedbackIds.current.set(feedbackKey, eventId);
                   }
                   void mutate(
                     () =>
@@ -387,7 +439,7 @@ export function IntegratedExperience({
                           targetRef: r.id,
                           note: "Cite original sources in this Work.",
                           behavior: "cite_sources",
-                          scope: "WORK",
+                          scope: feedbackScope,
                         },
                       }),
                     "Feedback saved as a learning candidate. Evaluation and promotion require review.",
@@ -537,6 +589,61 @@ export function IntegratedExperience({
                 </div>
               </>
             )}
+            {["today", "brief"].includes(view) && (
+              <>
+                <Card title="Active Work">
+                  {works.filter((w) => w.lifecycle === "active").length ? (
+                    <ul className="owner-list">
+                      {works
+                        .filter((w) => w.lifecycle === "active")
+                        .slice(0, 10)
+                        .map((w) => (
+                          <li key={w.id}>
+                            <Link href={`/work?kind=work&id=${w.id}`}>
+                              {w.title}
+                            </Link>
+                            <p>
+                              Control: {w.control} · Revision {w.version}
+                            </p>
+                          </li>
+                        ))}
+                    </ul>
+                  ) : (
+                    <p>No active Work recorded.</p>
+                  )}
+                </Card>
+                <Card title="Recent Results">
+                  {results.length ? (
+                    <ul className="owner-list">
+                      {results.slice(0, 5).map((r) => (
+                        <li key={r.id}>
+                          <Link href={`/work?kind=work&id=${r.work_id}`}>
+                            {works.find((w) => w.id === r.work_id)?.title ??
+                              "Retained Result"}
+                          </Link>
+                          <p>
+                            {r.proof.outcome} ·{" "}
+                            {r.route ?? "Route not recorded"} ·{" "}
+                            {date(r.created_at)}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No retained Results recorded.</p>
+                  )}
+                </Card>
+              </>
+            )}
+            {view === "brief" && (
+              <>
+                <Card title="Goal progress">{goalList()}</Card>
+                <Card title="Needs your judgment">
+                  <p>{needs.length} current decisions on this page.</p>
+                  <Link href="/needs-you">Review decisions and blockers</Link>
+                </Card>
+              </>
+            )}
             {view === "work" && (
               <>
                 {selectedGoal ? (
@@ -579,10 +686,8 @@ export function IntegratedExperience({
                     <Card title={selectedWork.title}>
                       <p>{selectedWork.objective}</p>
                       <p>
-                        Intent saved ·{" "}
-                        {selectedWork.control === "paused"
-                          ? "Awaiting admission"
-                          : selectedWork.control}
+                        Control: {selectedWork.control} ·{" "}
+                        {selectedWork.lifecycle}
                       </p>
                       <p>
                         Revision {selectedWork.version} ·{" "}
@@ -690,6 +795,32 @@ export function IntegratedExperience({
               </button>
             )}
             {view === "results" && resultCards()}
+            {["today", "brief", "activity"].includes(view) && (
+              <Card title="Memory and learning changes">
+                {activity.length ? (
+                  <ul className="owner-list">
+                    {activity.map((change) => (
+                      <li key={change.id}>
+                        <strong>{change.kind}</strong>
+                        <p>{change.summary}</p>
+                        <p className="owner-muted">{date(change.at)}</p>
+                        <Link
+                          href={
+                            change.work_id
+                              ? `/memory?workId=${change.work_id}`
+                              : "/memory"
+                          }
+                        >
+                          Review memory and learning
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No memory or learning changes recorded.</p>
+                )}
+              </Card>
+            )}
             {(view === "brief" || view === "activity") && brief && (
               <>
                 <Card title="Since your last daily window">

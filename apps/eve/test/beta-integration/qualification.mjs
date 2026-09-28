@@ -18,7 +18,7 @@ import { LearningStore } from "../../lib/total-recall/store.ts";
 import { LearningRuntime } from "../../lib/total-recall/runtime.ts";
 import { WorkRecallStore } from "../../lib/total-recall/work-retrieval.ts";
 import { assembleSofieRecall } from "../../lib/total-recall/sofie-adapter.ts";
-const database = "myeve_beta_qualification";
+const database = "myeve_beta_phase2";
 const admin = new Pool({
   host: "127.0.0.1",
   port: 55489,
@@ -291,7 +291,7 @@ try {
   };
   await writeFile(
     new URL(
-      "../../../../docs/verification/beta-integration/golden.json",
+      "../../../../docs/verification/beta-integration/phase2/golden.json",
       import.meta.url,
     ),
     JSON.stringify(summary, null, 2) + "\n",

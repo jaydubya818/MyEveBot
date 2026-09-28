@@ -166,9 +166,11 @@ export class BetaIntegration {
       result: async (owner, workId, resultId) => {
         const work = await this.store(owner).get(workId);
         const [row] = await this.query(
-          `SELECT r.*, b.binding, p.contract, p.source, (SELECT latest.candidate_sha FROM engineering_native_results latest WHERE latest.scope_id=r.scope_id AND latest.scope_kind=r.scope_kind AND latest.work_id=r.work_id ORDER BY latest.created_at DESC,latest.id DESC LIMIT 1) AS latest_revision FROM engineering_native_results r
+          `SELECT r.*, b.binding, COALESCE(p.contract,rd.admission_authority_snapshot->'contract') AS contract, COALESCE(p.source,'CANONICAL') AS source, (SELECT latest.candidate_sha FROM engineering_native_results latest WHERE latest.scope_id=r.scope_id AND latest.scope_kind=r.scope_kind AND latest.work_id=r.work_id ORDER BY latest.created_at DESC,latest.id DESC LIMIT 1) AS latest_revision FROM engineering_native_results r
           JOIN beta_goal_work_bindings b ON b.owner_id=r.scope_id AND b.work_id=r.work_id
-          JOIN beta_result_provenance p ON p.owner_id=r.scope_id AND p.result_id=r.id
+          LEFT JOIN beta_result_provenance p ON p.owner_id=r.scope_id AND p.result_id=r.id
+          LEFT JOIN engineering_direct_workspaces ws ON ws.scope_id=r.scope_id AND ws.scope_kind=r.scope_kind AND ws.work_id=r.work_id
+          LEFT JOIN engineering_routing_decisions rd ON rd.id=ws.decision_id
           WHERE r.scope_id=$1 AND r.scope_kind='personal' AND r.work_id=$2 AND r.id=$3`,
           [owner, workId, resultId],
         );
@@ -474,12 +476,23 @@ export async function betaRequest(
           },
           { headers },
         );
+      if (resource === "activity")
+        return Response.json({ changes: await beta.query(`
+          SELECT 'memory:'||k.id AS id,'Memory '||k.status AS kind,k.statement AS summary,k.updated_at AS at,w.work_id::text AS work_id
+          FROM knowledge_records k JOIN engineering_work_knowledge w ON w.scope_id=k.owner_id AND w.knowledge_id=k.id
+          WHERE k.owner_id=$1 AND w.scope_kind='personal'
+          UNION ALL
+          SELECT 'learning:'||l.id AS id,'Learning changed' AS kind,l.document->'scope'->>'repository' AS summary,l.updated_at AS at,l.work_id::text
+          FROM recall_learning l WHERE l.owner_id=$1
+          ORDER BY at DESC,id LIMIT 50`,[owner]) },{headers});
       if (resource === "results")
         return Response.json(
           {
             results: await beta.query(
-              `SELECT r.id,r.work_id,r.proof,r.content_hash,r.created_at,p.source FROM engineering_native_results r
-        JOIN beta_result_provenance p ON p.owner_id=r.scope_id AND p.result_id=r.id WHERE r.scope_id=$1 AND r.scope_kind='personal' ORDER BY r.created_at DESC,r.id LIMIT 100`,
+              `SELECT r.id,r.work_id,r.proof,r.content_hash,r.created_at,r.candidate_sha,COALESCE(p.source,'CANONICAL') AS source,CASE rd.selected_route WHEN 'DEEP_AGENT' THEN 'DIRECT_SOFIE' WHEN 'MYFACTORY' THEN 'MYFACTORY' WHEN 'HUMAN' THEN 'HUMAN' ELSE NULL END AS route, CASE WHEN p.source='LOCAL_FIXTURE' OR EXISTS(SELECT FROM jsonb_array_elements(COALESCE(ws.evidence,'[]'::jsonb)) e WHERE e#>>'{artifact,qualification}'='CONTROLLED_LOCAL_FIXTURE_NOT_LIVE') THEN 'CONTROLLED_LOCAL_FIXTURE' ELSE 'NOT_LIVE_QUALIFIED' END AS verification_mode FROM engineering_native_results r
+        LEFT JOIN beta_result_provenance p ON p.owner_id=r.scope_id AND p.result_id=r.id
+          LEFT JOIN engineering_direct_workspaces ws ON ws.scope_id=r.scope_id AND ws.scope_kind=r.scope_kind AND ws.work_id=r.work_id
+          LEFT JOIN engineering_routing_decisions rd ON rd.id=ws.decision_id WHERE r.scope_id=$1 AND r.scope_kind='personal' AND (p.result_id IS NOT NULL OR rd.admission_authority_snapshot IS NOT NULL) ORDER BY r.created_at DESC,r.id LIMIT 100`,
               [owner],
             ),
           },

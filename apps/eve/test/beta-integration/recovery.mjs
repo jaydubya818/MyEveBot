@@ -11,7 +11,7 @@ const pool = new Pool({
   host: "127.0.0.1",
   port: 55489,
   user: "postgres",
-  database: "myeve_beta_qualification",
+  database: "myeve_beta_phase2",
   max: 12,
 });
 const checks = [];
@@ -179,7 +179,7 @@ try {
   };
   await writeFile(
     new URL(
-      "../../../../docs/verification/beta-integration/recovery.json",
+      "../../../../docs/verification/beta-integration/phase2/recovery.json",
       import.meta.url,
     ),
     JSON.stringify(report, null, 2) + "\n",

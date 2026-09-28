@@ -1,3 +1,5 @@
+import { engineeringConversationModel } from "../lib/engineering/conversation-model.ts";
+import { WorkStore } from "../lib/engineering/store.ts";
 import {ownerRuntimeFromAuth} from "../lib/relay/owner/runtime.ts";
 import {ownerBudgetedModel,ownerModelStepKey} from "../lib/relay/owner/model.ts";
 import type { LanguageModelMiddleware } from "ai";
@@ -39,10 +41,8 @@ export default defineAgent({
   // starts early enough even when the selected model supports a larger one.
   model: defineDynamic({
     events: {
-      "turn.started": async (_event, ctx) => {
-        const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-        return { model: clientTurnSettings(ctx.messages).model ?? agent?.preferredModel ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
-      },
+      // Resolve only at step.started: no serialized unbudgeted model selection may
+      // be reused for selected-Work compaction or other auxiliary model work.
       // Reasoning effort is a per-call AI SDK setting, not a field the dynamic
       // model selection object accepts, so a requested level rides on a live
       // gateway model wrapped with default settings. Live models are only
@@ -50,10 +50,23 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": async (_event, ctx) => {
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
+        if(ownerRuntime && ctx.session.auth.current?.attributes.myeveEngineeringWorkId!==undefined)
+          throw new Error("Owner-channel and selected-Work spending authorities cannot be mixed.");
         if(ownerRuntime)return ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event));
         const requested = clientTurnSettings(ctx.messages);
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
-        const model = requested.model ?? agent?.preferredModel;
+        const model = agent?.preferredModel ?? requested.model;
+        const workId=ctx.session.auth.current?.attributes.myeveEngineeringWorkId;
+        if (workId !== undefined && (typeof workId!=="string" || !agent?.isPrimary ||
+            ctx.session.auth.current?.principalType!=="user" || ctx.session.auth.current?.attributes.owner!=="true" || ("parent" in ctx.session && ctx.session.parent)))
+          throw new Error("Selected Work requires an authenticated primary-Agent conversation.");
+        if (typeof workId==="string" && agent?.isPrimary) {
+          const store=new WorkStore({scopeId:agent.ownerId,scopeKind:"personal",actorId:agent.ownerId});
+          return {
+            model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:model??DEFAULT_MODEL}),
+            modelContextWindowTokens:200_000,
+          };
+        }
         const configuredReasoning = agent?.reasoningPreference;
         const selectedReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
         const reasoning = selectedReasoning === "default" ? null : selectedReasoning;

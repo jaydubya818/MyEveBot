@@ -7,7 +7,7 @@ const pool = new Pool({
   host: "127.0.0.1",
   port: 55489,
   user: "postgres",
-  database: "myeve_beta_qualification",
+  database: "myeve_beta_phase2",
 });
 try {
   const beta = new BetaIntegration(pool, {
@@ -57,7 +57,7 @@ try {
   };
   await writeFile(
     new URL(
-      "../../../../docs/verification/beta-integration/browser-fixture.json",
+      "../../../../docs/verification/beta-integration/phase2/browser-fixture.json",
       import.meta.url,
     ),
     JSON.stringify(state, null, 2) + "\n",

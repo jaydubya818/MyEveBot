@@ -8,7 +8,7 @@ const pool = new Pool({
   host: "127.0.0.1",
   port: 55489,
   user: "postgres",
-  database: "myeve_beta_qualification",
+  database: "myeve_beta_phase2",
 });
 const beta = new BetaIntegration(pool, {
   repository: "qualification/design-partner",
