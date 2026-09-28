@@ -1,7 +1,7 @@
 {
   "timestamp": "2026-09-28T05:17:50.464653+00:00",
   "consumerBase": "14eff2e24f4a083f6f6f9563f044c3f86e92ed35",
-  "consumerCandidate": "Containing commit; exact source hashes in qualified-consumer-source.json",
+  "consumerCandidate": "8b55e1924e6f3ed462c331d9e6aa5ea19845de00",
   "producerHead": "efe9e856f8fffbdb785497444a08d39e54d8f78d",
   "producerLocalSpend": "PASS",
   "consumerLocalSpend": "PASS",
@@ -38,7 +38,7 @@
     "pass": 133,
     "skip": 1
   },
-  "independentReview": "Producer correction PASS; exact consumer commit review pending",
+  "independentReview": "PASS_LOCAL_EXACT_PAIR",
   "independentEfe9Focused": 29,
   "independentProcessRaces": 50,
   "independentSigkillCheckpoints": 4,
@@ -76,5 +76,8 @@
   "gitHubCi": "PASS_LOCAL_CONTRACT",
   "relay": "PASS_LOCAL_SYNTHETIC_ADVISORY",
   "learning": "PARTIAL: durable drafts/scoped advisory reuse; production promotion NOT_IMPLEMENTED",
-  "syntheticQ37": "PASS_LOCAL_CONTRACT"
+  "syntheticQ37": "PASS_LOCAL_CONTRACT",
+  "independentConsumerFocused": 44,
+  "reviewEvidence": "INDEPENDENT_REVIEW.md",
+  "documentationFollowup": "No reviewed runtime bytes changed"
 }

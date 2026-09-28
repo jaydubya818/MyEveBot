@@ -223,7 +223,7 @@ The original nine attachments form one numbered Digital Worker specification. Fi
 
 **Production routing correction:** [Connected admission evidence](../verification/2026-09-27-routing-spend-boundary/REPORT.md) supersedes the earlier unit-only routing claim. Server-reviewed Work intent now selects DIRECT/HUMAN before Factory preparation; only qualified PRODUCE proceeds to MYFACTORY. Missing classification fails closed. Route selection grants no execution authority.
 
-**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](../verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Exact consumer commit review is pending; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
+**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](../verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Independent review of consumer `8b55e192` with producer `efe9e856` PASS; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
 
 ### Q37 V2 spend integration checkpoint
 

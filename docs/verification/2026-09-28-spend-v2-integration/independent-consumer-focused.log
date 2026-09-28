@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve
+
+ ✓ lib/engineering/factory-beta.test.ts (13 tests) 11ms
+ ✓ lib/engineering/factory-spend.test.ts (31 tests) 17ms
+
+ Test Files  2 passed (2)
+      Tests  44 passed (44)
+   Start at  22:21:55
+   Duration  470ms (transform 239ms, setup 0ms, collect 506ms, tests 29ms, environment 0ms, prepare 71ms)
+

@@ -52,7 +52,7 @@ Start now returns ROUTED for DIRECT/HUMAN and retains that proposal in Current T
 
 DIRECT/HUMAN selection does not require Factory paid qualification or a usable Factory transport. LIVE `spendEnforced: false` blocks PRODUCE before adapter construction or PREPARE. Server configuration syntax and exact Work scope remain validated for every route. The connected fixture covers both unqualified paid mode and an unusable Factory endpoint, without contacting that endpoint.
 
-**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Exact consumer commit review is pending; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
+**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Independent review of consumer `8b55e192` with producer `efe9e856` PASS; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
 
 ## V2 spend plan and operator interpretation
 

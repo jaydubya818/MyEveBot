@@ -6,7 +6,7 @@ This supersedes the old $1.90 and $1.02 examples; neither was live authorization
 
 ## Exact locally qualified pins
 
-Producer: `efe9e856f8fffbdb785497444a08d39e54d8f78d`. Consumer: the commit containing this dossier and `qualified-consumer-source.json`; final independent review records its exact SHA separately.
+Producer: `efe9e856f8fffbdb785497444a08d39e54d8f78d`. Reviewed consumer: `8b55e1924e6f3ed462c331d9e6aa5ea19845de00`; [independent exact-pair review](INDEPENDENT_REVIEW.md) PASS. The documentation follow-up contains the review without changing `qualified-consumer-source.json` or reviewed runtime bytes.
 
 Factory ID: `factory-beta` (isolated local qualification identity). FactoryVersion: `cfb1521974b00b6e06370fb8050db499859ca1a03b91cd3b9e88663a8439cfa1`. Source digest: `e22a763392777c6f2e2c7ed5d78ddd028e0572cb36c28f5f8a0da83c4d6f9f03`. Configuration digest: `231825a383ba4a74fdbe8803cca3a1089b2a25d701ac58d0ec81391c43cd3b69`.
 
@@ -58,4 +58,6 @@ Stop paid admission on UNKNOWN/missing usage, expired or mismatched price card, 
 
 Cleanup: STOP the exact attempt; retain authority until productive/completion children and verifier resources are proven gone and the durable fence remains. Reconcile known usage; retain UNKNOWN reservation until authoritative settlement, never refund on timeout. Preserve signed results, custody, logs and ledger history. Revoke temporary qualification and credential authority, stop task-owned resources, verify no orphan execution, then remove only disposable fixtures after evidence capture. This execution/fencing/recovery cleanup passes locally; live credential revocation and commercial reconciliation remain **NOT_RUN**.
 
-**Required human action:** identify the dedicated account/service identity and approved secret reference using only the non-secret fields above. No live approval or provider call is requested by this document. Final real-provider configuration and independent review must be satisfied before presenting one executable live authorization.
+**Required human action:** identify the dedicated account/service identity and approved secret reference using only the non-secret fields above. No live approval or provider call is requested by this document. Final real-provider configuration must receive its own affected qualification/review before presenting one executable live authorization; the current local exact-pair review has passed.
+
+Code trace at the pinned producer: `apps/supervisor/src/server.ts` requires injected dependencies and loopback for `localSpendFixture`; `apps/supervisor/src/dispatch-control.ts` exposes DISABLED otherwise. `apps/supervisor/src/spend-gateway.ts` supports HTTPS upstreams in isolation but does not install a real connected configuration. The account/secret-store input and producer-owned configuration remain distinct prerequisites.
