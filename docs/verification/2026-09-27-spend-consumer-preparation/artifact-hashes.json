@@ -1,7 +1,7 @@
 {
   "CROSSWALK.md": "dd759012a31da553c9fd2125e46ea017157900eb88317985cdc749c68dd2ddc0",
-  "HANDOFF.md": "0fcce3201bed315da160d44297950ea5101fd958909edd5a253bf6826f8c1f43",
-  "REPORT.md": "6a30d27e783c4b7f37478951cc548f33dc658e9d7bc4ea72195d026d3b1ce603",
+  "HANDOFF.md": "64dcee7fa24407b27dd696b87bc58e6eed4f0d81ac0612ab98bb4eb9ce5ed739",
+  "REPORT.md": "3080fcd24b262930b8f89ae2a8d15785dd9f8bc495039bb476efd3e45e435b9c",
   "app.log": "41d8108b300fb4f98a2dd8a73d3578571a2b8d42e9d66edb26e6d8d0ed4bb470",
   "candidate-connected.json": "4aaa16e48be906c77c5247677175f34c257d9fcf0a9de3da98ce89b89ac27750",
   "candidate-connected.log": "2691ac94242780869479002614ff3873dec285c931268123f392a43681a299cd",
@@ -18,7 +18,7 @@
   "governance-scope.json": "cfff79fe5bc6cb30d59a8b03d07828ef9e63953714f9e46d3ed9e73a2a494c0c",
   "lineage.json": "479bdb7936e752cad0135c62b7394a433cec9ea3d1166d94019dea7fe9680f05",
   "migrations.log": "bd764a8c6e06331bb0425d34d6cc21118655602728b1bda37cce47be94397cfa",
-  "qualification-summary.json": "0e4b2359def2ddd5a1ea044bcd79318946b99634ca7b7fdb12b7389dca283f0d",
+  "qualification-summary.json": "cc59005fb2ac08e2d9f4865dea69a7274a7f1679f88a1f0c90608866147bce12",
   "root.log": "28b7372038b708c3dddc1f5d7f59b5ce812d2942f11ca26b71ee2f81c4e265b8",
   "source-hashes.json": "48bff8e0b915e33f7fb5ecf57b1c905f603b3c005a858938a95c0f298737cce2",
   "tsc.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",

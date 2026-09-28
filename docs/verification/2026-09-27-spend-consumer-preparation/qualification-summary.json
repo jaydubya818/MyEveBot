@@ -39,6 +39,9 @@
   },
   "safetyScope": "Bounded local negative assertions and connected fixtures, not live telemetry",
   "q37LocalContinuation": "PASS_LOCAL_CONTRACT; operational Q37 remains PARTIAL",
-  "waitingForProducerQualification": true,
-  "liveFactory": "NOT_RUN"
+  "liveFactory": "NOT_RUN",
+  "producerLocalSpendQualification": "PASS",
+  "consumerLocalSpendQualification": "PASS",
+  "realProviderQualification": "PENDING",
+  "supersededReleaseStatusBy": "../2026-09-27-real-provider-preflight/REPORT.md"
 }

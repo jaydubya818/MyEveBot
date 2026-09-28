@@ -1,6 +1,6 @@
 # MyEveBot
 
-**Spend consumer preparation:** [Contract, fixtures and handoff](docs/verification/2026-09-27-spend-consumer-preparation/REPORT.md) add source-gated ledger readback, UNKNOWN retention, current pricing/completion evidence gates and shared Work/Sofie accounting explanations. **Canonical producer remains d9564be; candidate 8f5e377 is supported locally but NOT activated.** Real-provider pricing/path/completion/final qualification remains pending; LIVE MyFactory = NOT_READY / NOT_RUN.
+**MyFactory spend status:** PRODUCER LOCAL SPEND QUALIFICATION **PASS**; CONSUMER LOCAL SPEND QUALIFICATION **PASS**; REAL PROVIDER QUALIFICATION **PENDING**; LIVE MYFACTORY **NOT_RUN**. [Real-provider preflight](docs/verification/2026-09-27-real-provider-preflight/REPORT.md) records completion-reserve, per-call UNKNOWN and operation-count blockers. Canonical producer stays d9564be; locally qualified candidate 8f5e377 is not activated for paid execution.
 
 **Production routing correction:** [Connected admission evidence](docs/verification/2026-09-27-routing-spend-boundary/REPORT.md) supersedes the earlier unit-only routing claim. Server-reviewed Work intent now selects DIRECT/HUMAN before Factory preparation; only qualified PRODUCE proceeds to MYFACTORY. Missing classification fails closed. Route selection grants no execution authority.
 

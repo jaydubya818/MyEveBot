@@ -16,13 +16,13 @@ Current Truth presents approved Factory Work ceiling, settled spend, retained an
 
 All use of 8f5e377 was in a separate temporary checkout and a loopback fake-provider fixture. Canonical d956 compatibility is rerun separately. No owner config or producer worktree was repinned, and no paid/provider credential was used. The candidate's real provider pricing/path/completion/final spend qualification is still pending. The consumer review prerequisites stay fail-closed until that evidence is supplied.
 
-The producer's UNKNOWN ledger retains exposure within its ceiling; consumer admission additionally blocks a new Factory start while UNKNOWN exists. No consumer observation is a permit for an in-flight producer to issue another model call. Final producer qualification must establish its own per-call retry/UNKNOWN policy and complete Work/completion envelope. These are evidence requirements, not assertions of live readiness.
+The producer's UNKNOWN ledger retains exposure within its ceiling; consumer admission additionally blocks a new Factory start while UNKNOWN exists. No consumer observation is a permit for an in-flight producer to issue another model call. Real-provider qualification must establish its own per-call retry/UNKNOWN policy and complete Work/completion envelope. These are evidence requirements, not assertions of live readiness.
 
 ## Independent local Q37 continuation
 
 Both connected paths rerun the existing strongest local composition: Work-bound synthetic Relay, actual local Factory HTTP/SQLite/Git/signatures, PostgreSQL custody, protected Docker verification, synthetic GitHub publication identity, CI failure continuation, review continuation, stale-evidence invalidation, fresh verification, durable learning drafts and advisory promotion/reuse contracts. Proof of Work retains PARTIAL, never Ready. Production learning promotion remains independently owned and is not imported or reimplemented here. External publication, Relay actions, deployment and paid Factory are NOT_RUN.
 
-The applicable completion state is **WAITING FOR PRODUCER QUALIFICATION = YES**, not live-ready. See the final qualification summary alongside this report.
+**PRODUCER LOCAL SPEND QUALIFICATION: PASS. CONSUMER LOCAL SPEND QUALIFICATION: PASS. REAL PROVIDER QUALIFICATION: PENDING. LIVE MYFACTORY: NOT_RUN.** Release status is superseded by the [real-provider preflight](../2026-09-27-real-provider-preflight/REPORT.md); these local test results are unchanged.
 
 ## Final qualification
 

@@ -1,0 +1,59 @@
+{
+  "consumerInput": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+  "producerLocalCandidate": "8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f",
+  "canonicalProducer": "d9564beef41590c3700069ec340d926db23b7ba7",
+  "producerLocalSpend": "PASS",
+  "consumerLocalSpend": "PASS",
+  "realProviderQualification": "PENDING",
+  "independentReview": {
+    "status": "PENDING",
+    "releaseGate": "NOT_PASSED",
+    "reason": "Reviewer task explicitly stopped by its direct user; review declined, no code findings supplied."
+  },
+  "realProviderPath": "BLOCKED",
+  "credential": "HUMAN_ACTION",
+  "publicPriceCard": "PASS",
+  "liveRuntimePriceCard": "NOT_QUALIFIED",
+  "completionPlan": "FAIL",
+  "completionReserve": "FAIL",
+  "sameEnvelopeDryRun": "FAIL_NOT_EXECUTABLE",
+  "liveFactoryVersion": null,
+  "localFixtureFactoryVersion": "73bb9ac6924974163c558a5e5d692e30fa64cbe77eab77d22c64599e6eea108d",
+  "authorizedPaidOperations": 0,
+  "authorizedLiveCeilingUsd": 0,
+  "unqualifiedPlanningExample": {
+    "hardCeilingUsd": 1.9,
+    "inputTokenCap": 64000,
+    "outputTokenCap": 8192,
+    "perOperationReserveUsd": 0.56576,
+    "maxPaidOperations": 3,
+    "maxFactoryAttempts": 1,
+    "durationSeconds": 600
+  },
+  "newValidation": {
+    "producerPass": 116,
+    "producerSkipped": 1,
+    "installedCliLoopbackPass": 1,
+    "consumerFocusedPass": 46,
+    "typecheck": "PASS",
+    "governanceUnknown": 0,
+    "migrationValidation": "PASS",
+    "probeReproductions": 4,
+    "cleanup": "PASS_LOCAL_PROBES"
+  },
+  "safetyCounters": {
+    "paidProviderCalls": 0,
+    "unauthorizedActivations": 0,
+    "postCancelProbeCalls": 0,
+    "lostUnknownExposure": 0,
+    "falseReadyClaims": 0
+  },
+  "negativeReleaseProbeFindings": {
+    "syntheticCallsAfterUnknown": 1,
+    "starvedCompletionCases": 1,
+    "syntheticCallsBeyondProposedLimit": 1,
+    "unusablePreheldCompletionCases": 1
+  },
+  "stopCondition": "C_SAFETY_INVARIANTS_UNSATISFIED; B_CREDENTIAL_METADATA_UNRESOLVED",
+  "liveMyFactory": "NOT_RUN_NOT_READY"
+}

@@ -1,5 +1,7 @@
 # One live Golden Journey proposal — BLOCKED, NOT AUTHORIZATION
 
+**Superseded by [real-provider preflight](../2026-09-27-real-provider-preflight/ENVELOPE.md).** Historical proposal only; its dollar cap and release-status assumptions are not current qualification.
+
 | Bound | Exact value / qualification state |
 | --- | --- |
 | MyEve source | Reviewed baseline 21973e5bf646ceec4c68dc90625ff020d405d7a9 plus the bounded router correction in this report's commit; final commit SHA is supplied in handoff |

@@ -1,6 +1,6 @@
 # Consumer integration package — no producer repin
 
-Final producer SHA: **<FINAL_QUALIFIED_PRODUCER_SHA>** (not yet supplied). Canonical producer remains **d9564beef41590c3700069ec340d926db23b7ba7**. Candidate **8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f** is supported only by isolated non-paid fixtures. Its SQLite v7 SQL checksum is `208fd0facca9f2535c30e558bf261243efd3ababd3113697e34dbefdf8f1598e`.
+Locally spend-qualified producer SHA: **8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f**. Real-provider qualification remains pending. Release procedure/status is superseded by the [real-provider preflight](../2026-09-27-real-provider-preflight/REPORT.md). Canonical producer remains **d9564beef41590c3700069ec340d926db23b7ba7**. Candidate **8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f** is supported only by isolated non-paid fixtures. Its SQLite v7 SQL checksum is `208fd0facca9f2535c30e558bf261243efd3ababd3113697e34dbefdf8f1598e`.
 
 ## Qualification/configuration boundary
 
