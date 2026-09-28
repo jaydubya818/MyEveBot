@@ -5,7 +5,7 @@
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
-      "sha256": "8f8fe02871543e55246736ad6e094caa27765f6c4c1a5b287ae5d3b2ab4f4079"
+      "sha256": "7159ebf1ed1a5228a7e6786368e78b88586979b386be8cf28c87ed089aa09306"
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
@@ -3193,7 +3193,7 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
-      "sha256": "f7dfbc80a5e6bb83529bac463903cf9bd4b4530c6872053af23ae5f6552c732f"
+      "sha256": "88554a05140b9d7ceb041802c93320b70fabe3d6a418011d5600e3e6d5f8d840"
     },
     "lib/relay/message-result.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3288,7 +3288,7 @@
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority.",
-      "sha256": "e2834a2f0da1c43533a69c265c0fc0d16766418a65dd327ef0cb0c3fc4830db6"
+      "sha256": "0a73cfcb2ddc96ff9020fa780705d1d3990773d925689c47a75c3acf69e1a176"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",
@@ -3329,12 +3329,12 @@
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "644195d2d8c5c5385e20d87000a97808214df17251c2f8d5ca28647942394b5b"
+      "sha256": "fe1256720aa37494f9df6867f02a28707cf1e2f32cac03de67cca1ba80c9c5bb"
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "52e83596ccff234266b4fd53e4c26950f35144ff92d18b3ba043b49f7a8114f9"
+      "sha256": "402f299b87b2386364a220ffd76b1f51056af8b3af66ff59767a4141e638f425"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",

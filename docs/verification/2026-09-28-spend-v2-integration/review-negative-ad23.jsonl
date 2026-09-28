@@ -1,0 +1,3 @@
+{"scenario":"historical GET fences current generation","before":"active","after":"fenced","oldReadSpendGeneration":2}
+{"scenario":"historical ops satisfy new attempt mandatory phases","newAttemptOperations":0,"accepted":true}
+{"scenario":"live completion child omitted from quiescence","liveCompletionPid":22198,"quiescent":true,"state":"CANCELLED"}

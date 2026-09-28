@@ -1,0 +1,12 @@
+
+> sellerfi-local-factory@0.1.0 typecheck
+> npm run typecheck --workspaces --if-present
+
+
+> @factory/web@0.1.0 typecheck
+> tsc --noEmit
+
+
+> sellerfi-local-factory@0.1.0 typecheck:producer
+> tsc --noEmit -p tsconfig.producer.json
+

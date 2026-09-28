@@ -23,7 +23,7 @@ describe('Factory beta boundaries',()=>{
  it.each(['https://evil.invalid','http://localhost:12345','http://127.0.0.1:12345/private','http://x:y@127.0.0.1:12345'])('rejects unqualified credential destination %s',origin=>{expect(()=>new LiveFactoryAdapter({...config,origin})).toThrow();});
  it('rejects owner-supplied connection, qualification or dispatch bindings',()=>{
   const input={operation:'start',expectedWorkVersion:2,expectedWorkGeneration:2};expect(factoryActionSchema.safeParse(input).success).toBe(true);
-  for(const field of ['factoryVersion','keys','token','qualification','runId','writerGeneration','routing','intent','boundedOperationQualified'])expect(factoryActionSchema.safeParse({...input,[field]:'injected'}).success).toBe(false);
+  for(const field of ['factoryVersion','keys','token','qualification','runId','writerGeneration','spendPlan','spendContract','routing','intent','boundedOperationQualified'])expect(factoryActionSchema.safeParse({...input,[field]:'injected'}).success).toBe(false);
  });
  it('requires authenticated owner before resolving a Factory control',async()=>{
   vi.stubEnv('MYEVE_ENGINEERING_MODE','dogfood');try{const response=await handleFactoryRequest(new Request('http://localhost/api/engineering/work/x/factory',{method:'POST'}),randomUUID());expect(response.status).toBe(401);}finally{vi.unstubAllEnvs();}

@@ -1,0 +1,37 @@
+✔ request is reserved before provider and settles only authoritative usage (32.446208ms)
+✔ UNKNOWN denies a second paid call despite remaining Work headroom (13.972583ms)
+✔ cancelled Work and expired pricing deny before provider (9.754792ms)
+✔ concurrent requests cannot exceed the productive operation slot limit (13.336417ms)
+✔ streaming completion carries authoritative usage; missing completion stays UNKNOWN (9.061083ms)
+✔ missing, stale, or fractional pricing fails closed (0.366333ms)
+✔ separately charged hosted tools are denied before reservation (14.687ms)
+✔ client-executed tool discovery is admitted inside a metered model request (9.247375ms)
+✔ client search output is local; each subsequent model request still consumes a paid slot (13.690792ms)
+✔ client search metadata cannot bypass UNKNOWN or cancellation (10.710792ms)
+✔ historical terminal READ never fences a newer active Work generation (13.886292ms)
+✔ a live completion process blocks terminal resource reconciliation (11.00225ms)
+✔ restart holds a live completion process even when productive pid is absent (8.771042ms)
+✔ synchronized processes cannot oversubscribe last productive dollars or slot (122.259834ms)
+✔ UNKNOWN and cancellation races deny subsequent provider dispatch (204.058417ms)
+✔ synchronized completion processes cannot exceed final reserve or slot (109.342083ms)
+✔ actual writer deaths preserve slots, dollars, UNKNOWN, completion and settlement (572.772167ms)
+✔ V2 rejects a plan that cannot fund all productive and completion calls (11.809167ms)
+✔ UNKNOWN is a hard Work-level stop across restart, attempt and model changes (8.232083ms)
+✔ productive calls cannot take completion reserve and host-only completion transition fences old phase (9.8005ms)
+✔ paid operation slots persist across process restart and exact replay cannot dispatch twice (7.647833ms)
+✔ reservation, UNKNOWN, cancellation and authority are checked again at paid dispatch (7.277834ms)
+✔ concurrent ledger connections share the last operation slot (7.623042ms)
+✔ legacy V1 Work budget has no paid admission (8.083709ms)
+✔ process loss retains slot and dollars before dispatch, after dispatch, and in completion (9.157917ms)
+✔ two completion operations cannot race past protected completion slots or dollars (8.003334ms)
+✔ wrong authority, old generation, wrong pricing and phase cannot start paid operation (6.848875ms)
+✔ two actual processes race for the final productive slot without oversubscription (108.459125ms)
+✔ historical completion cannot satisfy a new generation or fence its authority (8.694125ms)
+ℹ tests 29
+ℹ suites 0
+ℹ pass 29
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1133.475875

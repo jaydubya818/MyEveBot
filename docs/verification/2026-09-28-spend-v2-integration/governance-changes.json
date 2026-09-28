@@ -1,0 +1,12 @@
+{
+  "ownedFingerprintChanges": [
+    "lib/engineering/factory-spend.ts",
+    "lib/engineering/worker-projection.ts",
+    "lib/engineering/current-truth-lines.ts",
+    "lib/engineering/factory-live-adapter.ts",
+    "lib/engineering/factory-work-driver.ts"
+  ],
+  "unrelatedEntriesChanged": 0,
+  "classificationOrReasonChanges": 0,
+  "unknownEntries": 0
+}

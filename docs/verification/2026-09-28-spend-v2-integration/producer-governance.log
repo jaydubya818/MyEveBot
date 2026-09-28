@@ -1,0 +1,5 @@
+
+> sellerfi-local-factory@0.1.0 check:producer-governance
+> node scripts/check-producer-governance.mjs
+
+Q37 + spend V1/V2/review/hosted-tools/client-search producer governance PASS: 5 new runtime sources; UNKNOWN=0; historical inventories preserved

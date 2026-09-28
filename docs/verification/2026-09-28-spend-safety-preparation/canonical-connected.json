@@ -1,0 +1,340 @@
+{
+  "spendFixture": false,
+  "providerCalls": 0,
+  "checks": 14,
+  "results": [
+    "0057 complete failure rollback",
+    "0056→0057 and idempotent rerun",
+    "LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation",
+    "Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer",
+    "Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification PASS; restarted driver replay cannot dispatch twice",
+    "Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract",
+    "Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification FAIL; restarted driver replay cannot dispatch twice",
+    "Connected Factory failure → normal new native Run → failed repair stays FAILED → bounded repair PASS; immutable Factory history survives",
+    "Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL",
+    "RESPONSE_LOST: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch",
+    "BEFORE_HTTP: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch",
+    "Connected RUNNING → STOPPING retains writer until actual executor settles → terminal tombstone rejects delayed START",
+    "Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority",
+    "Unavailable preparation retains request and grants no writer"
+  ],
+  "journeys": [
+    {
+      "workId": "0919c057-f093-4272-8b11-9bd03caf7195",
+      "outcome": "PARTIAL",
+      "writer": {
+        "requestId": "ce7db387-298e-40cb-96a7-5873b94fdbce",
+        "dispatchIdentity": "7abaf04e-f94c-439c-8377-a13ccbe3b522",
+        "remoteRunId": "c13d9619-13ab-48fe-a9b2-64df5fa08d3f",
+        "runId": "d14ec840-0ead-4c5c-ac40-2926b80ea520",
+        "writerGeneration": 1,
+        "state": "TERMINAL",
+        "stopReason": null,
+        "candidateProducer": "MYFACTORY",
+        "factoryId": "factory-beta",
+        "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+        "workOrderId": "72ac5512-a699-4778-81b8-453d97c2ceb1",
+        "attempt": 1,
+        "receiptId": "451bba9b-716a-4084-9e05-6b0c0fdd6d81",
+        "observation": {
+          "runId": "c13d9619-13ab-48fe-a9b2-64df5fa08d3f",
+          "spend": {
+            "reason": "Backend-injected local fixture; no paid provider",
+            "status": "KNOWN",
+            "ceilingUsd": 0
+          },
+          "state": "COMPLETED",
+          "blocker": null,
+          "identity": {
+            "runId": "d14ec840-0ead-4c5c-ac40-2926b80ea520",
+            "workId": "0919c057-f093-4272-8b11-9bd03caf7195",
+            "baseSha": "5696aa6cae8801054a41ee798fe10e42c63d8582",
+            "deadline": "2026-09-28T03:20:29.088Z",
+            "factoryId": "factory-beta",
+            "requestId": "ce7db387-298e-40cb-96a7-5873b94fdbce",
+            "repository": "fixture/golden",
+            "remoteRunId": "c13d9619-13ab-48fe-a9b2-64df5fa08d3f",
+            "workOrderId": "72ac5512-a699-4778-81b8-453d97c2ceb1",
+            "allowedPaths": [
+              "quantity.mjs"
+            ],
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "workGeneration": 2,
+            "dispatchIdentity": "7abaf04e-f94c-439c-8377-a13ccbe3b522",
+            "writerGeneration": 1
+          },
+          "resultId": "be1267a8-7d55-40ec-9fcd-3943dc1507cc",
+          "snapshot": {
+            "runId": "c13d9619-13ab-48fe-a9b2-64df5fa08d3f",
+            "version": 1,
+            "factoryId": "factory-beta",
+            "requestId": "ce7db387-298e-40cb-96a7-5873b94fdbce",
+            "capturedAt": "2026-09-28T03:10:29.128Z",
+            "inputCommit": "5696aa6cae8801054a41ee798fe10e42c63d8582",
+            "workOrderId": "72ac5512-a699-4778-81b8-453d97c2ceb1",
+            "sourceDigest": "250be20ba5ee48c57032390c5867b4ef9b9c3d32ca16bcd9721bbbbc57bce6c3",
+            "attemptNumber": 1,
+            "configuration": {
+              "model": "gpt-5.5",
+              "commands": [
+                "node --test"
+              ],
+              "executor": "codex-cli",
+              "platform": "darwin",
+              "timeoutMs": 1800000,
+              "nodeVersion": "v24.18.1",
+              "allowedPaths": [
+                "quantity.mjs"
+              ],
+              "architecture": "arm64",
+              "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+              "workerProfile": "mac",
+              "executorVersion": "synthetic-codex-1",
+              "verificationImage": "node:22-bookworm"
+            },
+            "requestDigest": "59ebad23afb0bf2d6bca54c4eca01914894cfcd49f2876650e9d6d2861fa985e",
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "configurationDigest": "f9b8992920a1f12a99b764ca225374282d7699b69bfeb3c5a99f57c5ebf95bf3"
+          },
+          "quiescent": true,
+          "requestId": "ce7db387-298e-40cb-96a7-5873b94fdbce",
+          "accounting": {
+            "blocker": "Legacy zero-cost fixture; paid accounting unavailable",
+            "activeMicrousd": null,
+            "ceilingMicrousd": null,
+            "settledMicrousd": null,
+            "unknownMicrousd": null,
+            "reservedMicrousd": null,
+            "availableMicrousd": null,
+            "maxPaidOperations": null,
+            "paidOperationsUsed": null,
+            "pricingQualification": "PENDING",
+            "safeAllowanceMicrousd": 0,
+            "accountingCompleteness": "UNAVAILABLE",
+            "completionQualification": "PENDING",
+            "completionReserveMicrousd": null,
+            "spendEnforcementQualified": false,
+            "completionOperationSlotsRemaining": null,
+            "completionReserveRemainingMicrousd": null,
+            "productiveAllowanceRemainingMicrousd": null
+          },
+          "evidenceRef": "factory-event:72ac5512-a699-4778-81b8-453d97c2ceb1:terminal",
+          "workOrderId": "72ac5512-a699-4778-81b8-453d97c2ceb1",
+          "verification": "PARTIAL",
+          "coordinationDebt": 0
+        }
+      },
+      "explanation": [
+        "Work identity: {\"workId\":\"0919c057-f093-4272-8b11-9bd03caf7195\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
+        "Latest Run: d14ec840-0ead-4c5c-ac40-2926b80ea520; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-09-28T03:20:29.088Z.",
+        "Run history: d14ec840-0ead-4c5c-ac40-2926b80ea520 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-09-28T03:10:29.142Z).",
+        "Factory Work budget: approved ceiling unavailable; settled unavailable; reserved unavailable (uncertain unavailable); remaining safe allowance $0.000000. Productive allowance unavailable; protected completion unavailable remaining of unavailable; paid operations unavailable/unavailable; protected completion slots unavailable. Accounting UNAVAILABLE; pricing PENDING; completion qualification PENDING. Legacy zero-cost fixture; paid accounting unavailable. This is not payment or execution authority.",
+        "Writer session: none recorded; not confirmed productive; historical identity grants no authority.",
+        "Factory preparation: ce7db387-298e-40cb-96a7-5873b94fdbce; COMPLETED; blocker none. Intent alone grants no writer authority.",
+        "Factory writer: d14ec840-0ead-4c5c-ac40-2926b80ea520; request ce7db387-298e-40cb-96a7-5873b94fdbce; dispatch 7abaf04e-f94c-439c-8377-a13ccbe3b522; execution c13d9619-13ab-48fe-a9b2-64df5fa08d3f; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version 28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c; WorkOrder 72ac5512-a699-4778-81b8-453d97c2ceb1; attempt 1; receipt 451bba9b-716a-4084-9e05-6b0c0fdd6d81. Gate C grants no writer authority.",
+        "Factory observation: COMPLETED; blocker none; spend KNOWN; Backend-injected local fixture; no paid provider.",
+        "Candidate: e0e046eed3bf726c30d1f413ded35767829f6338.",
+        "Draft: revision 2; hash 3169cdce57ea420d4c6e13d710d97272e7d117d8eb847d41a213e40f8693e96f; matches retained candidate.",
+        "Candidate history: e0e046eed3bf726c30d1f413ded35767829f6338: PASS, 10 evidence records.",
+        "Completion state: NO_CONTRACT.",
+        "Protected verification: PASS; candidate e0e046eed3bf726c30d1f413ded35767829f6338; job COMPLETED; 10 bound evidence records.",
+        "Result: be1267a8-7d55-40ec-9fcd-3943dc1507cc; candidate e0e046eed3bf726c30d1f413ded35767829f6338; Factory candidate: PARTIAL. Publication and acceptance are not established.",
+        "Budget: no common ledger grant observed.",
+        "Completion budget: $1.300000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.",
+        "Readiness: Factory candidate / MyEve protected verification: PASS. Retained Result: PARTIAL. Publication, CI, independent review and owner acceptance remain unverified.",
+        "Blocker / next permitted action: Review the PARTIAL local result. Publication and acceptance remain unqualified."
+      ],
+      "candidate": "e0e046eed3bf726c30d1f413ded35767829f6338",
+      "evidenceCount": 10,
+      "resultId": "be1267a8-7d55-40ec-9fcd-3943dc1507cc"
+    },
+    {
+      "workId": "82676d44-71d9-4f11-bbaa-399612394cd3",
+      "outcome": "FAILED",
+      "writer": {
+        "requestId": "0aefd2f0-4402-444f-8ff6-780816a77259",
+        "dispatchIdentity": "581a14b2-738d-45ae-9268-bb7bed1f20b0",
+        "remoteRunId": "2c9b51d5-dcba-4ae5-b3b8-09d9f3d17454",
+        "runId": "36f6b7af-e2f5-401f-b908-5f95ee527808",
+        "writerGeneration": 1,
+        "state": "TERMINAL",
+        "stopReason": null,
+        "candidateProducer": "MYFACTORY",
+        "factoryId": "factory-beta",
+        "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+        "workOrderId": "17457dca-14dc-4220-938c-0be489e57cec",
+        "attempt": 1,
+        "receiptId": "f4caaa71-3beb-4422-9607-04fd06cbb2c1",
+        "observation": {
+          "runId": "2c9b51d5-dcba-4ae5-b3b8-09d9f3d17454",
+          "spend": {
+            "reason": "Backend-injected local fixture; no paid provider",
+            "status": "KNOWN",
+            "ceilingUsd": 0
+          },
+          "state": "COMPLETED",
+          "blocker": null,
+          "identity": {
+            "runId": "36f6b7af-e2f5-401f-b908-5f95ee527808",
+            "workId": "82676d44-71d9-4f11-bbaa-399612394cd3",
+            "baseSha": "5696aa6cae8801054a41ee798fe10e42c63d8582",
+            "deadline": "2026-09-28T03:20:36.166Z",
+            "factoryId": "factory-beta",
+            "requestId": "0aefd2f0-4402-444f-8ff6-780816a77259",
+            "repository": "fixture/golden",
+            "remoteRunId": "2c9b51d5-dcba-4ae5-b3b8-09d9f3d17454",
+            "workOrderId": "17457dca-14dc-4220-938c-0be489e57cec",
+            "allowedPaths": [
+              "quantity.mjs"
+            ],
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "workGeneration": 2,
+            "dispatchIdentity": "581a14b2-738d-45ae-9268-bb7bed1f20b0",
+            "writerGeneration": 1
+          },
+          "resultId": "a2198961-bb10-465e-be4d-706d15e3661b",
+          "snapshot": {
+            "runId": "2c9b51d5-dcba-4ae5-b3b8-09d9f3d17454",
+            "version": 1,
+            "factoryId": "factory-beta",
+            "requestId": "0aefd2f0-4402-444f-8ff6-780816a77259",
+            "capturedAt": "2026-09-28T03:10:36.195Z",
+            "inputCommit": "5696aa6cae8801054a41ee798fe10e42c63d8582",
+            "workOrderId": "17457dca-14dc-4220-938c-0be489e57cec",
+            "sourceDigest": "250be20ba5ee48c57032390c5867b4ef9b9c3d32ca16bcd9721bbbbc57bce6c3",
+            "attemptNumber": 1,
+            "configuration": {
+              "model": "gpt-5.5",
+              "commands": [
+                "node --test"
+              ],
+              "executor": "codex-cli",
+              "platform": "darwin",
+              "timeoutMs": 1800000,
+              "nodeVersion": "v24.18.1",
+              "allowedPaths": [
+                "quantity.mjs"
+              ],
+              "architecture": "arm64",
+              "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+              "workerProfile": "mac",
+              "executorVersion": "synthetic-codex-1",
+              "verificationImage": "node:22-bookworm"
+            },
+            "requestDigest": "3e0d3fdb9d35da88a16cc17c5c08b934e0926b29946793238ed16af957abfa2b",
+            "factoryVersion": "28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c",
+            "configurationDigest": "f9b8992920a1f12a99b764ca225374282d7699b69bfeb3c5a99f57c5ebf95bf3"
+          },
+          "quiescent": true,
+          "requestId": "0aefd2f0-4402-444f-8ff6-780816a77259",
+          "accounting": {
+            "blocker": "Legacy zero-cost fixture; paid accounting unavailable",
+            "activeMicrousd": null,
+            "ceilingMicrousd": null,
+            "settledMicrousd": null,
+            "unknownMicrousd": null,
+            "reservedMicrousd": null,
+            "availableMicrousd": null,
+            "maxPaidOperations": null,
+            "paidOperationsUsed": null,
+            "pricingQualification": "PENDING",
+            "safeAllowanceMicrousd": 0,
+            "accountingCompleteness": "UNAVAILABLE",
+            "completionQualification": "PENDING",
+            "completionReserveMicrousd": null,
+            "spendEnforcementQualified": false,
+            "completionOperationSlotsRemaining": null,
+            "completionReserveRemainingMicrousd": null,
+            "productiveAllowanceRemainingMicrousd": null
+          },
+          "evidenceRef": "factory-event:17457dca-14dc-4220-938c-0be489e57cec:terminal",
+          "workOrderId": "17457dca-14dc-4220-938c-0be489e57cec",
+          "verification": "FAILED",
+          "coordinationDebt": 0
+        }
+      },
+      "explanation": [
+        "Work identity: {\"workId\":\"82676d44-71d9-4f11-bbaa-399612394cd3\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.",
+        "Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
+        "Latest Run: 36f6b7af-e2f5-401f-b908-5f95ee527808; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-09-28T03:20:36.166Z.",
+        "Run history: 36f6b7af-e2f5-401f-b908-5f95ee527808 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-09-28T03:10:36.207Z).",
+        "Factory Work budget: approved ceiling unavailable; settled unavailable; reserved unavailable (uncertain unavailable); remaining safe allowance $0.000000. Productive allowance unavailable; protected completion unavailable remaining of unavailable; paid operations unavailable/unavailable; protected completion slots unavailable. Accounting UNAVAILABLE; pricing PENDING; completion qualification PENDING. Legacy zero-cost fixture; paid accounting unavailable. This is not payment or execution authority.",
+        "Writer session: none recorded; not confirmed productive; historical identity grants no authority.",
+        "Factory preparation: 0aefd2f0-4402-444f-8ff6-780816a77259; COMPLETED; blocker none. Intent alone grants no writer authority.",
+        "Factory writer: 36f6b7af-e2f5-401f-b908-5f95ee527808; request 0aefd2f0-4402-444f-8ff6-780816a77259; dispatch 581a14b2-738d-45ae-9268-bb7bed1f20b0; execution 2c9b51d5-dcba-4ae5-b3b8-09d9f3d17454; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version 28039411cefe9dda3cff6f9ffe384a5866d005ec976ad74a376ef08be4fdcb4c; WorkOrder 17457dca-14dc-4220-938c-0be489e57cec; attempt 1; receipt f4caaa71-3beb-4422-9607-04fd06cbb2c1. Gate C grants no writer authority.",
+        "Factory observation: COMPLETED; blocker none; spend KNOWN; Backend-injected local fixture; no paid provider.",
+        "Candidate: 17cc1739155e57d841b24d0394fff4773bbed94c.",
+        "Draft: revision 2; hash c4e0088783868ed63705562f0020dcda05c41715de8a01438e4a580b982dae0b; matches retained candidate.",
+        "Candidate history: 17cc1739155e57d841b24d0394fff4773bbed94c: FAIL, 10 evidence records, failed checks quantity-7,quantity-9.",
+        "Completion state: NO_CONTRACT.",
+        "Protected verification: FAIL; candidate 17cc1739155e57d841b24d0394fff4773bbed94c; job COMPLETED; 10 bound evidence records.",
+        "Result: a2198961-bb10-465e-be4d-706d15e3661b; candidate 17cc1739155e57d841b24d0394fff4773bbed94c; Factory candidate: FAILED. Publication and acceptance are not established.",
+        "Budget: no common ledger grant observed.",
+        "Completion budget: $1.300000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.",
+        "Readiness: Factory candidate / MyEve protected verification: FAIL. Retained Result: FAILED. Publication, CI, independent review and owner acceptance remain unverified.",
+        "Blocker / next permitted action: Factory is off. Review protected failure and request a new normal native admission for repair."
+      ],
+      "candidate": "17cc1739155e57d841b24d0394fff4773bbed94c",
+      "evidenceCount": 10,
+      "resultId": "a2198961-bb10-465e-be4d-706d15e3661b"
+    }
+  ],
+  "terminalReceipts": [
+    {
+      "workId": "647a264e-3369-445f-9b20-b766bbde7e56",
+      "receiptId": "0fd1e685-7056-490d-9458-ecec6a0bf825",
+      "state": "STALE",
+      "producerStatus": "CANCELLED",
+      "envelopeSha256": "adbcd5eba577a735a54b91c7f54d4c8741f908091349870461eaede02062ce0e",
+      "replayBytesChanged": 0,
+      "candidateWorkspaces": 0,
+      "verificationJobs": 0,
+      "writerState": "TERMINAL"
+    },
+    {
+      "workId": "2cb33f2b-0a4b-4ebd-b8e9-fa7cefbd3734",
+      "receiptId": "e67d9ef0-e35b-4f4b-ae6e-52edcf515158",
+      "state": "STALE",
+      "producerStatus": "FAILED",
+      "envelopeSha256": "38d3e75f949405fd968c79bfddfd40666d31064c46c92f7cc0547d207d2c4707",
+      "replayBytesChanged": 0,
+      "candidateWorkspaces": 0,
+      "verificationJobs": 0,
+      "writerState": "TERMINAL"
+    }
+  ],
+  "composition": {
+    "status": "PASS_LOCAL_CONTRACT",
+    "workId": "0919c057-f093-4272-8b11-9bd03caf7195",
+    "candidate": "e0e046eed3bf726c30d1f413ded35767829f6338",
+    "ciCandidate": "fe79432f52c60ed27e86d23edeff1d7d5b2f8273",
+    "reviewCandidate": "816c3c80422c6c46085c6ae3858dde66c31c0c42",
+    "continuationTransitions": [
+      "ci_continuation",
+      "review_continuation"
+    ],
+    "staleEvidenceInvalidated": true,
+    "freshProtectedChecks": true,
+    "durableLearningDraft": "PASS",
+    "laterComparableWork": "59d0107a-5a3e-470d-a10a-5fa2c8221f84",
+    "relayTrust": "ADVISORY_ONLY",
+    "publisherIdentity": "SYNTHETIC",
+    "rawCommitPreserved": true,
+    "publicationMutations": 37,
+    "ciFailureBlocks": true,
+    "reviewFeedbackBlocks": true,
+    "learningTrust": "ADVISORY_ONLY",
+    "livePublication": "NOT_RUN",
+    "durableLearningPromotion": "NOT_IMPLEMENTED"
+  },
+  "executions": 5,
+  "counters": {
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "falseReady": 0,
+    "unauthenticatedAdmissions": 0
+  },
+  "liveMyFactory": "NOT_RUN",
+  "qualification": "Local real transport, synthetic executor, real independent Docker verifier"
+}

@@ -59,7 +59,7 @@ export class FactoryWorkDriver {
   if((decision.selected_route??decision.selectedRoute)!=='MYFACTORY')throw new WorkError('factory_route_conflict','Another route proposal owns this Work revision.');
   const source=await this.source();
   preflightApprovedBase(config.engineering.profile,config.engineering.approvedBase,source,1);
-  const prepare:FactoryPrepareRequest={requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline:snapshot.contract.deadline,maxSpendUsd:snapshot.contract.budgetUsd,
+  const prepare:FactoryPrepareRequest={...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline:snapshot.contract.deadline,maxSpendUsd:snapshot.contract.budgetUsd,
    input:{title:work.title,description:work.objective,kind:'feature',repositoryPath:config.connection.repositoryPath,baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'mac'}};
   const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
    WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:digest(config)})]);

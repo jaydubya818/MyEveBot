@@ -1,0 +1,30 @@
+✔ prepare binds actual attempt before any execution; response-loss/restart replay never redispatches (227.551542ms)
+✔ wrong token, replay mutation, incomplete binding and changed FactoryVersion cannot start work (71.086125ms)
+✔ stop before dispatch creates a durable terminal fence rejecting delayed execution after restart (63.712625ms)
+✔ running stop stays STOPPING until the actual adapter call settles (76.009875ms)
+✔ default paid dispatch denies even with valid binding and injected dependencies (67.085958ms)
+✔ producer deadline aborts execution without a MyEve polling loop (657.450709ms)
+✔ connected START routes each synthetic model call through exact Work spend gateway (181.739166ms)
+✔ historical terminal READ never fences a newer active Work generation (12.52975ms)
+✔ a live completion process blocks terminal resource reconciliation (10.827667ms)
+✔ restart holds a live completion process even when productive pid is absent (8.921167ms)
+✔ V2 rejects a plan that cannot fund all productive and completion calls (9.449417ms)
+✔ UNKNOWN is a hard Work-level stop across restart, attempt and model changes (7.606083ms)
+✔ productive calls cannot take completion reserve and host-only completion transition fences old phase (9.161875ms)
+✔ paid operation slots persist across process restart and exact replay cannot dispatch twice (6.706084ms)
+✔ reservation, UNKNOWN, cancellation and authority are checked again at paid dispatch (7.165291ms)
+✔ concurrent ledger connections share the last operation slot (6.645208ms)
+✔ legacy V1 Work budget has no paid admission (6.143292ms)
+✔ process loss retains slot and dollars before dispatch, after dispatch, and in completion (8.217375ms)
+✔ two completion operations cannot race past protected completion slots or dollars (6.80875ms)
+✔ wrong authority, old generation, wrong pricing and phase cannot start paid operation (6.428833ms)
+✔ two actual processes race for the final productive slot without oversubscription (100.268208ms)
+✔ historical completion cannot satisfy a new generation or fence its authority (8.2845ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1539.628958

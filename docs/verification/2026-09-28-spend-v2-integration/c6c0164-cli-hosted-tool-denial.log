@@ -1,0 +1,61 @@
+PASS 0057 complete failure rollback
+PASS 0056→0057 and idempotent rerun
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+Note: switching to '024bab53fbde4577deab812a1e9705f8118b176f'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 024bab5 Pinned synthetic Q37 quantity fixture
+PASS LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation
+PASS Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer
+PASS Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available
+Controlled CLI failed: Codex exited with code 1 Reading additional input from stdin...
+ {"type":"thread.started","thread_id":"01a0e62c-ff05-7580-a3b6-ca61f5f44a21"}
+{"type":"turn.started"}
+{"type":"error","message":"{\"error\":{\"message\":\"Unpriced content or hosted tool\",\"type\":\"factory_spend_denied\"}}"}
+{"type":"turn.failed","error":{"message":"{\"error\":{\"message\":\"Unpriced content or hosted tool\",\"type\":\"factory_spend_denied\"}}"}}
+
+Controlled journey: {"state":"TERMINAL","outcome":"FAILED","receiptStatus":"STALE"} [{"id":12,"workOrderId":"5b96be1e-af95-406c-8b57-b72607606fcd","runId":"00e68a76-2cc8-411e-99dc-40c0ef033ffe","type":"run.failed","payload":{"reason":"{\"result\":{\"workerProfile\":\"mac\",\"status\":\"failed\",\"success\":false,\"exitCode\":1,\"exitSignal\":null,\"startedAt\":\"2026-09-28T04:01:43.422Z\",\"finishedAt\":\"2026-09-28T04:01:43.769Z\",\"eventsPath\":\"/private/var/folders/1h/qb01w7v52bb72nzk2dh3szbc0000gn/T/factory-connected-9HoNLK/producer/artifacts/00e68a76-2cc8-411e-99dc-40c0ef033ffe/codex-run-dLpqt7/events.jsonl\",\"stderrPath\":\"/private/var/folders/1h/qb01w7v52bb72nzk2dh3szbc0000gn/T/factory-connected-9HoNLK/producer/artifacts/00e68a76-2cc8-411e-99dc-40c0ef033ffe/codex-run-dLpqt7/stderr.log\",\"finalMessagePath\":\"/private/var/folders/1h/qb01w7v52bb72nzk2dh3szbc0000gn/T/factory-connected-9HoNLK/producer/artifacts/00e68a76-2cc8-411e-99dc-40c0ef033ffe/codex-run-dLpqt7/final-message.txt\",\"finalMessageAvailable\":false,\"threadId\":\"01a0e62c-ff05-7580-a3b6-ca61f5f44a21\",\"usage\":null,\"completionEventSeen\":false,\"error\":\"Codex exited with code 1\"},\"stderr\":\"Reading additional input from stdin...\\n\",\"events\":\"{\\\"type\\\":\\\"thread.started\\\",\\\"thread_id\\\":\\\"01a0e62c-ff05-7580-a3b6-ca61f5f44a21\\\"}\\n{\\\"type\\\":\\\"turn.started\\\"}\\n{\\\"type\\\":\\\"error\\\",\\\"message\\\":\\\"{\\\\\\\"error\\\\\\\":{\\\\\\\"message\\\\\\\":\\\\\\\"Unpriced content or hosted tool\\\\\\\",\\\\\\\"type\\\\\\\":\\\\\\\"factory_spend_denied\\\\\\\"}}\\\"}\\n{\\\"type\\\":\\\"turn.failed\\\",\\\"error\\\":{\\\"message\\\":\\\"{\\\\\\\"error\\\\\\\":{\\\\\\\"message\\\\\\\":\\\\\\\"Unpriced content or hosted tool\\\\\\\",\\\\\\\"type\\\\\\\":\\\\\\\"factory_spend_denied\\\\\\\"}}\\\"}}\\n\"}"},"createdAt":"2026-09-28T04:01:43.772Z"}]
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
++ actual - expected
+
++ 'TERMINAL'
+- 'PARTIAL'
+
+    at <anonymous> (/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve/apps/eve/test/factory-live.integration.mjs:121:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: true,
+  code: 'ERR_ASSERTION',
+  actual: 'TERMINAL',
+  expected: 'PARTIAL',
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.18.1

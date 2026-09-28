@@ -1,0 +1,60 @@
+{
+  "producerSha": "48a1e3aa8bf40480c1ce9c8042980f3d23860441",
+  "result": "PASS_LOCAL_LEDGER_PROCESSES",
+  "providerCalls": 0,
+  "paidCalls": 0,
+  "results": [
+    {
+      "scenario": "productive synchronized last-slot race",
+      "iterations": 10,
+      "overAdmissions": 0
+    },
+    {
+      "scenario": "completion synchronized last-slot race",
+      "iterations": 10,
+      "overAdmissions": 0
+    },
+    {
+      "scenario": "unknown versus synchronized reserve",
+      "iterations": 10,
+      "admittedBeforeHold": 1,
+      "postHoldDispatches": 0
+    },
+    {
+      "scenario": "cancel versus synchronized reserve",
+      "iterations": 10,
+      "admittedBeforeHold": 2,
+      "postHoldDispatches": 0
+    },
+    {
+      "scenario": "fence versus synchronized reserve",
+      "iterations": 10,
+      "admittedBeforeHold": 2,
+      "postHoldDispatches": 0
+    },
+    {
+      "scenario": "SIGKILL reserved",
+      "retainedUnknownMicrousd": 1200,
+      "paidOperationsUsed": 1,
+      "recoveredState": "unknown"
+    },
+    {
+      "scenario": "SIGKILL dispatched",
+      "retainedUnknownMicrousd": 1200,
+      "paidOperationsUsed": 1,
+      "recoveredState": "unknown"
+    },
+    {
+      "scenario": "SIGKILL completion",
+      "retainedUnknownMicrousd": 1200,
+      "paidOperationsUsed": 2,
+      "recoveredState": "unknown"
+    },
+    {
+      "scenario": "SIGKILL settled",
+      "retainedUnknownMicrousd": 0,
+      "paidOperationsUsed": 1,
+      "recoveredState": "settled"
+    }
+  ]
+}

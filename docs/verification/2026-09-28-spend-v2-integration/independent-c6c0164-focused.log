@@ -1,0 +1,34 @@
+✔ request is reserved before provider and settles only authoritative usage (30.927291ms)
+✔ UNKNOWN denies a second paid call despite remaining Work headroom (13.342209ms)
+✔ cancelled Work and expired pricing deny before provider (8.705833ms)
+✔ concurrent requests cannot exceed the productive operation slot limit (11.628542ms)
+✔ streaming completion carries authoritative usage; missing completion stays UNKNOWN (9.707209ms)
+✔ missing, stale, or fractional pricing fails closed (0.344333ms)
+✔ separately charged hosted tools are denied before reservation (9.826583ms)
+✔ historical terminal READ never fences a newer active Work generation (12.333166ms)
+✔ a live completion process blocks terminal resource reconciliation (11.984833ms)
+✔ restart holds a live completion process even when productive pid is absent (9.163084ms)
+✔ synchronized processes cannot oversubscribe last productive dollars or slot (114.266542ms)
+✔ UNKNOWN and cancellation races deny subsequent provider dispatch (198.645041ms)
+✔ synchronized completion processes cannot exceed final reserve or slot (96.8735ms)
+✔ actual writer deaths preserve slots, dollars, UNKNOWN, completion and settlement (543.237ms)
+✔ V2 rejects a plan that cannot fund all productive and completion calls (9.193458ms)
+✔ UNKNOWN is a hard Work-level stop across restart, attempt and model changes (8.297542ms)
+✔ productive calls cannot take completion reserve and host-only completion transition fences old phase (9.581583ms)
+✔ paid operation slots persist across process restart and exact replay cannot dispatch twice (7.121041ms)
+✔ reservation, UNKNOWN, cancellation and authority are checked again at paid dispatch (8.006625ms)
+✔ concurrent ledger connections share the last operation slot (6.994125ms)
+✔ legacy V1 Work budget has no paid admission (6.758625ms)
+✔ process loss retains slot and dollars before dispatch, after dispatch, and in completion (9.104417ms)
+✔ two completion operations cannot race past protected completion slots or dollars (7.080333ms)
+✔ wrong authority, old generation, wrong pricing and phase cannot start paid operation (6.437416ms)
+✔ two actual processes race for the final productive slot without oversubscription (104.175041ms)
+✔ historical completion cannot satisfy a new generation or fence its authority (7.987084ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1074.778375

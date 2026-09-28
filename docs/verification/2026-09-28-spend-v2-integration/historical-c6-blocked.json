@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-09-28T04:13:57.672291+00:00",
+  "consumerHead": "14eff2e24f4a083f6f6f9563f044c3f86e92ed35",
+  "consumerCandidate": "UNCOMMITTED_PRESERVED",
+  "producerHead": "c6c0164c1867235b9ac9c15aad256a820c9fd2b3",
+  "producerDraft": "UNCOMMITTED_CLI_CORRECTION_NOT_QUALIFIED",
+  "producerTask": "01a0d6d7-94a1-7fe0-a16b-a42f7783cf89",
+  "producerTaskLatestReply": "I\u2019ve received no new user instruction to resume. The producer stays frozen at 8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f.",
+  "observedProducerHeadContradictsReply": true,
+  "application": {
+    "pass": 1586,
+    "skip": 40
+  },
+  "rootSecurity": 151,
+  "gateB": 23,
+  "gateC": 47,
+  "canonicalD956Connected": 14,
+  "ad23V2Connected": 16,
+  "ad23InstalledCliConnected": 16,
+  "ad23EnvelopeShape": 16,
+  "c6c0164InstalledCli": "FAIL_BEFORE_PROVIDER_TOOL_SURFACE",
+  "typecheck": "PASS",
+  "governance": "PASS",
+  "unknownEntries": 0,
+  "unrelatedGovernanceEntriesChanged": 0,
+  "migrationValidation": "PASS_57_UNCHANGED",
+  "0056": "dc4a908d6f3abd665824cb249459df850a92ff7c4346fded461a2061ba72b2bc",
+  "0057": "787b26a37700c890d0cee38ab47bb2b5e51c24cd70a28568f98d7d009072f057",
+  "producerV8": "0994004a2a89c2264423e969fc3b97ef609f8d0fb437e9dcf6ea6203309cbeb3",
+  "webpack": "PASS",
+  "producerRegression": {
+    "pass": 130,
+    "skip": 1
+  },
+  "independentReview": "PARTIAL_FINAL_INTEGRATION_NOT_PASSED",
+  "independentC6c0164Focused": 26,
+  "independent48a1ProcessRaces": 50,
+  "independent48a1SigkillCheckpoints": 4,
+  "correctedOriginalProbeCounters": {
+    "postUnknownCalls": 0,
+    "completionStarvation": 0,
+    "callsBeyondLimit": 0,
+    "reserveTheft": 0
+  },
+  "realProviderCalls": 0,
+  "liveMyFactory": "NOT_RUN_NOT_READY",
+  "worktree": "DIRTY_PRESERVED",
+  "nextAction": "Direct user resume instruction to existing producer owner for exact installed CLI client-tool-search defect; no producer ownership transfer."
+}

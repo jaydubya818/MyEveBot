@@ -1,6 +1,6 @@
 # MyEveBot
 
-**MyFactory spend status:** PRODUCER LOCAL SPEND QUALIFICATION **PASS**; CONSUMER LOCAL SPEND QUALIFICATION **PASS**; REAL PROVIDER QUALIFICATION **PENDING**; LIVE MYFACTORY **NOT_RUN**. [Real-provider preflight](docs/verification/2026-09-27-real-provider-preflight/REPORT.md) records completion-reserve, per-call UNKNOWN and operation-count blockers. Canonical producer stays d9564be; locally qualified candidate 8f5e377 is not activated for paid execution.
+**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](docs/verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Exact consumer commit review is pending; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
 
 **Production routing correction:** [Connected admission evidence](docs/verification/2026-09-27-routing-spend-boundary/REPORT.md) supersedes the earlier unit-only routing claim. Server-reviewed Work intent now selects DIRECT/HUMAN before Factory preparation; only qualified PRODUCE proceeds to MYFACTORY. Missing classification fails closed. Route selection grants no execution authority.
 
