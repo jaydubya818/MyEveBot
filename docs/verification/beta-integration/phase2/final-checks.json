@@ -40,7 +40,9 @@
   "logs": {
     "application": {
       "file": "logs/application.log",
-      "sha256": "c535fa0ed925b7e19ea3c80769407c5f09f2861a44b52cb8226926ee50a5427e"
+      "sha256": "cfdd8c2132bf5fde34cf2066c7cd68c3dc469940185adcf0ddd6cfb36c2a46cb",
+      "originalCaptureSha256": "c535fa0ed925b7e19ea3c80769407c5f09f2861a44b52cb8226926ee50a5427e",
+      "normalization": "Line endings and trailing whitespace only"
     },
     "root": {
       "file": "logs/root.log",
@@ -52,7 +54,9 @@
     },
     "production-build": {
       "file": "logs/production-build.log",
-      "sha256": "854c50e6eaf97a2a63d00fd3a9bd3f8d9f3c0c66eac2e4585835338f8a32c327"
+      "sha256": "175874169e0a1407fc6bd71ff47ba6604b9ed04f5fa798be2f2fd3b4b47324a2",
+      "originalCaptureSha256": "854c50e6eaf97a2a63d00fd3a9bd3f8d9f3c0c66eac2e4585835338f8a32c327",
+      "normalization": "Line endings and trailing whitespace only"
     },
     "canonical-journey": {
       "file": "logs/canonical-journey.log",
@@ -96,7 +100,9 @@
     },
     "latest-shared": {
       "file": "logs/latest-shared.log",
-      "sha256": "fa5744ef133fc026283f35a02bff7d9ae8e3466a76b0d4d18245e28de7cc1740"
+      "sha256": "6336b06e8ff3e9416fed7b06df9955c55f74b553c19cb6ad47504a42ae578907",
+      "originalCaptureSha256": "fa5744ef133fc026283f35a02bff7d9ae8e3466a76b0d4d18245e28de7cc1740",
+      "normalization": "Line endings and trailing whitespace only"
     }
   }
 }

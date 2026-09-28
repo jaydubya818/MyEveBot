@@ -224,4 +224,3 @@ owner-gate: denied local_computer_task for guest group-participant
       Tests  1482 passed | 56 skipped (1538)
    Start at  17:11:03
    Duration  6.21s (transform 4.46s, setup 0ms, collect 30.37s, tests 15.47s, environment 15ms, prepare 7.83s)
-
