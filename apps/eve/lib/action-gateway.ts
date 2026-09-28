@@ -226,8 +226,8 @@ export class ActionGateway {
       LEFT JOIN execution_routine_versions v ON v.owner_id=o.owner_id AND v.routine_id=o.routine_id AND v.version=o.routine_version
       WHERE r.owner_id=$1 AND r.id=$2 AND r.agent_id=$3`, [action.ownerId,action.runId,action.executor.agentId]);
     if (!context[0]) throw new ActionBlocked("denied", "unresolved");
-    if(context[0].run_live!==true && !action.delivery)throw new ActionBlocked("denied",context[0].run_expired===true?"RUN_EXPIRED":"RUN_NOT_EXECUTABLE");
     if(context[0].owner_channel_run&&!ownerChannelConfiguration().enabled)throw new ActionBlocked("denied","owner_execution_disabled");
+    if(context[0].run_live!==true && !action.delivery)throw new ActionBlocked("denied",context[0].run_expired===true?"RUN_EXPIRED":"RUN_NOT_EXECUTABLE");
     if((context[0].role_id??null)!==(action.executor.roleId??null))throw new ActionBlocked("denied","unresolved");
     const occurrence = context[0].occurrence_id;
     if(occurrence&&!this.executionEnabled())throw new ActionBlocked("denied","routine_execution_disabled");
@@ -350,7 +350,8 @@ export class ActionGateway {
     const started = await this.database.query(`WITH channel_reservation AS (
       UPDATE owner_channel_requests SET actions_started=actions_started+1
       WHERE owner_id=$1 AND run_id=$16 AND revoked_at IS NULL AND expires_at>now()
-        AND NOT usage_unknown AND tokens_used<12000 AND actions_started<12 RETURNING run_id
+        AND NOT usage_unknown AND tokens_used<12000 AND actions_started<12
+        AND EXISTS(SELECT 1 FROM task_runs active WHERE active.owner_id=$1 AND active.id=$16 AND active.deadline_at>clock_timestamp()) RETURNING run_id
     ), started AS (
       UPDATE action_requests a SET status='executing',attempt_count=attempt_count+1,updated_at=now()
       WHERE a.owner_id=$1 AND a.id=$2 AND parameter_hash=$3 AND status IN ('planned','authorized','awaiting_approval')
@@ -365,9 +366,10 @@ export class ActionGateway {
             WHERE d.id=$10 AND d.owner_id=a.owner_id AND d.run_id=a.run_id AND d.claim_version=$11 AND d.status='delivering'
               AND d.claimed_until>now() AND d.channel=$12 AND d.result_reference=$13 AND o.status='completed'
               AND routine.status='active' AND routine.version=o.routine_version))))
-        AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
         AND NOT EXISTS(SELECT 1 FROM owner_channel_requests w WHERE w.owner_id=a.owner_id AND w.run_id=a.run_id
-          AND (w.revoked_at IS NOT NULL OR w.expires_at<=now() OR w.usage_unknown OR w.tokens_used>=12000))
+          AND (w.revoked_at IS NOT NULL OR w.expires_at<=now() OR w.usage_unknown OR w.tokens_used>=12000
+                OR NOT EXISTS(SELECT 1 FROM task_runs active WHERE active.owner_id=w.owner_id AND active.id=w.run_id AND active.deadline_at>clock_timestamp())))
+        AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
         AND EXISTS(SELECT 1 FROM agents g WHERE g.owner_id=a.owner_id AND g.id=$8 AND g.status='active' AND g.updated_at=$9::timestamptz)
         AND ($4<>'REQUIRE_APPROVAL' OR EXISTS(SELECT 1 FROM task_approval_decisions p
           WHERE p.id=a.approval_id AND p.owner_id=a.owner_id AND p.task_id=a.run_id AND p.binding_hash=a.parameter_hash
@@ -413,9 +415,10 @@ export class ActionGateway {
           JOIN task_runs r ON r.owner_id=a.owner_id AND r.id=a.run_id
           JOIN agents g ON g.owner_id=r.owner_id AND g.id=r.agent_id
           WHERE a.owner_id=$1 AND a.id=$2 AND a.status='executing' AND a.parameter_hash=$3
-            AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
             AND NOT EXISTS(SELECT 1 FROM owner_channel_requests w WHERE w.owner_id=a.owner_id AND w.run_id=a.run_id
-              AND (w.revoked_at IS NOT NULL OR w.expires_at<=now() OR w.usage_unknown OR w.tokens_used>=12000))
+              AND (w.revoked_at IS NOT NULL OR w.expires_at<=now() OR w.usage_unknown OR w.tokens_used>=12000
+                OR NOT EXISTS(SELECT 1 FROM task_runs active WHERE active.owner_id=w.owner_id AND active.id=w.run_id AND active.deadline_at>clock_timestamp())))
+            AND (a.trigger->>'kind'<>'owner_chat' OR EXISTS(SELECT 1 FROM task_run_sessions s WHERE s.task_id=a.run_id AND s.session_id=a.trigger->>'id' AND s.is_current))
             AND g.status='active' AND g.updated_at=$4::timestamptz
             AND (($5::text IS NULL AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())
               AND r.model_steps<r.max_model_steps AND r.estimated_cost_usd<r.max_estimated_cost_usd)

@@ -1,18 +1,32 @@
 import {beforeEach,describe,expect,it,vi} from "vitest";
-const f=vi.hoisted(()=>({query:vi.fn(),attach:vi.fn(),cancel:vi.fn()}));
+const f=vi.hoisted(()=>({query:vi.fn(),fetch:vi.fn()}));
 vi.mock("../../../agent/lib/receipts-db.ts",()=>({db:()=>({query:f.query})}));
 vi.mock("./config.ts",()=>({ownerChannelConfiguration:()=>({enabled:true})}));
-vi.mock("eve/client",()=>({Client:class{sessions={attach:f.attach};}}));
+vi.mock("./runtime.ts",()=>({OWNER_RUNTIME_HEADER:"x-myeve-owner-run",signOwnerRuntime:()=>"signed-cancel-claim"}));
 import {cancelOwnerRuntime} from "./worker.ts";
-beforeEach(()=>{vi.clearAllMocks();f.query.mockResolvedValue([{session_id:"session",dispatch_id:"dispatch"}]);f.attach.mockReturnValue({cancel:f.cancel});});
-describe("current Eve cancellation responses",()=>{
- it.each([{status:"accepted",sessionId:"session"},{status:"no_active_turn"}])("records a terminal acknowledgement for %j",async result=>{
-  f.cancel.mockResolvedValue(result);await cancelOwnerRuntime("owner","run","agent");
-  expect(f.attach).toHaveBeenCalledWith("session");
-  expect(f.query.mock.calls.some(([sql])=>sql.includes("SET cancel_acknowledged_at"))).toBe(true);
+const acknowledged=()=>f.query.mock.calls.some(([sql])=>String(sql).includes("SET cancel_acknowledged_at"));
+beforeEach(()=>{vi.clearAllMocks();vi.stubGlobal("fetch",f.fetch);f.query.mockResolvedValue([{session_id:"session",dispatch_id:"dispatch"}]);});
+describe("Eve 0.66 cancellation endpoint",()=>{
+ it("posts a signed cancel claim to the exact recorded session without redirects",async()=>{
+  f.fetch.mockResolvedValue(new Response(JSON.stringify({status:"accepted",sessionId:"session"}),{status:200}));
+  await cancelOwnerRuntime("owner","run","agent");
+  const [url,init]=f.fetch.mock.calls[0];
+  expect(String(url)).toMatch(/\/eve\/v1\/session\/session\/cancel$/);
+  expect(init).toMatchObject({method:"POST",redirect:"error",headers:{"x-myeve-owner-run":"signed-cancel-claim"}});
+  expect(acknowledged()).toBe(true);
  });
- it("does not acknowledge a response for another session",async()=>{
-  f.cancel.mockResolvedValue({status:"accepted",sessionId:"other"});await cancelOwnerRuntime("owner","run","agent");
-  expect(f.query.mock.calls.some(([sql])=>sql.includes("SET cancel_acknowledged_at"))).toBe(false);
+ it.each([{status:"no_active_turn"},{status:"no_active_turn",sessionId:"session"}])("acknowledges %j without fabricating a session",async body=>{
+  f.fetch.mockResolvedValue(new Response(JSON.stringify(body),{status:200}));
+  await cancelOwnerRuntime("owner","run","agent");expect(acknowledged()).toBe(true);
+ });
+ it.each([{status:"accepted",sessionId:"other"},{status:"accepted"},{status:"no_active_turn",sessionId:"other"},{status:"unknown",sessionId:"session"}])("does not acknowledge %j",async body=>{
+  f.fetch.mockResolvedValue(new Response(JSON.stringify(body),{status:200}));
+  await cancelOwnerRuntime("owner","run","agent");expect(acknowledged()).toBe(false);
+ });
+ it("does not acknowledge a failed HTTP response but still records observation",async()=>{
+  f.fetch.mockResolvedValue(new Response("{}",{status:503}));
+  await cancelOwnerRuntime("owner","run","agent");
+  expect(acknowledged()).toBe(false);
+  expect(f.query.mock.calls.some(([sql])=>String(sql).includes("SET last_observed_at"))).toBe(true);
  });
 });

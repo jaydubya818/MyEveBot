@@ -1,3 +1,4 @@
+import { resumeOwnerApprovalBudget } from "./approval-budget.ts";
 import { completeDelegatedTask,transitionTask } from "../../task-runs.ts";
 import { db } from "../../../agent/lib/receipts-db.ts";
 import { ActionGateway,type ActionAdapter } from "../../action-gateway.ts";
@@ -45,9 +46,12 @@ export class OwnerRunControl {
     if(run?.status!=="cancelled")await transitionTask(mapping.ownerId,runId,"cancelled","owner","Exact Action rejected by owner.");
     return {state:"DENIED" as const,runId,actionId:pending.actionId};
    }
-   // An exact completed approval retry is observation only. Never re-enter
-   // execution for a terminal Run or extend its canonical deadline.
-   if(pending.status==="completed")return {state:"COMPLETED" as const,runId,actionId:pending.actionId};
+   if(pending.status==="completed"){
+    // A matching completed callback observes the durable result; it never re-enters execution.
+    await completeDelegatedTask({ownerId:mapping.ownerId,taskId:runId,actionId:pending.actionId,summary:"The approved action has a recorded completion.",evidenceSummary:`Canonical Action ${pending.actionId} contains the provider receipt or explicitly labelled recovery evidence.`});
+    return {state:"COMPLETED" as const,runId,actionId:pending.actionId};
+   }
+   await resumeOwnerApprovalBudget(mapping.ownerId,runId,pending.actionId,this.database);
    const result=await continuation.resumeOwner({ownerId:mapping.ownerId,runId,agentId:mapping.agentId},new ActionGateway(this.database),resolveAdapter(pending.action.capabilityId));
    await completeDelegatedTask({ownerId:mapping.ownerId,taskId:runId,actionId:result.actionId,summary:"The approved action has a recorded completion.",evidenceSummary:`Canonical Action ${result.actionId} contains the provider receipt or explicitly labelled recovery evidence.`});
    return {state:"COMPLETED" as const,runId,...result};

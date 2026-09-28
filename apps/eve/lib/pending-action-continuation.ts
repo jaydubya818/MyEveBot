@@ -1,3 +1,4 @@
+import { pauseOwnerApprovalBudget, resumeOwnerApprovalBudget } from "./relay/owner/approval-budget.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import type { ActionAdapter, ActionGateway, ActionRequest } from "./action-gateway.ts";
 import type { ExecutionDatabase } from "./execution-types.ts";
@@ -27,6 +28,7 @@ export class PendingActionContinuation {
       RETURNING action_id`, [action.ownerId, action.runId, actionId, JSON.stringify(action),
       action.actionKey, action.capabilityId, action.executor.agentId, JSON.stringify(action.executor), JSON.stringify(action.trigger)]);
     if (!saved.length) throw new Error("Pending action checkpoint changed or unavailable.");
+    if (ownerRequest) await pauseOwnerApprovalBudget(action.ownerId, action.runId, actionId, this.database);
   }
 
   async get(ownerId: string, runId: string) {
@@ -58,6 +60,7 @@ export class PendingActionContinuation {
     if (!["awaiting_approval", "completed"].includes(pending.status)) {
       throw new Error("Pending action requires canonical recovery or a new owner request.");
     }
+    if (pending.status === "awaiting_approval") await resumeOwnerApprovalBudget(identity.ownerId, identity.runId, pending.actionId, this.database);
     return gateway.execute(pending.action, adapter, signal);
   }
 }

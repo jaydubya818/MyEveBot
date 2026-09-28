@@ -60,7 +60,7 @@ export async function reconcileOwnerRun(accepted:AcceptedOwnerCommand){
  if(row.session_id){
   const claim={ownerId:accepted.mapping.ownerId,agentId:accepted.mapping.agentId,runId:accepted.runId,dispatchId:String(row.dispatch_id),expiresAt:Date.now()+60000,purpose:"observe" as const};
   // Eve treats a string as a continuation token, not a durable session ID.
-  const stream=runtimeClient(claim).sessions.attach(String(row.session_id),{streamIndex:0}).stream({follow:false,startIndex:0,signal:AbortSignal.timeout(5000),streamReconnectPolicy:{reconnect:false}});
+  const stream=runtimeClient(claim).sessions.attach(String(row.session_id)).stream({follow:false,startIndex:0,signal:AbortSignal.timeout(5000),streamReconnectPolicy:{reconnect:false}});
   try{await settleOwnerStream(accepted,stream);}catch{
    if(!row.deadline_at||new Date(String(row.deadline_at)).getTime()>=Date.now())throw new Error("Canonical stream observation unavailable.");
   }
@@ -117,8 +117,14 @@ export async function cancelOwnerRuntime(ownerId:string,runId:string,agentId:str
  if(!row?.session_id)return;
  const claim={ownerId,runId,agentId,dispatchId:String(row.dispatch_id),expiresAt:Date.now()+60000,purpose:'cancel' as const};
  try{
-  const result=await runtimeClient(claim).sessions.attach(String(row.session_id)).cancel({signal:AbortSignal.timeout(5000)});
-  if(result.status!=="no_active_turn" && (result.status!=="accepted" || result.sessionId!==row.session_id))return;
+  const response=await fetch(new URL(`/eve/v1/session/${encodeURIComponent(String(row.session_id))}/cancel`,runtimeHost()),{method:'POST',headers:{'content-type':'application/json',[OWNER_RUNTIME_HEADER]:signOwnerRuntime(claim)},body:'{}',redirect:'error',signal:AbortSignal.timeout(5000)});
+  if(!response.ok)return;
+  const result=await response.json() as {sessionId?:string;status?:string};
+  // accepted must name this session. no_active_turn may omit it (never fabricated),
+  // but a response naming another session is not an acknowledgement.
+  const acknowledged=result.status==="accepted"?result.sessionId===row.session_id
+   :result.status==="no_active_turn"&&(result.sessionId===undefined||result.sessionId===row.session_id);
+  if(!acknowledged)return;
   await db().query(`UPDATE owner_channel_requests SET cancel_acknowledged_at=now() WHERE owner_id=$1 AND run_id=$2 AND session_id=$3`,[ownerId,runId,row.session_id]);
  }finally{await db().query(`UPDATE owner_channel_requests SET last_observed_at=now() WHERE owner_id=$1 AND run_id=$2`,[ownerId,runId]);}
 }

@@ -1,5 +1,5 @@
-import { randomUUID } from "node:crypto";
 import { ownerRuntimeFromAuth,resolveOwnerRuntime } from "../../lib/relay/owner/runtime.ts";
+import { createHash, randomUUID } from "node:crypto";
 import type { ToolContext } from "eve/tools";
 import { ActionBlocked, type ActionRequest } from "../../lib/action-gateway.ts";
 import { executionIdentityFromAuth, resolveExecution } from "../../lib/execution-auth.ts";

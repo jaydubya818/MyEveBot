@@ -3,14 +3,16 @@ import {Pool} from 'pg';
 import {beforeAll,beforeEach,afterAll,describe,it,expect} from 'vitest';
 import {OwnerModelBudget} from './model-budget.ts';
 const suite=process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'?describe:describe.skip;
+const fixtureUrl=process.env.MYEVE_OWNER_TEST_DATABASE_URL??`postgresql://${process.env.USER}@127.0.0.1:55447/postgres`;
+if(process.env.MYEVE_OWNER_CHANNEL_TESTS==='1'&&new URL(fixtureUrl).hostname!=='127.0.0.1')throw new Error('Loopback test database required.');
 suite('durable owner model budget',()=>{
  let admin,pool,budget;const schema=`owner_budget_${process.pid}_${Date.now()}`;
  const query=async(text,params=[])=>(await pool.query(text,params)).rows;
  const database={query};
  const input=(stepKey='turn:0')=>({ownerId:'owner',runId:'run',stepKey,requestHash:'sha256:fixture',modelId:'fixture/model',microUsd:60000,tokens:6000});
  beforeAll(async()=>{
-  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER});await admin.query(`CREATE SCHEMA ${schema}`);
-  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER,options:`-c search_path=${schema}`});
+  admin=new Pool({connectionString:fixtureUrl});await admin.query(`CREATE SCHEMA ${schema}`);
+  pool=new Pool({connectionString:fixtureUrl,options:`-c search_path=${schema}`});
   const dir=new URL('../../../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
   await query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent','owner','budget','Budget fixture','Qualification','Synthetic',true,'active',8,60,0.1)");
  });
@@ -93,6 +95,22 @@ suite('durable owner model budget',()=>{
   // Failed aggregate admission also rolls back the existing per-Run counters.
   expect((await query('SELECT sum(model_calls_started)::int n FROM owner_channel_requests'))[0].n).toBe(50);
   await expect(new OwnerModelBudget(database).reserve({...input(),microUsd:1,tokens:1})).rejects.toThrow('aggregate');
+ });
+ it('a phase ceiling inside the same ledger denies admission before invocation without altering liability',async()=>{
+  // Mirrors scripts/qualification/phase-ceiling.mjs: prior liability 78,533 plus a 60,000 phase allowance.
+  await query('UPDATE owner_qualification_budget SET reserved_microusd=62221,spent_microusd=16312');
+  await query('ALTER TABLE owner_qualification_budget ADD CONSTRAINT owner_qualification_phase_ceiling CHECK(reserved_microusd+spent_microusd<=138533)');
+  try{
+   await budget.reserve(input());
+   expect(await totals()).toEqual({reserved_microusd:'122221',spent_microusd:'16312'});
+   await expect(new OwnerModelBudget(database).reserve({...input('turn:1'),microUsd:1,tokens:1})).rejects.toThrow();
+   expect(await totals()).toEqual({reserved_microusd:'122221',spent_microusd:'16312'});
+   expect((await query('SELECT count(*)::int n FROM owner_model_calls'))[0].n).toBe(1);
+   expect((await query('SELECT model_calls_started FROM owner_channel_requests'))[0].model_calls_started).toBe(1);
+   // Settlement releases only proven unused reservation and stays inside the ceiling.
+   await budget.settle(input(),{microUsd:10000,tokens:1000},{content:'safe'});
+   expect(await totals()).toEqual({reserved_microusd:'62221',spent_microusd:'26312'});
+  }finally{await query('ALTER TABLE owner_qualification_budget DROP CONSTRAINT owner_qualification_phase_ceiling');}
  });
  it('retains aggregate uncertainty after cancellation, restart and receipt cleanup',async()=>{
   await budget.reserve(input());await budget.unknown(input());

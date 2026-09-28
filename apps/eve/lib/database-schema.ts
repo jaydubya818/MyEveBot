@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0040_relay_message_delegations.sql";
+export const CURRENT_DATABASE_MIGRATION = "0041_owner_qualification_email_pins.sql";
