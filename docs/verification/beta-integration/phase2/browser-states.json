@@ -1,0 +1,6 @@
+{
+  "serviceFailure": "explicit alert",
+  "sessionLoss": "private state cleared; late successful read ignored",
+  "recovery": "real persisted Results restored after refresh",
+  "scope": "fault-injection UI checks; no provider responses mocked in golden journey"
+}

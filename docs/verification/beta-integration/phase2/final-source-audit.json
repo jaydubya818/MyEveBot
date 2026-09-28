@@ -1,0 +1,44 @@
+[
+  {
+    "path": "/Users/jaywest/.codex/worktrees/beta-product-experience/Myeve",
+    "sha": "105aeb75aeb8b01a3bcba09395f32dc1ac0c7c0d",
+    "status": "",
+    "access": "READ_ONLY"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/digital-worker-integration/Myeve",
+    "sha": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+    "status": "",
+    "access": "READ_ONLY"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/goals-proactive-work/Myeve",
+    "sha": "838af27722a500e4e02ae980d71e7541e5575f54",
+    "status": "",
+    "access": "READ_ONLY"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/portable-sofie-capsules/Myeve",
+    "sha": "3331721f6335829a52b0b0d7fd8f7deca402d79d",
+    "status": "",
+    "access": "READ_ONLY"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/total-recall-learning/Myeve",
+    "sha": "b5b3179e8f7ec61d9a30eb7c24e8bce760bfdcdf",
+    "status": "",
+    "access": "READ_ONLY"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/universal-inbox/Myeve",
+    "sha": "cf199431588d7bc0e95dd24a7d06b63d3b3cd2bb",
+    "status": "",
+    "access": "READ_ONLY"
+  },
+  {
+    "path": "/Users/jaywest/.codex/worktrees/q37-integration/Myeve",
+    "sha": "96ae446e1f0f69e57fa2b9a2b6c5de3b3b1b083d",
+    "status": "",
+    "access": "READ_ONLY"
+  }
+]

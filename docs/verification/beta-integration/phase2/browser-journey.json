@@ -1,0 +1,26 @@
+{
+  "signedSessionAfterServerRestart": "PASS",
+  "canonicalResult": "PARTIAL_RETAINED",
+  "reviewedLearning": "PROMOTED_RETAINED",
+  "goalResponse": "PAUSED_WORK_RETAINED",
+  "falseGoalCompletion": 0,
+  "anonymousStatus": 401,
+  "crossOriginStatus": 403,
+  "unmountedWorkPostStatus": 404,
+  "owner": "canonical-4aa94d2a-b904-49c4-a243-9c1b477a7958",
+  "uiCoverage": [
+    "signed login",
+    "Goal/Task/paused Work creation",
+    "canonical Result/Proof read",
+    "Goal Needs You response",
+    "feedback candidate",
+    "explicit evaluation",
+    "explicit promotion",
+    "Today and Brief projections"
+  ],
+  "limitations": [
+    "No canonical Work admission endpoint mounted",
+    "No live model or verification",
+    "Canonical Work response consumer unmounted"
+  ]
+}

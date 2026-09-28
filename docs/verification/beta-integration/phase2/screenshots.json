@@ -1,0 +1,74 @@
+[
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-0.png",
+    "sha256": "9acf26377ce11106c36f6894a0389100f030e5521ef2b3a0605c09c0afd2fbe1"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-1.png",
+    "sha256": "f73cdc307a68923ce69ebab0ce4423409d296f39493c0faaad2de92d4f5c9d3a"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-2.png",
+    "sha256": "b39e2036dcf46211b6230201140e7e7c371edac9b6abc84c9ecddfbc4017f125"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-3.png",
+    "sha256": "c570f48a5673b61b8cb7d4712f91ced065536b53f7dbb8a60108a059c4aa36af"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-4.png",
+    "sha256": "980cc57f3e93ceb9d884514a35116b77040ab0ec15f2df4bfdc4ec86e0836a88"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-5.png",
+    "sha256": "49a75f35c5c96a020903f3681df15862a92d53cc48a76ebcba4e9e994b00cd3f"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-6.png",
+    "sha256": "e620fe9b237f6162c0c63b60f42c02afe8863220c1504179d5abfc45691c6c70"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-7.png",
+    "sha256": "71e3bd7294bb7324a196501e205e2bb90d2e063dc2f2ca2702a3cc3a3801a1b2"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/1440-8.png",
+    "sha256": "38ceff371c8503249535e7416afe61498aab0cd701f847663e5c918b4623a3de"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-0.png",
+    "sha256": "1d29431b64848d49a18180bc7d5b59e0c8c6014c9802f90ec80445c628966c82"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-1.png",
+    "sha256": "3afa82ec11d4eda067ca9c01b09fb530382cdec2255c5900a0730441706ae85d"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-2.png",
+    "sha256": "ae9865217ca2ac6860b77e7677ce11e67feccdf4706da88c8e064250189d621a"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-3.png",
+    "sha256": "ac849789e5a155a53fa8a5c9b6d0865513530e152af9866bfbf64c4026031de4"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-4.png",
+    "sha256": "cf5ad54a07e497a87aed192e6011ecdcc9f252a3ae00a71aeb0cb3a3d98a60e1"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-5.png",
+    "sha256": "7fc5ca127fec2bb43060bf1f05c90314bcc71d495e5bd21d778deedc58e557c4"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-6.png",
+    "sha256": "552a2c29dc7080cfb6922b0380572a413272a7ece5c28d2a4490b52981047f7e"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-7.png",
+    "sha256": "4691c76c8089e5c4ca5a434acf487dffe6fbf4e1714f1865458eb8559d6f32ba"
+  },
+  {
+    "path": "output/playwright/beta-integration/phase2/390-8.png",
+    "sha256": "b75d2dea16b7c70c27f285b6832f74103acb845c668ea1a763f045a17039ca4c"
+  }
+]

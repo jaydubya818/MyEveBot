@@ -1,0 +1,7 @@
+{
+  "owner": "canonical-4aa94d2a-b904-49c4-a243-9c1b477a7958",
+  "workId": "9695549d-6852-417d-9965-46b337a6047e",
+  "resultId": "1710cf30-a8c3-4e5c-a577-95fc4f5f1bc7",
+  "qualification": "CONTROLLED_LOCAL_FIXTURE",
+  "note": "Browser uses this retained canonical Result; later backend qualification may create a separate owner."
+}

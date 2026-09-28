@@ -1,0 +1,44 @@
+{
+  "canonicalConsumerBaseline": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+  "canonicalProducer": "d9564beef41590c3700069ec340d926db23b7ba7",
+  "candidateProducerSupported": "8f5e3774129b5f9f4b1c9655ffbbb531cd20fa0f",
+  "candidateProducerActivated": false,
+  "spendCrosswalk": "PASS",
+  "adapter": "PASS_LOCAL",
+  "spendAdmission": "PASS_LOCAL",
+  "pricingFailClosed": "PASS",
+  "completionFailClosed": "PASS",
+  "unknownAccounting": "PASS",
+  "currentTruth": "PASS",
+  "directHumanUnaffected": "PASS",
+  "canonicalConnectedChecks": 14,
+  "candidateConnectedChecks": 16,
+  "candidateSyntheticProviderCalls": 4,
+  "gateB": 23,
+  "gateC": 47,
+  "application": {
+    "passed": 1569,
+    "skipped": 40
+  },
+  "rootSecurityPassed": 151,
+  "candidateProducer": {
+    "passed": 116,
+    "skipped": 1
+  },
+  "typecheck": "PASS",
+  "governanceUnknown": 0,
+  "webpack": "PASS",
+  "safetyCounters": {
+    "paidFactoryAdmittedWithoutQualification": 0,
+    "unknownExposureReleased": 0,
+    "budgetResets": 0,
+    "pricingBypasses": 0,
+    "completionBypasses": 0,
+    "directHumanIncorrectlyBlocked": 0,
+    "falseReady": 0
+  },
+  "safetyScope": "Bounded local negative assertions and connected fixtures, not live telemetry",
+  "q37LocalContinuation": "PASS_LOCAL_CONTRACT; operational Q37 remains PARTIAL",
+  "waitingForProducerQualification": true,
+  "liveFactory": "NOT_RUN"
+}
