@@ -17,6 +17,11 @@ import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
 
+type CanonicalWork = Awaited<
+  ReturnType<
+    import("@/lib/beta-integration/canonical-work").CanonicalBetaWork["projection"]
+  >
+>;
 type Today = Awaited<ReturnType<GoalWorkQueries["today"]>>;
 type Brief = Awaited<ReturnType<GoalWorkQueries["brief"]>>;
 type Result = {
@@ -73,6 +78,7 @@ export function IntegratedExperience({
     [brief, setBrief] = useState<Brief | null>(null),
     [facts, setFacts] = useState<EngineeringFact[]>([]),
     [families, setFamilies] = useState<LearningFamily[]>([]);
+  const [canonical, setCanonical] = useState<CanonicalWork | null>(null);
   const [activity, setActivity] = useState<
     Array<{
       id: string;
@@ -126,6 +132,7 @@ export function IntegratedExperience({
             authenticationLost = true;
             setToday(null);
             setWorks([]);
+            setCanonical(null);
             setResults([]);
             setInbox([]);
             setFacts([]);
@@ -163,10 +170,13 @@ export function IntegratedExperience({
               }),
           )
         : read<Today>("/api/beta/goals?limit=20", "Goals", setToday),
-      read<{ works: Work[] }>(
+      read<{ works: Work[]; canonical?: CanonicalWork }>(
         `/api/beta/work${view === "work" && selectedKind === "work" && selectedId ? `?workId=${encodeURIComponent(selectedId)}` : ""}`,
         "Work",
-        (d) => setWorks(d.works),
+        (d) => {
+          setWorks(d.works);
+          setCanonical(d.canonical ?? null);
+        },
       ),
       read<{ results: Result[] }>("/api/beta/results", "Results", (d) =>
         setResults(d.results),
@@ -693,7 +703,83 @@ export function IntegratedExperience({
                         Revision {selectedWork.version} ·{" "}
                         {selectedWork.repository}
                       </p>
-                      <p>Creating Work does not authorize execution.</p>
+                      <p>
+                        Generation {selectedWork.generation}. Creating Work does
+                        not authorize execution.
+                      </p>
+                      {canonical?.admission && (
+                        <p role="status">
+                          {canonical.admission.current
+                            ? "Admission"
+                            : "Historical admission"}
+                          : {String(canonical.admission.status)} ·{" "}
+                          {String(canonical.admission.reason)}
+                        </p>
+                      )}
+                      <div className="owner-actions">
+                        {selectedWork.lifecycle === "active" &&
+                          (selectedWork.control === "paused"
+                            ? ["resume", "admit"]
+                            : ["pause", "admit"]
+                          ).map((operation) => (
+                            <button
+                              key={operation}
+                              disabled={busy}
+                              onClick={() =>
+                                void mutate(
+                                  () =>
+                                    post("work", {
+                                      operation,
+                                      workId: selectedWork.id,
+                                      expectedVersion: selectedWork.version,
+                                      expectedGeneration:
+                                        selectedWork.generation,
+                                    }),
+                                  operation === "admit"
+                                    ? "Admission evaluated. Review the retained outcome."
+                                    : "Work control saved. Review current admission before proceeding.",
+                                )
+                              }
+                            >
+                              {operation === "admit"
+                                ? "Check admission"
+                                : operation === "resume"
+                                  ? "Resume Work"
+                                  : "Pause Work"}
+                            </button>
+                          ))}
+                        {selectedWork.lifecycle === "active" &&
+                          selectedWork.control === "paused" &&
+                          canonical?.continuations
+                            .filter(
+                              (c) =>
+                                c.status === "ELIGIBLE" &&
+                                c.work_version === selectedWork.version &&
+                                c.work_generation === selectedWork.generation,
+                            )
+                            .map((c) => (
+                              <button
+                                key={String(c.response_id)}
+                                disabled={busy}
+                                onClick={() =>
+                                  void mutate(
+                                    () =>
+                                      post("work", {
+                                        operation: "continue",
+                                        workId: selectedWork.id,
+                                        expectedVersion: selectedWork.version,
+                                        expectedGeneration:
+                                          selectedWork.generation,
+                                        responseId: c.response_id,
+                                      }),
+                                    "Decision applied to Work control. Current admission is evaluated separately.",
+                                  )
+                                }
+                              >
+                                Continue from decision
+                              </button>
+                            ))}
+                      </div>
                       <ul>
                         {selectedWork.criteria.map((c) => (
                           <li key={c.id}>{c.statement}</li>
@@ -750,6 +836,11 @@ export function IntegratedExperience({
                 needs.map((i) => (
                   <Card key={i.id} title={i.action?.prompt ?? i.title}>
                     <p>{i.summary}</p>
+                    {i.workId && (
+                      <Link href={`/work?kind=work&id=${i.workId}`}>
+                        Open Work
+                      </Link>
+                    )}
                     <div className="owner-actions">
                       {i.action?.options.map((answer) => (
                         <button

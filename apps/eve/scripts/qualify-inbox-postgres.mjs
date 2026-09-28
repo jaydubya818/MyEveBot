@@ -14,7 +14,7 @@ import { todayContribution, dailyBriefContribution } from '../lib/universal-inbo
 
 const execFile = promisify(execFileCallback);
 const bin = '/opt/homebrew/opt/postgresql@17/bin';
-const output = resolve('../../docs/verification/beta-integration/phase2/regressions/inbox');
+const output = resolve(`../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "phase2"}/regressions/inbox`);
 const dir = await mkdtemp(join(tmpdir(), 'inbox-pg-'));
 const socket = join(dir, 'socket'); await mkdir(socket);
 let started = false; let admin; let runtime;

@@ -1,3 +1,5 @@
+import { GOLDEN_QUALIFICATION_REPOSITORY } from "../engineering/base-preflight.ts";
+import { CanonicalBetaWork } from "./canonical-work.ts";
 import { createRequire } from "node:module";
 import { z } from "zod";
 import { webPrincipal, requireSameOrigin } from "../web-auth.ts";
@@ -45,7 +47,7 @@ export interface BetaPolicy {
   maxCostUsd: number;
   maxDurationSeconds: number;
 }
-/** Only composition and persistence. This module never admits or dispatches a provider. */
+/** Only composition and persistence. Product commands use canonical admission; this module never dispatches a provider. */
 export class BetaIntegration {
   constructor(
     readonly pool: GoalPool,
@@ -340,6 +342,7 @@ export class BetaIntegration {
       accept: async (r) => {
         if (r.status === "STALE")
           return { status: "stale", receipt: `goal-response-stale:${r.id}` };
+        if (r.workId && !r.goal) return new CanonicalBetaWork(this).accept(r);
         const receipt = await consumer.accept({ ...r, status: r.status });
         return {
           status: receipt.startsWith("goal-response-stale:")
@@ -409,7 +412,7 @@ export function betaIntegration() {
     instance = new BetaIntegration(
       new Pool({ connectionString: url.href, max: 12 }),
       {
-        repository: "qualification/design-partner",
+        repository: GOLDEN_QUALIFICATION_REPOSITORY,
         maxCostUsd: 1,
         maxDurationSeconds: 300,
       },
@@ -452,18 +455,21 @@ export async function betaRequest(
           return response;
         },
       })(request);
-    if (resource === "inbox")
-      return createInboxApi({
+    if (resource === "inbox") {
+      const response = await createInboxApi({
         repository: beta.repository(),
         authenticate: signedGoalAuthenticator(),
         sourceAuthority: {
           admit: async () => null,
           canRead: async (o, s) =>
-            s.system === "notification" &&
+            ["notification", "work"].includes(s.system) &&
             s.accountId === o &&
             s.grantId === null,
         },
       })(request);
+      if (request.method === "POST" && response.ok) await beta.deliver(owner);
+      return response;
+    }
     const url = new URL(request.url),
       id = url.searchParams.get("workId");
     if (request.method === "GET") {
@@ -473,18 +479,34 @@ export async function betaRequest(
             works: id
               ? [await beta.store(owner).get(z.string().uuid().parse(id))]
               : await beta.store(owner).list(),
+            ...(id
+              ? {
+                  canonical: await new CanonicalBetaWork(beta).projection(
+                    owner,
+                    id,
+                  ),
+                }
+              : {}),
           },
           { headers },
         );
       if (resource === "activity")
-        return Response.json({ changes: await beta.query(`
+        return Response.json(
+          {
+            changes: await beta.query(
+              `
           SELECT 'memory:'||k.id AS id,'Memory '||k.status AS kind,k.statement AS summary,k.updated_at AS at,w.work_id::text AS work_id
           FROM knowledge_records k JOIN engineering_work_knowledge w ON w.scope_id=k.owner_id AND w.knowledge_id=k.id
           WHERE k.owner_id=$1 AND w.scope_kind='personal'
           UNION ALL
           SELECT 'learning:'||l.id AS id,'Learning changed' AS kind,l.document->'scope'->>'repository' AS summary,l.updated_at AS at,l.work_id::text
           FROM recall_learning l WHERE l.owner_id=$1
-          ORDER BY at DESC,id LIMIT 50`,[owner]) },{headers});
+          ORDER BY at DESC,id LIMIT 50`,
+              [owner],
+            ),
+          },
+          { headers },
+        );
       if (resource === "results")
         return Response.json(
           {
@@ -511,6 +533,69 @@ export async function betaRequest(
           },
           { headers },
         );
+    }
+    if (request.method === "POST" && resource === "work") {
+      const binding = z.object({
+        workId: z.string().uuid(),
+        expectedVersion: z.number().int().positive(),
+        expectedGeneration: z.number().int().positive(),
+      });
+      const input = z
+        .union([
+          binding
+            .extend({ operation: z.enum(["pause", "resume", "admit"]) })
+            .strict(),
+          binding
+            .extend({
+              operation: z.literal("continue"),
+              responseId: z.string().min(1).max(255),
+            })
+            .strict(),
+          binding
+            .extend({
+              operation: z.literal("request_decision"),
+              prompt: z.string().trim().min(1).max(4000),
+              options: z.array(z.string().trim().min(1).max(200)).min(2).max(8),
+            })
+            .strict(),
+        ])
+        .parse(await boundedJson(new Response(request.body), 16000));
+      const canonical = new CanonicalBetaWork(beta);
+      if (input.operation === "request_decision")
+        return Response.json(
+          {
+            item: await canonical.requestDecision(
+              owner,
+              input.workId,
+              input.prompt,
+              input.options,
+              {
+                version: input.expectedVersion,
+                generation: input.expectedGeneration,
+              },
+            ),
+          },
+          { headers },
+        );
+      const result =
+        input.operation === "admit"
+          ? {
+              admission: await canonical.admit(
+                owner,
+                input.workId,
+                input.expectedVersion,
+                input.expectedGeneration,
+              ),
+            }
+          : await canonical.control(
+              owner,
+              input.workId,
+              input.expectedVersion,
+              input.expectedGeneration,
+              input.operation,
+              input.operation === "continue" ? input.responseId : undefined,
+            );
+      return Response.json(result, { headers });
     }
     if (request.method === "POST" && resource === "start") {
       const input = z

@@ -155,7 +155,7 @@ try {
   const report = { checks, falseCompletions: 0, crossOwnerDisclosures: 0 };
   await writeFile(
     new URL(
-      "../../../../docs/verification/beta-integration/phase2/adversarial.json",
+      `../../../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "phase2"}/adversarial.json`,
       import.meta.url,
     ),
     JSON.stringify(report, null, 2) + "\n",

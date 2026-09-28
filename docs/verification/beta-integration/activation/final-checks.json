@@ -1,0 +1,87 @@
+{
+  "status": "PASS",
+  "scope": "Local controlled qualification, no deployment or live provider calls",
+  "input": "d8da0c649038284ae121bafc9b799ed1b17c579b",
+  "digitalWorkerInput": "b15905f273b7a1c62f1a840de92ab6caa78f21dd",
+  "canonicalTools": [
+    "engineering_work",
+    "engineering_direct"
+  ],
+  "mountedWorkOperations": [
+    "pause",
+    "resume",
+    "request_decision",
+    "continue",
+    "admit"
+  ],
+  "application": {
+    "passed": 1489,
+    "environmentGatedSkipped": 56
+  },
+  "rootSecurity": {
+    "passed": 135,
+    "failed": 0
+  },
+  "typecheck": "PASS",
+  "governance": {
+    "status": "PASS",
+    "classifiedSources": 690,
+    "unknown": 0,
+    "capabilityDefinitions": 147,
+    "authoredTools": 125
+  },
+  "productionBuild": "PASS",
+  "migrationValidation": "PASS",
+  "postgresql": {
+    "goals": 19,
+    "inbox": 11,
+    "memoryLearning": "PASS",
+    "recallPreparation": "PASS"
+  },
+  "canonicalRecoveryCheckpoints": 7,
+  "legacyIntegrationRecoveryCheckpoints": 8,
+  "goalRecoveryCheckpoints": 7,
+  "desktop": "PASS",
+  "mobile390": "PASS",
+  "accessibility": {
+    "scans": 20,
+    "violations": 0,
+    "overflow": 0,
+    "unavailableSections": 0
+  },
+  "sessionLossLateReadPrivacy": "PASS",
+  "canonicalAdmission": "PASS",
+  "needsYouContinuation": "PASS",
+  "staleContinuation": "PASS",
+  "productionSofieContext": "PASS",
+  "liveSofie": "NOT_RUN",
+  "canonicalResult": "PARTIAL",
+  "proofOfWork": "PARTIAL",
+  "goldenJourney": "PARTIAL",
+  "counters": {
+    "duplicateWork": 0,
+    "falseTaskCompletions": 0,
+    "falseGoalCompletions": 0,
+    "authorityExpansions": 0,
+    "crossOwnerDisclosures": 0,
+    "staleResponseContinuations": 0,
+    "falseReady": 0,
+    "avoidableCoordinationDebt": 0,
+    "unauthorizedProductiveEffects": 0
+  },
+  "capsules": "PENDING",
+  "myFactory": "PENDING",
+  "overall": "READY_FOR_FINAL_COMPONENTS",
+  "limitations": [
+    "Controlled provider/pricing/source/verifier fixtures; no live model or protected live verification.",
+    "Canonical local Result cannot establish CI, publication, independent review or acceptance; Goal and Task remain open.",
+    "Final Capsule package and spend-qualified Q37/MyFactory candidate not supplied."
+  ],
+  "boundedDefectsFixed": [
+    "Supersession of a resolved Inbox item now invalidates eligibility by retained source sequence.",
+    "Replayed historical eligibility rechecks current Work/source state.",
+    "Discovered tools recheck runtime availability at execution.",
+    "Admission replay uses canonical already-admitted handling; historical generation is labeled."
+  ],
+  "approvalReview": "One proposed removal of a newly added discovery lineage check was rejected; retained both discovery and execution guards with a type-safe check. No action remains blocked."
+}

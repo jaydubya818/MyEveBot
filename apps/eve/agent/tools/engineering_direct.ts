@@ -40,7 +40,9 @@ export default defineDynamic({
       if (checkCapabilityAvailability("tool.engineering_direct")?.status !== "available") return null;
       const current=ctx.session.auth.current;
       const workId=current?.attributes.myeveEngineeringWorkId;
-      if (process.env.MYEVE_ENGINEERING_MODE!=="dogfood" ||
+      if (process.env.MYEVE_ENGINEERING_MODE!=="dogfood" || !current ||
+          current.principalType!=="user" || current.attributes.owner!=="true" ||
+          current.attributes.role==="guest" || current.attributes.myeveRoleId || ("parent" in ctx.session && ctx.session.parent) ||
           typeof workId!=="string" || !ENGINEERING_WORK_ID_PATTERN.test(workId)) return null;
       return defineTool({
         availableInSubagents:false,
@@ -49,7 +51,7 @@ export default defineDynamic({
         async execute({ request: input }, toolCtx) {
           const principal=toolCtx.session.auth.current;
           const selected=principal?.attributes.myeveEngineeringWorkId;
-          if (!principal || typeof selected!=="string" || selected!==workId ||
+          if (checkCapabilityAvailability("tool.engineering_direct")?.status !== "available" || !principal || principal.principalId!==current.principalId || principal.attributes.role==="guest" || principal.attributes.myeveRoleId || typeof selected!=="string" || selected!==workId ||
               principal.principalType!=="user" || principal.attributes.owner!=="true" ||
               toolCtx.session.parent)
             throw new WorkError("direct_binding","Direct Work requires this owner's selected primary-Agent chat.",403);

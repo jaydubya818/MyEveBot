@@ -550,9 +550,10 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
-  // Prepared canonical metadata only. Activation awaits the blocked wiring review.
-  if (["tool.engineering_work", "tool.engineering_direct"].includes(definition.id)) {
-    return { status: "disabled", configured: false, reason: "Canonical beta tool activation is pending wiring approval." };
+  // Discovery is gated; execution retains the canonical owner, Work and provider fences.
+  if (["tool.engineering_work", "tool.engineering_direct"].includes(definition.id) &&
+      (env.MYEVE_ENGINEERING_MODE !== "dogfood" || env.VERCEL_ENV === "production")) {
+    return { status: "disabled", configured: false, reason: "Canonical engineering tools require isolated dogfood mode." };
   }
   if (definition.id === "tool.evaluate_with_jev" && env.MYEVE_DECISION_INTELLIGENCE_ENABLED !== "true") {
     return {status: "disabled", configured: false, reason: "Jev evaluation is disabled in this deployment."};

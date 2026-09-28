@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "memory commit → SIGKILL → fresh-process replay",
+    "dependency commit → SIGKILL → fresh-process replay",
+    "work commit → SIGKILL → fresh-process replay",
+    "inbox commit → SIGKILL → fresh-process replay",
+    "decision commit → SIGKILL → fresh-process replay",
+    "delivery commit → SIGKILL → fresh-process replay",
+    "result commit → SIGKILL → fresh-process replay",
+    "promotion commit → SIGKILL → fresh-process replay"
+  ],
+  "duplicateWork": 0,
+  "falseCompletions": 0,
+  "interventions": {
+    "necessaryJudgment": 4,
+    "avoidableCoordination": 0
+  },
+  "source": "Integrated PostgreSQL services; LOCAL_FIXTURE Result producer"
+}

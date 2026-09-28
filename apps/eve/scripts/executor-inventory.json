@@ -2015,8 +2015,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical tool metadata imported with unconditional disabled availability pending wiring approval; all prior registry definitions and gates preserved.",
-      "sha256": "4ec1c4596babbebff8ab552e1ff31f9f649cfa73cebbec9e8d6a0deeacc70221"
+      "reason": "Exactly engineering_work and engineering_direct enabled only in configured non-production dogfood; discovery grants no productive authority.",
+      "sha256": "4be2c956929af4677c704874f917ab1e85cc4f6e2328386eba6a0c56d9e8d753"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3207,8 +3207,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed-owner and same-origin composition; restricted Goal/Inbox transactions; retained canonical Result readers; no Work command endpoints mounted. Integrated adversarial and browser auth checks.",
-      "sha256": "82a02b897f30367d8263889810a91209479a67679fc5972729f2ce45d28815e4"
+      "reason": "Signed owner and same-origin boundary mounts narrow pause/resume/continue/admit commands, strict schemas and canonical Work services; Work Inbox sources are owner-bound; no provider dispatch.",
+      "sha256": "717a411566fbb853addfcd1525e0e9060e2e6c830b5cd6a5363d81a3a8a47332"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3267,13 +3267,13 @@
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing authenticated binding, current writer and Action Gateway remain required. Native controller only narrows productive operations; scoped idempotent events record successful inspections and progress. Duplicate/no-op requests receive guidance without effects. Beta resolver additionally requires registry availability; both entries are unconditionally disabled pending approval. Primary-owner dogfood denial is directly tested.",
-      "sha256": "d370dc49ac5790d040261b6954df7826889f0b805a12a309c56f4b4a3f179d27"
+      "reason": "Canonical selected-Work/primary-owner/writer/admission/gateway checks retained; availability guard and explicit owner, guest, delegated and lineage denials precede execution.",
+      "sha256": "a55e82900e80a01ec4044e1cc578fa6f99fd521bb6debce25a7f7337c0c320e0"
     },
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner-only tool prepares and inspects scoped Work intent/control; provider execution and publication remain separate. Beta resolver additionally requires registry availability; both entries are unconditionally disabled pending approval. Primary-owner dogfood denial is directly tested.",
-      "sha256": "e34120b2aded00941ad0fa23b768439fba170e2384e20817606e2ce18be766c9"
+      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority.",
+      "sha256": "87a44199716022670adb851a5cd18190f2fda5ce594a29a6458047eb6ada2e88"
     },
     "lib/digital-worker/learning.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3487,8 +3487,8 @@
     },
     "lib/beta-integration/canonical-work.ts": {
       "classification": "ENFORCED",
-      "reason": "Unmounted trusted adapter: exact canonical owner/version/generation/admission and budgeted-conversation receipt; retained Inbox response dedupe/generation locks; eligibility grants no control. Controlled canonical journey tests denial, admission, duplicates and stale responses.",
-      "sha256": "c385b0b33ddbb4d425445b2429ba9d37066ef5f80dbda911dd971988e0e4bcac"
+      "reason": "Owner-scoped version/generation CAS, current retained Inbox action/response under lock; eligibility changes only canonical control, then uses fresh-context canonical admission. No provider dispatch or writer grants outside canonical admission.",
+      "sha256": "de7ada81fead997a7b200e5f3196a6ec6351241ed4438b85f8bb52ef9b9a9dc1"
     },
     "lib/engineering/work-recall-context.ts": {
       "classification": "READ_ONLY",

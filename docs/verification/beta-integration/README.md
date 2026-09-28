@@ -1,13 +1,10 @@
-# Canonical beta integration — Phase 2
+# Canonical beta integration — activated local candidate
 
-**Overall: PARTIAL. Canonical local context/admission/Result contracts are qualified; authenticated execution mounting is blocked pending approval. This is not a live beta release.**
+**Overall: READY_FOR_FINAL_COMPONENTS. The approved canonical tools and authenticated Work decision/control/admission/continuation boundary are mounted and locally qualified. Live Sofie is NOT_RUN; canonical local Results and the full completion journey remain PARTIAL.**
 
-Branch: `codex/myeve-beta-integration`
-Worktree: `/Users/jaywest/.codex/worktrees/myeve-beta-integration/Myeve`
-Phase 1 input: `deab11efdbefe7356a1d3146493070aca532945c`
-Candidate SHA: the commit containing this dossier; the final report gives the literal SHA. No self-referential commit hash is embedded.
+Branch: `codex/myeve-beta-integration`. Activation input: `d8da0c649038284ae121bafc9b799ed1b17c579b`. The final report supplies the literal candidate SHA; this dossier is committed with the candidate. Nothing was deployed, published to GitHub, or merged to main.
 
-This is the sole current integration dossier. [Phase 1](phase1-report.md) and the four source dossiers remain historical qualification. Phase 1 fixture completion does not establish Phase 2 canonical completion.
+This is the current dossier. [Phase 1](phase1-report.md) and [Phase 2](phase2-report.md) are historical. The Phase 2 activation approval gate has been resolved by the owner's explicit approval.
 
 ## Frozen inputs
 
@@ -22,75 +19,49 @@ This is the sole current integration dossier. [Phase 1](phase1-report.md) and th
 | Final Capsules | PENDING | Boundary prepared; no import or activation |
 | Spend-qualified Q37/MyFactory | PENDING | Boundary prepared; no dispatch or activation |
 
-The initial audit selected 39874790. Final read-only audit found its newer locally qualified successor b15905f, committed during this run. Its shared Current Truth projections and spend validator are adopted; its Factory transport/dispatch remain unactivated. Migration bytes are unchanged. [Latest source audit and upstream evidence](phase2/latest-canonical-source/adoption.json). The large file count is the selected canonical shared-infrastructure dependency closure plus its regression fixtures, not a parallel implementation. [Per-file source adoption](phase2/source-adoption.json), [governance review](phase2/governance-adoption.json), [component boundaries](phase2/component-boundaries.md).
+## Activated behavior
 
-## Migration reconciliation
+Exactly `engineering_work` and `engineering_direct` are available in configured, non-production dogfood sessions. Availability is checked again at execution. Owner, selected Work, primary Agent, delegated/guest/subagent exclusion, current writer, canonical route, approval, policy and budget controls remain enforced. There are still 125 authored tools; no Factory tool was added.
 
-**PASS locally:** canonical 0001–0057 are byte-identical to the frozen shared input. Reserved old beta numbers 0058–0061 are absent from the active chain. The chain has 62 files and ends at 0066:
+The signed same-origin `/api/beta/work` boundary accepts only bounded `pause`, `resume`, `request_decision`, `continue` and `admit` commands with exact Work version/generation. The already-prepared decision producer only records judgment for paused active Work. New Goal Work uses the canonical tool's existing qualification repository. The pinned repository/base checks are unchanged.
 
-| New number | Content |
-| --- | --- |
-| 0062 | Published Relay delegations; exact former published 0040 DDL |
-| 0063 | Beta product-plane schema; duplicate canonical Work/Knowledge/Result prerequisites removed |
-| 0064 | Exact former beta 0059 completion fencing |
-| 0065 | Exact former beta 0061 Result supersession fencing |
-| 0066 | Additive admission-attempt, retained decision, continuation and source-receipt tables; PUBLIC privileges revoked |
+Work responses flow through Universal Inbox and the canonical consumer. Continuation locks current Work and the retained Inbox source/response, checks identity, correlation, episode, source sequence, blocker state and current generation, then invokes the canonical control transition. Sixteen concurrent continuations produced one resume. Replaying an old eligible receipt cannot revive current eligibility. Superseded, wrong-owner, wrong-Work, completed/cancelled and forged responses deny continuation.
 
-Former beta 0060 is superseded by exact canonical 0041. Old files and the applied Phase 1 ledger are preserved under [phase1-migrations](phase2/phase1-migrations) and [phase1-local-ledger.json](phase2/phase1-local-ledger.json). The original disposable `myeve_beta_qualification` database was not rewritten. Its incompatible ledger is rejected before mutation. Fresh databases and upgrades from canonical 0057 passed, including unchanged prefix timestamps/checksums and no-op replay.
+Resume advances the Work generation; the old conversation cannot authorize it. The endpoint evaluates canonical admission and retains a denial until a fresh budgeted conversation supplies exact current pricing/context. Admission rechecks the canonical configuration and writer state; endpoints never dispatch a provider. The UI shows control, generation, current versus historical admission and the explicit continuation action. Goal/Inbox/Memory state never becomes writer authority.
 
-[Exact reconciliation table and checksums](phase2/migration-reconciliation.json), [allocation audit](phase2/allocation.json), [migration test result](phase2/migration-tests.json). No production/deployment ledger was inspected or changed; this is not authorization to apply the rebased chain to an unknown database.
+## Whole-product local qualification
 
-## Qualified behavior
+[Signed canonical journey](activation/canonical-journey.json), [negative cases](activation/negative.json), [seven canonical SIGKILL checkpoints](activation/canonical-recovery.json), [desktop fixture](activation/browser-desktop-fixture.json), [390px fixture](activation/browser-fixture.json).
 
-- Goal→Task creates one paused canonical Work under concurrency. Goal state grants no execution authority. Missing provider/configuration denies admission with zero provider dispatch.
-- `CanonicalBetaWork.admit` requires exact owner/version/generation, current canonical route assessment and a retained current budgeted admission conversation. The canonical admission contract is used unchanged.
-- `MYEVE_WORK_RECALL_ENABLED=true` adds at most eight items / 6,000 characters of data-only Recall to the real canonical conversation/native model wrappers before input-size and budget checks. Controlled provider input included corrected Friday, excluded superseded Monday and another Work's private Sunday fact, and retained provenance. No phase override or fake budget was used.
-- A reused model-step reference with changed Recall content is denied before dispatch, preserving the original attribution receipt; a fresh step uses the correction. [Replay check](phase2/recall-replay.json).
-- **PRODUCTION CONTEXT PATH: PASS. LIVE MODEL: NOT_RUN.** The provider and pricing fixture is controlled; recorded fixture usage is not live spend qualification.
-- Canonical DirectDevelopmentStore custody, DirectVerificationDriver and NativeResultStore produced an immutable candidate/evidence-bound Result. Verification artifacts explicitly identify the controlled local fixture. The Result is **PARTIAL** even when local checks pass; Task/Goal completion and Ready remain withheld.
-- The unmounted retained Work-response consumer passed duplicate and stale-generation tests. It records eligibility only; Work control, route admission and writer authority do not change.
-- The existing operations monitor now invokes the local bounded GoalScheduleAdapter sweep. Six concurrent due wakes produced one paused Work; future dependencies stayed blocked. External event ingestion remains unmounted.
-- Today and Daily Brief read persisted Goals/Tasks, active Work, decisions, Results and Memory/learning changes. Proof exposes candidate, evidence references, artifact references, digest, canonical route and limitations. Controlled verification is labeled. No external-source events are fabricated.
-- Result feedback creates a candidate; evaluation/promotion remain explicit. Promoted repository learning was consumed in later comparable Work through the same canonical model wrapper after real process loss. Work-only learning remains scoped.
+The actual authenticated desktop and 390px flows cover Goal and initial Task creation, canonical Work, corrected Memory, Needs You response, explicit continuation, admission, canonical Result/Proof, feedback, evaluation, owner promotion, later comparable Work reuse and Today/Daily Brief. Browser writes use real routes and local PostgreSQL. The canonical provider/pricing, repository source and protected-verification producer are explicitly controlled local fixtures; they are not live provider evidence.
 
-[Canonical controlled journey](phase2/canonical-journey.json), [scheduler](phase2/scheduler.json). The complete requested Golden Journey remains **PARTIAL**: canonical local Result semantics deliberately prevent the requested completed-Goal ending, and the active Work admission/continuation UI remains unmounted pending review. [Phase 1 fixture replay](phase2/golden.json) is regression evidence only.
+The production canonical conversation wrapper consumed bounded Recall, included corrected Friday, excluded superseded Monday and other-Work facts, and retained attribution. Changed content under an already-used model step is denied before dispatch. Promoted repository learning was reused by later Work after process loss. **Sofie context PASS; live model NOT_RUN.**
+
+Canonical DirectDevelopmentStore, DirectVerificationDriver and NativeResultStore retain an immutable candidate/evidence-bound Result. Local checks passing yields **PARTIAL**, with publication, CI, review and acceptance unestablished. Task/Goal completion and Ready remain withheld. Proof exposes Work, canonical route, candidate, checks, artifact references, provenance, digest and limitations, with a visible controlled-local/no-live-verification label. No MyFactory evidence is manufactured.
 
 ## Verification
 
-Local PostgreSQL 17 ran on loopback 55489 with `myeve_beta_phase2` and temporary qualification databases. No deployment DATABASE_URL, paid model, hosted provider, GitHub publication, Factory or Capsule was used. Goal/Inbox runtime transactions retain restricted database roles.
+- Application: **1,489 passed**, 56 environment-gated skipped. Root/security: **135 passed**.
+- TypeScript, capability registry, skill routing and executor governance: PASS; 690 classified sources, UNKNOWN=0; 147 definitions / 125 authored tools.
+- Production build: PASS.
+- Migration qualification: fresh reconciled chain, canonical 0057 upgrade with unchanged prefix checksums/timestamps, no-op replay, and incompatible Phase 1 ledger rejection before mutation: PASS. No migration bytes changed in this tranche. [Migration results](activation/migration-tests.json); [reconciliation](phase2/migration-reconciliation.json).
+- PostgreSQL: Goal suite 19 checks including seven SIGKILL points; Memory/Learning and Recall preparation suites; Inbox suite 11 checks including RLS and sixteen concurrent retries: PASS.
+- Integrated historical regression: eight SIGKILL checkpoints plus completion/cancellation/supersession races: PASS. Its LOCAL_FIXTURE producer is regression-only, not canonical completion evidence.
+- Canonical activation recovery: seven SIGKILL/replay checkpoints at decision, response, delivery, control, Result custody, feedback and promotion: PASS. Replayed control returns stale rather than creating another continuation.
+- Desktop/390px: 20 WCAG A/AA scans, zero violations, overflow or unavailable sections. Accessibility and fault-state results: [browser audit](activation/browser-audit.json), [session/outage checks](activation/browser-states.json), [persisted restart](activation/browser-restart.json), [mobile decision path](activation/browser-mobile-decision.json), [final browser assertions](activation/browser-final.json).
 
-- Application and root tests, TypeScript/capability/skill/executor governance and production build: see [final checks](phase2/final-checks.json).
-- Fresh chain, canonical 0057 upgrade, no-op replay and incompatible Phase 1 ledger rejection: PASS.
-- Canonical context/admission/Result/learning and continuation fixture: PASS within the stated controlled scope.
-- Goal PostgreSQL suite: 19 checks, including seven process-loss checkpoints and concurrent schedule/manual continuation.
-- Memory/Learning and Recall integration PostgreSQL suites: [results](phase2/regressions/recall).
-- Inbox PostgreSQL suite: [11 checks](phase2/regressions/inbox/postgres.json), including RLS, 16 concurrent source replays and 16 owner-response retries.
-- Integrated recovery: [eight SIGKILL checkpoints](phase2/recovery.json) across Memory, Goal, Work, Inbox, answer, delivery, Result and promotion, plus fresh-process canonical learning reuse.
-- [Adversarial checks](phase2/adversarial.json): cancellation/Result and supersession/ingestion races, owner boundaries and unretained-signal denial.
-- [Authenticated UI](phase2/browser-journey.json), including [final-build server restart](phase2/browser-final-restart.json): signed login, Goal/Task/paused Work creation, retained Goal decision response, canonical Proof, feedback candidate, evaluation and explicit promotion. Admission/provider execution and canonical Work-response UI are not claimed as covered.
-- [Desktop/390px audit](phase2/browser-audit.json): 18 scans, zero axe WCAG A/AA violations, no horizontal overflow and no unavailable sections. [390px canonical Proof screenshot](../../../output/playwright/beta-integration/phase2/390-3.png) and [desktop Today screenshot](../../../output/playwright/beta-integration/phase2/1440-0.png). [Fault-state checks](phase2/browser-states.json) cover outage, session loss, late private response exclusion and recovery.
+[Final check ledger](activation/final-checks.json) and [logs](activation/logs). [390px Proof](../../../output/playwright/beta-integration/activation/390-3.png), [desktop Today](../../../output/playwright/beta-integration/activation/1440-0.png).
 
-Observed safety counts remain zero: duplicate Work, false Task/Goal completion, Memory/Learning/Inbox/Goal-derived authority expansion, cross-owner disclosure, stale-response continuation, false Ready and avoidable product coordination debt. Counts are local measurements, not claims about unrun production paths.
+Observed local counters: duplicate consequential Work **0**; false Task/Goal completion **0/0**; authority expansion **0**; cross-owner disclosure **0**; stale-response continuation **0**; false Ready **0**; avoidable coordination debt **0**; unauthorized productive effects **0**. These are qualification observations, not production guarantees.
 
-## Remaining gates and stop reason
+## Component boundaries
 
-Automatic approval review rejected active tool registration and Work control/admission/continuation/event mounting because they affect available tools and execution eligibility. The precise two-tool and owner-endpoint scope has been presented for approval; no reply was received during qualification. The safer alternative keeps both imported tools disabled in registry metadata **and in their dynamic resolvers**. Primary-owner dogfood denial is tested. The unmounted adapters are concrete and reviewable.
+Capsules remain **PENDING**: no newer final frozen package was supplied. The observed portable branch remains `3331721f6335829a52b0b0d7fd8f7deca402d79d`; it was not imported. MyFactory remains **PENDING** until Q37 supplies a final spend-qualified canonical candidate. The observed Digital Worker successor `14eff2e` records non-paid preflight/live-provider blockers and does not replace the approved shared input `b15905f` in this tranche. No credentials, paid execution or Factory dispatch were used.
 
-Approval is required to finish that rejected wiring. It does not authorize live spend, publication, deployment, Factory or Capsules. See [exact seams and remaining actions](phase2/component-boundaries.md). All independent local work described above is completed. The task-owned browser, app listener and PostgreSQL server were stopped; qualification databases and evidence were preserved. Final frozen Capsule and spend-qualified Q37 SHAs remain separately pending.
+The local integration is ready for those final components. Canonical Result/Proof and the full successful-completion Golden Journey remain **PARTIAL** because the local evidence does not establish live verification or acceptance. This is not a production release.
 
-## Reproduction
+## Reproduction and implementation scope
 
-From `apps/eve`, with the task-owned disposable PostgreSQL cluster on 55489:
+Use the task-owned local PostgreSQL cluster on loopback 55489 and the reconciled `myeve_beta_phase2` schema. Run `activation-journey.mjs`, `activation-negative.mjs` and `activation-recovery.mjs` under `apps/eve/test/beta-integration` with `node --import tsx`. For historical regressions, set `MYEVE_BETA_EVIDENCE_PHASE=activation` to keep Phase 2 evidence immutable. Browser setup/stages are in `activation-browser-stage.mjs`; qualification settings are explicit test-only values in `activation-fixtures.mjs`. Never substitute deployment credentials.
 
-```sh
-node --import tsx test/beta-integration/qualification.mjs
-node --import tsx test/beta-integration/canonical-journey.mjs
-node --import tsx test/beta-integration/migrations.mjs
-node --import tsx test/beta-integration/recovery.mjs
-node --import tsx test/beta-integration/adversarial.mjs
-npm test
-npm run typecheck
-npm run build
-```
-
-`scheduler.mjs` additionally expects the named browser Goal created through the UI. Browser qualification uses the production build on localhost:3099 with `MYEVE_BETA_MODE=qualification`, `MYEVE_BETA_DATABASE_URL=postgresql://postgres@127.0.0.1:55489/myeve_beta_phase2`, and temporary local owner/password/session-secret values. The beta gate rejects production Vercel, non-loopback and non-qualification database names. No merge, push or deployment is part of this candidate.
+The production changes are limited to the two tool guards/availability registry, canonical beta composition/continuation and the owner Work UI, plus reviewed executor fingerprints. Additional files are qualification harnesses, per-run evidence routing, screenshots and this dossier. No applied migration, upstream provider implementation, canonical approval contract or writer policy was rewritten.

@@ -72,6 +72,7 @@ export default defineDynamic({
         async execute(input, toolCtx) {
           const current = toolCtx.session.auth.current;
           if (
+            checkCapabilityAvailability("tool.engineering_work")?.status !== "available" ||
             process.env.MYEVE_ENGINEERING_MODE !== "dogfood" ||
             !current ||
             current.principalId !== caller.principalId ||
