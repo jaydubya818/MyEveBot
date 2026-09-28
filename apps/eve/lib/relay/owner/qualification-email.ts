@@ -75,3 +75,11 @@ export function pinnedQualificationEmail<Result>(adapter: ActionAdapter<Result>,
     },
   };
 }
+
+/** Only this exact owner-authored request selects the email tool in qualification.
+ * The pin constrains a proposal, never grants execution or supplies missing input.
+ */
+export function matchesQualificationEmailRequest(message: string, pin: QualificationEmailPin | null): boolean {
+  if (!pin) return false;
+  return message === `Please send an email to ${pin.recipient}.\n\nSubject: ${pin.subject}\n\nBody:\n${pin.text}`;
+}

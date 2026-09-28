@@ -2900,7 +2900,7 @@
     "lib/relay/owner/model.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-only provider boundary: exact local authority, scoped prompt/tools, conservative durable reservation, one provider invocation and accounting before output. Release gate remains false; actual runtime qualification pending.",
-      "sha256": "3e78d3b704e66d74a30db2680f5a58530651d5a6c000dd59efec208c1b7047b8"
+      "sha256": "84658f044b186ae62d15b2cfbc0c2561101d49d231d4c8aae7dd3963dd8fb4a1"
     },
     "agent/tools/web_fetch.ts": {
       "classification": "READ_ONLY",
@@ -2968,7 +2968,7 @@
     "lib/relay/owner/qualification-email.ts": {
       "classification": "ENFORCED",
       "reason": "Local-qualification email pin around the canonical AgentMail adapter: exact recipient/subject/text checked before approval target resolution and again before execution; the single attempt is consumed atomically in the append-only owner_qualification_email_pins ledger (id and draft digest unique, attempts never decrease) before the provider call; no pin or an exhausted pin sends nothing.",
-      "sha256": "3f9c22501b7c7121cc33a36365c26dce65cc4e096c6025bd73f44a4f64b53e0c"
+      "sha256": "55e73dc513e958e9c885fe9732f774002606aff134a18addf89d72e2dfed83a9"
     }
   }
 }
