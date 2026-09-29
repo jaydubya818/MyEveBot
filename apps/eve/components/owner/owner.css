@@ -475,3 +475,65 @@
 :root[data-mode="light"] .owner-shell progress::-moz-progress-bar {
   background: #557c3d;
 }
+
+/* Product navigation and bounded embedded workspaces. */
+.owner-top {
+  flex-wrap: wrap;
+}
+.owner-primary {
+  flex: 1;
+}
+.owner-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+.owner-shell input,
+.owner-shell select {
+  max-width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #737d6e;
+  border-radius: 8px;
+  background: #20271e;
+  color: #f2f3ed;
+}
+.owner-shell label {
+  display: block;
+  margin: 10px 0;
+}
+.owner-shell pre,
+.owner-shell code {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.owner-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 600px) {
+  .owner-top {
+    gap: 12px;
+  }
+  .owner-primary {
+    flex-basis: 100%;
+  }
+  .owner-primary a {
+    padding: 8px 10px;
+  }
+}
+
+.product-artifact-editor {
+  min-height: 650px;
+  display: flex;
+  background: var(--color-kumo-base);
+  color: var(--color-kumo-default);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.product-artifact-editor button {
+  min-height: 44px;
+}
+
+.product-computer .text-kumo-subtle { color: var(--owner-muted); }

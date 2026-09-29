@@ -276,3 +276,9 @@ vercel deploy --prod --yes
 ```
 
 After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health`, and complete an authenticated conversation plus a sandboxed Computer task. A successful build alone is not production qualification.
+
+## Private-alpha product expansion source
+
+The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approvals/Files/Team/Apps/Computer surfaces, global search and weekly review over existing contracts. See the [product guide](docs/private-alpha/PRODUCT-GUIDE.md), [qualification dossier](docs/verification/private-alpha/README.md), [parity matrix](docs/private-alpha/PLUTO-PARITY.md), and [canonical integration crosswalk](docs/private-alpha/INTEGRATION-CROSSWALK.md).
+
+This is a source candidate, not a deployed release. Canonical Q37/Factory remains `WAITING_FOR_CANONICAL_Q37`; Capsules, shared business authority and governed learning keep their prepared boundaries.

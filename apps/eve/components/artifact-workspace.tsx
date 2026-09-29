@@ -5,11 +5,9 @@ import { Badge, Button, Input, Loader } from "@cloudflare/kumo";
 import {
   ArrowClockwiseIcon,
   ClockCounterClockwiseIcon,
-  DownloadSimpleIcon,
   FileArrowUpIcon,
   FileIcon,
   FloppyDiskIcon,
-  LinkIcon,
   MagnifyingGlassIcon,
   NotePencilIcon,
   PlusIcon,
@@ -146,12 +144,12 @@ export function ArtifactWorkspace({
   initialArtifactId,
   onArtifactChange,
 }: {
-  threadId: string;
+  threadId?: string;
   initialArtifactId?: string | null;
   onArtifactChange?: (artifactId: string | null) => void;
 }) {
   const [scope, setScope] = useState<ArtifactScope>(
-    initialArtifactId ? "all" : "thread",
+    initialArtifactId || !threadId ? "all" : "thread",
   );
   const [query, setQuery] = useState("");
   const [artifacts, setArtifacts] = useState<ArtifactDescriptor[]>([]);
@@ -209,7 +207,7 @@ export function ArtifactWorkspace({
     const requestId = ++artifactListRequestRef.current;
     setError(null);
     const params = new URLSearchParams();
-    if (scope === "thread") params.set("threadId", threadId);
+    if (scope === "thread" && threadId) params.set("threadId", threadId);
     if (query.trim()) params.set("q", query.trim());
     const url = `/api/artifacts?${params}`;
     const cacheKey = url;
@@ -690,11 +688,11 @@ export function ArtifactWorkspace({
       : "";
 
   return (
-    <div className="flex min-h-0 flex-1">
-      <section className="flex w-48 shrink-0 flex-col border-e border-kumo-hairline">
+    <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+      <section className="flex max-h-64 w-full shrink-0 flex-col border-e border-kumo-hairline md:max-h-none md:w-48">
         <div className="flex items-center gap-1 border-b border-kumo-hairline p-2">
           <div role="tablist" aria-label="Artifact scope" className="flex min-w-0 flex-1 gap-1">
-            {(["thread", "all"] as const).map((value) => (
+            {(threadId ? ["thread", "all"] as const : ["all"] as const).map((value) => (
               <button
                 key={value}
                 type="button"
@@ -722,15 +720,8 @@ export function ArtifactWorkspace({
               </button>
             ))}
           </div>
-          <Button
-            size="xs"
-            variant="ghost"
-            shape="square"
-            icon={PlusIcon}
-            aria-label="Upload artifact"
-            disabled={busy}
-            onClick={() => uploadInput.current?.click()}
-          />
+          <button type="button" aria-label="Upload artifact" disabled={busy}
+            onClick={() => uploadInput.current?.click()}>Upload</button>
           <input
             ref={uploadInput}
             hidden
@@ -842,7 +833,7 @@ export function ArtifactWorkspace({
         ) : (
           <>
             <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-kumo-hairline p-3">
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 basis-full md:basis-auto md:flex-1">
                 <h3 className="truncate text-sm font-medium">{artifact.title}</h3>
                 <p className="truncate text-[11px] text-kumo-subtle">
                   {selectedVersion.filename} · {formatBytes(selectedVersion.sizeBytes)} ·
@@ -870,23 +861,10 @@ export function ArtifactWorkspace({
                   ))}
                 </div>
               )}
-              <Button
-                size="xs"
-                variant="ghost"
-                shape="square"
-                icon={DownloadSimpleIcon}
-                aria-label="Download this revision"
-                onClick={() => window.open(`${contentUrl}&download=1`, "_blank", "noopener")}
-              />
-              <Button
-                size="xs"
-                variant="ghost"
-                shape="square"
-                icon={LinkIcon}
-                aria-label="Share this revision for seven days"
-                disabled={busy}
-                onClick={() => void share()}
-              />
+              <button type="button" aria-label="Download this revision"
+                onClick={() => window.open(`${contentUrl}&download=1`, "_blank", "noopener")}>Download</button>
+              <button type="button" aria-label="Share this revision for seven days" disabled={busy}
+                onClick={() => void share()}>Share</button>
               {editingCurrent ? (
                 <Button
                   size="xs"
