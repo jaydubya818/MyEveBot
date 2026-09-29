@@ -40,3 +40,7 @@ Shared business membership, shared Goal/Result access and Rooms require the prop
 When the final Q37/MyFactory pair arrives, canonical integration owns source pin validation, actual Work control, routing, verification, provider qualification, migration reconciliation and two-owner live qualification. It should compile the product display interfaces against that pair, rerun exact-action stale/expiry cases, bind authoritative readiness and prove candidate ≠ Result. Product fixture tests cannot satisfy those gates.
 
 No feature-worktree deployment. After integration, use a fresh canonical candidate and its own backup, rollback and smoke dossier.
+
+## Work Canvas presentation follow-up
+
+`apps/eve/components/owner/work-canvas.tsx` and `/work-canvas` are the proposed canonical interaction surface, qualified with disconnected fixtures. Preserve `/work` and canonical ownership until explicit integration. See [WORK-CANVAS.md](WORK-CANVAS.md) for the four journeys and exact-action adapter requirements. The local sample reducer must never become execution orchestration or authorization. Transport, durable state and live verification remain canonical responsibilities.

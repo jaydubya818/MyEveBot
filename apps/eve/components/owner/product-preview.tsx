@@ -33,6 +33,9 @@ export function ProductPreview() {
         </p>
       </aside>
       <p role="status">{notice}</p>
+      <p>
+        <a href="/work-canvas">Explore the Work Canvas interaction preview</a>
+      </p>
       <h2>Three consequential proposals</h2>
       <div className="owner-stack">
         {approvals.map((item) => (

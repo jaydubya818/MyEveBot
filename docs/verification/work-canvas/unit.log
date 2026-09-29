@@ -1,0 +1,14 @@
+
+> eve-agent@0.0.0 test
+> vitest run components/owner/work-canvas.test.ts components/owner/product.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-product-expansion/Myeve/apps/eve
+
+ ✓ components/owner/work-canvas.test.ts (5 tests) 2ms
+ ✓ components/owner/product.test.ts (4 tests) 3ms
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  23:31:42
+   Duration  235ms (transform 35ms, setup 0ms, collect 43ms, tests 4ms, environment 0ms, prepare 56ms)
