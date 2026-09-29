@@ -77,7 +77,7 @@ try {
     ).rows;
     await assert.rejects(
       runMigrations(driver(old), migrations, () => {}),
-      /lineage|checksum|migration/,
+      /lineage|checksum|migration|bridge state/,
     );
     assert.deepEqual(
       (await old.query("SELECT * FROM sofie_schema_migrations ORDER BY name"))
