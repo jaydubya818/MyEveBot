@@ -1,8 +1,8 @@
 # Private-alpha product source qualification
 
-Status: **locally qualified product source candidate; whole-product release PARTIAL**.
+Status: **remotely durable qualified product source candidate; whole-product release PARTIAL**.
 
-Branch: `codex/private-alpha-product-expansion`. Baseline and immutable product source hashes are in `source-manifest.json`; exact pushed checkpoint SHA is supplied by the final durability handoff. No protected backend or migration change is included.
+Branch: `codex/private-alpha-product-expansion`. Baseline and immutable product source hashes are in `source-manifest.json`; tested product checkpoint `ef0771797474216b2275bda349fa2d83ccd45dfe` was pushed and verified against origin. See `durability.json` for the receipt. No protected backend or migration change is included.
 
 ## Evidence
 

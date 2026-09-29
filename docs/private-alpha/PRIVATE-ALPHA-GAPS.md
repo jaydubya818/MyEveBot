@@ -24,6 +24,6 @@ The independent product tranche is implemented. A checked item below means its *
 - [x] Add isolated fixture adapters, not backend substitutes.
 - [x] Run application/root checks and desktop/mobile UI qualification.
 - [x] Independent read-only boundary review and correction pass.
-- [ ] Record final pushed source SHA and canonical handoff.
+- [x] Record pushed source SHA and canonical handoff; see verification/private-alpha/durability.json.
 
 Phone, payments, enterprise identity, public multi-tenancy and broad provider qualification remain POST_ALPHA. Shared schema proposals are in SCHEMA-PROPOSALS.md; no migration identifiers allocated.
