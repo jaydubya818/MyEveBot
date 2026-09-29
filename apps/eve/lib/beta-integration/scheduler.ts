@@ -31,8 +31,7 @@ export async function sweepBetaSchedules(beta: BetaIntegration, owner: string) {
 }
 export async function runBetaScheduleSweep() {
   if (
-    process.env.MYEVE_BETA_MODE !== "qualification" ||
-    process.env.VERCEL_ENV === "production"
+    !(["qualification", "private-alpha"].includes(process.env.MYEVE_BETA_MODE ?? ""))
   )
     return;
   return sweepBetaSchedules(betaIntegration(), deploymentOwnerId());

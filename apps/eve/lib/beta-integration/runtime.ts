@@ -4,7 +4,7 @@ import {
   factoryActionSchema,
 } from "../engineering/factory-api.ts";
 import { factoryConfig } from "../engineering/factory-routing.ts";
-import { GOLDEN_QUALIFICATION_REPOSITORY } from "../engineering/base-preflight.ts";
+import { betaConfiguration } from "./configuration.ts";
 import { CanonicalBetaWork } from "./canonical-work.ts";
 import { createRequire } from "node:module";
 import { z } from "zod";
@@ -402,31 +402,12 @@ export class BetaIntegration {
 }
 
 let instance: BetaIntegration | undefined;
-/** Explicit local qualification activation. Never reads the deployment DATABASE_URL. */
+/** Explicit private-alpha startup shares the canonical database. Provider execution stays separately gated. */
 export function betaIntegration() {
-  if (
-    process.env.MYEVE_BETA_MODE !== "qualification" ||
-    process.env.VERCEL_ENV === "production"
-  )
-    throw new Error("Beta integration is not enabled");
-  if (!instance) {
-    const url = new URL(process.env.MYEVE_BETA_DATABASE_URL ?? "");
-    if (
-      !["127.0.0.1", "localhost"].includes(url.hostname) ||
-      !/^\/myeve_beta_[a-z0-9_]+$/.test(url.pathname)
-    )
-      throw new Error("Disposable beta database required");
-    const { Pool } = createRequire(import.meta.url)("pg") as {
-      Pool: new (config: object) => GoalPool;
-    };
-    instance = new BetaIntegration(
-      new Pool({ connectionString: url.href, max: 12 }),
-      {
-        repository: GOLDEN_QUALIFICATION_REPOSITORY,
-        maxCostUsd: 1,
-        maxDurationSeconds: 300,
-      },
-    );
+  const settings=betaConfiguration();
+  if(!instance) {
+    const {Pool}=createRequire(import.meta.url)("pg") as {Pool:new(config:object)=>GoalPool};
+    instance=new BetaIntegration(new Pool({connectionString:settings.url,max:12}),settings.policy);
   }
   return instance;
 }

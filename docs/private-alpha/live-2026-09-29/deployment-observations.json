@@ -1,0 +1,29 @@
+{
+  "myeve": {
+    "id": "dpl_Ezakc5MKj1TdJJd4eMkfnNFrtK2s",
+    "origin": "https://sofie-personal-agent.vercel.app",
+    "source": "7c1e10777429278d99e5172720768ac967c5410a",
+    "vercelStatus": "READY",
+    "http": {
+      "/login": 200,
+      "/eve/v1/health": 200,
+      "/api/beta/work": 404,
+      "/api/beta/results": 404
+    }
+  },
+  "relay": {
+    "id": "dpl_35TpUaC2f5gnR6D5YdXYaZynfziX",
+    "origin": "https://relay-sage-nine.vercel.app",
+    "source": "3fdeeb4ce43ef34ff88c8abdf308c77d4ef83f0d",
+    "vercelStatus": "READY",
+    "http": {
+      "/api/health": 200,
+      "/api/health/ready": 200
+    }
+  },
+  "canonicalDeployment": "NOT_RUN",
+  "providerKeychainMetadataFound": false,
+  "credentialRead": false,
+  "realModelOperations": 0,
+  "productionMutation": false
+}

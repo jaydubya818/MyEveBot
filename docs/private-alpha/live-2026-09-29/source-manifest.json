@@ -1,0 +1,34 @@
+{
+  "observedAt": "2026-09-29T21:19:40.356123+00:00",
+  "verification": "git fetch origin main --tags; git ls-remote origin refs/heads/main refs/tags/*; annotated tags peeled to exact main",
+  "sources": {
+    "MyEve": {
+      "repository": "https://github.com/jaydubya818/MyEveBot.git",
+      "main": "f1dca8051c2e963a2ba2d902c5803b1f8c7a7f72",
+      "tag": "myeve-private-alpha-v0",
+      "tagObject": "11970f13b8cb74edfe26fc27a47aadd37b0097ba"
+    },
+    "Relay": {
+      "repository": "https://github.com/jaydubya818/relay.git",
+      "main": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+      "tag": "relay-private-alpha-v0",
+      "tagObject": "6f37c4df8b9cfabcd994bd4f3e8b981d10483a2d"
+    },
+    "MyFactory": {
+      "repository": "https://github.com/jaydubya818/MyFactory.git",
+      "main": "af6f37102a28c1da2b3990ed58f921174298a9c2",
+      "tag": "myfactory-private-alpha-v0",
+      "tagObject": "72df29bc924358797f7c2b3ee509d2d57147a9f4"
+    }
+  },
+  "deploymentPerformed": false,
+  "releaseCandidates": {
+    "MyFactory": {
+      "branch": "codex/private-alpha-release",
+      "sha": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
+      "remotelyVerified": true,
+      "merged": false,
+      "deployed": false
+    }
+  }
+}

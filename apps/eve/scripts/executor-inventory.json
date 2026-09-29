@@ -3207,8 +3207,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Factory action requires configured matching owner and local fixture qualification; delegates exact Work revision/generation to canonical spend/admission/writer/result driver. No live activation. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "1f683e5ecb859f25a59d1e6578137782a47f8757ffca1825ec1921b5b9f8142c"
+      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain.",
+      "sha256": "d3897dccddd0307cc92e263b5d1931544596925ace7af58ee35b238bb4e0d638"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3502,8 +3502,8 @@
     },
     "lib/beta-integration/scheduler.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing operations monitor calls bounded owner-scoped retained due-dependency Goal adapter only in loopback qualification mode. No timer, provider, Work control, admission or writer grant. Repeated wakes deduplicate paused Work under canonical Goal service.",
-      "sha256": "1a7eff9160dffaa51844523b43e35b6a03b57ab1ad890802dce5c1fad1fe89ff"
+      "reason": "Existing operations monitor sweeps retained due dependencies in explicitly configured qualification or private-alpha mode. Bounded owner-scoped Goal adapter creates paused unadmitted Work; no provider, writer or execution grant.",
+      "sha256": "8781f877665ffb54e4c3b31f414050139b63dc7cb5b15c06252bb8f7df00ffc9"
     },
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
@@ -3668,8 +3668,8 @@
     },
     "lib/business-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical scope composition; production uses application DB, existing qualification composition permits only explicit local disposable beta database. No new credentials or scope grant.",
-      "sha256": "ed70a005007b38d79d0c7d672045cbfb17f44a85cd02d399255cc012f8f3827a"
+      "reason": "Business scope composition uses the explicit canonical private-alpha database or isolated qualification database. Existing grants and owner checks remain; no credentials or implicit sharing.",
+      "sha256": "ee047ece1688ff704003bcd6c526ae0dd67770c39366ba9be30eea4724b3fb97"
     },
     "lib/private-owner-boundary.ts": {
       "classification": "ENFORCED",
@@ -3685,6 +3685,11 @@
       "classification": "ENFORCED",
       "reason": "Provider boundary reconstructs canonical partner-only context, removes deployment prompt/history/provider tools, and permits only owner-bound Memory/Knowledge tools. Negative prompt/tool tests.",
       "sha256": "1182e5eb53f10f24910ec6a574f38c809369cc8e53e8443b3d82b672faec0358"
+    },
+    "lib/beta-integration/configuration.ts": {
+      "classification": "INTERNAL",
+      "reason": "Explicit private-alpha activation requires canonical database, configured web auth, owner and finite repository/Work limits. Qualification remains isolated and forbidden in production. No provider or effect dispatch.",
+      "sha256": "fc31025dc37b2ab3c4fb290f7fc3354818b52a30ce02d66199fcc5e8813bd366"
     }
   }
 }

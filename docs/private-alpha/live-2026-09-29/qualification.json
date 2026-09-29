@@ -1,0 +1,60 @@
+{
+  "status": "BLOCKED",
+  "observedAt": "2026-09-29T21:22:51.544191+00:00",
+  "canonicalDeployment": "NOT_RUN",
+  "realModelOperations": 0,
+  "realExternalEffects": 0,
+  "liveWorkId": null,
+  "resultId": null,
+  "proofOfWorkId": null,
+  "liveSafetyCounters": {
+    "cross_owner_disclosures": null,
+    "authority_expansions": null,
+    "duplicate_work": null,
+    "duplicate_consequential_effects": null,
+    "concurrent_writers": null,
+    "duplicate_factory_dispatches": null,
+    "post_unknown_calls": null,
+    "stale_continuation": null,
+    "false_task_completion": null,
+    "false_goal_completion": null,
+    "lost_candidates": null,
+    "false_ready": null
+  },
+  "coordinationDebt": null,
+  "counterNote": "Null means unmeasured. Local synthetic passes do not establish live counters.",
+  "checks": {
+    "myeveApplication": {
+      "passed": 1883,
+      "skipped": 61
+    },
+    "myeveRoot": {
+      "passed": 141
+    },
+    "migrationFiles": {
+      "count": 67,
+      "head": "0071_business_producer_fencing.sql"
+    },
+    "myfactory": {
+      "passed": 138,
+      "skipped": 1
+    },
+    "myfactoryProducerTypes": "PASS",
+    "myfactoryGovernance": "PASS",
+    "myfactoryBuild": "PASS",
+    "myeveTypesGovernance": "PASS",
+    "myeveBuild": "PASS",
+    "builder": {
+      "passed": 15,
+      "typecheck": "PASS",
+      "manifest": "PASS"
+    }
+  },
+  "humanGates": [
+    "Scoped production database access approval pending after bulk export rejection",
+    "Pinned provider Keychain item absent",
+    "Partner identity/credential provisioning",
+    "First real model operation approval NOT requested yet: deployed worker composition is incomplete",
+    "First real external effect approval must follow verified Result"
+  ]
+}
