@@ -1,0 +1,22 @@
+{
+  "status": "PASS",
+  "producerCommit": "925530a6ba8764df6a7b8637192fe32edcbaff97",
+  "migrationV8": "0994004a2a89c2264423e969fc3b97ef609f8d0fb437e9dcf6ea6203309cbeb3",
+  "consumerMigrations": 57,
+  "results": [
+    "Exact clean producer pin, SQLite v8 hash, all 57 consumer migrations and preserved evidence match",
+    "Productive limit preserves completion dollars/slot; complete/fenced readback parses and cannot restart",
+    "UNKNOWN survives restart and STOP; real consumer retains liability and rejects another start",
+    "Duplicate operation and tampered readback/continuation cannot reset custody or allowance"
+  ],
+  "counters": {
+    "postUnknownAdmissions": 0,
+    "completionStarvation": 0,
+    "callsBeyondOperationLimit": 0,
+    "ceilingViolations": 0,
+    "reserveTheft": 0,
+    "duplicateOperations": 0
+  },
+  "providerCalls": 0,
+  "realProvider": "NOT_RUN"
+}

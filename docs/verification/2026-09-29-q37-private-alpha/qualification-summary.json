@@ -44,7 +44,7 @@
     "status": "PASS"
   },
   "offlineHistoricalDumpRestore": "NOT_RUN_EXTERNAL_DUMP_UNAVAILABLE",
-  "independentReview": "PENDING",
+  "independentReview": "PASS",
   "realProvider": "NOT_RUN",
   "paidProviderCalls": 0,
   "billingClassification": "NON_BLOCKING_TWO_TRUSTED_OWNERS",
@@ -71,5 +71,17 @@
     "Production learning promotion not implemented",
     "No deployment/merge/publication",
     "Optional offline historical dump unavailable"
-  ]
+  ],
+  "consumerReviewedCommit": "5b0033ba880cf45d4c69ab79385df129e19bedbb",
+  "independentExecution": {
+    "consumerTests": 240,
+    "producerLedgerProcessTests": 15,
+    "crosswalkChecks": 4,
+    "gateB": 23,
+    "gateC": 47,
+    "connectedCLI": 16,
+    "sourceHashesVerified": 139,
+    "artifactHashesVerified": 25
+  },
+  "betaIntegrationHandoff": "READY_LOCAL"
 }
