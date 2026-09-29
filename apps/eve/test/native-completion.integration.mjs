@@ -241,4 +241,4 @@ try {
  console.log('PASS: '+explanationVariant+' fresh explanation truth/charge; third source repair denied');
  }
 
-} finally {await pool?.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
+} finally {await pool?.end();await admin.query('DROP DATABASE IF EXISTS '+name);await admin.end();}

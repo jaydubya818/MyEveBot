@@ -1,0 +1,328 @@
+PASS 0057 complete failure rollback
+PASS 0056→0057 and idempotent rerun
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint:
+hint: 	git config --global init.defaultBranch <name>
+hint:
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint:
+hint: 	git branch -m <name>
+Note: switching to '024bab53fbde4577deab812a1e9705f8118b176f'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+HEAD is now at 024bab5 Pinned synthetic Q37 quantity fixture
+PASS LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation
+PASS Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer
+PASS Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available
+PASS Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification PASS; restarted driver replay cannot dispatch twice
+PASS Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract
+PASS Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification FAIL; restarted driver replay cannot dispatch twice
+PASS Connected Factory failure → normal new native Run → failed repair stays FAILED → bounded repair PASS; immutable Factory history survives
+PASS Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL
+PASS RESPONSE_LOST: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch
+PASS BEFORE_HTTP: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch
+PASS Connected RUNNING → STOPPING retains writer until actual executor settles → terminal tombstone rejects delayed START
+PASS Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority
+PASS Unavailable preparation retains request and grants no writer
+PASS Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation
+{"clientSearchOutputs":3,"spendFixture":true,"installedCli":true,"envelopeDryRun":true,"price":{"revision":"openai-gpt54mini-20260928","model":"gpt-5.4-mini-2026-03-17","validUntil":"2026-09-29T06:59:20.668Z","contextLimitTokens":400000,"outputLimitTokens":8192,"inputMicrousdPerMillion":750000,"outputMicrousdPerMillion":4500000},"workCeiling":1.35,"fixtureBase":"024bab53fbde4577deab812a1e9705f8118b176f","factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","sourceDigest":"9a7067daa2728be2222d309bd020da8f2ed88ba8ef1670c54b29b8654cd9dd66","configurationDigest":"231825a383ba4a74fdbe8803cca3a1089b2a25d701ac58d0ec81391c43cd3b69","configuration":{"model":"gpt-5.4-mini-2026-03-17","executor":"codex-cli","executorVersion":"codex-cli 0.157.0","skillRevision":"fd8f20a879b507cf09feba08663a1edf7a949353","workerProfile":"mac","verificationImage":"node:22-bookworm","nodeVersion":"v24.18.1","platform":"darwin","architecture":"arm64","commands":["node --test"],"allowedPaths":["quantity.mjs"],"timeoutMs":1800000},"cliVersion":"codex-cli 0.157.0","completionExecutions":3,"providerCalls":13,"checks":16,"results":["0057 complete failure rollback","0056→0057 and idempotent rerun","LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation","Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer","Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available","Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification PASS; restarted driver replay cannot dispatch twice","Connected Q37 local Relay → Factory → verifier → trusted publisher/CI/review → scoped advisory learning contract","Actual HTTP/SQLite/Git signed candidate → PostgreSQL custody → real Docker verification FAIL; restarted driver replay cannot dispatch twice","Connected Factory failure → normal new native Run → failed repair stays FAILED → bounded repair PASS; immutable Factory history survives","Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL","RESPONSE_LOST: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch","BEFORE_HTTP: durable UNKNOWN → restarted readback → exact terminal fence, never resend dispatch","Connected RUNNING → STOPPING retains writer until actual executor settles → terminal tombstone rejects delayed START","Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority","Unavailable preparation retains request and grants no writer","Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation"],"journeys":[{"workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","outcome":"PARTIAL","writer":{"requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","dispatchIdentity":"b576712a-15e4-4a85-88c7-41c2804bb652","remoteRunId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","runId":"5833af79-1930-48f1-b017-7267c77b6f54","writerGeneration":1,"state":"TERMINAL","stopReason":null,"candidateProducer":"MYFACTORY","factoryId":"factory-beta","factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","attempt":1,"receiptId":"6d012949-f335-44b0-a858-cea6c0f355ca","observation":{"runId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","spend":{"unit":"microUSD","phase":"completion","reason":"Loopback synthetic provider only; live paid execution disabled","status":"KNOWN","workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","currency":"USD","deadline":"2026-09-29T06:09:21.131Z","cancelled":false,"requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","operations":[{"model":"gpt-5.4-mini-2026-03-17","phase":"productive","runId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","operationId":"5f70b227-730c-4091-80ec-1ea3174f14c2","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"b576712a-15e4-4a85-88c7-41c2804bb652","reservedMicrousd":336864,"providerRequestId":"controlled-1"},{"model":"gpt-5.4-mini-2026-03-17","phase":"productive","runId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","operationId":"f9791967-4382-47d8-9e5a-03e0b8fa0479","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"b576712a-15e4-4a85-88c7-41c2804bb652","reservedMicrousd":336864,"providerRequestId":"controlled-2"},{"model":"gpt-5.4-mini-2026-03-17","phase":"productive","runId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","operationId":"09ddd536-86d0-42fd-9b76-8c402002d5dc","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"b576712a-15e4-4a85-88c7-41c2804bb652","reservedMicrousd":336864,"providerRequestId":"controlled-3"},{"model":"gpt-5.4-mini-2026-03-17","phase":"completion","runId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","operationId":"403fe3e9-2459-4ff2-ad3b-2deebcab54b8","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"b576712a-15e4-4a85-88c7-41c2804bb652","reservedMicrousd":336864,"providerRequestId":"controlled-4"}],"workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","authorityState":"fenced","workGeneration":2,"ceilingMicrousd":1350000,"contractVersion":"WORK_LEDGER_V2","pricingRevision":"openai-gpt54mini-20260928","settledMicrousd":212,"pricingQualified":true,"retainedMicrousd":0,"availableMicrousd":1349788,"maxPaidOperations":4,"accountingComplete":true,"paidOperationsUsed":4,"unknownExposureMicrousd":0,"completionOperationsUsed":1,"completionReserveMicrousd":336864,"perOperationReserveMicrousd":336864,"plannedCompletionOperations":1,"plannedProductiveOperations":3,"completionOperationSlotsRemaining":0,"completionReserveRemainingMicrousd":336811,"productiveAllowanceRemainingMicrousd":1012977},"state":"COMPLETED","blocker":null,"identity":{"runId":"5833af79-1930-48f1-b017-7267c77b6f54","workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","baseSha":"024bab53fbde4577deab812a1e9705f8118b176f","deadline":"2026-09-29T06:09:21.131Z","factoryId":"factory-beta","requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","repository":"fixture/golden","remoteRunId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","allowedPaths":["quantity.mjs"],"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"dispatchIdentity":"b576712a-15e4-4a85-88c7-41c2804bb652","writerGeneration":1},"resultId":"17fec3e1-6a9c-4dba-b2e3-6400adfc4701","snapshot":{"runId":"714e895e-a829-4d4a-9bd8-8a193f9b59a2","version":1,"factoryId":"factory-beta","requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","capturedAt":"2026-09-29T05:59:21.176Z","inputCommit":"024bab53fbde4577deab812a1e9705f8118b176f","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","sourceDigest":"9a7067daa2728be2222d309bd020da8f2ed88ba8ef1670c54b29b8654cd9dd66","attemptNumber":1,"configuration":{"model":"gpt-5.4-mini-2026-03-17","commands":["node --test"],"executor":"codex-cli","platform":"darwin","timeoutMs":1800000,"nodeVersion":"v24.18.1","allowedPaths":["quantity.mjs"],"architecture":"arm64","skillRevision":"fd8f20a879b507cf09feba08663a1edf7a949353","workerProfile":"mac","executorVersion":"codex-cli 0.157.0","verificationImage":"node:22-bookworm"},"requestDigest":"391f4c9708f7952c583a77814bdd1b6b9fad7a068b3ca5d72949d99921cfc6ff","factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","configurationDigest":"231825a383ba4a74fdbe8803cca3a1089b2a25d701ac58d0ec81391c43cd3b69"},"quiescent":true,"requestId":"f8b8b322-4bab-46dc-a66f-5202829cc0fc","accounting":{"blocker":null,"activeMicrousd":0,"ceilingMicrousd":1350000,"settledMicrousd":212,"unknownMicrousd":0,"reservedMicrousd":0,"availableMicrousd":1349788,"maxPaidOperations":4,"paidOperationsUsed":4,"pricingQualification":"QUALIFIED","safeAllowanceMicrousd":0,"accountingCompleteness":"VALIDATED_READBACK","completionQualification":"QUALIFIED","completionReserveMicrousd":336864,"spendEnforcementQualified":true,"completionOperationSlotsRemaining":0,"completionReserveRemainingMicrousd":336811,"productiveAllowanceRemainingMicrousd":1012977},"evidenceRef":"factory-event:0858da43-fda8-4f43-9991-6ff48b4f5d09:terminal","workOrderId":"0858da43-fda8-4f43-9991-6ff48b4f5d09","verification":"PARTIAL","coordinationDebt":0}},"explanation":["Work identity: {\"workId\":\"664b8460-addd-42a3-a89d-7beeed9c6d03\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.","Active Run: none currently confirmed executable. This does not mean Work has no Run history.","Latest Run: 5833af79-1930-48f1-b017-7267c77b6f54; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-09-29T06:09:21.131Z.","Run history: 5833af79-1930-48f1-b017-7267c77b6f54 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-09-29T05:59:21.193Z).","Factory Work budget: approved ceiling $1.350000; settled $0.000212; reserved $0.000000 (uncertain $0.000000); remaining safe allowance $0.000000. Productive allowance $1.012977; protected completion $0.336811 remaining of $0.336864; paid operations 4/4; protected completion slots 0. Accounting VALIDATED_READBACK; pricing QUALIFIED; completion qualification QUALIFIED. No accounting blocker observed. This is not payment or execution authority.","Writer session: none recorded; not confirmed productive; historical identity grants no authority.","Factory preparation: f8b8b322-4bab-46dc-a66f-5202829cc0fc; COMPLETED; blocker none. Intent alone grants no writer authority.","Factory writer: 5833af79-1930-48f1-b017-7267c77b6f54; request f8b8b322-4bab-46dc-a66f-5202829cc0fc; dispatch b576712a-15e4-4a85-88c7-41c2804bb652; execution 714e895e-a829-4d4a-9bd8-8a193f9b59a2; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version 4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489; WorkOrder 0858da43-fda8-4f43-9991-6ff48b4f5d09; attempt 1; receipt 6d012949-f335-44b0-a858-cea6c0f355ca. Gate C grants no writer authority.","Factory observation: COMPLETED; blocker none; spend KNOWN; Loopback synthetic provider only; live paid execution disabled.","Candidate: 883141fea288e2061bbe09eafcfcefe4996c3b02.","Draft: revision 2; hash 3169cdce57ea420d4c6e13d710d97272e7d117d8eb847d41a213e40f8693e96f; matches retained candidate.","Candidate history: 883141fea288e2061bbe09eafcfcefe4996c3b02: PASS, 10 evidence records.","Completion state: NO_CONTRACT.","Protected verification: PASS; candidate 883141fea288e2061bbe09eafcfcefe4996c3b02; job COMPLETED; 10 bound evidence records.","Result: 17fec3e1-6a9c-4dba-b2e3-6400adfc4701; candidate 883141fea288e2061bbe09eafcfcefe4996c3b02; Factory candidate: PARTIAL. Publication and acceptance are not established.","Budget: no common ledger grant observed.","Completion budget: $1.350000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.","Readiness: Factory candidate / MyEve protected verification: PASS. Retained Result: PARTIAL. Publication, CI, independent review and owner acceptance remain unverified.","Blocker / next permitted action: Review the PARTIAL local result. Publication and acceptance remain unqualified."],"candidate":"883141fea288e2061bbe09eafcfcefe4996c3b02","evidenceCount":10,"resultId":"17fec3e1-6a9c-4dba-b2e3-6400adfc4701"},{"workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","outcome":"FAILED","writer":{"requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","dispatchIdentity":"6aaa4580-c88f-48b4-b2da-04cd9aa4d02c","remoteRunId":"9653599b-e678-4879-9e16-52547348cf30","runId":"1a42d7ad-042f-4cd7-99ac-76a528c9efa8","writerGeneration":1,"state":"TERMINAL","stopReason":null,"candidateProducer":"MYFACTORY","factoryId":"factory-beta","factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","attempt":1,"receiptId":"5926095f-9a3a-4db5-9101-471c5375181b","observation":{"runId":"9653599b-e678-4879-9e16-52547348cf30","spend":{"unit":"microUSD","phase":"completion","reason":"Loopback synthetic provider only; live paid execution disabled","status":"KNOWN","workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","currency":"USD","deadline":"2026-09-29T06:09:30.063Z","cancelled":false,"requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","operations":[{"model":"gpt-5.4-mini-2026-03-17","phase":"productive","runId":"9653599b-e678-4879-9e16-52547348cf30","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","operationId":"3ba24a97-ec81-4e0b-af86-2701955fd2d6","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"6aaa4580-c88f-48b4-b2da-04cd9aa4d02c","reservedMicrousd":336864,"providerRequestId":"controlled-5"},{"model":"gpt-5.4-mini-2026-03-17","phase":"productive","runId":"9653599b-e678-4879-9e16-52547348cf30","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","operationId":"f78fee3b-e350-4741-8a45-2177dea9e235","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"6aaa4580-c88f-48b4-b2da-04cd9aa4d02c","reservedMicrousd":336864,"providerRequestId":"controlled-6"},{"model":"gpt-5.4-mini-2026-03-17","phase":"productive","runId":"9653599b-e678-4879-9e16-52547348cf30","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","operationId":"7f4906e1-b6b4-4a50-8918-e1c9b7d2e6a6","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"6aaa4580-c88f-48b4-b2da-04cd9aa4d02c","reservedMicrousd":336864,"providerRequestId":"controlled-7"},{"model":"gpt-5.4-mini-2026-03-17","phase":"completion","runId":"9653599b-e678-4879-9e16-52547348cf30","state":"settled","usage":{"input_tokens":10,"output_tokens":10},"workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","operationId":"348010d7-b474-4a11-90cb-c8809e4a9acd","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","actualMicrousd":53,"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"pricingRevision":"openai-gpt54mini-20260928","dispatchIdentity":"6aaa4580-c88f-48b4-b2da-04cd9aa4d02c","reservedMicrousd":336864,"providerRequestId":"controlled-8"}],"workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","authorityState":"fenced","workGeneration":2,"ceilingMicrousd":1350000,"contractVersion":"WORK_LEDGER_V2","pricingRevision":"openai-gpt54mini-20260928","settledMicrousd":212,"pricingQualified":true,"retainedMicrousd":0,"availableMicrousd":1349788,"maxPaidOperations":4,"accountingComplete":true,"paidOperationsUsed":4,"unknownExposureMicrousd":0,"completionOperationsUsed":1,"completionReserveMicrousd":336864,"perOperationReserveMicrousd":336864,"plannedCompletionOperations":1,"plannedProductiveOperations":3,"completionOperationSlotsRemaining":0,"completionReserveRemainingMicrousd":336811,"productiveAllowanceRemainingMicrousd":1012977},"state":"COMPLETED","blocker":null,"identity":{"runId":"1a42d7ad-042f-4cd7-99ac-76a528c9efa8","workId":"45dc1556-f9de-4d10-9279-5fab5ef0ae68","baseSha":"024bab53fbde4577deab812a1e9705f8118b176f","deadline":"2026-09-29T06:09:30.063Z","factoryId":"factory-beta","requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","repository":"fixture/golden","remoteRunId":"9653599b-e678-4879-9e16-52547348cf30","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","allowedPaths":["quantity.mjs"],"factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","workGeneration":2,"dispatchIdentity":"6aaa4580-c88f-48b4-b2da-04cd9aa4d02c","writerGeneration":1},"resultId":"3ff166d4-fcff-4279-9e55-85eb4d74e969","snapshot":{"runId":"9653599b-e678-4879-9e16-52547348cf30","version":1,"factoryId":"factory-beta","requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","capturedAt":"2026-09-29T05:59:30.097Z","inputCommit":"024bab53fbde4577deab812a1e9705f8118b176f","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","sourceDigest":"9a7067daa2728be2222d309bd020da8f2ed88ba8ef1670c54b29b8654cd9dd66","attemptNumber":1,"configuration":{"model":"gpt-5.4-mini-2026-03-17","commands":["node --test"],"executor":"codex-cli","platform":"darwin","timeoutMs":1800000,"nodeVersion":"v24.18.1","allowedPaths":["quantity.mjs"],"architecture":"arm64","skillRevision":"fd8f20a879b507cf09feba08663a1edf7a949353","workerProfile":"mac","executorVersion":"codex-cli 0.157.0","verificationImage":"node:22-bookworm"},"requestDigest":"49a30b9b7a0b8e4d10f3fc6be551874899081b6f18ba7319ed2b466bd760f612","factoryVersion":"4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489","configurationDigest":"231825a383ba4a74fdbe8803cca3a1089b2a25d701ac58d0ec81391c43cd3b69"},"quiescent":true,"requestId":"08ada063-4bb2-4f4b-9f67-7d13a9961a9a","accounting":{"blocker":null,"activeMicrousd":0,"ceilingMicrousd":1350000,"settledMicrousd":212,"unknownMicrousd":0,"reservedMicrousd":0,"availableMicrousd":1349788,"maxPaidOperations":4,"paidOperationsUsed":4,"pricingQualification":"QUALIFIED","safeAllowanceMicrousd":0,"accountingCompleteness":"VALIDATED_READBACK","completionQualification":"QUALIFIED","completionReserveMicrousd":336864,"spendEnforcementQualified":true,"completionOperationSlotsRemaining":0,"completionReserveRemainingMicrousd":336811,"productiveAllowanceRemainingMicrousd":1012977},"evidenceRef":"factory-event:c4dfd221-2b91-457a-b965-b78b5ea002f6:terminal","workOrderId":"c4dfd221-2b91-457a-b965-b78b5ea002f6","verification":"FAILED","coordinationDebt":0}},"explanation":["Work identity: {\"workId\":\"45dc1556-f9de-4d10-9279-5fab5ef0ae68\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.","Active Run: none currently confirmed executable. This does not mean Work has no Run history.","Latest Run: 1a42d7ad-042f-4cd7-99ac-76a528c9efa8; MYFACTORY; COMPLETED; recorded COMPLETED; deadline 2026-09-29T06:09:30.063Z.","Run history: 1a42d7ad-042f-4cd7-99ac-76a528c9efa8 (MYFACTORY; COMPLETED; recorded COMPLETED; admission 2026-09-29T05:59:30.113Z).","Factory Work budget: approved ceiling $1.350000; settled $0.000212; reserved $0.000000 (uncertain $0.000000); remaining safe allowance $0.000000. Productive allowance $1.012977; protected completion $0.336811 remaining of $0.336864; paid operations 4/4; protected completion slots 0. Accounting VALIDATED_READBACK; pricing QUALIFIED; completion qualification QUALIFIED. No accounting blocker observed. This is not payment or execution authority.","Writer session: none recorded; not confirmed productive; historical identity grants no authority.","Factory preparation: 08ada063-4bb2-4f4b-9f67-7d13a9961a9a; COMPLETED; blocker none. Intent alone grants no writer authority.","Factory writer: 1a42d7ad-042f-4cd7-99ac-76a528c9efa8; request 08ada063-4bb2-4f4b-9f67-7d13a9961a9a; dispatch 6aaa4580-c88f-48b4-b2da-04cd9aa4d02c; execution 9653599b-e678-4879-9e16-52547348cf30; generation 1; TERMINAL; producer MYFACTORY. Factory factory-beta; version 4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489; WorkOrder c4dfd221-2b91-457a-b965-b78b5ea002f6; attempt 1; receipt 5926095f-9a3a-4db5-9101-471c5375181b. Gate C grants no writer authority.","Factory observation: COMPLETED; blocker none; spend KNOWN; Loopback synthetic provider only; live paid execution disabled.","Candidate: aaf5603cb50b8e5db5dfceb118f2e5b96bd99bc3.","Draft: revision 2; hash c4e0088783868ed63705562f0020dcda05c41715de8a01438e4a580b982dae0b; matches retained candidate.","Candidate history: aaf5603cb50b8e5db5dfceb118f2e5b96bd99bc3: FAIL, 10 evidence records, failed checks quantity-7,quantity-9.","Completion state: NO_CONTRACT.","Protected verification: FAIL; candidate aaf5603cb50b8e5db5dfceb118f2e5b96bd99bc3; job COMPLETED; 10 bound evidence records.","Result: 3ff166d4-fcff-4279-9e55-85eb4d74e969; candidate aaf5603cb50b8e5db5dfceb118f2e5b96bd99bc3; Factory candidate: FAILED. Publication and acceptance are not established.","Budget: no common ledger grant observed.","Completion budget: $1.350000 ceiling; $0.000000 held; available allowance not established. This observation is not spend authority.","Readiness: Factory candidate / MyEve protected verification: FAIL. Retained Result: FAILED. Publication, CI, independent review and owner acceptance remain unverified.","Blocker / next permitted action: Factory is off. Review protected failure and request a new normal native admission for repair."],"candidate":"aaf5603cb50b8e5db5dfceb118f2e5b96bd99bc3","evidenceCount":10,"resultId":"3ff166d4-fcff-4279-9e55-85eb4d74e969"}],"terminalReceipts":[{"workId":"d5898fbb-40f1-4dbd-9900-db6830026042","receiptId":"b7887494-6a96-4732-ac16-f5fd925d570a","state":"STALE","producerStatus":"CANCELLED","envelopeSha256":"3f0b2c05147ddbabc850ceef2bee2094f0536e4d447b52a24b944c96b73beaf9","replayBytesChanged":0,"candidateWorkspaces":0,"verificationJobs":0,"writerState":"TERMINAL"},{"workId":"e2db392a-2bfe-4842-9750-800f069f184d","receiptId":"d31ce951-aad7-4c8c-8ae5-6d2a77f40d2a","state":"STALE","producerStatus":"FAILED","envelopeSha256":"3467ddc6cdf42a0c7e01a352e488837d4c0972c13a119f92a85650dd3bcaefce","replayBytesChanged":0,"candidateWorkspaces":0,"verificationJobs":0,"writerState":"TERMINAL"}],"composition":{"status":"PASS_LOCAL_CONTRACT","workId":"664b8460-addd-42a3-a89d-7beeed9c6d03","candidate":"883141fea288e2061bbe09eafcfcefe4996c3b02","ciCandidate":"4b16bca9a7257bd14ad941c7b28fa8c0536ab00f","reviewCandidate":"ed99645a903f4e2fddfb3d38719e8aab7ac4690c","continuationTransitions":["ci_continuation","review_continuation"],"staleEvidenceInvalidated":true,"freshProtectedChecks":true,"durableLearningDraft":"PASS","laterComparableWork":"1e4d1b6e-1a7c-4905-b455-1f6b136d8e6c","relayTrust":"ADVISORY_ONLY","publisherIdentity":"SYNTHETIC","rawCommitPreserved":true,"publicationMutations":37,"ciFailureBlocks":true,"reviewFeedbackBlocks":true,"learningTrust":"ADVISORY_ONLY","livePublication":"NOT_RUN","durableLearningPromotion":"NOT_IMPLEMENTED"},"executions":6,"counters":{"concurrentWriters":0,"duplicateDispatches":0,"falseReady":0,"unauthenticatedAdmissions":0},"liveMyFactory":"NOT_RUN","qualification":"Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider"}
+node:events:487
+      throw er; // Unhandled 'error' event
+      ^
+
+error: terminating connection due to administrator command
+    at parseErrorMessage (/Users/jaywest/Myeve/node_modules/pg-protocol/src/parser.ts:395:9)
+    at Parser.handlePacket (/Users/jaywest/Myeve/node_modules/pg-protocol/src/parser.ts:212:19)
+    at Parser.parse (/Users/jaywest/Myeve/node_modules/pg-protocol/src/parser.ts:105:30)
+    at Socket.<anonymous> (/Users/jaywest/Myeve/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:509:28)
+    at addChunk (node:internal/streams/readable:563:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:514:3)
+    at Readable.push (node:internal/streams/readable:394:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:189:23)
+Emitted 'error' event on BoundPool instance at:
+    at Client.idleListener (/Users/jaywest/Myeve/node_modules/pg-pool/index.js:62:10)
+    at Client.emit (node:events:509:28)
+    at Client._handleErrorEvent (/Users/jaywest/Myeve/node_modules/pg/lib/client.js:393:10)
+    at Client._handleErrorMessage (/Users/jaywest/Myeve/node_modules/pg/lib/client.js:404:12)
+    at Connection.emit (node:events:509:28)
+    at /Users/jaywest/Myeve/node_modules/pg/lib/connection.js:115:12
+    at Parser.parse (/Users/jaywest/Myeve/node_modules/pg-protocol/src/parser.ts:106:9)
+    at Socket.<anonymous> (/Users/jaywest/Myeve/node_modules/pg-protocol/src/index.ts:7:48)
+    at Socket.emit (node:events:509:28)
+    at addChunk (node:internal/streams/readable:563:12) {
+  length: 116,
+  severity: 'FATAL',
+  code: '57P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'postgres.c',
+  line: '3316',
+  routine: 'ProcessInterrupts',
+  client: Client {
+    _events: [Object: null prototype] { error: [Function (anonymous)] },
+    _eventsCount: 1,
+    _maxListeners: undefined,
+    connectionParameters: ConnectionParameters {
+      user: 'postgres',
+      database: 'factory_beta_06f087394f9b',
+      port: 55479,
+      host: '127.0.0.1',
+      binary: false,
+      options: undefined,
+      ssl: false,
+      client_encoding: '',
+      replication: undefined,
+      isDomainSocket: false,
+      application_name: undefined,
+      fallback_application_name: undefined,
+      statement_timeout: false,
+      lock_timeout: false,
+      idle_in_transaction_session_timeout: false,
+      query_timeout: false,
+      connect_timeout: 0
+    },
+    user: 'postgres',
+    database: 'factory_beta_06f087394f9b',
+    port: 55479,
+    host: '127.0.0.1',
+    replication: undefined,
+    _Promise: [Function: Promise],
+    _types: TypeOverrides {
+      _types: {
+        getTypeParser: [Function: getTypeParser],
+        setTypeParser: [Function: setTypeParser],
+        arrayParser: { create: [Function: create] },
+        builtins: {
+          BOOL: 16,
+          BYTEA: 17,
+          CHAR: 18,
+          INT8: 20,
+          INT2: 21,
+          INT4: 23,
+          REGPROC: 24,
+          TEXT: 25,
+          OID: 26,
+          TID: 27,
+          XID: 28,
+          CID: 29,
+          JSON: 114,
+          XML: 142,
+          PG_NODE_TREE: 194,
+          SMGR: 210,
+          PATH: 602,
+          POLYGON: 604,
+          CIDR: 650,
+          FLOAT4: 700,
+          FLOAT8: 701,
+          ABSTIME: 702,
+          RELTIME: 703,
+          TINTERVAL: 704,
+          CIRCLE: 718,
+          MACADDR8: 774,
+          MONEY: 790,
+          MACADDR: 829,
+          INET: 869,
+          ACLITEM: 1033,
+          BPCHAR: 1042,
+          VARCHAR: 1043,
+          DATE: 1082,
+          TIME: 1083,
+          TIMESTAMP: 1114,
+          TIMESTAMPTZ: 1184,
+          INTERVAL: 1186,
+          TIMETZ: 1266,
+          BIT: 1560,
+          VARBIT: 1562,
+          NUMERIC: 1700,
+          REFCURSOR: 1790,
+          REGPROCEDURE: 2202,
+          REGOPER: 2203,
+          REGOPERATOR: 2204,
+          REGCLASS: 2205,
+          REGTYPE: 2206,
+          UUID: 2950,
+          TXID_SNAPSHOT: 2970,
+          PG_LSN: 3220,
+          PG_NDISTINCT: 3361,
+          PG_DEPENDENCIES: 3402,
+          TSVECTOR: 3614,
+          TSQUERY: 3615,
+          GTSVECTOR: 3642,
+          REGCONFIG: 3734,
+          REGDICTIONARY: 3769,
+          JSONB: 3802,
+          REGNAMESPACE: 4089,
+          REGROLE: 4096
+        }
+      },
+      text: {},
+      binary: {}
+    },
+    _ending: true,
+    _ended: false,
+    _connecting: false,
+    _connected: true,
+    _connectionError: false,
+    _queryable: false,
+    _activeQuery: null,
+    enableChannelBinding: false,
+    connection: Connection {
+      _events: [Object: null prototype] {
+        newListener: [Function (anonymous)],
+        connect: [Function (anonymous)],
+        sslconnect: [Function (anonymous)],
+        authenticationCleartextPassword: [Function: bound _handleAuthCleartextPassword],
+        authenticationMD5Password: [Function: bound _handleAuthMD5Password],
+        authenticationSASL: [Function: bound _handleAuthSASL],
+        authenticationSASLContinue: [Function: bound _handleAuthSASLContinue] AsyncFunction,
+        authenticationSASLFinal: [Function: bound _handleAuthSASLFinal],
+        backendKeyData: [Function: bound _handleBackendKeyData],
+        error: [Function: bound _handleErrorEvent],
+        errorMessage: [Function: bound _handleErrorMessage],
+        readyForQuery: [Function: bound _handleReadyForQuery],
+        notice: [Function: bound _handleNotice],
+        rowDescription: [Function: bound _handleRowDescription],
+        dataRow: [Function: bound _handleDataRow],
+        portalSuspended: [Function: bound _handlePortalSuspended],
+        emptyQuery: [Function: bound _handleEmptyQuery],
+        commandComplete: [Function: bound _handleCommandComplete],
+        parseComplete: [Function: bound _handleParseComplete],
+        copyInResponse: [Function: bound _handleCopyInResponse],
+        copyData: [Function: bound _handleCopyData],
+        notification: [Function: bound _handleNotification],
+        end: [
+          [Function: bound onceWrapper] {
+            listener: [Function (anonymous)]
+          },
+          [Function: bound onceWrapper] {
+            listener: [Function (anonymous)]
+          },
+          [Function: bound onceWrapper] {
+            listener: [Function (anonymous)]
+          },
+          Symbol(events.emitting): 0
+        ]
+      },
+      _eventsCount: 23,
+      _maxListeners: undefined,
+      stream: Socket {
+        connecting: false,
+        _hadError: false,
+        _parent: null,
+        _host: null,
+        _closeAfterHandlingError: false,
+        _events: {
+          close: [Function (anonymous)],
+          error: [Function: reportStreamError],
+          prefinish: undefined,
+          finish: undefined,
+          drain: undefined,
+          data: [Function (anonymous)],
+          end: [
+            [Function: onReadableStreamEnd],
+            [Function (anonymous)],
+            Symbol(events.emitting): 0
+          ],
+          readable: undefined,
+          connect: undefined
+        },
+        _readableState: ReadableState {
+          highWaterMark: 65536,
+          buffer: [],
+          bufferIndex: 0,
+          length: 0,
+          pipes: [],
+          awaitDrainWriters: null,
+          Symbol(kState): 194519348
+        },
+        _writableState: WritableState {
+          highWaterMark: 65536,
+          length: 0,
+          corked: 0,
+          onwrite: [Function (anonymous)],
+          writelen: 0,
+          bufferedIndex: 0,
+          pendingcb: 0,
+          Symbol(kState): 1091450164,
+          Symbol(kBufferedValue): null,
+          Symbol(kWriteCbValue): null,
+          Symbol(kAfterWriteTickInfoValue): null
+        },
+        allowHalfOpen: false,
+        _maxListeners: undefined,
+        _eventsCount: 4,
+        _sockname: null,
+        _pendingData: null,
+        _pendingEncoding: '',
+        server: null,
+        _server: null,
+        Symbol(async_id_symbol): 71075,
+        Symbol(kHandle): null,
+        Symbol(lastWriteQueueSize): 0,
+        Symbol(timeout): null,
+        Symbol(kBuffer): null,
+        Symbol(kBufferCb): null,
+        Symbol(kBufferGen): null,
+        Symbol(shapeMode): true,
+        Symbol(kCapture): false,
+        Symbol(kSetNoDelay): true,
+        Symbol(kSetKeepAlive): false,
+        Symbol(kSetKeepAliveInitialDelay): 0,
+        Symbol(kSetTOS): undefined,
+        Symbol(kBytesRead): 1438,
+        Symbol(kBytesWritten): 1118
+      },
+      _keepAlive: false,
+      _keepAliveInitialDelayMillis: 0,
+      parsedStatements: {},
+      ssl: false,
+      _ending: true,
+      _emitMessage: false,
+      _connecting: true,
+      Symbol(shapeMode): false,
+      Symbol(kCapture): false
+    },
+    _queryQueue: [],
+    binary: false,
+    processID: 171,
+    secretKey: 1931505590,
+    ssl: false,
+    _connectionTimeoutMillis: 0,
+    _connectionCallback: null,
+    release: [Function (anonymous)],
+    readyForQuery: true,
+    hasExecuted: true,
+    _poolUseCount: 3,
+    Symbol(shapeMode): false,
+    Symbol(kCapture): false
+  }
+}
+
+Node.js v24.18.1

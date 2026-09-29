@@ -1,5 +1,9 @@
 # MyEveBot
 
+**Q37 private-alpha continuation: local qualification PASS; independent review pending.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](docs/verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
+
+The dated checkpoints below are historical context; the continuation dossier above controls current producer identity and qualification.
+
 [MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Cloudflare's [Kumo](https://github.com/cloudflare/kumo) components.
 
 Each deployment serves one owner by default for a simple security boundary. MyEve, Relay, and MyFactory keep separate authority and state: MyEve is the owner's agent, Relay is an optional governed capability plane, and MyFactory is a local software-delivery supervisor. Connecting them is explicit and does not grant an agent permission to approve, merge, or deploy its own work.
