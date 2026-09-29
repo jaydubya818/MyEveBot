@@ -51,6 +51,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/delegation.ts",
   "agent/instructions/installed-skills.ts",
   "agent/instructions/persistent-agent.ts",
+  "agent/instructions/persistent-agent.test.ts",
   "agent/instructions/on-demand-role.ts",
   "agent/instructions/time.ts",
   "agent/schedules/operations-monitor.ts",
@@ -58,6 +59,14 @@ export const CORE_PRUNABLE_FILES = [
   "agent/schedules/owner-channel.ts",
   "agent/tools/complete_task.ts",
   "agent/tools/complete_work.ts",
+  // Internal engineering tools stay dormant behind their existing owner/runtime gates.
+  "agent/tools/engineering_work.ts",
+  "agent/tools/engineering_direct.ts",
+  "agent/tools/engineering_factory.ts",
+  // Claimed for source completeness; isExcluded still removes tests from deployments.
+  "agent/tools/engineering_direct.test.ts",
+  "agent/tools/engineering_factory.test.ts",
+  "agent/tools/beta-tool-activation.test.ts",
   "agent/tools/bash.ts",
   "agent/tools/ask_question.ts",
   "agent/tools/discover_capabilities.ts",
