@@ -3,7 +3,7 @@
 Status: product source candidate; NOT a release or canonical integration branch.
 Q37 boundary: **WAITING_FOR_CANONICAL_Q37**.
 
-Use the verified source SHA in `docs/verification/private-alpha/README.md` and the final handoff message. Do not automatically merge a Q37 or MyFactory successor into this product branch.
+Tested source: `ef0771797474216b2275bda349fa2d83ccd45dfe` (pushed and origin verified). This crosswalk was handed to canonical integration chat `01a0e4bf-cdce-7ba1-91c2-6953027cca93` without a merge or deployment request. Do not automatically merge a Q37 or MyFactory successor into this product branch.
 
 ## Inputs and merge strategy
 
