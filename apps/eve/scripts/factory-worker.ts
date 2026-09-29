@@ -1,3 +1,4 @@
+import {factoryWorkerApproval,assertFactoryWorkerApproval} from '../lib/engineering/factory-worker-approval.ts';
 import {createRequire} from 'node:module';
 import {factoryConfig} from '../lib/engineering/factory-routing.ts';
 import {factoryRuntime} from '../lib/engineering/factory-runtime.ts';
@@ -13,7 +14,7 @@ if(process.env.MYEVE_ENGINEERING_MODE!=='dogfood'||process.env.VERCEL_ENV==='pro
  throw Error('Factory worker requires its explicit database and local execution configuration.');
 const config=await factoryConfig(),owner=config.engineering.ownerId;
 if(alpha&&owner!==process.env.MYEVE_OWNER_ID)throw Error('Private-alpha worker owner mismatch.');
-if(config.connection.qualification.mode==='LIVE'&&process.env.MYEVE_FACTORY_REAL_EXECUTION_APPROVED!=='true')throw Error('First real model operation requires explicit owner approval.');
+const approval=factoryWorkerApproval(config.connection.qualification.mode);
 const {Client}=createRequire(import.meta.url)('pg');const client=new Client({connectionString:url.href});
 await client.connect();
 let stopping=false;process.on('SIGTERM',()=>{stopping=true;});process.on('SIGINT',()=>{stopping=true;});
@@ -24,10 +25,11 @@ try {
  if(!lock?.acquired)throw Error('Another Factory worker owns this scope.');
  console.log('Factory worker connected; canonical execution gates active.');
  while(!stopping) {
-  if(alpha)await consumeFactoryCommands(store,(id,input)=>factoryAction(store,id,input));
+  if(alpha)await consumeFactoryCommands(store,(id,input)=>{assertFactoryWorkerApproval(approval,id,input);return factoryAction(store,id,input);});
   const rows=await store.database.query(`SELECT d.work_id,w.version,w.generation FROM engineering_routing_decisions d JOIN engineering_work w ON w.id=d.work_id AND w.scope_id=d.scope_id AND w.scope_kind=d.scope_kind WHERE d.scope_id=$1 AND d.scope_kind='personal' AND d.work_version=w.version AND d.factory_preparation IS NOT NULL AND coalesce(d.factory_observation#>>'{value,verification}','') NOT IN ('PARTIAL','FAILED') ORDER BY d.created_at`,[owner]);
   for(const row of rows) {
    if(stopping)break;
+   if(approval&&(row.work_id!==approval.workId||Number(row.version)!==approval.version||Number(row.generation)!==approval.generation))continue;
    try {
     const driver=await factoryRuntime(store);
     const stops=alpha?await store.database.query("SELECT operation FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND work_version=$3 AND work_generation=$4 AND operation IN ('stop','takeover') ORDER BY created_at DESC LIMIT 1",[owner,row.work_id,row.version,row.generation]):[];

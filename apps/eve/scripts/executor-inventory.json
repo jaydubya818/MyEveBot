@@ -3700,6 +3700,11 @@
       "classification": "INTERNAL",
       "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission.",
       "sha256": "b220fa93ba54255d52f433ea14eefa3d7728cca42ef9c4614852aa2de94aaaf9"
+    },
+    "lib/engineering/factory-worker-approval.ts": {
+      "classification": "INTERNAL",
+      "reason": "Local LIVE worker requires direct owner authorization bound to exact Work ID, version and generation before canonical dispatch; activation alone grants nothing.",
+      "sha256": "a4daf031954ab3870ce2cfccb1ba6d6f979feead1f68ea02baa6065e87e1124d"
     }
   }
 }
