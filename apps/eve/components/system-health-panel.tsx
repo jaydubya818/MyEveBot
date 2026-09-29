@@ -187,7 +187,7 @@ export function SystemHealthPanel() {
   const readyCount = report.checks.filter((check) => check.state === "ready").length;
   const includedCount = report.checks.filter((check) => check.state !== "excluded").length;
   const requiredIssues = report.checks.filter(
-    (check) => check.required && check.state !== "ready",
+    (check) => check.required && (check.state === "setup_required" || check.state === "error"),
   ).length;
   const healthy = report.overall === "ready";
   const availableCapabilities =
