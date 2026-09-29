@@ -513,7 +513,7 @@ export function IntegratedExperience({
           </div>
         </header>
         <p className="owner-muted">
-          Local beta qualification · MyFactory and Capsules pending · Live Relay
+          Private alpha integration · Local execution only · Live Relay
           unavailable
         </p>
         {loading && <p role="status">Checking your current state…</p>}
@@ -716,6 +716,39 @@ export function IntegratedExperience({
                           {String(canonical.admission.reason)}
                         </p>
                       )}
+                      <div className="owner-actions">
+                        {selectedWork.lifecycle === "active" &&
+                          ["start", "reconcile", "stop", "takeover"].map(
+                            (operation) => (
+                              <button
+                                key={"factory-" + operation}
+                                disabled={busy}
+                                onClick={() =>
+                                  void mutate(
+                                    () =>
+                                      post("factory", {
+                                        workId: selectedWork.id,
+                                        operation,
+                                        expectedWorkVersion:
+                                          selectedWork.version,
+                                        expectedWorkGeneration:
+                                          selectedWork.generation,
+                                      }),
+                                    "Factory request saved. Review Current Truth; execution requires qualified admission.",
+                                  )
+                                }
+                              >
+                                {operation === "start"
+                                  ? "Start MyFactory"
+                                  : operation === "reconcile"
+                                    ? "Refresh MyFactory"
+                                    : operation === "stop"
+                                      ? "Stop MyFactory"
+                                      : "Take over MyFactory"}
+                              </button>
+                            ),
+                          )}
+                      </div>
                       <div className="owner-actions">
                         {selectedWork.lifecycle === "active" &&
                           (selectedWork.control === "paused"

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "checks": [
+    "two independent fresh migration chains and no-op replay",
+    "exact current personal source consent and destination-bound export",
+    "source correction invalidates approval and export review",
+    "12 concurrent imports yield one atomic canonical Memory activation and one receipt",
+    "fresh process uses canonical memoryStore.search for useful recall; another Agent cannot recall it",
+    "cross-owner and foreign Agent import denied",
+    "Current Truth conflict keeps destination and rejects bulk replacement",
+    "Skills, Roles, Packs and learning retain exact source version/provenance in staging and gain no activation",
+    "Failure on the second canonical Memory insert rolls back the entire batch and receipt",
+    "Rollback rejects later metadata changes even without a timestamp change",
+    "rollback refuses to remove subsequently corrected Memory",
+    "rollback and old-request replay never reactivate retired Memory"
+  ],
+  "scope": "Personal owner Memory only; scoped learning and behavior staged. Canonical memoryStore recall after process restart; live Sofie NOT_RUN.",
+  "safety": {
+    "duplicateMemory": 0,
+    "crossOwnerDisclosures": 0,
+    "authorityTransfer": 0,
+    "staleActivation": 0
+  }
+}

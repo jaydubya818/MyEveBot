@@ -1,0 +1,16 @@
+- generic [ref=f7e1]:
+  - main [ref=f7e2]:
+    - generic [ref=f7e3]:
+      - generic [ref=f7e4]:
+        - generic [ref=f7e5]: S
+        - generic [ref=f7e7]: Private
+      - paragraph [ref=f7e10]: Personal workspace
+      - heading "Welcome back, Jay" [level=1] [ref=f7e11]
+      - paragraph [ref=f7e12]: Unlock Sofie to open your conversations, memory, automations, and connected apps.
+      - generic [ref=f7e13]:
+        - text: Access password
+        - textbox "Access password" [active] [ref=f7e14]:
+          - /placeholder: Enter your password
+        - button "Open Sofie" [disabled] [ref=f7e16]
+      - paragraph [ref=f7e22]: Your session stays on this device for seven days. The password is stored only in your deployment environment.
+  - alert [ref=f7e23]

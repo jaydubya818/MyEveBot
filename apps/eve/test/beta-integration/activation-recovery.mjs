@@ -13,7 +13,7 @@ import { NativeResultStore } from "../../lib/engineering/native-results.ts";
 const fixture = JSON.parse(
   await readFile(
     new URL(
-      "../../../../docs/verification/beta-integration/activation/canonical-journey.json",
+      `../../../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "activation"}/canonical-journey.json`,
       import.meta.url,
     ),
     "utf8",
@@ -89,7 +89,7 @@ try {
           ],
           {
             encoding: "utf8",
-            env: { PATH: process.env.PATH, HOME: process.env.HOME },
+            env: { PATH: process.env.PATH, HOME: process.env.HOME, MYEVE_BETA_EVIDENCE_PHASE: process.env.MYEVE_BETA_EVIDENCE_PHASE },
           },
         );
       const lost = run(true);
@@ -173,7 +173,7 @@ try {
     };
     await writeFile(
       new URL(
-        "../../../../docs/verification/beta-integration/activation/canonical-recovery.json",
+        `../../../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "activation"}/canonical-recovery.json`,
         import.meta.url,
       ),
       JSON.stringify(report, null, 2) + "\n",

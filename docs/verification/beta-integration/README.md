@@ -1,3 +1,5 @@
+> Current workstream: [two-person private alpha](alpha/README.md). The accepted pre-final-components checkpoint below is preserved as historical evidence.
+
 # Canonical beta integration — activated local candidate
 
 **Overall: READY_FOR_FINAL_COMPONENTS. The approved canonical tools and authenticated Work decision/control/admission/continuation boundary are mounted and locally qualified. Live Sofie is NOT_RUN; canonical local Results and the full completion journey remain PARTIAL.**

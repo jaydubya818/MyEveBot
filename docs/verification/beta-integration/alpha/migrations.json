@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "latest": "0067_capsule_canonical_memory.sql",
+  "count": 63,
+  "checks": [
+    "Every preserved migration through 0066 remains byte-identical to accepted 7f86aca",
+    "0067 injected failure rolls back all DDL and leaves the ledger untouched",
+    "Populated accepted-chain upgrade preserves Memory, prefix checksums and applied timestamps; no-op replay passes"
+  ]
+}

@@ -134,7 +134,7 @@ try {
   };
   await writeFile(
     new URL(
-      "../../../../docs/verification/beta-integration/activation/negative.json",
+      `../../../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "activation"}/negative.json`,
       import.meta.url,
     ),
     JSON.stringify(report, null, 2) + "\n",

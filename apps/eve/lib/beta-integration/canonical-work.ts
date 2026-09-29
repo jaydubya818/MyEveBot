@@ -1,3 +1,4 @@
+import { factoryConfig } from "../engineering/factory-routing.ts";
 import {
   NativeRouteAuthority,
   admitNativeWork,
@@ -127,6 +128,15 @@ export class CanonicalBetaWork {
       reason = "",
       status: "ADMITTED" | "DENIED" = "DENIED";
     try {
+      if (
+        process.env.MYEVE_FACTORY_CONFIG &&
+        (await factoryConfig()).routing.intent === "PRODUCE"
+      )
+        throw new WorkError(
+          "factory_admission_required",
+          "Use MyFactory admission for this production Work. Native fallback is not automatic.",
+          409,
+        );
       const authority = this.authorityFor(owner);
       const existing = (await new RoutingStore(store).snapshot(workId))
         .decision;

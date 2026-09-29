@@ -1,0 +1,6 @@
+### Result
+[{"url":"http://localhost:3099/capsules","width":1440,"overflow":false,"violations":[]},{"url":"http://localhost:3099/capsules","width":390,"overflow":false,"violations":[]}]
+### Ran Playwright code
+```js
+await (async (page) => { const results=[]; for (const width of [1440,390]) { await page.setViewportSize({width,height:900}); await page.addScriptTag({path:"/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js"}); const audit=await page.evaluate(async()=>({url:location.href,width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth,axe:await axe.run(document,{runOnly:{type:"tag",values:["wcag2a","wcag2aa","wcag21aa"]}})})); results.push({url:audit.url,width:audit.width,overflow:audit.overflow,violations:audit.axe.violations}); await page.screenshot({path:`output/playwright/beta-integration/alpha/capsules-import-${width}.png`,fullPage:true}); } return results; })(page);
+```

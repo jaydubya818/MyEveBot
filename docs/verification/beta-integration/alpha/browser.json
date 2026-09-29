@@ -1,0 +1,46 @@
+{
+  "status": "PASS",
+  "scope": "Two isolated loopback Next production-build instances with synthetic owner credentials and independent session secrets/databases",
+  "checks": [
+    "Signed owner sign-in on source and destination",
+    "Source signed session rejected by destination",
+    "Explicit exact-source personal portability consent and destination-bound export review",
+    "Reviewed Capsule download",
+    "File upload, per-item review and explicit canonical Memory activation",
+    "Receipt remains present after application restart",
+    "Cookie expiry clears private catalog, selection and preview; 401 asks owner to sign in",
+    "Desktop 1440px and mobile 390px no horizontal overflow",
+    "axe WCAG 2 A/AA and 2.1 AA: zero violations on export and import"
+  ],
+  "finalBuildAudits": [
+    {
+      "url": "http://localhost:3100/capsules",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "url": "http://localhost:3100/capsules",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "url": "http://localhost:3099/capsules",
+      "width": 1440,
+      "overflow": false,
+      "violations": []
+    },
+    {
+      "url": "http://localhost:3099/capsules",
+      "width": 390,
+      "overflow": false,
+      "violations": []
+    }
+  ],
+  "screenshots": "output/playwright/beta-integration/alpha/",
+  "limitations": [
+    "Local origins only; actual deployed host not exercised.",
+    "Live Sofie and live MyFactory not exercised."
+  ]
+}

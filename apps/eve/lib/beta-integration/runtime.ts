@@ -1,3 +1,8 @@
+import {
+  factoryAction,
+  factoryActionSchema,
+} from "../engineering/factory-api.ts";
+import { factoryConfig } from "../engineering/factory-routing.ts";
 import { GOLDEN_QUALIFICATION_REPOSITORY } from "../engineering/base-preflight.ts";
 import { CanonicalBetaWork } from "./canonical-work.ts";
 import { createRequire } from "node:module";
@@ -533,6 +538,32 @@ export async function betaRequest(
           },
           { headers },
         );
+    }
+    if (request.method === "POST" && resource === "factory") {
+      const input = factoryActionSchema
+        .extend({ workId: z.string().uuid() })
+        .strict()
+        .parse(await boundedJson(new Response(request.body), 4000));
+      const config = await factoryConfig();
+      if (
+        config.engineering.ownerId !== owner ||
+        !["LOCAL_FIXTURE", "LOCAL_SPEND_FIXTURE"].includes(
+          config.connection.qualification.mode,
+        )
+      )
+        throw new WorkError(
+          "factory_local_only",
+          "This integration enables only the qualified local Factory fixture. Live execution requires separate authorization.",
+          403,
+        );
+      const { workId, ...action } = input;
+      const result = await factoryAction(beta.store(owner), workId, action);
+      await beta.query(
+        `UPDATE beta_goal_work_bindings b SET binding=jsonb_set(jsonb_set(binding,'{workGeneration}',to_jsonb(w.generation)),'{state}','"ADMITTED"'::jsonb)
+        FROM engineering_work w,engineering_routing_decisions d WHERE b.owner_id=$1 AND b.work_id=$2 AND w.scope_id=b.owner_id AND w.scope_kind='personal' AND w.id=b.work_id AND d.scope_id=w.scope_id AND d.scope_kind=w.scope_kind AND d.work_id=w.id AND d.work_version=w.version AND d.selected_route='MYFACTORY' AND d.status='ADMITTED'`,
+        [owner, workId],
+      );
+      return Response.json({ result }, { headers });
     }
     if (request.method === "POST" && resource === "work") {
       const binding = z.object({

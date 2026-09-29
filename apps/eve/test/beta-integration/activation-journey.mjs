@@ -497,7 +497,7 @@ if (process.argv.includes("--child")) {
     };
     await writeFile(
       new URL(
-        "../../../../docs/verification/beta-integration/activation/canonical-journey.json",
+        `../../../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "activation"}/canonical-journey.json`,
         import.meta.url,
       ),
       JSON.stringify(summary, null, 2) + "\n",

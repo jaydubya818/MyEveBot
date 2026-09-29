@@ -10,6 +10,7 @@ export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
     ["/work", "Work"],
     ["/chat", AGENT_NAME],
     ["/knowledge", "Knowledge"],
+    ["/capsules", "Capsules"],
     ["/manage/connections", "Apps"],
   ];
   return (

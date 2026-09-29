@@ -2015,8 +2015,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Exactly engineering_work and engineering_direct enabled only in configured non-production dogfood; discovery grants no productive authority.",
-      "sha256": "4be2c956929af4677c704874f917ab1e85cc4f6e2328386eba6a0c56d9e8d753"
+      "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools.",
+      "sha256": "c288c64327c37f77955d02935f20272ed5997103f79ebb1beeee899af848437d"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Schema readiness head is reconciled additive 0066; fresh chain, canonical 0057 upgrade, no-op replay and preserved Phase 1 rejection passed.",
-      "sha256": "70c90e2a57c21e6575a99fec5f406b8eeed6842415e42abbfd608105d20a97bd"
+      "reason": "Forward-only current migration filename 0067; no applied migration rewrites.",
+      "sha256": "57023b44ca2d43a9ae0d54697c8e5f6ae9b4aca03e4948e4b89fda569bad7ab4"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3207,8 +3207,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner and same-origin boundary mounts narrow pause/resume/continue/admit commands, strict schemas and canonical Work services; Work Inbox sources are owner-bound; no provider dispatch.",
-      "sha256": "717a411566fbb853addfcd1525e0e9060e2e6c830b5cd6a5363d81a3a8a47332"
+      "reason": "Signed owner/same-origin beta composition. Factory action requires configured matching owner and local fixture qualification; delegates exact Work revision/generation to canonical spend/admission/writer/result driver. No live activation.",
+      "sha256": "d1133209d6eadc22deb1f0307ad615ad0d7e3b80f7d8b9f6f951199ae373b5f5"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3303,7 +3303,7 @@
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority.",
-      "sha256": "e2834a2f0da1c43533a69c265c0fc0d16766418a65dd327ef0cb0c3fc4830db6"
+      "sha256": "0a73cfcb2ddc96ff9020fa780705d1d3990773d925689c47a75c3acf69e1a176"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3473,7 +3473,7 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
-      "sha256": "f7dfbc80a5e6bb83529bac463903cf9bd4b4530c6872053af23ae5f6552c732f"
+      "sha256": "88554a05140b9d7ceb041802c93320b70fabe3d6a418011d5600e3e6d5f8d840"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3487,8 +3487,8 @@
     },
     "lib/beta-integration/canonical-work.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-scoped version/generation CAS, current retained Inbox action/response under lock; eligibility changes only canonical control, then uses fresh-context canonical admission. No provider dispatch or writer grants outside canonical admission.",
-      "sha256": "de7ada81fead997a7b200e5f3196a6ec6351241ed4438b85f8bb52ef9b9a9dc1"
+      "reason": "Canonical owner Work CAS, Inbox continuation binding and admission preserved; Factory production profile denies automatic native fallback.",
+      "sha256": "4715dc0dc1d5984c2ddf2c812d312981e132f44e6a27b5f750beb517b0080eed"
     },
     "lib/engineering/work-recall-context.ts": {
       "classification": "READ_ONLY",
@@ -3508,7 +3508,128 @@
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
-      "sha256": "8f8fe02871543e55246736ad6e094caa27765f6c4c1a5b287ae5d3b2ab4f4079"
+      "sha256": "7159ebf1ed1a5228a7e6786368e78b88586979b386be8cf28c87ed089aa09306"
+    },
+    "agent/tools/engineering_factory.ts": {
+      "classification": "ENFORCED",
+      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch.",
+      "sha256": "9726cf824781246add437270961b39fb2f480cad9af126fe19bb323b3480bbfa",
+      "disposition": "gateway"
+    },
+    "lib/capsules/schema.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
+      "sha256": "c8a5eb17f0138e2a75779f7c78f03af931a850d6fe4347f0841c5bfa24bf2754"
+    },
+    "lib/capsules/fixtures.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
+      "sha256": "113f37ca0a920889cb1fcecacc5974a9d6fb6ccd83c066746606c336795c4ef4"
+    },
+    "lib/capsules/memory-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
+      "sha256": "cda85315af6fb25087378677903e684366f239c28e0cf2c81c8b4bd72779e4ad"
+    },
+    "lib/capsules/format.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
+      "sha256": "a9a01a0633742e3edccc833fdc82cd906c55ca1bde3950aa15016ea1a8d90de4"
+    },
+    "lib/capsules/total-recall-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned read-only contract/validation only; no canonical persistence, authority or production activation. Covered by Capsule integration acceptance and adversarial tests.",
+      "sha256": "ebb64bf118a525d6a18b7c86d46488a9e34854606b61266c18ec8e56a416ae00"
+    },
+    "lib/capsules/security.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict Capsule authority/credential/opaque-payload rejection retained. A narrowly recognized namespaced canonical Agent UUID is allowed only in identity/reference fields; ordinary text and arbitrary secrets remain rejected. Covered by canonical identity and adversarial tests.",
+      "sha256": "127910f1de6122724fcf2628d0eecae7e44d406d91d2a0b8c13a64b6a7bc71af"
+    },
+    "lib/capsules/canonical-memory.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped canonical Memory only: fresh exact-content/destination consent, strict Capsule parser, active owned Agent, coarse canonical table locks, full-batch transaction, retained provenance, conflict preservation and rollback of unchanged records. Scoped learning/behavior never activated; no provider/grant effects.",
+      "sha256": "7dbc084db8714c61e173453e95e1ed1d923e0bb910bc074d2f624857df8594c1"
+    },
+    "lib/capsules/fixture-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Local-only SQLite qualification fixture, unreachable in production; atomic staging and SIGKILL recovery tested. Not a canonical Memory store or executor.",
+      "sha256": "6dd30147435cfb0f5a138caab86564e198f11566ba6d9536bfe846d290f47b94"
+    },
+    "lib/capsules/service.ts": {
+      "classification": "INTERNAL",
+      "reason": "Read-only canonical Memory projection; missing portability policy fails closed. Production imports save inert reviews only. Local qualification fixture explicitly disabled in production.",
+      "sha256": "cab62e1e24db5be58032c020d88c6ff8e476a9a532393dae9499c5369d277583"
+    },
+    "lib/capsules/import.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned bounded portable data validation and preparation only; no execution, provider, credential, grant or canonical Memory mutation. Qualified in lib/capsules/capsules.test.ts.",
+      "sha256": "46de039c9a10b013ee44ff946323d06945a0066daf088c23ab162dedb1dacb2f"
+    },
+    "lib/capsules/integration-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Capsule-owned read-only contract/validation only; no canonical persistence, authority or production activation. Covered by Capsule integration acceptance and adversarial tests.",
+      "sha256": "79ec57d25215f4b345af154b5f8bed44acd260b8f1f9877487023e4d2913f30f"
+    },
+    "lib/capsules/staging-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Authenticated owner-scoped inert import-review storage in owner_data_operations; atomic transaction, quota, TTL and owner isolation tested against local PostgreSQL. No activation or authority writes.",
+      "sha256": "c834aeddac76c586315998bc0af341266c5d89ba0b73e20e0462de0356a58b10"
+    },
+    "lib/engineering/factory-runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
+      "sha256": "689a6b10b332626eff3c80648403965ccf8763d006ae100ce542da8afd0f649b"
+    },
+    "lib/engineering/factory-live-adapter.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
+      "sha256": "fe1256720aa37494f9df6867f02a28707cf1e2f32cac03de67cca1ba80c9c5bb"
+    },
+    "lib/engineering/factory-return.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure synthetic MyEve-owned submission, candidate/evidence custody, duplicate, historical, UNKNOWN and cancellation projections. Reported Factory claims never grant authority or protected verification/readiness; no I/O, dispatch or durable writer mutations.",
+      "sha256": "c6d665a212940b9a29866dfb803f13ab687aa2cdeded979df3deb1bdb0c6e9df"
+    },
+    "lib/engineering/factory-return-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict bounded MyFactory synthetic return and trusted expected FactoryVersion schemas using actual receipt, Run, Check and event fields. No provider, filesystem, authority or execution effects.",
+      "sha256": "c49d20666fd59d3d79928958178e8be56e46d7bef256c3639e6c8882732e3b89"
+    },
+    "lib/engineering/factory-work-driver.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
+      "sha256": "402f299b87b2386364a220ffd76b1f51056af8b3af66ff59767a4141e638f425"
+    },
+    "lib/engineering/factory-api.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
+      "sha256": "523357b2d598e97068fbcccb293c2a0ac48e7297681210e0e88249e775736ec2"
+    },
+    "lib/engineering/factory-observation.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Exact hosted Factory request lookup and verified intake projection against current Work/run revision; no dispatch or candidate acceptance.",
+      "sha256": "faa9d014609de6de4b1b39b4943bfbc44cb2c06a18e2297d388010630013707e"
+    },
+    "lib/engineering/factory-writer.ts": {
+      "classification": "ENFORCED",
+      "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant.",
+      "sha256": "7a01cfebe33c28e4507c60fa8d3797fa53ebe15d5f3c24a6fd8028a4481842ca"
+    },
+    "lib/engineering/factory-routing.ts": {
+      "classification": "INTERNAL",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
+      "sha256": "98346e08620a824b8f9450a780a75275384f7790b1d3d44682159c46aee31330"
+    },
+    "app/api/capsules/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Signed owner and same-origin canonical Capsule commands, bounded strict input, no-store response; exact owner/destination scope passed to canonical transaction adapter. Legacy fixture/staging retains prior guards.",
+      "sha256": "be6f3c0c61d4fa761be37cf745f8e18e50d60b2c4c99d324ce7b14f731d665a0"
+    },
+    "app/api/beta/factory/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Thin adapter to signed, same-origin beta Factory action; no independent transport or authority.",
+      "sha256": "1e10ead75f36f2195606d17c8275529a6dd1b3fb0e8643540321f3846bd34d79"
     }
   }
 }

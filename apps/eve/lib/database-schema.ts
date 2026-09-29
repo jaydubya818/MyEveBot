@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0066_beta_canonical_continuation.sql";
+export const CURRENT_DATABASE_MIGRATION = "0067_capsule_canonical_memory.sql";

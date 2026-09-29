@@ -227,6 +227,18 @@ try {
   console.log("Route admission: scoped policy/provider checks, concurrent CAS, durable receipt, version race and legacy writer denial passed");
 } finally {
   if (pool) await pool.end();
-  await admin.query(`DROP DATABASE IF EXISTS ${databaseName} WITH (FORCE)`);
+  // Pool shutdown can resolve before PostgreSQL has removed its backend rows.
+  // Wait for this disposable database to quiesce instead of killing connections.
+  let quiescent = false;
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const result = await admin.query(
+      "SELECT count(*)::int AS count FROM pg_stat_activity WHERE datname=$1",
+      [databaseName],
+    );
+    if (result.rows[0].count === 0) { quiescent = true; break; }
+    await new Promise(resolve => setTimeout(resolve, 10));
+  }
+  assert(quiescent, "Disposable route-admission database did not quiesce");
+  await admin.query(`DROP DATABASE IF EXISTS ${databaseName}`);
   await admin.end();
 }
