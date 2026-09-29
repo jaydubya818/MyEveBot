@@ -1,3 +1,4 @@
+import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
 import { z } from "zod";
@@ -15,7 +16,7 @@ export default defineDynamic({
       if (checkCapabilityAvailability("tool.engineering_work")?.status !== "available") return null;
       const caller = ctx.session.auth.current;
       if (
-        process.env.MYEVE_ENGINEERING_MODE !== "dogfood" ||
+        !engineeringWorkEnabled() ||
         !caller ||
         caller.principalType !== "user" ||
         caller.attributes.owner !== "true" ||
@@ -73,7 +74,7 @@ export default defineDynamic({
           const current = toolCtx.session.auth.current;
           if (
             checkCapabilityAvailability("tool.engineering_work")?.status !== "available" ||
-            process.env.MYEVE_ENGINEERING_MODE !== "dogfood" ||
+            !engineeringWorkEnabled() ||
             !current ||
             current.principalId !== caller.principalId ||
             current.principalType !== "user" ||

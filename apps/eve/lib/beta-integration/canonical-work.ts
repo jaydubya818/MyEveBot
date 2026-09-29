@@ -1,3 +1,5 @@
+import { hostedFactoryQueue } from "../engineering/deployment-mode.ts";
+import { factoryAction } from "../engineering/factory-api.ts";
 import { factoryConfig } from "../engineering/factory-routing.ts";
 import {
   NativeRouteAuthority,
@@ -124,6 +126,11 @@ export class CanonicalBetaWork {
         "Refresh the current Work before admission.",
         409,
       );
+    // Queue only after the same owner response/CAS checks. A queued request is never admission.
+    if (hostedFactoryQueue()) {
+      const receipt = await factoryAction(store, workId, {operation: "start", expectedWorkVersion: version, expectedWorkGeneration: generation});
+      return {status: "QUEUED", reason: "Canonical Factory admission queued; no execution authority granted.", receipt};
+    }
     let receipt: unknown = null,
       reason = "",
       status: "ADMITTED" | "DENIED" = "DENIED";

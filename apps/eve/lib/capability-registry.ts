@@ -1,3 +1,4 @@
+import { engineeringWorkEnabled, hostedFactoryQueue } from "./engineering/deployment-mode.ts";
 import { getCapabilityStatuses } from "./capabilities.ts";
 
 export const BROWSER_TOOL_CAPABILITIES: Record<string, string> = {
@@ -423,7 +424,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("read_file", { description: "Read a file from the active Agent computer workspace.", permissions: ["files.read"], configuration: ["DATABASE_URL"], dependencies: ["files.read"], keywords: ["file", "read", "workspace"] }),
   tool("write_file", { description: "Write a bounded file in the active Agent computer workspace.", permissions: ["files.write"], risk: "medium", riskCategories: ["sandbox-data"], configuration: ["DATABASE_URL"], dependencies: ["files.write"], keywords: ["file", "write", "workspace"] }),
   tool("engineering_work", { description: "Prepare scoped Work and inspect its durable manifest, evidence and Results; the model cannot grant readiness or publication authority.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE"], keywords: ["engineering", "work", "criteria", "evidence", "readiness"] }),
-  tool("engineering_factory", { description: "Start and safely reconcile selected qualified MyFactory Work through canonical writer admission; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_FACTORY_CONFIG"], keywords: ["engineering", "factory", "work", "recovery"] }),
+  tool("engineering_factory", { description: "Start and safely reconcile selected qualified MyFactory Work through canonical writer admission; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_FACTORY_CONFIG or MYEVE_FACTORY_WORKER_ENABLED"], keywords: ["engineering", "factory", "work", "recovery"] }),
   tool("engineering_direct", { description: "Inspect an owner-scoped Sofie engineering draft after DEEP_AGENT route admission, edit approved source paths, and retain a candidate for separate protected verification; no publication or Ready grant.", permissions: ["engineering.work.write"], risk: "medium", riskCategories: ["durable-data", "sandbox-data"], configuration: ["DATABASE_URL", "MYEVE_ENGINEERING_MODE", "MYEVE_ENGINEERING_CONFIG"], keywords: ["engineering", "deep agent", "sofie", "candidate", "verification"] }),
   tool("create_goal", { description: "Create a durable goal, optionally with its first plan, milestones, and tasks.", feature: "goals", permissions: ["goals.write"], risk: "medium", riskCategories: ["durable-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["goals.operating-system"], keywords: ["goal", "plan", "milestone", "task", "outcome"] }),
   tool("get_routine_readiness", {description:"Inspect owner-scoped Routine readiness without changing authority or executing work.",permissions:["routines.read"],configuration:["DATABASE_URL"],keywords:["routine","readiness"]}),
@@ -553,8 +554,8 @@ function availabilityFor(
 ): ResolvedCapability["availability"] {
   // Discovery is gated; execution retains the canonical owner, Work and provider fences.
   if (["tool.engineering_work", "tool.engineering_direct", "tool.engineering_factory"].includes(definition.id) &&
-      (env.MYEVE_ENGINEERING_MODE !== "dogfood" || env.VERCEL_ENV === "production")) {
-    return { status: "disabled", configured: false, reason: "Canonical engineering tools require isolated dogfood mode." };
+      (!engineeringWorkEnabled(env) || (definition.id === "tool.engineering_direct" && hostedFactoryQueue(env)))) {
+    return { status: "disabled", configured: false, reason: "Canonical engineering tools require an explicitly qualified deployment; native execution remains isolated." };
   }
   if (definition.id === "tool.evaluate_with_jev" && env.MYEVE_DECISION_INTELLIGENCE_ENABLED !== "true") {
     return {status: "disabled", configured: false, reason: "Jev evaluation is disabled in this deployment."};

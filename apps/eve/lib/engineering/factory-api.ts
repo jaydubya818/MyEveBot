@@ -1,3 +1,6 @@
+import { hostedFactoryQueue } from "./deployment-mode.ts";
+import { enqueueFactoryCommand } from "./factory-commands.ts";
+import { betaConfiguration } from "../beta-integration/configuration.ts";
 import { assertBusinessEffect } from "../business-effects.ts";
 import {z} from 'zod';
 import {boundedJson} from '../relay/client.ts';
@@ -7,6 +10,7 @@ import {WorkStore} from './store.ts';
 import {WorkError} from './types.ts';
 export const factoryActionSchema=z.object({operation:z.enum(['start','reconcile','stop','takeover']),expectedWorkVersion:z.number().int().positive(),expectedWorkGeneration:z.number().int().positive()}).strict();
 export async function factoryAction(store:WorkStore,id:string,value:unknown){
+ if(hostedFactoryQueue())return enqueueFactoryCommand(store,id,value,{ownerId:process.env.MYEVE_OWNER_ID!,...betaConfiguration().policy});
  const input=factoryActionSchema.parse(value),work=await store.get(id);
  if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration)throw new WorkError('factory_work_changed','Reload the current Work before acting.');
  if(input.operation==='start')await assertBusinessEffect(store,id,{operation:"execute_factory"});

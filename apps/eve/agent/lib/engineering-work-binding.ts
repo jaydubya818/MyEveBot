@@ -1,3 +1,4 @@
+import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import type { AgentView } from "../../lib/agents.ts";
 
 export const ENGINEERING_WORK_ID_HEADER = "x-myeve-engineering-work-id";
@@ -27,7 +28,7 @@ export function selectedEngineeringWorkId(input: WorkContextBinding): string | n
   if (selection === undefined) return null;
   if (typeof selection !== "string" || !ENGINEERING_WORK_ID_PATTERN.test(selection))
     throw new Error("Selected Engineering Work id is invalid.");
-  if (process.env.MYEVE_ENGINEERING_MODE !== "dogfood" || input.channelKind !== "http" ||
+  if (!engineeringWorkEnabled() || input.channelKind !== "http" ||
       input.mode !== "conversation" || input.roleId ||
       !input.agent.isPrimary || input.agent.ownerId !== input.ownerId ||
       current?.authenticator !== "myeve-web-session" || initiator?.authenticator !== "myeve-web-session" ||

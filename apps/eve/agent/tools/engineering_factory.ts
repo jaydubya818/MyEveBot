@@ -1,3 +1,4 @@
+import { engineeringWorkEnabled, hostedFactoryQueue } from "../../lib/engineering/deployment-mode.ts";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
 import {
@@ -36,9 +37,8 @@ export default defineDynamic({
         initial.attributes.role === "guest" ||
         initial.attributes.myeveRoleId ||
         ("parent" in ctx.session && ctx.session.parent) ||
-        process.env.MYEVE_ENGINEERING_MODE !== "dogfood" ||
-        process.env.VERCEL_ENV === "production" ||
-        !process.env.MYEVE_FACTORY_CONFIG ||
+        !engineeringWorkEnabled() ||
+        (!hostedFactoryQueue() && !process.env.MYEVE_FACTORY_CONFIG) ||
         typeof selected !== "string" ||
         !ENGINEERING_WORK_ID_PATTERN.test(selected)
       )
@@ -79,21 +79,22 @@ export default defineDynamic({
             principal.principalId,
             selected,
           );
-          const config = await factoryConfig(),
+          const hosted = hostedFactoryQueue(),
+            config = hosted ? null : await factoryConfig(),
             agent = await resolveSessionAgent({
               ownerId: principal.principalId,
               sessionId: toolCtx.session.id,
               auth: toolCtx.session.auth,
               primaryFallback: true,
             });
-          if (!agent?.isPrimary || agent.id !== config.engineering.agentId)
+          if (!agent?.isPrimary || (config && agent.id !== config.engineering.agentId))
             throw new WorkError(
               "factory_agent",
               "The configured primary Agent is required.",
               403,
             );
           if (
-            !["LOCAL_FIXTURE", "LOCAL_SPEND_FIXTURE"].includes(
+            config && !["LOCAL_FIXTURE", "LOCAL_SPEND_FIXTURE"].includes(
               config.connection.qualification.mode,
             )
           )
@@ -115,10 +116,10 @@ export default defineDynamic({
           return new ActionGateway().execute(action, {
             async resolveTarget() {
               return {
-                provider: config.connection.factoryId,
+                provider: config?.connection.factoryId ?? process.env.MYEVE_FACTORY_ID!,
                 account: principal.principalId,
                 resource: "engineering-work:" + selected,
-                environment: "isolated-dogfood",
+                environment: hosted ? "private-alpha" : "isolated-dogfood",
               };
             },
             async execute(parameters, handle) {

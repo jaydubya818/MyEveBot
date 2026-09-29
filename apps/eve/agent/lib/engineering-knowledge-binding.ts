@@ -1,3 +1,4 @@
+import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import type { ToolContext } from "eve/tools";
 
 import { db } from "./receipts-db.ts";
@@ -19,7 +20,7 @@ export async function assertEngineeringKnowledgeWorkBinding(
   const current = ctx.session.auth.current;
   const initiator = ctx.session.auth.initiator;
   const threadId = current?.attributes.webThreadId;
-  if (process.env.MYEVE_ENGINEERING_MODE !== "dogfood" ||
+  if (!engineeringWorkEnabled() ||
       !ENGINEERING_WORK_ID_PATTERN.test(workId) ||
       current?.attributes.myeveEngineeringWorkId !== workId ||
       current.authenticator !== "myeve-web-session" ||

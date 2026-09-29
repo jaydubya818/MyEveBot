@@ -1,3 +1,4 @@
+vi.mock('../lib/receipts-db.ts',()=>({db:()=>({query:vi.fn()})}));
 import {beforeEach,afterEach,it,expect,vi} from 'vitest';
 import {z} from 'zod';
 const m=vi.hoisted(()=>({available:true,mode:'LOCAL_FIXTURE',gateway:vi.fn(),binding:vi.fn()}));
@@ -17,3 +18,9 @@ it('rechecks capability availability at execution',async()=>{const ctx=context()
 it('rejects live qualification before the action gateway',async()=>{const ctx=context(),tool=await discover(ctx);m.mode='LIVE';await expect(tool.execute({},ctx)).rejects.toThrow(/separate authorization/);expect(m.gateway).not.toHaveBeenCalled();});
 it('rejects changed owner identity after discovery',async()=>{const ctx:any=context(),tool=await discover(ctx);ctx.session.auth.current={...ctx.session.auth.current,principalId:'other-owner'};await expect(tool.execute({},ctx)).rejects.toThrow(/owner selected Work/);expect(m.gateway).not.toHaveBeenCalled();});
 it('does not expose the tool in production',async()=>{vi.stubEnv('VERCEL_ENV','production');expect(await discover(context())).toBeNull();});
+
+it('exposes only queued alpha Factory actions and retains owner binding',async()=>{
+ for(const [key,value] of Object.entries({MYEVE_BETA_MODE:'private-alpha',MYEVE_ENGINEERING_MODE:'private-alpha',MYEVE_FACTORY_WORKER_ENABLED:'true',MYEVE_OWNER_ID:'owner',MYEVE_FACTORY_ID:'factory',VERCEL_ENV:'production',MYEVE_FACTORY_CONFIG:'',DATABASE_URL:'postgres://localhost/unused'}))vi.stubEnv(key,value);
+ const ctx:any=context(),tool=await discover(ctx);expect(tool).not.toBeNull();await tool.execute({},ctx);expect(m.binding).toHaveBeenCalled();expect(m.gateway).toHaveBeenCalledOnce();
+ ctx.session.auth.current.attributes.myeveEngineeringWorkId='22222222-2222-4222-8222-222222222222';await expect(tool.execute({},ctx)).rejects.toThrow(/owner selected Work/);
+});

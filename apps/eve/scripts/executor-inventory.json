@@ -238,7 +238,7 @@
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
       "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "ee4c49c8be139a19f17763f0944f44f0b2162b686296c0fcccb0a7e26a490800"
+      "sha256": "3255250ecad5e0c3ab03c6c47ccdcaaadba68ef4493fd6409862d9e4e8a11e8f"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -2016,7 +2016,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools.",
-      "sha256": "c288c64327c37f77955d02935f20272ed5997103f79ebb1beeee899af848437d"
+      "sha256": "e2a62e006343e0a218e535ec900d3ea77ad86ec77f64b874cb8e38ca537790a0"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3258,12 +3258,12 @@
     "agent/lib/engineering-knowledge-binding.ts": {
       "classification": "READ_ONLY",
       "reason": "Authenticated current/initiating principals and same-turn primary-Agent Work assembly receipt; SELECT only.",
-      "sha256": "d179231105f3225fd1c6d5d8cfe96987de97ed4a8cb7c6045670c4e8589322fe"
+      "sha256": "4079185a3afcb04a654634c66dab91f74515d3d5853d5a7c7d61c85aa79e459d"
     },
     "agent/lib/engineering-work-binding.ts": {
       "classification": "INTERNAL",
       "reason": "Validates authenticated owner, thread and primary-Agent Work binding before context assembly; no provider effect.",
-      "sha256": "7219b83174bf0ef1343fa1090860134f1ba46be4934ff6c6ed25e178ccb56da9"
+      "sha256": "65f81fd0075e9d0d81da3b16998b57b33a8b7bc38dd5442fb1682a1c5bc6b86c"
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
@@ -3273,7 +3273,7 @@
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
       "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority.",
-      "sha256": "87a44199716022670adb851a5cd18190f2fda5ce594a29a6458047eb6ada2e88"
+      "sha256": "c96074098da2bdeb051fde290f2e177e279ad7a7df47e76928b6dd44218667b8"
     },
     "lib/digital-worker/learning.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3488,7 +3488,7 @@
     "lib/beta-integration/canonical-work.ts": {
       "classification": "ENFORCED",
       "reason": "Canonical owner Work CAS, Inbox continuation binding and admission preserved; Factory production profile denies automatic native fallback.",
-      "sha256": "4715dc0dc1d5984c2ddf2c812d312981e132f44e6a27b5f750beb517b0080eed"
+      "sha256": "193f04185e49766834fe49cafc65cb84500cc51c6b4bc58d845c0a3c36157c17"
     },
     "lib/engineering/work-recall-context.ts": {
       "classification": "READ_ONLY",
@@ -3513,7 +3513,7 @@
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
       "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch.",
-      "sha256": "9726cf824781246add437270961b39fb2f480cad9af126fe19bb323b3480bbfa",
+      "sha256": "0efc3d6f2609bbd4bc3725d455e755a98d1fcb1470f54188a3b6197e3e50c3bf",
       "disposition": "gateway"
     },
     "lib/capsules/schema.ts": {
@@ -3604,7 +3604,7 @@
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "d9fcb0757d02d3b1494eea9c4e0322ef54b2253ef09d3ff4f3a960010bc4a894"
+      "sha256": "f6468d10df78a4aa7900d48f55642a56c0550c5f64f6b419873f52d826d7e7b9"
     },
     "lib/engineering/factory-observation.ts": {
       "classification": "READ_ONLY",
@@ -3695,6 +3695,11 @@
       "classification": "INTERNAL",
       "reason": "Owner-scoped bounded durable intent transport; compare-and-insert current Work, business decision preflight, stop and stale fencing. Only canonical Factory driver grants execution; negative scope/restart tests and connected PostgreSQL/Factory/Docker qualification cover the boundary.",
       "sha256": "396f9a5cde0cb5b189ee18abad713f7b8c73bf60604e381148734561b20108d8"
+    },
+    "lib/engineering/deployment-mode.ts": {
+      "classification": "INTERNAL",
+      "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission.",
+      "sha256": "b220fa93ba54255d52f433ea14eefa3d7728cca42ef9c4614852aa2de94aaaf9"
     }
   }
 }
