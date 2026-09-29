@@ -1,0 +1,12 @@
+PASS two independent fresh migration chains and no-op replay
+PASS exact current personal source consent and destination-bound export
+PASS source correction invalidates approval and export review
+PASS 12 concurrent imports yield one atomic canonical Memory activation and one receipt
+PASS fresh process uses canonical memoryStore.search for useful recall; another Agent cannot recall it
+PASS cross-owner and foreign Agent import denied
+PASS Current Truth conflict keeps destination and rejects bulk replacement
+PASS Skills, Roles, Packs and learning retain exact source version/provenance in staging and gain no activation
+PASS Failure on the second canonical Memory insert rolls back the entire batch and receipt
+PASS Rollback rejects later metadata changes even without a timestamp change
+PASS rollback refuses to remove subsequently corrected Memory
+PASS rollback and old-request replay never reactivate retired Memory

@@ -19,3 +19,7 @@ Candidate source checkpoint `b14988add08886cd8e2f8ae128b508ac11b509c8`. This is 
 ## Final assembly decisions
 
 Beta 52b3891 and Product Expansion 9caacf6 are incorporated. Shared navigation, Results/Memory destinations and Capsules are retained. Work Canvas is a clearly labeled disconnected preview only; no fixture reducer is used for execution. Shared membership/Goals/Results remain proposals; final two-owner shared acceptance is blocked. The incomplete Telegram channel campaign remains DEFERRED_POST_ALPHA; no qualification is claimed. See SOURCE-UPDATES.md and CANONICAL-STATUS.md.
+
+## Final scope and late handoff
+
+Two-owner scopes and all independent review fixes are integrated through 2f70ab3. Review PASS. Product Expansion handoff52141ba7 changes documentation/evidence only; its application tree equals adopted9caacf60. No accepted implementation delta was omitted.

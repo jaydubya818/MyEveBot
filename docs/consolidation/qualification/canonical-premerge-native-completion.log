@@ -1,0 +1,28 @@
+PASS: minimum completion admitted within unchanged $1.30
+PASS: repair commitment protected, unknown exposure retained, exact replay not double-counted
+PASS: real SQL contention conversation [ 'rejected', 'fulfilled' ]
+PASS: real SQL contention native [ 'fulfilled', 'rejected' ]
+PASS: real SQL contention two-admissions [ 'fulfilled', 'rejected' ]
+PASS: real SQL contention fresh-chats [ 'fulfilled', 'rejected' ]
+PASS: cheap observers cannot steal completion call quota; undispatched attempts remain counted
+PASS: stale Work, policy and Agent dispatch fenced
+PASS: actual SIGKILL after CONTRACT preserves contract/exposure without replay
+PASS: actual SIGKILL after RESERVED preserves contract/exposure without replay
+PASS: actual SIGKILL after DISPATCHED preserves contract/exposure without replay
+PASS: actual SIGKILL after RESULT_RETAINED preserves contract/exposure without replay
+PASS: NULL/adversarial contracts and narrowed ceilings denied atomically
+(node:20624) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+PASS: restricted application native common-ledger completion stage reserve/dispatch/settlement/replay
+PASS: restricted worker native common-ledger completion stage reserve/dispatch/settlement/replay
+PASS: explicit cancellation preserves UNKNOWN; expiry retains hold; stage exhaustion blocks; retained budget arithmetic denies admission unchanged
+PASS: same-Work Factory receive/admit leaves every non-Factory table byte-equivalent; writer, Run, budget, approval, publication and protected verification unchanged
+PASS: actual fresh conversation wrapper/schema/Current Truth plus full completion maximum fit unchanged $1.30 {"conversationBound":85915,"completionHold":1013769}
+PASS: SIGKILL after repair draft and protected verification; real deny-network Docker checks retained
+PASS: local controlled-model failure -> repair -> submission -> protected verification -> immutable PARTIAL; 10 charges including admission, no source edits outside model outputs
+PASS: native failure/repair/protected verification preserves all Factory tables and never treats Factory PASS as independent evidence; crossBoundaryAuthorityViolations=0 falseReady=0
+PASS: valid fresh explanation truth/charge; third source repair denied
+PASS: actual fresh conversation wrapper/schema/Current Truth plus full completion maximum fit unchanged $1.30 {"conversationBound":85915,"completionHold":1013769}
+PASS: SIGKILL after repair draft and protected verification; real deny-network Docker checks retained
+PASS: local controlled-model failure -> repair -> submission -> protected verification -> immutable PARTIAL; 10 charges including admission, no source edits outside model outputs
+PASS: empty fresh explanation truth/charge; third source repair denied
