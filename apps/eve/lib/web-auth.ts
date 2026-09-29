@@ -1,3 +1,4 @@
+import { isPartnerPrincipal, partnerPrivateRoute } from "./private-owner-boundary.ts";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 import { apiError } from "./api-errors.ts";
@@ -156,10 +157,12 @@ export function webPrincipal(
   env: NodeJS.ProcessEnv = process.env,
 ): WebPrincipal | null {
   if (!webAuthRequired(env)) return { id: deploymentOwnerId(env) };
-  return verifyWebSessionToken(
+  const principal = verifyWebSessionToken(
     cookieValue(request, WEB_SESSION_COOKIE) ?? cookieValue(request, LEGACY_WEB_SESSION_COOKIE),
     env,
   );
+  const browserOwner=request.headers.get("x-myeve-browser-owner");
+  return browserOwner && browserOwner!==principal?.id ? null : principal;
 }
 
 function isUnsafeCrossOrigin(request: Request): boolean {
@@ -198,9 +201,12 @@ export function requireWebAuth(request: Request): Response | null {
   }
   const crossOrigin = requireSameOrigin(request);
   if (crossOrigin) return crossOrigin;
-  if (webPrincipal(request) === null) {
+  const principal=webPrincipal(request);
+  if (principal === null) {
     return apiError(request, 401, "authentication_required", "Sign in to continue.");
   }
+  if(isPartnerPrincipal(principal.id) && !partnerPrivateRoute(new URL(request.url).pathname,request.method))
+    return apiError(request,403,"deployment_account_private","This connection or service belongs to the deployment owner. It is not shared with your account.");
   return null;
 }
 

@@ -1,3 +1,4 @@
+import { bindOwnerBrowserStorage } from "./owner-browser-storage";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { HandleMessageStreamEvent } from "eve/client";
 
@@ -204,6 +205,7 @@ describe("pending user message persistence", () => {
   });
 
   it("serializes a pending text message and keeps it through a thread switch", () => {
+    bindOwnerBrowserStorage("test-owner",true);
     vi.stubGlobal("localStorage", memoryStorage());
     const pending = pendingText();
 
@@ -214,6 +216,7 @@ describe("pending user message persistence", () => {
   });
 
   it("announces successful saves to same-tab listeners", () => {
+    bindOwnerBrowserStorage("test-owner",true);
     vi.stubGlobal("localStorage", memoryStorage());
     const target = new EventTarget();
     vi.stubGlobal("window", target);
@@ -310,6 +313,7 @@ describe("pending user message persistence", () => {
   });
 
   it("persists a pre-confirmation failure", () => {
+    bindOwnerBrowserStorage("test-owner",true);
     vi.stubGlobal("localStorage", memoryStorage());
     const failed = failPendingMessage(pendingText(), "Network unavailable");
     saveLocalChat("thread-a", { events: [], pendingMessage: failed });

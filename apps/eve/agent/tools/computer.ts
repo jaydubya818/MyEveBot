@@ -33,7 +33,7 @@ import { isGuestResolve } from "../lib/owner-gate";
 const MAX_OUTPUT_CHARS = 20_000;
 
 function profileDescriptor(profile: BrowserProfileView) {
-  return { slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation };
+  return { ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation };
 }
 
 async function desktopFor(ctx: Parameters<typeof computerAgent>[0], profileId?: string, allowBlocked = false) {

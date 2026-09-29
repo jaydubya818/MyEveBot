@@ -1,3 +1,4 @@
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
 import type { GoalDetailView } from "@/lib/goal-types";
 import type { TaskRunView } from "@/lib/task-types";
 import { emptySnapshot, type OwnerSnapshot } from "./projection";
@@ -256,7 +257,7 @@ export function exampleSnapshot(): PreviewSnapshot {
 }
 export function readPreview(): PreviewSnapshot {
   try {
-    const stored = sessionStorage.getItem(key);
+    const stored = ownerSessionStorage.getItem(key);
     if (stored) return JSON.parse(stored) as PreviewSnapshot;
   } catch {
     /* Storage may be disabled. Preview still works in memory. */
@@ -265,7 +266,7 @@ export function readPreview(): PreviewSnapshot {
 }
 export function savePreview(value: PreviewSnapshot) {
   try {
-    sessionStorage.setItem(key, JSON.stringify(value));
+    ownerSessionStorage.setItem(key, JSON.stringify(value));
   } catch {
     /* No live data is ever stored here. */
   }

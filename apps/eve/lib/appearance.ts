@@ -1,3 +1,4 @@
+import { ownerLocalStorage } from "@/lib/owner-browser-storage";
 export type ThemePreference = "system" | "light" | "dark";
 
 export const THEME_STORAGE_KEY = "sofie.appearance.theme";
@@ -23,7 +24,7 @@ export function applyThemePreference(preference: ThemePreference): void {
 }
 
 export function saveThemePreference(preference: ThemePreference): void {
-  window.localStorage.setItem(THEME_STORAGE_KEY, preference);
+  ownerLocalStorage.setItem(THEME_STORAGE_KEY, preference);
   applyThemePreference(preference);
   window.dispatchEvent(new CustomEvent<ThemePreference>(THEME_CHANGE_EVENT, { detail: preference }));
 }

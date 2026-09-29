@@ -30,6 +30,27 @@ const fs=require('node:fs/promises'),path=require('node:path');
    }
    await ctx.close();
   }
+  const shared=await browser.newContext({baseURL:'http://localhost:3199'});
+  await shared.request.post('/api/auth/login',{data:{password:'owner-a-private-password'}});
+  let state=await shared.storageState();await shared.addCookies(state.cookies.map(c=>({...c,secure:false})));
+  const first=await shared.newPage();await first.goto('/business');await expect(first.getByRole('heading',{name:'Our business',exact:true})).toBeVisible();
+  await first.evaluate(()=>{
+   localStorage.setItem('eve-web-threads',JSON.stringify({activeId:'private-canary-thread',threads:[{id:'private-canary-thread',title:'A_CACHE_CANARY_CONVERSATION',updatedAt:Date.now()}]}));
+   localStorage.setItem('eve-web-chat:private-canary-thread',JSON.stringify({forkContext:'A_CACHE_CANARY_TRANSCRIPT',events:[],savedAt:Date.now()}));
+   sessionStorage.setItem('eve-web-draft:private-canary-thread','A_CACHE_CANARY_DRAFT');
+   // Seed the current A namespace as well as the legacy data.
+   localStorage.setItem('myeve-private:A:eve-web-threads',localStorage.getItem('eve-web-threads'));
+  });
+  await first.goto('/chat');await expect(first.getByRole('button',{name:/A_CACHE_CANARY_CONVERSATION/}).first()).toBeVisible();
+  const stale=await shared.newPage();await stale.goto('/business');await expect(stale.getByRole('heading',{name:'Our business',exact:true})).toBeVisible();
+  await first.goto('/login');await first.getByLabel('Your access password').fill('owner-b-private-password');await first.getByRole('button',{name:/Open Sofie/}).click();
+  await first.waitForURL(url=>url.pathname!=='/login');await expect(stale).toHaveURL(/\/login/);
+  await first.goto('/chat');await expect(first.locator('body')).not.toContainText('A_CACHE_CANARY');
+  expect(await first.locator('textarea').evaluateAll(nodes=>nodes.map(n=>n.value).join(' '))).not.toContain('A_CACHE_CANARY');
+  for(const endpoint of ['/api/connections','/api/email','/api/computer','/api/computer-profiles'])expect((await shared.request.get(endpoint)).status()).toBe(403);
+  expect((await shared.request.get('/api/files',{headers:{'x-myeve-browser-owner':'A'}})).status()).toBe(401);
+  report.checks.push('A legacy/current cached conversations and drafts absent after B UI sign-in; other A tab invalidated; credential endpoints denied; stale owner requests denied');
+  await shared.close();
   report.status='PASS';console.log(JSON.stringify({status:'PASS',checks:report.checks.length,audits:report.audits.length}));
  }catch(e){report.status='FAIL';report.error=String(e);throw e;}finally{await fs.writeFile(path.join(__dirname,'business-browser.json'),JSON.stringify(report,null,2)+'\n');await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

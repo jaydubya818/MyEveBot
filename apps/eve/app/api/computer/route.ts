@@ -84,7 +84,7 @@ async function browserConnection(
     // The sidecar's URL carries a per-process admission token; only this
     // same-origin response reveals it, so an attacker page cannot connect.
     // Null means the port isn't ours, so there is nothing safe to hand out.
-    const websocketUrl = await devVncRelayUrl({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+    const websocketUrl = await devVncRelayUrl({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
     return websocketUrl === null ? null : { websocketUrl, password: connection.password };
   }
   // Behind Vercel's proxy request.url carries an internal host, so the
@@ -104,7 +104,7 @@ async function currentState(
   const keySource = await orgoKeySource();
   if (keySource === null) return Response.json({ enabled: false, keySource: null, profile, profiles: await ensureAllBrowserProfiles(profile.ownerId), ...extra });
   const model = await orgoTaskModel();
-  const desktop = orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+  const desktop = orgoForProfile({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
   const [models, profiles, { computer, connection }] = await Promise.all([
     taskModelOptions(model),
     ensureAllBrowserProfiles(profile.ownerId),
@@ -177,7 +177,7 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const profile = await requestedProfile(request, body?.agentId);
-    const desktop = orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
+    const desktop = orgoForProfile({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation });
     // Waking provisions and waits for the VM — and restarts one that claims
     // to be running with nothing to connect to — so the follow-up read finds
     // the instance fields a VNC client needs.

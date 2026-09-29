@@ -1,3 +1,4 @@
+import { BusinessScopes } from "../../lib/business-scopes.ts";
 import { currentTruthLines } from "../../lib/engineering/current-truth-lines.ts";
 import { randomUUID } from "node:crypto";
 
@@ -287,6 +288,7 @@ function agentInstructions(agent: AgentView): ContextItem {
 }
 
 export async function assembleContext(input: AssembleContextInput): Promise<AssembledContext> {
+  if(input.engineeringWorkId && await new BusinessScopes(input.ownerId).hasSharedWork(input.ownerId,input.engineeringWorkId))throw new Error("Shared Work requires explicitly scoped business context.");
   if (input.engineeringWorkId && input.ownerChannelRunId)
     throw new Error("External owner-channel Work cannot inherit private Engineering Work context.");
   const agent = await getAgent(input.ownerId, input.agentId);

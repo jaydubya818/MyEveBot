@@ -1,3 +1,4 @@
+import { ownerLocalStorage, ownerSessionStorage } from "@/lib/owner-browser-storage";
 import type { HandleMessageStreamEvent, ClientSessionState } from "eve/client";
 import { isCurrentTurnBoundaryEvent } from "eve/client";
 
@@ -103,7 +104,7 @@ export function chatKey(threadId: string): string {
 
 export function loadSavedChat(threadId: string): SavedChat | null {
   try {
-    const raw = localStorage.getItem(chatKey(threadId));
+    const raw = ownerLocalStorage.getItem(chatKey(threadId));
     return raw ? (JSON.parse(raw) as SavedChat) : null;
   } catch {
     return null;
@@ -121,7 +122,7 @@ export function saveLocalChat(threadId: string, chat: SavedChat): void {
   const payload = JSON.stringify(chat);
   for (let attempt = 0; attempt < 4; attempt += 1) {
     try {
-      localStorage.setItem(key, payload);
+      ownerLocalStorage.setItem(key, payload);
       if (typeof window !== "undefined" && typeof CustomEvent !== "undefined") {
         window.dispatchEvent(
           new CustomEvent<{ threadId: string }>(LOCAL_CHAT_SAVED_EVENT, {
@@ -283,12 +284,12 @@ function evictColdestChat(exceptKey: string): boolean {
   try {
     let coldestKey: string | null = null;
     let coldestAt = Infinity;
-    for (let i = 0; i < localStorage.length; i += 1) {
-      const key = localStorage.key(i);
+    for (let i = 0; i < ownerLocalStorage.length; i += 1) {
+      const key = ownerLocalStorage.key(i);
       if (key === null || key === exceptKey || !key.startsWith(CHAT_KEY_PREFIX)) continue;
       let savedAt = 0;
       try {
-        savedAt = (JSON.parse(localStorage.getItem(key) ?? "{}") as SavedChat).savedAt ?? 0;
+        savedAt = (JSON.parse(ownerLocalStorage.getItem(key) ?? "{}") as SavedChat).savedAt ?? 0;
       } catch {
         // Unparseable entry: evict it first.
       }
@@ -298,7 +299,7 @@ function evictColdestChat(exceptKey: string): boolean {
       }
     }
     if (coldestKey === null) return false;
-    localStorage.removeItem(coldestKey);
+    ownerLocalStorage.removeItem(coldestKey);
     return true;
   } catch {
     return false;
@@ -586,7 +587,7 @@ const TOMBSTONE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 /** Deleted thread ids -> deletion time; pruned of entries past their TTL. */
 export function loadTombstones(): Record<string, number> {
   try {
-    const raw = localStorage.getItem(TOMBSTONES_KEY);
+    const raw = ownerLocalStorage.getItem(TOMBSTONES_KEY);
     const parsed = raw ? (JSON.parse(raw) as unknown) : null;
     if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return {};
     const cutoff = Date.now() - TOMBSTONE_TTL_MS;
@@ -602,7 +603,7 @@ export function loadTombstones(): Record<string, number> {
 
 function saveTombstones(tombstones: Record<string, number>): void {
   try {
-    localStorage.setItem(TOMBSTONES_KEY, JSON.stringify(tombstones));
+    ownerLocalStorage.setItem(TOMBSTONES_KEY, JSON.stringify(tombstones));
   } catch {
     // Storage unavailable; deletes still reach the server via the queue.
   }
@@ -797,7 +798,7 @@ function draftKey(threadId: string): string {
 
 export function loadDraft(threadId: string): string {
   try {
-    return sessionStorage.getItem(draftKey(threadId)) ?? "";
+    return ownerSessionStorage.getItem(draftKey(threadId)) ?? "";
   } catch {
     return "";
   }
@@ -805,8 +806,8 @@ export function loadDraft(threadId: string): string {
 
 export function saveDraft(threadId: string, text: string): void {
   try {
-    if (text.length === 0) sessionStorage.removeItem(draftKey(threadId));
-    else sessionStorage.setItem(draftKey(threadId), text);
+    if (text.length === 0) ownerSessionStorage.removeItem(draftKey(threadId));
+    else ownerSessionStorage.setItem(draftKey(threadId), text);
   } catch {
     // Storage unavailable; the draft only lives in component state.
   }

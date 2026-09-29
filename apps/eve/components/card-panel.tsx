@@ -1,5 +1,8 @@
 "use client";
 
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
+
+
 import { Badge, Button, Checkbox, Input, Loader } from "@cloudflare/kumo";
 import { ArrowSquareOutIcon, CreditCardIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
@@ -35,7 +38,7 @@ const CARD_TOKEN_KEY = "eve:card-admin-token";
 
 function storedCardToken(): string {
   if (typeof window === "undefined") return "";
-  return window.sessionStorage.getItem(CARD_TOKEN_KEY) ?? "";
+  return ownerSessionStorage.getItem(CARD_TOKEN_KEY) ?? "";
 }
 
 function formatWhen(iso: string | null): string {
@@ -119,7 +122,7 @@ function ConnectWithAgentcard({
     ) {
       return;
     }
-    window.sessionStorage.removeItem(CARD_TOKEN_KEY);
+    ownerSessionStorage.removeItem(CARD_TOKEN_KEY);
     setToken("");
   }
 
@@ -213,7 +216,7 @@ function ConnectWithAgentcard({
             size="sm"
             disabled={draftToken.trim().length === 0}
             onClick={() => {
-              window.sessionStorage.setItem(CARD_TOKEN_KEY, draftToken.trim());
+              ownerSessionStorage.setItem(CARD_TOKEN_KEY, draftToken.trim());
               setToken(draftToken.trim());
               setDraftToken("");
               setError(null);
@@ -359,7 +362,7 @@ export function CardPanel() {
     void fetch("/api/agentcard", { method: "DELETE", headers })
       .then(async (response) => {
         if (!response.ok) {
-          if (response.status === 401) window.sessionStorage.removeItem(CARD_TOKEN_KEY);
+          if (response.status === 401) ownerSessionStorage.removeItem(CARD_TOKEN_KEY);
           const failure = await readFailure(response, "Disconnect failed.");
           throw new Error(failure.error?.message ?? "Disconnect failed.");
         }

@@ -1,3 +1,6 @@
+import { partnerPrivateModel } from "./lib/partner-model.ts";
+import { isPartnerPrincipal } from "../lib/private-owner-boundary.ts";
+import { BusinessScopes } from "../lib/business-scopes.ts";
 import { engineeringConversationModel } from "../lib/engineering/conversation-model.ts";
 import { WorkStore } from "../lib/engineering/store.ts";
 import {ownerRuntimeFromAuth} from "../lib/relay/owner/runtime.ts";
@@ -48,11 +51,13 @@ export default defineAgent({
       // gateway model wrapped with default settings. Live models are only
       // allowed from step.started; with no level requested this returns a model ID
       // and returns the selected model with its normal prompt-cache behavior.
-      "step.started": async (_event, ctx) => {
+      "step.started": (_event, ctx) => {
+        const select = async () => {
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
         if(ownerRuntime && ctx.session.auth.current?.attributes.myeveEngineeringWorkId!==undefined)
           throw new Error("Owner-channel and selected-Work spending authorities cannot be mixed.");
         if(ownerRuntime)return ownerBudgetedModel(ownerRuntime,ownerModelStepKey(_event));
+        if(isPartnerPrincipal(ctx.session.auth.current?.principalId))return {model:partnerPrivateModel({ownerId:ctx.session.auth.current?.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true}),modelContextWindowTokens:200_000};
         const requested = clientTurnSettings(ctx.messages);
         const agent = await resolveSessionAgent({ ownerId: ctx.session.auth.current?.principalId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: ctx.session.auth.current?.attributes.owner === "true" });
         const model = agent?.preferredModel ?? requested.model;
@@ -61,6 +66,7 @@ export default defineAgent({
             ctx.session.auth.current?.principalType!=="user" || ctx.session.auth.current?.attributes.owner!=="true" || ("parent" in ctx.session && ctx.session.parent)))
           throw new Error("Selected Work requires an authenticated primary-Agent conversation.");
         if (typeof workId==="string" && agent?.isPrimary) {
+          if(await new BusinessScopes(agent.ownerId).hasSharedWork(agent.ownerId,workId))throw new Error("Shared Work requires the scoped Our business conversation.");
           const store=new WorkStore({scopeId:agent.ownerId,scopeKind:"personal",actorId:agent.ownerId});
           return {
             model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:model??DEFAULT_MODEL}),
@@ -75,6 +81,11 @@ export default defineAgent({
           model: gateway(model ?? DEFAULT_MODEL),
           middleware: reasoningMiddleware(reasoning),
         }), modelContextWindowTokens: 200_000 };
+        };
+        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected; return typeof value==='string'?gateway(value):value; };
+        return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
+          doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),
+          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},modelContextWindowTokens:200_000};
       },
     },
   }),

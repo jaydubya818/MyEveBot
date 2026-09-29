@@ -1,4 +1,5 @@
 "use client";
+import { invalidateOwnerBrowserSession } from "@/lib/owner-browser-storage";
 
 import { CheckCircleIcon, SignOutIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
@@ -26,6 +27,7 @@ export function AppearancePanel() {
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" });
+    invalidateOwnerBrowserSession();
     window.location.assign("/login");
   }
 

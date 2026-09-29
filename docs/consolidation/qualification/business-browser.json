@@ -3,7 +3,8 @@
   "checks": [
     "A signed identity, private isolation, shared Work and CSRF PASS",
     "A explicitly shares reviewed Memory and revokes through real API",
-    "B signed identity, private isolation, shared Work and CSRF PASS"
+    "B signed identity, private isolation, shared Work and CSRF PASS",
+    "A legacy/current cached conversations and drafts absent after B UI sign-in; other A tab invalidated; credential endpoints denied; stale owner requests denied"
   ],
   "audits": [
     {

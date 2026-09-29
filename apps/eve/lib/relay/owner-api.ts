@@ -1,3 +1,4 @@
+import { isPartnerPrincipal } from "../private-owner-boundary.ts";
 import { messageReplySettings, saveMessageReplySettings } from "./message-reply-settings.ts";
 import { settingsStore } from "../../agent/lib/settings-db.ts";
 import { grantDurationSchema } from "./grant-duration.ts";
@@ -35,6 +36,7 @@ export function authenticatedOwner(request: Request) {
     NODE_ENV: "production",
   });
   if (!principal) throw new Error("Sign in to MyEve first.");
+  if(isPartnerPrincipal(principal.id))throw new Error("This Relay service connection is private to its owner.");
   const ownerOrigin = new URL(
     process.env.MYEVE_RELAY_OWNER_ORIGIN ?? request.url,
   ).origin;

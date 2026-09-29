@@ -38,7 +38,7 @@ export async function GET(request: Request): Promise<Response> {
     const agent = await getAgent(ownerId, agentId);
     if (!agent) return apiError(request, 404, "computer_agent_not_found", "Agent not found.");
     const profile = await ensureBrowserProfile(ownerId, agent);
-    const { connection } = await orgoForProfile({ slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation }).live();
+    const { connection } = await orgoForProfile({ ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation }).live();
     if (connection === null) {
       return apiError(request, 409, "computer_connection_unavailable", "The desktop is not ready for a live connection.");
     }

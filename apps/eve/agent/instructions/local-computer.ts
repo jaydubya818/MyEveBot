@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { ownerName } from "../lib/owner";
@@ -10,7 +11,8 @@ function localComputerConfigured(): boolean {
 
 export default defineDynamic({
   events: {
-    "turn.started": () => {
+    "turn.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       if (!localComputerConfigured()) return null;
       const owner = ownerName();
       return defineInstructions({

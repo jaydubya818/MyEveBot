@@ -1,3 +1,4 @@
+import { ownerLocalStorage } from "@/lib/owner-browser-storage";
 // Persistence for voice sessions: each session owns one web thread. The orb is
 // that thread's ONLY writer, and the SavedChat deliberately has NO `session`
 // cursor — the log mixes synthetic transcript events with copied dispatch
@@ -35,7 +36,7 @@ const FORK_CONTEXT_LIMIT = 20_000;
 
 export function loadVoiceResume(): VoiceResumeRecord | null {
   try {
-    const raw = window.localStorage.getItem(RESUME_KEY);
+    const raw = ownerLocalStorage.getItem(RESUME_KEY);
     if (raw === null) return null;
     const parsed = JSON.parse(raw) as VoiceResumeRecord;
     if (typeof parsed.threadId !== "string" || typeof parsed.endedAt !== "number") return null;
@@ -55,7 +56,7 @@ export function loadVoiceResume(): VoiceResumeRecord | null {
 
 export function saveVoiceResume(record: VoiceResumeRecord): void {
   try {
-    window.localStorage.setItem(RESUME_KEY, JSON.stringify(record));
+    ownerLocalStorage.setItem(RESUME_KEY, JSON.stringify(record));
   } catch {
     // quota or private mode — resume is best-effort
   }
@@ -63,7 +64,7 @@ export function saveVoiceResume(record: VoiceResumeRecord): void {
 
 export function clearVoiceResume(): void {
   try {
-    window.localStorage.removeItem(RESUME_KEY);
+    ownerLocalStorage.removeItem(RESUME_KEY);
   } catch {
     // ignore
   }

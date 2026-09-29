@@ -1,3 +1,4 @@
+import { deploymentOwnerId } from "./owner-identity.ts";
 import { randomUUID } from "node:crypto";
 
 import { db } from "../agent/lib/receipts-db.ts";
@@ -176,19 +177,20 @@ async function recordAudit(ownerId: string, agentId: string, type: string, actor
 }
 
 export async function ensurePrimaryAgent(ownerId: string): Promise<AgentView> {
+  const bootstrap=ownerId===deploymentOwnerId()?PRIMARY_AGENT_BOOTSTRAP:{name:"Sofie",role:"Primary personal agent",description:"Helps this owner with their private context.",instructions:"You are this owner's private personal agent. Respect explicit business sharing boundaries.",preferredModel:"anthropic/claude-sonnet-5"};
   const existing = await db().query(`SELECT id FROM agents WHERE owner_id = $1 AND is_primary LIMIT 1`, [ownerId]) as Row[];
   if (existing[0]) return (await getAgent(ownerId, asText(existing[0].id)))!;
   const id = `agent_${randomUUID()}`;
-  const slug = await uniqueSlug(ownerId, PRIMARY_AGENT_BOOTSTRAP.name);
+  const slug = await uniqueSlug(ownerId, bootstrap.name);
   await db().query(
     `INSERT INTO agents (id, owner_id, name, slug, role, description, instructions, is_primary, preferred_model, risk_ceiling, created_by_type)
      VALUES ($1,$2,$3,$4,$5,$6,$7,true,$8,'high','system') ON CONFLICT DO NOTHING`,
-    [id, ownerId, PRIMARY_AGENT_BOOTSTRAP.name, slug, PRIMARY_AGENT_BOOTSTRAP.role, PRIMARY_AGENT_BOOTSTRAP.description, PRIMARY_AGENT_BOOTSTRAP.instructions, PRIMARY_AGENT_BOOTSTRAP.preferredModel],
+    [id, ownerId, bootstrap.name, slug, bootstrap.role, bootstrap.description, bootstrap.instructions, bootstrap.preferredModel],
   );
   const primary = await db().query(`SELECT id FROM agents WHERE owner_id = $1 AND is_primary LIMIT 1`, [ownerId]) as Row[];
   const primaryId = asText(primary[0]?.id);
   if (!primaryId) throw new Error("Primary Agent initialization failed.");
-  if (primaryId === id) await recordAudit(ownerId, id, "created", { type: "system" }, `${PRIMARY_AGENT_BOOTSTRAP.name} initialized as the primary Agent.`);
+  if (primaryId === id) await recordAudit(ownerId, id, "created", { type: "system" }, `${bootstrap.name} initialized as the primary Agent.`);
   return (await getAgent(ownerId, primaryId))!;
 }
 

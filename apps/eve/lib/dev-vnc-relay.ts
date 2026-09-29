@@ -70,6 +70,7 @@ let readiness: Promise<RelayVerdict> | undefined;
  * question is still open would hand the token to whatever is squatting there.
  */
 export async function devVncRelayUrl(profile: OrgoProfileDescriptor): Promise<string | null> {
+  if(process.env.MYEVE_PARTNER_OWNER_ID)return null;
   readiness ??= start();
   let verdict = await readiness;
   if (verdict !== "own") {
@@ -112,6 +113,7 @@ function start(): Promise<RelayVerdict> {
         let upstreamUrl: string;
         try {
           const encoded = new URL(request.url ?? "/", RELAY_URL).searchParams.get("profile");
+          if(process.env.MYEVE_PARTNER_OWNER_ID)throw new Error("Local relay unavailable in two-owner mode.");
           if (!encoded) throw new Error("Browser profile is required.");
           const candidate = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8")) as Partial<OrgoProfileDescriptor>;
           if (typeof candidate.slug !== "string" || typeof candidate.isPrimary !== "boolean" || !Number.isInteger(candidate.generation) || Number(candidate.generation) < 1) throw new Error("Browser profile is invalid.");

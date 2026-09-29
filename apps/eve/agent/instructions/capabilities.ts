@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { capabilityLabel } from "../../lib/capability-notice.ts";
@@ -6,7 +7,8 @@ import { ownerName } from "../lib/owner.ts";
 
 export default defineDynamic({
   events: {
-    "session.started": () => {
+    "session.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       const unavailable = getCapabilityStatuses().filter(
         (capability) => capability.state !== "ready",
       );

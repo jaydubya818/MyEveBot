@@ -1,3 +1,4 @@
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
 export const COMPUTER_THREAD_KEY = "eve-web-computer-thread";
 export const ACTIVE_COMPUTER_TURN_KEY = "eve-web-active-computer-turn";
 export const LEGACY_COMPUTER_PARAM = "computer";
@@ -94,7 +95,7 @@ export function transitionComputerSelection(
 
 export function loadComputerThread(): string | null {
   try {
-    return sessionStorage.getItem(COMPUTER_THREAD_KEY);
+    return ownerSessionStorage.getItem(COMPUTER_THREAD_KEY);
   } catch {
     return null;
   }
@@ -102,8 +103,8 @@ export function loadComputerThread(): string | null {
 
 export function saveComputerThread(threadId: string | null): void {
   try {
-    if (threadId === null) sessionStorage.removeItem(COMPUTER_THREAD_KEY);
-    else sessionStorage.setItem(COMPUTER_THREAD_KEY, threadId);
+    if (threadId === null) ownerSessionStorage.removeItem(COMPUTER_THREAD_KEY);
+    else ownerSessionStorage.setItem(COMPUTER_THREAD_KEY, threadId);
   } catch {
     // Selection still lives in React state for the rest of this tab.
   }
@@ -116,7 +117,7 @@ export function saveComputerThread(threadId: string | null): void {
  */
 export function loadActiveComputerTurn(): ActiveComputerTurn | null {
   try {
-    const serialized = sessionStorage.getItem(ACTIVE_COMPUTER_TURN_KEY);
+    const serialized = ownerSessionStorage.getItem(ACTIVE_COMPUTER_TURN_KEY);
     if (serialized === null) return null;
     const parsed = JSON.parse(serialized) as Partial<ActiveComputerTurn>;
     return typeof parsed.threadId === "string" &&
@@ -132,8 +133,8 @@ export function loadActiveComputerTurn(): ActiveComputerTurn | null {
 
 export function saveActiveComputerTurn(turn: ActiveComputerTurn | null): void {
   try {
-    if (turn === null) sessionStorage.removeItem(ACTIVE_COMPUTER_TURN_KEY);
-    else sessionStorage.setItem(ACTIVE_COMPUTER_TURN_KEY, JSON.stringify(turn));
+    if (turn === null) ownerSessionStorage.removeItem(ACTIVE_COMPUTER_TURN_KEY);
+    else ownerSessionStorage.setItem(ACTIVE_COMPUTER_TURN_KEY, JSON.stringify(turn));
   } catch {
     // The lease still lives in React state for the rest of this tab.
   }

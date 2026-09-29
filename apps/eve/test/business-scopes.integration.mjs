@@ -46,6 +46,50 @@ try{
  await check('source changes require explicit new authorization',async()=>{await c.query("UPDATE memory_records SET content='NEW_PRIVATE_CANARY' WHERE id='memory_a'");assert(!(await B.context(context)).content.includes('NEW_PRIVATE_CANARY'));});
  await check('revocation and expiry take effect on next retrieval',async()=>{await A.revoke(grant.id);grant=await share(A,'MEMORY','memory_a',{...context,expiresAt:new Date(Date.now()+3600000).toISOString()});await c.query("UPDATE business_resource_grants SET expires_at=now()-interval '1 second' WHERE id=$1",[grant.id]);assert(!(await B.context(context)).content.includes('NEW_PRIVATE_CANARY'));});
  await check('Work end terminates bounded access even after reopening',async()=>{await share(A,'MEMORY','memory_a',{...context,expiresAt:new Date(Date.now()+3600000).toISOString()});await c.query("UPDATE engineering_work SET lifecycle='cancelled',version=version+1,generation=generation+1 WHERE id=$1",[work.id]);await assert.rejects(()=>B.context(context),ScopeDenied);});
+ await check('terminal shared Work reopens only after fresh exact approvals',async()=>{
+  await share(A,'WORK',work.id);
+  const effect={operation:'reopen',expectedVersion:2},effectHash=businessEffectHash(work.id,2,2,effect);
+  const {id}=await A.requestDecision({workOwner:'A',workId:work.id,effect,policy:'BOTH_OWNERS',expiresAt:new Date(Date.now()+60000).toISOString()});
+  await A.decide(id,effectHash,true);await assert.rejects(()=>store.change(work.id,effect));await B.decide(id,effectHash,true);
+  assert.equal((await store.change(work.id,effect)).lifecycle,'active');assert(!(await A.decisionReady(id,effectHash)).approved);
+  await share(A,'WORK',work.id);await assert.rejects(()=>B.read(context,ref('MEMORY','memory_a','A')),ScopeDenied);
+ });
+ let renewedId,renewedHash;
+ const pause={operation:'pause',expectedVersion:3};
+ const requestPause=()=>A.requestDecision({workOwner:'A',workId:work.id,effect:pause,policy:'BOTH_OWNERS',expiresAt:new Date(Date.now()+60000).toISOString()});
+ await check('expired and denied decisions renew without weakening policy or reusing votes',async()=>{
+  const first=await requestPause();renewedHash=businessEffectHash(work.id,3,3,pause);
+  await A.decide(first.id,renewedHash,true);await B.decide(first.id,renewedHash,true);
+  await c.query("UPDATE business_effect_decisions SET expires_at=clock_timestamp()-interval '1 second' WHERE id=$1",[first.id]);
+  await assert.rejects(()=>A.requestDecision({workOwner:'A',workId:work.id,effect:pause,policy:'EITHER_OWNER',expiresAt:new Date(Date.now()+60000).toISOString()}));
+  const second=await requestPause();assert.notEqual(first.id,second.id);assert(!(await A.decisionReady(second.id,renewedHash)).approved);
+  assert(!(await A.decisionReady(first.id,renewedHash)).approved);await B.decide(second.id,renewedHash,false);
+  renewedId=(await requestPause()).id;await A.decide(renewedId,renewedHash,true);await B.decide(renewedId,renewedHash,true);
+  const history=(await c.query('SELECT * FROM business_effect_decisions WHERE effect_hash=$1 ORDER BY created_at',[renewedHash])).rows;
+  assert.equal(history.length,3);assert(history.slice(0,2).every(d=>d.superseded_at));
+ });
+ await check('partnership revocation between preflight and mutation denies the mutation',async()=>{
+  let injected=false;
+  const racing=new WorkStore(store.principal,{query:async(sql,params)=>{if(sql.includes('WITH changed AS')&&!injected){injected=true;await B.leave();}return db.query(sql,params);}});
+  await assert.rejects(()=>racing.change(work.id,pause),/shared_decision_required/);assert(injected);assert.equal((await store.get(work.id)).version,3);
+  await B.accept('A','B');await share(A,'WORK',work.id);renewedId=(await requestPause()).id;
+  await A.decide(renewedId,renewedHash,true);await B.decide(renewedId,renewedHash,true);
+ });
+ await check('decision denial between preflight and mutation denies the mutation',async()=>{
+  let injected=false;const racing=new WorkStore(store.principal,{query:async(sql,params)=>{if(sql.includes('WITH changed AS')&&!injected){injected=true;await B.decide(renewedId,renewedHash,false);}return db.query(sql,params);}});
+  await assert.rejects(()=>racing.change(work.id,pause),/shared_decision_required/);assert.equal((await store.get(work.id)).version,3);
+ });
+ await check('durable claim holds authority until commit, then revocation denies the next claim',async()=>{
+  renewedId=(await requestPause()).id;await A.decide(renewedId,renewedHash,true);await B.decide(renewedId,renewedHash,true);
+  const other=new Client({...connection,database:name});await other.connect();
+  try{
+   await c.query('BEGIN');await c.query('SELECT business_assert_effect($1,$2,3,3,$1,$3::jsonb)',['A',work.id,JSON.stringify(pause)]);
+   await other.query("SET lock_timeout='100ms'");await assert.rejects(()=>other.query("UPDATE business_partnership SET accepted_b=false,revision=revision+1"),/lock timeout/);
+   await c.query('COMMIT');await other.query("UPDATE business_partnership SET accepted_b=false,revision=revision+1");
+   await assert.rejects(()=>assertBusinessEffect(store,work.id,pause),/shared_decision_required/);
+   await B.accept('A','B');await share(A,'WORK',work.id);
+  }finally{await c.query('ROLLBACK');await other.end();}
+ });
  await check('leaving revokes old grants permanently across rejoin',async()=>{await B.leave();assert.deepEqual(await A.read(business),[]);await B.accept('A','B');assert.deepEqual(await B.read(business),[]);});
  await check('separate signed owner sessions and fail-closed duplicate passwords',async()=>{const env={NODE_ENV:'production',MYEVE_OWNER_ID:'A',MYEVE_ACCESS_PASSWORD:'owner-a-private-password',MYEVE_PARTNER_OWNER_ID:'B',MYEVE_PARTNER_ACCESS_PASSWORD:'owner-b-private-password',MYEVE_SESSION_SECRET:'s'.repeat(40)};assert.equal(ownerForPassword(env.MYEVE_PARTNER_ACCESS_PASSWORD,env),'B');assert.equal(verifyWebSessionToken(createWebSessionToken(env,Date.now(),'B'),env).id,'B');assert.equal(webAuthConfigStatus({...env,MYEVE_PARTNER_ACCESS_PASSWORD:env.MYEVE_ACCESS_PASSWORD}).configured,false);const api=businessApi({env,scopes:actor=>new BusinessScopes(actor,db)});assert.equal((await api(new Request('http://localhost/api/business'))).status,401);const response=await api(new Request('http://localhost/api/business',{headers:{cookie:'myeve_session='+createWebSessionToken(env,Date.now(),'B')}}));assert.equal(response.status,200);const body=await response.json();assert.equal(body.owner,'B');assert(!JSON.stringify(body).includes('NEW_PRIVATE_CANARY'));});
  if(process.env.MYEVE_SCOPE_BROWSER==='1'){

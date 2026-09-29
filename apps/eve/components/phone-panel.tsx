@@ -1,5 +1,8 @@
 "use client";
 
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
+
+
 import { Badge, Button, Input, Loader, Switch } from "@cloudflare/kumo";
 import { PhoneIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
@@ -71,7 +74,7 @@ const TOKEN_KEY = "eve:phone-admin-token";
 
 function storedToken(): string {
   if (typeof window === "undefined") return "";
-  return window.sessionStorage.getItem(TOKEN_KEY) ?? "";
+  return ownerSessionStorage.getItem(TOKEN_KEY) ?? "";
 }
 
 /** The header button and manage tab key off this; tell them when it flips. */
@@ -147,7 +150,7 @@ export function PhonePanel() {
         // A rejected token is worse than none: it silently fails every action
         // until cleared, so drop it and let the unlock form return.
         if (/admin token/i.test(message)) {
-          window.sessionStorage.removeItem(TOKEN_KEY);
+          ownerSessionStorage.removeItem(TOKEN_KEY);
           setToken("");
         }
         setFailed(message);
@@ -242,7 +245,7 @@ export function PhonePanel() {
             draft={draftToken}
             onDraft={setDraftToken}
             onUnlock={() => {
-              window.sessionStorage.setItem(TOKEN_KEY, draftToken.trim());
+              ownerSessionStorage.setItem(TOKEN_KEY, draftToken.trim());
               setToken(draftToken.trim());
               setDraftToken("");
               setFailed(null);

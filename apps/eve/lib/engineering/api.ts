@@ -1,3 +1,4 @@
+import { isPartnerPrincipal } from "../private-owner-boundary.ts";
 import { z } from "zod";
 import { webPrincipal } from "../web-auth.ts";
 import { boundedJson } from "../relay/client.ts";
@@ -24,6 +25,7 @@ export function engineeringPrincipal(request: Request) {
       "Sign in to this workspace first.",
       401,
     );
+  if(isPartnerPrincipal(principal.id))throw new WorkError("private_service","Use Our business for explicitly shared Work.",403);
   if (
     request.method !== "GET" &&
     (request.headers.get("origin") !== new URL(request.url).origin ||

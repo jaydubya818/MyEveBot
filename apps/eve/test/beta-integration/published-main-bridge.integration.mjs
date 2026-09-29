@@ -75,8 +75,8 @@ try {
     const before = await ledger(c);
     await runMigrations(db, current, () => {});
     assert.deepEqual(await ledger(c), before);
-    assert.equal(before.length, 64);
-    pass("Fresh canonical 64-file chain and replay");
+    assert.equal(before.length, (await loadMigrations()).length);
+    pass("Fresh complete canonical chain and replay");
   });
   await scenario(async (c, db) => {
     await runMigrations(db, old, () => {});

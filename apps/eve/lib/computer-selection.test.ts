@@ -1,3 +1,4 @@
+import { bindOwnerBrowserStorage } from "./owner-browser-storage";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -147,6 +148,7 @@ describe("active computer turn persistence", () => {
   });
 
   it("restores a tab-local lease after reload and clears it on settlement", () => {
+    bindOwnerBrowserStorage("test-owner",true);
     vi.stubGlobal("sessionStorage", memoryStorage());
     const activeTurn = { threadId: "thread-a", title: "Thread A" };
 
@@ -171,6 +173,7 @@ describe("active computer turn persistence", () => {
   it("ignores malformed persisted leases", () => {
     const storage = memoryStorage();
     storage.setItem("eve-web-active-computer-turn", '{"threadId":"thread-a"}');
+    bindOwnerBrowserStorage("test-owner",true);
     vi.stubGlobal("sessionStorage", storage);
 
     expect(loadActiveComputerTurn()).toBeNull();

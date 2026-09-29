@@ -598,6 +598,7 @@ function computerName(): string {
 }
 
 export interface OrgoProfileDescriptor {
+  ownerId?: string;
   slug: string;
   isPrimary: boolean;
   generation: number;
@@ -606,6 +607,8 @@ export interface OrgoProfileDescriptor {
 /** Preserve the original primary desktop while isolating every other Agent. */
 export function profileComputerName(profile?: OrgoProfileDescriptor): string {
   const base = computerName();
+  if(process.env.MYEVE_PARTNER_OWNER_ID && (!profile?.ownerId || profile.ownerId!==(process.env.MYEVE_OWNER_ID?.trim()||process.env.SOFIE_OWNER_ID?.trim()||"owner")))
+    throw new Error("This desktop connection is private to the configured deployment owner.");
   if (!profile || (profile.isPrimary && profile.generation === 1)) return base;
   const agent = sanitizeName(profile.slug) || "agent";
   const generation = profile.generation > 1 ? `-${profile.generation}` : "";

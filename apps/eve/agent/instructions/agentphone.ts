@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { verifiedPhone } from "../lib/effect/agentphone";
@@ -10,7 +11,8 @@ import { ownerName } from "../lib/owner";
 // a key added mid-thread takes effect on the next message.
 export default defineDynamic({
   events: {
-    "turn.started": async () => {
+    "turn.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       const phone = await runTool(verifiedPhone()).catch(() => null);
       if (phone?.operationalEnabled !== true) return null;
       const owner = ownerName();

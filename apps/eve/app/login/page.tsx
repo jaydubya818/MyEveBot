@@ -1,4 +1,5 @@
 "use client";
+import { invalidateOwnerBrowserSession } from "@/lib/owner-browser-storage";
 
 import { Button } from "@cloudflare/kumo";
 import { ArrowRightIcon, LockKeyIcon, WarningCircleIcon } from "@phosphor-icons/react";
@@ -38,6 +39,7 @@ export default function LoginPage() {
         const message = typeof body?.error === "string" ? body.error : body?.error?.message;
         throw new Error(message ?? "Could not sign in.");
       }
+      invalidateOwnerBrowserSession();
       window.location.replace(safeDestination());
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not sign in.");

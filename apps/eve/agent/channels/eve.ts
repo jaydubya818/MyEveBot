@@ -1,3 +1,4 @@
+import { BusinessScopes } from "../../lib/business-scopes.ts";
 import { OWNER_RUNTIME_HEADER,verifyOwnerRuntime,resolveOwnerRuntime,assertOwnerRuntimeRoute } from "../../lib/relay/owner/runtime.ts";
 import { ForbiddenError, type AuthFn, localDev, vercelOidc } from "eve/channels/auth";
 import { eveChannel } from "eve/channels/eve";
@@ -33,6 +34,8 @@ export function ownerSession(): AuthFn<Request> {
     const requestedThreadId = request.headers.get("x-myeve-thread-id")?.trim();
     const workHeader = request.headers.get(ENGINEERING_WORK_ID_HEADER);
     const requestedWorkId = workHeader?.trim();
+    if(process.env.MYEVE_PARTNER_OWNER_ID && requestedWorkId && await new BusinessScopes(principal.id).hasSharedWork(principal.id,requestedWorkId))
+      throw new ForbiddenError({code:"shared_work_context_required",message:"Open Our business to ask Sofie with explicitly shared Work context. A private conversation cannot inherit this shared Work."});
     const workIntent = request.headers.get("x-myeve-engineering-intent");
     if (workIntent !== null && (!requestedWorkId || !["observe", "continue"].includes(workIntent)))
       throw new ForbiddenError({code:"invalid_engineering_intent",message:"Select Work and a valid access mode."});

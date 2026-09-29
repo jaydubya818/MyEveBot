@@ -17,7 +17,7 @@ function guard(request: Request): Response | null {
 }
 
 function descriptor(profile: BrowserProfileView) {
-  return { slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation };
+  return { ownerId: profile.ownerId, slug: profile.agentSlug, isPrimary: profile.agentIsPrimary, generation: profile.generation };
 }
 
 export async function GET(request: Request): Promise<Response> {

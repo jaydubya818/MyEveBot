@@ -1,4 +1,7 @@
 "use client";
+
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AGENT_NAME } from "@/lib/identity";
@@ -111,8 +114,8 @@ function PreviewExperience({
     if (preview || view !== "today" || loading || Object.keys(errors).length)
       return;
     try {
-      setLastVisit(sessionStorage.getItem("myeve-today-last-visit"));
-      sessionStorage.setItem(
+      setLastVisit(ownerSessionStorage.getItem("myeve-today-last-visit"));
+      ownerSessionStorage.setItem(
         "myeve-today-last-visit",
         new Date().toISOString(),
       );
@@ -191,7 +194,7 @@ function PreviewExperience({
       return;
     }
     try {
-      sessionStorage.setItem("myeve-owner-conversation-draft", text);
+      ownerSessionStorage.setItem("myeve-owner-conversation-draft", text);
       window.location.assign("/sofie");
     } catch {
       setNotice(

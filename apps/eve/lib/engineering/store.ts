@@ -157,6 +157,7 @@ export class WorkStore {
       UPDATE engineering_work SET lifecycle=$5,control=$6,version=version+1,generation=generation+1,
         criteria_version=criteria_version+CASE WHEN $7 THEN 1 ELSE 0 END,updated_at=now()
       WHERE scope_id=$1 AND scope_kind=$2 AND id=$3 AND version=$4
+        AND business_assert_effect(scope_id,id,version,generation,$9,$12::jsonb)
         AND NOT EXISTS(SELECT 1 FROM engineering_execution e WHERE e.scope_id=$1 AND e.scope_kind=$2 AND e.work_id=$3
           AND EXISTS(SELECT 1 FROM jsonb_array_elements(e.state->'effects') effect WHERE effect->>'status' IN ('PREPARED','UNKNOWN')))
       RETURNING *
@@ -178,6 +179,7 @@ export class WorkStore {
         this.principal.actorId,
         randomUUID(),
         input.operation,
+        JSON.stringify(input),
       ],
     );
     if (!rows.length)

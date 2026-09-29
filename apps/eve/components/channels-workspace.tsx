@@ -1,5 +1,8 @@
 "use client";
 
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
+
+
 import { Badge, Button, Input, Loader } from "@cloudflare/kumo";
 import {
   ArrowRightIcon,
@@ -104,7 +107,7 @@ export function ChannelsWorkspace({ pushStatus, onTogglePush }: { pushStatus: Pu
     if (query.length < 2 || searching) return;
     setSearching(true);
     setSearchFailed(null);
-    const token = window.sessionStorage.getItem("eve:imessage-admin-token");
+    const token = ownerSessionStorage.getItem("eve:imessage-admin-token");
     const headers = new Headers();
     if (token) headers.set("x-imessage-admin-token", token);
     void fetch(`/api/channels/search?q=${encodeURIComponent(query)}`, { headers })

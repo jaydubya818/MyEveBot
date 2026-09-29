@@ -1,5 +1,8 @@
 "use client";
 
+import { ownerSessionStorage } from "@/lib/owner-browser-storage";
+
+
 import { Button, Input, LinkButton } from "@cloudflare/kumo";
 import { ArrowClockwiseIcon, CaretLeftIcon } from "@phosphor-icons/react";
 import { useEffect, useRef, useState } from "react";
@@ -42,7 +45,7 @@ const TRANSCRIPT_TOKEN_KEY = "eve:imessage-admin-token";
 
 function storedTranscriptToken(): string {
   if (typeof window === "undefined") return "";
-  return window.sessionStorage.getItem(TRANSCRIPT_TOKEN_KEY) ?? "";
+  return ownerSessionStorage.getItem(TRANSCRIPT_TOKEN_KEY) ?? "";
 }
 
 class TranscriptFetchError extends Error {
@@ -225,7 +228,7 @@ export function IMessageTranscriptPage() {
 
   function rejectToken(error: unknown): void {
     if (error instanceof TranscriptFetchError && error.status === 401) {
-      window.sessionStorage.removeItem(TRANSCRIPT_TOKEN_KEY);
+      ownerSessionStorage.removeItem(TRANSCRIPT_TOKEN_KEY);
       setToken("");
     }
   }
@@ -342,7 +345,7 @@ export function IMessageTranscriptPage() {
                 onSubmit={(event) => {
                   event.preventDefault();
                   const nextToken = draftToken.trim();
-                  window.sessionStorage.setItem(TRANSCRIPT_TOKEN_KEY, nextToken);
+                  ownerSessionStorage.setItem(TRANSCRIPT_TOKEN_KEY, nextToken);
                   setToken(nextToken);
                   setDraftToken("");
                   setFailed(null);

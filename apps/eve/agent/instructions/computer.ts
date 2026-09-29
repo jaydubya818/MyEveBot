@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { orgoConfigured } from "../lib/orgo";
@@ -10,7 +11,8 @@ import { ownerName } from "../lib/owner";
 // fragment stays attached across dev-server restarts.
 export default defineDynamic({
   events: {
-    "turn.started": async () => {
+    "turn.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       if (!(await orgoConfigured())) return null;
       const owner = ownerName();
 

@@ -1,3 +1,4 @@
+import { OwnerSessionBoundary } from "@/components/owner-session-boundary";
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import type { ReactNode } from "react";
@@ -36,8 +37,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       className={cn("font-sans", inter.variable, geist.variable, geistMono.variable)}
     >
       <body className="antialiased">
-        <AppearanceSync />
-        {children}
+        <OwnerSessionBoundary><AppearanceSync />
+        {children}</OwnerSessionBoundary>
       </body>
     </html>
   );

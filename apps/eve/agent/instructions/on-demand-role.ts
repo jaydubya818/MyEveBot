@@ -1,10 +1,12 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 
 export default defineDynamic({
   events: {
-    "turn.started": (_event, ctx) => {
+    "turn.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       const attributes = ctx.session.auth.current?.attributes ?? {};
       const roleId = typeof attributes.myeveRoleId === "string" ? attributes.myeveRoleId : null;
       if (!roleId) return null;

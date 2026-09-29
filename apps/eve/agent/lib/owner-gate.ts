@@ -1,3 +1,4 @@
+import { isPartnerPrincipal, PARTNER_PRIVATE_TOOLS } from "../../lib/private-owner-boundary.ts";
 import type { ApprovalPolicy, ApprovalContext } from "eve/tools/approval";
 
 
@@ -36,7 +37,7 @@ function isGuestTurn(ctx: AuthCarrier): boolean {
  * `null` from the resolver on guest turns so the tools are not advertised.
  */
 export function isGuestResolve(ctx: AuthCarrier): boolean {
-  return isGuestTurn(ctx);
+  return isGuestTurn(ctx) || isPartnerPrincipal(ctx.session.auth.current?.principalId);
 }
 
 /**
@@ -55,6 +56,8 @@ export const ownerOnly: ApprovalPolicy = (ctx) => {
  * composing with approval policies that have their own non-guest behavior.
  */
 export function guestDenial(ctx: ApprovalContext): { type: "denied"; reason: string } | null {
+  if(isPartnerPrincipal(ctx.session.auth.current?.principalId) && !PARTNER_PRIVATE_TOOLS.has(ctx.toolName))
+    return {type:"denied",reason:"This tool uses a deployment-owner service. It is not available to this private owner context."};
   if (!isGuestTurn(ctx)) return null;
   // Audit trail: every blocked attempt is worth a log line.
   console.warn(

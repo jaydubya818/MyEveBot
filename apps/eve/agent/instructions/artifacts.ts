@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
 function configured(): boolean {
@@ -11,7 +12,8 @@ function configured(): boolean {
 
 export default defineDynamic({
   events: {
-    "turn.started": () => {
+    "turn.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       if (!configured()) return null;
       return defineInstructions({
         markdown: `

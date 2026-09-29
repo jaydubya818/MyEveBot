@@ -1,3 +1,4 @@
+import { bindOwnerBrowserStorage } from "../owner-browser-storage";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { VoiceThreadWriter, loadVoiceResume, saveVoiceResume } from "./thread";
 
@@ -23,7 +24,8 @@ function stubBrowser(): Record<string, string> {
     removeEventListener: vi.fn(),
   };
   vi.stubGlobal("window", win);
-  vi.stubGlobal("localStorage", localStorage);
+  bindOwnerBrowserStorage("test-owner",true);
+    vi.stubGlobal("localStorage", localStorage);
   vi.stubGlobal("document", { addEventListener: vi.fn(), visibilityState: "visible" });
   vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })));
   return store;
@@ -46,7 +48,7 @@ describe("VoiceThreadWriter", () => {
     writer.appendAssistant("hey! what's up?");
     writer.finish("eve:tok-1");
     await vi.runAllTimersAsync();
-    const saved = JSON.parse(store[`eve-web-chat:${writer.threadId}`] ?? "{}") as {
+    const saved = JSON.parse(store[`myeve-private:test-owner:eve-web-chat:${writer.threadId}`] ?? "{}") as {
       events?: Array<{ type: string }>;
       session?: unknown;
       forkContext?: string;
@@ -99,7 +101,7 @@ describe("VoiceThreadWriter", () => {
     const writer = await VoiceThreadWriter.open();
     writer.appendUser("first line");
     await vi.runAllTimersAsync();
-    const key = `eve-web-chat:${writer.threadId}`;
+    const key = `myeve-private:test-owner:eve-web-chat:${writer.threadId}`;
     // A text session takes the thread over while the orb is still open.
     store[key] = JSON.stringify({
       events: [{ type: "message.received", data: { message: "typed", sequence: 1, turnId: "t" } }, { type: "turn.completed", data: {} }],
@@ -117,7 +119,7 @@ describe("VoiceThreadWriter", () => {
     const writer = await VoiceThreadWriter.open();
     writer.appendUser("hello");
     await vi.runAllTimersAsync();
-    const key = `eve-web-chat:${writer.threadId}`;
+    const key = `myeve-private:test-owner:eve-web-chat:${writer.threadId}`;
     const longer = Array.from({ length: 9 }, (_, i) => ({ type: "turn.completed", data: { sequence: i } }));
     store[key] = JSON.stringify({ events: longer, savedAt: Date.now() });
     writer.appendUser("hi again");

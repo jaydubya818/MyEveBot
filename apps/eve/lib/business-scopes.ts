@@ -112,11 +112,7 @@ export class BusinessScopes {
   const [work]=await this.database.query(`SELECT version,generation FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2`,[this.actor,input.workId]);
   if(!work)throw new ScopeDenied();
   const effectHash=businessEffectHash(input.workId,work.version,work.generation,input.effect);
-  const rows=await this.database.query(`INSERT INTO business_effect_decisions(id,work_owner,work_id,work_version,work_generation,partnership_revision,effect_hash,policy,expires_at,created_by,effect)
-   SELECT $2,w.scope_id,w.id,w.version,w.generation,p.revision,$4,$5,$6::timestamptz,$1,$7::jsonb FROM business_partnership p
-   JOIN engineering_work w ON w.scope_id=$1 AND w.scope_kind='personal' AND w.id=$3
-   WHERE ${member} AND w.lifecycle='active' AND ${sharedWork} AND w.version=$8 AND w.generation=$9 AND $6::timestamptz>clock_timestamp() AND $6::timestamptz<=clock_timestamp()+interval '24 hours'
-   ON CONFLICT DO NOTHING RETURNING id`,[this.actor,randomUUID(),input.workId,effectHash,input.policy,input.expiresAt,JSON.stringify(input.effect),work.version,work.generation]);
+  const rows=await this.database.query(`SELECT business_request_decision($1,$2,$3,$4,$5,$6::timestamptz,$7::jsonb,$8,$9) AS id`,[this.actor,randomUUID(),input.workId,effectHash,input.policy,input.expiresAt,JSON.stringify(input.effect),work.version,work.generation]);
   if(!rows.length) throw new ScopeDenied();
   return rows[0];
  }
@@ -124,16 +120,16 @@ export class BusinessScopes {
   const rows=await this.database.query(`UPDATE business_effect_decisions d SET
    approved_a=d.approved_a OR ($1=p.owner_a AND $4),approved_b=d.approved_b OR ($1=p.owner_b AND $4),denied=d.denied OR NOT $4
    FROM business_partnership p,engineering_work w WHERE d.id=$2 AND d.effect_hash=$3 AND ${member}
-   AND d.partnership_revision=p.revision AND d.expires_at>clock_timestamp() AND NOT d.denied
-   AND w.scope_id=d.work_owner AND w.scope_kind='personal' AND w.id=d.work_id AND w.version=d.work_version AND w.generation=d.work_generation AND w.lifecycle='active' AND ${sharedWork}
+   AND d.partnership_revision=p.revision AND d.expires_at>clock_timestamp() AND d.superseded_at IS NULL AND NOT d.denied
+   AND w.scope_id=d.work_owner AND w.scope_kind='personal' AND w.id=d.work_id AND w.version=d.work_version AND w.generation=d.work_generation AND (w.lifecycle='active' OR (d.effect->>'operation'='reopen' AND w.lifecycle IN('cancelled','accepted','failed'))) AND ${sharedWork}
    AND (d.policy IN ('EITHER_OWNER','BOTH_OWNERS') OR (d.policy='OWNER_A' AND $1=p.owner_a) OR (d.policy='OWNER_B' AND $1=p.owner_b)) RETURNING d.id`,[this.actor,id,effectHash,approve]);
   if(!rows.length) throw new ScopeDenied();
   return this.decisionReady(id,effectHash);
  }
  async decisionReady(id:string,effectHash:string) {
   const rows=await this.database.query(`SELECT d.id FROM business_effect_decisions d,business_partnership p,engineering_work w
-   WHERE d.id=$2 AND d.effect_hash=$3 AND ${member} AND d.partnership_revision=p.revision AND NOT d.denied AND d.expires_at>clock_timestamp()
-   AND w.scope_id=d.work_owner AND w.scope_kind='personal' AND w.id=d.work_id AND w.version=d.work_version AND w.generation=d.work_generation AND w.lifecycle='active' AND ${sharedWork}
+   WHERE d.id=$2 AND d.effect_hash=$3 AND ${member} AND d.partnership_revision=p.revision AND d.superseded_at IS NULL AND NOT d.denied AND d.expires_at>clock_timestamp()
+   AND w.scope_id=d.work_owner AND w.scope_kind='personal' AND w.id=d.work_id AND w.version=d.work_version AND w.generation=d.work_generation AND (w.lifecycle='active' OR (d.effect->>'operation'='reopen' AND w.lifecycle IN('cancelled','accepted','failed'))) AND ${sharedWork}
    AND CASE d.policy WHEN 'OWNER_A' THEN d.approved_a WHEN 'OWNER_B' THEN d.approved_b WHEN 'EITHER_OWNER' THEN d.approved_a OR d.approved_b WHEN 'BOTH_OWNERS' THEN d.approved_a AND d.approved_b ELSE false END`,[this.actor,id,effectHash]);
   // This is a decision receipt, never a credential, dispatch or executor grant.
   return {approved:rows.length===1,authorityGrants:[]};

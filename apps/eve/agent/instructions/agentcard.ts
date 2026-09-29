@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import { Exit } from "effect";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 
@@ -23,7 +24,8 @@ async function isConnected(): Promise<boolean> {
 
 export default defineDynamic({
   events: {
-    "turn.started": async () => {
+    "turn.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       const owner = ownerName();
 
       if (!(await isConnected())) {

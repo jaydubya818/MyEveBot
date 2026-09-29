@@ -89,3 +89,7 @@ Candidate `b14988add08886cd8e2f8ae128b508ac11b509c8`. Historical hashes are reta
 ## Authorized shared-scope successor
 
 Appended `0069_business_scopes.sql`, SHA256 `6528b8f1b6844a368299a601d99b25c36caa4407d4b3a3e0dcd2fd356a845436`. 65 canonical files. No previously qualified migration bytes changed. Populated 0068 → 0069 and replay PASS in business-scopes.integration.mjs; private rows and preceding ledger entries preserved. This new migration was qualified only on disposable local databases before publication.
+
+## Review successor 0070
+
+Forward-only `0070_business_authority_fencing.sql` follows immutable0069; SHA256 `0f7d853b2c517601281b42209553f49e6dbf55adf521518aae0ccec263ae243b`. Complete chain66 files. Preserved published-main ledger and replay independently exercised by nine local checks.

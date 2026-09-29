@@ -1,5 +1,8 @@
 "use client";
 
+import { ownerLocalStorage, ownerSessionStorage } from "@/lib/owner-browser-storage";
+
+
 import type { UserContent } from "ai";
 import type { HandleMessageStreamEvent, ClientSessionState } from "eve/client";
 import { Client, defaultMessageReducer, isCurrentTurnBoundaryEvent } from "eve/client";
@@ -127,7 +130,7 @@ type ReasoningId = (typeof REASONING_OPTIONS)[number]["id"];
 
 function loadSavedReasoning(): ReasoningId {
   try {
-    const saved = localStorage.getItem(REASONING_KEY);
+    const saved = ownerLocalStorage.getItem(REASONING_KEY);
     return REASONING_OPTIONS.some((option) => option.id === saved) ? (saved as ReasoningId) : "default";
   } catch {
     return "default";
@@ -145,7 +148,7 @@ const MODEL_FAVORITES_KEY = "eve-web-model-favorites";
 
 function loadModelFavorites(): string[] {
   try {
-    const raw = localStorage.getItem(MODEL_FAVORITES_KEY);
+    const raw = ownerLocalStorage.getItem(MODEL_FAVORITES_KEY);
     const parsed = raw ? (JSON.parse(raw) as unknown) : null;
     return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
   } catch {
@@ -167,7 +170,7 @@ function priceTier(pricing: ModelOption["pricing"]): string {
 
 function loadSavedModel(): string {
   try {
-    return localStorage.getItem(MODEL_KEY) ?? DEFAULT_MODEL_ID;
+    return ownerLocalStorage.getItem(MODEL_KEY) ?? DEFAULT_MODEL_ID;
   } catch {
     return DEFAULT_MODEL_ID;
   }
@@ -231,7 +234,7 @@ function browserRandomId(): string {
 
 function loadThreadIndex(): ThreadIndex {
   try {
-    const raw = localStorage.getItem(THREADS_KEY);
+    const raw = ownerLocalStorage.getItem(THREADS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as ThreadIndex;
       if (Array.isArray(parsed.threads) && parsed.threads.length > 0) {
@@ -243,10 +246,10 @@ function loadThreadIndex(): ThreadIndex {
     }
     // First run with threads: migrate the old single-chat storage into one.
     const meta = newThreadMeta();
-    const legacy = localStorage.getItem(LEGACY_CHAT_KEY);
+    const legacy = ownerLocalStorage.getItem(LEGACY_CHAT_KEY);
     if (legacy) {
-      localStorage.setItem(chatKey(meta.id), legacy);
-      localStorage.removeItem(LEGACY_CHAT_KEY);
+      ownerLocalStorage.setItem(chatKey(meta.id), legacy);
+      ownerLocalStorage.removeItem(LEGACY_CHAT_KEY);
     }
     return { activeId: meta.id, threads: [meta] };
   } catch {
@@ -257,7 +260,7 @@ function loadThreadIndex(): ThreadIndex {
 
 function loadSavedChat(threadId: string): SavedChat | null {
   try {
-    const raw = localStorage.getItem(chatKey(threadId));
+    const raw = ownerLocalStorage.getItem(chatKey(threadId));
     return raw ? (JSON.parse(raw) as SavedChat) : null;
   } catch {
     return null;
@@ -283,7 +286,7 @@ function isInterruptedChat(chat: SavedChat): boolean {
 
 function saveLocalChat(threadId: string, chat: SavedChat): void {
   try {
-    localStorage.setItem(chatKey(threadId), JSON.stringify({ ...chat, savedAt: Date.now() }));
+    ownerLocalStorage.setItem(chatKey(threadId), JSON.stringify({ ...chat, savedAt: Date.now() }));
   } catch {
     // Storage full or unavailable; the server copy still gets written.
   }
@@ -607,7 +610,7 @@ function sectionThreads(
 // (a fired reminder created it, or another device wrote to it).
 function loadSeenMap(): Record<string, number> {
   try {
-    const raw = localStorage.getItem(SEEN_KEY);
+    const raw = ownerLocalStorage.getItem(SEEN_KEY);
     const parsed = raw ? (JSON.parse(raw) as unknown) : null;
     return parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)
       ? (parsed as Record<string, number>)
@@ -771,7 +774,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         setModel((current) => {
           if (body.models?.some((option) => option.id === current)) return current;
           try {
-            localStorage.setItem(MODEL_KEY, DEFAULT_MODEL_ID);
+            ownerLocalStorage.setItem(MODEL_KEY, DEFAULT_MODEL_ID);
           } catch {
             // Storage unavailable; the reset still applies for this session.
           }
@@ -784,7 +787,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   function selectModel(id: string) {
     setModel(id);
     try {
-      localStorage.setItem(MODEL_KEY, id);
+      ownerLocalStorage.setItem(MODEL_KEY, id);
     } catch {
       // Storage unavailable; the selection still applies for this session.
     }
@@ -796,7 +799,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   function selectReasoning(id: ReasoningId) {
     setReasoning(id);
     try {
-      localStorage.setItem(REASONING_KEY, id);
+      ownerLocalStorage.setItem(REASONING_KEY, id);
     } catch {
       // Storage unavailable; the selection still applies for this session.
     }
@@ -811,7 +814,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
   useEffect(() => {
     try {
-      localStorage.setItem(THREADS_KEY, JSON.stringify(index));
+      ownerLocalStorage.setItem(THREADS_KEY, JSON.stringify(index));
     } catch {
       // Storage full or unavailable; sessions still live server-side.
     }
@@ -819,7 +822,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
   useEffect(() => {
     try {
-      localStorage.setItem(SEEN_KEY, JSON.stringify(seenAt));
+      ownerLocalStorage.setItem(SEEN_KEY, JSON.stringify(seenAt));
     } catch {
       // Storage full or unavailable; dots reset on reload at worst.
     }
@@ -1131,7 +1134,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     if (!initialPrompt || initialPromptConsumed.current) return;
     initialPromptConsumed.current = true;
     startPromptThread("Plan my work", initialPrompt);
-    try { sessionStorage.removeItem("myeve-owner-conversation-draft"); } catch { /* Optional draft cleanup. */ }
+    try { ownerSessionStorage.removeItem("myeve-owner-conversation-draft"); } catch { /* Optional draft cleanup. */ }
     // Consume once: startPromptThread intentionally uses the current thread state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPrompt]);
@@ -1178,7 +1181,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
 
   function deleteThread(id: string) {
     try {
-      localStorage.removeItem(chatKey(id));
+      ownerLocalStorage.removeItem(chatKey(id));
     } catch {
       // Ignore storage failures.
     }
@@ -2819,7 +2822,7 @@ function ModelPicker({
     setFavorites((prev) => {
       const next = prev.includes(id) ? prev.filter((entry) => entry !== id) : [...prev, id];
       try {
-        localStorage.setItem(MODEL_FAVORITES_KEY, JSON.stringify(next));
+        ownerLocalStorage.setItem(MODEL_FAVORITES_KEY, JSON.stringify(next));
       } catch {
         // Storage unavailable; favorites still apply for this session.
       }

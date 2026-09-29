@@ -1,3 +1,4 @@
+import { omitDeploymentInstructions } from "../../lib/private-owner-boundary.ts";
 import {ownerRuntimeFromAuth} from "../../lib/relay/owner/runtime.ts";
 import { defineDynamic, defineInstructions } from "eve/instructions";
 import { skillStore } from "../lib/skill-store";
@@ -15,7 +16,8 @@ const SKILLS_TIMEOUT_MS = 2000;
 // created mid-conversation applies from the next session onward.
 export default defineDynamic({
   events: {
-    "session.started": async (_event,ctx) => {
+    "session.started": async (_event, ctx) => {
+      if(omitDeploymentInstructions(ctx))return null;
       if(ownerRuntimeFromAuth(ctx.session.auth))return null;
       let skills;
       try {

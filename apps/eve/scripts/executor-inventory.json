@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards.",
-      "sha256": "4e225a249034b9f6963d4b55612ad438d1a00664b6a8ce40abe617edcb030e76"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "ba6b14b7cff28bc1dd784856237aaeb47a5ec88d2e8c5c590d4183966f4178cd"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -24,8 +24,8 @@
     },
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "d31c08d00a868100f8fa9abec77aa771f74db58afba9cce64a8ff23337bbb51f"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "b7906620e6010b9ddfb916092d6b4ace98130c1a2851513110851deefef8bc4e"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -102,23 +102,23 @@
     },
     "agent/instructions/agentcard.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "5ab7c282d45606350e16e4ddea305a0fbee403ab3389640c45a176ad951054ee"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "9bd3d199598fbf2a4f969635bec569bce6cbd51f47ede4371fbf4f3c5696326c"
     },
     "agent/instructions/agentphone.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "cafedf58cd5140b47644cd502566b558f381d68e70feedd4a33ac0847a37088c"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "48ec90500a0f2bd9ebe15298fd4359b1f288943f61b285daa46da06aa219a706"
     },
     "agent/instructions/artifacts.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "aa4997cb7934aa9ba67c5e60b6292980975f0ecf5b1f58a466bf98a97cd892d6"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "feb06d5506dad4254f55f5ac5271129405937ae49adcbde05baed225e4682682"
     },
     "agent/instructions/capabilities.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "389aa428b102041dab31786ff7975bf65d4a8230a6d7c666013af5ac42d78846"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "fdc4109e0d79ad184ecb9dcf6d54ced541c6d1c2a56421783afee2371eecd954"
     },
     "agent/instructions/channel.ts": {
       "classification": "INTERNAL",
@@ -132,13 +132,13 @@
     },
     "agent/instructions/computer.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "cfa8bec410665d8892f89922b9bd3e188d80dfdcf8201fcbd6b3eaa03e175de5"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "ec16a749859c1e9a2b10e09c8664940904fb3abf290477e65099043f4a2a03ec"
     },
     "agent/instructions/custom-skills.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "1a46728fd9ba056e45a9f9201fbd36cd635253556ecc440bc8b76904ac4c8095"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "cdb11b8d0d3d32777a1f16182668e40751bb263dcd4750c3a83c32a01c8f5ac3"
     },
     "agent/instructions/delegation.ts": {
       "classification": "INTERNAL",
@@ -157,13 +157,13 @@
     },
     "agent/instructions/local-computer.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "de44df74c9ff5be268a9bb10564f1a681d484c0260ef49c388c1e305f2a37eba"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "177c78ee4e2a9ccb53c72bcb72108131c5bed8e19a7a4d3da390537e3f80fae6"
     },
     "agent/instructions/on-demand-role.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "418ae0aaa9e53b7f7534f39f41d468740ac30305ba36b08109bb3b6389e1e432"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "93ed8378732fe0d26cd587100c2344af0a9614444e312f4581d53258eb33268e"
     },
     "agent/instructions/outcomes.ts": {
       "classification": "INTERNAL",
@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants.",
-      "sha256": "e0db14192ce218ca4667e82fdaca0c7cc42ad2f96d1ca45d06e384da59b88176"
+      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "ee4c49c8be139a19f17763f0944f44f0b2162b686296c0fcccb0a7e26a490800"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -387,13 +387,13 @@
     },
     "agent/lib/orgo.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "c32467adac423034b0c8aa4de16d8cb023c8a4ca6cc2a36e3a39688b76582032"
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "10b7e68471a5500c28db93adcb5e20d6ffb8b9908370d124d70792f95e3ebd3c"
     },
     "agent/lib/owner-gate.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "bd1d31a089f7545e39e51fe253eafc16dffbf09d0a8936e2e8d59540e3c95b90"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "e43345a061496e5ba9d4f113e20ba4879b001271b8b96d6e7568ac231a8bc15f"
     },
     "agent/lib/owner.ts": {
       "classification": "INTERNAL",
@@ -933,8 +933,8 @@
     },
     "agent/tools/computer.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "4824569c45e995a794cee8a370fcd62b386430b6916f2288d2fd80d13347780a",
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "6afca6914ee093521ba83dd7d41f749ea081c82213076cfcd7fb237e9ce6f9ae",
       "disposition": "blocked"
     },
     "agent/tools/connect_card.ts": {
@@ -1179,8 +1179,8 @@
     },
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport.",
-      "sha256": "1c9b2b41625eac7c41a5f640876ce8e693874da73d4055d8d4c7d55a856d20c6",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "6ccb1bfe7c5045ade83cd92a8e541f8bbe4af42b63b22416ef8c04615253d707",
       "disposition": "gateway"
     },
     "agent/tools/query_receipts.ts": {
@@ -1525,8 +1525,8 @@
     },
     "app/api/auth/status/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "011db9d524e5843d3e160779ab16e5768c533ae7c53c3e620ffd7f070fa38447"
+      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "80b34a7fbb367a0463a47df5a0f32dde1b0e9120ae7c3d02fdd6efa71e0e93c4"
     },
     "app/api/automations/route.ts": {
       "classification": "INTERNAL",
@@ -1555,8 +1555,8 @@
     },
     "app/api/computer-profiles/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "84c3e7f083b01bc3e27db8504a292764d35d29d6be7233d66dba1ebd4e146260"
+      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "a113e158b0e8a7ef9ecfae9c8c63cf6ddf4f67af6c4f8c8d063ac0c80778766f"
     },
     "app/api/computer-runtime/route.ts": {
       "classification": "READ_ONLY",
@@ -1595,13 +1595,13 @@
     },
     "app/api/computer/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "5c1c523e8abeb3586deb75eeea94bdd2a687643148ed5585f92b7b1e51a66ac6"
+      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "e675f3abd8c89f66e7d5352f8440de19a09d3ed6c33476d5ab5a6c6f0ee00899"
     },
     "app/api/computer/ws/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "71d4b251ddafd1ef0e85ce5b0ef47947d3ae579a4426f4013747b73ef84c63a0"
+      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "346abb77f2b43fead6959c6293f75287d929ef7b224a22acb74f6fc3eab5e14d"
     },
     "app/api/connections/route.ts": {
       "classification": "INTERNAL",
@@ -1940,8 +1940,8 @@
     },
     "lib/agents.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8d4bba986df2827f178669d72e3492b351722a2f92c42ff1c7f2f79fd5200d48"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "29f5cf3c0c92de6d54357164324cabaede15493616c3efa56e189bb791cf8201"
     },
     "lib/api-errors.ts": {
       "classification": "INTERNAL",
@@ -1955,8 +1955,8 @@
     },
     "lib/appearance.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "0c7c0a7703846b4e86b8636425a41df63b31bab0be63e14ac5d94bfbaea9696b"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "e60437ea10e568d9f53778598cabe3256b7fd943fd3aa3a2d02d395984d63006"
     },
     "lib/approvals.ts": {
       "classification": "INTERNAL",
@@ -2085,8 +2085,8 @@
     },
     "lib/computer-selection.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "692f91f298253f01ddd781b047d3a65dea5029be025a07bf3d1a41fe4ce0a915"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "767223a6f9a9fac4b1778bb51a0cb47639a0d58948ef532f64467d6f197aa9cc"
     },
     "lib/computer-sessions.ts": {
       "classification": "INTERNAL",
@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "cca4876e529087d5f07c0755adaf765865da9827c03aa6503156a3325f106fe9"
+      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "4a2261ac49aadc1790f472b8ca83d33be041410c6a093742e7c73ba5a35531a1"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2210,8 +2210,8 @@
     },
     "lib/dev-vnc-relay.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "2648a5f19c91c60b307a0c3ee08554699715e29265f07627086f9901d8fb8ec7"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "30e1d71a7446d5d5110fd3d9b9187535629817778659af7123e560b7c0256055"
     },
     "lib/email-api.ts": {
       "classification": "INTERNAL",
@@ -2435,8 +2435,8 @@
     },
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations.",
-      "sha256": "c459066eae008f616ab6b28bfd71956eb3eb1edc886766347e200bc7a5cd5d8c"
+      "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "8452de8915d4efb07597dacea64be9932891754e58b09f42ab12410100d98190"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2610,8 +2610,8 @@
     },
     "lib/thread-sync.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "adc569a3a18d6609319a2c2189bd6d8fb173791accf5735ce18a249b8763cca6"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "a9e1658d2e6f1dedf9ee463f9370e0a7ca181b999c7f254049c2b72bbe1b1682"
     },
     "lib/threads-db.ts": {
       "classification": "INTERNAL",
@@ -2650,13 +2650,13 @@
     },
     "lib/voice/thread.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a84a3c6cda645575a3fa7d147439377eadada01225cb7993f914ed6c17e018fb"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "9f7ec6c003f364e20a23a6448f39b952a15c1415e9354cc851c43ac0beee0969"
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "479fa8c7a3008804957179908c5273e7adf37fe2f5738a1818725f4cd4ba9836"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "696c5cd22b4e944467ab789fdbfd05e2c3800b9045eed9e8ebd93178bc673787"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -3177,8 +3177,8 @@
     },
     "lib/engineering/store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "08d1e94345785ed9c2b7ae14fa1fc656dfbe93b6f6a4dccbed6d65180d3b7811"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "d8e3a7c8e2963a931929328105ab3b9a5d6cf049a0a8d498fd16de90393bf389"
     },
     "lib/digital-worker/packs.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3202,8 +3202,8 @@
     },
     "lib/engineering/api.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work CRUD and read projections with scoped SQL; no provider dispatch or publication.",
-      "sha256": "ce04d2f2dc052d30e4f6c6c5c75986995d2ed82ff606e5a47c2b1b4845f32c5f"
+      "reason": "Authenticated personal dogfood Work CRUD and read projections with scoped SQL; no provider dispatch or publication. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "e59fd6be16794b148cf22c92d04dde0953236b6deaf5f2c121c4e24d6b1f33a1"
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
@@ -3633,8 +3633,8 @@
     },
     "lib/business-effects.ts": {
       "classification": "ENFORCED",
-      "reason": "Additional shared Work decision check before canonical Work changes, native effects and Factory dispatch. Existing authority/credential/budget constraints remain mandatory. PostgreSQL negative both-owner and changed-effect qualification.",
-      "sha256": "15ac2f52cecae0bcc6ee5de90d14279b5d6948c9bfeb4226f943761c404a3a59"
+      "reason": "Additional shared Work decision check before canonical Work changes, native effects and Factory dispatch. Existing authority/credential/budget constraints remain mandatory. PostgreSQL negative both-owner and changed-effect qualification. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "fb0aa1a30f2ccf3b0e3d3c1587cef90b8fbcbef8590e3ebb831acbbaa4b80fd4"
     },
     "lib/business-api.ts": {
       "classification": "ENFORCED",
@@ -3643,8 +3643,8 @@
     },
     "lib/business-scopes.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated actor, durable mutual two-owner membership, exact source revision, bounded Work version/generation/expiry, revocation and per-effect approval policies. Qualified by test/business-scopes.integration.mjs; never remaps principals or shares credentials.",
-      "sha256": "ae2c8b6750f867639ae6dd3cf773d2a0ac6ec0ac96e362d2b5a6f442fcfd569c"
+      "reason": "Authenticated actor, durable mutual two-owner membership, exact source revision, bounded Work version/generation/expiry, revocation and per-effect approval policies. Qualified by test/business-scopes.integration.mjs; never remaps principals or shares credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
+      "sha256": "f7ae70fa0bed9d2df56b948175be179cf383a060d9e9d74ff0d39b4f4baaeb2a"
     },
     "lib/business-sofie.ts": {
       "classification": "READ_ONLY",
@@ -3670,6 +3670,21 @@
       "classification": "INTERNAL",
       "reason": "Canonical scope composition; production uses application DB, existing qualification composition permits only explicit local disposable beta database. No new credentials or scope grant.",
       "sha256": "ed70a005007b38d79d0c7d672045cbfb17f44a85cd02d399255cc012f8f3827a"
+    },
+    "lib/private-owner-boundary.ts": {
+      "classification": "ENFORCED",
+      "reason": "Defaults partner legacy routes and tools to denial; audited Memory/Knowledge/Files/thread routes retain owner filtering. Negative tests in private-owner-boundary.test.ts.",
+      "sha256": "7358801eaf8c0abc6ed1825b52a749cd6dea508be386e318081e80cc4a2654a0"
+    },
+    "lib/owner-browser-storage.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner namespace required before private browser persistence, legacy caches visible only to primary owner. Negative cross-owner cache tests.",
+      "sha256": "d22abc73d75ced25eb44afcceca55fc9d7a2d2dcd2d75aef4ca9bddf774e9524"
+    },
+    "agent/lib/partner-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Provider boundary reconstructs canonical partner-only context, removes deployment prompt/history/provider tools, and permits only owner-bound Memory/Knowledge tools. Negative prompt/tool tests.",
+      "sha256": "1182e5eb53f10f24910ec6a574f38c809369cc8e53e8443b3d82b672faec0358"
     }
   }
 }
