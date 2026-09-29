@@ -39,7 +39,11 @@ import {EngineeringWorkerProjectionStore} from '../lib/engineering/worker-projec
 import {currentTruthLines} from '../lib/engineering/current-truth-lines.ts';
 if(process.env.FACTORY_SPEND_FIXTURE||process.env.FACTORY_INSTALLED_CLI||process.env.FACTORY_ENVELOPE_DRY_RUN)throw Error('This whole-product regression is strictly non-paid.');
 const root=process.env.MYFACTORY_SOURCE_ROOT;if(!root?.startsWith('/'))throw Error('Explicit owned Factory source required');
-const producerPin=execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8'}).trim();if(producerPin!=='925530a6ba8764df6a7b8637192fe32edcbaff97')throw Error('Frozen final producer pin required');
+const expectedProducer=process.env.MYFACTORY_EXPECTED_SHA ?? '925530a6ba8764df6a7b8637192fe32edcbaff97';
+assert.match(expectedProducer,/^[0-9a-f]{40}$/);
+const producerPin=execFileSync('git',['-C',root,'rev-parse','HEAD'],{encoding:'utf8'}).trim();assert.equal(producerPin,expectedProducer,'Exact qualified producer pin required');
+assert.equal(execFileSync('git',['-C',root,'status','--porcelain'],{encoding:'utf8'}).trim(),'','Clean producer source required');
+execFileSync('git',['-C',root,'merge-base','--is-ancestor','925530a6ba8764df6a7b8637192fe32edcbaff97',producerPin]);
 const {createSupervisor}=await import(pathToFileURL(join(root,'apps/supervisor/src/server.ts')));
 const {sourceIdentity}=await import(pathToFileURL(join(root,'apps/supervisor/src/producer-results.ts')));
 const {runCodex:installedRunCodex}=await import(pathToFileURL(join(root,'packages/agents/src/index.ts')));

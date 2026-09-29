@@ -9,11 +9,13 @@ import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {workSpendSchema, assertFactorySpendCanStart, assertSpendContinuation, validateSpendBinding} from '../lib/engineering/factory-spend.ts';
 
-const producerCommit='925530a6ba8764df6a7b8637192fe32edcbaff97';
+const producerCommit=process.env.MYFACTORY_EXPECTED_SHA ?? '925530a6ba8764df6a7b8637192fe32edcbaff97';
+assert.match(producerCommit,/^[0-9a-f]{40}$/);
 const producerRoot=process.env.MYFACTORY_SOURCE_ROOT;
 assert(producerRoot?.startsWith('/'), 'Explicit absolute producer checkout required');
 const git=(...args)=>execFileSync('git',['-C',producerRoot,...args],{encoding:'utf8'}).trim();
 assert.equal(git('rev-parse','HEAD'),producerCommit);
+git('merge-base','--is-ancestor','925530a6ba8764df6a7b8637192fe32edcbaff97',producerCommit);
 assert.equal(git('status','--porcelain'),'','Producer checkout must be clean');
 const source=await readFile(join(producerRoot,'packages/storage/src/index.ts'),'utf8');
 const migrationSource=source.match(/const migrations = \[([\s\S]*?)\n\];/)[1];
