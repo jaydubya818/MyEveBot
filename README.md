@@ -1,6 +1,8 @@
 # MyEveBot
 
-**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](docs/verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Independent review of consumer `8b55e192` with producer `efe9e856` PASS; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
+**Q37 private-alpha continuation: local qualification PASS; independent review pending.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](docs/verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
+
+The dated checkpoints below are historical context; the continuation dossier above controls current producer identity and qualification.
 
 **Production routing correction:** [Connected admission evidence](docs/verification/2026-09-27-routing-spend-boundary/REPORT.md) supersedes the earlier unit-only routing claim. Server-reviewed Work intent now selects DIRECT/HUMAN before Factory preparation; only qualified PRODUCE proceeds to MYFACTORY. Missing classification fails closed. Route selection grants no execution authority.
 

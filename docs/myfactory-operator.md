@@ -52,7 +52,7 @@ Start now returns ROUTED for DIRECT/HUMAN and retains that proposal in Current T
 
 DIRECT/HUMAN selection does not require Factory paid qualification or a usable Factory transport. LIVE `spendEnforced: false` blocks PRODUCE before adapter construction or PREPARE. Server configuration syntax and exact Work scope remain validated for every route. The connected fixture covers both unqualified paid mode and an unusable Factory endpoint, without contacting that endpoint.
 
-**MyFactory V2 local spend qualification: PASS.** Consumer and producer `efe9e856` pass the installed-CLI client-search/completion journey, real Docker verification, Gate B/C and local regressions. [Evidence and credential handoff](verification/2026-09-28-spend-v2-integration/REPORT.md). Registered 0056/0057, historical negative evidence and unrelated governance entries remain unchanged. Independent review of consumer `8b55e192` with producer `efe9e856` PASS; dedicated identity and real backend configuration remain prerequisites. **Real provider qualification: PENDING; Live MyFactory: NOT_RUN / NOT READY.**
+**Q37 private-alpha continuation: local qualification PASS; independent review pending.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
 
 ## V2 spend plan and operator interpretation
 
@@ -63,3 +63,10 @@ Current Truth shows productive allowance separately from total unused dollars. A
 The host ends productive execution before opening a separate read-only completion session. Both process groups must be absent before quiescence. Historical results/READ may not revoke current authority, and historical paid operations count against the Work budget but cannot prove a newer attempt performed its mandatory phase. An old request returning a newer Work-ledger binding is rejected by the strict consumer; it is not silently attributed to the old attempt.
 
 The [V2 dossier](verification/2026-09-28-spend-v2-integration/REPORT.md) records corrected producer pins, installed-CLI controlled tests, actual process races and crash recovery. The [credential handoff](verification/2026-09-28-spend-v2-integration/ENVELOPE.md) remains non-executable until dedicated identity/configuration and a bounded live authorization are supplied. Do not turn a passing controlled fixture into a LIVE qualification flag.
+
+
+## Private-alpha continuation recovery
+
+Use the exact source and configuration in the [current continuation dossier](verification/2026-09-29-q37-private-alpha/REPORT.md). Preserve the original request and Work budget after response loss; READ the same attempt instead of redispatching. STOP retains the writer while STOPPING. Confirm quiescence before normal native admission. UNKNOWN remains charged at its full reserve until authoritative settlement of the exact operation; cancellation, timeout, a new generation and spare dollars cannot clear it. A retained candidate must pass MyEve protected verification before a new normally admitted repair or publication decision. Direct and human routing remain available when Factory is unavailable.
+
+The reconstructed producer includes a pinned private-alpha provider loader, but startup does not invoke it. Do not change LOCAL_SPEND_FIXTURE to LIVE or treat loader tests as live qualification. Real-provider preparation follows independent local review; no model call is authorized by this handoff. Enterprise billing classification is not a launch gate for the two-owner alpha.

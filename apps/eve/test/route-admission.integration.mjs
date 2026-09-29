@@ -227,6 +227,8 @@ try {
   console.log("Route admission: scoped policy/provider checks, concurrent CAS, durable receipt, version race and legacy writer denial passed");
 } finally {
   if (pool) await pool.end();
-  await admin.query(`DROP DATABASE IF EXISTS ${databaseName} WITH (FORCE)`);
+  // Pool.end can precede the server observing its socket close. A normal
+  // DROP waits for that close instead of terminating the closing pg client.
+  await admin.query(`DROP DATABASE IF EXISTS ${databaseName}`);
   await admin.end();
 }

@@ -236,4 +236,17 @@ try{
  const overlap=(await pool.query("SELECT work_id FROM engineering_route_runs WHERE status NOT IN ('COMPLETED','FAILED','CANCELLED') GROUP BY work_id HAVING count(*)>1")).rowCount;assert.equal(overlap,0);
  const output={...cliProvider.stats(),spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?6:5),falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
-}finally{if(supervisor)await supervisor.close();if(spendProvider)await new Promise(r=>spendProvider.close(r));await pool.end();await admin.query('DROP DATABASE '+name+' WITH (FORCE)');await admin.end();await rm(dir,{recursive:true,force:true});}
+}finally{
+ if(supervisor)await supervisor.close();
+ if(spendProvider)await new Promise(r=>spendProvider.close(r));
+ await pool.end();
+ // Pool.end may resolve before PostgreSQL has observed every socket close.
+ // Wait for our disposable database; FORCE can race the closing pg client.
+ for(let i=0;i<100;i++){
+  const {rows}=await admin.query('SELECT count(*)::int n FROM pg_stat_activity WHERE datname=$1',[name]);
+  if(rows[0].n===0){await admin.query('DROP DATABASE '+name);break;}
+  if(i===99)throw Error('Disposable database did not quiesce: '+name);
+  await new Promise(r=>setTimeout(r,10));
+ }
+ await admin.end();await rm(dir,{recursive:true,force:true});
+}

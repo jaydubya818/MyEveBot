@@ -1,0 +1,75 @@
+{
+  "consumerBaseline": "7bbf296f40ba61031f6e757b0d62929c3c95378d",
+  "consumerRemote": "origin/codex/q37-private-alpha-continuation",
+  "producerCommit": "925530a6ba8764df6a7b8637192fe32edcbaff97",
+  "producerRemote": "origin/codex/private-alpha-myfactory",
+  "migrationV8": "0994004a2a89c2264423e969fc3b97ef609f8d0fb437e9dcf6ea6203309cbeb3",
+  "consumerMigrations": 57,
+  "productionSourceChanges": 0,
+  "protocolCrosswalk": "PASS",
+  "connectedCLI": {
+    "status": "PASS",
+    "checks": 16,
+    "clientSearchOutputs": 3,
+    "completionExecutions": 3,
+    "syntheticProviderRequests": 13,
+    "sourceDigest": "9a7067daa2728be2222d309bd020da8f2ed88ba8ef1670c54b29b8654cd9dd66",
+    "configurationDigest": "231825a383ba4a74fdbe8803cca3a1089b2a25d701ac58d0ec81391c43cd3b69",
+    "factoryVersion": "4d67d12e21a419323207d7480b94bce6aad62d3aee7a3268ef6ff77ffa5af489"
+  },
+  "gateB": 23,
+  "gateC": 47,
+  "application": {
+    "passed": 1586,
+    "skipped": 40
+  },
+  "root": {
+    "passed": 151,
+    "failed": 0
+  },
+  "producer": {
+    "passed": 134,
+    "skipped": 1
+  },
+  "typecheck": "PASS",
+  "governance": {
+    "status": "PASS",
+    "classified": 659,
+    "unknown": 0
+  },
+  "webpack": "PASS",
+  "migrationLineage": "PASS",
+  "legacyMigration": {
+    "checks": 11,
+    "status": "PASS"
+  },
+  "offlineHistoricalDumpRestore": "NOT_RUN_EXTERNAL_DUMP_UNAVAILABLE",
+  "independentReview": "PENDING",
+  "realProvider": "NOT_RUN",
+  "paidProviderCalls": 0,
+  "billingClassification": "NON_BLOCKING_TWO_TRUSTED_OWNERS",
+  "safetyCounters": {
+    "concurrentProductiveWriters": 0,
+    "duplicateFactoryDispatches": 0,
+    "staleWriterMutations": 0,
+    "lostHistoricalCustody": 0,
+    "factoryGrantedAuthority": 0,
+    "falseReady": 0,
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "unauthenticatedAdmissions": 0,
+    "postUnknownAdmissions": 0,
+    "completionStarvation": 0,
+    "callsBeyondOperationLimit": 0,
+    "ceilingViolations": 0,
+    "reserveTheft": 0,
+    "duplicateOperations": 0
+  },
+  "scopeLimitations": [
+    "Synthetic provider/Relay/GitHub/CI/review",
+    "Default real execution DISABLED; producer loader not wired to startup",
+    "Production learning promotion not implemented",
+    "No deployment/merge/publication",
+    "Optional offline historical dump unavailable"
+  ]
+}

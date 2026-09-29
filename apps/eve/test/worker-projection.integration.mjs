@@ -121,6 +121,6 @@ try {
 } finally {
   await pool?.end();
   url.pathname = "/postgres";
-  await admin.query(`DROP DATABASE IF EXISTS ${databaseName} WITH (FORCE)`);
+  await admin.query(`DROP DATABASE IF EXISTS ${databaseName}`);
   await admin.end();
 }
