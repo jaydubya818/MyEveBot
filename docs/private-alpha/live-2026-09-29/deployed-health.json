@@ -1,22 +1,70 @@
 {
-  "observedAt": "2026-09-29T22:19:44.982101+00:00",
-  "source": "836eb4aab581cf963cdda0597be6cc51aa105188",
+  "observedAt": "2026-09-29T22:55:41.245328+00:00",
+  "source": "6cfb0ccbf217c5f931c42a2ecf76ec1f29644350",
   "method": "Existing signed-in owner Chrome session; /manage/system reloaded after deployment, then Run checks",
-  "finalIncludedServicesReady": 7,
-  "includedServices": 7,
+  "finalIncludedServicesReady": 5,
+  "includedServices": 5,
   "checks": {
     "webAccess": "PASS_SIGNED_SESSION",
     "aiGateway": "PASS_MODEL_CATALOG_ONLY",
-    "database": "PASS_SCHEMA_0072",
-    "browserRuntime": "PASS_TOOLS_PRESENT_NO_SESSION_CREATED",
-    "memory": "PASS_LIST_PROBE_AFTER_ONE_TRANSIENT_FAILURE",
-    "connections": "PASS_STATUS_REQUEST",
+    "database": "PASS_SCHEMA_0073",
+    "browserRuntime": "EXCLUDED_INTENTIONALLY",
+    "memory": "PASS_LIST_PROBE",
+    "connections": "EXCLUDED_INTENTIONALLY",
     "files": "PASS_BLOB_LIST"
   },
   "memoryTransientFailure": "One fresh page reported Memory unreachable; one explicit recheck passed. Cross-session recall/correction not run.",
   "desktop": "PASS_SERVICE_SCREEN_ONLY",
   "mobile390": "NOT_QUALIFIED: browser viewport override reported no error but measured DOM viewport remained 1336px; no 390px pass claimed.",
-  "realWorkSurfaces": "NOT_RUN: private-alpha activation and real Work are pending",
+  "realWorkSurfaces": "PASS_READ_ONLY_WORK_AND_NEEDS_YOU_AFTER_ROLE_REPAIR; no launch Work created",
   "accessibility": "NOT_RUN_FULL_AUTOMATED_AND_KEYBOARD_MATRIX",
-  "credentials": "No login credential or cookie extracted; existing authenticated browser session used."
+  "credentials": "No login credential or cookie extracted; existing authenticated browser session used.",
+  "previousObservation": {
+    "observedAt": "2026-09-29T22:19:44.982101+00:00",
+    "source": "836eb4aab581cf963cdda0597be6cc51aa105188",
+    "method": "Existing signed-in owner Chrome session; /manage/system reloaded after deployment, then Run checks",
+    "finalIncludedServicesReady": 7,
+    "includedServices": 7,
+    "checks": {
+      "webAccess": "PASS_SIGNED_SESSION",
+      "aiGateway": "PASS_MODEL_CATALOG_ONLY",
+      "database": "PASS_SCHEMA_0072",
+      "browserRuntime": "PASS_TOOLS_PRESENT_NO_SESSION_CREATED",
+      "memory": "PASS_LIST_PROBE_AFTER_ONE_TRANSIENT_FAILURE",
+      "connections": "PASS_STATUS_REQUEST",
+      "files": "PASS_BLOB_LIST"
+    },
+    "memoryTransientFailure": "One fresh page reported Memory unreachable; one explicit recheck passed. Cross-session recall/correction not run.",
+    "desktop": "PASS_SERVICE_SCREEN_ONLY",
+    "mobile390": "NOT_QUALIFIED: browser viewport override reported no error but measured DOM viewport remained 1336px; no 390px pass claimed.",
+    "realWorkSurfaces": "NOT_RUN: private-alpha activation and real Work are pending",
+    "accessibility": "NOT_RUN_FULL_AUTOMATED_AND_KEYBOARD_MATRIX",
+    "credentials": "No login credential or cookie extracted; existing authenticated browser session used."
+  },
+  "http": [
+    {
+      "url": "https://sofie-personal-agent.vercel.app/login",
+      "status": 200
+    },
+    {
+      "url": "https://sofie-personal-agent.vercel.app/eve/v1/health",
+      "status": 200
+    },
+    {
+      "url": "https://sofie-personal-agent.vercel.app/api/beta/work",
+      "status": 401
+    },
+    {
+      "url": "https://sofie-personal-agent.vercel.app/api/beta/results",
+      "status": 401
+    },
+    {
+      "url": "https://relay-sage-nine.vercel.app/api/health",
+      "status": 200
+    },
+    {
+      "url": "https://relay-sage-nine.vercel.app/api/health/ready",
+      "status": 200
+    }
+  ]
 }

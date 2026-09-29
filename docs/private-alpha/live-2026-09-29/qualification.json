@@ -1,6 +1,6 @@
 {
   "status": "PARTIAL",
-  "observedAt": "2026-09-29T22:18:38.546912+00:00",
+  "observedAt": "2026-09-29T22:55:41.245328+00:00",
   "canonicalDeployment": "PASS_QUALIFIED_SUCCESSOR_AND_CANONICAL_RELAY",
   "realModelOperations": 0,
   "realExternalEffects": 0,
@@ -25,15 +25,16 @@
   "counterNote": "Null means unmeasured. Local synthetic passes do not establish live counters.",
   "checks": {
     "myeveApplication": {
-      "passed": 1896,
-      "skipped": 61
+      "passed": 1900,
+      "skipped": 61,
+      "additionalExactWorkerApprovalTests": 2
     },
     "myeveRoot": {
       "passed": 141
     },
     "migrationFiles": {
-      "count": 68,
-      "head": "0072_factory_worker_commands.sql"
+      "count": 69,
+      "head": "0073_beta_runtime_role_switch.sql"
     },
     "myfactory": {
       "passed": 138,
@@ -61,17 +62,15 @@
     }
   },
   "humanGates": [
-    "Automatic approval review requires direct approval for Sofie production capability/context gates",
-    "Automatic approval review requires direct approval for exact production alpha environment settings",
-    "Automatic approval review requires direct approval for generated local signing/control credentials",
-    "Automatic approval review requires direct approval for fast-forward main integration",
     "Provider Keychain item absent; provision service com.myeve.myfactory.q37 account openai-provider password field only",
     "Partner identity/credential activation",
     "First real model operation approval after complete preflight",
     "First consequential test-repository effect approval after verified Result"
   ],
-  "privateAlphaActivation": "BLOCKED",
+  "privateAlphaActivation": "HOSTED_ACTIVATED_LOCAL_RUNTIME_NOT_STARTED",
   "backup": "PASS_LOGICAL_RESTORE",
   "productionMigrations": "PASS",
-  "workerConnection": "PASS_LOCAL_CONNECTED_FIXTURE_REAL_PROVIDER_NOT_RUN"
+  "workerConnection": "PASS_LOCAL_CONNECTED_FIXTURE_REAL_PROVIDER_NOT_RUN",
+  "fullPreflight": "NOT_COMPLETE_PROVIDER_AND_SELECTED_WORK_CONVERSATION",
+  "activationEvidence": "activation.json"
 }

@@ -1,12 +1,14 @@
 {
-  "observedAt": "2026-09-29T22:18:38.546912+00:00",
+  "observedAt": "2026-09-29T22:55:41.245328+00:00",
   "verification": "git fetch origin main --tags; git ls-remote origin refs/heads/main refs/tags/*; annotated tags peeled to exact main",
   "sources": {
     "MyEve": {
       "repository": "https://github.com/jaydubya818/MyEveBot.git",
-      "main": "f1dca8051c2e963a2ba2d902c5803b1f8c7a7f72",
+      "main": "7f337efbfa0ad5096ab0f58b34c631d52468fcd6",
       "tag": "myeve-private-alpha-v0",
-      "tagObject": "11970f13b8cb74edfe26fc27a47aadd37b0097ba"
+      "tagObject": "11970f13b8cb74edfe26fc27a47aadd37b0097ba",
+      "milestoneSha": "f1dca8051c2e963a2ba2d902c5803b1f8c7a7f72",
+      "milestoneAncestorVerified": true
     },
     "Relay": {
       "repository": "https://github.com/jaydubya818/relay.git",
@@ -16,9 +18,11 @@
     },
     "MyFactory": {
       "repository": "https://github.com/jaydubya818/MyFactory.git",
-      "main": "af6f37102a28c1da2b3990ed58f921174298a9c2",
+      "main": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
       "tag": "myfactory-private-alpha-v0",
-      "tagObject": "72df29bc924358797f7c2b3ee509d2d57147a9f4"
+      "tagObject": "72df29bc924358797f7c2b3ee509d2d57147a9f4",
+      "milestoneSha": "af6f37102a28c1da2b3990ed58f921174298a9c2",
+      "milestoneAncestorVerified": true
     }
   },
   "deploymentPerformed": true,
@@ -27,20 +31,23 @@
       "branch": "codex/private-alpha-release",
       "sha": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
       "remotelyVerified": true,
-      "merged": false,
-      "deployed": false
+      "merged": true,
+      "deployed": "INSTALLED_PERSISTENT_RUNTIME_NOT_STARTED"
     },
     "MyEve": {
       "branch": "codex/private-alpha-release",
-      "sha": "836eb4aab581cf963cdda0597be6cc51aa105188",
+      "sha": "7f337efbfa0ad5096ab0f58b34c631d52468fcd6",
       "remotelyVerified": true,
-      "merged": false,
+      "merged": true,
       "deployed": true
     }
   },
   "deployedSources": {
-    "myeve": "836eb4aab581cf963cdda0597be6cc51aa105188",
-    "relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a"
+    "myeve": "6cfb0ccbf217c5f931c42a2ecf76ec1f29644350",
+    "relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+    "localMyeveWorker": "7f337efbfa0ad5096ab0f58b34c631d52468fcd6",
+    "myfactoryInstalled": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6"
   },
-  "mainIntegration": "Automatic approval review blocked both main updates; explicit direct user approval requested"
+  "mainIntegration": "PASS: clean source, exact release SHA, unchanged remote, expected ancestry, ordinary fast-forward push, exact remote SHA; no force push; milestone tags unchanged.",
+  "hostedSourceDifference": "7f337ef adds only the local worker approval guard, its unit tests and governance entry. Hosted runtime remains exact 6cfb0cc."
 }

@@ -1,0 +1,65 @@
+{
+  "observedAt": "2026-09-29T22:55:41.245328+00:00",
+  "authorization": "User direct PRIVATE-ALPHA ACTIVATION \u2014 APPROVED; supersedes prior auto-review permission requests.",
+  "status": "PARTIAL_NOT_READY_FOR_FIRST_MODEL",
+  "productionFlags": {
+    "MYEVE_BETA_MODE": "private-alpha",
+    "MYEVE_ENGINEERING_MODE": "private-alpha",
+    "MYEVE_FACTORY_WORKER_ENABLED": "true",
+    "MYEVE_FACTORY_ID": "myfactory-private-alpha-jay",
+    "MYEVE_ALPHA_REPOSITORY": "jaydubya818/myeve-golden-work-qual",
+    "MYEVE_ALPHA_MAX_WORK_USD": "1.35",
+    "MYEVE_ALPHA_MAX_WORK_SECONDS": "600",
+    "EVE_ENABLED_FEATURES": "memory,proactive,receipts,skills,file-sharing,utilities,goals,knowledge"
+  },
+  "deployment": {
+    "sha": "6cfb0ccbf217c5f931c42a2ecf76ec1f29644350",
+    "id": "dpl_ABAhGLUvVxSYTMRiVGMW1VeTjsUh",
+    "url": "https://sofie-personal-agent-lzu9ofv1s-jaydubya818.vercel.app",
+    "alias": "https://sofie-personal-agent.vercel.app",
+    "state": "READY"
+  },
+  "restrictedRoles": {
+    "cause": "PostgreSQL 18 role membership existed with SET=false",
+    "repair": "0073_beta_runtime_role_switch.sql allows SET for the migration principal only; role attributes, grants and owner policies unchanged",
+    "restoreQualification": "Full fresh archive restore; canonical restricted role grants restored separately because portable restore omits cloud ACLs; missing SET reproduced using temporary non-superuser role inside rollback transaction; repaired reads pass and engineering_work INSERT remains denied.",
+    "productionReadback": "Both SET memberships true; Work and Needs You views load normally."
+  },
+  "backup": {
+    "path": "/Users/jaywest/.local/share/myeve-private-alpha/backups/myeve-pre-0073-20260929.dump",
+    "mode": "0600 in 0700 directory",
+    "bytes": 1314372,
+    "archiveEntries": 1005,
+    "sha256": "b7a3993f4341d6cd3b7d75c2bd41e709488c3a3df5ae03a5f6cadd8ff9c273ff",
+    "fullRestore": "PASS"
+  },
+  "localRuntime": {
+    "root": "/Users/jaywest/.local/share/myeve-private-alpha",
+    "factorySha": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
+    "factoryId": "myfactory-private-alpha-jay",
+    "sourceDigest": "8e15fc272dfb05d7126bb95a40e119bc2259bcd625e538932686fdc397711c82",
+    "factoryVersion": "72e004be0bda23f3f26b6c272e2bb671c3497f3a9c87c5716fdb781da46c4507",
+    "signingAndControl": "PROVISIONED_CANONICAL_FILES_0600_NO_VALUES_RETAINED_HERE",
+    "publicationClientActions": false,
+    "offlinePreflight": "PASS",
+    "primaryAgent": "PASS_CURRENT_PRODUCTION_OWNER",
+    "pendingCommands": 0,
+    "started": false,
+    "spendQualification": "PENDING_FAIL_CLOSED",
+    "workerApproval": "Exact Work ID, version and generation plus explicit approval required. Actual LIVE worker refusal tested before database connection. Stop/takeover remain available after revision changes."
+  },
+  "provider": {
+    "keychainService": "com.myeve.myfactory.q37",
+    "account": "openai-provider",
+    "itemPresent": false,
+    "credentialValueRead": false,
+    "model": "gpt-5.4-mini-2026-03-17",
+    "priceExpiresAt": "2026-09-30T23:59:59Z",
+    "modelAccess": "NOT_RUN",
+    "modelOperationsExecutedByThisLaunch": 0
+  },
+  "remainingImplementation": {
+    "selectedWorkSofie": "NOT_QUALIFIED: agent/channels/eve.ts still requires dogfood for selected Work. agent/agent.ts routes selected Work to conversation-model.ts, which requires native configuration/qualification and permits engineering_direct only. The private-alpha queue tool gates do not qualify this model path. Preserve the common ledger and Factory spend exclusion; do not bypass it by dropping Work selection, enabling native production or using unbudgeted default chat. Finish the canonical selected-Work conversation composition before claiming the full Sofie Golden Journey preflight passes."
+  },
+  "firstModelAuthorization": "NOT_REQUESTED: full preflight is not complete. No live Work ID, immutable Result or real-provider safety counters claimed."
+}
