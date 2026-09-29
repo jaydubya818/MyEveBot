@@ -1,0 +1,18 @@
+{
+  "source": "1dbe3d31ba3b7cd0b3d3a6bfa30b45119cc78489",
+  "producer": "7591e521db55681e018e5e4aca3a286611059ce2",
+  "cases": [
+    {
+      "name": "published-main-bridge",
+      "exitCode": 0
+    },
+    {
+      "name": "scopes",
+      "exitCode": 0
+    },
+    {
+      "name": "connected-producer",
+      "exitCode": 0
+    }
+  ]
+}

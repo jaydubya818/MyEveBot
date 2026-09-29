@@ -1,0 +1,27 @@
+
+> eveclaw-builder@0.0.0 test
+> node --import tsx --test lib/*.test.ts
+
+✔ managed deployment stamps its isolated owner identity while BYO keeps legacy default (0.75425ms)
+✔ owner deletion requires exact resource IDs, archive, custody, and authorization (0.647125ms)
+✔ an in-progress deletion resumes only with the same authorization digest (0.075541ms)
+✔ one tester and project cannot be reserved twice, including email case changes (1.370042ms)
+✔ activation requires isolated provenance, health, and a model budget (0.242291ms)
+✔ a second Eve cannot claim another Eve's project or database (0.185792ms)
+✔ upgrade keeps the original release until backup and new deployment are verified (0.121042ms)
+✔ registry is private, atomic, backed up, and rejects concurrent mutations (34.254334ms)
+✔ a remote-stage checkpoint survives a later failure (5.708833ms)
+✔ pins the exact operator-reviewed Relay signing key (22.431208ms)
+✔ stops before project mutation when the key changed (2.10175ms)
+✔ rejects a different issuer and unavailable endpoint (0.345166ms)
+✔ rejects invalid fingerprints before any network request (0.077833ms)
+✔ requires a configured public HTTPS origin before fetching (0.144458ms)
+✔ a source bundle above Vercel's request cap uploads files by digest (47.903083ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 177.333125

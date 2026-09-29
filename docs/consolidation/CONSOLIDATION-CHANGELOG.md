@@ -7,7 +7,7 @@
 - Beta product experience / Today / Proof of Work: ADOPTED; final product expansion still actively owned.
 - Personal-memory Capsules: ADOPTED; Skills/Roles/Packs/scoped learning activation DEFERRED_POST_ALPHA.
 - Approval Center / Computer / Files / specialists / Apps / product navigation: WAITING_ACTIVE_HANDOFF.
-- Relay identity/grants/revocation and optional hosted Factory routing: ADOPTED; safe main upgrade BLOCKED pending Beta bridge.
+- Relay identity/grants/revocation and optional hosted Factory routing: ADOPTED; immutable published-main forward bridge qualified and integrated.
 - Q37 missing historical regressions: PARTIAL: 136 root pass / 2 module-import failures; do not claim regression closure.
 - Managed multi-tenant provisioning / Telegram live-local campaign / upstream templates: DEFERRED_POST_ALPHA or REJECTED_EXPERIMENTAL; no deletion.
 
@@ -19,4 +19,4 @@ Adopted expansion delta ef07717 and durable follow-up through 9caacf6, retaining
 
 ## Final local assembly
 
-Merged qualified Beta 52b3891 and 0068 bridge, adopted frozen product delta through 9caacf6, preserved canonical execution, repaired omitted chat failure feedback, and qualified exact clean MyFactory successor 6e164ca. Current results and open shared-scope/review gates supersede earlier Stage 1 status; see CANONICAL-STATUS.md. No main merge or cleanup.
+Merged qualified Beta 52b3891 and 0068 bridge, adopted frozen product delta through 9caacf6, preserved canonical execution, repaired omitted chat failure feedback, and qualified exact clean MyFactory successor 6e164ca. Shared scope and final independent review now PASS. Canonical publication, fresh-clone qualification and cleanup supersede Stage 1; see CANONICAL-STATUS.md and CANONICAL-RECEIPT.json.

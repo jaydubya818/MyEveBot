@@ -1,0 +1,62 @@
+▲ Next.js 16.3.5
+- Local:         http://127.0.0.1:3199
+- Network:       http://127.0.0.1:3199
+✓ Ready in 80ms
+✓ Running next.config.ts took 27ms
+Model catalog failed Error [GatewayAuthenticationError]: AI Gateway authentication failed: No authentication provided.
+
+Option 1 - API key:
+Create an API key: https://vercel.com/d?to=%2F%5Bteam%5D%2F%7E%2Fai%2Fapi-keys
+Provide via 'apiKey' option or 'AI_GATEWAY_API_KEY' environment variable.
+
+Option 2 - Vercel access token:
+Pass a Vercel personal access token or Vercel app access token via the 'apiKey' option.
+
+Option 3 - OIDC token:
+Run 'npx vercel link' to link your project, then 'vc env pull' to fetch the token.
+    at async i (.next/server/chunks/[root-of-the-server]__1ttnkfq._.js:1:1298)
+    at async z (.next/server/chunks/[root-of-the-server]__1ttnkfq._.js:1:4737)
+    at async J (.next/server/chunks/[root-of-the-server]__1ttnkfq._.js:1:5815) {
+  statusCode: 401,
+  generationId: undefined,
+  isRetryable: false,
+  type: 'authentication_error',
+  [cause]: Error [VercelOidcTokenError]: The 'x-vercel-oidc-token' header is missing from the request. Do you have the OIDC option enabled in the Vercel project settings?
+  Unable to find project root directory. Have you linked your project with `vc link?`
+      at async i (.next/server/chunks/[root-of-the-server]__1ttnkfq._.js:1:1298)
+      at async z (.next/server/chunks/[root-of-the-server]__1ttnkfq._.js:1:4737) {
+    cause: undefined
+  }
+}
+Failed to proxy http://127.0.0.1:4274/eve/v1/info Error: connect ECONNREFUSED 127.0.0.1:4274
+    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4274) {
+  errno: -61,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 4274
+}
+Error: connect ECONNREFUSED 127.0.0.1:4274
+    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4274) {
+  errno: -61,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 4274
+}
+Failed to proxy http://127.0.0.1:4274/eve/v1/info Error: connect ECONNREFUSED 127.0.0.1:4274
+    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4274) {
+  errno: -61,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 4274
+}
+Error: connect ECONNREFUSED 127.0.0.1:4274
+    at <unknown> (Error: connect ECONNREFUSED 127.0.0.1:4274) {
+  errno: -61,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 4274
+}

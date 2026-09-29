@@ -1,0 +1,83 @@
+{
+  "repository": "myeve",
+  "source": "1dbe3d31ba3b7cd0b3d3a6bfa30b45119cc78489",
+  "branch": "main",
+  "origin": "https://github.com/jaydubya818/MyEveBot.git",
+  "freshRemoteClone": true,
+  "cases": [
+    {
+      "name": "install",
+      "command": [
+        "npm",
+        "ci",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exitCode": 0,
+      "seconds": 17.68
+    },
+    {
+      "name": "root",
+      "command": [
+        "npm",
+        "test"
+      ],
+      "exitCode": 0,
+      "seconds": 1.08
+    },
+    {
+      "name": "app",
+      "command": [
+        "npm",
+        "test",
+        "--workspace=eve-agent"
+      ],
+      "exitCode": 0,
+      "seconds": 19.58
+    },
+    {
+      "name": "builder",
+      "command": [
+        "npm",
+        "test",
+        "--workspace=eveclaw-builder"
+      ],
+      "exitCode": 0,
+      "seconds": 0.38
+    },
+    {
+      "name": "types",
+      "command": [
+        "npm",
+        "run",
+        "typecheck",
+        "--",
+        "--force"
+      ],
+      "exitCode": 0,
+      "seconds": 9.67
+    },
+    {
+      "name": "migrations",
+      "command": [
+        "npm",
+        "run",
+        "db:migrations:check"
+      ],
+      "exitCode": 0,
+      "seconds": 0.32
+    },
+    {
+      "name": "build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--",
+        "--force"
+      ],
+      "exitCode": 0,
+      "seconds": 18.9
+    }
+  ]
+}
