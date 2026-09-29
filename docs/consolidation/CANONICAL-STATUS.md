@@ -1,5 +1,6 @@
 # MyEve canonical status
 
+**Scope update:** the owner authorized and this successor implements the explicit two-partner scope model. See [scope implementation](SHARED-SCOPE-IMPLEMENTATION.md). Earlier blocker wording below is historical; independent review and Stage 2 are now authorized and in progress.
 **LOCAL CANDIDATE QUALIFIED — CANONICAL MERGE BLOCKED.**
 
 Canonical branch: `main`; unchanged remote SHA `d64f2f96003818b2f51341b54a2edd6f426a0dae`. Qualified consolidation checkpoint: `1b72192957d603a60221b7c13937a3af4b68fa47` on `codex/canonical-consolidation`. Evidence-only descendants do not imply canonical merge.

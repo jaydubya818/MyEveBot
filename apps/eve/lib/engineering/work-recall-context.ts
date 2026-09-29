@@ -1,3 +1,4 @@
+import { BusinessScopes } from "../business-scopes.ts";
 import { WorkStore } from "./store.ts";
 import { digest } from "./contract.ts";
 import { WorkRecallStore } from "../total-recall/work-retrieval.ts";
@@ -11,6 +12,11 @@ export async function selectedWorkRecall(
   workId: string,
   reference: string,
 ) {
+  if(process.env.MYEVE_PARTNER_OWNER_ID) {
+    const scopes=new BusinessScopes(store.principal.actorId,store.database);
+    if(await scopes.hasSharedWork(store.principal.scopeId,workId))
+      return scopes.context({scope:"WORK_SCOPED",workOwner:store.principal.scopeId,workId});
+  }
   if (process.env.MYEVE_WORK_RECALL_ENABLED !== "true") return null;
   const work = await store.get(workId);
   const context = await assembleSofieRecall(

@@ -1,3 +1,4 @@
+import { assertBusinessEffect } from "../business-effects.ts";
 import {randomUUID} from 'node:crypto';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
@@ -70,6 +71,7 @@ export class FactoryWriterStore {
    repository:f.repository,baseSha:f.baseSha,allowedPaths:f.allowedPaths,deadline:f.deadline};
  }
  async dispatch(run:FactoryWriter,transport:FactoryExecutionTransport) {
+  await assertBusinessEffect(this.work,run.work_id,{operation:"execute_factory"});
   const claimed=await this.call(run,'claim-dispatch');
   if(!claimed.dispatchWon)return {dispatched:false,writer:claimed};
   // Failure/process loss deliberately leaves the sole writer UNKNOWN.

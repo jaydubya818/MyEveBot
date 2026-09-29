@@ -1,5 +1,6 @@
 # Final local candidate qualification
 
+**Scope update:** the owner authorized and this successor implements the explicit two-partner scope model. See [scope implementation](../SHARED-SCOPE-IMPLEMENTATION.md). Earlier blocker wording below is historical; independent review and Stage 2 are now authorized and in progress.
 Production/package source: `ccadb66c6226f45d5fd8f25856a0467a532dba45`. Final controlled harness: `1b72192957d603a60221b7c13937a3af4b68fa47`. Source SHA is recorded per evidence; docs-only descendants do not invalidate identical runtime bytes. Application source is unchanged after the 1,870-test run; the final fresh clone repeated 1,870 app / 141 root / 15 builder checks at ccadb66 with uncached typecheck/build PASS. Final whole-product rerun at 1b72192 exits 0 with Result classification PARTIAL, exact producer 6e164ca and zero observed counters.
 
 ## Repairs discovered during independent fresh-clone execution

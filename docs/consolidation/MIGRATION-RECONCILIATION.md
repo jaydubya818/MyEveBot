@@ -85,3 +85,7 @@ Candidate `b14988add08886cd8e2f8ae128b508ac11b509c8`. Historical hashes are reta
 | apps/eve/migrations/0065_beta_result_supersession.sql | 4c9b70bfc4a2a188e30b3dfe94fe4c616d238a582421cac9fe8340f56a653fa6 | 9ef5a95076ad |
 | apps/eve/migrations/0066_beta_canonical_continuation.sql | 232c9de49698217e52c63bd0085c33217d4b689905ed16e38fcc53c6f660109b | 9ef5a95076ad |
 | apps/eve/migrations/0067_capsule_canonical_memory.sql | a7aab4758afb81882a5e376c8ef22ec6888261a1b5bebeba6f27524eace8a06a | 9ef5a95076ad |
+
+## Authorized shared-scope successor
+
+Appended `0069_business_scopes.sql`, SHA256 `6528b8f1b6844a368299a601d99b25c36caa4407d4b3a3e0dcd2fd356a845436`. 65 canonical files. No previously qualified migration bytes changed. Populated 0068 → 0069 and replay PASS in business-scopes.integration.mjs; private rows and preceding ledger entries preserved. This new migration was qualified only on disposable local databases before publication.

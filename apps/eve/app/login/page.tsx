@@ -69,7 +69,7 @@ export default function LoginPage() {
           Personal workspace
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-kumo-strong">
-          Welcome back, {OWNER_NAME}
+          Welcome back
         </h1>
         <p className="mt-3 max-w-sm text-sm leading-6 text-kumo-subtle">
           Unlock {AGENT_NAME} to open your conversations, memory, automations, and connected apps.
@@ -90,7 +90,7 @@ export default function LoginPage() {
 
         <form className={setupRequired ? "mt-5" : "mt-8"} onSubmit={submit}>
           <label htmlFor="password" className="text-xs font-medium text-kumo-default">
-            Access password
+            Your access password
           </label>
           <input
             id="password"

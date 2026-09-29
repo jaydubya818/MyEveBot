@@ -1,0 +1,33 @@
+# Two-owner private-alpha scopes
+
+This successor to c0089cd implements the product owner's explicit scope decision. The former scope-decision and reviewer-authorization blockers are resolved. Independent review and Stage 2 canonical merge remain required.
+
+## Durable boundary
+
+`OWNER_PRIVATE` is the unchanged owner partition. No existing data is bulk moved or backfilled into sharing. Two distinct configured owner IDs and different access passwords produce distinct signed sessions. Both must explicitly accept the one durable business partnership before any shared read. Leaving increments its revision, permanently invalidating old grants and decisions even after rejoining. This is one pair of partners, not generalized organizations or RBAC.
+
+`BUSINESS_SHARED` is an explicit read audience attached to an exact canonical resource revision. Current supported projections are Goal, Work, immutable Result/Proof, Memory, non-preference Knowledge, and uploaded File. Canonical storage ownership remains intact. A changed resource requires a new reviewed share; sharing a Goal does not recursively share Tasks, Plans, private conversations, provenance or attachments. Optional Rooms, business specialists and business-owned connections are not introduced in this small release.
+
+`WORK_SCOPED` authorizes exact Memory, Knowledge or File revisions only within one explicitly shared canonical Work, version and generation. It expires on its deadline (UI one hour, server maximum 24 hours), source change, Work lifecycle end/version change, revocation or membership revision. It never creates a business-wide grant. File downloads recheck the same grant and source revision and use private no-store responses. Previously downloaded information cannot be recalled from a recipient's device.
+
+Only allowlisted projections enter sharing. Credentials, connections, sessions, Inbox, conversations, preferences and secrets are not resource kinds. No principal is remapped into another owner's general APIs. No business-owned connection is implicitly synthesized.
+
+## Sofie and effects
+
+The Our business question flow assembles only the chosen shared context and the explicit current question. It has no tools, private history, private Agent instructions or connections. No answer is automatically written to Memory/Knowledge. Context is rechecked after generation; changed or revoked authority withholds the answer. Provider credentials remain service-side. Qualification injects a local fake provider; no real model call was made.
+
+When two-owner configuration is active, shared Work recall is routed through this same scope boundary. Shared Work adds exact decision constraints to canonical Work changes, native effects/admission and Factory start/dispatch. These constraints preserve all existing owner, provider, writer, budget and credential checks; a decision receipt is not executor authority. Only the canonical Work owner creates a policy-bound effect request. OWNER_A, OWNER_B, EITHER_OWNER and BOTH_OWNERS votes bind its exact effect hash, Work version/generation, partnership revision and expiry. Stop/reconciliation remain available to contain already-dispatched Work under existing canonical owner authority.
+
+## Product surface and setup
+
+Open `/business` (Our business) for mutual acceptance, reviewed sharing, Work context selection, revocation, shared decisions and a scoped Sofie question. Labels are Private, Shared with business, and Shared for this Work. `/privacy` explains the boundaries. Existing personal destinations retain owner-filtered APIs.
+
+Set `MYEVE_OWNER_ID`, `MYEVE_ACCESS_PASSWORD`, `MYEVE_PARTNER_OWNER_ID`, `MYEVE_PARTNER_ACCESS_PASSWORD` and `MYEVE_SESSION_SECRET`. Owner IDs must differ and passwords must differ and meet existing minimum lengths. A partial/ambiguous configuration fails closed. Use the canonical migration runner before code activation. Do not reuse one person's password for both partners.
+
+## Migration and qualification
+
+0069 is appended after the qualified immutable 0068 published-main bridge. It adds one partnership, resource views/grants and exact-effect decision records. Original migrations and private resource rows are unchanged. The populated upgrade test preserves all earlier ledger rows and replays without alteration.
+
+`apps/eve/test/business-scopes.integration.mjs`: 19 controlled PostgreSQL checks PASS, covering requested private denial/shared positive journeys, wrong Work, changed source, expiry, Work end, revocation/rejoin, wrong effect/approver, both-owner native gate, signed identities and revoked Sofie response. Observed cross-owner private disclosures, credential transfers, and implicit private promotions are all zero within these fixtures.
+
+Application: 1,870 PASS / 45 opt-in skips. Root: 141 PASS. Production build PASS. Browser evidence is `qualification/business-browser.json`; separate A/B real signed sessions and disposable PostgreSQL, 1440/390px accessibility and overflow checks. Full post-review and post-merge regression remains required. No hosted deployment or real provider qualification is claimed.

@@ -1,7 +1,7 @@
 # MyEveBot
 
 <!-- CANONICAL-CONSOLIDATION-STATUS -->
-**Consolidation candidate qualified locally; canonical merge pending.** See [current status](docs/consolidation/CANONICAL-STATUS.md), [source manifest](docs/consolidation/PRIVATE-ALPHA-SOURCE-MANIFEST.md), and [development/migration policy](docs/consolidation/DEVELOPMENT-POLICY.md). Shared-business acceptance and final independent review remain open. Historical qualification below stays scoped to its original source and environment.
+**Consolidation candidate qualified locally; canonical merge pending.** See [current status](docs/consolidation/CANONICAL-STATUS.md), [source manifest](docs/consolidation/PRIVATE-ALPHA-SOURCE-MANIFEST.md), and [development/migration policy](docs/consolidation/DEVELOPMENT-POLICY.md). The explicit two-partner scope model is implemented and locally qualified; final independent review remains open. See [scope behavior and setup](docs/consolidation/SHARED-SCOPE-IMPLEMENTATION.md). Historical qualification below stays scoped to its original source and environment.
 <!-- /CANONICAL-CONSOLIDATION-STATUS -->
 
 **Q37 private-alpha continuation: local qualification and independent review PASS.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](docs/verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
@@ -274,4 +274,4 @@ After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health
 
 The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approvals/Files/Team/Apps/Computer surfaces, global search and weekly review over existing contracts. See the [product guide](docs/private-alpha/PRODUCT-GUIDE.md), [qualification dossier](docs/verification/private-alpha/README.md), [parity matrix](docs/private-alpha/PLUTO-PARITY.md), and [canonical integration crosswalk](docs/private-alpha/INTEGRATION-CROSSWALK.md).
 
-This is a source candidate, not a deployed release. Canonical Q37/Factory remains `WAITING_FOR_CANONICAL_Q37`; Capsules, shared business authority and governed learning keep their prepared boundaries.
+This is a source candidate, not a deployed release. Canonical Q37/MyFactory, Capsules and governed learning are integrated and locally qualified. Explicit two-owner private/business/Work scopes are implemented; final independent review and canonical merge are pending. The Work Canvas remains a disconnected preview.

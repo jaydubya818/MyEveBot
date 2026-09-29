@@ -1,4 +1,5 @@
 export const productDestinations = [
+  { href: "/business", label: "Our business", description: "Private and explicitly shared context" },
   {
     href: "/today",
     label: "Today",

@@ -26,7 +26,7 @@ export function ProductShell({
         <header className="owner-heading">
           <div>
             <Link className="owner-eyebrow" href="/privacy">
-              Your private instance
+              Private unless explicitly shared
             </Link>
             <h1>{title}</h1>
             <p className="owner-muted">{description}</p>
@@ -38,6 +38,7 @@ export function ProductShell({
         <Link href="/brief">Daily Brief</Link>
         <Link href="/weekly">Weekly Review</Link>
         <Link href="/privacy">Privacy & boundaries</Link>
+        <Link href="/business">Our business</Link>
         <Link href="/manage">Advanced</Link>
       </footer>
     </div>

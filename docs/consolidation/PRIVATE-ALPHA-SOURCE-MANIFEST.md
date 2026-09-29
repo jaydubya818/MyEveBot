@@ -1,5 +1,6 @@
 # Private-alpha source manifest
 
+**Scope update:** the owner authorized and this successor implements the explicit two-partner scope model. See [scope implementation](SHARED-SCOPE-IMPLEMENTATION.md). Earlier blocker wording below is historical; independent review and Stage 2 are now authorized and in progress.
 **LOCAL CANDIDATES QUALIFIED; CANONICAL MERGE BLOCKED ON RELEASE SCOPE AND INDEPENDENT REVIEW.**
 
 | Repository | Unchanged remote canonical main | Qualified candidate checkpoint | Migration head |

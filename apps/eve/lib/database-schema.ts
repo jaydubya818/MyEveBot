@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0068_published_main_lineage_bridge.sql";
+export const CURRENT_DATABASE_MIGRATION = "0069_business_scopes.sql";

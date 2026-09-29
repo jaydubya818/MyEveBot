@@ -1,3 +1,4 @@
+import { BusinessScopes } from "../business-scopes.ts";
 import {
   factoryAction,
   factoryActionSchema,
@@ -366,6 +367,10 @@ export class BetaIntegration {
   ) {
     const store = this.store(owner),
       work = await store.get(workId);
+    if(process.env.MYEVE_PARTNER_OWNER_ID) {
+      const scopes=new BusinessScopes(owner,this);
+      if(await scopes.hasSharedWork(owner,workId))return scopes.context({scope:"WORK_SCOPED",workOwner:owner,workId});
+    }
     const context = await assembleSofieRecall(
       new WorkRecallStore(store),
       {

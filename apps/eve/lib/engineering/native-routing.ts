@@ -1,3 +1,4 @@
+import { assertBusinessEffect } from "../business-effects.ts";
 import { nativeDevelopmentInputSchema } from "./native-input.ts";
 import { prepareNativeCompletion } from "./native-completion.ts";
 import { nativeBehavior } from "./native-behavior.ts";
@@ -103,6 +104,7 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
 
   /** Existing admission must match fresh policy, Agent revision and qualification before every effect. */
   async assertEffect(id: string) {
+    await assertBusinessEffect(this.store,id,{operation:"execute_native"});
     const snapshot = await this.read(await this.store.get(id));
     const [admitted] = await this.store.database.query(
       `SELECT d.admission_authority_snapshot,d.admission_request,r.id AS run_id
@@ -128,6 +130,7 @@ export class NativeRouteAuthority implements CurrentRouteAuthority {
 
 export async function admitNativeWork(store: WorkStore, id: string, expectedVersion: number, expectedGeneration: number, authority = new NativeRouteAuthority(store), sessionId?: string) {
   nativeDevelopmentInputSchema.parse({operation:"admit",expectedWorkVersion:expectedVersion,expectedWorkGeneration:expectedGeneration});
+  await assertBusinessEffect(store,id,{operation:"execute_native"});
   const work = await store.get(id);
   if (work.version !== expectedVersion || work.generation !== expectedGeneration) throw new WorkError("routing_changed", "Reload the current Work before admission.");
   const routingStore = new RoutingStore(store);

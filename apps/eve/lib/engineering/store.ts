@@ -1,3 +1,4 @@
+import { assertBusinessEffect } from "../business-effects.ts";
 import { createHash, randomUUID } from "node:crypto";
 import { db } from "../../agent/lib/receipts-db.ts";
 import {
@@ -148,6 +149,7 @@ export class WorkStore {
         "work_changed",
         "This Work changed in another session. Reload before saving.",
       );
+    await assertBusinessEffect(this,id,input);
     const state = nextWorkState(current, input);
     const revise = input.operation === "revise";
     const rows = await this.database.query(

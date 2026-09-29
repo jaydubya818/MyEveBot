@@ -49,12 +49,18 @@ export function webAuthConfigStatus(env: NodeJS.ProcessEnv = process.env): WebAu
   if (secret === null || secret.length < MIN_SECRET_LENGTH) {
     missing.push("MYEVE_SESSION_SECRET");
   }
+  const partnerId = configuredValue(env, "MYEVE_PARTNER_OWNER_ID");
+  const partnerPassword = configuredValue(env, "MYEVE_PARTNER_ACCESS_PASSWORD");
+  if (partnerId || partnerPassword) {
+    if (!partnerId || partnerId === deploymentOwnerId(env)) missing.push("MYEVE_PARTNER_OWNER_ID");
+    if (!partnerPassword || partnerPassword.length < MIN_PASSWORD_LENGTH || (password && safeEqual(partnerPassword, password))) missing.push("MYEVE_PARTNER_ACCESS_PASSWORD");
+  }
   return { configured: missing.length === 0, missing };
 }
 
 export function webAuthRequired(env: NodeJS.ProcessEnv = process.env): boolean {
   // The engineering pilot exercises real owner boundaries even on a dev server.
-  return env.NODE_ENV === "production" || env.MYEVE_ENGINEERING_MODE === "dogfood";
+  return env.NODE_ENV === "production" || env.MYEVE_ENGINEERING_MODE === "dogfood" || !!env.MYEVE_PARTNER_OWNER_ID;
 }
 
 function signature(encodedPayload: string, secret: string): string {
@@ -78,15 +84,17 @@ export function passwordMatches(
 export function createWebSessionToken(
   env: NodeJS.ProcessEnv = process.env,
   now = Date.now(),
+  ownerId = deploymentOwnerId(env),
 ): string {
   const auth = webAuthConfigStatus(env);
   if (!auth.configured) throw new Error("MyEve web authentication is not configured");
   const secret = configuredAlias(env, "MYEVE_SESSION_SECRET", "SOFIE_SESSION_SECRET")!;
+  if (!configuredOwnerIds(env).includes(ownerId)) throw new Error("Unknown owner");
   const issuedAt = Math.floor(now / 1000);
   const payload: WebSessionPayload = {
     exp: issuedAt + WEB_SESSION_MAX_AGE_SECONDS,
     iat: issuedAt,
-    sub: deploymentOwnerId(env),
+    sub: ownerId,
     v: 1,
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
@@ -113,7 +121,7 @@ export function verifyWebSessionToken(
     const current = Math.floor(now / 1000);
     if (
       payload.v !== 1 ||
-      payload.sub !== deploymentOwnerId(env) ||
+      typeof payload.sub !== "string" || !configuredOwnerIds(env).includes(payload.sub) ||
       typeof payload.iat !== "number" ||
       typeof payload.exp !== "number" ||
       payload.iat > current + 60 ||
@@ -194,4 +202,17 @@ export function requireWebAuth(request: Request): Response | null {
     return apiError(request, 401, "authentication_required", "Sign in to continue.");
   }
   return null;
+}
+
+export function configuredOwnerIds(env: NodeJS.ProcessEnv = process.env): string[] {
+  const partner = configuredValue(env, "MYEVE_PARTNER_OWNER_ID");
+  return [deploymentOwnerId(env), ...(partner ? [partner] : [])];
+}
+export function ownerForPassword(candidate: string, env: NodeJS.ProcessEnv = process.env): string | null {
+  if (!webAuthConfigStatus(env).configured) return null;
+  const primary = passwordMatches(candidate, env);
+  const partnerPassword = configuredValue(env, "MYEVE_PARTNER_ACCESS_PASSWORD");
+  const partner = partnerPassword !== null && safeEqual(candidate, partnerPassword);
+  if (primary === partner) return null;
+  return primary ? deploymentOwnerId(env) : configuredValue(env, "MYEVE_PARTNER_OWNER_ID");
 }

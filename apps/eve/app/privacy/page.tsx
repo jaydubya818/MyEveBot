@@ -10,24 +10,19 @@ export default function Page() {
       <div className="owner-grid">
         <Card title="This private instance">
           <p>
-            Personal memory and connected accounts belong to this instance’s
-            configured owner. Signing in with the same instance password does
-            not create a second isolated owner.
+            Personal Memory, conversations, Inbox, Files, Knowledge, preferences and connections are Private to the signed-in owner.
           </p>
           <p>
-            Use separately configured owner instances for two people’s private
-            information.
+            Two partners use separate configured sign-in passwords. Being on the same deployment never grants access to the other person’s information.
           </p>
           <Link href="/knowledge">Inspect and correct memory</Link>
         </Card>
         <Card title="Shared business context">
           <p>
-            A shared Goal, Result, room, or knowledge space needs an explicit
-            membership and audience contract. This product source does not
-            enable a shared workspace or copy private memory into one.
+            Both partners must accept business membership. Share exact Goals, Work, Results, Memory, Knowledge or Files explicitly in Our business. Shared for this Work access expires when the Work ends, changes version, reaches its expiry, or is revoked.
           </p>
-          <Link href="/manage/peers">
-            Review existing Relay connections and grants
+          <Link href="/business">
+            Review private and shared information
           </Link>
         </Card>
         <Card title="You control consequential actions">
@@ -40,14 +35,11 @@ export default function Page() {
         </Card>
         <Card title="Portable experience">
           <p>
-            Memory Capsules await the final durable integration. Credentials,
+            Memory Capsules have a separate reviewed import boundary. Credentials,
             sessions, grants, approvals and active Work authority must never
             transfer.
           </p>
-          <details>
-            <summary>Prepared integration boundary</summary>
-            <code>WAITING_FOR_CANONICAL_CAPSULES</code>
-          </details>
+          <Link href="/capsules">Review Memory Capsules</Link>
         </Card>
         <Card title="Learning and corrections">
           <p>

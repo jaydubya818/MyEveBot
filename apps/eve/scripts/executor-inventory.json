@@ -1515,8 +1515,8 @@
     },
     "app/api/auth/login/route.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "50e8c9379f421999068378e8d65c39a8c6e15c48fa65f7638c797e7ab49458fe"
+      "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "9759010d1e0bf42c9c3f70b9237a27f444388fc33e432ae271d34b48756bd018"
     },
     "app/api/auth/logout/route.ts": {
       "classification": "INTERNAL",
@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged.",
-      "sha256": "4da1a450f2f3609ff8443498ceb3a26c900f7d3c6c35b8648a1b58c57cf0ed7b"
+      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "cca4876e529087d5f07c0755adaf765865da9827c03aa6503156a3325f106fe9"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2655,8 +2655,8 @@
     },
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "df0f7021fcf82750542c220a1660570620bf85ed9e73a79bf5297ce6937b1aec"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "479fa8c7a3008804957179908c5273e7adf37fe2f5738a1818725f4cd4ba9836"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -3177,8 +3177,8 @@
     },
     "lib/engineering/store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "3421d97bc54ede63cd927281154396fad16832745380e7782f708cce7074e899"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "08d1e94345785ed9c2b7ae14fa1fc656dfbe93b6f6a4dccbed6d65180d3b7811"
     },
     "lib/digital-worker/packs.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3207,8 +3207,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Factory action requires configured matching owner and local fixture qualification; delegates exact Work revision/generation to canonical spend/admission/writer/result driver. No live activation.",
-      "sha256": "d1133209d6eadc22deb1f0307ad615ad0d7e3b80f7d8b9f6f951199ae373b5f5"
+      "reason": "Signed owner/same-origin beta composition. Factory action requires configured matching owner and local fixture qualification; delegates exact Work revision/generation to canonical spend/admission/writer/result driver. No live activation. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "1f683e5ecb859f25a59d1e6578137782a47f8757ffca1825ec1921b5b9f8142c"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3442,8 +3442,8 @@
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
-      "reason": "Native admission validates both optimistic-concurrency tokens and rejects stale persisted Work before route proposal; original values continue to final atomic admission. Qualification, completion capacity, scope and writer guards remain authoritative.",
-      "sha256": "19f81ccc35f11107b06e800a3f4ce40af3af53bcf2024921252d691cbf6410dc"
+      "reason": "Native admission validates both optimistic-concurrency tokens and rejects stale persisted Work before route proposal; original values continue to final atomic admission. Qualification, completion capacity, scope and writer guards remain authoritative. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "c0a4881b251b08a37faf5ceb7eb45d3165a51ca9d2cbde3ab875a30d1a377e04"
     },
     "lib/engineering/relay-collaboration.ts": {
       "classification": "INTERNAL",
@@ -3492,8 +3492,8 @@
     },
     "lib/engineering/work-recall-context.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner/Work-scoped bounded Recall data only; persists attribution receipt, rejects any authority grant; canonical model context test proves supersession and separate Work exclusion. A same-step changed context hash/version is rejected before provider dispatch; the original retained receipt is preserved. PostgreSQL recall-replay test passes.",
-      "sha256": "0de9d957349e0a9ec492df746882a6f3ac41c084fbeeaa1fc42e18a298119e8f"
+      "reason": "Owner/Work-scoped bounded Recall data only; persists attribution receipt, rejects any authority grant; canonical model context test proves supersession and separate Work exclusion. A same-step changed context hash/version is rejected before provider dispatch; the original retained receipt is preserved. PostgreSQL recall-replay test passes. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "b3bba503a1b5baba62f80130d1b4f75932a4a06b65c7fba9696bec817e8b428d"
     },
     "app/api/beta/activity/route.ts": {
       "classification": "READ_ONLY",
@@ -3603,8 +3603,8 @@
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "523357b2d598e97068fbcccb293c2a0ac48e7297681210e0e88249e775736ec2"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "d9fcb0757d02d3b1494eea9c4e0322ef54b2253ef09d3ff4f3a960010bc4a894"
     },
     "lib/engineering/factory-observation.ts": {
       "classification": "READ_ONLY",
@@ -3613,8 +3613,8 @@
     },
     "lib/engineering/factory-writer.ts": {
       "classification": "ENFORCED",
-      "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant.",
-      "sha256": "7a01cfebe33c28e4507c60fa8d3797fa53ebe15d5f3c24a6fd8028a4481842ca"
+      "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
+      "sha256": "fb5a092e3183c992a5bccb671d200634f3026922b1e1b7e6863906fb5ecf53a9"
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
@@ -3630,6 +3630,46 @@
       "classification": "INTERNAL",
       "reason": "Thin adapter to signed, same-origin beta Factory action; no independent transport or authority.",
       "sha256": "1e10ead75f36f2195606d17c8275529a6dd1b3fb0e8643540321f3846bd34d79"
+    },
+    "lib/business-effects.ts": {
+      "classification": "ENFORCED",
+      "reason": "Additional shared Work decision check before canonical Work changes, native effects and Factory dispatch. Existing authority/credential/budget constraints remain mandatory. PostgreSQL negative both-owner and changed-effect qualification.",
+      "sha256": "15ac2f52cecae0bcc6ee5de90d14279b5d6948c9bfeb4226f943761c404a3a59"
+    },
+    "lib/business-api.ts": {
+      "classification": "ENFORCED",
+      "reason": "Signed owner session and same-origin commands. Server derives partnership identities; strict bounded input; service repeats owner and grant checks. No deployment-implied membership.",
+      "sha256": "330e0d05e89a18bb4deaa6082a0eebd079c2d53319200381fb4ce56b7f0e46f6"
+    },
+    "lib/business-scopes.ts": {
+      "classification": "ENFORCED",
+      "reason": "Authenticated actor, durable mutual two-owner membership, exact source revision, bounded Work version/generation/expiry, revocation and per-effect approval policies. Qualified by test/business-scopes.integration.mjs; never remaps principals or shares credentials.",
+      "sha256": "ae2c8b6750f867639ae6dd3cf773d2a0ac6ec0ac96e362d2b5a6f442fcfd569c"
+    },
+    "lib/business-sofie.ts": {
+      "classification": "READ_ONLY",
+      "reason": "One explicit question plus active authorized evidence only; no private history, credentials, tools or implicit Memory persistence. Rechecks context after generation and withholds changed/revoked output.",
+      "sha256": "42152d49c97b2f0edea942ca776950b0d69bd070c4e56a033dbe4e3148e85216"
+    },
+    "app/api/business/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Delegates GET and POST to signed-session scoped API; mutations never pass caller-supplied owner identity.",
+      "sha256": "4a4280f6fde9e1928c01d07c31e01bfa6b08a3630f991e1592d622875c5e6345"
+    },
+    "app/api/business/ask/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Authenticated same-origin user-requested, stateless read-only model question: strict bounded input, mutual membership, 800 output tokens, one call/no retries, 30-second timeout, no tools or connections, post-call scope recheck. Provider credential stays service-side; local qualification uses injected fake provider only.",
+      "sha256": "5d3ea7839e1897fd33832f8e4c3b59915aa6a1e917ad363df69db3dc592eeabb"
+    },
+    "app/api/business/files/[id]/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "File grant checked before storage read and before response against exact revision. Uses canonical private storage, attachment response and no-store; no blob credentials exposed.",
+      "sha256": "dfe64f187a27a879d1cc53d5cc45e2c1066bf54fcc085746b1e3f2c7080a8163"
+    },
+    "lib/business-runtime.ts": {
+      "classification": "INTERNAL",
+      "reason": "Canonical scope composition; production uses application DB, existing qualification composition permits only explicit local disposable beta database. No new credentials or scope grant.",
+      "sha256": "ed70a005007b38d79d0c7d672045cbfb17f44a85cd02d399255cc012f8f3827a"
     }
   }
 }

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import {
   createWebSessionToken,
-  passwordMatches,
+  ownerForPassword,
   WEB_SESSION_COOKIE,
   WEB_SESSION_MAX_AGE_SECONDS,
   requireSameOrigin,
@@ -62,7 +62,8 @@ export async function POST(request: Request): Promise<Response> {
     return NextResponse.json({ error: "Invalid request." }, { status: 413 });
   }
   const body = (await request.json().catch(() => null)) as { password?: unknown } | null;
-  if (body === null || typeof body.password !== "string" || !passwordMatches(body.password)) {
+  const ownerId = typeof body?.password === "string" ? ownerForPassword(body.password) : null;
+  if (!ownerId) {
     recordFailure(request);
     return NextResponse.json(
       { error: "That password did not match." },
@@ -75,7 +76,7 @@ export async function POST(request: Request): Promise<Response> {
   response.headers.set("Cache-Control", "no-store");
   response.cookies.set({
     name: WEB_SESSION_COOKIE,
-    value: createWebSessionToken(),
+    value: createWebSessionToken(process.env, Date.now(), ownerId),
     httpOnly: true,
     maxAge: WEB_SESSION_MAX_AGE_SECONDS,
     path: "/",

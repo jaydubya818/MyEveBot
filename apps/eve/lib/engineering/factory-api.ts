@@ -1,3 +1,4 @@
+import { assertBusinessEffect } from "../business-effects.ts";
 import {z} from 'zod';
 import {boundedJson} from '../relay/client.ts';
 import {engineeringPrincipal} from './api.ts';
@@ -8,6 +9,7 @@ export const factoryActionSchema=z.object({operation:z.enum(['start','reconcile'
 export async function factoryAction(store:WorkStore,id:string,value:unknown){
  const input=factoryActionSchema.parse(value),work=await store.get(id);
  if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration)throw new WorkError('factory_work_changed','Reload the current Work before acting.');
+ if(input.operation==='start')await assertBusinessEffect(store,id,{operation:"execute_factory"});
  const driver=await factoryRuntime(store);
  if(input.operation==='start')return driver.start(id,work.version,work.generation);
  if(input.operation==='reconcile')return driver.step(id);
