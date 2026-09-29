@@ -1,0 +1,21 @@
+{
+  "source": "b14988add08886cd8e2f8ae128b508ac11b509c8",
+  "original": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+  "priorCount": 40,
+  "candidateCount": 64,
+  "candidateHead": "0068_published_main_lineage_bridge.sql",
+  "checks": [
+    {
+      "fresh": "PASS",
+      "replay": "PASS"
+    },
+    {
+      "upgradeFromRemoteMain": "BLOCKED",
+      "error": "error: constraints on temporary tables may reference only temporary tables",
+      "ledgerAndDataPreserved": true,
+      "required": "Forward bridge that preserves applied 0039_app_settings and 0040_relay_message_delegations; do not rewrite their checksums."
+    }
+  ],
+  "testedDraft": "8c30a7cef2be998b5303d7c97511cb44b814ff79",
+  "status": "FAILED_PROVISIONAL_DRAFT_NOT_ACTIVE"
+}

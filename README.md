@@ -1,5 +1,9 @@
 # MyEveBot
 
+<!-- CANONICAL-CONSOLIDATION-STATUS -->
+**Repository consolidation is in progress.** The private-alpha source baseline is not final. See the [current canonical status](docs/consolidation/CANONICAL-STATUS.md), [source manifest](docs/consolidation/PRIVATE-ALPHA-SOURCE-MANIFEST.md), and [source/migration policy](docs/consolidation/DEVELOPMENT-POLICY.md). Historical qualification below remains scoped to its original source and environment.
+<!-- /CANONICAL-CONSOLIDATION-STATUS -->
+
 **Q37 private-alpha continuation: local qualification and independent review PASS.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](docs/verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
 
 The dated checkpoints below are historical context; the continuation dossier above controls current producer identity and qualification.

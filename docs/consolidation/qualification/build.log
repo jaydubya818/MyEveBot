@@ -1,0 +1,235 @@
+
+> eveclaw@0.0.0 build
+> turbo run build
+
+• turbo 2.10.5
+
+   • Packages in scope: eve-agent, eveclaw-builder
+   • Running build in 2 packages
+   • Remote caching disabled, using shared worktree cache
+
+eve-agent:build: cache miss, executing 3a6815a13ea8c9d1
+eveclaw-builder:build: cache hit, replaying logs d81a6ed0b0fd0591
+eveclaw-builder:build:
+eveclaw-builder:build: > eveclaw-builder@0.0.0 build
+eveclaw-builder:build: > next build
+eveclaw-builder:build:
+eveclaw-builder:build: ▲ Next.js 16.3.5 (Turbopack)
+eveclaw-builder:build: ✓ Running next.config.ts took 689ms
+eveclaw-builder:build: - Cache Components enabled
+eveclaw-builder:build: - Partial Prefetching enabled
+eveclaw-builder:build:
+eveclaw-builder:build:   Creating an optimized production build ...
+eveclaw-builder:build: ✓ Compiled successfully in 2.3s
+eveclaw-builder:build:   Running TypeScript ...
+eveclaw-builder:build:   Finished TypeScript in 743ms ...
+eveclaw-builder:build:   Collecting page data using 13 workers ...
+eveclaw-builder:build:   Generating static pages using 13 workers (0/12) ...
+eveclaw-builder:build:   Generating static pages using 13 workers (3/12)
+eveclaw-builder:build:   Generating static pages using 13 workers (6/12)
+eveclaw-builder:build:   Generating static pages using 13 workers (9/12)
+eveclaw-builder:build: ✓ Generating static pages using 13 workers (12/12) in 361ms
+eveclaw-builder:build:   Finalizing page optimization ...
+eveclaw-builder:build:
+eveclaw-builder:build: Route (app)
+eveclaw-builder:build: ┌ ○ /
+eveclaw-builder:build: ├ ○ /_not-found
+eveclaw-builder:build: ├ ƒ /api/deploy
+eveclaw-builder:build: ├ ƒ /api/deploy/finalize
+eveclaw-builder:build: ├ ƒ /api/deploy/status
+eveclaw-builder:build: ├ ƒ /api/identify
+eveclaw-builder:build: ├ ƒ /api/stores
+eveclaw-builder:build: ├ ƒ /api/template-version
+eveclaw-builder:build: ├ ƒ /api/update
+eveclaw-builder:build: ├ ○ /beta
+eveclaw-builder:build: └ ◐ /update
+eveclaw-builder:build:
+eveclaw-builder:build:
+eveclaw-builder:build: ƒ Proxy (Middleware)
+eveclaw-builder:build:
+eveclaw-builder:build: ○  (Static)             prerendered as static content
+eveclaw-builder:build: ◐  (Partial Prerender)  prerendered as static HTML with dynamic server-streamed content
+eveclaw-builder:build: ƒ  (Dynamic)            server-rendered on demand
+eveclaw-builder:build:
+eve-agent:build:
+eve-agent:build: > eve-agent@0.0.0 build
+eve-agent:build: > npm run skills:prepare && next build
+eve-agent:build:
+eve-agent:build:
+eve-agent:build: > eve-agent@0.0.0 skills:prepare
+eve-agent:build: > node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs
+eve-agent:build:
+eve-agent:build: Normalized 0 imported skills for Eve.
+eve-agent:build: Cataloged 79 installed skills.
+eve-agent:build: ▲ Next.js 16.3.5 (Turbopack)
+eve-agent:build: ✓ Running next.config.ts took 1358ms
+eve-agent:build:
+eve-agent:build:   Creating an optimized production build ...
+eve-agent:build: ✓ Compiled successfully in 6.7s
+eve-agent:build:   Running TypeScript ...
+eve-agent:build:   Finished TypeScript in 8.0s ...
+eve-agent:build:   Collecting page data using 15 workers ...
+eve-agent:build:   Generating static pages using 15 workers (0/111) ...
+eve-agent:build:   Generating static pages using 15 workers (27/111)
+eve-agent:build:   Generating static pages using 15 workers (55/111)
+eve-agent:build:   Generating static pages using 15 workers (83/111)
+eve-agent:build: ✓ Generating static pages using 15 workers (111/111) in 403ms
+eve-agent:build:   Finalizing page optimization ...
+eve-agent:build:
+eve-agent:build: Route (app)
+eve-agent:build: ┌ ○ /
+eve-agent:build: ├ ○ /_not-found
+eve-agent:build: ├ ƒ /activity
+eve-agent:build: ├ ○ /agents
+eve-agent:build: ├ ƒ /api/actions
+eve-agent:build: ├ ƒ /api/actions/[id]/recover
+eve-agent:build: ├ ƒ /api/actions/[id]/resolve
+eve-agent:build: ├ ƒ /api/agentcard
+eve-agent:build: ├ ƒ /api/agentcard/connect/start
+eve-agent:build: ├ ƒ /api/agentcard/connect/verify
+eve-agent:build: ├ ƒ /api/agents
+eve-agent:build: ├ ƒ /api/agents/[id]
+eve-agent:build: ├ ƒ /api/agents/[id]/[action]
+eve-agent:build: ├ ƒ /api/agents/activity
+eve-agent:build: ├ ƒ /api/approvals
+eve-agent:build: ├ ƒ /api/approvals/[id]
+eve-agent:build: ├ ƒ /api/artifacts
+eve-agent:build: ├ ƒ /api/artifacts/[id]
+eve-agent:build: ├ ƒ /api/artifacts/[id]/comments
+eve-agent:build: ├ ƒ /api/artifacts/[id]/content
+eve-agent:build: ├ ƒ /api/artifacts/[id]/draft
+eve-agent:build: ├ ƒ /api/artifacts/[id]/restore
+eve-agent:build: ├ ƒ /api/artifacts/[id]/shares
+eve-agent:build: ├ ƒ /api/artifacts/[id]/shares/[shareId]
+eve-agent:build: ├ ƒ /api/artifacts/[id]/versions
+eve-agent:build: ├ ƒ /api/artifacts/upload
+eve-agent:build: ├ ƒ /api/auth/login
+eve-agent:build: ├ ƒ /api/auth/logout
+eve-agent:build: ├ ƒ /api/auth/status
+eve-agent:build: ├ ƒ /api/automations
+eve-agent:build: ├ ƒ /api/beta/activity
+eve-agent:build: ├ ƒ /api/beta/factory
+eve-agent:build: ├ ƒ /api/beta/feedback
+eve-agent:build: ├ ƒ /api/beta/goals
+eve-agent:build: ├ ƒ /api/beta/inbox
+eve-agent:build: ├ ƒ /api/beta/learning
+eve-agent:build: ├ ƒ /api/beta/memory
+eve-agent:build: ├ ƒ /api/beta/results
+eve-agent:build: ├ ƒ /api/beta/start
+eve-agent:build: ├ ƒ /api/beta/work
+eve-agent:build: ├ ƒ /api/capabilities
+eve-agent:build: ├ ƒ /api/capsules
+eve-agent:build: ├ ƒ /api/channels
+eve-agent:build: ├ ƒ /api/channels/search
+eve-agent:build: ├ ƒ /api/commands
+eve-agent:build: ├ ƒ /api/computer
+eve-agent:build: ├ ƒ /api/computer-profiles
+eve-agent:build: ├ ƒ /api/computer-runtime
+eve-agent:build: ├ ƒ /api/computer-sessions
+eve-agent:build: ├ ƒ /api/computer-sessions/[id]
+eve-agent:build: ├ ƒ /api/computer-sessions/[id]/actions
+eve-agent:build: ├ ƒ /api/computer-sessions/[id]/artifacts/[artifactId]
+eve-agent:build: ├ ƒ /api/computer-sessions/[id]/live-view
+eve-agent:build: ├ ƒ /api/computer-sessions/[id]/owner-input
+eve-agent:build: ├ ƒ /api/computer/ws
+eve-agent:build: ├ ƒ /api/connections
+eve-agent:build: ├ ƒ /api/control
+eve-agent:build: ├ ƒ /api/decision-intelligence
+eve-agent:build: ├ ƒ /api/email
+eve-agent:build: ├ ƒ /api/email/attachments/[messageId]/[attachmentId]
+eve-agent:build: ├ ƒ /api/email/domain
+eve-agent:build: ├ ƒ /api/email/key
+eve-agent:build: ├ ƒ /api/email/send
+eve-agent:build: ├ ƒ /api/email/threads/[id]
+eve-agent:build: ├ ƒ /api/features
+eve-agent:build: ├ ƒ /api/files
+eve-agent:build: ├ ƒ /api/files/[id]/content
+eve-agent:build: ├ ƒ /api/files/upload
+eve-agent:build: ├ ƒ /api/finance
+eve-agent:build: ├ ƒ /api/goals
+eve-agent:build: ├ ƒ /api/goals/[id]
+eve-agent:build: ├ ƒ /api/goals/focus
+eve-agent:build: ├ ƒ /api/imessage
+eve-agent:build: ├ ƒ /api/imessage/attachment
+eve-agent:build: ├ ƒ /api/imessage/pair
+eve-agent:build: ├ ƒ /api/imessage/pair/verify
+eve-agent:build: ├ ƒ /api/imessage/send
+eve-agent:build: ├ ƒ /api/imessage/spectrum
+eve-agent:build: ├ ƒ /api/imessage/transcript
+eve-agent:build: ├ ƒ /api/imessage/typing
+eve-agent:build: ├ ƒ /api/imessage/unpair
+eve-agent:build: ├ ƒ /api/knowledge
+eve-agent:build: ├ ƒ /api/knowledge/[id]
+eve-agent:build: ├ ƒ /api/knowledge/relationships
+eve-agent:build: ├ ƒ /api/knowledge/sources
+eve-agent:build: ├ ƒ /api/learning
+eve-agent:build: ├ ƒ /api/memories
+eve-agent:build: ├ ƒ /api/models
+eve-agent:build: ├ ƒ /api/operations
+eve-agent:build: ├ ƒ /api/outcomes
+eve-agent:build: ├ ƒ /api/outcomes/[id]
+eve-agent:build: ├ ƒ /api/owner-data
+eve-agent:build: ├ ƒ /api/owner-knowledge
+eve-agent:build: ├ ƒ /api/phone
+eve-agent:build: ├ ƒ /api/push
+eve-agent:build: ├ ƒ /api/readiness
+eve-agent:build: ├ ƒ /api/relay
+eve-agent:build: ├ ƒ /api/relay/artifacts/[id]
+eve-agent:build: ├ ƒ /api/relay/owner-execution
+eve-agent:build: ├ ƒ /api/relay/peer-permissions
+eve-agent:build: ├ ƒ /api/relay/qualification-artifacts
+eve-agent:build: ├ ƒ /api/review-schedule
+eve-agent:build: ├ ƒ /api/reviews
+eve-agent:build: ├ ƒ /api/routines
+eve-agent:build: ├ ƒ /api/routines/[id]/readiness
+eve-agent:build: ├ ƒ /api/routines/[id]/run
+eve-agent:build: ├ ƒ /api/shared/[token]/content
+eve-agent:build: ├ ƒ /api/skills
+eve-agent:build: ├ ƒ /api/slack
+eve-agent:build: ├ ƒ /api/task-runs
+eve-agent:build: ├ ƒ /api/task-runs/[id]
+eve-agent:build: ├ ƒ /api/task-runs/[id]/artifacts/[artifactId]
+eve-agent:build: ├ ƒ /api/threads
+eve-agent:build: ├ ƒ /api/threads/[id]
+eve-agent:build: ├ ƒ /api/threads/search
+eve-agent:build: ├ ƒ /api/update-check
+eve-agent:build: ├ ƒ /api/videos/[file]
+eve-agent:build: ├ ƒ /api/voice/token
+eve-agent:build: ├ ○ /apps
+eve-agent:build: ├ ƒ /beta-preview
+eve-agent:build: ├ ƒ /brief
+eve-agent:build: ├ ○ /capsules
+eve-agent:build: ├ ○ /channels
+eve-agent:build: ├ ○ /chat
+eve-agent:build: ├ ○ /computer
+eve-agent:build: ├ ○ /email
+eve-agent:build: ├ ○ /files
+eve-agent:build: ├ ○ /goals
+eve-agent:build: ├ ○ /icon.svg
+eve-agent:build: ├ ○ /imessage
+eve-agent:build: ├ ○ /knowledge
+eve-agent:build: ├ ○ /learning
+eve-agent:build: ├ ○ /login
+eve-agent:build: ├ ○ /manage
+eve-agent:build: ├ ƒ /manage/[section]
+eve-agent:build: ├ ƒ /memory
+eve-agent:build: ├ ƒ /needs-you
+eve-agent:build: ├ ƒ /results
+eve-agent:build: ├ ○ /review
+eve-agent:build: ├ ƒ /share/[token]
+eve-agent:build: ├ ○ /sofie
+eve-agent:build: ├ ƒ /today
+eve-agent:build: ├ ƒ /welcome
+eve-agent:build: ├ ƒ /work
+eve-agent:build: └ ƒ /work/new
+eve-agent:build:
+eve-agent:build:
+eve-agent:build: ƒ Proxy (Middleware)
+eve-agent:build:
+eve-agent:build: ○  (Static)   prerendered as static content
+eve-agent:build: ƒ  (Dynamic)  server-rendered on demand
+eve-agent:build:
+
+ Tasks:    2 successful, 2 total
+Cached:    1 cached, 2 total
+  Time:    19.53s
