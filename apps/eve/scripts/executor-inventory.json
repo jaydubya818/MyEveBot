@@ -1956,7 +1956,7 @@
     "lib/appearance.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "e60437ea10e568d9f53778598cabe3256b7fd943fd3aa3a2d02d395984d63006"
+      "sha256": "98b41a5c9fd1284cbb8883ccb438e97ff827104be3e8e3baf2aaaab425271bb0"
     },
     "lib/approvals.ts": {
       "classification": "INTERNAL",
@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "4a2261ac49aadc1790f472b8ca83d33be041410c6a093742e7c73ba5a35531a1"
+      "sha256": "a9ce0e07152efc117c4cc4323a0c83b0bcadebe94759f1ef8bff1f8a42686d78"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3679,7 +3679,7 @@
     "lib/owner-browser-storage.ts": {
       "classification": "ENFORCED",
       "reason": "Owner namespace required before private browser persistence, legacy caches visible only to primary owner. Negative cross-owner cache tests.",
-      "sha256": "d22abc73d75ced25eb44afcceca55fc9d7a2d2dcd2d75aef4ca9bddf774e9524"
+      "sha256": "2dc676d019f202030d104736e2d5216758e11ee397078518725f61825ee12447"
     },
     "agent/lib/partner-model.ts": {
       "classification": "ENFORCED",

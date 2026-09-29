@@ -1,3 +1,4 @@
+import {CURRENT_DATABASE_MIGRATION} from "../lib/database-schema.ts";
 import {assertReceiptDoesNotGrantAuthority} from './integration-authority-boundary.mjs';
 import {engineeringConversationModel} from '../lib/engineering/conversation-model.ts';
 import {EngineeringWorkerProjectionStore} from '../lib/engineering/worker-projection.ts';
@@ -32,7 +33,7 @@ try {
  pool=new Pool({connectionString:databaseURL});const client=await pool.connect();
  const migrations=await loadMigrations();
  try {
- assert.equal(migrations.at(-1).name,"0068_published_main_lineage_bridge.sql");
+ assert.equal(migrations.at(-1).name,CURRENT_DATABASE_MIGRATION);
  const migrationDb={query:async(s,p)=>(await client.query(s,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const x of statements)await client.query(x.sql,x.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}};
  await runMigrations(migrationDb,migrations,()=>{});
  } finally { client.release(); }

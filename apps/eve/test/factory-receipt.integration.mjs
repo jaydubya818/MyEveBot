@@ -1,3 +1,4 @@
+import {CURRENT_DATABASE_MIGRATION} from "../lib/database-schema.ts";
 import assert from 'node:assert/strict';
 import {mkdirSync,writeFileSync} from 'node:fs';
 import {join} from 'node:path';
@@ -22,7 +23,7 @@ async function snapshot() {
  return data;
 }
 try {
- const allMigrations=await loadMigrations();assert.equal(allMigrations.at(-1).name,'0068_published_main_lineage_bridge.sql');
+ const allMigrations=await loadMigrations();assert.equal(allMigrations.at(-1).name,CURRENT_DATABASE_MIGRATION);
  const migrations=allMigrations.slice(0,54);assert.equal(migrations.at(-1).name,'0054_factory_result_receipts.sql');
  const freshName='q37_gatec_'+randomBytes(8).toString('hex');await admin.query('CREATE DATABASE '+freshName);
  const fresh=new Client({connectionString:adminURL.replace('/postgres','/'+freshName)});await fresh.connect();

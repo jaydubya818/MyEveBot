@@ -8,7 +8,7 @@ export function isThemePreference(value: string | null): value is ThemePreferenc
   return value === "system" || value === "light" || value === "dark";
 }
 
-export function readThemePreference(storage: Storage = window.localStorage): ThemePreference {
+export function readThemePreference(storage: Pick<Storage,"getItem"> = ownerLocalStorage): ThemePreference {
   const stored = storage.getItem(THEME_STORAGE_KEY);
   return isThemePreference(stored) ? stored : "system";
 }

@@ -11,3 +11,7 @@ Initial candidate a5087a61b2bf1106631d1513e794619594c8d713: NOT PASS. No main br
 7. Reopen: terminal Work requires a freshly reviewed shared revision and exact policy-bound reopen receipt. Golden regression PASS.
 
 Evidence: scope-review-*.log, scope-review-published-main-bridge.json, business-browser.json. Application 1894 PASS /45 gated skips; root141 PASS; scopes24 PASS; browser4 checks/4 accessibility audits; build/types/governance725 sources UNKNOWN0 PASS; published-main bridge9 PASS. Real provider use0.
+
+## Second review successor
+
+4df57c6 was NOT PASS for Factory/native authority coupling and theme reads. Forward0071 binds workspace and verifier claims to canonical route/producer; Factory-only approvals now pass the entire Gate B dispatch→Gate C→custody→protected verification→Result journey. A partnership revocation injected between dispatch preflight and claim sends no transport call. Gate B25 PASS. Verification start rechecks authority; settlement that changes only evidence/status remains possible. Owner themes now read/write the same owner namespace and ignore other owners' storage events. Application1895 PASS/45 skips, scopes24 PASS, build/types/governance PASS.

@@ -1,9 +1,10 @@
+import { readThemePreference,THEME_STORAGE_KEY } from "./appearance";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createWebSessionToken, requireWebAuth, webPrincipal } from "./web-auth";
 import { guestDenial } from "../agent/lib/owner-gate";
 import { profileComputerName } from "../agent/lib/orgo";
 import { partnerPrompt } from "../agent/lib/partner-model";
-import { bindOwnerBrowserStorage, ownerLocalStorage, ownerSessionStorage } from "./owner-browser-storage";
+import { bindOwnerBrowserStorage, ownerLocalStorage, ownerSessionStorage, isOwnerStorageKey } from "./owner-browser-storage";
 const env={NODE_ENV:'production',MYEVE_OWNER_ID:'A',MYEVE_PARTNER_OWNER_ID:'B',MYEVE_ACCESS_PASSWORD:'owner-a-private-password',MYEVE_PARTNER_ACCESS_PASSWORD:'owner-b-private-password',MYEVE_SESSION_SECRET:'s'.repeat(40)};
 function storage(){const values=new Map<string,string>();return {get length(){return values.size},key:(i:number)=>[...values.keys()][i]??null,getItem:(k:string)=>values.get(k)??null,setItem:(k:string,v:string)=>{values.set(k,v)},removeItem:(k:string)=>{values.delete(k)},clear:()=>values.clear()};}
 beforeEach(()=>{for(const [key,value] of Object.entries(env))vi.stubEnv(key,value)});
@@ -20,6 +21,12 @@ describe('two-owner deployment service isolation',()=>{
   expect(JSON.stringify(result)).not.toContain('A_PRIVATE');expect(JSON.stringify(result)).toContain('B_PRIVATE_MEMORY');expect(result.tools?.map(t=>t.name)).toEqual(['get_knowledge']);
  });
  it('rejects an out-of-scope tool result before any model call',()=>expect(()=>partnerPrompt({prompt:[{role:'user',content:[{type:'text',text:'question'}]},{role:'tool',content:[{type:'tool-result',toolName:'read_email',output:{type:'text',value:'A_PRIVATE'}}]}]} as never,'')).toThrow());
+ it('reads and listens to the active owner theme namespace',()=>{
+  const local=storage();vi.stubGlobal('localStorage',local);local.setItem(THEME_STORAGE_KEY,'light');
+  bindOwnerBrowserStorage('A',true);ownerLocalStorage.setItem(THEME_STORAGE_KEY,'dark');expect(readThemePreference()).toBe('dark');
+  bindOwnerBrowserStorage('B',false);expect(readThemePreference()).toBe('system');ownerLocalStorage.setItem(THEME_STORAGE_KEY,'light');expect(readThemePreference()).toBe('light');
+  expect(isOwnerStorageKey('myeve-private:A:'+THEME_STORAGE_KEY,THEME_STORAGE_KEY)).toBe(false);expect(isOwnerStorageKey('myeve-private:B:'+THEME_STORAGE_KEY,THEME_STORAGE_KEY)).toBe(true);
+ });
  it('partitions transcripts, drafts, tokens and preferences while preserving primary legacy caches',()=>{
   const local=storage(),session=storage();vi.stubGlobal('localStorage',local);vi.stubGlobal('sessionStorage',session);
   local.setItem('eve-web-chat:old','A_PRIVATE_HISTORY');session.setItem('eve-web-draft:old','A_PRIVATE_DRAFT');

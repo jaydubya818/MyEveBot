@@ -23,3 +23,5 @@ function storage(session: boolean) {
 }
 export const ownerLocalStorage=storage(false);
 export const ownerSessionStorage=storage(true);
+
+export function isOwnerStorageKey(key:string|null,logicalKey:string){return !!owner && (key===`myeve-private:${encodeURIComponent(owner)}:${logicalKey}` || (primary&&key===logicalKey));}

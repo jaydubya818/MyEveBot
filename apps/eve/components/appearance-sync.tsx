@@ -1,5 +1,6 @@
 "use client";
 
+import { isOwnerStorageKey } from "@/lib/owner-browser-storage";
 import { useEffect } from "react";
 
 import {
@@ -15,7 +16,7 @@ export function AppearanceSync() {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const sync = () => applyThemePreference(readThemePreference());
     const onStorage = (event: StorageEvent) => {
-      if (event.key === THEME_STORAGE_KEY) sync();
+      if (isOwnerStorageKey(event.key, THEME_STORAGE_KEY)) sync();
     };
     const onThemeChange = (event: Event) => {
       applyThemePreference((event as CustomEvent<ThemePreference>).detail);

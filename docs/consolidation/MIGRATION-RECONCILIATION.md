@@ -93,3 +93,5 @@ Appended `0069_business_scopes.sql`, SHA256 `6528b8f1b6844a368299a601d99b25c36ca
 ## Review successor 0070
 
 Forward-only `0070_business_authority_fencing.sql` follows immutable0069; SHA256 `0f7d853b2c517601281b42209553f49e6dbf55adf521518aae0ccec263ae243b`. Complete chain66 files. Preserved published-main ledger and replay independently exercised by nine local checks.
+
+Forward `0071_business_producer_fencing.sql` corrects producer selection without rewriting0070. SHA256 `b8c28515984ee34ba05b9eab5fb14c51ae844279cacdc714b75981fb147edc78`; current head0071,67 canonical files.
