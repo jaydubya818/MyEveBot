@@ -94,6 +94,7 @@ import type { SolutionPack } from "@/lib/solution-packs";
 import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 import { reconcileChatSession } from "@/lib/chat-session";
+import { latestTurnFailed } from "@/app/chat-turn-failure";
 import {
   saveThreadForCurrentOwner,
   subscribeToThreadOwnerConflicts,
@@ -2037,6 +2038,7 @@ function ChatThread({
     for (const event of events) projected = reducer.reduce(projected, event);
     return projected.messages;
   }, [agent.data.messages, events, resumedEvents]);
+  const failedTurn = useMemo(() => latestTurnFailed(events), [events]);
 
   // Backfill titles for threads restored from storage (e.g. the migrated
   // pre-threads chat) whose meta still has the placeholder title.
@@ -2459,13 +2461,14 @@ function ChatThread({
                     </Marker>
                   </MessageScrollerItem>
                 )}
-                {!ownerConflict && agent.error && (
+                {!ownerConflict && !isBusy && (agent.error || failedTurn) && (
                   <MessageScrollerItem messageId="error">
                     <Bubble variant="destructive">
-                      <BubbleContent>
-                        <p>{agent.error.message}</p>
+                      <BubbleContent role="alert">
+                        <p className="font-medium">Sofie couldn&rsquo;t finish this turn.</p>
+                        <p>Review the selected model and system status, then retry or send a new message.</p>
                         <Button
-                          className="mt-3"
+                          className="mt-3 me-2"
                           size="sm"
                           variant="secondary"
                           disabled={isBusy || !lastUserId}
@@ -2473,6 +2476,14 @@ function ChatThread({
                           onClick={regenerateLastReply}
                         >
                           Retry request
+                        </Button>
+                        <Button
+                          className="mt-3"
+                          size="sm"
+                          variant="secondary"
+                          onClick={onReviewSystem}
+                        >
+                          Review setup
                         </Button>
                       </BubbleContent>
                     </Bubble>

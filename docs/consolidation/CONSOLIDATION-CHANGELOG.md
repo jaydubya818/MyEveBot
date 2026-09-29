@@ -12,3 +12,7 @@
 - Managed multi-tenant provisioning / Telegram live-local campaign / upstream templates: DEFERRED_POST_ALPHA or REJECTED_EXPERIMENTAL; no deletion.
 
 New source branches were pushed immediately. Frozen qualified local-only inputs were preserved remotely. Dirty primary work was archived privately; reflog-only candidates were pinned and Git bundles verified. Main branches, existing tags and worktrees were left intact.
+
+## Product source integration checkpoint
+
+Adopted expansion delta ef07717 and durable follow-up through 9caacf6, retaining canonical Today/Work bindings and Capsules navigation. Work Canvas remains an explicitly disconnected preview; no fixture confirmation performs a consequential effect. Final live binding and two-owner release qualification are not established by the source merge. Restored the 7bbf296 chat failure detector and actionable failure UI while retaining the canonical manual retry control; did not restore historical production qualification flags. Root checks now 141 PASS; required typecheck and executor governance PASS (UNKNOWN=0). The deferred Telegram campaign tests are preserved under historical-tests with their complete source dependency identified; no Telegram PASS is claimed.
