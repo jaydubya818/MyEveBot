@@ -1,0 +1,44 @@
+{
+  "mode": "authenticated local production build with persisted PostgreSQL; explicitly LOCAL_FIXTURE Results",
+  "routes": [
+    "/welcome",
+    "/today",
+    "/work",
+    "/work?kind=goal",
+    "/work?kind=work",
+    "/needs-you",
+    "/results",
+    "/memory",
+    "/brief"
+  ],
+  "actions": [
+    "login through password form",
+    "onboarding and Goal creation",
+    "owner Website decision retained and delivered",
+    "Result source-citation feedback",
+    "candidate evaluation",
+    "owner promotion",
+    "Work memory correction with retained history"
+  ],
+  "viewports": [
+    {
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "sourceHostAndProviders": "NOT_RUN",
+  "browserGoal": {
+    "goalId": "10cdc7fa-1171-424f-8c36-d681c83bbf4b",
+    "taskId": "browser-decision-f009e09e-6825-47d8-aece-ebf1354de7af",
+    "firstWork": "c9520de9-e6e8-41d7-acf3-f9e416f42092",
+    "resultId": "6e896fd3-6b67-4bea-9ec6-78bf8f693303",
+    "secondWork": "65e081ab-be81-46b8-bc5c-c4e0eaab8247",
+    "secondResult": "bebf101f-43dd-4f3b-9f13-72249176b4ec",
+    "goalStatus": "completed",
+    "source": "LOCAL_FIXTURE Results; real authenticated browser creation, decision, feedback, evaluation and promotion"
+  }
+}

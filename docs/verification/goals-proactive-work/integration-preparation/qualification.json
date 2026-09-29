@@ -1,0 +1,23 @@
+{
+  "passed": [
+    "Authenticated API enforces signed sessions, CSRF, owner isolation, input bounds and optimistic revisions",
+    "Canonical Work/Result and actual Inbox multi-session golden journey needs only initial instruction and one choice",
+    "Canonical Result mapping refuses PARTIAL, FAILED, BLOCKED, stale, superseded and narrative PASS completion",
+    "Result for superseded Task generation is retained without completing the corrected task",
+    "Canonical create replay survives lost response and changed policy with one immutable logical Work",
+    "Schedule delivery uses the trusted clock, rechecks all dependencies and deduplicates manual replay",
+    "Normalized reply/webhook/file/provider events reject unrelated or stale input and respect pause/cancellation",
+    "Inbox stale/superseded answers cannot resolve new generations; follow-ups remain informational",
+    "Result-driven plan evolution and Goal correction preserve old context and fence stale continuation",
+    "Completion requires outcome evidence, no mandatory waiting task and current policy-required owner confirmation; reopen retains history",
+    "Unnumbered persistence package preserves legacy history and restricted runtime cannot cross owners or mutate canonical execution"
+  ],
+  "counters": {
+    "duplicateWork": 0,
+    "falseTaskCompletion": 0,
+    "falseGoalCompletion": 0,
+    "goalDerivedAuthority": 0,
+    "avoidableCoordinationDebt": 0
+  },
+  "canonicalFixtureWorks": 25
+}

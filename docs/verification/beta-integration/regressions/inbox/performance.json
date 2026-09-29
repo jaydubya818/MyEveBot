@@ -1,0 +1,51 @@
+{
+  "qualification": "local SQLite fixture only; not Neon or production latency",
+  "node": "v24.18.1",
+  "recordedAt": "2026-09-27T22:10:57.694Z",
+  "seededItems": 2000,
+  "sampledAdditionalItems": 100,
+  "pageLimit": 50,
+  "crossOwnerDisclosures": 0,
+  "metrics": {
+    "necessaryInterventions": 100,
+    "avoidableCoordinationRequests": 0
+  },
+  "timings": {
+    "creation": {
+      "samples": 100,
+      "p50Ms": 0.14,
+      "p95Ms": 0.202,
+      "maxMs": 3.032
+    },
+    "dedupe": {
+      "samples": 100,
+      "p50Ms": 0.064,
+      "p95Ms": 0.09,
+      "maxMs": 0.113
+    },
+    "inboxLoad": {
+      "samples": 100,
+      "p50Ms": 0.142,
+      "p95Ms": 0.189,
+      "maxMs": 1.061
+    },
+    "needsYouQuery": {
+      "samples": 100,
+      "p50Ms": 0.14,
+      "p95Ms": 0.173,
+      "maxMs": 0.641
+    },
+    "ownerResponse": {
+      "samples": 100,
+      "p50Ms": 0.126,
+      "p95Ms": 0.217,
+      "maxMs": 2.972
+    },
+    "resolution": {
+      "samples": 100,
+      "p50Ms": 0.128,
+      "p95Ms": 0.172,
+      "maxMs": 2.945
+    }
+  }
+}

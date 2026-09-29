@@ -1,0 +1,94 @@
+{
+  "version": "myeve.goal-experience.v1",
+  "activeGoals": [
+    {
+      "id": "00-golden",
+      "objective": "Launch the design-partner beta",
+      "progress": "0 of 1 required outcomes complete"
+    },
+    {
+      "id": "01-today",
+      "objective": "Prepare the next partner cohort",
+      "progress": "0 of 1 required outcomes complete"
+    },
+    {
+      "id": "02-blocked",
+      "objective": "Resolve the partner import failure",
+      "progress": "0 of 1 required outcomes complete"
+    },
+    {
+      "id": "api",
+      "objective": "Updated outcome",
+      "progress": "0 of 1 required outcomes complete"
+    }
+  ],
+  "doing": [
+    {
+      "workId": "8231553f-848e-4379-b538-61727672246a",
+      "goalId": "00-golden",
+      "title": "Confirm partner access"
+    }
+  ],
+  "canProceed": [
+    {
+      "goalId": "01-today",
+      "taskId": "Ready-next",
+      "title": "Draft the next invitation",
+      "nextAction": "Ready to start"
+    }
+  ],
+  "waiting": [
+    {
+      "goalId": "00-golden",
+      "taskId": "C-launch",
+      "title": "Launch the selected cohort",
+      "reason": "Choose the launch cohort; Confirm partner",
+      "nextAction": "Choose the launch cohort"
+    },
+    {
+      "goalId": "01-today",
+      "taskId": "Scheduled-later",
+      "title": "Review tomorrow’s responses",
+      "reason": "Tomorrow’s review",
+      "nextAction": "Tomorrow’s review"
+    },
+    {
+      "goalId": "02-blocked",
+      "taskId": "Needs-repair",
+      "title": "Review the failed partner import",
+      "reason": "Work needs review",
+      "nextAction": "Review the Result and revise the plan"
+    },
+    {
+      "goalId": "legacy",
+      "taskId": "legacy-task",
+      "title": "Old task",
+      "reason": "Work needs review",
+      "nextAction": null
+    }
+  ],
+  "needsYou": [
+    {
+      "id": "attention_a108e224d3b080dcc88e66e786cae0e02c7927adeb8b0fc22cb75eeb80e09f53",
+      "prompt": "Choose the launch cohort",
+      "options": [
+        "A",
+        "B"
+      ],
+      "availableActions": [
+        "mark_read",
+        "respond"
+      ]
+    }
+  ],
+  "completed": [
+    {
+      "goalId": "00-golden",
+      "taskId": "A-prepare",
+      "title": "Prepare the beta workspace",
+      "at": "2026-09-27T21:15:32.786Z"
+    }
+  ],
+  "nextGoalCursor": null,
+  "nextInboxCursor": null
+}

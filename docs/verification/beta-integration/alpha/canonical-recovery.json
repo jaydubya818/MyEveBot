@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "decision commit → SIGKILL → fresh-process replay",
+    "response commit → SIGKILL → fresh-process replay",
+    "delivery commit → SIGKILL → fresh-process replay",
+    "control commit → SIGKILL → fresh-process replay",
+    "result commit → SIGKILL → fresh-process replay",
+    "feedback commit → SIGKILL → fresh-process replay",
+    "promotion commit → SIGKILL → fresh-process replay"
+  ],
+  "duplicateContinuations": 0,
+  "falseTaskGoalCompletions": 0
+}

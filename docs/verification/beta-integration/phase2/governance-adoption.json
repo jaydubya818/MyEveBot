@@ -1,0 +1,88 @@
+{
+  "canonical": "39874790aad1280792cc8e1b7aa8a349c31ae54d",
+  "exactClassificationsPreserved": [
+    "agent/agent.ts",
+    "agent/channels/eve.ts",
+    "agent/hooks/engineering-work-context.ts",
+    "agent/instructions/persistent-agent.ts",
+    "agent/lib/context-assembly.ts",
+    "agent/lib/engineering-knowledge-binding.ts",
+    "agent/lib/engineering-work-binding.ts",
+    "agent/tools/engineering_direct.ts",
+    "agent/tools/engineering_work.ts",
+    "lib/digital-worker/learning.ts",
+    "lib/engineering/api.ts",
+    "lib/engineering/base-preflight.ts",
+    "lib/engineering/completion-budget-plan.ts",
+    "lib/engineering/contract.ts",
+    "lib/engineering/conversation-budget.ts",
+    "lib/engineering/conversation-model.ts",
+    "lib/engineering/current-truth-lines.ts",
+    "lib/engineering/direct-development.ts",
+    "lib/engineering/direct-verification-driver.ts",
+    "lib/engineering/docker-executor.ts",
+    "lib/engineering/execution-api.ts",
+    "lib/engineering/execution-store.ts",
+    "lib/engineering/execution.ts",
+    "lib/engineering/executor.ts",
+    "lib/engineering/factory-authenticated-result.ts",
+    "lib/engineering/factory-producer-protocol.ts",
+    "lib/engineering/factory-producer-signature.ts",
+    "lib/engineering/factory-receipt-store.ts",
+    "lib/engineering/factory-result-channel.ts",
+    "lib/engineering/factory-result-consumer.ts",
+    "lib/engineering/github-app.ts",
+    "lib/engineering/github.ts",
+    "lib/engineering/knowledge.ts",
+    "lib/engineering/learning-drafts.ts",
+    "lib/engineering/model-broker.ts",
+    "lib/engineering/native-api.ts",
+    "lib/engineering/native-behavior.ts",
+    "lib/engineering/native-completion.ts",
+    "lib/engineering/native-execution-controller.ts",
+    "lib/engineering/native-input.ts",
+    "lib/engineering/native-model-budget.ts",
+    "lib/engineering/native-model.ts",
+    "lib/engineering/native-qualification.ts",
+    "lib/engineering/native-repair-context.ts",
+    "lib/engineering/native-results.ts",
+    "lib/engineering/native-routing.ts",
+    "lib/engineering/relay-collaboration.ts",
+    "lib/engineering/route-admission.ts",
+    "lib/engineering/routing-store.ts",
+    "lib/engineering/run-truth.ts",
+    "lib/engineering/runtime.ts",
+    "lib/engineering/store.ts",
+    "lib/engineering/types.ts",
+    "lib/engineering/worker-projection.ts",
+    "lib/engineering/worker.ts",
+    "lib/relay/message-result.ts",
+    "lib/web-auth.ts"
+  ],
+  "adaptedReview": {
+    "lib/beta-integration/runtime.ts": [
+      "ENFORCED",
+      "Signed-owner and same-origin composition; restricted Goal/Inbox transactions; retained canonical Result readers; no Work command endpoints mounted. Integrated adversarial and browser auth checks."
+    ],
+    "lib/beta-integration/canonical-work.ts": [
+      "ENFORCED",
+      "Unmounted trusted adapter: exact canonical owner/version/generation/admission and budgeted-conversation receipt; retained Inbox response dedupe/generation locks; eligibility grants no control. Controlled canonical journey tests denial, admission, duplicates and stale responses."
+    ],
+    "lib/engineering/work-recall-context.ts": [
+      "READ_ONLY",
+      "Owner/Work-scoped bounded Recall data only; persists attribution receipt, rejects any authority grant; canonical model context test proves supersession and separate Work exclusion."
+    ],
+    "app/api/beta/activity/route.ts": [
+      "READ_ONLY",
+      "Read-only delegation to signed-owner same-origin betaRequest; owner-filtered memory and learning projection."
+    ],
+    "lib/capability-registry.ts": [
+      "INTERNAL",
+      "Canonical tool metadata imported with unconditional disabled availability pending wiring approval; all prior registry definitions and gates preserved."
+    ]
+  },
+  "tools": "UNCONDITIONALLY_DISABLED_PENDING_APPROVAL",
+  "resolverGate": "Both tool resolvers check disabled registry availability before resolving, including primary owner",
+  "scheduler": "Existing operations monitor; bounded retained due-time Goal adapter; local-only; paused Work; no admission",
+  "latestCanonicalInput": "b15905f273b7a1c62f1a840de92ab6caa78f21dd"
+}

@@ -1,0 +1,23 @@
+{
+  "apps/eve/agent/lib/memory-store.ts": "20f11e6538c0ed0f3b1fcf77ad63ee4c71cb99d6e339ca42328aa38aad87ec04",
+  "apps/eve/agent/schedules/memory-consolidation.ts": "3ddc9ac2902a6845ab8fa843460e65b0c346ed39e1f6a273f6b945195a0bf3e5",
+  "apps/eve/lib/total-recall/api.test.ts": "ecea8456e82ae5bd27dcdd149676bb3364907ed46b02923228a2e7def69274b9",
+  "apps/eve/lib/total-recall/api.ts": "8d65fdb1237d20d0a1e0d8c34cda8492b1086b519250e5f96a155baf20718f93",
+  "apps/eve/lib/total-recall/fixture-consumer.ts": "923560478aab5de1e7f72f62c31103d5bd4517b39494a998a4b6a25c8d0b19db",
+  "apps/eve/lib/total-recall/learning.test.ts": "cb6f2720874aa3e6d7d34e21cab7be4f54e281d2c67a1c9a09ab6252271f626b",
+  "apps/eve/lib/total-recall/learning.ts": "40afb274c4fa72f5672323bc171391b66f1e2d6b2fc7e249718c1559c3987ffe",
+  "apps/eve/lib/total-recall/projections.ts": "dc7f22bc3204804842b7489455c2e2a9256b786d7f797ee210077e4f44ee061f",
+  "apps/eve/lib/total-recall/retrieval-contract.test.ts": "ca8a96b3553e3c6d72fc247ef5a3502ca686a8fb44120fee028da81f98d5498e",
+  "apps/eve/lib/total-recall/retrieval-contract.ts": "755435ab99b1e29c63704da2dfe550738f2c4db1dfb9ca5680f8bf2ad9c54589",
+  "apps/eve/lib/total-recall/runtime.ts": "ac24b756686a95356ee6f95e41de8afc9321f51446cd70c9f16e147bb48a0724",
+  "apps/eve/lib/total-recall/sofie-adapter.ts": "5510c0e2a2d524b56c72f017b7eafe9c1133813f1651086c50b54bb0bd8be7a9",
+  "apps/eve/lib/total-recall/store.ts": "05d1fe34d7cb5e2c878e802b45aba8d93c19462549f228fb0cdb2c8f345ebbac",
+  "apps/eve/lib/total-recall/work-retrieval.ts": "629704a9aba454848b9fc49e417dd3f3773961b6219f9bc605f93338a46dae21",
+  "apps/eve/scripts/executor-inventory.json": "0b7cabb5a65a95434baf727d4eebcdad1b2016ecb45be9af5053a4936a744396",
+  "apps/eve/test/helpers/recall-restart.mjs": "389684a20d6b4cdf1aeb8acca07f8806cb5dfc551ca036f119cf9eb3f7f45bd5",
+  "apps/eve/test/helpers/work-recall-restart.mjs": "8e1aa03e469bfb5ea082b5b4e06355909591a62a3148b44a893b6359601820ff",
+  "apps/eve/test/recall-integration-preparation.mjs": "6358f942fef792cca3a2557e95853d0731c8afbefa9acb17467a9b43b08cc09a",
+  "apps/eve/test/total-recall.integration.mjs": "eded0b4f9a352420c5849579932b29d5a4569e12d757ac7eb2cdb14649b7872b",
+  "docs/integration/total-recall/rollback.sql": "698418ccb4686405847b0ff88868e1afbf6ff5ac1e0f66eae77fb2d8da04e6b1",
+  "docs/integration/total-recall/schema.sql": "db31986ffa248445b3d6e61af30961b9eeb870b5ae40dd1a3f55a7df57b9b183"
+}

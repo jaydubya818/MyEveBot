@@ -60,6 +60,7 @@ import { AgentsPanel } from "@/components/agents-panel";
 import { GoalsPanel } from "@/components/goals-panel";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
+import { OwnerNavigation } from "@/components/owner/navigation";
 import { ResultsPanel } from "@/components/results-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
@@ -615,7 +616,7 @@ function loadSeenMap(): Record<string, number> {
   }
 }
 
-export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) {
+export function Chat({ initialView = "chat", initialPrompt }: { initialView?: MainView; initialPrompt?: string } = {}) {
   // localStorage is read in useState initializers, so only mount the chat
   // on the client to avoid an SSR/hydration mismatch.
   const [mounted, setMounted] = useState(false);
@@ -623,7 +624,7 @@ export function Chat({ initialView = "chat" }: { initialView?: MainView } = {}) 
   if (!mounted) {
     return <main className="h-dvh bg-kumo-canvas" />;
   }
-  return <ChatApp initialView={initialView} />;
+  return <ChatApp initialView={initialView} initialPrompt={initialPrompt} />;
 }
 
 /** What the main column shows; the sidebar is shared between both. */
@@ -640,7 +641,7 @@ type MainView =
   | "email"
   | "files";
 
-function ChatApp({ initialView }: { initialView: MainView }) {
+function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initialPrompt?: string }) {
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -649,7 +650,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     const previous = document.activeElement as HTMLElement | null;
     const drawer = sidebarRef.current;
     const controls = () => Array.from(drawer?.querySelectorAll<HTMLElement>(
-      'button:not(:disabled), input:not(:disabled), a[href], [tabindex="0"]',
+      'button:not(:disabled), input:not(:disabled), a[href], summary, [tabindex="0"]',
     ) ?? []).filter((element) => element.getClientRects().length > 0);
     controls()[0]?.focus();
     function onKeyDown(event: KeyboardEvent) {
@@ -1123,6 +1124,17 @@ function ChatApp({ initialView }: { initialView: MainView }) {
     showView("chat");
   }
 
+  // A reviewed owner-UX handoff only prefills the existing composer; it never sends.
+  const initialPromptConsumed = useRef(false);
+  useEffect(() => {
+    if (!initialPrompt || initialPromptConsumed.current) return;
+    initialPromptConsumed.current = true;
+    startPromptThread("Plan my work", initialPrompt);
+    try { sessionStorage.removeItem("myeve-owner-conversation-draft"); } catch { /* Optional draft cleanup. */ }
+    // Consume once: startPromptThread intentionally uses the current thread state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPrompt]);
+
   function useRole(role: RoleDefinition) {
     const meta: ThreadMeta = { ...newThreadMeta(), title: `Use ${role.name}`, renamed: true, roleId: role.id, roleName: role.name };
     saveLocalChat(meta.id, {});
@@ -1276,6 +1288,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           </button>
           <Button variant="ghost" shape="square" icon={XIcon} aria-label="Close navigation"
             className="min-h-11 min-w-11 md:hidden" onClick={() => setSidebarOpen(false)} />
+          <details className="w-full"><summary className="min-h-11 cursor-pointer py-3 text-xs text-kumo-default">Advanced tools</summary>
           <div className="flex flex-wrap items-center gap-1 [&>button]:min-h-11 [&>button]:min-w-11 md:[&>button]:min-h-8 md:[&>button]:min-w-8">
             {goalsIncluded && <Button
               variant="ghost"
@@ -1308,7 +1321,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               aria-pressed={view === "results"}
               title="Completed work and evidence"
               className={cn(view === "results" && "bg-kumo-tint text-kumo-strong")}
-              onClick={() => showView(view === "results" ? "chat" : "results")}
+              onClick={() => window.location.assign("/results")}
             />
             <Button
               variant="ghost"
@@ -1386,7 +1399,10 @@ function ChatApp({ initialView }: { initialView: MainView }) {
               onClick={newThread}
             />
           </div>
+          </details>
         </div>
+        <OwnerNavigation compact />
+        <Button variant="secondary" className="mx-3 mb-3 min-h-11" icon={PlusIcon} onClick={newThread}>New conversation</Button>
         {process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
           <a href={process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL} target="_blank" rel="noopener noreferrer"
             className="mx-3 mb-2 flex min-h-11 items-center justify-between rounded-md border border-kumo-hairline px-3 text-sm hover:bg-kumo-tint"
@@ -1423,7 +1439,7 @@ function ChatApp({ initialView }: { initialView: MainView }) {
           {sections.map((section) => (
             <div key={section.label ?? "results"} className="pb-2">
               {section.label && (
-                <p className="px-2.5 pt-2 pb-1 text-[11px] font-medium text-kumo-subtle">
+                <p className="px-2.5 pt-2 pb-1 text-[11px] font-medium text-kumo-default">
                   {section.label}
                 </p>
               )}
@@ -1730,7 +1746,7 @@ function SidebarThread({
             />
           )}
         </span>
-        <span className="block text-xs text-kumo-subtle">
+        <span className="block text-xs text-kumo-default">
           {formatThreadDate(thread.updatedAt)}
         </span>
       </button>
@@ -2394,7 +2410,7 @@ function ChatThread({
               <MessageScrollerContent className="gap-5 py-6">
                 {!hasMessages && (
                   <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
-                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-brand">{activeLabel}</p>
+                    <p className="text-xs font-semibold uppercase tracking-[.14em] text-kumo-strong">{activeLabel}</p>
                     <h2 className="text-lg font-semibold text-kumo-default">Hey {OWNER_NAME}</h2>
                     <p className="max-w-sm text-sm text-kumo-subtle">
                       {roleId && roleName

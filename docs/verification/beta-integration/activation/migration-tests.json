@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "count": 62,
+  "head": "0066_beta_canonical_continuation.sql",
+  "checks": [
+    "Fresh reconciled chain and no-op replay",
+    "Canonical 0057 upgrade preserves every prefix checksum and applied_at; no-op replay",
+    "Preserved Phase 1 database rejects incompatible lineage before mutation; ledger unchanged"
+  ]
+}

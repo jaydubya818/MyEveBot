@@ -1,0 +1,102 @@
+[
+  {
+    "path": "apps/eve/app/api/beta/feedback/route.ts",
+    "classification": "ADAPT",
+    "sha256": "17d22d187af41c68209d536e1589c757bd396ff787cf6b14958d62f743b423da"
+  },
+  {
+    "path": "apps/eve/app/api/beta/goals/route.ts",
+    "classification": "ADAPT",
+    "sha256": "73821269eb8b0f8842549c1fc13a885ce55289d6717f3a89fc44ed57e254b784"
+  },
+  {
+    "path": "apps/eve/app/api/beta/inbox/route.ts",
+    "classification": "ADAPT",
+    "sha256": "bc5a4268ef20070980d235ca5b0aac43f3dcacf168b97a866fc8b9d3e2311f2c"
+  },
+  {
+    "path": "apps/eve/app/api/beta/learning/route.ts",
+    "classification": "ADAPT",
+    "sha256": "f9e2c03ac3479507fe729c7efded8497a6e7a119fe14f1e9a631d14e2e35c3b7"
+  },
+  {
+    "path": "apps/eve/app/api/beta/memory/route.ts",
+    "classification": "ADAPT",
+    "sha256": "2772a89dfc74c8f5ae9a688b66566103dd8af274477d7178ac3616f6be5a3c1c"
+  },
+  {
+    "path": "apps/eve/app/api/beta/results/route.ts",
+    "classification": "ADAPT",
+    "sha256": "8c0d4e1fd36ab02c0c0ab4427f9cdb686cb7d5308a959620e8c89f4ea59e1a60"
+  },
+  {
+    "path": "apps/eve/app/api/beta/start/route.ts",
+    "classification": "ADAPT",
+    "sha256": "875e7b601c28637f7643382a904426e1d27428ba63f8d5a0379606d298bb32b6"
+  },
+  {
+    "path": "apps/eve/app/api/beta/work/route.ts",
+    "classification": "ADAPT",
+    "sha256": "cba71244615e45dd2a1da0e200ea9c53816accbae3ab4b921a81eb45d7ab4ce7"
+  },
+  {
+    "path": "apps/eve/components/owner/integrated.tsx",
+    "classification": "ADAPT",
+    "sha256": "fee30a14f20e694b978fa3ff1b9e1e73b1dd8a4a8cb0b35a08988ea7cc1f02e6"
+  },
+  {
+    "path": "apps/eve/lib/beta-integration/runtime.ts",
+    "classification": "ADAPT",
+    "sha256": "4ccc435df9db8b986a8e2a24072be8d7e2b8a4610232929cf8e2fdd09f9947a0"
+  },
+  {
+    "path": "apps/eve/migrations/0058_beta_integration.sql",
+    "classification": "ADAPT",
+    "sha256": "c248c985c5929956abb28edeaf4f337546435f96b8294ab58b748c04d0f0dc57"
+  },
+  {
+    "path": "apps/eve/migrations/0059_beta_result_fencing.sql",
+    "classification": "ADAPT",
+    "sha256": "0fdd8fd43fa0b6c8390efaba8855268eb35344112a7c076100962e04a972ec30"
+  },
+  {
+    "path": "apps/eve/migrations/0060_beta_work_control_prerequisite.sql",
+    "classification": "ADAPT",
+    "sha256": "decf1dc5b13c9c6a1eadae86c6fafe973377b87f1370d311fd01f7e1760ebefd"
+  },
+  {
+    "path": "apps/eve/migrations/0061_beta_result_supersession.sql",
+    "classification": "ADAPT",
+    "sha256": "4c9b70bfc4a2a188e30b3dfe94fe4c616d238a582421cac9fe8340f56a653fa6"
+  },
+  {
+    "path": "apps/eve/test/beta-integration/adversarial.mjs",
+    "classification": "ADAPT",
+    "sha256": "2088931f5b54a1c6a097f6e5f93ea6e032c765d14991ed2bdee26f2e60f29c06"
+  },
+  {
+    "path": "apps/eve/test/beta-integration/browser-fixture.mjs",
+    "classification": "ADAPT",
+    "sha256": "a23c922454167824b215725c9f38c7d1f68a71cbbe56fa213ac66dfbb8ae72fa"
+  },
+  {
+    "path": "apps/eve/test/beta-integration/local-result.mjs",
+    "classification": "ADAPT",
+    "sha256": "e2192383649756cbf811eb4f3b43c146fcf5d0a1e94128771df05ade66fca949"
+  },
+  {
+    "path": "apps/eve/test/beta-integration/qualification.mjs",
+    "classification": "ADAPT",
+    "sha256": "ed9c43bad518112c733411a4baa3fde69d2a3e517c4d8206d03abe8605eef216"
+  },
+  {
+    "path": "apps/eve/test/beta-integration/recovery.mjs",
+    "classification": "ADAPT",
+    "sha256": "e1b6fa6b60b74e50ed6cc0724bfb6d2e0a96efc949f0cd7d972799233fd1198d"
+  },
+  {
+    "path": "apps/eve/test/beta-integration/restart-worker.mjs",
+    "classification": "ADAPT",
+    "sha256": "665314cb24d85c783441f228ef2f9538f6b433ff827298e333ea826d95c4903f"
+  }
+]

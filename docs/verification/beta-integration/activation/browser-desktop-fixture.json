@@ -1,0 +1,137 @@
+{
+  "owner": "beta-activation-browser-v2",
+  "workId": "7d5acfbd-b8c2-4efc-824c-fb095554a8fa",
+  "goalId": "bd6ae6a9-0070-4d7c-a0d9-1d5fe79ccbf8",
+  "taskId": "8d066c6b-2eeb-4e04-9671-f6cbc1b986a6",
+  "config": {
+    "mode": "isolated-dogfood",
+    "ownerId": "beta-activation-browser-v2",
+    "agentId": "sofie-activation-browser-v2",
+    "objective": "Implement launch deadline parser",
+    "criteria": [
+      {
+        "id": "899b30b9-cb45-8bc8-a0dc-1cac15954457",
+        "statement": "Launch deadline parser is independently checked",
+        "method": "test"
+      }
+    ],
+    "profile": {
+      "id": "beta-controlled-context",
+      "version": 1,
+      "repository": "jaydubya818/myeve-golden-work-qual",
+      "privateQualification": true,
+      "baseBranch": "main",
+      "allowedPaths": [
+        "quantity.mjs"
+      ],
+      "checks": [
+        {
+          "id": "positive",
+          "program": "quantity.mjs",
+          "input": "1\n",
+          "expectedOutput": "1\n",
+          "expectedExitCode": 0,
+          "criterionIds": [
+            "899b30b9-cb45-8bc8-a0dc-1cac15954457"
+          ]
+        }
+      ],
+      "requiredCI": [
+        "quantity-ci"
+      ],
+      "reviewerLogins": [
+        "jaydubya818"
+      ],
+      "policyVersion": 1,
+      "executor": "claude-code",
+      "image": "node@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "maxRuns": 3,
+      "maxModelRequests": 10,
+      "maxOutputTokens": 1024
+    },
+    "approvedBase": {
+      "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+      "files": [
+        {
+          "path": ".github/workflows/quantity-ci.yml",
+          "sha256": "f7b0fde69c043e25fc36fe49991abcde953f4fde68efc6a3c896675b7c4fa072"
+        },
+        {
+          "path": ".gitignore",
+          "sha256": "16d30e4462189fb14dd611bdb708c510630c576a1f35b9383e89a4352da36c97"
+        },
+        {
+          "path": "package.json",
+          "sha256": "89aaaf98f1c4f65bbf56633002c8a95d0b2485b72f326d2e786338e04bd29ca6"
+        },
+        {
+          "path": "README.md",
+          "sha256": "23e1247a18bcb50ffac87a1f27a2137d901b53e1db2f5beacaac522456b20713"
+        },
+        {
+          "path": "test/quantity.test.mjs",
+          "sha256": "33b61e17e012555c9845638dc903355a4c32b81d58ff533ef6dd201259a7c64e"
+        }
+      ]
+    },
+    "brokerPort": 55470,
+    "model": "claude-sonnet-5",
+    "nativeCompletion": {
+      "inputBytes": 14336,
+      "implementationCalls": 5,
+      "repairCalls": 3,
+      "explanationCalls": 1,
+      "repairIterations": 1
+    },
+    "nativeMode": "normal",
+    "nativeQualification": {
+      "provider": {
+        "id": "myeve-native-sofie",
+        "version": 1
+      },
+      "modelId": "anthropic/claude-sonnet-5",
+      "scopeId": "beta-activation-browser-v2",
+      "profileHash": "6b523ea174438ddab74b367cb0748f7cb7b0dfbe55ce5bc7615aa393376066cf",
+      "evidenceRef": "CONTROLLED-LOCAL-FIXTURE-NOT-LIVE",
+      "qualifiedAt": "2026-09-28T03:21:07.794Z",
+      "expiresAt": "2026-09-28T04:21:08.794Z"
+    }
+  },
+  "oldFactId": "knowledge_4c2767e6-b81f-4c62-b737-3169bf0a64bc",
+  "context": "PASS",
+  "result": {
+    "id": "6c8ca425-083f-4b83-9ffd-2109908c6270",
+    "proof": {
+      "contractVersion": 2,
+      "workId": "7d5acfbd-b8c2-4efc-824c-fb095554a8fa",
+      "workVersion": 2,
+      "criteriaVersion": 1,
+      "outcome": "PARTIAL",
+      "resultRevision": "2692622b5fdf579d18c3ce500db61270b4aabfa2",
+      "createdAt": "2026-09-28T03:22:21.033Z",
+      "evidence": [
+        {
+          "criterionId": "899b30b9-cb45-8bc8-a0dc-1cac15954457",
+          "resultRevision": "2692622b5fdf579d18c3ce500db61270b4aabfa2",
+          "state": "PASS",
+          "producer": "trusted-verifier",
+          "sourceRef": "native-verification:7d5acfbd-b8c2-4efc-824c-fb095554a8fa:2692622b5fdf579d18c3ce500db61270b4aabfa2:899b30b9-cb45-8bc8-a0dc-1cac15954457",
+          "contentHash": "sha256:d2d2d55b04478984604e5468c3610ee7ce66c22a8e134d578774ee355e32636e",
+          "observedAt": "2026-09-28T03:22:21.033Z"
+        }
+      ],
+      "artifactRefs": [
+        "native-candidate:eed69b85-f004-4a95-94b2-d71cb42628ab:sha256:8bfc213b3e5ce8ffd5137fd7e4f889f451b3045a639bdf14c3c5d4cab259301d",
+        "protected-evidence:sha256:3fd96a5ebd9bd8e13c8730d71447c78cace2f89440fdad3257f3d41a2d71d8ad",
+        "changed-source:quantity.mjs"
+      ],
+      "limitations": [
+        "Native source development and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.",
+        "Recorded native model spend: $0.000000. Infrastructure costs are not covered."
+      ]
+    },
+    "contentHash": "9a389b57f6086ba51ecb987ac96c33a1a30e3ef8a87f0d697a9bd6eff959b8ce"
+  },
+  "learningReuse": "PASS",
+  "laterWork": "81105a63-0001-4cad-82c6-631aa9c97931"
+}

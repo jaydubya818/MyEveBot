@@ -10,6 +10,10 @@ is configured but has not been live-qualified because no message from Orchis's
 Eve has reached Sofie's authorized inbox. Reciprocal communication is not a
 pass. See the [live qualification record](docs/federation/orchis-sofie-live-qualification.md).
 
+## Design-partner beta integration candidate
+
+**READY_FOR_FINAL_COMPONENTS — locally qualified, not deployed.** The [canonical beta integration dossier](docs/verification/beta-integration/README.md) records the approved activation of `engineering_work`, `engineering_direct` and signed canonical Work decision/control/admission/continuation. Desktop and 390px journeys use persisted Goal, Inbox, Memory, Result and learning state. Fresh-context admission, stale-response fencing, concurrency and process-loss checks pass. Canonical local Results remain PARTIAL; live Sofie is NOT_RUN. MyFactory/Q37 and final Capsules remain pending. The local migration chain is reconciled; no deployment or merge was performed.
+
 ## Finding current priorities
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.

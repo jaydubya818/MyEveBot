@@ -32,10 +32,11 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      const body = (await response.json().catch(() => null)) as { error?: string | { message?: string } } | null;
       if (!response.ok) {
         if (response.status === 503) setSetupRequired(true);
-        throw new Error(body?.error ?? "Could not sign in.");
+        const message = typeof body?.error === "string" ? body.error : body?.error?.message;
+        throw new Error(message ?? "Could not sign in.");
       }
       window.location.replace(safeDestination());
     } catch (cause) {

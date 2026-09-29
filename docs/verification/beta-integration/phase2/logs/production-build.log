@@ -1,0 +1,174 @@
+
+> eve-agent@0.0.0 build
+> npm run skills:prepare && next build
+
+
+> eve-agent@0.0.0 skills:prepare
+> node scripts/normalize-imported-skills.mjs && node scripts/generate-skill-catalog.mjs
+
+Normalized 0 imported skills for Eve.
+Cataloged 79 installed skills.
+▲ Next.js 16.3.5 (Turbopack)
+✓ Running next.config.ts took 247ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 1749ms
+  Running TypeScript ...
+  Finished TypeScript in 3.0s ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/108) ...
+  Generating static pages using 15 workers (27/108)
+  Generating static pages using 15 workers (54/108)
+  Generating static pages using 15 workers (81/108)
+✓ Generating static pages using 15 workers (108/108) in 373ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /activity
+├ ○ /agents
+├ ƒ /api/actions
+├ ƒ /api/actions/[id]/recover
+├ ƒ /api/actions/[id]/resolve
+├ ƒ /api/agentcard
+├ ƒ /api/agentcard/connect/start
+├ ƒ /api/agentcard/connect/verify
+├ ƒ /api/agents
+├ ƒ /api/agents/[id]
+├ ƒ /api/agents/[id]/[action]
+├ ƒ /api/agents/activity
+├ ƒ /api/approvals
+├ ƒ /api/approvals/[id]
+├ ƒ /api/artifacts
+├ ƒ /api/artifacts/[id]
+├ ƒ /api/artifacts/[id]/comments
+├ ƒ /api/artifacts/[id]/content
+├ ƒ /api/artifacts/[id]/draft
+├ ƒ /api/artifacts/[id]/restore
+├ ƒ /api/artifacts/[id]/shares
+├ ƒ /api/artifacts/[id]/shares/[shareId]
+├ ƒ /api/artifacts/[id]/versions
+├ ƒ /api/artifacts/upload
+├ ƒ /api/auth/login
+├ ƒ /api/auth/logout
+├ ƒ /api/auth/status
+├ ƒ /api/automations
+├ ƒ /api/beta/activity
+├ ƒ /api/beta/feedback
+├ ƒ /api/beta/goals
+├ ƒ /api/beta/inbox
+├ ƒ /api/beta/learning
+├ ƒ /api/beta/memory
+├ ƒ /api/beta/results
+├ ƒ /api/beta/start
+├ ƒ /api/beta/work
+├ ƒ /api/capabilities
+├ ƒ /api/channels
+├ ƒ /api/channels/search
+├ ƒ /api/commands
+├ ƒ /api/computer
+├ ƒ /api/computer-profiles
+├ ƒ /api/computer-runtime
+├ ƒ /api/computer-sessions
+├ ƒ /api/computer-sessions/[id]
+├ ƒ /api/computer-sessions/[id]/actions
+├ ƒ /api/computer-sessions/[id]/artifacts/[artifactId]
+├ ƒ /api/computer-sessions/[id]/live-view
+├ ƒ /api/computer-sessions/[id]/owner-input
+├ ƒ /api/computer/ws
+├ ƒ /api/connections
+├ ƒ /api/control
+├ ƒ /api/decision-intelligence
+├ ƒ /api/email
+├ ƒ /api/email/attachments/[messageId]/[attachmentId]
+├ ƒ /api/email/domain
+├ ƒ /api/email/key
+├ ƒ /api/email/send
+├ ƒ /api/email/threads/[id]
+├ ƒ /api/features
+├ ƒ /api/files
+├ ƒ /api/files/[id]/content
+├ ƒ /api/files/upload
+├ ƒ /api/finance
+├ ƒ /api/goals
+├ ƒ /api/goals/[id]
+├ ƒ /api/goals/focus
+├ ƒ /api/imessage
+├ ƒ /api/imessage/attachment
+├ ƒ /api/imessage/pair
+├ ƒ /api/imessage/pair/verify
+├ ƒ /api/imessage/send
+├ ƒ /api/imessage/spectrum
+├ ƒ /api/imessage/transcript
+├ ƒ /api/imessage/typing
+├ ƒ /api/imessage/unpair
+├ ƒ /api/knowledge
+├ ƒ /api/knowledge/[id]
+├ ƒ /api/knowledge/relationships
+├ ƒ /api/knowledge/sources
+├ ƒ /api/learning
+├ ƒ /api/memories
+├ ƒ /api/models
+├ ƒ /api/operations
+├ ƒ /api/outcomes
+├ ƒ /api/outcomes/[id]
+├ ƒ /api/owner-data
+├ ƒ /api/owner-knowledge
+├ ƒ /api/phone
+├ ƒ /api/push
+├ ƒ /api/readiness
+├ ƒ /api/relay
+├ ƒ /api/relay/artifacts/[id]
+├ ƒ /api/relay/owner-execution
+├ ƒ /api/relay/peer-permissions
+├ ƒ /api/relay/qualification-artifacts
+├ ƒ /api/review-schedule
+├ ƒ /api/reviews
+├ ƒ /api/routines
+├ ƒ /api/routines/[id]/readiness
+├ ƒ /api/routines/[id]/run
+├ ƒ /api/shared/[token]/content
+├ ƒ /api/skills
+├ ƒ /api/slack
+├ ƒ /api/task-runs
+├ ƒ /api/task-runs/[id]
+├ ƒ /api/task-runs/[id]/artifacts/[artifactId]
+├ ƒ /api/threads
+├ ƒ /api/threads/[id]
+├ ƒ /api/threads/search
+├ ƒ /api/update-check
+├ ƒ /api/videos/[file]
+├ ƒ /api/voice/token
+├ ○ /apps
+├ ƒ /beta-preview
+├ ƒ /brief
+├ ○ /channels
+├ ○ /chat
+├ ○ /computer
+├ ○ /email
+├ ○ /files
+├ ○ /goals
+├ ○ /icon.svg
+├ ○ /imessage
+├ ○ /knowledge
+├ ○ /learning
+├ ○ /login
+├ ○ /manage
+├ ƒ /manage/[section]
+├ ƒ /memory
+├ ƒ /needs-you
+├ ƒ /results
+├ ○ /review
+├ ƒ /share/[token]
+├ ○ /sofie
+├ ƒ /today
+├ ƒ /welcome
+├ ƒ /work
+└ ƒ /work/new
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand

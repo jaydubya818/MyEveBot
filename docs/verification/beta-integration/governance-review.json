@@ -1,0 +1,246 @@
+[
+  {
+    "path": "agent/schedules/memory-consolidation.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "agent/lib/memory-store.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/validation.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/attention-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/projections.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/contracts.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/context-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/api.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/product-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/canonical-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/database.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/inbox-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/event-adapters.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/service.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/goal-work/dispatcher.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/work-retrieval.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/projections.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/learning.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/retrieval-contract.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/api.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/runtime.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/fixture-consumer.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/sofie-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/total-recall/store.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/goals-adapter.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/adapters.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/fixtures.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/repository.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/admission.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/fixture-repository.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/source-adapters.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/contracts.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/continuation-fixture.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/api.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/continuation.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/postgres-repository.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/feeds.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/beta-crosswalk.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/query.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/domain.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/service.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/universal-inbox/approval-consumer.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/engineering/knowledge.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/engineering/contract.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/engineering/types.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/engineering/store.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/digital-worker/packs.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/digital-worker/contracts.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/digital-worker/routing.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "app/api/learning/route.ts",
+    "review": "Exact frozen source and classification; no classification downgrade"
+  },
+  {
+    "path": "lib/database-schema.ts",
+    "review": "Migration head 0061; constant only, preserves NOT_APPLICABLE. Forward hardening invalidates superseded Result completion; no executor effects."
+  },
+  {
+    "path": "lib/engineering/api.ts",
+    "review": "Extracted signed-session principal and same-origin validation from frozen engineering API. No database mutation or executor imports."
+  },
+  {
+    "path": "lib/beta-integration/runtime.ts",
+    "review": "Reviewed retained Result generation/hash/latest-revision checks, exact retained owner-signal binding, restricted Goal/Inbox roles, signed owner and same-origin boundary. Qualification-only loopback database; Work intent creation still cannot admit or dispatch providers. No new authority or external effects."
+  },
+  {
+    "path": "app/api/beta/inbox/route.ts",
+    "review": "Delegates only to betaRequest inbox: signed owner, same-origin mutation, restricted owner-scoped Inbox persistence; no source ingestion endpoint or executor."
+  },
+  {
+    "path": "app/api/beta/memory/route.ts",
+    "review": "Delegates only to betaRequest memory: signed owner, scoped Work facts and correction lineage; no authority or sharing expansion."
+  },
+  {
+    "path": "app/api/beta/goals/route.ts",
+    "review": "Delegates only to betaRequest goals: signed owner, restricted Goal state, version-bound owner Inbox responses and idempotent Work intent; no provider execution."
+  },
+  {
+    "path": "app/api/beta/learning/route.ts",
+    "review": "Delegates only to betaRequest learning: signed owner, current Work revision, exact family scope and candidate hash; qualified evaluation required before owner promotion."
+  },
+  {
+    "path": "app/api/beta/start/route.ts",
+    "review": "Delegates only to betaRequest start: signed owner and same origin; stable Goal/Plan/Task identities and durable Work intent; does not admit an executor."
+  },
+  {
+    "path": "app/api/beta/feedback/route.ts",
+    "review": "Delegates only to betaRequest feedback: signed owner and same origin; validates immutable retained Result hash and Work revision before candidate persistence; no automatic promotion."
+  },
+  {
+    "path": "app/api/beta/results/route.ts",
+    "review": "GET delegates to authenticated owner-filtered immutable Result projection. POST has no mutation handler and returns unavailable."
+  },
+  {
+    "path": "app/api/beta/work/route.ts",
+    "review": "GET delegates to authenticated owner-scoped Work intent projection. POST has no mutation handler and returns unavailable."
+  }
+]

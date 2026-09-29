@@ -1,0 +1,14 @@
+✔ goal and task transitions require explicit recovery paths (0.459375ms)
+✔ progress excludes cancelled work and remains derived (0.628042ms)
+✔ focus ranking excludes blocked work and explains the winner (0.177625ms)
+✔ Balanced QA contract is fixed and internally complete (1.038708ms)
+✔ task lifecycle accepts only explicit recovery paths (0.063417ms)
+✔ evidence text removes common secret shapes (0.216458ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 133.940583

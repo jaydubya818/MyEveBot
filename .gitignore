@@ -10,3 +10,6 @@ node_modules
 .worktrees/
 .worktrees
 .env*.local
+
+# Local browser automation session state
+.playwright-cli/
