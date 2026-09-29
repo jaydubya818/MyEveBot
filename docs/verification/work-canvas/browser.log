@@ -1,0 +1,27 @@
+
+Running 18 tests using 1 worker
+
+(node:46953) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:81:1 › engineering journey stays in one canvas with inline proof and continuation (2.8s)
+  ✓   2 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:156:3 › engineering choice: Push branch only (449ms)
+  ✓   3 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:156:3 › engineering choice: Keep private (447ms)
+  ✓   4 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:156:3 › engineering choice: Ask for changes (447ms)
+  ✓   5 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:182:3 › email result, bounded decision and continuation (1.2s)
+  ✓   6 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:182:3 › research result, bounded decision and continuation (1.2s)
+  ✓   7 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:182:3 › proactive result, bounded decision and continuation (1.2s)
+  ✓   8 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:215:1 › failed checks and expired proposals cannot be confirmed (1.3s)
+  ✓   9 [desktop] › apps/eve/test/private-alpha/work-canvas.spec.ts:258:1 › keyboard can choose and confirm; journey switch resets private sample (503ms)
+(node:47184) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:81:1 › engineering journey stays in one canvas with inline proof and continuation (2.6s)
+  ✓  11 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:156:3 › engineering choice: Push branch only (444ms)
+  ✓  12 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:156:3 › engineering choice: Keep private (449ms)
+  ✓  13 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:156:3 › engineering choice: Ask for changes (457ms)
+  ✓  14 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:182:3 › email result, bounded decision and continuation (1.2s)
+  ✓  15 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:182:3 › research result, bounded decision and continuation (1.2s)
+  ✓  16 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:182:3 › proactive result, bounded decision and continuation (1.2s)
+  ✓  17 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:215:1 › failed checks and expired proposals cannot be confirmed (1.3s)
+  ✓  18 [mobile] › apps/eve/test/private-alpha/work-canvas.spec.ts:258:1 › keyboard can choose and confirm; journey switch resets private sample (509ms)
+
+  18 passed (20.1s)

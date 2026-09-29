@@ -18,3 +18,7 @@ This compares the supplied plan, not independently verified claims about Pluto.
 | Phone/payments | Optional capabilities | POST_ALPHA | Provider and authority qualification |
 
 PASS requires observed acceptance evidence; source presence is insufficient. Fixture success never establishes live readiness.
+
+## Work Canvas interaction benchmark
+
+Implemented a single conversation canvas with four-destination left navigation, inline request/artifact/Result/decision, bounded choices plus confirmation, persistent composer, contextual Computer and collapsed Proof of Work. Desktop and 390px evidence covers engineering, email, research and proactive continuation. MyEve branding/design tokens retained. Benchmark input was the user’s interaction principles; no screenshot attachment was available for direct visual comparison. Live execution parity remains unqualified. See WORK-CANVAS.md.

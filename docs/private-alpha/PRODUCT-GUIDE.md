@@ -30,3 +30,7 @@ Before allowing a proposal, inspect the resource, effects, capability and expira
 - No production deployment or live two-owner/provider journey was run.
 
 These are release limitations, not reasons to stop independent product work.
+
+## Work Canvas interaction preview
+
+`/work-canvas` brings request, concise activity, Result, inline artifacts, approval and continuation into one screen with a persistent composer. Four sample journeys cover engineering, email, research and proactive Needs You. Expand the preview controls to advance; expand Proof of Work only when needed. These are disconnected samples, not live operations. See [Work Canvas guide](WORK-CANVAS.md).
