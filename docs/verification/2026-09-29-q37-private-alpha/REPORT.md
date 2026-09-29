@@ -1,6 +1,6 @@
 # Q37 private-alpha consumer continuation
 
-Local consumer qualification **PASS** against reconstructed MyFactory `925530a6ba8764df6a7b8637192fe32edcbaff97`. Independent review is pending on the pushed candidate. Real provider **NOT_RUN**. This is the current Q37 consumer dossier; older producer pins and reports remain historical only.
+Local consumer qualification **PASS** against reconstructed MyFactory `925530a6ba8764df6a7b8637192fe32edcbaff97`. [Independent read-only review](INDEPENDENT_REVIEW.md) **PASS** on pushed candidate `5b0033ba880cf45d4c69ab79385df129e19bedbb`; this follow-up changes documentation/evidence only. [Beta Integration handoff](BETA_HANDOFF.md) is ready; the [minimum real-provider envelope](REAL_PROVIDER.md) is prepared and unexecuted. Real provider **NOT_RUN**. This is the current Q37 consumer dossier; older producer pins and reports remain historical only.
 
 Consumer baseline: `7bbf296f40ba61031f6e757b0d62929c3c95378d`, verified before creating `codex/q37-private-alpha-continuation` and immediately pushing that exact baseline. Producer remote: `origin/codex/private-alpha-myfactory` in `jaydubya818/MyFactory`, fetched and verified at the exact reconstructed SHA. Lost `efe9e856` was not used as source. Producer source was read-only.
 
