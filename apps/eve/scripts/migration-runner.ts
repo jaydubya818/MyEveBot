@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
+import { preparePublishedMainBridge } from "./published-main-bridge.ts";
 import { splitSqlStatements } from "./migration-sql.ts";
 import deployedLineage from "./deployed-lineage-396631a.json" with { type: "json" };
 
@@ -52,7 +53,7 @@ function exactSnapshot(rows: LedgerRow[], expected: Record<string,string>) {
 }
 
 /** Only exact canonical prefixes or the complete pinned alternate lineage. */
-export function planMigrations(migrations: Migration[], ledger: LedgerRow[], record?: ReconciliationRecord, bridge?: BridgeRecord) {
+export function planMigrations(migrations: Migration[], ledger: LedgerRow[], record?: ReconciliationRecord, bridge?: BridgeRecord, semanticallySatisfied: Record<string,string> = {}) {
   const expected = new Map(migrations.map(m => [m.name,m.checksum]));
   const known = deployedLineage as Record<string,string>;
   if (new Set(ledger.map(r => r.name)).size !== ledger.length) throw new Error("Duplicate migration ledger entry.");
@@ -92,12 +93,12 @@ export function planMigrations(migrations: Migration[], ledger: LedgerRow[], rec
   // canonical prefix. It may precede newly introduced Lazy Computer migrations.
   let gap = false;
   for (const migration of migrations) {
-    if (feature && migration.name === SATISFIED_MIGRATION) continue;
+    if ((feature && migration.name === SATISFIED_MIGRATION) || semanticallySatisfied[migration.name] === migration.checksum) continue;
     if (!applied.has(migration.name)) gap = true;
     else if (gap) throw new Error("Noncontiguous migration ledger.");
   }
   return { origin, historical, satisfied, bridgeSatisfied, manifest,
-    pending: migrations.filter(m => !applied.has(m.name) && !(feature && m.name === SATISFIED_MIGRATION)) };
+    pending: migrations.filter(m => !applied.has(m.name) && !(feature && m.name === SATISFIED_MIGRATION) && semanticallySatisfied[m.name] !== m.checksum) };
 }
 
 // Executed inside the same locked transaction as the forward bridge, before skipping any DDL.
@@ -127,13 +128,20 @@ END $verify$`;
 
 export async function runMigrations(database: MigrationDatabase, migrations: Migration[], log = console.log) {
   const [table] = await database.query("SELECT to_regclass('sofie_schema_migrations') AS present");
-  const ledger = table?.present ? await database.query("SELECT name,checksum,applied_at FROM sofie_schema_migrations ORDER BY name") as unknown as LedgerRow[] : [];
+  let ledger = table?.present ? await database.query("SELECT name,checksum,applied_at FROM sofie_schema_migrations ORDER BY name") as unknown as LedgerRow[] : [];
   const [marker] = await database.query("SELECT to_regclass('sofie_migration_reconciliations') AS present");
   const records = marker?.present ? await database.query("SELECT id,origin,source_ledger,satisfied_migrations FROM sofie_migration_reconciliations") : [];
   const [bridgeTable] = await database.query("SELECT to_regclass('sofie_migration_bridge_receipts') AS present");
   const bridges = bridgeTable?.present ? await database.query("SELECT id,source_ledger,canonical_manifest,satisfied_migrations FROM sofie_migration_bridge_receipts") : [];
   if (records.length > 1 || bridges.length > 1 || (bridgeTable?.present && bridges[0]?.id !== '0033')) throw new Error("Partial or ambiguous bridge evidence.");
-  const plan = planMigrations(migrations, ledger, records[0] as unknown as ReconciliationRecord | undefined, bridges[0] as unknown as BridgeRecord | undefined);
+  const published = await preparePublishedMainBridge(database,migrations,ledger,source => {
+    const prefix = planMigrations(migrations.filter(m=>m.name < "0039"),source,
+      records[0] as unknown as ReconciliationRecord | undefined,bridges[0] as unknown as BridgeRecord | undefined);
+    if (prefix.pending.length) throw new Error("Incomplete published main prefix.");
+  });
+  // Keep the real ledger for transactional fencing, including historical aliases.
+  if (Object.keys(published.satisfied).length) ledger = await database.query("SELECT name,checksum,applied_at FROM sofie_schema_migrations ORDER BY name") as unknown as LedgerRow[];
+  const plan = planMigrations(migrations, published.ledger, records[0] as unknown as ReconciliationRecord | undefined, bridges[0] as unknown as BridgeRecord | undefined,published.satisfied);
   const historicalSource = await readFile(new URL(`./historical-migrations/${HISTORICAL_RECONCILIATION}`,import.meta.url),"utf8");
   if (createHash("sha256").update(historicalSource).digest("hex") !== HISTORICAL_CHECKSUM) throw new Error("Historical reconciliation source changed.");
   const historicalStatements = splitSqlStatements(historicalSource);

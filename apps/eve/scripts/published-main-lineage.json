@@ -1,0 +1,11 @@
+{
+  "origin": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+  "legacy": {
+    "0039_app_settings.sql": "00452991174076668748d81e9eba800dd714abe030d00097e8efe1dff527a925",
+    "0040_relay_message_delegations.sql": "8f330807acfdf2fc4243764ec43bb4bd89733ded0d93cc76e30e00c92b7ab0fb"
+  },
+  "satisfied": {
+    "0040_app_settings.sql": "492b321e56a2c19202b3cdfb94dcd17a40f80f56500b4a1c40557645be7aad4a",
+    "0062_relay_message_delegations.sql": "8f330807acfdf2fc4243764ec43bb4bd89733ded0d93cc76e30e00c92b7ab0fb"
+  }
+}
