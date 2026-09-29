@@ -1,3 +1,4 @@
+import { enqueueFactoryCommand } from "../engineering/factory-commands.ts";
 import { BusinessScopes } from "../business-scopes.ts";
 import {
   factoryAction,
@@ -530,6 +531,12 @@ export async function betaRequest(
         .extend({ workId: z.string().uuid() })
         .strict()
         .parse(await boundedJson(new Response(request.body), 4000));
+      if(process.env.MYEVE_BETA_MODE === 'private-alpha') {
+        if(process.env.MYEVE_FACTORY_WORKER_ENABLED !== 'true')throw new WorkError('factory_disabled','The private-alpha worker is not enabled.',503);
+        const {workId,...action}=input;
+        const result=await enqueueFactoryCommand(beta.store(owner),workId,action,{ownerId:process.env.MYEVE_OWNER_ID??'',...betaConfiguration().policy});
+        return Response.json({result},{status:202,headers});
+      }
       const config = await factoryConfig();
       if (
         config.engineering.ownerId !== owner ||

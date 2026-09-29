@@ -1,4 +1,4 @@
-import pinned from "./published-main-d64f2f9.json" with { type: "json" };
+import published from "./published-main-d64f2f9.json" with { type: "json" };
 import type {
   LedgerRow,
   Migration,
@@ -7,11 +7,10 @@ import type {
 } from "./migration-runner.ts";
 
 export const PUBLISHED_MAIN_BRIDGE = "0068_published_main_lineage_bridge.sql";
-const aliases = ["0039_app_settings.sql", "0040_relay_message_delegations.sql"];
-const equivalences = {
-  "0040_app_settings.sql": "0039_app_settings.sql",
-  "0062_relay_message_delegations.sql": "0040_relay_message_delegations.sql",
-};
+import deployed from "./deployed-main-7c1e107.json" with { type: "json" };
+import featureLineage from "./deployed-lineage-396631a.json" with { type: "json" };
+const allAliases = ["0039_app_settings.sql", "0039_relay_message_reply_settings.sql", "0040_relay_message_delegations.sql"];
+
 type Receipt = {
   source_commit: string;
   source_ledger: LedgerRow[];
@@ -27,7 +26,7 @@ const stable = (value: unknown): string =>
       : v,
   );
 const schemaQuery =
-  "SELECT jsonb_agg(jsonb_build_object(\n 'table',c.relname,'kind',c.relkind,'rls',c.relrowsecurity,'forceRls',c.relforcerowsecurity,\n 'columns',(SELECT jsonb_agg(jsonb_build_object('name',a.attname,'type',format_type(a.atttypid,a.atttypmod),'notNull',a.attnotnull,'identity',a.attidentity,'generated',a.attgenerated,'default',pg_get_expr(d.adbin,d.adrelid)) ORDER BY a.attnum) FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum WHERE a.attrelid=c.oid AND a.attnum>0 AND NOT a.attisdropped),\n 'constraints',(SELECT jsonb_agg(jsonb_build_object('name',x.conname,'definition',pg_get_constraintdef(x.oid),'validated',x.convalidated) ORDER BY x.conname) FROM pg_constraint x WHERE x.conrelid=c.oid),\n 'indexes',(SELECT jsonb_agg(jsonb_build_object('definition',pg_get_indexdef(i.indexrelid),'valid',i.indisvalid,'ready',i.indisready) ORDER BY pg_get_indexdef(i.indexrelid)) FROM pg_index i WHERE i.indrelid=c.oid),\n 'triggers',(SELECT count(*) FROM pg_trigger t WHERE t.tgrelid=c.oid AND NOT t.tgisinternal)\n) ORDER BY c.relname) AS value FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN ('app_settings','myeve_relay_message_delegations')";
+  "SELECT jsonb_agg(jsonb_build_object(\n 'table',c.relname,'kind',c.relkind,'rls',c.relrowsecurity,'forceRls',c.relforcerowsecurity,\n 'columns',(SELECT jsonb_agg(jsonb_build_object('name',a.attname,'type',format_type(a.atttypid,a.atttypmod),'notNull',a.attnotnull,'identity',a.attidentity,'generated',a.attgenerated,'default',pg_get_expr(d.adbin,d.adrelid)) ORDER BY a.attnum) FROM pg_attribute a LEFT JOIN pg_attrdef d ON d.adrelid=a.attrelid AND d.adnum=a.attnum WHERE a.attrelid=c.oid AND a.attnum>0 AND NOT a.attisdropped),\n 'constraints',(SELECT jsonb_agg(jsonb_build_object('name',x.conname,'definition',pg_get_constraintdef(x.oid),'validated',x.convalidated) ORDER BY x.conname) FROM pg_constraint x WHERE x.conrelid=c.oid AND x.contype <> 'n'),\n 'indexes',(SELECT jsonb_agg(jsonb_build_object('definition',pg_get_indexdef(i.indexrelid),'valid',i.indisvalid,'ready',i.indisready) ORDER BY pg_get_indexdef(i.indexrelid)) FROM pg_index i WHERE i.indrelid=c.oid),\n 'triggers',(SELECT count(*) FROM pg_trigger t WHERE t.tgrelid=c.oid AND NOT t.tgisinternal)\n) ORDER BY c.relname) AS value FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN ('app_settings','myeve_relay_message_delegations')";
 export const PUBLISHED_MAIN_SCHEMA = schemaQuery;
 
 /** Recognize the complete pinned published ledger, never a mixed or partial fork. */
@@ -36,6 +35,10 @@ export async function publishedMainState(
   migrations: Migration[],
   ledger: LedgerRow[],
 ) {
+  const isDeployed = ledger.some(row => row.name === '0039_relay_message_reply_settings.sql');
+  const pinned = isDeployed ? {...published, source:deployed.source, migrations:deployed.migrations} : published;
+  const aliases = [isDeployed ? '0039_relay_message_reply_settings.sql' : '0039_app_settings.sql', '0040_relay_message_delegations.sql'];
+  const equivalences = {'0040_app_settings.sql':aliases[0], '0062_relay_message_delegations.sql':aliases[1]};
   const [table] = await database.query(
     "SELECT to_regclass('sofie_published_main_bridge') AS present",
   );
@@ -45,7 +48,7 @@ export async function publishedMainState(
       )
     : [];
   if (rows.length > 1) throw Error("Ambiguous published-main bridge evidence");
-  if (!ledger.some((row) => aliases.includes(row.name))) {
+  if (!ledger.some((row) => allAliases.includes(row.name))) {
     if (rows.length)
       throw Error("Published-main bridge evidence without its source ledger");
     if (
@@ -74,7 +77,8 @@ export async function publishedMainState(
   if (!canonical[PUBLISHED_MAIN_BRIDGE])
     throw Error("Published-main forward bridge is required");
   for (const [name, checksum] of Object.entries(pinned.migrations)) {
-    if (!aliases.includes(name) && canonical[name] !== checksum)
+    if (!aliases.includes(name) && canonical[name] !== checksum &&
+        !(isDeployed && (featureLineage as Record<string,string>)[name] === checksum))
       throw Error("Published-main shared prefix changed");
   }
   for (const [name, checksum] of Object.entries(pinned.equivalents))
@@ -112,7 +116,7 @@ export async function publishedMainState(
   const [schema] = await database.query(schemaQuery);
   if (stable(schema?.value) !== stable(pinned.schema))
     throw Error("Published-main schema equivalence failed");
-  return { receipt, source, canonical, satisfied, normalized };
+  return { receipt, source, canonical, satisfied, normalized, sourceCommit:pinned.source, schema:pinned.schema };
 }
 
 /** Commit the whole fork-to-canonical transition atomically, retaining original ledger rows. */
@@ -135,7 +139,7 @@ export async function bridgePublishedMain(
     },
     {
       sql: `SELECT 1 / ((${schemaQuery}) = $1::jsonb)::int`,
-      params: [JSON.stringify(pinned.schema)],
+      params: [JSON.stringify(state.schema)],
     },
   ];
   for (const migration of pending) {
@@ -149,7 +153,7 @@ export async function bridgePublishedMain(
   statements.push({
     sql: "INSERT INTO sofie_published_main_bridge(id,source_commit,source_ledger,canonical_manifest,satisfied_migrations) VALUES('0068',$1,$2::jsonb,$3::jsonb,$4::jsonb)",
     params: [
-      pinned.source,
+      state.sourceCommit,
       JSON.stringify(state.source),
       JSON.stringify(state.canonical),
       JSON.stringify(state.satisfied),

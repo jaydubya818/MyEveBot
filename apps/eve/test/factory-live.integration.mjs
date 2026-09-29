@@ -1,3 +1,4 @@
+import {enqueueFactoryCommand} from '../lib/engineering/factory-commands.ts';
 import {CURRENT_DATABASE_MIGRATION} from "../lib/database-schema.ts";
 import {controlledCliResponses} from './factory-controlled-cli.mjs';
 import {assertFactorySpendCanStart} from '../lib/engineering/factory-spend.ts';
@@ -34,7 +35,7 @@ const {sourceIdentity}=await import(pathToFileURL(join(root,'apps/supervisor/src
 const {runCodex:installedRunCodex}=await import(pathToFileURL(join(root,'packages/agents/src/index.ts')));
 const {DEFAULT_VERIFICATION_IMAGE,verifyCandidate:producerVerifyCandidate}=await import(pathToFileURL(join(root,'packages/verification/src/index.ts')));
 const dir=await mkdtemp(join(tmpdir(),'factory-connected-')),repo=join(dir,'repository'),dataDir=join(dir,'producer');await mkdir(repo);await mkdir(dataDir);
-const adminURL='postgresql://postgres@127.0.0.1:55479/postgres',name='factory_beta_'+randomBytes(6).toString('hex');
+const adminURL=process.env.FACTORY_TEST_DATABASE_URL??'postgresql://postgres@127.0.0.1:55479/postgres';if(new URL(adminURL).hostname!=='127.0.0.1'||new URL(adminURL).pathname!=='/postgres')throw Error('Disposable local database server required');const name='factory_beta_'+randomBytes(6).toString('hex');
 const admin=new Client(adminURL);await admin.connect();await admin.query('CREATE DATABASE '+name);const pool=new Pool({connectionString:adminURL.replace(/postgres$/,'')+name});
 const database={query:async(s,p)=>(await pool.query(s,p)).rows};
 const migrationDB={...database,transaction:async ss=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of ss)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
@@ -152,6 +153,33 @@ try{
 
  async function fresh(title){let {work}=await store.create({title,objective:engineering.objective,repository:engineering.profile.repository,criteria:engineering.criteria,maxCostUsd:workCeiling,maxDurationSeconds:600,idempotencyKey:randomUUID()});return store.change(work.id,{operation:'resume',expectedVersion:work.version});}
  failCandidate=false;
+ // Deployed transport composition: enqueue intent, then a separate local process
+ // enters the unchanged canonical driver. All model replies remain fixtures.
+ {
+  const work=await fresh('Private-alpha durable queue'),before=executions;
+  const action={operation:'start',expectedWorkVersion:work.version,expectedWorkGeneration:work.generation};
+  const policy={ownerId:owner,repository:work.repository,maxCostUsd:1.35,maxDurationSeconds:600};
+  const queued=await enqueueFactoryCommand(store,work.id,action,policy);
+  assert.equal((await enqueueFactoryCommand(store,work.id,action,policy)).command.id,queued.command.id);
+  const engineeringFile=join(dir,'queue-engineering.json'),factoryFile=join(dir,'queue-factory.json');
+  await writeFile(engineeringFile,JSON.stringify(engineering));await writeFile(factoryFile,JSON.stringify({connection,commands:config.commands,routing:config.routing}));
+  const env={...process.env,MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_BETA_MODE:'private-alpha',MYEVE_FACTORY_LOCAL_WORKER:'true',MYEVE_OWNER_ID:owner,DATABASE_URL:adminURL.replace(/postgres$/,'')+name,VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:adminURL.replace(/postgres$/,'')+name};
+  const launch=()=>spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env,stdio:['ignore','pipe','pipe']});
+  let worker=launch(),exit=once(worker,'exit'),output='';worker.stderr.on('data',x=>output+=x);
+  try {
+   let ready=false;worker.stdout.on('data',x=>{if(String(x).includes('connected'))ready=true;});
+   for(let i=0;i<100&&!ready&&worker.exitCode===null;i++)await new Promise(r=>setTimeout(r,50));
+   assert(ready,'Queue worker did not start: '+output);
+   const contender=launch();let denied='';contender.stderr.on('data',x=>denied+=x);await once(contender,'exit');assert.match(denied,/Another Factory worker owns this scope/);
+   let saved=false;for(let i=0;i<400;i++){const rows=await database.query('SELECT proof FROM engineering_native_results WHERE work_id=$1',[work.id]);if(rows.length){assert.equal(rows[0].proof.outcome,'PARTIAL');saved=true;break;}if(worker.exitCode!==null)break;await new Promise(r=>setTimeout(r,100));}
+   assert(saved,'Queued Work did not produce verified result: '+output);
+  } finally {worker.kill('SIGTERM');await exit;}
+  assert.equal(executions-before,1);
+  worker=launch();exit=once(worker,'exit');worker.stderr.resume();worker.stdout.resume();await new Promise(r=>setTimeout(r,2500));worker.kill('SIGTERM');await exit;
+  assert.equal(executions-before,1);
+  assert.equal((await database.query('SELECT status FROM engineering_factory_commands WHERE id=$1',[queued.command.id]))[0].status,'done');
+  pass('Private-alpha queue: duplicate intent deduplicates; exclusive worker; canonical dispatch/custody/protected verification; restart never redispatches');
+ }
  for(const boundary of ['RESPONSE_LOST','BEFORE_HTTP']){
   const work=await fresh(boundary);let injected=false;const before=executions;
   const broken=config=>new LiveFactoryAdapter(config,async(url,init)=>{if(String(url).endsWith('/dispatch')&&!injected){injected=true;if(boundary==='RESPONSE_LOST')await fetch(url,init);throw Error('Injected dispatch loss');}return fetch(url,init);});
@@ -160,7 +188,7 @@ try{
   if(boundary==='RESPONSE_LOST'){
    const engineeringFile=join(dir,'engineering.json'),factoryFile=join(dir,'factory.json');
    await writeFile(engineeringFile,JSON.stringify(engineering));await writeFile(factoryFile,JSON.stringify({connection,commands:config.commands,routing:config.routing}));
-   const worker=spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env:{...process.env,MYEVE_ENGINEERING_MODE:'dogfood',VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:adminURL.replace(/postgres$/,'')+name},stdio:['ignore','pipe','pipe']});
+   const worker=spawn(process.execPath,['--import','tsx',new URL('../scripts/factory-worker.ts',import.meta.url).pathname],{env:{...process.env,MYEVE_ENGINEERING_MODE:'dogfood',MYEVE_BETA_MODE:'private-alpha',MYEVE_FACTORY_LOCAL_WORKER:'true',MYEVE_OWNER_ID:owner,DATABASE_URL:adminURL.replace(/postgres$/,'')+name,VERCEL_ENV:'development',MYEVE_ENGINEERING_CONFIG:engineeringFile,MYEVE_FACTORY_CONFIG:factoryFile,MYEVE_FACTORY_DATABASE_URL:adminURL.replace(/postgres$/,'')+name},stdio:['ignore','pipe','pipe']});
    let output='';worker.stderr.on('data',x=>output+=x);const exited=once(worker,'exit');
    try{
     let saved=false;for(let i=0;i<200;i++){const rows=await database.query('SELECT proof FROM engineering_native_results WHERE work_id=$1',[work.id]);if(rows.length){assert.equal(rows[0].proof.outcome,'PARTIAL');saved=true;break;}if(worker.exitCode!==null)break;await new Promise(r=>setTimeout(r,100));}
@@ -235,7 +263,7 @@ try{
   pass('Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation');
  }
  const overlap=(await pool.query("SELECT work_id FROM engineering_route_runs WHERE status NOT IN ('COMPLETED','FAILED','CANCELLED') GROUP BY work_id HAVING count(*)>1")).rowCount;assert.equal(overlap,0);
- const output={...cliProvider.stats(),spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?6:5),falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
+ const output={...cliProvider.stats(),spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?7:6),falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
 }finally{
  if(supervisor)await supervisor.close();

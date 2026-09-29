@@ -2131,7 +2131,7 @@
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "a9ce0e07152efc117c4cc4323a0c83b0bcadebe94759f1ef8bff1f8a42686d78"
+      "sha256": "544afbf4f6b69d9fd4ea527d3f694395abd621fb4a52e6790ba117c4017a5a95"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3208,7 +3208,7 @@
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
       "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain.",
-      "sha256": "d3897dccddd0307cc92e263b5d1931544596925ace7af58ee35b238bb4e0d638"
+      "sha256": "a61218c7de012880dc124e3f3baa6fa25a11aa4dfbff7f12d6c7aab0c9bfc344"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3690,6 +3690,11 @@
       "classification": "INTERNAL",
       "reason": "Explicit private-alpha activation requires canonical database, configured web auth, owner and finite repository/Work limits. Qualification remains isolated and forbidden in production. No provider or effect dispatch.",
       "sha256": "fc31025dc37b2ab3c4fb290f7fc3354818b52a30ce02d66199fcc5e8813bd366"
+    },
+    "lib/engineering/factory-commands.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped bounded durable intent transport; compare-and-insert current Work, business decision preflight, stop and stale fencing. Only canonical Factory driver grants execution; negative scope/restart tests and connected PostgreSQL/Factory/Docker qualification cover the boundary.",
+      "sha256": "396f9a5cde0cb5b189ee18abad713f7b8c73bf60604e381148734561b20108d8"
     }
   }
 }

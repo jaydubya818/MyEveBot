@@ -1,0 +1,27 @@
+{
+  "status": "PASS_LOGICAL_RESTORE",
+  "toolchain": "postgres:18-alpine@sha256:77f585114c32fbca283dc835b0596f4e52b51b4c6662d7810b2f4084f60a1873",
+  "storage": "/Users/jaywest/.local/share/myeve-private-alpha/backups",
+  "permissions": {
+    "directory": "0700",
+    "archives": "0600"
+  },
+  "credentials": "Only production DATABASE_URL_UNPOOLED resolved through authenticated Vercel CLI, used in memory; no credential files, argv values or logs.",
+  "archives": [
+    {
+      "component": "myeve",
+      "bytes": 996101,
+      "sha256": "f04307bba80577e051457461a386d19ca324a650374852684d8e8ced2d085c47",
+      "entries": 583
+    },
+    {
+      "component": "relay",
+      "bytes": 420243,
+      "sha256": "2aabd1ddc97fd8cf7c7b6df3c28f299d9fb050106c515bf46ba3b97083c0c57a",
+      "entries": 855
+    }
+  ],
+  "restore": "Both archives restored to isolated password-protected PostgreSQL18 on loopback. Restores used --no-owner --no-acl; application data/schema restored, provider roles/ACL and physical PITR not qualified.",
+  "migrations": "Canonical MyEve runner and Relay Drizzle migrate PASS on restored data; second run PASS. Original MyEve historical ledger retained and exact deployed lineage bridge recorded.",
+  "productionMigration": "NOT_RUN"
+}

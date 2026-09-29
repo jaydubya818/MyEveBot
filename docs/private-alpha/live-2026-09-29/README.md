@@ -1,6 +1,8 @@
 # Canonical live private-alpha evidence dossier — 2026-09-29
 
-**PRIVATE ALPHA: BLOCKED.** Canonical deployment and the real Golden Journey have not run. Existing Sofie and Relay endpoints are healthy on older source. This dossier is the live qualification record, including explicit unrun gates; local checks below are not live acceptance.
+**PRIVATE ALPHA: IN PROGRESS.** See [authorized database and worker continuation](continuation.md) for the latest backup, migration rehearsal and connected-worker evidence. The inventory below records the earlier baseline.
+
+**Initial assessment:** Canonical deployment and the real Golden Journey have not run. Existing Sofie and Relay endpoints are healthy on older source. This dossier is the live qualification record, including explicit unrun gates; local checks below are not live acceptance.
 
 Integration owner: this private-alpha release chat, for Jay. One `codex/private-alpha-release` branch per affected repository. Base commits were fetched and matched remote main and peeled milestone tags before source work. Dirty primary checkouts were not used or modified. No historical feature branch was resurrected. Relay remains unchanged. Factory release candidate `33fd5c97fdafbf740c92261b52b0d9b76a46ecd6` is pushed and remotely verified on its dedicated release branch; it is not merged or activated. Any release successor must be committed, pushed, remotely verified and qualified before deployment; candidate source is not automatically the deployed baseline.
 
