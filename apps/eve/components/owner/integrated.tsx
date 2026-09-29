@@ -16,6 +16,7 @@ import type { ProofOfWork } from "@/lib/digital-worker/contracts";
 import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
+import { OwnerNavigation } from "./navigation";
 
 type CanonicalWork = Awaited<
   ReturnType<
@@ -477,24 +478,7 @@ export function IntegratedExperience({
         <Link href="/today" className="owner-brand">
           MyEve<span className="owner-muted"> / Sofie</span>
         </Link>
-        <nav className="owner-primary" aria-label="Primary">
-          {[
-            ["/today", "Today"],
-            ["/work", "Work"],
-            ["/needs-you", "Needs you"],
-            ["/results", "Results"],
-            ["/memory", "Memory"],
-            ["/brief", "Daily Brief"],
-          ].map(([href, label]) => (
-            <Link
-              key={href}
-              href={href}
-              aria-current={href === `/${view}` ? "page" : undefined}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
+        <OwnerNavigation />
       </header>
       <main id="owner-content" tabIndex={-1} className="owner-content">
         <header className="owner-heading">

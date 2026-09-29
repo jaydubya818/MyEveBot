@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { mkdir, appendFile } from "node:fs/promises";
 import path from "node:path";
-const output = path.resolve(
+const output = process.env.MYEVE_PRODUCT_EVIDENCE_ROOT ? path.join(process.env.MYEVE_PRODUCT_EVIDENCE_ROOT, "work-canvas") : path.resolve(
   import.meta.dirname,
   "../../../../output/playwright/work-canvas",
 );

@@ -3,7 +3,7 @@ import { mkdir, appendFile } from "node:fs/promises";
 import path from "node:path";
 import { exampleSnapshot } from "../../components/owner/preview";
 import { productApprovalFixtures } from "../../components/owner/product-fixtures";
-const output = path.resolve(
+const output = process.env.MYEVE_PRODUCT_EVIDENCE_ROOT ? path.join(process.env.MYEVE_PRODUCT_EVIDENCE_ROOT, "private-alpha") : path.resolve(
   import.meta.dirname,
   "../../../../output/playwright/private-alpha",
 );

@@ -1,0 +1,3 @@
+# Product assembly qualification checkpoint
+
+Tested production source before shared-navigation reconciliation: 84cb04798e82f27d9adee464aa125bd565ac2ea9. Build PASS. 32 browser scenarios PASS; 56 product + 80 Work Canvas accessibility scans, zero violations. The product fixture intentionally supplies a Beta API outage on Today; this is error-state presentation evidence, not a populated canonical Golden Journey. Historical component evidence is unchanged. Chat failure browser PASS using signed local fixture login; no Eve model session request. Updated shared navigation still requires its own build/browser rerun after Beta assembly.

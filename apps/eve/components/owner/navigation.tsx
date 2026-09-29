@@ -30,7 +30,7 @@ export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
           compact ? "grid grid-cols-2 gap-1 px-2 pb-3" : "owner-primary"
         }
       >
-        {productDestinations.slice(0, 12).map(({ href, label }) => (
+        {productDestinations.slice(0, 14).map(({ href, label }) => (
           <Link
             key={href}
             href={href}

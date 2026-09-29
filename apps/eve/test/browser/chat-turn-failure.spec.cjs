@@ -53,9 +53,13 @@ test('failed turn is visible after session.waiting and reload, then clears on a 
   });
   await page.route('**/api/threads/*', (route) => route.fulfill({ status: 200, contentType: 'application/json', body: '{}' }));
 
-  await page.goto(`${baseURL}/login?returnTo=%2Fchat`);
-  await page.getByLabel('Access password').fill(password);
-  await page.getByRole('button', { name: 'Open Sofie' }).click();
+  // Production cookies are Secure; this isolated HTTP loopback fixture retains
+  // the real signed login cookie but relaxes transport only in this browser.
+  const login = await page.context().request.post(`${baseURL}/api/auth/login`, { data: { password } });
+  expect(login.status()).toBe(200);
+  const state = await page.context().storageState();
+  await page.context().addCookies(state.cookies.map(cookie => ({ ...cookie, secure: false })));
+  await page.goto(`${baseURL}/chat`);
   await expect(page).toHaveURL(/\/chat$/);
 
   await saveChat(page, failedEvents);

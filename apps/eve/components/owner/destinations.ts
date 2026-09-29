@@ -30,6 +30,8 @@ export const productDestinations = [
     label: "Files",
     description: "Artifacts, revisions and conversation files",
   },
+  { href: "/results", label: "Results", description: "Verified outputs and proof of Work" },
+  { href: "/memory", label: "Memory", description: "Scoped recall and governed learning" },
   {
     href: "/knowledge",
     label: "Knowledge",
