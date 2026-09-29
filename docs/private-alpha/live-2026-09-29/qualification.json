@@ -1,7 +1,7 @@
 {
-  "status": "BLOCKED",
-  "observedAt": "2026-09-29T21:22:51.544191+00:00",
-  "canonicalDeployment": "NOT_RUN",
+  "status": "PARTIAL",
+  "observedAt": "2026-09-29T22:18:38.546912+00:00",
+  "canonicalDeployment": "PASS_QUALIFIED_SUCCESSOR_AND_CANONICAL_RELAY",
   "realModelOperations": 0,
   "realExternalEffects": 0,
   "liveWorkId": null,
@@ -25,15 +25,15 @@
   "counterNote": "Null means unmeasured. Local synthetic passes do not establish live counters.",
   "checks": {
     "myeveApplication": {
-      "passed": 1883,
+      "passed": 1896,
       "skipped": 61
     },
     "myeveRoot": {
       "passed": 141
     },
     "migrationFiles": {
-      "count": 67,
-      "head": "0071_business_producer_fencing.sql"
+      "count": 68,
+      "head": "0072_factory_worker_commands.sql"
     },
     "myfactory": {
       "passed": 138,
@@ -48,13 +48,30 @@
       "passed": 15,
       "typecheck": "PASS",
       "manifest": "PASS"
+    },
+    "relay": {
+      "passed": 450,
+      "skipped": 6
+    },
+    "connectedWorker": {
+      "passed": 17,
+      "realProvider": false,
+      "concurrentWriters": 0,
+      "duplicateDispatches": 0
     }
   },
   "humanGates": [
-    "Scoped production database access approval pending after bulk export rejection",
-    "Pinned provider Keychain item absent",
-    "Partner identity/credential provisioning",
-    "First real model operation approval NOT requested yet: deployed worker composition is incomplete",
-    "First real external effect approval must follow verified Result"
-  ]
+    "Automatic approval review requires direct approval for Sofie production capability/context gates",
+    "Automatic approval review requires direct approval for exact production alpha environment settings",
+    "Automatic approval review requires direct approval for generated local signing/control credentials",
+    "Automatic approval review requires direct approval for fast-forward main integration",
+    "Provider Keychain item absent; provision service com.myeve.myfactory.q37 account openai-provider password field only",
+    "Partner identity/credential activation",
+    "First real model operation approval after complete preflight",
+    "First consequential test-repository effect approval after verified Result"
+  ],
+  "privateAlphaActivation": "BLOCKED",
+  "backup": "PASS_LOGICAL_RESTORE",
+  "productionMigrations": "PASS",
+  "workerConnection": "PASS_LOCAL_CONNECTED_FIXTURE_REAL_PROVIDER_NOT_RUN"
 }

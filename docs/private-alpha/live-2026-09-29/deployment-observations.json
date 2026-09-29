@@ -1,29 +1,60 @@
 {
+  "observedAt": "2026-09-29T22:18:38.546912+00:00",
+  "previous": {
+    "myeve": {
+      "id": "dpl_Ezakc5MKj1TdJJd4eMkfnNFrtK2s",
+      "origin": "https://sofie-personal-agent.vercel.app",
+      "source": "7c1e10777429278d99e5172720768ac967c5410a",
+      "vercelStatus": "READY",
+      "http": {
+        "/login": 200,
+        "/eve/v1/health": 200,
+        "/api/beta/work": 404,
+        "/api/beta/results": 404
+      }
+    },
+    "relay": {
+      "id": "dpl_35TpUaC2f5gnR6D5YdXYaZynfziX",
+      "origin": "https://relay-sage-nine.vercel.app",
+      "source": "3fdeeb4ce43ef34ff88c8abdf308c77d4ef83f0d",
+      "vercelStatus": "READY",
+      "http": {
+        "/api/health": 200,
+        "/api/health/ready": 200
+      }
+    },
+    "canonicalDeployment": "NOT_RUN",
+    "providerKeychainMetadataFound": false,
+    "credentialRead": false,
+    "realModelOperations": 0,
+    "productionMutation": false
+  },
+  "productionMigration": "PASS",
+  "privateAlphaActivation": "BLOCKED_PENDING_EXPLICIT_CONFIGURATION_APPROVAL",
+  "providerKeychainMetadataFound": false,
+  "providerCredentialRead": false,
+  "realModelOperations": 0,
+  "realExternalEffects": 0,
   "myeve": {
-    "id": "dpl_Ezakc5MKj1TdJJd4eMkfnNFrtK2s",
+    "id": "dpl_3AC8ScjjoyDZJwSLWQukjqDZcr8a",
     "origin": "https://sofie-personal-agent.vercel.app",
-    "source": "7c1e10777429278d99e5172720768ac967c5410a",
+    "source": "836eb4aab581cf963cdda0597be6cc51aa105188",
     "vercelStatus": "READY",
     "http": {
       "/login": 200,
       "/eve/v1/health": 200,
-      "/api/beta/work": 404,
-      "/api/beta/results": 404
+      "/api/beta/work": 401,
+      "/api/beta/results": 401
     }
   },
   "relay": {
-    "id": "dpl_35TpUaC2f5gnR6D5YdXYaZynfziX",
+    "id": "dpl_EsMTWKbWmxW5xe5DzdTWZDgfLyvP",
     "origin": "https://relay-sage-nine.vercel.app",
-    "source": "3fdeeb4ce43ef34ff88c8abdf308c77d4ef83f0d",
+    "source": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
     "vercelStatus": "READY",
     "http": {
       "/api/health": 200,
       "/api/health/ready": 200
     }
-  },
-  "canonicalDeployment": "NOT_RUN",
-  "providerKeychainMetadataFound": false,
-  "credentialRead": false,
-  "realModelOperations": 0,
-  "productionMutation": false
+  }
 }

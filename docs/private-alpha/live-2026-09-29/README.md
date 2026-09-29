@@ -1,6 +1,6 @@
 # Canonical live private-alpha evidence dossier — 2026-09-29
 
-**PRIVATE ALPHA: IN PROGRESS.** See [authorized database and worker continuation](continuation.md) for the latest backup, migration rehearsal and connected-worker evidence. The inventory below records the earlier baseline.
+**PRIVATE ALPHA: PARTIAL.** Both web deployments and production migrations succeeded; activation and the real journey remain blocked by pending approvals and provider provisioning. See [authorized database and worker continuation](continuation.md) for the latest backup, migration rehearsal and connected-worker evidence. The inventory below records the earlier baseline.
 
 **Initial assessment:** Canonical deployment and the real Golden Journey have not run. Existing Sofie and Relay endpoints are healthy on older source. This dossier is the live qualification record, including explicit unrun gates; local checks below are not live acceptance.
 

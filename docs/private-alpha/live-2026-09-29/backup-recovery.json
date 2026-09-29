@@ -23,5 +23,5 @@
   ],
   "restore": "Both archives restored to isolated password-protected PostgreSQL18 on loopback. Restores used --no-owner --no-acl; application data/schema restored, provider roles/ACL and physical PITR not qualified.",
   "migrations": "Canonical MyEve runner and Relay Drizzle migrate PASS on restored data; second run PASS. Original MyEve historical ledger retained and exact deployed lineage bridge recorded.",
-  "productionMigration": "NOT_RUN"
+  "productionMigration": "PASS: MyEve through 0072 with exact historical bridge; Relay through 0028"
 }

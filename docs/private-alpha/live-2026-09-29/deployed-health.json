@@ -1,0 +1,22 @@
+{
+  "observedAt": "2026-09-29T22:19:44.982101+00:00",
+  "source": "836eb4aab581cf963cdda0597be6cc51aa105188",
+  "method": "Existing signed-in owner Chrome session; /manage/system reloaded after deployment, then Run checks",
+  "finalIncludedServicesReady": 7,
+  "includedServices": 7,
+  "checks": {
+    "webAccess": "PASS_SIGNED_SESSION",
+    "aiGateway": "PASS_MODEL_CATALOG_ONLY",
+    "database": "PASS_SCHEMA_0072",
+    "browserRuntime": "PASS_TOOLS_PRESENT_NO_SESSION_CREATED",
+    "memory": "PASS_LIST_PROBE_AFTER_ONE_TRANSIENT_FAILURE",
+    "connections": "PASS_STATUS_REQUEST",
+    "files": "PASS_BLOB_LIST"
+  },
+  "memoryTransientFailure": "One fresh page reported Memory unreachable; one explicit recheck passed. Cross-session recall/correction not run.",
+  "desktop": "PASS_SERVICE_SCREEN_ONLY",
+  "mobile390": "NOT_QUALIFIED: browser viewport override reported no error but measured DOM viewport remained 1336px; no 390px pass claimed.",
+  "realWorkSurfaces": "NOT_RUN: private-alpha activation and real Work are pending",
+  "accessibility": "NOT_RUN_FULL_AUTOMATED_AND_KEYBOARD_MATRIX",
+  "credentials": "No login credential or cookie extracted; existing authenticated browser session used."
+}

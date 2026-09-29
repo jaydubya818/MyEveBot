@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-09-29T21:19:40.356123+00:00",
+  "observedAt": "2026-09-29T22:18:38.546912+00:00",
   "verification": "git fetch origin main --tags; git ls-remote origin refs/heads/main refs/tags/*; annotated tags peeled to exact main",
   "sources": {
     "MyEve": {
@@ -21,7 +21,7 @@
       "tagObject": "72df29bc924358797f7c2b3ee509d2d57147a9f4"
     }
   },
-  "deploymentPerformed": false,
+  "deploymentPerformed": true,
   "releaseCandidates": {
     "MyFactory": {
       "branch": "codex/private-alpha-release",
@@ -29,6 +29,18 @@
       "remotelyVerified": true,
       "merged": false,
       "deployed": false
+    },
+    "MyEve": {
+      "branch": "codex/private-alpha-release",
+      "sha": "836eb4aab581cf963cdda0597be6cc51aa105188",
+      "remotelyVerified": true,
+      "merged": false,
+      "deployed": true
     }
-  }
+  },
+  "deployedSources": {
+    "myeve": "836eb4aab581cf963cdda0597be6cc51aa105188",
+    "relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a"
+  },
+  "mainIntegration": "Automatic approval review blocked both main updates; explicit direct user approval requested"
 }
