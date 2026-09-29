@@ -1,3 +1,11 @@
+# Current migration reconciliation
+
+**Resolved locally.** Qualified final Beta 0068 accepts the exact 40-file published-main lineage without rewriting its applied rows or checksums. Nine fresh/populated/rollback/concurrency/tamper checks PASS. Supported 0057/Beta upgrades, no-op replay and incompatible archived-ledger rejection PASS. Current head is 0068; 64 canonical files. All preceding 63 migration bytes are unchanged. Applied legacy 0039/0040 records remain intact; canonical equivalent migrations are audited separately as satisfied. See qualification/final-published-main-bridge.json and docs/verification/beta-integration/final-q37/CONSOLIDATION_HANDOFF.md.
+
+The failed provisional draft 8c30a7c is excluded. No deployed database was modified. The following initial reconciliation notes and per-source hash inventory are historical, preceding the qualified bridge; any prior BLOCKED wording describes that earlier checkpoint.
+
+---
+
 # Migration reconciliation
 **BLOCKED: published-main 0039/0040 conflict is reproduced. Beta Integration owns the final forward 0068 bridge.** No original migration or database ledger may be rewritten. Current selected 0001–0057/0062–0067 chain installs fresh, but the original main ledger is rejected without mutation. See qualification/migration-probe.json.
 Candidate `b14988add08886cd8e2f8ae128b508ac11b509c8`. Historical hashes are retained in inventory.initial.json.

@@ -1,0 +1,38 @@
+{
+  "status": "CONTROLLED_LOCAL_OBSERVATIONS_PASS_NOT_RELEASE_CERTIFICATION",
+  "consumerHarnessSource": "1b72192957d603a60221b7c13937a3af4b68fa47",
+  "producer": "6e164ca2f3c58a7bf2d0c905c0908dfea0ceadf9",
+  "wholeProduct": {
+    "duplicateWork": 0,
+    "duplicateFactoryExecution": 0,
+    "concurrentWriters": 0,
+    "falseTaskCompletion": 0,
+    "falseGoalCompletion": 0,
+    "falseReady": 0,
+    "authorityExpansion": 0,
+    "crossOwnerDisclosure": 0,
+    "staleContinuation": 0,
+    "capsuleAuthorityTransfer": 0
+  },
+  "connected": {
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "falseReady": 0,
+    "unauthenticatedAdmissions": 0
+  },
+  "spend": {
+    "postUnknownAdmissions": 0,
+    "completionStarvation": 0,
+    "callsBeyondOperationLimit": 0,
+    "ceilingViolations": 0,
+    "reserveTheft": 0,
+    "duplicateOperations": 0
+  },
+  "sharedBusinessTwoOwnerJourney": "NOT_IMPLEMENTED",
+  "canonicalPostMergeMatrix": "NOT_RUN",
+  "limitations": [
+    "Local private-owner isolation does not establish shared-business membership/revocation.",
+    "No real provider, hosted publication, CI, owner acceptance or deployment proof.",
+    "Stale mutations and retained candidate custody are covered by assertions in Gate B/C and connected logs; no invented global counter."
+  ]
+}

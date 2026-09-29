@@ -16,3 +16,7 @@ New source branches were pushed immediately. Frozen qualified local-only inputs 
 ## Product source integration checkpoint
 
 Adopted expansion delta ef07717 and durable follow-up through 9caacf6, retaining canonical Today/Work bindings and Capsules navigation. Work Canvas remains an explicitly disconnected preview; no fixture confirmation performs a consequential effect. Final live binding and two-owner release qualification are not established by the source merge. Restored the 7bbf296 chat failure detector and actionable failure UI while retaining the canonical manual retry control; did not restore historical production qualification flags. Root checks now 141 PASS; required typecheck and executor governance PASS (UNKNOWN=0). The deferred Telegram campaign tests are preserved under historical-tests with their complete source dependency identified; no Telegram PASS is claimed.
+
+## Final local assembly
+
+Merged qualified Beta 52b3891 and 0068 bridge, adopted frozen product delta through 9caacf6, preserved canonical execution, repaired omitted chat failure feedback, and qualified exact clean MyFactory successor 6e164ca. Current results and open shared-scope/review gates supersede earlier Stage 1 status; see CANONICAL-STATUS.md. No main merge or cleanup.
