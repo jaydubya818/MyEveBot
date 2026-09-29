@@ -1956,7 +1956,7 @@
     "lib/appearance.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "98b41a5c9fd1284cbb8883ccb438e97ff827104be3e8e3baf2aaaab425271bb0"
+      "sha256": "2cb0af4e193ceb3f194529959c814fc4628d09cde2d9e5a3bb93cb04c0aba41e"
     },
     "lib/approvals.ts": {
       "classification": "INTERNAL",
@@ -3634,7 +3634,7 @@
     "lib/business-effects.ts": {
       "classification": "ENFORCED",
       "reason": "Additional shared Work decision check before canonical Work changes, native effects and Factory dispatch. Existing authority/credential/budget constraints remain mandatory. PostgreSQL negative both-owner and changed-effect qualification. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "fb0aa1a30f2ccf3b0e3d3c1587cef90b8fbcbef8590e3ebb831acbbaa4b80fd4"
+      "sha256": "334c10546c1f73583afde93ca0504fd3fb30d042c7c1062d75c18e539d27c743"
     },
     "lib/business-api.ts": {
       "classification": "ENFORCED",

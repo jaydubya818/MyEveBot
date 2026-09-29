@@ -1,0 +1,90 @@
+{
+  "source": "4df57c62472949694e2c92f422336513b7887618",
+  "producer": "6e164ca2f3c58a7bf2d0c905c0908dfea0ceadf9",
+  "cases": [
+    {
+      "name": "beta-migrations",
+      "script": "test/beta-integration/migrations.mjs",
+      "exitCode": 0,
+      "seconds": 1.8
+    },
+    {
+      "name": "populated-beta-upgrade",
+      "script": "test/beta-integration/alpha-migrations.mjs",
+      "exitCode": 0,
+      "seconds": 1.18
+    },
+    {
+      "name": "beta-golden",
+      "script": "test/beta-integration/qualification.mjs",
+      "exitCode": 0,
+      "seconds": 1.26
+    },
+    {
+      "name": "canonical-journey",
+      "script": "test/beta-integration/canonical-journey.mjs",
+      "exitCode": 0,
+      "seconds": 0.98
+    },
+    {
+      "name": "adversarial",
+      "script": "test/beta-integration/adversarial.mjs",
+      "exitCode": 0,
+      "seconds": 0.91
+    },
+    {
+      "name": "recovery",
+      "script": "test/beta-integration/recovery.mjs",
+      "exitCode": 0,
+      "seconds": 3.47
+    },
+    {
+      "name": "activation-recovery",
+      "script": "test/beta-integration/activation-recovery.mjs",
+      "exitCode": 0,
+      "seconds": 3.61
+    },
+    {
+      "name": "capsules",
+      "script": "test/beta-integration/capsules-canonical.integration.mjs",
+      "exitCode": 0,
+      "seconds": 3.18
+    },
+    {
+      "name": "gate-b",
+      "script": "test/factory-writer.integration.mjs",
+      "exitCode": 1,
+      "seconds": 16.95
+    },
+    {
+      "name": "gate-c",
+      "script": "test/factory-receipt.integration.mjs",
+      "exitCode": 1,
+      "seconds": 0.19
+    },
+    {
+      "name": "routing",
+      "script": "test/routing-store.integration.mjs",
+      "exitCode": 0,
+      "seconds": 0.83
+    },
+    {
+      "name": "current-truth",
+      "script": "test/worker-projection.integration.mjs",
+      "exitCode": 0,
+      "seconds": 0.85
+    },
+    {
+      "name": "native-completion",
+      "script": "test/native-completion.integration.mjs",
+      "exitCode": 1,
+      "seconds": 0.3
+    },
+    {
+      "name": "whole-product",
+      "script": "test/alpha-whole-product.mjs",
+      "exitCode": 1,
+      "seconds": 0.43
+    }
+  ]
+}

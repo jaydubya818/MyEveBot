@@ -9,8 +9,13 @@ export function isThemePreference(value: string | null): value is ThemePreferenc
 }
 
 export function readThemePreference(storage: Pick<Storage,"getItem"> = ownerLocalStorage): ThemePreference {
-  const stored = storage.getItem(THEME_STORAGE_KEY);
-  return isThemePreference(stored) ? stored : "system";
+  try {
+    const stored = storage.getItem(THEME_STORAGE_KEY);
+    return isThemePreference(stored) ? stored : "system";
+  } catch {
+    // Login has no signed owner; unavailable storage also uses the system theme.
+    return "system";
+  }
 }
 
 export function resolvedTheme(preference: ThemePreference, media: MediaQueryList): "light" | "dark" {

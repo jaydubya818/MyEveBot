@@ -1,0 +1,47 @@
+PASS: minimum completion admitted within unchanged $1.30
+PASS: repair commitment protected, unknown exposure retained, exact replay not double-counted
+PASS: real SQL contention conversation [ 'rejected', 'fulfilled' ]
+PASS: real SQL contention native [ 'fulfilled', 'rejected' ]
+PASS: real SQL contention two-admissions [ 'fulfilled', 'rejected' ]
+PASS: real SQL contention fresh-chats [ 'fulfilled', 'rejected' ]
+PASS: cheap observers cannot steal completion call quota; undispatched attempts remain counted
+PASS: stale Work, policy and Agent dispatch fenced
+PASS: actual SIGKILL after CONTRACT preserves contract/exposure without replay
+PASS: actual SIGKILL after RESERVED preserves contract/exposure without replay
+PASS: actual SIGKILL after DISPATCHED preserves contract/exposure without replay
+PASS: actual SIGKILL after RESULT_RETAINED preserves contract/exposure without replay
+PASS: NULL/adversarial contracts and narrowed ceilings denied atomically
+(node:68061) DeprecationWarning: Calling client.query() when the client is already executing a query is deprecated and will be removed in pg@9.0. Use async/await or an external async flow control mechanism instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg/lib/client.js:631
+          Error.captureStackTrace(err)
+                ^
+
+error: permission denied for function business_assert_effect
+    at /Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/node_modules/pg/lib/client.js:631:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Object.query (file:///Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/apps/eve/test/native-completion.integration.mjs:141:79)
+    at async assertBusinessEffect (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/apps/eve/lib/business-effects.ts:6:2)
+    at async NativeRouteAuthority.assertEffect (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/apps/eve/lib/engineering/native-routing.ts:107:5)
+    at async NativeModelBudget.reserve (/Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/apps/eve/lib/engineering/conversation-budget.ts:27:51)
+    at async file:///Users/jaywest/.codex/worktrees/canonical-consolidation/Myeve/apps/eve/test/native-completion.integration.mjs:143:37 {
+  length: 113,
+  severity: 'ERROR',
+  code: '42501',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'aclchk.c',
+  line: '2843',
+  routine: 'aclcheck_error'
+}
+
+Node.js v24.18.1

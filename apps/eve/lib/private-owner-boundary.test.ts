@@ -21,6 +21,9 @@ describe('two-owner deployment service isolation',()=>{
   expect(JSON.stringify(result)).not.toContain('A_PRIVATE');expect(JSON.stringify(result)).toContain('B_PRIVATE_MEMORY');expect(result.tools?.map(t=>t.name)).toEqual(['get_knowledge']);
  });
  it('rejects an out-of-scope tool result before any model call',()=>expect(()=>partnerPrompt({prompt:[{role:'user',content:[{type:'text',text:'question'}]},{role:'tool',content:[{type:'tool-result',toolName:'read_email',output:{type:'text',value:'A_PRIVATE'}}]}]} as never,'')).toThrow());
+ it('uses system appearance when private storage is not bound or available',()=>{
+  expect(readThemePreference({getItem(){throw new Error('Private storage requires a signed owner.')}})).toBe('system');
+ });
  it('reads and listens to the active owner theme namespace',()=>{
   const local=storage();vi.stubGlobal('localStorage',local);local.setItem(THEME_STORAGE_KEY,'light');
   bindOwnerBrowserStorage('A',true);ownerLocalStorage.setItem(THEME_STORAGE_KEY,'dark');expect(readThemePreference()).toBe('dark');

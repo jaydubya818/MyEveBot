@@ -5,6 +5,7 @@ const fs=require('node:fs/promises'),path=require('node:path');
  const root=path.resolve(__dirname,'../../..'),out=path.join(root,'output/playwright/business-scopes');await fs.mkdir(out,{recursive:true});
  const report={scope:'Production build; real disposable PostgreSQL; separate signed A/B sessions; no provider calls',checks:[],audits:[]};
  try{
+  const anonymous=await browser.newContext({baseURL:'http://localhost:3199'});const login=await anonymous.newPage();const loginErrors=[];login.on('pageerror',e=>loginErrors.push(String(e)));await login.goto('/login');await expect(login.getByLabel('Your access password')).toBeVisible();await login.getByLabel('Your access password').fill('owner-a-private-password');await login.getByRole('button',{name:/Open Sofie/}).click();await login.waitForURL(url=>url.pathname!=='/login');expect(loginErrors).toEqual([]);report.checks.push('Fresh unauthenticated login mounts, accepts credentials and reaches private workspace without a client error');await anonymous.close();
   for(const owner of ['A','B']){
    const ctx=await browser.newContext({baseURL:'http://localhost:3199'});
    expect((await ctx.request.get('/api/business')).status()).toBe(401);
