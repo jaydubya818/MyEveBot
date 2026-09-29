@@ -51,6 +51,7 @@ try{
  const after=await snapshot();for(const [table,rows] of Object.entries(before))if(table!=='sofie_schema_migrations')assert.deepEqual(after[table],rows,table);
  pass('0055→0056 preserves every populated historical row and Gate C custody');
  const stable=await snapshot();await runMigrations(migrationDB,migrations,()=>{});assert.deepEqual(await snapshot(),stable);pass('0056 rerun is exact no-op');
+ await runMigrations(migrationDB,allMigrations,()=>{});
  assert.equal((await old.store.get(old.request.id,(await old.store.admission(old.request.id)).receipt_id)).state,'ADMITTED');
  assert.equal((await pool.query('SELECT count(*)::int n FROM engineering_route_runs')).rows[0].n,0);pass('migration and authenticated receipts create no writer authority');
  await runMigrations(migrationDB,allMigrations,()=>{});

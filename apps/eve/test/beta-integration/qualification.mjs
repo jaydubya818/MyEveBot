@@ -1,3 +1,4 @@
+import {betaTestPort} from './test-postgres.mjs';
 import { produceLocalResult } from "./local-result.mjs";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
@@ -21,7 +22,7 @@ import { assembleSofieRecall } from "../../lib/total-recall/sofie-adapter.ts";
 const database = "myeve_beta_phase2";
 const admin = new Pool({
   host: "127.0.0.1",
-  port: 55489,
+  port: betaTestPort,
   user: "postgres",
   database: "postgres",
 });
@@ -33,7 +34,7 @@ if (
 await admin.end();
 const pool = new Pool({
   host: "127.0.0.1",
-  port: 55489,
+  port: betaTestPort,
   user: "postgres",
   database,
   max: 20,

@@ -1,0 +1,31 @@
+{
+  "observedAt": "2026-09-28T03:54:31.932365+00:00",
+  "source": "https://developers.openai.com/api/docs/models/gpt-5.4-mini",
+  "provider": "OpenAI Responses global standard tier",
+  "model": "gpt-5.4-mini-2026-03-17",
+  "contextLimitTokens": 400000,
+  "outputLimitTokens": 8192,
+  "inputMicrousdPerMillion": 750000,
+  "cachedInputMicrousdPerMillion": 75000,
+  "outputMicrousdPerMillion": 4500000,
+  "reservationUsesCachedDiscount": false,
+  "perOperationReserveMicrousd": 336864,
+  "plannedProductiveOperations": 3,
+  "plannedCompletionOperations": 1,
+  "maxPaidOperations": 4,
+  "completionReserveMicrousd": 336864,
+  "minimumCompletePlanMicrousd": 1347456,
+  "proposedWorkCeilingMicrousd": 1350000,
+  "marginMicrousd": 2544,
+  "liveAuthorized": false,
+  "refreshBeforeLive": true,
+  "excluded": [
+    "regional processing",
+    "priority tier",
+    "batch/flex",
+    "hosted tools",
+    "images/audio/files",
+    "server-side conversation",
+    "separate paid Sofie/native repair"
+  ]
+}

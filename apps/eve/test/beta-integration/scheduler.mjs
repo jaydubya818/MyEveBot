@@ -1,3 +1,4 @@
+import {betaTestPort} from './test-postgres.mjs';
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { writeFile, readFile } from "node:fs/promises";
@@ -9,7 +10,7 @@ import {
 } from "../../lib/beta-integration/scheduler.ts";
 const pool = new Pool({
   host: "127.0.0.1",
-  port: 55489,
+  port: betaTestPort,
   user: "postgres",
   database: "myeve_beta_phase2",
 });

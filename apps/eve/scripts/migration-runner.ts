@@ -1,3 +1,4 @@
+import { publishedMainState, bridgePublishedMain } from "./published-main-bridge.ts";
 import { createHash } from "node:crypto";
 import { readFile, readdir } from "node:fs/promises";
 import { splitSqlStatements } from "./migration-sql.ts";
@@ -127,13 +128,14 @@ END $verify$`;
 
 export async function runMigrations(database: MigrationDatabase, migrations: Migration[], log = console.log) {
   const [table] = await database.query("SELECT to_regclass('sofie_schema_migrations') AS present");
-  const ledger = table?.present ? await database.query("SELECT name,checksum,applied_at FROM sofie_schema_migrations ORDER BY name") as unknown as LedgerRow[] : [];
+  const ledger = table?.present ? await database.query("SELECT name,checksum,to_char(applied_at AT TIME ZONE 'UTC', 'YYYY-MM-DD\"T\"HH24:MI:SS.US\"Z\"') AS applied_at FROM sofie_schema_migrations ORDER BY name") as unknown as LedgerRow[] : [];
   const [marker] = await database.query("SELECT to_regclass('sofie_migration_reconciliations') AS present");
   const records = marker?.present ? await database.query("SELECT id,origin,source_ledger,satisfied_migrations FROM sofie_migration_reconciliations") : [];
   const [bridgeTable] = await database.query("SELECT to_regclass('sofie_migration_bridge_receipts') AS present");
   const bridges = bridgeTable?.present ? await database.query("SELECT id,source_ledger,canonical_manifest,satisfied_migrations FROM sofie_migration_bridge_receipts") : [];
   if (records.length > 1 || bridges.length > 1 || (bridgeTable?.present && bridges[0]?.id !== '0033')) throw new Error("Partial or ambiguous bridge evidence.");
-  const plan = planMigrations(migrations, ledger, records[0] as unknown as ReconciliationRecord | undefined, bridges[0] as unknown as BridgeRecord | undefined);
+  const published = await publishedMainState(database, migrations, ledger);
+  const plan = planMigrations(migrations, published?.normalized ?? ledger, records[0] as unknown as ReconciliationRecord | undefined, bridges[0] as unknown as BridgeRecord | undefined);
   const historicalSource = await readFile(new URL(`./historical-migrations/${HISTORICAL_RECONCILIATION}`,import.meta.url),"utf8");
   if (createHash("sha256").update(historicalSource).digest("hex") !== HISTORICAL_CHECKSUM) throw new Error("Historical reconciliation source changed.");
   const historicalStatements = splitSqlStatements(historicalSource);
@@ -155,6 +157,11 @@ export async function runMigrations(database: MigrationDatabase, migrations: Mig
   }
   if (!table?.present) await database.query(`CREATE TABLE sofie_schema_migrations (
     name text PRIMARY KEY, checksum text NOT NULL, applied_at timestamptz NOT NULL DEFAULT now())`);
+  if (published && !published.receipt) {
+    await bridgePublishedMain(database, plan.pending, ledger, published);
+    log("Bridged exact published-main lineage without rewriting applied migrations");
+    return runMigrations(database, migrations, log);
+  }
   for (const migration of plan.pending) {
     const statements: Statement[] = [
       { sql: "SET LOCAL lock_timeout='5s'" }, { sql: "SET LOCAL statement_timeout='30s'" },

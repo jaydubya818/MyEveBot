@@ -1,0 +1,106 @@
+{
+  "status": "PASS",
+  "scope": "Signed local owner, final production build, synthetic canonical journey state",
+  "audits": [
+    {
+      "path": "/work",
+      "width": 1440,
+      "overflow": false,
+      "title": "Work",
+      "violations": []
+    },
+    {
+      "path": "/work",
+      "width": 390,
+      "overflow": false,
+      "title": "Work",
+      "violations": []
+    },
+    {
+      "path": "/today",
+      "width": 1440,
+      "overflow": false,
+      "title": "Today",
+      "violations": []
+    },
+    {
+      "path": "/today",
+      "width": 390,
+      "overflow": false,
+      "title": "Today",
+      "violations": []
+    },
+    {
+      "path": "/needs-you",
+      "width": 1440,
+      "overflow": false,
+      "title": "Needs you",
+      "violations": []
+    },
+    {
+      "path": "/needs-you",
+      "width": 390,
+      "overflow": false,
+      "title": "Needs you",
+      "violations": []
+    },
+    {
+      "path": "/results",
+      "width": 1440,
+      "overflow": false,
+      "title": "Results",
+      "violations": []
+    },
+    {
+      "path": "/results",
+      "width": 390,
+      "overflow": false,
+      "title": "Results",
+      "violations": []
+    },
+    {
+      "path": "/memory",
+      "width": 1440,
+      "overflow": false,
+      "title": "Memory and learning",
+      "violations": []
+    },
+    {
+      "path": "/memory",
+      "width": 390,
+      "overflow": false,
+      "title": "Memory and learning",
+      "violations": []
+    },
+    {
+      "path": "/brief",
+      "width": 1440,
+      "overflow": false,
+      "title": "Daily Brief",
+      "violations": []
+    },
+    {
+      "path": "/brief",
+      "width": 390,
+      "overflow": false,
+      "title": "Daily Brief",
+      "violations": []
+    },
+    {
+      "path": "/capsules",
+      "width": 1440,
+      "overflow": false,
+      "title": "Take experience with you.",
+      "violations": []
+    },
+    {
+      "path": "/capsules",
+      "width": 390,
+      "overflow": false,
+      "title": "Take experience with you.",
+      "violations": []
+    }
+  ],
+  "liveProvider": "NOT_RUN",
+  "screenshots": "output/playwright/beta-integration/final-q37"
+}

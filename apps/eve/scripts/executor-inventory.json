@@ -2130,8 +2130,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Forward-only current migration filename 0067; no applied migration rewrites.",
-      "sha256": "57023b44ca2d43a9ae0d54697c8e5f6ae9b4aca03e4948e4b89fda569bad7ab4"
+      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged.",
+      "sha256": "4da1a450f2f3609ff8443498ceb3a26c900f7d3c6c35b8648a1b58c57cf0ed7b"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",

@@ -1,0 +1,28 @@
+{
+  "provider": "OpenAI direct Responses",
+  "endpoint": "https://api.openai.com/v1/responses",
+  "model": "gpt-5.5",
+  "availableSnapshot": "gpt-5.5-2026-04-23",
+  "tier": "default",
+  "observedAt": "2026-09-28T00:07:08Z",
+  "providerEffectiveAt": null,
+  "effectiveAtNote": "Public pages do not identify a separate effective timestamp; observation is not a contractual price guarantee. Refresh before authorization.",
+  "inputUsdPerMillion": 5,
+  "cachedInputUsdPerMillion": 0.5,
+  "outputUsdPerMillion": 30,
+  "additionalCacheWriteCharge": 0,
+  "contextWindowTokens": 1050000,
+  "maximumOutputTokens": 128000,
+  "longContextThresholdInputTokens": 272000,
+  "longContextInputMultiplier": 2,
+  "longContextOutputMultiplier": 1.5,
+  "regionalUplift": 0.1,
+  "sources": [
+    "https://developers.openai.com/api/docs/models/gpt-5.5",
+    "https://developers.openai.com/api/docs/pricing",
+    "https://developers.openai.com/api/docs/guides/prompt-caching"
+  ],
+  "qualification": "PUBLIC_PRICE_REFERENCE_PASS; LIVE_RUNTIME_CARD_NOT_INSTALLED",
+  "paidToolsAllowed": false,
+  "reservationUsesCacheDiscount": false
+}

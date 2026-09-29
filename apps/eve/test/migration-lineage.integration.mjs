@@ -147,7 +147,7 @@ try {
   assert.equal(digest(dump(a.name)),digest(dump(b.name)),'all table/column/default/index/constraint/FK/trigger/sequence/function DDL converges');
   for (const [db,before] of [[a,stateA],[b,stateB]]) {
     const after=await snapshot(db.client);
-    for(const table of authorityTables.filter(t=>!['computer_sessions','computer_control_leases'].includes(t)))assert.deepEqual(after[table],before[table],table+' preserved');
+    for(const table of authorityTables.filter(t=>!['computer_sessions','computer_control_leases'].includes(t)))assert.deepEqual(after[table],table==='goals'?before[table].map(row=>({...row,requires_owner_confirmation:false,confirmed_generation:null,confirmation_ref:null,revision:1,generation:1})):before[table],table+' preserved with explicit canonical Beta defaults');
     for(const session of after.computer_sessions) {
       assert.equal(session.status,'lost');assert.equal(session.failure_code,'legacy_resource_unbound');
       const previous=before.computer_sessions.find(s=>s.id===session.id);

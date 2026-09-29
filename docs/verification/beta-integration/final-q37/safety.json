@@ -1,0 +1,30 @@
+{
+  "scope": "Controlled local integration with exact final producer; no real provider",
+  "product": {
+    "duplicateWork": 0,
+    "duplicateFactoryExecution": 0,
+    "concurrentWriters": 0,
+    "falseTaskCompletion": 0,
+    "falseGoalCompletion": 0,
+    "falseReady": 0,
+    "authorityExpansion": 0,
+    "crossOwnerDisclosure": 0,
+    "staleContinuation": 0,
+    "capsuleAuthorityTransfer": 0,
+    "avoidableCoordinationDebt": 0
+  },
+  "connectedFactory": {
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "falseReady": 0,
+    "unauthenticatedAdmissions": 0
+  },
+  "gateB": {
+    "concurrentProductiveWriters": 0,
+    "duplicateFactoryDispatches": 0,
+    "staleWriterMutations": 0,
+    "lostHistoricalCustody": 0,
+    "factoryGrantedAuthority": 0,
+    "falseReady": 0
+  }
+}

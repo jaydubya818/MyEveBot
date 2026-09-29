@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "publishedSource": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+  "latest": "0068_published_main_lineage_bridge.sql",
+  "checks": [
+    "Fresh canonical 64-file chain and replay",
+    "Failure late in bridge rolls back all new DDL and ledger entries",
+    "Populated published main bridges atomically, preserving every original row/checksum/timestamp and Memory/settings; equivalents are not claimed as executed",
+    "Tampered bridge receipt is rejected without mutation",
+    "Concurrent migration attempts leave one bridge receipt and a replayable complete lineage",
+    "checksum source state fails closed before migration",
+    "partial source state fails closed before migration",
+    "schema source state fails closed before migration",
+    "mixed source state fails closed before migration"
+  ]
+}
