@@ -30,9 +30,12 @@ const name='gap2b_'+randomBytes(8).toString('hex');let pool;
 try {
  await admin.query('CREATE DATABASE '+name);const databaseURL='postgresql://postgres@127.0.0.1:55479/'+name;
  pool=new Pool({connectionString:databaseURL});const client=await pool.connect();
- const migrations=await loadMigrations();assert.equal(migrations.length,57);
+ const migrations=await loadMigrations();
+ try {
+ assert.equal(migrations.at(-1).name,"0068_published_main_lineage_bridge.sql");
  const migrationDb={query:async(s,p)=>(await client.query(s,p)).rows,transaction:async statements=>{await client.query('BEGIN');try{for(const x of statements)await client.query(x.sql,x.params);await client.query('COMMIT');}catch(e){await client.query('ROLLBACK');throw e;}}};
- await runMigrations(migrationDb,migrations,()=>{});client.release();
+ await runMigrations(migrationDb,migrations,()=>{});
+ } finally { client.release(); }
  const database={query:async(s,p)=>(await pool.query(s,p)).rows};const owner='completion-owner',agentId='completion-sofie';
  await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
  VALUES($1,$2,'Sofie','sofie','engineer','Bounded test engineer',true,'active',1.3,3600,30)`,[agentId,owner]);
@@ -241,4 +244,4 @@ try {
  console.log('PASS: '+explanationVariant+' fresh explanation truth/charge; third source repair denied');
  }
 
-} finally {await pool?.end();await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}
+} finally {await pool?.end();await admin.query('DROP DATABASE IF EXISTS '+name);await admin.end();}

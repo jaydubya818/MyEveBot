@@ -1,3 +1,4 @@
+import {betaTestPort} from './test-postgres.mjs';
 import assert from "node:assert/strict";
 import { randomBytes } from "node:crypto";
 import { Client } from "pg";
@@ -6,7 +7,7 @@ import {
   loadMigrations,
   runMigrations,
 } from "../../scripts/migration-runner.ts";
-const base = { host: "127.0.0.1", port: 55489, user: "postgres" };
+const base = { host: "127.0.0.1", port: betaTestPort, user: "postgres" };
 const admin = new Client({ ...base, database: "postgres" });
 await admin.connect();
 const migrations = await loadMigrations();

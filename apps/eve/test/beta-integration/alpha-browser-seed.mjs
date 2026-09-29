@@ -1,9 +1,10 @@
+import {betaTestPort} from './test-postgres.mjs';
 import {Client,Pool} from 'pg';import {writeFile} from 'node:fs/promises';
 import {loadMigrations,runMigrations} from '../../scripts/migration-runner.ts';import {BetaIntegration} from '../../lib/beta-integration/runtime.ts';import {CanonicalCapsules} from '../../lib/capsules/canonical-memory.ts';
-const owner='private-alpha-browser';const admin=new Client('postgresql://postgres@127.0.0.1:55489/postgres');await admin.connect();
+const owner='private-alpha-browser';const admin=new Client(`postgresql://postgres@127.0.0.1:${betaTestPort}/postgres`);await admin.connect();
 const pools=[];try{for(const [database,eve] of [['myeve_beta_alpha_source','alpha-source'],['myeve_beta_alpha_browser','alpha-destination']]){
  if(!(await admin.query('SELECT FROM pg_database WHERE datname=$1',[database])).rowCount)await admin.query('CREATE DATABASE '+database);
- const pool=new Pool({connectionString:'postgresql://postgres@127.0.0.1:55489/'+database});pools.push(pool);
+ const pool=new Pool({connectionString:`postgresql://postgres@127.0.0.1:${betaTestPort}/`+database});pools.push(pool);
  const driver={query:async(s,p)=>(await pool.query(s,p)).rows,transaction:async ss=>{const c=await pool.connect();await c.query('BEGIN');try{for(const s of ss)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};await runMigrations(driver,await loadMigrations(),()=>{});
  await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status) VALUES($1,$2,'Sofie','sofie','assistant','Private local browser qualification',true,'active') ON CONFLICT DO NOTHING`,[eve,owner]);
  if(eve==='alpha-source')await pool.query(`INSERT INTO memory_records(id,owner_id,scope_type,scope_id,content,provider,source_type) VALUES('browser-memory',$1,'owner',$1,'My morning briefing should start with delivery risks and next steps.','local','explicit') ON CONFLICT DO NOTHING`,[owner]);

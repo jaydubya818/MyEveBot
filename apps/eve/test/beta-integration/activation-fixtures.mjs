@@ -1,3 +1,4 @@
+import {betaTestPort} from './test-postgres.mjs';
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { writeFile } from "node:fs/promises";
@@ -29,7 +30,7 @@ import { LearningStore } from "../../lib/total-recall/store.ts";
 process.env.MYEVE_WORK_RECALL_ENABLED = "true";
 const pool = new Pool({
   host: "127.0.0.1",
-  port: 55489,
+  port: betaTestPort,
   user: "postgres",
   database: "myeve_beta_phase2",
   max: 12,
@@ -42,7 +43,7 @@ const beta = new BetaIntegration(pool, {
 Object.assign(process.env, {
   MYEVE_BETA_MODE: "qualification",
   MYEVE_BETA_DATABASE_URL:
-    "postgresql://postgres@127.0.0.1:55489/myeve_beta_phase2",
+    `postgresql://postgres@127.0.0.1:${betaTestPort}/myeve_beta_phase2`,
   MYEVE_ACCESS_PASSWORD: "local-activation-browser-only",
   MYEVE_SESSION_SECRET:
     "local-activation-browser-secret-qualification-only-2026",

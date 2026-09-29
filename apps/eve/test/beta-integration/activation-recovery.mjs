@@ -89,7 +89,7 @@ try {
           ],
           {
             encoding: "utf8",
-            env: { PATH: process.env.PATH, HOME: process.env.HOME, MYEVE_BETA_EVIDENCE_PHASE: process.env.MYEVE_BETA_EVIDENCE_PHASE },
+            env: { MYEVE_BETA_TEST_PORT: process.env.MYEVE_BETA_TEST_PORT, PATH: process.env.PATH, HOME: process.env.HOME, MYEVE_BETA_EVIDENCE_PHASE: process.env.MYEVE_BETA_EVIDENCE_PHASE },
           },
         );
       const lost = run(true);

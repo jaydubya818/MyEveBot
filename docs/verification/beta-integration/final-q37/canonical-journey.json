@@ -1,0 +1,158 @@
+{
+  "qualification": "CONTROLLED_LOCAL_FIXTURE",
+  "productionContextPath": "PASS",
+  "liveModel": "NOT_RUN",
+  "protectedLiveVerification": "NOT_RUN",
+  "canonicalResult": "PARTIAL",
+  "goldenJourney": "PARTIAL",
+  "limitation": "Canonical local Result does not establish publication, CI, review or acceptance. Task/Goal completion is intentionally withheld. Mounted control/continuation and canonical admission passed; live provider/publication remain unrun.",
+  "owner": "canonical-43fc3354-4c19-4e76-99fd-7719f3616a80",
+  "agentId": "sofie-b4480d7b-b3df-4fb1-a220-a67f03202481",
+  "goalId": "411ad3aa-699f-40ea-a019-bd499b49a45d",
+  "taskId": "d4770ba6-da85-492d-8a33-8093432ec990",
+  "workId": "6496f222-921e-4795-813a-3521bae78656",
+  "laterWork": "fcfd4815-605e-40f8-bac5-b0e5283c5a14",
+  "result": {
+    "id": "7d3ae299-e963-4069-8246-120dffb77d51",
+    "proof": {
+      "contractVersion": 2,
+      "workId": "6496f222-921e-4795-813a-3521bae78656",
+      "workVersion": 2,
+      "criteriaVersion": 1,
+      "outcome": "PARTIAL",
+      "resultRevision": "480b60688a9ec36c5db1e567c5643ab55ae7b3c5",
+      "createdAt": "2026-09-29T06:33:22.224Z",
+      "evidence": [
+        {
+          "criterionId": "ab0cabaa-971c-8f57-a201-cb167b34b8cd",
+          "resultRevision": "480b60688a9ec36c5db1e567c5643ab55ae7b3c5",
+          "state": "PASS",
+          "producer": "trusted-verifier",
+          "sourceRef": "native-verification:6496f222-921e-4795-813a-3521bae78656:480b60688a9ec36c5db1e567c5643ab55ae7b3c5:ab0cabaa-971c-8f57-a201-cb167b34b8cd",
+          "contentHash": "sha256:51e6e80be54499654961b1c43cb0ca527b5a182110e8ccd442e92f9724b074a2",
+          "observedAt": "2026-09-29T06:33:22.224Z"
+        }
+      ],
+      "artifactRefs": [
+        "native-candidate:36c8dd2a-2447-422a-8a88-a73750b452b9:sha256:8bfc213b3e5ce8ffd5137fd7e4f889f451b3045a639bdf14c3c5d4cab259301d",
+        "protected-evidence:sha256:3fd96a5ebd9bd8e13c8730d71447c78cace2f89440fdad3257f3d41a2d71d8ad",
+        "changed-source:quantity.mjs"
+      ],
+      "limitations": [
+        "Native source development and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.",
+        "Recorded native model spend: $0.000000. Infrastructure costs are not covered."
+      ]
+    },
+    "contentHash": "35e53514055464307ead737c2aaaaef4602a705c8765574818a5004fb96d3368"
+  },
+  "checks": [
+    "Goal creates one paused Work; absent qualification denies admission without dispatch",
+    "Authenticated Inbox visibility, duplicate response delivery, signed continuation and replay denial; current conversation required after resume",
+    "Actual canonical model wrapper receives bounded current Recall; superseded and other Work evidence excluded; tools unchanged",
+    "Canonical admission requires retained current conversation, exact owner/version/generation and all canonical policy gates",
+    "Canonical immutable Result binds candidate/evidence; local PASS remains PARTIAL and cannot complete Task/Goal or claim Ready",
+    "Result feedback stays candidate until evaluation/promotion; fresh process consumes repository learning; SIGKILL then fresh model context preserves learning and Work scope",
+    "Mounted canonical continuation consumer deduplicates retained responses, rejects stale generation, and records eligibility without changing Work control or granting admission",
+    "Mounted unauthenticated/wrong-owner/stale-generation/forged-response/unsupported-operation denial; productive effects zero"
+  ],
+  "duplicateWork": 0,
+  "falseTaskCompletion": 0,
+  "falseGoalCompletion": 0,
+  "authorityExpansion": 0,
+  "crossOwnerDisclosure": 0,
+  "falseReady": 0,
+  "config": {
+    "mode": "isolated-dogfood",
+    "ownerId": "canonical-43fc3354-4c19-4e76-99fd-7719f3616a80",
+    "agentId": "sofie-b4480d7b-b3df-4fb1-a220-a67f03202481",
+    "objective": "Implement launch deadline parser",
+    "criteria": [
+      {
+        "id": "ab0cabaa-971c-8f57-a201-cb167b34b8cd",
+        "statement": "Launch deadline parser is independently checked",
+        "method": "test"
+      }
+    ],
+    "profile": {
+      "id": "beta-controlled-context",
+      "version": 1,
+      "repository": "qualification/design-partner",
+      "privateQualification": true,
+      "baseBranch": "main",
+      "allowedPaths": [
+        "quantity.mjs"
+      ],
+      "checks": [
+        {
+          "id": "positive",
+          "program": "quantity.mjs",
+          "input": "1\n",
+          "expectedOutput": "1\n",
+          "expectedExitCode": 0,
+          "criterionIds": [
+            "ab0cabaa-971c-8f57-a201-cb167b34b8cd"
+          ]
+        }
+      ],
+      "requiredCI": [
+        "quantity-ci"
+      ],
+      "reviewerLogins": [
+        "jaydubya818"
+      ],
+      "policyVersion": 1,
+      "executor": "claude-code",
+      "image": "node@sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "maxRuns": 3,
+      "maxModelRequests": 10,
+      "maxOutputTokens": 1024
+    },
+    "approvedBase": {
+      "sha": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+      "files": [
+        {
+          "path": ".github/workflows/quantity-ci.yml",
+          "sha256": "f7b0fde69c043e25fc36fe49991abcde953f4fde68efc6a3c896675b7c4fa072"
+        },
+        {
+          "path": ".gitignore",
+          "sha256": "16d30e4462189fb14dd611bdb708c510630c576a1f35b9383e89a4352da36c97"
+        },
+        {
+          "path": "package.json",
+          "sha256": "89aaaf98f1c4f65bbf56633002c8a95d0b2485b72f326d2e786338e04bd29ca6"
+        },
+        {
+          "path": "README.md",
+          "sha256": "23e1247a18bcb50ffac87a1f27a2137d901b53e1db2f5beacaac522456b20713"
+        },
+        {
+          "path": "test/quantity.test.mjs",
+          "sha256": "33b61e17e012555c9845638dc903355a4c32b81d58ff533ef6dd201259a7c64e"
+        }
+      ]
+    },
+    "brokerPort": 55470,
+    "model": "claude-sonnet-5",
+    "nativeCompletion": {
+      "inputBytes": 14336,
+      "implementationCalls": 5,
+      "repairCalls": 3,
+      "explanationCalls": 1,
+      "repairIterations": 1
+    },
+    "nativeMode": "normal",
+    "nativeQualification": {
+      "provider": {
+        "id": "myeve-native-sofie",
+        "version": 1
+      },
+      "modelId": "anthropic/claude-sonnet-5",
+      "scopeId": "canonical-43fc3354-4c19-4e76-99fd-7719f3616a80",
+      "profileHash": "5791773f27e2046ec5a2b1b528761069bfa189c939b0e483fa1c7c3e5a05fec0",
+      "evidenceRef": "CONTROLLED-LOCAL-FIXTURE-NOT-LIVE",
+      "qualifiedAt": "2026-09-29T06:33:21.130Z",
+      "expiresAt": "2026-09-29T07:33:22.130Z"
+    }
+  }
+}

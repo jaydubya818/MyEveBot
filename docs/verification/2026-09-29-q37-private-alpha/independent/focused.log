@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/q37-private-alpha-continuation/Myeve/apps/eve
+
+ ✓ lib/engineering/worker-projection.test.ts (8 tests) 10ms
+ ✓ lib/engineering/factory-spend.test.ts (31 tests) 17ms
+
+ Test Files  2 passed (2)
+      Tests  39 passed (39)
+   Start at  23:09:32
+   Duration  482ms (transform 181ms, setup 0ms, collect 440ms, tests 27ms, environment 0ms, prepare 64ms)
+

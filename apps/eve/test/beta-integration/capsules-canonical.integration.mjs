@@ -1,3 +1,4 @@
+import {betaTestPort} from './test-postgres.mjs';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 const exec=promisify(execFile);
@@ -9,9 +10,9 @@ import {BetaIntegration} from '../../lib/beta-integration/runtime.ts';
 import {CanonicalCapsules} from '../../lib/capsules/canonical-memory.ts';
 import {writeFile} from 'node:fs/promises';
 import {digest,canonicalJson} from '../../lib/capsules/format.ts';
-const admin=new Client('postgresql://postgres@127.0.0.1:55489/postgres');await admin.connect();
+const admin=new Client(`postgresql://postgres@127.0.0.1:${betaTestPort}/postgres`);await admin.connect();
 const pools=[],names=[],checks=[];const owner='capsule-alpha-owner';
-async function database(eve){const name='myeve_beta_capsule_'+randomBytes(5).toString('hex');names.push(name);await admin.query('CREATE DATABASE '+name);const pool=new Pool({connectionString:'postgresql://postgres@127.0.0.1:55489/'+name});pools.push(pool);
+async function database(eve){const name='myeve_beta_capsule_'+randomBytes(5).toString('hex');names.push(name);await admin.query('CREATE DATABASE '+name);const pool=new Pool({connectionString:`postgresql://postgres@127.0.0.1:${betaTestPort}/`+name});pools.push(pool);
  const migration={query:async(s,p)=>(await pool.query(s,p)).rows,transaction:async ss=>{const c=await pool.connect();try{await c.query('BEGIN');for(const s of ss)await c.query(s.sql,s.params);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}};
  const migrations=await loadMigrations();await runMigrations(migration,migrations,()=>{});await runMigrations(migration,migrations,()=>{});
  await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status) VALUES($1,$2,'Sofie','sofie','assistant','Private alpha qualification',true,'active')`,[eve,owner]);
@@ -62,5 +63,5 @@ try{
  // A second independent destination exercises clean rollback and replay without rewriting prior state.
  const c=await database('eve-c'),third=new CanonicalCapsules(c.beta,owner,'eve-c');const reviewC=await third.preview(capsule.raw);const imported=await third.import(capsule.raw,reviewC.reviewDigest,decisions);await third.rollback(imported.id);
  assert.equal((await third.import(capsule.raw,reviewC.reviewDigest,decisions)).result,'rolled_back');assert.equal((await c.pool.query("SELECT count(*)::int n FROM memory_records WHERE status='active'")).rows[0].n,0);pass('rollback and old-request replay never reactivate retired Memory');
- await writeFile('../../docs/verification/beta-integration/alpha/capsules-canonical.json',JSON.stringify({status:'PASS',checks,scope:'Personal owner Memory only; scoped learning and behavior staged. Canonical memoryStore recall after process restart; live Sofie NOT_RUN.',safety:{duplicateMemory:0,crossOwnerDisclosures:0,authorityTransfer:0,staleActivation:0}},null,2)+'\n');
+ await writeFile(`../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "alpha"}/capsules-canonical.json`,JSON.stringify({status:'PASS',checks,scope:'Personal owner Memory only; scoped learning and behavior staged. Canonical memoryStore recall after process restart; live Sofie NOT_RUN.',safety:{duplicateMemory:0,crossOwnerDisclosures:0,authorityTransfer:0,staleActivation:0}},null,2)+'\n');
 }finally{for(const p of pools)await p.end();for(const name of names)await admin.query('DROP DATABASE '+name+' WITH (FORCE)');await admin.end();}

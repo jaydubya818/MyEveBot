@@ -1,0 +1,21 @@
+PASS Golden journey: durable Goal → Plan → A → external reply → B → owner decision → C → Goal complete
+PASS Concurrent duplicate eligibility and process loss after Work creation reuse exactly one durable Work
+PASS Duplicate authenticated events concurrently clear one dependency and create one Work
+PASS Stale generations, Goal pause, delayed event, restart and resume preserve current truth
+PASS Schedule cannot bypass other dependencies or authority
+PASS FAILED, PARTIAL, unverified, stale and incomplete criteria Results never complete tasks
+PASS Goal completion requires outcome evidence, preserves history on reopen and archive never resumes
+PASS Owner isolation on queries, continuation, signals and result linkage
+PASS Task cancellation wins against later Result; paused Task survives restart
+PASS Material revision fences active Work and old Result cannot finish revised task
+PASS Plan evolution records history, bounds follow-ups, rejects cycles and oversized plans
+PASS Database fences reject narrative task/Goal completion and deletion of retained Work
+PASS Concurrent completion vs cancellation and Goal completion vs new task remain serializable
+PASS Pause between durable eligibility and dispatch prevents Work; concurrent schedule and manual continuation deduplicate
+PASS SIGKILL at seven durable checkpoints preserves progress and correlation
+PASS Ambiguous stale intent is fenced until canonical reconciliation; stale Inbox snapshot cannot reopen decision
+PASS Creation/plan replay is immutable, completed-task revisions reopen, and audit uses existing redaction
+PASS Existing reminder references deduplicate without creating another scheduler or cross-owner links
+PERFORMANCE_MS {"today":7.18,"goalDetail":1.28,"taskDetail":1.3,"dailyBrief":7.53,"dependencyEvaluation":0.93}
+PASS Queries are bounded, briefs replay with a fixed watermark, dispatcher exposes fair Goal pagination
+QUALIFICATION {"tests":19,"metrics":{"duplicateConsequentialWork":0,"falseTaskCompletions":0,"falseGoalCompletions":0,"goalDerivedAuthorityGrants":0,"crossOwnerDisclosures":0,"necessaryOwnerDecisions":1,"avoidableCoordinationDebt":0},"boundary":"PostgreSQL + durable local Work/Inbox fixtures; no production adapters"}

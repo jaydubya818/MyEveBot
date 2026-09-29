@@ -1,3 +1,5 @@
+Current Q37 assembly and forward migration bridge: [final-q37](final-q37/README.md). Earlier dossiers below are preserved historical checkpoints.
+
 > Current workstream: [two-person private alpha](alpha/README.md). The accepted pre-final-components checkpoint below is preserved as historical evidence.
 
 # Canonical beta integration — activated local candidate
