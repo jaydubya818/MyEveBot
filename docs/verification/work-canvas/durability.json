@@ -1,0 +1,12 @@
+{
+  "tested_source_sha": "e92ca11078c3270b4c5ab99ea31ac3a525b0fa66",
+  "remote_verified_sha": "e92ca11078c3270b4c5ab99ea31ac3a525b0fa66",
+  "branch": "codex/private-alpha-product-expansion",
+  "remote": "origin",
+  "verified_at_utc": "2026-09-29T06:43:57.976450+00:00",
+  "handoff_thread": "01a0e4bf-cdce-7ba1-91c2-6953027cca93",
+  "handoff_delivered": true,
+  "merge_requested": false,
+  "deployment_requested": false,
+  "note": "Documentation-only receipt after the immutable tested source. Final receipt commit is separately pushed and verified."
+}

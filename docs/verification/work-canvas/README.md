@@ -2,7 +2,7 @@
 
 Status: **PASS for the disconnected interaction candidate. Live canonical integration remains pending.**
 
-Route: `/work-canvas`, linked from `/product-preview`. See [product guide](../../private-alpha/WORK-CANVAS.md) for the design and integration contract. This follow-up builds on remotely verified product checkpoint d41c47c. Tested source hashes are in source-manifest.json; the pushed source SHA is supplied in the durability handoff.
+Route: `/work-canvas`, linked from `/product-preview`. See [product guide](../../private-alpha/WORK-CANVAS.md) for the design and integration contract. This follow-up builds on remotely verified product checkpoint d41c47c. Tested source hashes are in source-manifest.json; tested source `e92ca11078c3270b4c5ab99ea31ac3a525b0fa66` was pushed and verified against origin. See durability.json.
 
 ## Final checks
 
