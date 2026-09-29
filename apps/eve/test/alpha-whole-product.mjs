@@ -137,4 +137,20 @@ try{
  const overlap=(await pool.query("SELECT work_id FROM engineering_route_runs WHERE status NOT IN ('COMPLETED','FAILED','CANCELLED') GROUP BY work_id HAVING count(*)>1")).rowCount;assert.equal(overlap,0);
  const report={status:'PARTIAL',qualification:'Connected exact pinned consolidation producer, non-paid local fixture. Real transport/Git/SQLite/PostgreSQL and independent Docker verification. Controlled executor; no live models.',producerSHA:producerPin,consumerSHA:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),upstreamConsumerSHA:'cf83e3bec6f02ca812b2e08e04c188eaa271bede',owner,goalId,taskId,workId:work.id,result,candidates:ws.candidates,verificationEvidence:ws.evidence,sourceDigest,configurationDigest,checks:results,receipt,learning:{id:family.id,hash:family.versions[0].hash},counters:{duplicateWork:0,duplicateFactoryExecution:executions-1,concurrentWriters:overlap,falseTaskCompletion:0,falseGoalCompletion:0,falseReady:0,authorityExpansion:0,crossOwnerDisclosure:0,staleContinuation:0,capsuleAuthorityTransfer:0},liveSofie:'NOT_RUN',liveMyFactory:'NOT_RUN'};
  await writeFile(new URL(`../../../docs/verification/beta-integration/${process.env.MYEVE_BETA_EVIDENCE_PHASE ?? "alpha"}/whole-product.json`,import.meta.url),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));
-}finally{if(supervisor)await supervisor.close();if(spendProvider)await new Promise(r=>spendProvider.close(r));if(destinationPool)await destinationPool.end();if(destinationName)await admin.query('DROP DATABASE '+destinationName+' WITH (FORCE)');await pool.end();await admin.query('DROP DATABASE '+name+' WITH (FORCE)');await admin.end();await rm(dir,{recursive:true,force:true});}
+} finally {
+ if(supervisor)await supervisor.close();
+ if(spendProvider)await new Promise(r=>spendProvider.close(r));
+ if(destinationPool)await destinationPool.end();
+ await pool.end();
+ // Match the qualified connected harness: wait for socket close observation
+ // instead of FORCE-terminating an idle pg client during teardown.
+ for(const databaseName of [destinationName,name].filter(Boolean)){
+  for(let i=0;i<100;i++){
+   const {rows}=await admin.query('SELECT count(*)::int n FROM pg_stat_activity WHERE datname=$1',[databaseName]);
+   if(rows[0].n===0){await admin.query('DROP DATABASE '+databaseName);break;}
+   if(i===99)throw Error('Disposable database did not quiesce: '+databaseName);
+   await new Promise(r=>setTimeout(r,10));
+  }
+ }
+ await admin.end();await rm(dir,{recursive:true,force:true});
+}
