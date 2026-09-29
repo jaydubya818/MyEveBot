@@ -1,0 +1,384 @@
+{
+  "product_source": "9caacf60c6affae48f3cdaadfd3ecd7ca50dd0c2",
+  "canonical_target": "52b3891a2685307cbb50bba97680070700df4cc0",
+  "remote_target_verified": "52b3891a2685307cbb50bba97680070700df4cc0",
+  "common_base": "d64f2f96003818b2f51341b54a2edd6f426a0dae",
+  "expansion_delta_base": "cdd7f2cd725eb2b58254a08328c7e34af79ade06",
+  "full_branch_conflicts": [
+    "apps/eve/app/apps/page.tsx",
+    "apps/eve/app/work/page.tsx",
+    "apps/eve/components/owner/decisions.tsx",
+    "apps/eve/components/owner/experience.tsx",
+    "apps/eve/components/owner/navigation.tsx",
+    "apps/eve/components/owner/owner.css",
+    "docs/digital-worker-ux.md",
+    "docs/verification/beta-product-experience/AUDIT.md",
+    "docs/verification/beta-product-experience/README.md",
+    "docs/verification/beta-product-experience/integration-preparation.md"
+  ],
+  "expansion_delta_conflicts": [
+    "apps/eve/components/owner/navigation.tsx",
+    "apps/eve/components/owner/owner.css"
+  ],
+  "files": [
+    {
+      "path": "apps/eve/app/approvals/page.tsx",
+      "action": "ADOPT_EXISTING_AUTHORITY_VIEW",
+      "reason": "Mount only the existing-authority Approval Center; canonical Inbox response delivery remains Beta-owned.",
+      "source_blob": "121af856e54d322c3564f8b00903040a51ca539b"
+    },
+    {
+      "path": "apps/eve/app/apps/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "bca9bc80dd2d38be4c84265464c67fa4cc7d984d"
+    },
+    {
+      "path": "apps/eve/app/chat/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "d874363bdbac9f4189f0c8132becbec78796fd8f"
+    },
+    {
+      "path": "apps/eve/app/computer/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "7268af23f827ccf23c9e48f2938d72fac1766698"
+    },
+    {
+      "path": "apps/eve/app/inbox/page.tsx",
+      "action": "ADAPT_CANONICAL_DATA",
+      "reason": "Do not ship legacy email-channel hub as canonical Inbox. Bind existing /api/beta/inbox, preserving owner/correlation/action response/continuation.",
+      "source_blob": "08f6f7f1cc1fe55a5767530c62494486b85b6ec3"
+    },
+    {
+      "path": "apps/eve/app/knowledge-record/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "2625c87d7d2038d5bb1372d12c793f043fd1d1d6"
+    },
+    {
+      "path": "apps/eve/app/privacy/page.tsx",
+      "action": "ADAPT_CANONICAL_STATUS",
+      "reason": "Keep private/shared boundary copy. In consolidated app link integrated /capsules and /learning; remove claims that those components have not arrived. Do not infer live qualification.",
+      "source_blob": "f07a8596ea5c5e3ec6e0e88ef6c961e774503cda"
+    },
+    {
+      "path": "apps/eve/app/product-preview/page.tsx",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "0791405997e021e998c1d587f6de2ce2e38dc116"
+    },
+    {
+      "path": "apps/eve/app/rooms/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "9edfcce4cea6b85ed8cfe4af8db8b48d9550f64e"
+    },
+    {
+      "path": "apps/eve/app/search/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "dee4f2f4fdc2710a371df3864ae7d4967d3a45de"
+    },
+    {
+      "path": "apps/eve/app/team/page.tsx",
+      "action": "ADAPT_CANONICAL_STATUS",
+      "reason": "Preserve specialist roster; replace global unavailable copy with canonical per-Work qualification/current truth. No dispatch grant.",
+      "source_blob": "b0876263fdb5758c1dc1b26be21535d09e9984ad"
+    },
+    {
+      "path": "apps/eve/app/weekly/page.tsx",
+      "action": "ADAPT_CANONICAL_DATA",
+      "reason": "Use canonical Goal/Work/Result dated brief; do not count legacy TaskRun outcomes as canonical completions.",
+      "source_blob": "276a6a815a26fc1a96421f30ba1f27f93bd0d459"
+    },
+    {
+      "path": "apps/eve/app/work-canvas/page.tsx",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "623164cb03495e7d6d4061d944949579ae978c33"
+    },
+    {
+      "path": "apps/eve/app/workspace/[id]/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "0dfb1eb67c986796f9e5fe076dc11156d030bb5b"
+    },
+    {
+      "path": "apps/eve/app/workspace/page.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "5c4d2288e8f67ce2de90a575649905fe8b58e6fb"
+    },
+    {
+      "path": "apps/eve/components/artifact-workspace.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "fcc6533df490fe6fb1b30b92394f9b7cf0f8e047"
+    },
+    {
+      "path": "apps/eve/components/command-palette.tsx",
+      "action": "MANUAL_COMPOSITION",
+      "reason": "Retain focus/abort fixes and canonical chat behavior. Compose destination list; one shortcut owner per mounted surface.",
+      "source_blob": "bef849f180dfcad1d9704d66942f5c276e008637"
+    },
+    {
+      "path": "apps/eve/components/computer-viewer.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "f4fdc7076eaa844f4909f28203a9cf7a4e356742"
+    },
+    {
+      "path": "apps/eve/components/owner/approval-center.tsx",
+      "action": "ADOPT_EXISTING_AUTHORITY_VIEW",
+      "reason": "Existing approvals GET/PATCH contracts match Beta exactly. Keep canonical approval identity, Pending query and bindingHash; coordinate with Inbox, not a new approval ledger.",
+      "source_blob": "064cf48bc15e3a7a7effca46f74f68f73e163541"
+    },
+    {
+      "path": "apps/eve/components/owner/artifact-editor.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "3d0eb7d1332e25267224731952d5230611ca4274"
+    },
+    {
+      "path": "apps/eve/components/owner/artifact-hub.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "b9e689d459aea7b1a172ff40b03a3342411664b0"
+    },
+    {
+      "path": "apps/eve/components/owner/canonical-boundaries.ts",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "d456f69b2ca7a8db5e8934f697a7bf5943ea5717"
+    },
+    {
+      "path": "apps/eve/components/owner/decisions.tsx",
+      "action": "ADAPT_CANONICAL_IDENTITY",
+      "reason": "Existing binary approval authority unchanged. Do not route taskId/legacy goalId as canonical Work. Resolve trusted typed identity before linking; revise proposals through exact binding.",
+      "source_blob": "aa465f4f84f37d38d1f44b8a2739197e754cdc5c"
+    },
+    {
+      "path": "apps/eve/components/owner/destinations.ts",
+      "action": "MANUAL_COMPOSITION",
+      "reason": "Add canonical Memory/Learning/Capsules/Results/Activity destinations; avoid duplicate or misleading Work/Goal identity paths.",
+      "source_blob": "5f1faddfeb2fd6863678502fcf240966cedd4328"
+    },
+    {
+      "path": "apps/eve/components/owner/experience.tsx",
+      "action": "PRESERVE_BETA",
+      "reason": "Keep canonical IntegratedExperience wrapper and selectedKind. At most port human-only filtering into PreviewExperience; never copy this product file wholesale.",
+      "source_blob": "0befb34c98bbb75687139dabd8a8c670f7acce41"
+    },
+    {
+      "path": "apps/eve/components/owner/navigation.tsx",
+      "action": "MANUAL_COMPOSITION",
+      "reason": "Resolve text conflict while keeping Beta identity and Capsules. Combine discovery without restoring a competing Work entry or a second keyboard listener.",
+      "source_blob": "46da1eb4ddb98c92fce631218f94a56a38247bcc"
+    },
+    {
+      "path": "apps/eve/components/owner/owner.css",
+      "action": "MANUAL_COMPOSITION",
+      "reason": "Resolve text conflict. Keep Beta owner-form/select/label/provenance rules; scope product layouts to their own shells and requalify canonical forms.",
+      "source_blob": "bf36f21c65546f3fc5ecdbebe683e622b07aa1a5"
+    },
+    {
+      "path": "apps/eve/components/owner/product-fixtures.ts",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "0be44936b1a6b1921ee86b3e35cff8243bb3835c"
+    },
+    {
+      "path": "apps/eve/components/owner/product-hubs.tsx",
+      "action": "ADAPT_BY_EXPORT",
+      "reason": "AppsHub reusable. TeamHub must read canonical availability. InboxHub must consume Universal Inbox; channel/email list is auxiliary. WeeklyHub must use canonical dated brief or remain explicitly legacy review.",
+      "source_blob": "f458922bc9fea1172b828578500006ab0edd0743"
+    },
+    {
+      "path": "apps/eve/components/owner/product-preview.tsx",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "0df0f5a807417aa74a2d30e13873aa730bb65c72"
+    },
+    {
+      "path": "apps/eve/components/owner/product-shell.tsx",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "afa263f6577eb74faddfa7af0fe251f68e2ed833"
+    },
+    {
+      "path": "apps/eve/components/owner/product.test.ts",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "d92dc81f6e0a1aa6c5065ccd2fc0bdb73b4fa6bd"
+    },
+    {
+      "path": "apps/eve/components/owner/resource.ts",
+      "action": "ADOPT_PRODUCT_UI",
+      "reason": "Independent presentation over existing contracts; resolve shared navigation/style dependencies and rerun in final assembly.",
+      "source_blob": "da2aa008211a306026ff5feea6dc826842bb1a9b"
+    },
+    {
+      "path": "apps/eve/components/owner/search-model.ts",
+      "action": "ADAPT_CANONICAL_DATA",
+      "reason": "Legacy Goals/Outcomes are not canonical Work/Result IDs. Bind typed /api/beta sources and /work?kind=goal|work; preserve source, PARTIAL and verification_mode.",
+      "source_blob": "b6477b52c15c8580414c6078105a4cd7ae1945fc"
+    },
+    {
+      "path": "apps/eve/components/owner/search.tsx",
+      "action": "ADAPT_CANONICAL_DATA",
+      "reason": "Adopt search interaction/cancellation/source-error UX; substitute canonical Work/Result/Goal providers. Retain existing artifacts/agents/knowledge/thread providers.",
+      "source_blob": "29dbd9de3ad053d159926dd1ec3de68f65789ab4"
+    },
+    {
+      "path": "apps/eve/components/owner/work-canvas-model.ts",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "b7128615e43dd781174dadaf09356bf89809e17c"
+    },
+    {
+      "path": "apps/eve/components/owner/work-canvas.css",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "33b755df8957e1e6a51fe120b883cd46a7804eeb"
+    },
+    {
+      "path": "apps/eve/components/owner/work-canvas.test.ts",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "421316be8c9f580844b08194c9f239712a0b8e34"
+    },
+    {
+      "path": "apps/eve/components/owner/work-canvas.tsx",
+      "action": "KEEP_DISCONNECTED_PREVIEW",
+      "reason": "May retain explicit sample route/evidence. Never mount sample reducer or ready copy as canonical Work. Current Truth and Proof remain authoritative.",
+      "source_blob": "773019574275a855b7d71b8b6b5cfa343a3c38d5"
+    },
+    {
+      "path": "apps/eve/test/private-alpha/local-server.cjs",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "f3f647af54a8a084773f26794b3697d86c30fce1"
+    },
+    {
+      "path": "apps/eve/test/private-alpha/playwright.config.ts",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "ced37933a7a5ffcf4207d90168e9c93bec93438e"
+    },
+    {
+      "path": "apps/eve/test/private-alpha/product.spec.ts",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "fa08513efd11c2115046c29335629492db169c69"
+    },
+    {
+      "path": "apps/eve/test/private-alpha/work-canvas.config.ts",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "6fee5789c19a10be7370e13bec6ca9732f2bcef2"
+    },
+    {
+      "path": "apps/eve/test/private-alpha/work-canvas.spec.ts",
+      "action": "KEEP_PRODUCT_TESTS_ONLY",
+      "reason": "Retain source/fixture regression evidence; do not replace canonical acceptance tests or promote fixture success to live status.",
+      "source_blob": "7c7ccf1368fcaeca0912d5ea2f6c97c1b795faeb"
+    }
+  ],
+  "protected_product_changes": [],
+  "canonical_migration_manifest": {
+    "apps/eve/migrations/0001_runtime_core.sql": "e148566d74b0df860a12614fb654ff48fe4cc125",
+    "apps/eve/migrations/0002_trustworthy_delegation.sql": "e8c9136b10a08ea1b11e09652b30a6e46312cf2f",
+    "apps/eve/migrations/0003_goal_operating_system.sql": "911868cb5d4cefe5eb214c21731b7cc8bc435736",
+    "apps/eve/migrations/0004_skill_control_plane.sql": "aa282772ae33f199f7bc192139259f6d67686026",
+    "apps/eve/migrations/0005_skill_evals_and_outcomes.sql": "0bcee1f6e3bafe9963e8c61f7ca90ca11672e0bb",
+    "apps/eve/migrations/0006_outcomes_and_review_loop.sql": "707a236d9e417a3b686a6fdb6202fa5ad94a9224",
+    "apps/eve/migrations/0007_proactive_review_delivery.sql": "a127df378594b06852f0f2d0916c5d3e9915aa8d",
+    "apps/eve/migrations/0008_persistent_agents.sql": "71986cba8e19be012c8eb039617dc7ae276fae88",
+    "apps/eve/migrations/0009_scoped_memory_context.sql": "5a24c0fed5bdf31b16ae584758c26bb14364368b",
+    "apps/eve/migrations/0010_agent_computer_runtime.sql": "11c9cb26ba96e2a316d761c52b76c67c197649e6",
+    "apps/eve/migrations/0011_knowledge_provenance_core.sql": "b306832e51a152abb7e29e9265ce2dc043c3914a",
+    "apps/eve/migrations/0012_role_run_attribution.sql": "8ff8a7ea440d22b2e02be96e498f70f716bdd62f",
+    "apps/eve/migrations/0013_colleague_first_execution.sql": "736c5bf221c4a892ee3dc4e6733a44c3c7f8c00b",
+    "apps/eve/migrations/0014_persistent_browser_profiles.sql": "f24b458895f2c9aee9661c7e37e3a62ab8dd5677",
+    "apps/eve/migrations/0015_phone_safety_controls.sql": "caf93b5d1f1227d368ddaa12e90cda36d90ea4a7",
+    "apps/eve/migrations/0016_owner_data_operations.sql": "b16aa5d19de53ffaadc59658c5307ce49908f026",
+    "apps/eve/migrations/0017_owner_file_inventory.sql": "5de17869923e25c72e03c9477af0f6201fdb075c",
+    "apps/eve/migrations/0018_owner_knowledge_control.sql": "1dc8aac05b5f094a5cf00b6bf0e2608e58bf1b63",
+    "apps/eve/migrations/0019_agent_control_center.sql": "3c6f60a28edf7afcdc7672dc779cdd530043f293",
+    "apps/eve/migrations/0020_canonical_approval_requests.sql": "62c30b53519c11072a2a844b3162ed89150b2899",
+    "apps/eve/migrations/0021_computer_control_leases.sql": "9a96854273702b09a5bb7d1107e16c9203c0dcd7",
+    "apps/eve/migrations/0022_live_computer_provider.sql": "3bec91db8bb7c8d5a96a6d7bfb5ecd966e53bbdc",
+    "apps/eve/migrations/0023_execution_reliability.sql": "4129e519a383290434655bb76e06149fac01d7ff",
+    "apps/eve/migrations/0024_routine_owner_review.sql": "e6e39ad18da94ac939552ae14e2f80a8fe4f433f",
+    "apps/eve/migrations/0025_action_executor_enforcement.sql": "6454a8d976d6f3333087fc7f47f95a2f29213745",
+    "apps/eve/migrations/0026_action_recovery_qualification.sql": "541b63a63839a7169dad58bb2e09fe79506c3444",
+    "apps/eve/migrations/0027_relay_federation.sql": "4b8dcfae146bd45b092e792a163b173bd740a5d6",
+    "apps/eve/migrations/0028_routine_pending_send.sql": "104964a8918205fb948784a8ba1ca7195457656d",
+    "apps/eve/migrations/0029_routine_admission.sql": "f35309a4784bd0c851abfc4ad88dc5da0fac13e4",
+    "apps/eve/migrations/0030_action_binding_reconciliation.sql": "b236cd743487490f73ec8e642d2affafb3a0141a",
+    "apps/eve/migrations/0031_computer_template_lifecycle.sql": "535b1ba97cfa02c8a9ffce766dcb5f4aa0e95d37",
+    "apps/eve/migrations/0032_computer_resource_lifecycles.sql": "0b86f60813eb1157bf3ac1b5fa0074510ad92841",
+    "apps/eve/migrations/0033_final_lineage_bridge.sql": "a26963d82a41b05790d4198274a77ebdc111da94",
+    "apps/eve/migrations/0034_conversation_runs.sql": "5db65ed4b856a8e0b546cd7f4537ed43df7db8e8",
+    "apps/eve/migrations/0035_peer_permissions.sql": "cf501e434d860a198a6e1cc8c1bc99bab97db848",
+    "apps/eve/migrations/0036_owner_channel_handoff.sql": "07b886313c856d3413e2861625f3f3595c74fe7f",
+    "apps/eve/migrations/0037_owner_model_reservations.sql": "11457b7d1ef54ce4769a344fe999862418568272",
+    "apps/eve/migrations/0038_owner_qualification_budget.sql": "53340d5a5c428692242478ba6a713dc023fc938e",
+    "apps/eve/migrations/0039_engineering_work.sql": "e3d75c684d6769979898f0d6cc71bd31fe1aac68",
+    "apps/eve/migrations/0040_app_settings.sql": "c2a9e7f8b3ccc106e6aab3869e33e9731d61e11b",
+    "apps/eve/migrations/0041_engineering_execution.sql": "6aa6a02422fa0c08274f321aa2ddbaa54e899a73",
+    "apps/eve/migrations/0042_engineering_routing.sql": "fa161fa410b08d5d4a45ebad3b2010019d3310d0",
+    "apps/eve/migrations/0043_engineering_route_admission.sql": "65a42209a17a775359e083ed8802be302a96e5d6",
+    "apps/eve/migrations/0044_engineering_knowledge.sql": "5192f4c423b89006a7905ac6e6b52df61554cfdc",
+    "apps/eve/migrations/0045_relay_reply_claims.sql": "9b9a36e382c281ea18bae9d103e01ce5d9e48fc5",
+    "apps/eve/migrations/0046_engineering_learning_drafts.sql": "b638062dfb4dd1904af797126d5bd7a5e6bf73dc",
+    "apps/eve/migrations/0047_engineering_direct.sql": "68d5075d65737739ba40b4973e390c7df058a885",
+    "apps/eve/migrations/0048_engineering_direct_verification.sql": "dd54d4a49ae3cb9dc1abd48cda543b812be3a9f0",
+    "apps/eve/migrations/0049_telegram_owner_receipts.sql": "7543a7723aeb8e6aa141b0f1b5b70a64639659b5",
+    "apps/eve/migrations/0050_engineering_native_runtime.sql": "4cc149b403ef390790a3fa898b1bdf590d2afb45",
+    "apps/eve/migrations/0051_engineering_conversation_budget.sql": "dfbc8db0b38cab9ebf3961718f90a0abe4746a39",
+    "apps/eve/migrations/0052_work_model_ledger.sql": "0eec86e2ae5d9e97010911e40ce8fbd55b169064",
+    "apps/eve/migrations/0053_native_completion_contract.sql": "28a73e78bb8aa068ba44a92f84f72a4c808e4121",
+    "apps/eve/migrations/0054_factory_result_receipts.sql": "a5f6bdfa2277cfd18a592742e3b235f6b91b7134",
+    "apps/eve/migrations/0055_engineering_factory_results.sql": "b029ddb99c5b5f1f0188d22b7a2ed046df18472a",
+    "apps/eve/migrations/0056_factory_writer_handoff.sql": "f59aa38580d86fc3a50150e50c0a28f7e34f1dcc",
+    "apps/eve/migrations/0057_factory_preparation_intent.sql": "4d571f461be4f55e60369616748ff73ccb515975",
+    "apps/eve/migrations/0062_relay_message_delegations.sql": "89d49996fc7bd6031f808b8100a03897e0d93dea",
+    "apps/eve/migrations/0063_beta_product_plane.sql": "3884aabe3e9916ad7e46d85c976f9d5c95efece1",
+    "apps/eve/migrations/0064_beta_result_fencing.sql": "ccc0331a644ddff44f6054f2255d41836222272c",
+    "apps/eve/migrations/0065_beta_result_supersession.sql": "bd6d70a06bf8ccb166dd90150cf0dbb68b5e2155",
+    "apps/eve/migrations/0066_beta_canonical_continuation.sql": "e172850ca4fec195b6780a67a3327b34bb4db857",
+    "apps/eve/migrations/0067_capsule_canonical_memory.sql": "2b93ee1aea18a1d901cc229b72482326c9146797",
+    "apps/eve/migrations/0068_published_main_lineage_bridge.sql": "62e8544cd42a617e44ea8c72a061fe428a2bb3cd"
+  },
+  "migration_impact": "NONE from product; preserve Beta complete chain and guarded published-main bridge",
+  "authority_audit": "No product API/backend/ledger/runner/provider changes. Conditional adoption only: canonical rendering/data/identity semantics must be preserved. Whole-branch copy is not safe.",
+  "competing_implementation_audit": "Legacy Work/Inbox/Needs You/Result overlaps identified and excluded or manually rebound by this manifest; no claim that wholesale adoption is conflict-free.",
+  "qualification": {
+    "product_owner_tests": 22,
+    "product_browser": 14,
+    "canvas_browser": 18,
+    "accessibility_scans": 136,
+    "accessibility_violations": 0,
+    "assembly_browser": "NOT_RUN",
+    "canonical_Result": "PARTIAL",
+    "canonical_Proof_of_Work": "PARTIAL",
+    "Golden_Journey": "PARTIAL",
+    "live_providers": "NOT_RUN"
+  },
+  "new_fixtures_added": false,
+  "source_rebased": false,
+  "beta_or_main_merged": false,
+  "unchanged_existing_contracts": [
+    "apps/eve/app/api/approvals/route.ts",
+    "apps/eve/app/api/approvals/[id]/route.ts",
+    "apps/eve/lib/approvals.ts",
+    "apps/eve/lib/agents.ts",
+    "apps/eve/lib/channels.ts",
+    "apps/eve/lib/email-api.ts",
+    "apps/eve/lib/review-types.ts",
+    "apps/eve/agent/lib/effect/artifacts.ts"
+  ]
+}

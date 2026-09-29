@@ -1,0 +1,33 @@
+b548036c80992d785988acd2e813c7e6cf922ffb
+apps/eve/app/apps/page.tsx
+apps/eve/app/work/page.tsx
+apps/eve/components/owner/decisions.tsx
+apps/eve/components/owner/experience.tsx
+apps/eve/components/owner/navigation.tsx
+apps/eve/components/owner/owner.css
+docs/digital-worker-ux.md
+docs/verification/beta-product-experience/AUDIT.md
+docs/verification/beta-product-experience/README.md
+docs/verification/beta-product-experience/integration-preparation.md
+
+Auto-merging README.md
+Auto-merging apps/eve/app/apps/page.tsx
+CONFLICT (add/add): Merge conflict in apps/eve/app/apps/page.tsx
+Auto-merging apps/eve/app/work/page.tsx
+CONFLICT (add/add): Merge conflict in apps/eve/app/work/page.tsx
+Auto-merging apps/eve/components/owner/decisions.tsx
+CONFLICT (add/add): Merge conflict in apps/eve/components/owner/decisions.tsx
+Auto-merging apps/eve/components/owner/experience.tsx
+CONFLICT (add/add): Merge conflict in apps/eve/components/owner/experience.tsx
+Auto-merging apps/eve/components/owner/navigation.tsx
+CONFLICT (add/add): Merge conflict in apps/eve/components/owner/navigation.tsx
+Auto-merging apps/eve/components/owner/owner.css
+CONFLICT (add/add): Merge conflict in apps/eve/components/owner/owner.css
+Auto-merging docs/digital-worker-ux.md
+CONFLICT (add/add): Merge conflict in docs/digital-worker-ux.md
+Auto-merging docs/verification/beta-product-experience/AUDIT.md
+CONFLICT (add/add): Merge conflict in docs/verification/beta-product-experience/AUDIT.md
+Auto-merging docs/verification/beta-product-experience/README.md
+CONFLICT (add/add): Merge conflict in docs/verification/beta-product-experience/README.md
+Auto-merging docs/verification/beta-product-experience/integration-preparation.md
+CONFLICT (add/add): Merge conflict in docs/verification/beta-product-experience/integration-preparation.md

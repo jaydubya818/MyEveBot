@@ -1,5 +1,7 @@
 # Pluto parity — requested benchmark
 
+> 2026-09-29 integration update: accepted Beta `52b3891a2685307cbb50bba97680070700df4cc0` now supplies the integrated components. This source remains unassembled; earlier waiting labels describe this branch, not missing upstream delivery. See [current consolidation crosswalk](CONSOLIDATION-52b3891a.md). Canonical Result/Proof/Golden Journey stay PARTIAL; live providers NOT_RUN.
+
 This compares the supplied plan, not independently verified claims about Pluto.
 
 | Capability | Existing foundation | Product tranche | Remaining boundary |

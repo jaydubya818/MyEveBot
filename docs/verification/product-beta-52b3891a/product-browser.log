@@ -1,0 +1,23 @@
+
+Running 14 tests using 1 worker
+
+(node:71177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › apps/eve/test/private-alpha/product.spec.ts:203:1 › product destinations and source states (3.0s)
+  ✓   2 [desktop] › apps/eve/test/private-alpha/product.spec.ts:225:1 › exact approval and bounded history (719ms)
+  ✓   3 [desktop] › apps/eve/test/private-alpha/product.spec.ts:257:1 › artifact link mounts revision workspace (842ms)
+  ✓   4 [desktop] › apps/eve/test/private-alpha/product.spec.ts:273:1 › search cancellation, source errors, and command keyboard flow (1.1s)
+  ✓   5 [desktop] › apps/eve/test/private-alpha/product.spec.ts:313:1 › disconnected contract preview never performs a write (642ms)
+  ✓   6 [desktop] › apps/eve/test/private-alpha/product.spec.ts:335:1 › outage and empty states do not claim success (513ms)
+  ✓   7 [desktop] › apps/eve/test/private-alpha/product.spec.ts:356:1 › late search responses cannot replace the current query (743ms)
+(node:72288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [mobile] › apps/eve/test/private-alpha/product.spec.ts:203:1 › product destinations and source states (2.9s)
+  ✓   9 [mobile] › apps/eve/test/private-alpha/product.spec.ts:225:1 › exact approval and bounded history (698ms)
+  ✓  10 [mobile] › apps/eve/test/private-alpha/product.spec.ts:257:1 › artifact link mounts revision workspace (803ms)
+  ✓  11 [mobile] › apps/eve/test/private-alpha/product.spec.ts:273:1 › search cancellation, source errors, and command keyboard flow (1.1s)
+  ✓  12 [mobile] › apps/eve/test/private-alpha/product.spec.ts:313:1 › disconnected contract preview never performs a write (596ms)
+  ✓  13 [mobile] › apps/eve/test/private-alpha/product.spec.ts:335:1 › outage and empty states do not claim success (528ms)
+  ✓  14 [mobile] › apps/eve/test/private-alpha/product.spec.ts:356:1 › late search responses cannot replace the current query (740ms)
+
+  14 passed (16.4s)

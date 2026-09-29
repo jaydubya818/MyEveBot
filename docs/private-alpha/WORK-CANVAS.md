@@ -1,5 +1,7 @@
 # Work Canvas interaction candidate
 
+> 2026-09-29 integration update: accepted Beta `52b3891a2685307cbb50bba97680070700df4cc0` now supplies the integrated components. This source remains unassembled; earlier waiting labels describe this branch, not missing upstream delivery. See [current consolidation crosswalk](CONSOLIDATION-52b3891a.md). Canonical Result/Proof/Golden Journey stay PARTIAL; live providers NOT_RUN.
+
 The owner sees one Work conversation: request → Sofie working → concise specialist activity → Result → a bounded decision → continuation. Internal Goal/Task/delegation/candidate/verification records remain behind **Proof of Work**. This is the proposed product presentation for the canonical owner to bind, not a new execution system.
 
 ## Try the four journeys

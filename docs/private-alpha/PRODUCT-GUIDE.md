@@ -1,5 +1,7 @@
 # Private-alpha product guide
 
+> 2026-09-29 integration update: accepted Beta `52b3891a2685307cbb50bba97680070700df4cc0` now supplies the integrated components. This source remains unassembled; earlier waiting labels describe this branch, not missing upstream delivery. See [current consolidation crosswalk](CONSOLIDATION-52b3891a.md). Canonical Result/Proof/Golden Journey stay PARTIAL; live providers NOT_RUN.
+
 Start at **Today** for active work, waiting items and recent results. **Ask Sofie** opens a conversation; **Work** keeps objectives and supporting evidence together. Use **Needs You** for explicit owner questions and **Approval Center** for scoped consequential proposals.
 
 Before allowing a proposal, inspect the resource, effects, capability and expiration. Allowing records permission; it does not establish execution. To change a proposal, decline the original and draft a revision request. The draft does not send automatically. History is limited to the latest 100 records; Pending queries pending records directly.
