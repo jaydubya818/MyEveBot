@@ -87,12 +87,10 @@ function PreviewExperience({
   const [retry, setRetry] = useState(0);
   const work = projectWork(snapshot);
   const exceptions = [
-    ...work.filter((item) =>
-      ["Needs you", "Blocked", "Recovery"].includes(item.state),
-    ),
+    ...work.filter((item) => item.state === "Needs you"),
     ...projectWork({ ...snapshot, goals: [] }).filter(
       (item) =>
-        ["Needs you", "Blocked", "Recovery"].includes(item.state) &&
+        item.state === "Needs you" &&
         !work.some((existing) => existing.id === item.id),
     ),
   ];
@@ -899,10 +897,10 @@ function PreviewExperience({
                     onDecision={saveDecision}
                   />
                 ))}
-                <Card title="Missing information & recovery">
+                <Card title="Waiting for your information">
                   <WorkList
                     items={exceptions}
-                    empty="No other exceptions reported"
+                    empty="No other owner questions reported"
                   />
                   <p className="owner-muted">
                     A blocker is not automatically an approval request. Open the

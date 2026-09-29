@@ -94,6 +94,12 @@ export function DecisionCard({
         current checks. Declining withholds permission. Neither choice confirms
         execution.
       </p>
+      <p>
+        <strong>Capability:</strong> {item.capabilityId ?? "Not supplied"} ·{" "}
+        <a href={`/work?id=${encodeURIComponent(item.goalId ?? item.taskId)}`}>
+          Open related work
+        </a>
+      </p>
       <details>
         <summary>Action details</summary>
         <pre>{JSON.stringify(item.parameters, null, 2)}</pre>
@@ -101,6 +107,23 @@ export function DecisionCard({
           {item.provider ?? "Provider not recorded"} · {item.actionClass}
         </p>
       </details>
+      {eligible && (
+        <details>
+          <summary>Modify this proposal</summary>
+          <p>
+            The exact proposal is bound to this approval. Decline it and ask
+            Sofie for a revised proposal; changing the request requires a fresh
+            approval.
+          </p>
+          {!preview && (
+            <a
+              href={`/chat?prompt=${encodeURIComponent(`Please revise the pending proposal: ${item.action}. Do not execute the original action. Ask me what should change.`)}`}
+            >
+              Draft a revision request
+            </a>
+          )}
+        </details>
+      )}
       {error && (
         <p role="alert" className="owner-notice">
           {error}

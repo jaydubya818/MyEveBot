@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import { productDestinations } from "@/components/owner/destinations";
 
 // Navigation command palette (Cmd+K): jump to threads, start a new chat,
 // open the manage panel, toggle notifications. Complements the composer's
@@ -42,7 +43,10 @@ interface PaletteEntry {
   run: () => void;
 }
 
-function useFullTextSearch(query: string): { hits: SearchHit[]; searching: boolean } {
+function useFullTextSearch(query: string): {
+  hits: SearchHit[];
+  searching: boolean;
+} {
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [searching, setSearching] = useState(false);
 
@@ -53,15 +57,29 @@ function useFullTextSearch(query: string): { hits: SearchHit[]; searching: boole
       setSearching(false);
       return;
     }
+    setHits([]);
     setSearching(true);
+    const abort = new AbortController();
     const timer = setTimeout(() => {
-      void fetch(`/api/threads/search?q=${encodeURIComponent(needle)}`)
+      void fetch(`/api/threads/search?q=${encodeURIComponent(needle)}`, {
+        signal: abort.signal,
+        cache: "no-store",
+      })
         .then((response) => (response.ok ? response.json() : null))
-        .then((body: { results?: SearchHit[] } | null) => setHits(body?.results ?? []))
-        .catch(() => setHits([]))
-        .finally(() => setSearching(false));
+        .then((body: { results?: SearchHit[] } | null) => {
+          if (!abort.signal.aborted) setHits(body?.results ?? []);
+        })
+        .catch(() => {
+          if (!abort.signal.aborted) setHits([]);
+        })
+        .finally(() => {
+          if (!abort.signal.aborted) setSearching(false);
+        });
     }, 250);
-    return () => clearTimeout(timer);
+    return () => {
+      abort.abort();
+      clearTimeout(timer);
+    };
   }, [query]);
 
   return { hits, searching };
@@ -96,15 +114,44 @@ export function CommandPalette({
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const { hits, searching } = useFullTextSearch(query);
 
   useEffect(() => {
-    if (open) {
-      setQuery("");
-      setActiveIndex(0);
-      // Focus after the overlay paints.
-      requestAnimationFrame(() => inputRef.current?.focus());
+    if (!open) return;
+    const previous = document.activeElement as HTMLElement | null;
+    setQuery("");
+    setActiveIndex(0);
+    const frame = requestAnimationFrame(() => inputRef.current?.focus());
+    function key(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+      }
+      if (event.key !== "Tab") return;
+      const elements = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          "button:not(:disabled), input, a[href]",
+        ) ?? [],
+      );
+      const first = elements[0],
+        last = elements.at(-1);
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
     }
+    document.addEventListener("keydown", key);
+    return () => {
+      cancelAnimationFrame(frame);
+      document.removeEventListener("keydown", key);
+      if (previous?.isConnected) previous.focus();
+    };
+    // Keep focus stable while the parent renders; close callbacks only toggle open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const entries = useMemo<PaletteEntry[]>(() => {
@@ -112,6 +159,16 @@ export function CommandPalette({
     const list: PaletteEntry[] = [];
 
     const actions: PaletteEntry[] = [
+      ...productDestinations.map((destination) => ({
+        key: `product:${destination.href}`,
+        kind: "action" as const,
+        label: `Open ${destination.label}`,
+        detail: destination.description,
+        run: () => {
+          onClose();
+          window.location.assign(destination.href);
+        },
+      })),
       {
         key: "action:new",
         kind: "action",
@@ -122,32 +179,40 @@ export function CommandPalette({
           onClose();
         },
       },
-      ...(goalsAvailable ? [{
-        key: "action:goals",
-        kind: "action" as const,
-        label: "Open goals",
-        detail: "Focus, plans, milestones, and tasks",
-        icon: <TargetIcon className="size-4" />,
-        run: () => {
-          onOpenGoals();
-          onClose();
-        },
-      }] : []),
-      ...(goalsAvailable ? [{
-        key: "action:review",
-        kind: "action" as const,
-        label: "Open review",
-        detail: "Daily brief, weekly review, outcomes, and risks",
-        icon: <CalendarCheckIcon className="size-4" />,
-        run: () => {
-          onOpenReview();
-          onClose();
-        },
-      }] : []),
+      ...(goalsAvailable
+        ? [
+            {
+              key: "action:goals",
+              kind: "action" as const,
+              label: "Open goals",
+              detail: "Focus, plans, milestones, and tasks",
+              icon: <TargetIcon className="size-4" />,
+              run: () => {
+                onOpenGoals();
+                onClose();
+              },
+            },
+          ]
+        : []),
+      ...(goalsAvailable
+        ? [
+            {
+              key: "action:review",
+              kind: "action" as const,
+              label: "Open review",
+              detail: "Daily brief, weekly review, outcomes, and risks",
+              icon: <CalendarCheckIcon className="size-4" />,
+              run: () => {
+                onOpenReview();
+                onClose();
+              },
+            },
+          ]
+        : []),
       {
         key: "action:manage",
         kind: "action",
-                label: "Open manage page",
+        label: "Open manage page",
         detail: "Reminders, triggers, memory, connections, skills",
         icon: <GearSixIcon className="size-4" />,
         run: () => {
@@ -160,7 +225,10 @@ export function CommandPalette({
             {
               key: "action:push",
               kind: "action" as const,
-              label: pushStatus === "on" ? "Disable notifications" : "Enable notifications",
+              label:
+                pushStatus === "on"
+                  ? "Disable notifications"
+                  : "Enable notifications",
               icon:
                 pushStatus === "on" ? (
                   <BellSlashIcon className="size-4" />
@@ -177,12 +245,16 @@ export function CommandPalette({
     ];
     list.push(
       ...actions.filter(
-        (action) => needle.length === 0 || action.label.toLowerCase().includes(needle),
+        (action) =>
+          needle.length === 0 || action.label.toLowerCase().includes(needle),
       ),
     );
 
     const titleMatches = threads
-      .filter((thread) => needle.length === 0 || thread.title.toLowerCase().includes(needle))
+      .filter(
+        (thread) =>
+          needle.length === 0 || thread.title.toLowerCase().includes(needle),
+      )
       .slice(0, needle.length === 0 ? 8 : 12);
     list.push(
       ...titleMatches.map((thread) => ({
@@ -215,7 +287,20 @@ export function CommandPalette({
     );
 
     return list;
-  }, [query, threads, hits, pushStatus, goalsAvailable, onNewChat, onOpenGoals, onOpenReview, onOpenManage, onTogglePush, onSelectThread, onClose]);
+  }, [
+    query,
+    threads,
+    hits,
+    pushStatus,
+    goalsAvailable,
+    onNewChat,
+    onOpenGoals,
+    onOpenReview,
+    onOpenManage,
+    onTogglePush,
+    onSelectThread,
+    onClose,
+  ]);
 
   const active = Math.min(activeIndex, Math.max(0, entries.length - 1));
 
@@ -237,7 +322,9 @@ export function CommandPalette({
       }}
     >
       <div
+        ref={dialogRef}
         role="dialog"
+        aria-modal="true"
         aria-label="Command palette"
         className="flex max-h-[55vh] w-[36rem] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-xl bg-kumo-base shadow-xl ring ring-kumo-line"
       >
@@ -246,7 +333,7 @@ export function CommandPalette({
           <input
             ref={inputRef}
             value={query}
-            placeholder="Search threads and messages..."
+            placeholder="Find pages, threads and messages..."
             aria-label="Search threads and messages"
             className="w-full bg-transparent text-sm outline-none placeholder:text-kumo-placeholder"
             onChange={(event) => {
@@ -262,7 +349,9 @@ export function CommandPalette({
                 setActiveIndex((active + 1) % Math.max(1, entries.length));
               } else if (event.key === "ArrowUp") {
                 event.preventDefault();
-                setActiveIndex((active - 1 + entries.length) % Math.max(1, entries.length));
+                setActiveIndex(
+                  (active - 1 + entries.length) % Math.max(1, entries.length),
+                );
               } else if (event.key === "Enter" && entries[active]) {
                 event.preventDefault();
                 entries[active].run();
@@ -273,10 +362,13 @@ export function CommandPalette({
         </div>
         <div className="overflow-y-auto p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {entries.length === 0 && (
-            <p className="px-3 py-6 text-center text-sm text-kumo-subtle">No matches.</p>
+            <p className="px-3 py-6 text-center text-sm text-kumo-subtle">
+              No matches.
+            </p>
           )}
           {entries.map((entry, index) => {
-            const header = entry.kind !== lastKind ? sectionLabel[entry.kind] : null;
+            const header =
+              entry.kind !== lastKind ? sectionLabel[entry.kind] : null;
             lastKind = entry.kind;
             return (
               <div key={entry.key}>
@@ -294,9 +386,13 @@ export function CommandPalette({
                   onMouseEnter={() => setActiveIndex(index)}
                   onClick={entry.run}
                 >
-                  <span className="shrink-0 text-kumo-subtle">{entry.icon}</span>
+                  <span className="shrink-0 text-kumo-subtle">
+                    {entry.icon}
+                  </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm">{entry.label}</span>
+                    <span className="block truncate text-sm">
+                      {entry.label}
+                    </span>
                     {entry.detail && (
                       <span className="block truncate text-xs text-kumo-subtle">
                         {entry.detail}

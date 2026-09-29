@@ -412,7 +412,7 @@ export function ComputerViewer({ className }: { className?: string }) {
               void load();
             }}
           >
-            <ArrowClockwiseIcon />
+            <ArrowClockwiseIcon /><span className="sr-only">Refresh Computer</span>
           </Button>
         </div>
       </div>
