@@ -4,6 +4,8 @@
 
 Each deployment serves one owner by default for a simple security boundary. Code and data remain owner-scoped and agent-neutral so a future Relay capability plane can authorize a primary agent, specialists, and additional agents without renaming product concepts or rebuilding integrations.
 
+## Finding current priorities
+
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.
 
 ## What it does
@@ -53,6 +55,38 @@ Current product priorities and shipped foundations are tracked in the canonical 
 - **Template** — the live `apps/eve` source, assembled at deploy time with feature pruning, so the personal agent and the product never drift. A manifest completeness check fails CI if a new tool isn't mapped to a feature.
 - **Deploy** — Vercel REST API with the user's token: create project → set env vars → deploy inline files → stream build status → health check. Keys pass through in memory and are never stored; VAPID push keys are generated automatically; models bill to the deployer's own AI Gateway (no provider keys). Telegram webhooks register automatically when a bot token is provided.
 - **Update** — each deployment is stamped with a template version (content hash), a monotonic release from `apps/eve/.eve-template-release` (bump that file when shipping changes agents should pick up), and an `eve-builder.json` manifest. When the builder's release is higher, the agent's `/manage` page shows an update banner that deep-links to the builder's `/update` page (not shown on the create home). The owner pastes their Vercel token and clicks once: the builder reads features, instructions, and custom schedules back from the deployed files, reassembles them on the latest template, and redeploys into the same project. Env vars, VAPID keys, storage, chat history, memories, skills, and the URL are preserved. Agents that predate the manifest need one Create-tab redeploy into the existing project before Update is available.
+
+## Foreman software factory
+
+[Foreman](https://myeve-foreman.vercel.app) is a separate production service built from the Eve Software Factory template. It works on `jaydubya818/MyEveBot` and turns scoped work items into independently reviewed draft pull requests.
+
+### Give Foreman work
+
+- **GitHub:** Create an issue with the problem, acceptance criteria, and verification steps, then apply the `factory` label to start an unattended run. Authorized repository collaborators can also mention `@myeve-foreman` in an issue or PR.
+- **Linear:** In the [MyEveBot workspace](https://linear.app/myevebot), create an issue and choose `myeve-foreman` from the assignee menu to delegate it. Follow the agent session on the issue for progress and the final PR link.
+
+Every implementation goes through classification, repository analysis, implementation in an isolated sandbox, and independent review by a different model vendor. Foreman can revise the change in response to review before opening a draft PR. A human decides whether to mark it ready and merge it; Foreman has no merge tool.
+
+### Deployment and storage
+
+- Vercel project: `jaydubya818/myeve-foreman`, separate from the Sofie application deployment.
+- GitHub access: the `myeve-foreman` app is installed only on this repository.
+- Linear access: the `linear/myeve-foreman` Vercel Connect connector serves the MyEveBot workspace.
+- Private Vercel Blob storage holds user preferences, shared repository memory, and artifacts passed between pipeline stages.
+- Sandbox dependency setup uses `npm ci`.
+
+The Foreman source is maintained in a separate local checkout. Its deployment was uploaded from that checkout; automatic deployment of Foreman from a user-owned source repository is not configured.
+
+### Verified workflows
+
+Production acceptance tests on September 24, 2026 verified live GitHub, Linear, and private storage access, plus both intake paths:
+
+| Intake | Evidence | Result |
+| --- | --- | --- |
+| GitHub issue labeled `factory` | [Issue #15](https://github.com/jaydubya818/MyEveBot/issues/15) → [PR #16](https://github.com/jaydubya818/MyEveBot/pull/16) | Complete pipeline produced a README-only draft PR. |
+| Linear issue delegation | [MYE-5](https://linear.app/myevebot/issue/MYE-5/docs-explain-how-to-find-the-current-roadmap-linear-delegation-test) → [PR #17](https://github.com/jaydubya818/MyEveBot/pull/17) | Agent session completed and returned the PR link in Linear. CI and Vercel checks passed; the owner then authorized merging the README change. |
+
+These tests validate delegation and delivery for small documentation tasks. Each subsequent code change still needs its own applicable tests and human review.
 
 ## Structure
 
