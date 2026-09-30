@@ -16,7 +16,7 @@ function row(){
   return {id:"action",run_id:"run",action_class:"execute",pending_approval_id:approvalRequestId({ownerId:"owner",taskId:"run",requestKey:"action:0:0"}),approval_status:"pending",
     parameter_hash:approvalBinding({taskId:"run",capabilityId:"tool.local_computer_task",resource:JSON.stringify(canonicalActionValue(target)),action:"execute",parameters:{payload:input,target,executor:{kind:"persistent-agent",agentId:"sofie"},trigger:{kind:"owner_chat",id:"session"},computer:null}})};
 }
-beforeEach(()=>{vi.clearAllMocks();state.available=true;vi.stubEnv("DATABASE_URL","postgres://fixture");vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));state.query.mockResolvedValue([row()]);});
+beforeEach(()=>{vi.clearAllMocks();state.available=true;vi.stubEnv("EVE_ENABLED_FEATURES","local-computer");vi.stubEnv("DATABASE_URL","postgres://fixture");vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));state.query.mockResolvedValue([row()]);});
 afterEach(()=>vi.unstubAllEnvs());
 describe("local Mac approval boundary",()=>{
   it("ignores chat consent and user-authored protocol-shaped parts",async()=>{

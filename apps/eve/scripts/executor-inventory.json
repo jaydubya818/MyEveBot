@@ -158,7 +158,7 @@
     "agent/instructions/local-computer.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Local Mac companion: Reports pairing, discovery, exact approval and truthful job state.",
-      "sha256": "7b161661a232a516b2f44508f58ab85d54363c300f0d8b74cf40340a4e3388a8"
+      "sha256": "2719125d3db1f2610ab41ee8a139f2674ba041e2aa0480cfa0f2b91e745c9801"
     },
     "agent/instructions/on-demand-role.ts": {
       "classification": "INTERNAL",
@@ -2014,7 +2014,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools. Local Mac companion: Capability metadata: scoped local reads and always-approved local mutations with explicit device pairing configuration.",
-      "sha256": "cddaefd5f67d6318e06caca7671c45c010688e98000080ab84cd88904c6f9056"
+      "sha256": "9afff85e2580b513e2e7d62fcd775bf0340b00804b748ea8d81ceb941fa7f064"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3723,7 +3723,7 @@
     "lib/local-computer-store.ts": {
       "classification": "ENFORCED",
       "reason": "One-use provider authority enqueues; authenticated device polling rechecks canonical approval, Run, Agent revision and pairing. Atomic claims are never replayed.",
-      "sha256": "0af0e2879bce6bcb182ba3328313e3311d010fffc31088b8463e245450917dc9"
+      "sha256": "fcd74b94e6e4059859821819bfdc09c2c4a38af4a69b2369bf1a556a66601977"
     },
     "app/api/local-computer/worker/route.ts": {
       "classification": "ENFORCED",

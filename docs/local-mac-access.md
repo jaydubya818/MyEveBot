@@ -23,7 +23,7 @@ npm run local:setup -- https://your-deployment.example /absolute/shared/folder
 
 Setup compiles the native helper and saves private `.local-computer/config.json` and `server.env` files. This directory is excluded from Git and Vercel uploads. Never paste the token into chat or commit it.
 
-Set `SOFIE_LOCAL_DEVICE_ID` and `SOFIE_LOCAL_DEVICE_TOKEN` from `server.env` on the matching app deployment. Apply migration `0075_local_computer.sql`, deploy the app, then run `npm run local:start`. Keep the companion running and the Mac awake. Stop it to disconnect; rotate the token on both sides to revoke pairing permanently.
+Set `SOFIE_LOCAL_DEVICE_ID` and `SOFIE_LOCAL_DEVICE_TOKEN` from `server.env` on the matching app deployment. Add `local-computer` to `EVE_ENABLED_FEATURES` without enabling other integration groups. Apply migration `0075_local_computer.sql`, deploy the app, then run `npm run local:start`. Keep the companion running and the Mac awake. Stop it to disconnect; rotate the token on both sides to revoke pairing permanently.
 
 For desktop interaction, enable the generated `sofie-local-desktop` executable in **System Settings → Privacy & Security → Accessibility**. Screenshots also require **Screen Recording**. Unlock the Mac for desktop work. The tool's status operation reports these permissions. File and shell access does not require them, but macOS folder privacy restrictions still apply.
 

@@ -25,7 +25,7 @@ export async function localDeviceStatus(ownerId: string) {
   const rows = await db().query(`SELECT roots,permissions,last_seen_at,(last_seen_at>now()-interval '30 seconds') AS online
     FROM local_computer_devices WHERE owner_id=$1 AND device_id=$2 AND pairing_hash=$3`, [ownerId, pairing.deviceId, pairing.hash]);
   return { status: rows[0]?.online === true ? "ready" : "offline", deviceId: pairing.deviceId,
-    roots: rows[0]?.roots ?? [], permissions: rows[0]?.permissions ?? {}, lastSeenAt: rows[0]?.last_seen_at ?? null };
+    roots: rows[0]?.roots ?? [], permissions: rows[0]?.permissions ?? {}, lastSeenAt: rows[0]?.last_seen_at == null ? null : new Date(rows[0].last_seen_at as string | Date).toISOString() };
 }
 
 /** Only a one-use Action Gateway provider grant may enqueue an operation. */
