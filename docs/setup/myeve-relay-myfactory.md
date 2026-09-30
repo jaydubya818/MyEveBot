@@ -12,7 +12,7 @@ Use separate credentials and data stores for each installation. Keep secrets in 
 
 MyFactory runs on the owner's Mac. In its [source repository](https://github.com/jaydubya818/MyFactory), follow [Run the work desk](https://github.com/jaydubya818/MyFactory#run-the-work-desk) and [hosted routing](https://github.com/jaydubya818/MyFactory/blob/codex/local-factory/docs/hosted-routing.md). Register a `myeve` client for the approved repository, configure its route (repository path, base ref, and check commands), enable `FACTORY_HOSTED_INTAKE=true`, and configure the host's Linear connection. Start the connected supervisor with `npm run start:connected`; its work desk is loopback-only at `http://127.0.0.1:8788`. The host polls Linear every 15 seconds, so the Mac must be awake and the supervisor running to admit queued requests. The [connection guide](https://github.com/jaydubya818/MyFactory/blob/codex/local-factory/docs/connections.md) covers registration, token custody, and read-only Linear verification.
 
-Attach the approved Linear connector to **your MyEve Vercel project**. Set these values in that project's server-side environment and redeploy:
+Attach the approved Linear connector to **your MyEve Vercel project**. Append `myfactory` to `EVE_ENABLED_FEATURES` to expose only MyFactory intake/readback (the broader `integrations` switch remains compatible). Set these values in that project's server-side environment and redeploy:
 
 | MyEve setting | Source |
 | --- | --- |
@@ -47,3 +47,7 @@ Foreman is a separate Linear agent workflow. Follow the [Sofie–Foreman setup](
 5. If using Foreman, delegate a separate test issue and verify the Linear agent session and any draft PR independently.
 
 If Sofie reports a 404 HTML response to chat, check the production alias and the app's `/eve/v1/**` route before diagnosing Linear or MyFactory. If a WorkOrder remains `awaiting_local_factory`, check the host's intake status, Linear access, and whether the Mac is awake; read back the same request ID. Do not weaken authentication or copy another component's token to make a test pass.
+
+## Agent peers and execution harnesses
+
+For other MyEve installations, Muse, GrokBots and compatible external agents, follow [agent communication setup and acceptance](agent-communication.md). Messaging is a separate connection from software delivery and local computer control. See [Deep Agents harness boundaries](deepagent-harness.md) for the experimental execution provider; it is not active in the deployed agent.

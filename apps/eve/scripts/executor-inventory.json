@@ -143,7 +143,7 @@
     "agent/instructions/delegation.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "380cb45dfd3726a9396b804d9447c13107252d2d79a9604330ac573bb761af38"
+      "sha256": "aae319fad4c8da08cb344d89bf658da22a09cf9dd3183553d8f8ee8de75a5996"
     },
     "agent/instructions/goals.ts": {
       "classification": "INTERNAL",
@@ -158,7 +158,7 @@
     "agent/instructions/local-computer.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Local Mac companion: Reports pairing, discovery, exact approval and truthful job state.",
-      "sha256": "2719125d3db1f2610ab41ee8a139f2674ba041e2aa0480cfa0f2b91e745c9801"
+      "sha256": "13b86a55fac848323659c7938c0f1907ab2337b42df558ac52f5317b1520927a"
     },
     "agent/instructions/on-demand-role.ts": {
       "classification": "INTERNAL",
@@ -2014,7 +2014,7 @@
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
       "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools. Local Mac companion: Capability metadata: scoped local reads and always-approved local mutations with explicit device pairing configuration.",
-      "sha256": "9afff85e2580b513e2e7d62fcd775bf0340b00804b748ea8d81ceb941fa7f064"
+      "sha256": "2e5acb6dc493591890e39408ad2c477d3900b2dec34eca63a366ed44b958839e"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2129,7 +2129,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Local Mac companion: Declares the additive local computer queue migration.",
-      "sha256": "5b1d945b6ef3994b339c526851d846b5d85e5eed2f6e0e8554693e24f18db56e"
+      "sha256": "3d8526d5d01477011bb6fbe7faef81dd6db5c639e2f3c4935970b8a962c1ea1d"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
