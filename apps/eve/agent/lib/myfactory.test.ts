@@ -23,3 +23,22 @@ it("rejects arbitrary commands before any external mutation",async()=>{
  await expect(factoryAdapter("create").execute({command:"rm -rf"},{} as never)).rejects.toThrow("Unsupported");
  expect(guards.token).not.toHaveBeenCalled();
 });
+
+it("retries only the read-only destination check before admission", async () => {
+ const fetcher=vi.fn().mockRejectedValueOnce(new Error("temporary transport failure"))
+  .mockResolvedValueOnce(Response.json({data:{viewer:{organization:{id:"LINEAR_WORKSPACE_ID"}},team:{id:"LINEAR_TEAM_ID"}}}));
+ vi.stubGlobal("fetch",fetcher);
+ expect(await factoryAdapter("create").resolveTarget({})).toMatchObject({provider:"myfactory",account:"LINEAR_WORKSPACE_ID"});
+ expect(fetcher).toHaveBeenCalledTimes(2);
+});
+it("returns and verifies an authenticated missing request without claiming intake", async () => {
+ vi.stubGlobal("fetch",vi.fn().mockImplementation(()=>Promise.resolve(Response.json({data:{issues:{nodes:[]}}}))));
+ const adapter=factoryAdapter("read");
+ const result=await adapter.execute({requestId:"ee32a8c7-3243-4332-a602-0ad6d678bc1b"},{} as never);
+ expect(result).toEqual({requestId:"ee32a8c7-3243-4332-a602-0ad6d678bc1b",status:"not_found",receipt:null});
+ expect(await adapter.verify(result,{} as never)).toMatchObject({verified:true,receipt:{status:"not_found",receipt:null}});
+});
+it("does not relabel provider failures as missing requests", async () => {
+ vi.stubGlobal("fetch",vi.fn().mockRejectedValue(new Error("offline")));
+ await expect(factoryAdapter("read").execute({requestId:"ee32a8c7-3243-4332-a602-0ad6d678bc1b"},{} as never)).rejects.toThrow("offline");
+});

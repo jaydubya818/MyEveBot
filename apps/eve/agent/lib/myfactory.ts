@@ -12,7 +12,8 @@ export function factoryConfig(): HostedConfig & { connector: string; workspaceId
     connector: value("MYFACTORY_LINEAR_CONNECTOR"), workspaceId: value("MYFACTORY_LINEAR_WORKSPACE_ID"),
     token: value("MYFACTORY_CLIENT_TOKEN"), receiptPublicKey: value("MYFACTORY_RECEIPT_PUBLIC_KEY") };
 }
-export function factoryAdapter(operation: "create" | "read"): ActionAdapter<HostedResult> {
+type FactoryResult = HostedResult | { requestId: string; status: "not_found"; receipt: null };
+export function factoryAdapter(operation: "create" | "read"): ActionAdapter<FactoryResult> {
   const config = factoryConfig();
   const capability = operation === "create" ? "tool.create_factory_work_order" : "tool.get_factory_work_order";
   const graphql = async (query: string, variables: Record<string, unknown>) => {
@@ -23,20 +24,35 @@ export function factoryAdapter(operation: "create" | "read"): ActionAdapter<Host
     if (!response.ok || body.errors?.length || !body.data) throw new Error("MyFactory routing provider could not confirm the request");
     return body.data;
   };
+  async function read(requestId: string): Promise<FactoryResult> {
+    try { return await getHostedRequest(config, requestId, graphql); }
+    catch (error) {
+      // This is an authenticated empty provider read, not an uncertain write.
+      // Invalid signatures, transport failures and wrong destinations still fail closed.
+      if (error instanceof Error && error.message === "Factory request was not found")
+        return { requestId, status: "not_found", receipt: null };
+      throw error;
+    }
+  }
   return {
     async resolveTarget() {
-      const data = await graphql("query($team:String!){viewer{organization{id}} team(id:$team){id}}", { team: config.teamId });
+      const inspect = () => graphql("query($team:String!){viewer{organization{id}} team(id:$team){id}}", { team: config.teamId });
+      // One bounded retry of a read before Action admission; never retry a mutation.
+      const data = await inspect().catch(() => inspect());
       if (data.viewer.organization.id !== config.workspaceId || data.team.id !== config.teamId) throw new Error("MyFactory destination mismatch");
       return { provider: "myfactory", account: config.workspaceId, resource: `${config.teamId}/${config.repository}` };
     },
     async execute(parameters, authority) {
       await consumeActionAuthority(authority, parameters, capability);
       await consumeProviderAuthority(authority, parameters, capability);
-      return operation === "create" ? submitHostedRequest(config, parseInput(parameters), graphql) : getHostedRequest(config, String(parameters.requestId), graphql);
+      return operation === "create" ? submitHostedRequest(config, parseInput(parameters), graphql) : read(String(parameters.requestId));
     },
     receipt(result) { return { ...result }; },
     async verify(result) {
-      const saved = await getHostedRequest(config, result.requestId, graphql);
+      const saved = await read(result.requestId);
+      if ("status" in saved || "status" in result) {
+        return { verified: "status" in saved && "status" in result && saved.requestId === result.requestId, receipt: { ...saved } };
+      }
       return { verified: saved.requestId === result.requestId, receipt: { ...saved,
         status: saved.receipt ? "received_by_factory" : "awaiting_local_factory" } };
     },

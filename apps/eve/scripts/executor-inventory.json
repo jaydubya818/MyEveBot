@@ -2951,12 +2951,12 @@
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
       "disposition": "gateway",
-      "sha256": "4b28255d2fcc0ccfa1c834ec00764e8808bf23f93fbb57cf230343ca946ddc95"
+      "sha256": "8d1c7d6a9a9229ae9c84154ae29425ed05e91e645ea2a873437244ee0c86ffec"
     },
     "agent/lib/myfactory.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-only factory intake and receipt reads; exact provider workspace, signed request, host receipt validation; tool effects consume Action Gateway authority.",
-      "sha256": "621366e69cbaf0066eb8ed469e07c446441f5726312c78b552691bb444f662bb"
+      "sha256": "7be06267f38d9ee7cede7325173b6dc2eefd9a438aa8b72a1cac15bd6b7ed1c3"
     },
     "lib/goal-work/validation.ts": {
       "classification": "INTERNAL",

@@ -14,6 +14,8 @@ test("owner action setup binds an integer runtime and creates one session", {
   try {
     await client.query(`CREATE SCHEMA ${schema}`);
     await client.query(`SET search_path TO ${schema}`);
+    // Only the authority schema is needed here. Later engineering migrations
+    // qualify separately and include public-schema-specific dependencies.
     await runMigrations({
       query: async (sql, params) => (await client.query(sql, params)).rows,
       transaction: async statements => {
@@ -54,7 +56,7 @@ test("owner action setup binds an integer runtime and creates one session", {
     for (const mutation of [
       "status='failed'", "completed_at=NULL", "result_summary=NULL",
       "model_steps=max_model_steps", "estimated_cost_usd=max_estimated_cost_usd",
-      "role_id='external-role'",
+      "role_id='external-role'", "parent_task_id='task_readme'", "source_task_id='task_readme'",
     ]) {
       await client.query('BEGIN');
       try {
