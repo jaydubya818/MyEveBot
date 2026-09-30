@@ -29,3 +29,7 @@ Screenshot: `/private/tmp/sofie-mac-readme-success.png`.
 The companion is currently started manually. Its authenticated heartbeat reports Accessibility and Screen Recording available, but that alone is not an end-to-end desktop interaction test. Autostart is pending separate user authorization; no login service was installed.
 
 The definitive source is the attached `codex/sofie-local-access` worktree. Initial edits in the older main checkout predate the live-release rebase and must not be deployed as a substitute for this branch.
+
+## Live shell approval acceptance
+
+Requested only `pwd` through `local_computer_task`. The native chat rendered the exact `{operation:"shell", command:"pwd"}` approval. Before approval, canonical Action `action_a3e9824a-27ac-4b37-90da-d0b1738da911` was awaiting approval, its decision was pending, and zero jobs were queued. Approved that harmless read-only command as part of the connection test. Companion job `5ea408bc-15ce-4b41-8fbb-4329b0436cd8` completed, returning `/Users/jaywest`; Sol displayed the actual result. Exactly one job was recorded.
