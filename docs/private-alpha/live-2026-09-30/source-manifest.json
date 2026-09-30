@@ -1,10 +1,10 @@
 {
-  "observedAt": "2026-09-29T22:55:41.245328+00:00",
-  "verification": "git fetch origin main --tags; git ls-remote origin refs/heads/main refs/tags/*; annotated tags peeled to exact main",
+  "observedAt": "2026-09-30T09:12:12.666407+00:00",
+  "verification": "Exact remote main and annotated milestone SHA readback; MyEve clean-source ancestry verified before ordinary fast-forward; Vercel exact gitSource SHA verified READY.",
   "sources": {
     "MyEve": {
       "repository": "https://github.com/jaydubya818/MyEveBot.git",
-      "main": "7f337efbfa0ad5096ab0f58b34c631d52468fcd6",
+      "main": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
       "tag": "myeve-private-alpha-v0",
       "tagObject": "11970f13b8cb74edfe26fc27a47aadd37b0097ba",
       "milestoneSha": "f1dca8051c2e963a2ba2d902c5803b1f8c7a7f72",
@@ -14,7 +14,8 @@
       "repository": "https://github.com/jaydubya818/relay.git",
       "main": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
       "tag": "relay-private-alpha-v0",
-      "tagObject": "6f37c4df8b9cfabcd994bd4f3e8b981d10483a2d"
+      "tagObject": "6f37c4df8b9cfabcd994bd4f3e8b981d10483a2d",
+      "milestoneSha": "a61f0ef697b02cf22da72ff2904c584d7faa026a"
     },
     "MyFactory": {
       "repository": "https://github.com/jaydubya818/MyFactory.git",
@@ -36,27 +37,20 @@
     },
     "MyEve": {
       "branch": "codex/private-alpha-release",
-      "sha": "7f337efbfa0ad5096ab0f58b34c631d52468fcd6",
+      "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
       "remotelyVerified": true,
       "merged": true,
       "deployed": true
     }
   },
   "deployedSources": {
-    "myeve": "6cfb0ccbf217c5f931c42a2ecf76ec1f29644350",
+    "myeve": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
     "relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
-    "localMyeveWorker": "7f337efbfa0ad5096ab0f58b34c631d52468fcd6",
+    "localMyeveWorker": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
     "myfactoryInstalled": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6"
   },
   "mainIntegration": "PASS: clean source, exact release SHA, unchanged remote, expected ancestry, ordinary fast-forward push, exact remote SHA; no force push; milestone tags unchanged.",
-  "hostedSourceDifference": "7f337ef adds only the local worker approval guard, its unit tests and governance entry. Hosted runtime remains exact 6cfb0cc.",
-  "continuation20260930": {
-    "myEveCanonicalMain": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
-    "myEveDeployed": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
-    "factoryCanonicalMain": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
-    "relayCanonicalMain": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
-    "previousManifestHistorical": true,
-    "mainFastForward": "PASS_CLEAN_EXPECTED_ANCESTRY_EXACT_REMOTE_NO_FORCE",
-    "milestoneTagsChanged": false
-  }
+  "hostedSourceDifference": "None between deployed production and canonical main. Subsequent release-branch commits record documentation only.",
+  "localMyeveWorkerStatus": "SOURCE_ONLY_NOT_STARTED",
+  "previousManifest": "../live-2026-09-29/source-manifest.json (historical)"
 }
