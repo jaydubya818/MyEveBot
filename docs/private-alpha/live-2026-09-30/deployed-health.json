@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-09-30T09:10:54.670869+00:00",
+  "observedAt": "2026-09-30T17:45:22.446816+00:00",
   "source": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
   "signedOwnerServiceChecks": {
     "passed": 5,
@@ -8,36 +8,62 @@
     "database": "SCHEMA_0074",
     "memory": "LIST_ONLY",
     "fileStorage": "LIST_ONLY",
-    "webAccess": "SIGNED_SESSION"
+    "webAccess": "SIGNED_SESSION",
+    "observation": "Fresh deployed System page: 5/5 included services ready"
   },
-  "work": "PASS_READ_ONLY_NO_LAUNCH_WORK",
+  "work": "PASS_SIGNED_IN_EXACT_WORK_PAUSED_V1_G1",
   "needsYou": "PASS_READ_ONLY",
-  "provider": "QUALIFIED_LOADER_FAILED",
+  "provider": "PASS_SCOPED_OIDC_AUTHENTICATED_EXACT_MODEL_ELIGIBILITY_NO_GENERATION",
   "http": [
     {
       "url": "https://sofie-personal-agent.vercel.app/login",
-      "status": 200
+      "status": 200,
+      "pass": true
     },
     {
       "url": "https://sofie-personal-agent.vercel.app/eve/v1/health",
-      "status": 200
+      "status": 200,
+      "pass": true
     },
     {
       "url": "https://sofie-personal-agent.vercel.app/api/beta/work",
-      "status": 401
+      "status": 401,
+      "pass": true
     },
     {
       "url": "https://sofie-personal-agent.vercel.app/api/beta/results",
-      "status": 401
+      "status": 401,
+      "pass": true
     },
     {
       "url": "https://relay-sage-nine.vercel.app/api/health",
-      "status": 200
+      "status": 200,
+      "pass": true
     },
     {
       "url": "https://relay-sage-nine.vercel.app/api/health/ready",
-      "status": 200
+      "status": 200,
+      "pass": true
     }
   ],
-  "realModelOperations": 0
+  "realModelOperations": 0,
+  "deploymentId": "dpl_6KRrNsKhJk2EVkDxWmRGw5sM9UNV",
+  "factory": {
+    "observedAt": "2026-09-30T17:36:50.842Z",
+    "health": "PASS",
+    "httpStatus": 200,
+    "unauthenticatedControl": 401,
+    "authenticatedControl": 200,
+    "execution": "LIVE",
+    "spendEnforced": true,
+    "controls": [
+      "factory.prepare",
+      "factory.dispatch",
+      "factory.observe",
+      "factory.stop"
+    ],
+    "publicationAllowed": false,
+    "modelOperations": 0
+  },
+  "operationsWatch": "One failed turn in previous 24 hours; zero stuck Runs, model-limit stops and delivery failures. Not a launch Work operation."
 }

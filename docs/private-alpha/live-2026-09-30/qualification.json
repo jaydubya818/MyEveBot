@@ -1,5 +1,5 @@
 {
-  "status": "DEPLOYED_ACTIVATION_BLOCKED",
+  "status": "DEPLOYED_PREFLIGHT_PASS_AWAITING_FIRST_SUBSTANTIVE_WORK_APPROVAL",
   "fullVitest": {
     "passed": 1912,
     "skipped": 61
@@ -41,19 +41,25 @@
   },
   "realProviderOperations": 0,
   "providerPreflight": {
-    "configurationValidation": "PASS",
-    "keychainItemMetadataFound": true,
-    "qualifiedCredentialResolution": "FAIL",
-    "authenticatedModelMetadata": "NOT_RUN",
-    "credentialValueExposed": false,
-    "lastRetestedAt": "2026-09-30T09:10:54.670869+00:00"
+    "status": "PASS",
+    "identity": "VERIFIED_PROJECT_OIDC",
+    "gatewayAuthentication": "PASS",
+    "model": "openai/gpt-5.4-mini",
+    "provider": "openai",
+    "modelEligibility": "eligible",
+    "httpAvailability": "available",
+    "pinnedRoute": "PASS",
+    "pricing": "PASS",
+    "modelOperations": 0,
+    "limitation": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
   },
-  "activation": "NOT_ENABLED",
+  "activation": "OIDC_AND_SOFIE_CONVERSATION_ACTIVE_FIRST_MODEL_GATED",
   "automaticReview": {
     "action": "Production conversation configuration and protected runtime allocation update",
     "outcome": "REJECTED_NOT_EXECUTED",
     "reason": "Provider credential resolution and full preflight have not passed",
-    "additionalRejectedAction": "Creating the exact launch Work in paused state; NOT EXECUTED"
+    "additionalRejectedAction": "Creating the exact launch Work in paused state; NOT EXECUTED",
+    "superseded": "Earlier rejected actions subsequently completed under explicit OIDC continuation authorization after provider/full preparation preflight passed."
   },
   "backup": {
     "component": "myeve",
@@ -71,6 +77,38 @@
   },
   "productionMigration": "0074_alpha_conversation_budget.sql",
   "deployment": {
+    "id": "dpl_6KRrNsKhJk2EVkDxWmRGw5sM9UNV",
+    "url": "sofie-personal-agent-knrqrs6a2-jaydubya818.vercel.app",
+    "readyState": "READY",
+    "status": "READY",
+    "gitSource": {
+      "type": "github",
+      "repoId": 1370277686,
+      "ref": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
+      "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12"
+    },
+    "alias": [
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-f74eec988a7d1a3d606-1f77cc-jaydubya818.vercel.app"
+    ]
+  },
+  "activationConfiguration": {
+    "conversationProfilePresent": true,
+    "workRecallEnabled": true,
+    "firstModelApprovalPresent": false,
+    "approvedWorkPresent": false
+  },
+  "liveSafetyCounters": null,
+  "previousProviderPreflight": {
+    "configurationValidation": "PASS",
+    "keychainItemMetadataFound": true,
+    "qualifiedCredentialResolution": "FAIL",
+    "authenticatedModelMetadata": "NOT_RUN",
+    "credentialValueExposed": false,
+    "lastRetestedAt": "2026-09-30T09:10:54.670869+00:00"
+  },
+  "previousDeployment": {
     "id": "dpl_3wAghoftDkr7x7CLCBkCy4N5Xzxx",
     "url": "sofie-personal-agent-raeljfbzz-jaydubya818.vercel.app",
     "readyState": "READY",
@@ -88,10 +126,19 @@
     "errorCode": null,
     "errorMessage": null
   },
-  "activationConfiguration": {
-    "conversationProfilePresent": false,
-    "firstModelApprovalPresent": false,
-    "approvedWorkPresent": false
+  "observedAt": "2026-09-30T17:45:22.446816+00:00",
+  "oidcEvidence": "oidc-activation.json",
+  "firstWorkAuthorization": "first-work-authorization.json",
+  "factoryRegression": {
+    "tests": 152,
+    "pass": 151,
+    "fail": 0,
+    "skipped": 1
   },
-  "liveSafetyCounters": null
+  "pausedWorkCounters": {
+    "sofieModelCalls": 0,
+    "routeRuns": 0,
+    "factoryModelCalls": 0,
+    "pendingCommands": 0
+  }
 }

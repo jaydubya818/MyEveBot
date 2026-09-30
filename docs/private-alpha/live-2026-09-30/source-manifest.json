@@ -1,5 +1,5 @@
 {
-  "observedAt": "2026-09-30T09:12:12.666407+00:00",
+  "observedAt": "2026-09-30T17:45:22.446816+00:00",
   "verification": "Exact remote main and annotated milestone SHA readback; MyEve clean-source ancestry verified before ordinary fast-forward; Vercel exact gitSource SHA verified READY.",
   "sources": {
     "MyEve": {
@@ -19,7 +19,7 @@
     },
     "MyFactory": {
       "repository": "https://github.com/jaydubya818/MyFactory.git",
-      "main": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
+      "main": "d0c9b149d2fa18d693c501d8862d21e15f669fad",
       "tag": "myfactory-private-alpha-v0",
       "tagObject": "72df29bc924358797f7c2b3ee509d2d57147a9f4",
       "milestoneSha": "af6f37102a28c1da2b3990ed58f921174298a9c2",
@@ -30,10 +30,10 @@
   "releaseCandidates": {
     "MyFactory": {
       "branch": "codex/private-alpha-release",
-      "sha": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6",
+      "sha": "d0c9b149d2fa18d693c501d8862d21e15f669fad",
       "remotelyVerified": true,
       "merged": true,
-      "deployed": "INSTALLED_PERSISTENT_RUNTIME_NOT_STARTED"
+      "deployed": "RUNNING_LOOPBACK_LIVE_SPEND_ENFORCED_FIRST_WORK_NOT_DISPATCHED"
     },
     "MyEve": {
       "branch": "codex/private-alpha-release",
@@ -47,10 +47,16 @@
     "myeve": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
     "relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
     "localMyeveWorker": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
-    "myfactoryInstalled": "33fd5c97fdafbf740c92261b52b0d9b76a46ecd6"
+    "myfactoryInstalled": "d0c9b149d2fa18d693c501d8862d21e15f669fad"
   },
-  "mainIntegration": "PASS: clean source, exact release SHA, unchanged remote, expected ancestry, ordinary fast-forward push, exact remote SHA; no force push; milestone tags unchanged.",
+  "mainIntegration": "MyFactory: clean release candidate d0c9b149d2fa18d693c501d8862d21e15f669fad, baseline33fd5c9 ancestry and unchanged remote verified before ordinary fast-forward push; exact release/main remote SHA read back; milestone object and target unchanged. MyEve/Relay runtime source unchanged.",
   "hostedSourceDifference": "None between deployed production and canonical main. Subsequent release-branch commits record documentation only.",
   "localMyeveWorkerStatus": "SOURCE_ONLY_NOT_STARTED",
-  "previousManifest": "../live-2026-09-29/source-manifest.json (historical)"
+  "previousManifest": "../live-2026-09-29/source-manifest.json (historical)",
+  "myfactoryRuntimeIdentity": {
+    "sourceDigest": "6d900e5e2da8f36f18f600886790dd431d1d5dd89b85b549e73c8400ecba145d",
+    "configurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+    "factoryVersion": "2ccacb678b92b41b594f764434e30344fc164288b39dbd98c78c249505f034a7"
+  },
+  "myeveDeploymentId": "dpl_6KRrNsKhJk2EVkDxWmRGw5sM9UNV"
 }
