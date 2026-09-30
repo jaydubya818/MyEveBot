@@ -1,3 +1,5 @@
+import { assertAlphaConversationQualification } from "./alpha-conversation-policy.ts";
+import { engineeringConversationConfig } from "./runtime.ts";
 import { randomUUID } from "node:crypto";
 import { digest } from "./contract.ts";
 import { NativeRouteAuthority } from "./native-routing.ts";
@@ -13,7 +15,7 @@ export interface WorkModelReservation extends NativeModelReservation {
 /** The sole economic authority. Legacy 0050/0051 rows are read-only evidence. */
 export class EngineeringConversationBudget {
   private readonly claims = new Map<string, Record<string, any>>();
-  constructor(readonly store: WorkStore, readonly authority = new NativeRouteAuthority(store)) {}
+  constructor(readonly store: WorkStore, readonly authority = new NativeRouteAuthority(store,engineeringConversationConfig)) {}
   private key(input: NativeModelReservation) { return `${input.workId}:${input.sessionId}:${input.stepKey}`; }
   async reserve(input: WorkModelReservation): Promise<{result: unknown} | null> {
     if (!Number.isSafeInteger(input.microUsd) || input.microUsd<=0 || input.microUsd>100_000_000 ||
@@ -21,17 +23,20 @@ export class EngineeringConversationBudget {
         !/^.+:\d+$/.test(input.stepKey) || input.stepKey.length>300 || !/^[a-f0-9]{64}$/.test(input.requestHash) ||
         !input.pricing || !input.bounds) throw new WorkError("work_model_bound", "Exact pricing, request and output bounds are required.");
     const work=await this.store.get(input.workId), current=await this.authority.read(work), config=await this.authority.readConfig();
-    if(input.modelId!==`anthropic/${config.model}` || current.facts.qualifications.DEEP_AGENT?.status!=="QUALIFIED")
+    const alpha=config.conversationQualification ? assertAlphaConversationQualification(config.conversationQualification,input.modelId) : null;
+    if(!alpha && (input.modelId!==`anthropic/${config.model}` || current.facts.qualifications.DEEP_AGENT?.status!=="QUALIFIED"))
       throw new WorkError("work_model_provider","Current qualified provider required.",403);
     const purpose=input.purpose??"CONVERSATION_REASONING";
+    if(alpha && (purpose!=="CONVERSATION_REASONING" || input.maxCalls!==alpha.maxCalls || input.microUsd>alpha.perCallMicrousd))
+      throw new WorkError("conversation_bound","Private-alpha reasoning cannot grant native execution or exceed its fixed allowance.");
     const productive=purpose==="NATIVE_EXECUTION"?await this.authority.assertEffect(input.workId):null;
     const id=randomUUID(),token=randomUUID();
     const p={id,token,scope:this.store.principal.scopeId,actor:this.store.principal.actorId,work:input.workId,
       version:work.version,generation:work.generation,agent:current.binding.agentId,agentRevision:current.binding.agentRevision,
       policyHash:digest(config),policyVersion:config.profile.policyVersion,budgetVersion:1,
-      ceiling:Math.floor(current.contract.budgetUsd*1_000_000),deadline:new Date(Math.min(Date.parse(current.contract.deadline),Date.parse(config.nativeQualification!.expiresAt))).toISOString(),maxCalls:input.maxCalls,
+      ceiling:Math.min(Math.floor(current.contract.budgetUsd*1_000_000),alpha?.ceilingMicrousd??Infinity),deadline:new Date(Math.min(Date.parse(current.contract.deadline),Date.parse(alpha?.expiresAt??config.nativeQualification!.expiresAt))).toISOString(),maxCalls:input.maxCalls,
       session:input.sessionId,step:input.stepKey,request:input.requestHash,purpose,run:productive?.runId,
-      provider:"vercel-gateway/anthropic",model:input.modelId,exposure:input.microUsd,pricing:input.pricing,bounds:input.bounds};
+      provider:alpha?"vercel-gateway/openai":"vercel-gateway/anthropic",model:input.modelId,exposure:input.microUsd,pricing:input.pricing,bounds:input.bounds};
     const [row]=await this.store.database.query("SELECT engineering_model_reserve($1::jsonb) AS receipt",[JSON.stringify(p)]);
     const c=row.receipt;
     if(c.status==="RECONCILED") return {result:c.result};
@@ -56,11 +61,18 @@ export class EngineeringConversationBudget {
     this.claims.set(this.key(input),{...c,recoveryOnly:true});
     return {id:c.id,status:c.status,result:c.result,usageReceipt:c.usage_receipt,reservedMicroUsd:Number(c.reserved_microusd)};
   }
+  async remainingMilliseconds(input: NativeModelReservation) {
+    const [row]=await this.store.database.query("SELECT deadline FROM engineering_work_model_budget WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3",[this.store.principal.scopeId,this.store.principal.scopeKind,input.workId]);
+    const remaining=row?new Date(row.deadline).getTime()-Date.now():0;
+    if(!Number.isFinite(remaining)||remaining<=0)throw new WorkError("work_model_deadline","The original Work deadline has expired.");
+    return remaining;
+  }
   async assertDispatch(input: NativeModelReservation) {
     const config=await this.authority.readConfig();
     const c=this.claims.get(this.key(input));
     if(c?.recoveryOnly)throw new WorkError("recovery_read_only","Recovery cannot redispatch an old request.");
-    if(!config.nativeQualification || Date.parse(config.nativeQualification.expiresAt)<=Date.now())
+    if(config.conversationQualification) assertAlphaConversationQualification(config.conversationQualification,input.modelId);
+    else if(!config.nativeQualification || Date.parse(config.nativeQualification.expiresAt)<=Date.now())
       throw new WorkError("provider_expired","Provider qualification expired before dispatch.",403);
     await this.transition(input,"dispatch",{policyHash:digest(config)});
   }

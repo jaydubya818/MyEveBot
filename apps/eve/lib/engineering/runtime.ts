@@ -1,3 +1,5 @@
+import { hostedFactoryQueue } from "./deployment-mode.ts";
+import { alphaConversationQualificationSchema } from "./alpha-conversation-policy.ts";
 import { nativeCompletionPolicySchema } from "./native-completion.ts";
 import { nativeQualificationSchema } from "./native-qualification.ts";
 import { readFile } from "node:fs/promises";
@@ -19,6 +21,7 @@ export const runtimeSchema=z.object({
   approvedBase:approvedBaseSchema,
   brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
   nativeQualification:nativeQualificationSchema.optional(),
+  conversationQualification:alphaConversationQualificationSchema.optional(),
   nativeCompletion:nativeCompletionPolicySchema.default(() => nativeCompletionPolicySchema.parse({})),
   nativeMode:z.enum(["normal","potato"]).default("normal"),
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
@@ -60,4 +63,15 @@ export async function intakeIssue(principal:WorkPrincipal,value:unknown) {
   const contract=makeContract(created.work,principal,config.profile,issue,snapshot.sha,config.agentId);
   await runtime.execution.admit(created.work,contract);
   return {work:await runtime.store.get(created.work.id),created:created.created};
+}
+
+/** Hosted conversation receives only the reviewed, nonsecret repository profile.
+ * This does not enable the isolated native executor or read local credentials. */
+export async function engineeringConversationConfig() {
+  if (!hostedFactoryQueue()) return engineeringConfig();
+  const parsed=runtimeSchema.safeParse(JSON.parse(process.env.MYEVE_ALPHA_CONVERSATION_CONFIG??"null"));
+  if(!parsed.success || !parsed.data.conversationQualification || parsed.data.nativeQualification ||
+     parsed.data.ownerId!==process.env.MYEVE_OWNER_ID || parsed.data.profile.repository!==process.env.MYEVE_ALPHA_REPOSITORY)
+    throw new WorkError("conversation_setup","The reviewed private-alpha conversation profile is unavailable.",503);
+  return parsed.data;
 }

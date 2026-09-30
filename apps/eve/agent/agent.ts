@@ -1,3 +1,4 @@
+import { hostedFactoryQueue } from "../lib/engineering/deployment-mode.ts";
 import { partnerPrivateModel } from "./lib/partner-model.ts";
 import { isPartnerPrincipal } from "../lib/private-owner-boundary.ts";
 import { BusinessScopes } from "../lib/business-scopes.ts";
@@ -69,7 +70,7 @@ export default defineAgent({
           if(await new BusinessScopes(agent.ownerId).hasSharedWork(agent.ownerId,workId))throw new Error("Shared Work requires the scoped Our business conversation.");
           const store=new WorkStore({scopeId:agent.ownerId,scopeKind:"personal",actorId:agent.ownerId});
           return {
-            model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:model??DEFAULT_MODEL}),
+            model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:hostedFactoryQueue()?"openai/gpt-5.4-mini":model??DEFAULT_MODEL}),
             modelContextWindowTokens:200_000,
           };
         }

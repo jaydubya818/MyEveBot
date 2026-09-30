@@ -1,3 +1,4 @@
+import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import { BusinessScopes } from "../../lib/business-scopes.ts";
 import { OWNER_RUNTIME_HEADER,verifyOwnerRuntime,resolveOwnerRuntime,assertOwnerRuntimeRoute } from "../../lib/relay/owner/runtime.ts";
 import { ForbiddenError, type AuthFn, localDev, vercelOidc } from "eve/channels/auth";
@@ -40,7 +41,7 @@ export function ownerSession(): AuthFn<Request> {
     if (workIntent !== null && (!requestedWorkId || !["observe", "continue"].includes(workIntent)))
       throw new ForbiddenError({code:"invalid_engineering_intent",message:"Select Work and a valid access mode."});
     if (workHeader !== null && (
-      process.env.MYEVE_ENGINEERING_MODE !== "dogfood" || !requestedWorkId ||
+      !engineeringWorkEnabled() || !requestedWorkId ||
       !ENGINEERING_WORK_ID_PATTERN.test(requestedWorkId) ||
       !requestedThreadId || requestedThreadId.length > 100 || requestedRoleId
     )) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "Engineering Work requires a valid selection in a direct web chat." });

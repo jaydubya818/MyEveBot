@@ -1,3 +1,4 @@
+import {qualifyAlphaConversation} from './alpha-conversation-fixture.mjs';
 import {enqueueFactoryCommand} from '../lib/engineering/factory-commands.ts';
 import {CURRENT_DATABASE_MIGRATION} from "../lib/database-schema.ts";
 import {controlledCliResponses} from './factory-controlled-cli.mjs';
@@ -262,8 +263,10 @@ try{
   assert.equal(truth.factoryAccounting.unknownMicrousd,perOperationReserve);assert.equal(executions,before+1);assert.equal(truth.readiness.ready,false);
   pass('Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation');
  }
+ let alphaExecutions=0;
+ if(spendFixture&&!installedCli){unknownProvider=false;failedExecution=false;failCandidate=false;alphaExecutions=await qualifyAlphaConversation({store,pool,engineering,connection,direct,source,commands:configuration.commands,pass});}
  const overlap=(await pool.query("SELECT work_id FROM engineering_route_runs WHERE status NOT IN ('COMPLETED','FAILED','CANCELLED') GROUP BY work_id HAVING count(*)>1")).rowCount;assert.equal(overlap,0);
- const output={...cliProvider.stats(),spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?7:6),falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
+ const output={...cliProvider.stats(),spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?7:6)-alphaExecutions,falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
 }finally{
  if(supervisor)await supervisor.close();

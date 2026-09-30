@@ -59,7 +59,13 @@ export class FactoryWorkDriver {
   if((decision.selected_route??decision.selectedRoute)!=='MYFACTORY')throw new WorkError('factory_route_conflict','Another route proposal owns this Work revision.');
   const source=await this.source();
   preflightApprovedBase(config.engineering.profile,config.engineering.approvedBase,source,1);
-  const prepare:FactoryPrepareRequest={...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline:snapshot.contract.deadline,maxSpendUsd:snapshot.contract.budgetUsd,
+  let deadline=snapshot.contract.deadline;
+  if(config.engineering.conversationQualification){
+   const [budget]=await this.store.database.query('SELECT deadline FROM engineering_work_model_budget WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3',this.scope(id));
+   if(!budget || Date.parse(String(budget.deadline))<=Date.now())throw new WorkError('factory_conversation_budget','Current canonical Sofie allowance and deadline are required.');
+   deadline=new Date(budget.deadline as string).toISOString();
+  }
+  const prepare:FactoryPrepareRequest={...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
    input:{title:work.title,description:work.objective,kind:'feature',repositoryPath:config.connection.repositoryPath,baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'mac'}};
   const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
    WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:digest(config)})]);
