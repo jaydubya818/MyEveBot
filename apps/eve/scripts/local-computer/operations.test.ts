@@ -9,6 +9,10 @@ afterEach(async()=>{vi.unstubAllEnvs();await rm(root,{recursive:true,force:true}
 describe("local companion operations",()=>{
   it("finds and reads a README without an exact path from the owner",async()=>{
     await mkdir(path.join(root,"project"));await writeFile(path.join(root,"project","README.md"),"# My app");
+    for(const name of ["README*","*.md","read?e.md"]) {
+      const matches=JSON.parse((await executeLocalOperation({operation:"find_files",path:root,name},[root],"unused")).text);
+      expect(matches.entries).toEqual([{path:path.join(root,"project","README.md"),type:"file"}]);
+    }
     const found=JSON.parse((await executeLocalOperation({operation:"find_files",path:root,name:"readme"},[root],"unused")).text);
     expect(found.entries).toEqual([{path:path.join(root,"project","README.md"),type:"file"}]);
     const read=JSON.parse((await executeLocalOperation({operation:"read_text",path:found.entries[0].path},[root],"unused")).text);

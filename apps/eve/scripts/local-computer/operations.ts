@@ -59,6 +59,8 @@ export async function executeLocalOperation(raw:unknown,roots:readonly string[],
   if(input.operation==="read_text")return {text:JSON.stringify(await textFile(input.path,roots))};
   if(input.operation==="list_files" || input.operation==="find_files"){
     const searchName=input.operation==="find_files"?input.name.toLowerCase():null;
+    const glob=searchName!==null && /[*?]/.test(searchName)
+      ? new RegExp("^"+searchName.replace(/[.+^${}()|[\]\\]/g,"\\$&").replace(/\*+/g,".*").replace(/\?/g,".")+"$","i") : null;
     const directory=await resolveSharedPath(input.path,roots);
     const found:Array<{path:string;type:string}>=[];let visited=0,truncated=false;
     async function walk(dir:string,depth:number):Promise<void>{
@@ -67,7 +69,7 @@ export async function executeLocalOperation(raw:unknown,roots:readonly string[],
         if(++visited>3000 || found.length>=200){truncated=true;return;}
         const file=path.join(dir,item.name);
         if(!permittedName(file) || skippedNames.has(item.name) || item.isSymbolicLink())continue;
-        if(searchName===null || item.name.toLowerCase().includes(searchName))found.push({path:file,type:item.isDirectory()?"directory":"file"});
+        if(searchName===null || (glob ? glob.test(item.name) : item.name.toLowerCase().includes(searchName)))found.push({path:file,type:item.isDirectory()?"directory":"file"});
         if(input.operation==="find_files" && item.isDirectory() && depth<4){
           try{await walk(await resolveSharedPath(file,roots),depth+1);}catch{/* Unreadable directories are not traversed. */}
         }
