@@ -7,6 +7,8 @@
     "#evals/*": "./evals/*"
   },
   "scripts": {
+    "local:setup": "node --import tsx scripts/local-computer/setup.ts",
+    "local:start": "node --import tsx scripts/local-computer/worker.ts",
     "computer:prewarm": "node --env-file-if-exists=.env.local --import tsx scripts/prewarm-computer.ts",
     "build": "npm run skills:prepare && next build",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.ts",

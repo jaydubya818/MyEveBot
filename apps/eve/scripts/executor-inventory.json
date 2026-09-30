@@ -61,8 +61,8 @@
     },
     "agent/connections/local-computer.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "fa8caef35297f210b3c59f53b36fea4e29507dab5b177f4e830f58cdf49883d5",
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Local Mac companion: Legacy MCP remains blocked; the paired companion owns local access.",
+      "sha256": "0b7cbaf3d72c398195d73ba996857bd988dc698b6ea74270ffe16d37b823b56e",
       "disposition": "blocked"
     },
     "agent/hooks/agent-runs.ts": {
@@ -127,8 +127,8 @@
     },
     "agent/instructions/computer-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8937a397fb6d0d4c28517a2c062e7088515d8dc591134727012fcb52404e2eda"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Local Mac companion: Distinguishes local companion from cloud sandbox.",
+      "sha256": "02126e3d7252563edb61573597eabe9ce3412a5e093e30aa684501e7dcf0da40"
     },
     "agent/instructions/computer.ts": {
       "classification": "INTERNAL",
@@ -157,8 +157,8 @@
     },
     "agent/instructions/local-computer.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "177c78ee4e2a9ccb53c72bcb72108131c5bed8e19a7a4d3da390537e3f80fae6"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Local Mac companion: Reports pairing, discovery, exact approval and truthful job state.",
+      "sha256": "7b161661a232a516b2f44508f58ab85d54363c300f0d8b74cf40340a4e3388a8"
     },
     "agent/instructions/on-demand-role.ts": {
       "classification": "INTERNAL",
@@ -1136,10 +1136,9 @@
       "sha256": "54ab6f374d1dbe8469a4a3d71e8485fdfd58daf1714fcb5a6cb2ed592153b4e5"
     },
     "agent/tools/local_computer_task.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "7d848db0eb7c6740e1e6a4642379efb57d7b7818bdd756228cd8170cebda0935",
-      "disposition": "blocked"
+      "classification": "ENFORCED",
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Local Mac companion: Exact native approval resumes the canonical Action; reads and writes recheck authenticated owner and Agent before dispatch.",
+      "sha256": "eba61e2f5ce41201219c97d036b0078113457b7f877d868269f73b7546e98ebf"
     },
     "agent/tools/log_receipt.ts": {
       "classification": "INTERNAL",
@@ -1178,10 +1177,9 @@
       "sha256": "17dfa81a14ddfa90f4dbce6fa4dc1eee6567c576afe8edccd7120b2f93151001"
     },
     "agent/tools/persistent-agent-policy.ts": {
-      "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "6ccb1bfe7c5045ade83cd92a8e541f8bbe4af42b63b22416ef8c04615253d707",
-      "disposition": "gateway"
+      "classification": "INTERNAL",
+      "reason": "Canonical Action Gateway and one-use authority consumption; exact bound target and verification. Legacy AgentMail mutations deny at transport. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Local Mac companion: Local companion and Federation own their dynamic resolvers and repeat capability authorization at execution.",
+      "sha256": "eec7d36ba77a6862508fae658cc1a8364837d566c2aadb4bd83c1a011ea024fa"
     },
     "agent/tools/query_receipts.ts": {
       "classification": "READ_ONLY",
@@ -1195,8 +1193,8 @@
     },
     "agent/tools/read_file.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place.",
-      "sha256": "09c40f6d391f07bf67dc580f7b80b64676ccb167487909941701c7940904e04f"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. Cross-step handle reopening uses the guarded Computer provisioning path; only the specific missing-authority error triggers it. Existing capability checks and consequential-action guards remain in place. Local Mac companion: Sandbox-scoped reader; never accesses local Mac paths.",
+      "sha256": "68d3b43b2193b2487d89a12a075597a6bc39433f20c0a119c053083c055880d8"
     },
     "agent/tools/record_agentcard_consent.ts": {
       "classification": "BLOCKED",
@@ -2015,8 +2013,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools.",
-      "sha256": "e2a62e006343e0a218e535ec900d3ea77ad86ec77f64b874cb8e38ca537790a0"
+      "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools. Local Mac companion: Capability metadata: scoped local reads and always-approved local mutations with explicit device pairing configuration.",
+      "sha256": "cddaefd5f67d6318e06caca7671c45c010688e98000080ab84cd88904c6f9056"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2129,9 +2127,9 @@
       "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315"
     },
     "lib/database-schema.ts": {
-      "classification": "NOT_APPLICABLE",
-      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "ac520fee76237da40dbb6e8e581992681e791a0e71c88521ea2d95ab7d1736ac"
+      "classification": "INTERNAL",
+      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Local Mac companion: Declares the additive local computer queue migration.",
+      "sha256": "5b1d945b6ef3994b339c526851d846b5d85e5eed2f6e0e8554693e24f18db56e"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3710,6 +3708,27 @@
       "classification": "INTERNAL",
       "reason": "Strict nonsecret private-alpha conversation qualification and fixed portions of one Work ceiling; no provider dispatch or execution authority.",
       "sha256": "6820844a9e7ce01e90228a7546f06f900d3b9ddb60738172f99574034228957a"
+    },
+    "agent/lib/local-computer-tool.ts": {
+      "classification": "ENFORCED",
+      "reason": "Canonical Action Gateway binds owner, Agent, device pairing and complete operation; structured native approval only; no autonomous or guest execution.",
+      "sha256": "9162b1ffffee8eb570f23513c7bae83ca7efb2ac587652017dc210c6e06fb405",
+      "disposition": "gateway"
+    },
+    "lib/local-computer-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict bounded schemas and explicit read allowlist; unknown operations fail closed.",
+      "sha256": "70e60dc803d0d27a2e2b0efa913f582a342f40867141f02446150b4d0ed5cf66"
+    },
+    "lib/local-computer-store.ts": {
+      "classification": "ENFORCED",
+      "reason": "One-use provider authority enqueues; authenticated device polling rechecks canonical approval, Run, Agent revision and pairing. Atomic claims are never replayed.",
+      "sha256": "0af0e2879bce6bcb182ba3328313e3311d010fffc31088b8463e245450917dc9"
+    },
+    "app/api/local-computer/worker/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Token-authenticated bounded device poll/result ingress; no enqueue operation, no browser-origin access.",
+      "sha256": "37356797ecec7323b433279ba474f46bc9420172eefd58e279563bef21e25f34"
     }
   }
 }

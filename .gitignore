@@ -13,3 +13,5 @@ node_modules
 
 # Local browser automation session state
 .playwright-cli/
+
+.local-computer/

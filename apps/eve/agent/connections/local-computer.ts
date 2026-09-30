@@ -60,7 +60,7 @@ function cloudflareAccessHeaders(): Record<string, () => string> {
 export default defineMcpClientConnection({
   url: configuredUrl(),
   description:
-    "The owner's real local Mac. Use scoped tools for files in explicitly shared roots; with owner approval, run arbitrary user-level zsh, transfer binary files, overwrite or move data, recoverably trash it, or delete it permanently. A separate local_computer_task tool handles screenshot-driven GUI work. This is not Sofie's sandbox or cloud desktop.",
+    "Local Mac bridge, separate from the agent sandbox and cloud desktop. Currently disabled by application policy, including reads: consent does not enable this connection. When enabled, its scoped roots/list_files/search_text/read_text tools support locating and reading files in explicitly shared folders. Requires bridge pairing and an authorized executor before use.",
   auth: {
     getToken: async () => ({ token: requiredToken() }),
   },
