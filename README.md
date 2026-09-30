@@ -28,6 +28,8 @@ Sofie can use the Relay adapter to discover registered peers, inspect their perm
 - `ACCEPTED` or `RUNNING` means pending; `COMPLETED` with only an acknowledgment proves delivery. A conversation passes only when the actual written reply is bound to the same request, conversation and peer. Poll the same request after uncertainty; do not resend it.
 - Configuration and local tests are not a claim of a live Muse/GrokBots exchange. See [peer setup and acceptance](docs/setup/agent-communication.md) for the exact end-to-end checks.
 
+Live checks on September 30, 2026 passed the original Mac README prompt, same-chat follow-up after task completion, MyFactory intake with signed receipt readback, and Sofie → Relay → Alpha → Sofie with an actual written answer. A second live MyEve installation, Muse and GrokBots still require their own acceptance checks. [See the recorded evidence and limits](docs/verification/connections-2026-09-30.md).
+
 Example: “Ask the configured Alpha peer for a one-sentence acknowledgment through Relay, then show me its actual reply.” If the peer is absent, expired, offline or unable to answer, Sofie must report that state explicitly.
 
 ## Deployment and verification
