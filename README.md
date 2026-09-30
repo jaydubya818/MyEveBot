@@ -1,3 +1,5 @@
+[Latest private-alpha handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md): first live qualification failed; captured-response repair passes zero-model qualification. A second live attempt requires fresh Work and explicit authorization.
+
 # MyEveBot
 
 [Live private-alpha deployment dossier](docs/private-alpha/live-2026-09-29/README.md): canonical sources verified; release activation candidates prepared; deployment and real Golden Journey are BLOCKED, not live-qualified.
