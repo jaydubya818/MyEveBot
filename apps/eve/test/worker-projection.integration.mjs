@@ -79,8 +79,10 @@ try {
   run.candidate = candidate.sha;
   state.candidates.push(candidate);
   state.phase = "approval";
+  // Use the database clock for ordering against SQL history (Docker/host clocks may differ).
+  const resultAt = (await pool.query("SELECT clock_timestamp() AS at")).rows[0].at.toISOString();
   state.results.push({
-    id: randomUUID(), version: 1, createdAt: new Date().toISOString(), candidate: candidate.sha,
+    id: randomUUID(), version: 1, createdAt: resultAt, candidate: candidate.sha,
     summary: "Prior bounded result retained for review.", objective: current.objective,
     criteria: current.criteria, changes: candidate.changedPaths, why: current.objective,
     verification: [], github: { observedAt: new Date().toISOString(), authority: false,

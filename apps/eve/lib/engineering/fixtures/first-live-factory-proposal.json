@@ -1,0 +1,13 @@
+{
+  "description": "Captured first live admission response. Provider identifiers removed; content structure and proposal text retained exactly. No provider call is used to replay this fixture.",
+  "content": [
+    {
+      "type": "text",
+      "text": "{\"operation\":\"start\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}"
+    }
+  ],
+  "finishReason": {
+    "unified": "stop",
+    "raw": "stop"
+  }
+}

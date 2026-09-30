@@ -59,6 +59,32 @@ export function validAlphaConversationResponse(content:Awaited<ReturnType<Model[
   });
 }
 
+/** A text proposal is data, not authority. Convert only a single strict start object;
+ * the ordinary tool, action gateway, queue and route admission still authorize it. */
+export function normalizeAlphaConversationResponse(
+  content:Awaited<ReturnType<Model["doGenerate"]>>["content"],
+  phase:ConversationPhase,
+  context:{productive:boolean;version:number;generation:number;stepKey:string},
+) {
+  const unchanged={content,normalized:false,valid:validAlphaConversationResponse(content,phase)};
+  if(phase!=="admission")return unchanged;
+  const calls=content.filter(item=>item.type==="tool-call");
+  const text=content.length===1 && content[0].type==="text" ? content[0].text.trim() : null;
+  const serialized=text && (text.startsWith("{")||text.startsWith("[")||text.startsWith("```"));
+  if(!calls.length&&!serialized)return unchanged; // A plain-language blocker is not executable.
+  const denied={content:[] as typeof content,normalized:false,valid:false};
+  if(!context.productive || !unchanged.valid || calls.length>1)return denied;
+  try {
+    if(calls.length && content.some(item=>item.type==="text" && /^[\s]*[\[{`]/.test(item.text)))return denied;
+    const proposal=factoryActionSchema.parse(JSON.parse(calls.length?calls[0].input:text!));
+    if(proposal.operation!=="start" || proposal.expectedWorkVersion!==context.version || proposal.expectedWorkGeneration!==context.generation)return denied;
+    if(calls.length)return unchanged;
+    return {content:[{type:"tool-call" as const,toolName:"engineering_factory",
+      toolCallId:`myeve-factory-${digest({stepKey:context.stepKey,proposal})}`,
+      input:JSON.stringify(proposal)}],normalized:true,valid:true};
+  } catch {return denied;}
+}
+
 /** Each provider request has one common-ledger receipt. Native execution owns its reservation. */
 export function engineeringConversationModel(input:{store:WorkStore;workId:string;sessionId:string;stepKey:string;modelId:string;productive:boolean},
   dependencies: {authority?:NativeRouteAuthority;budget?:EngineeringConversationBudget;catalog?:typeof gateway.getAvailableModels;
@@ -160,9 +186,15 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
       const raw=response.providerMetadata?.gateway?.cost;
       const cost=typeof raw==="number"||(typeof raw==="string"&&raw.trim()!=="")?Number(raw):NaN;
       if(!Number.isFinite(cost)||cost<0)throw new Error("Unknown provider usage; conversation is fenced.");
-      const content=response.content.filter(item=>item.type!=="reasoning").map(item=>item.type==="tool-call"?{...item,input:alpha?item.input:nativeToolInput(item.input)}:item);
-      const valid=completion ? content.length>0 && content.every(item=>item.type==="text" && item.text.trim().length>0) : alpha ? validAlphaConversationResponse(content,phase) : validConversationResponse(content,phase);
-      const clean={content:valid?content:[],usage:response.usage,finishReason:response.finishReason,warnings:response.warnings,providerMetadata:response.providerMetadata};
+      const rawContent=response.content.filter(item=>item.type!=="reasoning").map(item=>item.type==="tool-call"?{...item,input:alpha?item.input:nativeToolInput(item.input)}:item);
+      const observed=alpha?await input.store.get(input.workId):null;
+      const normalized=alpha?normalizeAlphaConversationResponse(rawContent,phase,{productive:input.productive,version:observed!.version,generation:observed!.generation,stepKey:input.stepKey}):null;
+      const content=normalized?.content??rawContent;
+      const valid=completion ? content.length>0 && content.every(item=>item.type==="text" && item.text.trim().length>0) : normalized ? normalized.valid : validConversationResponse(content,phase);
+      const clean={content:valid?content:[],usage:response.usage,
+        finishReason:normalized?.normalized?{unified:"tool-calls" as const,raw:response.finishReason.raw}:response.finishReason,
+        warnings:response.warnings,providerMetadata:response.providerMetadata,
+        ...(normalized?.normalized?{proposalNormalization:{originalContent:rawContent,format:"STRICT_FACTORY_START_JSON"}}:{})};
       await budget.settle(reservation,Math.ceil(cost*1_000_000),clean);
       await budget.assertOutput(reservation);
       if(!valid)throw new Error("Model requested an operation outside this conversation phase.");

@@ -1,3 +1,6 @@
+import {readFileSync} from 'node:fs';
+import {enqueueFactoryCommand,consumeFactoryCommands} from '../lib/engineering/factory-commands.ts';
+const captured=JSON.parse(readFileSync(new URL('../lib/engineering/fixtures/first-live-factory-proposal.json',import.meta.url),'utf8'));
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {engineeringConversationModel} from '../lib/engineering/conversation-model.ts';
@@ -28,21 +31,31 @@ export async function qualifyAlphaConversation({store,pool,engineering,connectio
  const approvalKeys=['MYEVE_FACTORY_REAL_EXECUTION_APPROVED','MYEVE_FACTORY_APPROVED_WORK_ID','MYEVE_FACTORY_APPROVED_WORK_VERSION','MYEVE_FACTORY_APPROVED_WORK_GENERATION'];
  const previous=approvalKeys.map(k=>process.env[k]);
  Object.assign(process.env,{MYEVE_FACTORY_REAL_EXECUTION_APPROVED:'true',MYEVE_FACTORY_APPROVED_WORK_ID:work.id,MYEVE_FACTORY_APPROVED_WORK_VERSION:String(work.version),MYEVE_FACTORY_APPROVED_WORK_GENERATION:String(work.generation)});
- let modelCalls=0;
+ let modelCalls=0,proposal;
  const options={prompt:[{role:'user',content:[{type:'text',text:'Continue the selected approved Work.'}]}],tools:[{type:'function',name:'engineering_factory',inputSchema:{type:'object'}},{type:'function',name:'engineering_direct',inputSchema:{type:'object'}}]};
  function model(step){return engineeringConversationModel({store,workId:work.id,sessionId:'alpha-journey',stepKey:'alpha-journey:'+step,modelId:qualification.modelId,productive:true},{authority,catalog:async()=>({models:[{id:qualification.modelId,pricing:{input:'0.00000075',output:'0.0000045'}}]}),model:()=>({doGenerate:async scoped=>{
   modelCalls++;assert(scoped.maxOutputTokens===1024);assert.deepEqual(scoped.providerOptions,{gateway:{only:['openai']}});
-  return {content:scoped.tools.length?[{type:'tool-call',toolCallId:'synthetic-alpha',toolName:'engineering_factory',input:JSON.stringify({operation:'start',expectedWorkVersion:work.version,expectedWorkGeneration:work.generation})}]:[{type:'text',text:'The retained candidate passed protected checks and remains PARTIAL pending separate publication and acceptance.'}],usage:{inputTokens:{total:10},outputTokens:{total:10}},finishReason:{unified:'stop',raw:'stop'},warnings:[],providerMetadata:{gateway:{cost:'0.001',generationId:'synthetic-sofie-'+modelCalls}}};
+  return {content:scoped.tools.length?captured.content:[{type:'text',text:'The retained candidate passed protected checks and remains PARTIAL pending separate publication and acceptance.'}],usage:{inputTokens:{total:10},outputTokens:{total:10}},finishReason:{unified:'stop',raw:'stop'},warnings:[],providerMetadata:{gateway:{cost:'0.001',generationId:'synthetic-sofie-'+modelCalls}}};
  }})});}
  try {
-  const first=await model(0).doGenerate(options);assert.equal(first.content[0].toolName,'engineering_factory');
+  const first=await model(0).doGenerate(options);assert.equal(first.content[0].toolName,'engineering_factory');proposal=JSON.parse(first.content[0].input);assert.equal(proposal.expectedWorkVersion,work.version);assert.equal(proposal.expectedWorkGeneration,work.generation);
   const replay=await budget.reserve({...request(work),sessionId:'foreign'});assert.fail('Second admission unexpectedly reserved '+replay);
  } catch(error) {assert.match(error.message,/phase operation already used/);} 
  try {
   assert.equal(modelCalls,1);
   await assert.rejects(pool.query('UPDATE engineering_alpha_work_budget SET factory_microusd=1200000 WHERE work_id=$1',[work.id]),/cannot be reset/);
   await assert.rejects(budget.reserve(request(work,'explanation')),/current Result/);
-  let state=await driver().start(work.id,work.version,work.generation);
+  const queuePolicy={ownerId:config.ownerId,repository:config.profile.repository,maxCostUsd:1.35,maxDurationSeconds:600};
+  const queued=await Promise.all([enqueueFactoryCommand(store,work.id,proposal,queuePolicy),enqueueFactoryCommand(store,work.id,proposal,queuePolicy)]);
+  assert.equal(queued[0].command.id,queued[1].command.id);assert.equal(queued[0].executionGranted,false);
+  await assert.rejects(enqueueFactoryCommand(store,work.id,{...proposal,expectedWorkGeneration:1},queuePolicy),/current Work/);
+  await assert.rejects(enqueueFactoryCommand(store,work.id,{...proposal,expectedWorkVersion:1},queuePolicy),/current Work/);
+  let state,consumed=0;
+  const consume=async(id,input)=>{consumed++;state=await driver().start(id,input.expectedWorkVersion,input.expectedWorkGeneration);};
+  await consumeFactoryCommands(store,consume);await consumeFactoryCommands(store,consume);assert.equal(consumed,1);
+  const rows=(await pool.query('SELECT status FROM engineering_factory_commands WHERE work_id=$1',[work.id])).rows;
+  assert.deepEqual(rows,[{status:'done'}]);
+  pass('Captured live JSON-text proposal reaches canonical queue/admission exactly once; duplicate and stale proposals do not redispatch');
   const waiting=await model(1).doGenerate(options);assert.equal(modelCalls,1);assert.equal(waiting.content[0].type,'text');
   for(let i=0;i<150&&!['PARTIAL','FAILED','TERMINAL'].includes(state.state);i++){await new Promise(r=>setTimeout(r,50));state=await driver().step(work.id);}
   assert.equal(state.state,'PARTIAL');
