@@ -1,5 +1,5 @@
 {
-  "status": "CODE_QUALIFIED_ACTIVATION_BLOCKED",
+  "status": "DEPLOYED_ACTIVATION_BLOCKED",
   "fullVitest": {
     "passed": 1912,
     "skipped": 61
@@ -45,13 +45,15 @@
     "keychainItemMetadataFound": true,
     "qualifiedCredentialResolution": "FAIL",
     "authenticatedModelMetadata": "NOT_RUN",
-    "credentialValueExposed": false
+    "credentialValueExposed": false,
+    "lastRetestedAt": "2026-09-30T09:10:54.670869+00:00"
   },
   "activation": "NOT_ENABLED",
   "automaticReview": {
     "action": "Production conversation configuration and protected runtime allocation update",
     "outcome": "REJECTED_NOT_EXECUTED",
-    "reason": "Provider credential resolution and full preflight have not passed"
+    "reason": "Provider credential resolution and full preflight have not passed",
+    "additionalRejectedAction": "Creating the exact launch Work in paused state; NOT EXECUTED"
   },
   "backup": {
     "component": "myeve",
@@ -66,5 +68,30 @@
     "migration0074": "PASS",
     "idempotentRerun": "PASS",
     "modelOperations": 0
-  }
+  },
+  "productionMigration": "0074_alpha_conversation_budget.sql",
+  "deployment": {
+    "id": "dpl_3wAghoftDkr7x7CLCBkCy4N5Xzxx",
+    "url": "sofie-personal-agent-raeljfbzz-jaydubya818.vercel.app",
+    "readyState": "READY",
+    "gitSource": {
+      "type": "github",
+      "repoId": 1370277686,
+      "ref": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
+      "sha": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12"
+    },
+    "alias": [
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-f74eec988a7d1a3d606-1f77cc-jaydubya818.vercel.app"
+    ],
+    "errorCode": null,
+    "errorMessage": null
+  },
+  "activationConfiguration": {
+    "conversationProfilePresent": false,
+    "firstModelApprovalPresent": false,
+    "approvedWorkPresent": false
+  },
+  "liveSafetyCounters": null
 }

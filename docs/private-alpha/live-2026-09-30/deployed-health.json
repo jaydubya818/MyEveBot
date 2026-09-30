@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-09-30T09:10:54.670869+00:00",
+  "source": "f74eec988a7d1a3d606a47db8f7ca3be5b5b0c12",
+  "signedOwnerServiceChecks": {
+    "passed": 5,
+    "included": 5,
+    "gateway": "CATALOG_ONLY_NOT_MODEL_AUTHENTICATION",
+    "database": "SCHEMA_0074",
+    "memory": "LIST_ONLY",
+    "fileStorage": "LIST_ONLY",
+    "webAccess": "SIGNED_SESSION"
+  },
+  "work": "PASS_READ_ONLY_NO_LAUNCH_WORK",
+  "needsYou": "PASS_READ_ONLY",
+  "provider": "QUALIFIED_LOADER_FAILED",
+  "http": [
+    {
+      "url": "https://sofie-personal-agent.vercel.app/login",
+      "status": 200
+    },
+    {
+      "url": "https://sofie-personal-agent.vercel.app/eve/v1/health",
+      "status": 200
+    },
+    {
+      "url": "https://sofie-personal-agent.vercel.app/api/beta/work",
+      "status": 401
+    },
+    {
+      "url": "https://sofie-personal-agent.vercel.app/api/beta/results",
+      "status": 401
+    },
+    {
+      "url": "https://relay-sage-nine.vercel.app/api/health",
+      "status": 200
+    },
+    {
+      "url": "https://relay-sage-nine.vercel.app/api/health/ready",
+      "status": 200
+    }
+  ],
+  "realModelOperations": 0
+}
