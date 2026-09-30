@@ -2,7 +2,7 @@
 
 The first live journey failed qualification. It is preserved, never rerun, and its unused budget is not reusable. The second live attempt is **NOT AUTHORIZED**. Billing remains non-blocking.
 
-Repair code: `b41b81507bda08da1b299bf7db50086a4ba820e8` on `codex/private-alpha-release`. Publication and native fallback remain disabled. Deployment and the new paused Work will be recorded separately after qualification.
+Repair code: `b41b81507bda08da1b299bf7db50086a4ba820e8` on `codex/private-alpha-release`. Publication and native fallback remain disabled. The repaired source is deployed at `5196df982be2b2e55fed996289eb45b70229a158`; see [deployed preparation](deployed-preparation.json) and [source manifest](source-manifest.json).
 
 ## First divergence
 
@@ -36,3 +36,11 @@ Protected local evidence is `/private/tmp/alpha-first-live-failure-20260930`. [H
 Run `npm test --workspace=eve-agent -- --run lib/engineering/alpha-conversation.test.ts`; the test imports the sanitized captured provider structure and never calls a provider. Run the existing `factory-live.integration.mjs` with `FACTORY_SPEND_FIXTURE=1` for captured Sofie coverage; adding `FACTORY_INSTALLED_CLI=1 FACTORY_ENVELOPE_DRY_RUN=1` runs the separate installed-CLI controlled-provider coverage. Both require a disposable loopback PostgreSQL server and the clean qualified MyFactory source. See the retained logs and prior Q37 dossier for Gate B/C commands.
 
 Framework contract was checked against installed `eve@0.66.3` tool/session documentation and the installed AI SDK, not inferred from fixture output.
+
+## Deployed preparation and new authorization boundary
+
+The repaired private-alpha runtime is READY at [the isolated journey deployment](https://sofie-personal-agent-g4vvieciu-jaydubya818.vercel.app), deployment `dpl_J949enNVwma9nndmqD4F4gpchyL9`. It uses production configuration with exact real-execution approval false and empty Work binding. The shared production alias stays on the independent newer Mac-access release. Canonical health and unauthenticated Factory admission denial passed. The installed Factory's authenticated controls, signing/source/repository safeguards, provider OIDC identity, exact-model eligibility, pinned OpenAI route and pricing passed without generation. Positive canonical admission is established by the captured/synthetic connected suite, not by dispatching a live command.
+
+New Work `dd60ac6b-5718-4844-be97-39b88eadf6ce` is **paused at revision/generation 1/1**, with zero model calls, routes, pending commands or writer. Its [fresh envelope](second-work-authorization.json) is 5 operations (2 Sofie, 2 productive Factory, 1 Factory completion), 1 candidate attempt, 600 seconds from first Sofie reservation, $1.35 maximum, and protected completion reserves of $0.336864 Factory plus $0.15 final Sofie explanation. Only `quantity.mjs` may change. Local commit, signed custody, independent protected verification, canonical Result/Proof of Work and final explanation are allowed after explicit authorization. External publication is disabled. No resume, worker start, second model call or budget reuse occurred.
+
+The exact canonical model wrapper was exercised against the new paused Work with approval absent; it denied execution at the owner approval gate before provider/catalog access or reservation. The failed Work's complete scoped database snapshot compared unchanged after new preparation. Its one historical model operation and $0.000717 cost remain intact. Second live execution requires explicit owner authorization for this new Work, followed by one canonical resume and a reread/binding of the resulting revision/generation. Qualification expires `2026-10-02T23:59:59Z`; preflight must remain current at execution time.

@@ -1,4 +1,4 @@
-[Latest private-alpha handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md): first live qualification failed; captured-response repair passes zero-model qualification. A second live attempt requires fresh Work and explicit authorization.
+[Latest private-alpha handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md): first live qualification failed and is preserved. The captured-response repair is deployed and passes zero-model qualification; a new paused Work is ready for explicit second-attempt authorization.
 
 # MyEveBot
 
