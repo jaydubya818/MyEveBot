@@ -10,7 +10,7 @@ import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
 
-import { clientTurnSettings, primaryChatSettings, resolveSessionAgent } from "./lib/session-settings.ts";
+import { clientTurnSettings, primaryChatSettings, rememberedChatSettings, resolveSessionAgent } from "./lib/session-settings.ts";
 
 const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
 
@@ -74,7 +74,8 @@ export default defineAgent({
             modelContextWindowTokens:200_000,
           };
         }
-        const chatSettings = primaryChatSettings(agent, requested);
+        const chatSettings = primaryChatSettings(agent, agent?.isPrimary ? rememberedChatSettings(requested) : requested);
+        console.info("sofie_chat_model_selected", {sessionId:ctx.session.id, modelId:chatSettings.model ?? DEFAULT_MODEL});
         const selectedReasoning = chatSettings.reasoning;
         const reasoning = selectedReasoning === "default" ? null : selectedReasoning;
         if (reasoning === null) return { model: chatSettings.model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };

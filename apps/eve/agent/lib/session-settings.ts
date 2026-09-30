@@ -1,4 +1,5 @@
 import type { ModelMessage } from "ai";
+import { defineState } from "eve/context";
 
 import { ensurePrimaryAgent, getAgent, type AgentReasoning, type AgentView } from "../../lib/agents.ts";
 import { db } from "./receipts-db.ts";
@@ -12,6 +13,14 @@ export interface ClientTurnSettings {
 }
 
 const EMPTY: ClientTurnSettings = { model: null, reasoning: null };
+const chatSelection = defineState<ClientTurnSettings>("myeve.primary-chat-selection", () => ({ ...EMPTY }));
+
+/** Request context is ephemeral; approval continuations must retain the last picker selection. */
+export function rememberedChatSettings(requested: ClientTurnSettings): ClientTurnSettings {
+  if (requested.model) chatSelection.update(() => ({ ...requested }));
+  return requested.model ? requested : chatSelection.get();
+}
+
 
 interface SessionPrincipal {
   principalId?: string;
