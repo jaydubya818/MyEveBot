@@ -10,7 +10,7 @@ import type { LanguageModelMiddleware } from "ai";
 import { gateway, wrapLanguageModel } from "ai";
 import { defineAgent, defineDynamic } from "eve";
 
-import { clientTurnSettings, resolveSessionAgent } from "./lib/session-settings.ts";
+import { clientTurnSettings, primaryChatSettings, resolveSessionAgent } from "./lib/session-settings.ts";
 
 const DEFAULT_MODEL = "anthropic/claude-sonnet-5";
 
@@ -74,12 +74,12 @@ export default defineAgent({
             modelContextWindowTokens:200_000,
           };
         }
-        const configuredReasoning = agent?.reasoningPreference;
-        const selectedReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
+        const chatSettings = primaryChatSettings(agent, requested);
+        const selectedReasoning = chatSettings.reasoning;
         const reasoning = selectedReasoning === "default" ? null : selectedReasoning;
-        if (reasoning === null) return { model: model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
+        if (reasoning === null) return { model: chatSettings.model ?? DEFAULT_MODEL, modelContextWindowTokens: 200_000 };
         return { model: wrapLanguageModel({
-          model: gateway(model ?? DEFAULT_MODEL),
+          model: gateway(chatSettings.model ?? DEFAULT_MODEL),
           middleware: reasoningMiddleware(reasoning),
         }), modelContextWindowTokens: 200_000 };
         };

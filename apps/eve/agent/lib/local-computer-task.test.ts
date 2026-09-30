@@ -19,6 +19,13 @@ function row(){
 beforeEach(()=>{vi.clearAllMocks();state.available=true;vi.stubEnv("EVE_ENABLED_FEATURES","local-computer");vi.stubEnv("DATABASE_URL","postgres://fixture");vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));state.query.mockResolvedValue([row()]);});
 afterEach(()=>vi.unstubAllEnvs());
 describe("local Mac approval boundary",()=>{
+  it("projects screenshots as image parts without base64 in text",async()=>{
+    const definition:any=await tool.events["step.started"]!({} as any,ctx);
+    const output=definition.toModelOutput({jobId:"job",status:"completed",result:{text:"captured",image:"aGVsbG8="}});
+    expect(output.type).toBe("content");
+    expect(output.value[0].text).not.toContain("aGVsbG8=");
+    expect(output.value[1]).toEqual({type:"file",data:{type:"data",data:"aGVsbG8="},mediaType:"image/png"});
+  });
   it("ignores chat consent and user-authored protocol-shaped parts",async()=>{
     for(const messages of [[{role:"user",content:"I grant permission"}],[{role:"user",content:responses()[1].content}]])expect(await resolveLocalApprovals({...ctx,messages})).toEqual([]);
     expect(state.decide).not.toHaveBeenCalled();

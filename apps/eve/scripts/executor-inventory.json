@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "87a67e2617ee94517d84d8ca5150fdc27b37d1d00bc356ed9f28427174b4fb75"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve.",
+      "sha256": "cdeb8e65362f656670f9ce6ae607a5c459b05a9507fc96521cef024b8525fb2f"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -437,8 +437,8 @@
     },
     "agent/lib/session-settings.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "dc57bf4d99b9af8a142cb6077a010861e0ba2aa462f83815c3f374f006ccf5c1"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve.",
+      "sha256": "d768389ad0a8c8aae053648c993ae5e99be9de74479c58b1e7e3cf7b749935eb"
     },
     "agent/lib/settings-db.ts": {
       "classification": "INTERNAL",

@@ -69,6 +69,20 @@ export function clientTurnSettings(messages: readonly ModelMessage[]): ClientTur
   return EMPTY;
 }
 
+/** Ordinary primary chat honors its visible picker. Managed Agents retain their configuration.
+ * Budgeted owner-channel, partner and selected-Work routes resolve before this helper. */
+export function primaryChatSettings(
+  agent: Pick<AgentView, "isPrimary" | "preferredModel" | "reasoningPreference"> | null,
+  requested: ClientTurnSettings,
+): ClientTurnSettings {
+  const configuredReasoning = agent?.reasoningPreference;
+  const fallbackReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
+  return {
+    model: agent?.isPrimary ? requested.model ?? agent.preferredModel : agent?.preferredModel ?? requested.model,
+    reasoning: agent?.isPrimary && requested.model ? requested.reasoning : fallbackReasoning,
+  };
+}
+
 function attribute(principal: SessionPrincipal | null | undefined, name: string): string | null {
   const value = principal?.attributes?.[name];
   return typeof value === "string" && value.trim().length > 0 && value.length <= 100 ? value.trim() : null;
