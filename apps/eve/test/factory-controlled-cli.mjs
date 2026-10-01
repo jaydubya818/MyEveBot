@@ -2,14 +2,15 @@
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import assert from 'node:assert/strict';
+const attempt6Fixture=JSON.parse(await readFile(new URL('./fixtures/attempt6-implementation.json',import.meta.url),'utf8'));
 const attempt5Fixture=JSON.parse(await readFile(new URL('./fixtures/attempt5-completion-boundary.json',import.meta.url),'utf8'));
 
-export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks=false,exerciseProductiveEnd=false}={}){
+export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks=false,exerciseProductiveEnd=false,exerciseCheckpoint=false}={}){
  if(exerciseProductiveEnd){assert.equal(attempt5Fixture.productiveOperations,2);assert.equal(attempt5Fixture.completionOperations,0);}
  let phase=null,index=0,target=null,original=null,searchCallId=null,searchOutputs=0;
  return {
   stats:()=>({clientSearchOutputs:searchOutputs}),
-  async begin(input,contents){if(exerciseLocalChecks){assert(input.prompt.includes('HOST_SOURCE_CONTEXT')||input.sandbox==='read-only');assert(input.prompt.includes('quantity.mjs'));}phase=input.sandbox==='read-only'?'completion':'productive';index=0;target=contents;original=await readFile(join(input.workspacePath,'quantity.mjs'),'utf8').catch(error=>{if(error.code==='ENOENT')return null;throw error;});},
+  async begin(input,contents){if(exerciseLocalChecks){assert(input.prompt.includes('HOST_SOURCE_CONTEXT')||input.sandbox==='read-only');assert(input.prompt.includes('quantity.mjs'));}phase=input.sandbox==='read-only'?'completion':'productive';index=0;target=exerciseCheckpoint&&phase==='productive'&&!input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK')?attempt6Fixture.capturedImplementation:contents;if(exerciseCheckpoint&&input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK')){assert(input.prompt.includes('stdout is not JSON'));assert(input.prompt.includes('CURRENT_SOURCE_CONTEXT'));}original=await readFile(join(input.workspacePath,'quantity.mjs'),'utf8').catch(error=>{if(error.code==='ENOENT')return null;throw error;});},
   async respond(req,res,call){
    const chunks=[];for await(const chunk of req)chunks.push(chunk);
    const request=JSON.parse(Buffer.concat(chunks).toString());
@@ -27,11 +28,13 @@ export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks
     assert(tool, 'Installed CLI must expose apply_patch to the controlled provider');
     const patch='*** Begin Patch\n'+(original===null?'*** Add File: quantity.mjs\n':'*** Update File: quantity.mjs\n@@\n'+original.trimEnd().split('\n').map(line=>'-'+line).join('\n')+'\n')+target.trimEnd().split('\n').map(line=>'+'+line).join('\n')+'\n*** End Patch';
     output=[tool.type==='custom'?{type:'custom_tool_call',id:'tool-'+call,call_id:'call-'+call,name:'apply_patch',input:patch,status:'completed'}:{type:'function_call',id:'tool-'+call,call_id:'call-'+call,name:'apply_patch',arguments:JSON.stringify({patch}),status:'completed'}];
-    if(exerciseLocalChecks&&!exerciseProductiveEnd){
+    if(exerciseLocalChecks&&!exerciseProductiveEnd&&!exerciseCheckpoint){
      const shell=request.tools.find(t=>t.name==='exec_command');
      assert(shell,'Installed CLI must expose local exec_command');
      output.push({type:'function_call',id:'check-'+call,call_id:'check-call-'+call,name:'exec_command',arguments:JSON.stringify({cmd:'node --test',yield_time_ms:1000,max_output_tokens:2000}),status:'completed'});
     }
+   }else if(phase==='productive'&&exerciseCheckpoint){
+    throw Error('Host checkpoint must prevent a second response in the same productive process');
    }else if(phase==='productive'&&exerciseProductiveEnd&&index===2){
     assert(request.input.some(i=>i.type==='custom_tool_call_output'||i.type==='function_call_output'),'Edit tool output must precede local tests');
     const shell=request.tools.find(t=>t.name==='exec_command');assert(shell);
