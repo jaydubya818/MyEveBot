@@ -23,3 +23,7 @@ MyEve validation: 144 root tests; 1979 application tests passed with 94 environm
 Current canonical main fbeffa3f2df64aca0373bdfa39d2895fda145f9e was fetched and fast-forwarded into the existing codex/private-alpha-release workstream before this change. Computer, lifecycle, continuation and federation work is retained. No reset or force push. Deployment uses an isolated private-alpha source with real-model approval disabled and never overwrites the shared production alias.
 
 A new Work may be prepared paused only after deployed zero-model checks pass. It must not reuse Attempts 1–4 or their budgets. The fifth live attempt still requires explicit approval. Publication remains disabled. Synthetic responses demonstrate the contract but cannot guarantee a future model follows the efficient first-call implementation instruction; the progress guard fails closed with capacity preserved if it does not.
+
+## Prepared fifth attempt
+
+Work `ad07cb0c-b290-48c8-b58d-75de95b1eb0d` is paused at revision/generation 1/1. No model call, route, writer or resume exists. The first-model gate denied as required. See paused-work.json and source-manifest.json. Limits remain five operations, one candidate attempt, 600 seconds, $1.35 total ($0.30 Sofie + $1.05 Factory), with $0.336864 Factory completion and $0.15 final Sofie reserves. Only quantity.mjs may change; publication remains disabled. READY FOR FIFTH LIVE ATTEMPT means ready to seek explicit authorization, not authority to execute.

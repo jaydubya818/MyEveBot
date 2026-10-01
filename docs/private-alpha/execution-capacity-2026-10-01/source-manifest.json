@@ -1,0 +1,15 @@
+{
+  "myEveRepairSha": "53b988614787a3f788c35e5c76f3c78c5d4fb71d",
+  "preservedCanonicalBase": "fbeffa3f2df64aca0373bdfa39d2895fda145f9e",
+  "myFactoryRepairSha": "996b84cb1f83b0c6206118fa9607d1123e43f050",
+  "factorySourceDigest": "fe9fcd15a2b0a8644a80b640b7de9d0e043988a6fe9998e769da46f7b9d5f2fc",
+  "factoryVersion": "291b0f4866d6bde2f4f0df4c2d39342534d7422cfb60a7ba92b4fe72a72321b7",
+  "configurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+  "newWorkId": "ad07cb0c-b290-48c8-b58d-75de95b1eb0d",
+  "revision": 1,
+  "generation": 1,
+  "control": "paused",
+  "sourceQualification": "Complete offline installed-CLI journey and deployed zero-model preflight PASS",
+  "additionalRealModelOperations": 0,
+  "publicationAllowed": false
+}

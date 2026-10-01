@@ -1,0 +1,51 @@
+{
+  "observedAt": "2026-10-01T06:32:41.594Z",
+  "factorySha": "996b84cb1f83b0c6206118fa9607d1123e43f050",
+  "sourceDigest": "fe9fcd15a2b0a8644a80b640b7de9d0e043988a6fe9998e769da46f7b9d5f2fc",
+  "configurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+  "factoryVersion": "291b0f4866d6bde2f4f0df4c2d39342534d7422cfb60a7ba92b4fe72a72321b7",
+  "configuration": {
+    "model": "openai/gpt-5.4-mini",
+    "executor": "codex-cli",
+    "executorVersion": "codex-cli 0.157.0",
+    "skillRevision": "fd8f20a879b507cf09feba08663a1edf7a949353",
+    "workerProfile": "mac",
+    "verificationImage": "node:22-bookworm",
+    "nodeVersion": "v24.18.1",
+    "platform": "darwin",
+    "architecture": "arm64",
+    "commands": [
+      "node --test"
+    ],
+    "allowedPaths": [
+      "quantity.mjs"
+    ],
+    "timeoutMs": 1800000
+  },
+  "providerPreflight": {
+    "status": "PASS",
+    "identity": "VERIFIED_PROJECT_OIDC",
+    "gatewayAuthentication": "PASS",
+    "model": "openai/gpt-5.4-mini",
+    "provider": "openai",
+    "modelEligibility": "eligible",
+    "httpAvailability": "available",
+    "pinnedRoute": "PASS",
+    "pricing": "PASS",
+    "modelOperations": 0,
+    "limitation": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
+  },
+  "spendPlan": {
+    "version": "WORK_LEDGER_V2",
+    "pricingRevision": "gateway-openai-20260930",
+    "plannedProductiveOperations": 2,
+    "plannedCompletionOperations": 1,
+    "maxPaidOperations": 3,
+    "completionReserveMicrousd": 336864
+  },
+  "qualificationExpiresAt": "2026-10-02T23:59:59Z",
+  "signingAndControl": "EXISTING_UNCHANGED",
+  "providerIdentity": "EXISTING_UNCHANGED",
+  "publicationAllowed": false,
+  "modelOperations": 0
+}

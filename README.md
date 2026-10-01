@@ -1,6 +1,6 @@
 # MyEve
 
-[Latest private-alpha qualification](docs/private-alpha/model-reference-2026-10-01/README.md): Attempts 1–3 remain preserved failures. The namespaced model repair is deployed and passes the controlled installed-executor boundary; a fresh Attempt-4 Work is paused pending explicit live authorization.
+[Latest private-alpha qualification](docs/private-alpha/execution-capacity-2026-10-01/README.md): Attempts 1–4 remain preserved failures. The bounded implementation-capacity and local-503 repair passed the complete offline journey and deployed zero-model preflight. Fresh Work `ad07cb0c-b290-48c8-b58d-75de95b1eb0d` is paused at 1/1 awaiting separate fifth-live authorization; publication remains disabled.
 
 [Prior admission-proposal repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md) preserves Attempts 1–2 and the captured-response handoff qualification. Attempt 3 subsequently proved live admission and stopped at executor model validation; the latest record above supersedes its preparation status.
 

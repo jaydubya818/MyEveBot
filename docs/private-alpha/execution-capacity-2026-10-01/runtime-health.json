@@ -1,0 +1,17 @@
+{
+  "observedAt": "2026-10-01T06:32:47.207Z",
+  "health": "PASS",
+  "httpStatus": 200,
+  "unauthenticatedControl": 401,
+  "authenticatedControl": 200,
+  "execution": "LIVE",
+  "spendEnforced": true,
+  "controls": [
+    "factory.prepare",
+    "factory.dispatch",
+    "factory.observe",
+    "factory.stop"
+  ],
+  "publicationAllowed": false,
+  "modelOperations": 0
+}
