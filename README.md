@@ -217,7 +217,7 @@ Before starting a local or deployed app, apply the checked-in database migration
 npm run db:migrate
 ```
 
-Migrations are ordered and checksum-protected; already-recorded migrations are skipped. The required migration is declared in [`apps/eve/lib/database-schema.ts`](apps/eve/lib/database-schema.ts); this source includes `0076_completed_chat_tasks.sql`.
+Migrations are ordered and checksum-protected; already-recorded migrations are skipped. The required migration is declared in [`apps/eve/lib/database-schema.ts`](apps/eve/lib/database-schema.ts); this source includes `0077_computer_revocation.sql`.
 
 **Migration runner limitation:** the Neon HTTP runner rejects migration blocks containing multiple SQL statements with `cannot insert multiple commands into a prepared statement`. If encountered, apply the pending files through a PostgreSQL client, with each file and its migration-ledger entry in the same transaction. Preserve the original files and their SHA-256 checksums; do not mark an unapplied migration as complete.
 
@@ -280,7 +280,7 @@ Sofie runs in the existing Vercel project `sofie-personal-agent`:
 | Vercel root directory | `apps/eve` |
 | Current template release | [The checked-in release number](apps/eve/.eve-template-release) |
 
-The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. Pushes to `main` create production deployments through the Vercel Git integration. Other branches create previews.
+The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. The repository currently disables automatic deployment from `main` in `apps/eve/vercel.json`; production uses an explicitly approved manual release. Other enabled branches create previews. A canonical merge is not evidence of production activation.
 
 Before shipping, run the repository checks from the root:
 

@@ -57,6 +57,14 @@ An early lifecycle status implementation could briefly report ready immediately 
 
 ## Canonical publication preparation
 
-Repository: `jaydubya818/MyEveBot`. Target: `main`. Source `395bf55b99f73765bcc1f5b4a6545478fb4e65f1` contains the connection runtime and preserved main handoff repair. The dirty primary checkout is untouched. The production Git integration points to main, so publication triggers the normal production build. Production has no real-Factory execution approval or approved Work binding; no model attempt is authorized by this deployment. The other chat's private journey deployment is separate.
+Repository: `jaydubya818/MyEveBot`. Target: `main`. Source `395bf55b99f73765bcc1f5b4a6545478fb4e65f1` contains the connection runtime and preserved main handoff repair. The dirty primary checkout is untouched. The project points to main, but `apps/eve/vercel.json` disables automatic main deployment. Branch publication triggered a preview only; production requires manual release. Production has no real-Factory execution approval or approved Work binding; no model attempt is authorized by this deployment. The other chat's private journey deployment is separate.
 
 The second live controller receipt is `STOPPED_BEFORE_RETRY` with reason “Sofie did not produce an admitted command.” Its Work/envelope are not reusable. The separate deployment chat owns its requested zero-model repair; this tranche did not send it messages or execute a third attempt.
+
+## Canonical receipt and production approval gate
+
+Canonical `main` and `codex/sofie-local-access` were both remotely verified at **`9782b1109d73c15504368be0eae069660553204d`** after integration. This documentation correction follows that qualified runtime and does not change executable source. The automatic branch preview is `dpl_3EXqAWB9VUFZARuoU8jV5BBGjXVj`; build readiness is a separate observation.
+
+Automatic approval review rejected the manual production deployment: Git integration was authorized, but the reviewer requires explicit authorization for the live Computer/revocation rollout. The deployment command did not run and no workaround was attempted. Approval was requested for source `9782b1109d73c15504368be0eae069660553204d`. Existing production remains unchanged. Migration 0077 and the explicit scope setting are backward-compatible preparation, not deployment proof.
+
+A second pending approval is for **Sofie Local.app only** in macOS Accessibility and Screen Recording, requiring the owner's Touch ID/password. No Node, Full Disk Access, or other app permission was enabled. Until approved and tested, background desktop control remains unqualified.

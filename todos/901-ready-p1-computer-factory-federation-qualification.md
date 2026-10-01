@@ -32,7 +32,7 @@ Proceed with independent Computer, UI and federation work; reconcile the active 
 - [ ] Real-provider journey only with valid new exact authorization
 - [x] Desktop/390px/accessibility, typecheck, governance, build and counters
 - [x] README architecture, operator and product documentation; exact source/evidence
-- [ ] Commit, push, remote verify and integrate qualified fixes into canonical main
+- [x] Commit, push, remote verify and integrate qualified fixes into canonical main
 
 ## Work Log
 ### 2026-09-30 — Continuation intake
@@ -42,3 +42,5 @@ Read the user's full tranche, preserved prior PASS evidence, fetched canonical m
 Installed native login/crash lifecycle and Keychain custody, migrated plaintext config, preserved roots. Background TCC does not inherit Codex; dedicated Sofie Local app is listed, off, awaiting explicit approval. Revocation server/worker tests pass. Canonical operation grants and plain-language evidence disclosure implemented. Generic peer discovery contract and existing scope/replay/owner tests pass. Full app 2,001 tests, root 144, types/governance and webpack build pass. Connected Factory 19 synthetic checks with actual Docker verification pass; separate second live attempt failed before admission and was not retried. See continuation dossier.
 
 Merged main handoff repair locally; final app 2,017 tests, 144 root checks, 20 connected synthetic Factory checks, build and governance PASS. Branch remotely verified at 395bf55. Production migration 0077 and explicit Computer scopes are prepared before main auto-deployment. Second live attempt is stopped and preserved.
+
+Canonical main verified at 9782b11. Automatic main deployment is disabled by vercel.json. Manual production deployment was rejected by approval review; exact-SHA approval requested, no workaround. Separate Sofie Local TCC approval remains pending. Runtime independent work is committed; these live gates and external peer identities remain unresolved.
