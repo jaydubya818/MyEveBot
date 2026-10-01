@@ -57,6 +57,8 @@ export interface CreateProductQaTaskInput {
 }
 
 export interface CreateDelegatedTaskInput {
+  /** Set only by the authenticated root owner tool, never model parameters. */
+  ownerChat?: { callId: string };
   ownerId: string;
   sessionId: string;
   title: string;
@@ -86,6 +88,15 @@ export async function createDelegatedTask(input: CreateDelegatedTaskInput): Prom
     const parent = await getTaskRun(input.ownerId, input.parentTaskId);
     if (!parent) throw new Error("Parent task not found.");
     if (parent.parentTaskId) throw new Error("Delegation depth is limited to one child level.");
+  }
+  if (input.ownerChat) {
+    const rows = await db().query("SELECT start_owner_task($1,$2,$3,$4,$5,$6::jsonb) AS id", [
+      input.ownerId, input.sessionId, input.agentId, input.ownerChat.callId, taskId,
+      JSON.stringify({ ...input, ownerChat: undefined, title: input.title.trim().slice(0, 200),
+        objective: input.objective.trim().slice(0, 4000), expectedOutput: input.expectedOutput.trim().slice(0, 2000),
+        maxDurationSeconds, maxModelSteps, maxEstimatedCostUsd, maxWorkers }),
+    ]);
+    return (await getTaskRun(input.ownerId, String(rows[0].id)))!;
   }
   await db().transaction((tx) => [
     tx`INSERT INTO task_runs (

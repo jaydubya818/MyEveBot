@@ -1344,8 +1344,8 @@
     },
     "agent/tools/start_task.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "ac768b550cda7e51c95c5b3e3216959fa63d20defb960e1ba0b83842b0d4265a"
+      "reason": "Authenticated root owner calls use a locked, bounded owner-task transition and durable call identity. Delegated, scheduled, role and external owner-channel paths retain their existing lifecycle. No provider effects.",
+      "sha256": "739734a56b400e926cfe099cff5e3c3d9059de1255259c1152be4e88c4cfe72c"
     },
     "agent/tools/stop_computer_session.ts": {
       "classification": "ENFORCED",
@@ -2129,7 +2129,7 @@
     "lib/database-schema.ts": {
       "classification": "READ_ONLY",
       "reason": "Checks migration readiness, including Computer revocation migration 0077; performs no execution.",
-      "sha256": "7b599da95d12e47feeaf143f22699f0bfd2e12bdb7b60d62e3fa2b4ac4810ca2"
+      "sha256": "dca6508acaafaddf29813d080d9170933179137d124e1666a59876bad219a9b9"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2593,8 +2593,8 @@
     },
     "lib/task-runs.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "fffbe4937c016afdfed11007ad3bdcf12945ecb0db8423be17a72836726f10e0"
+      "reason": "Owner-task creation serializes against owner-chat recovery, preserves history and rejects active/protected authority. Exact call replay returns the original task. Other delegated/QA lifecycles and effect boundaries unchanged.",
+      "sha256": "f326551011c8ff8de64e8bf3683c5306e62cca36321c0138664192971abbda36"
     },
     "lib/task-types.ts": {
       "classification": "NOT_APPLICABLE",

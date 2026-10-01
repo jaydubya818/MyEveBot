@@ -2,6 +2,8 @@ import { defineTool } from "eve/tools";
 import { z } from "zod";
 
 import { createDelegatedTask, taskOwnerFromAuth } from "../../lib/task-runs.ts";
+import { executionIdentityFromAuth } from "../../lib/execution-auth.ts";
+import { ownerRuntimeFromAuth } from "../../lib/relay/owner/runtime.ts";
 import { agentForSession } from "../lib/session-settings.ts";
 
 export default defineTool({
@@ -15,6 +17,11 @@ export default defineTool({
   async execute(input, ctx) {
     const ownerId = taskOwnerFromAuth(ctx.session.auth);
     const agent = await agentForSession(ctx.session.id, ownerId);
-    return createDelegatedTask({ ...input, ownerId, sessionId: ctx.session.id, agentId: agent?.id });
+    const caller = ctx.session.auth.current;
+    const ownerChat = caller?.principalType === "user" && caller.attributes.owner === "true"
+      && !ctx.session.parent && !caller.attributes.myeveRoleId
+      && !executionIdentityFromAuth(ctx.session.auth) && !ownerRuntimeFromAuth(ctx.session.auth);
+    return createDelegatedTask({ ...input, ownerId, sessionId: ctx.session.id, agentId: agent?.id,
+      ...(ownerChat ? { ownerChat: { callId: ctx.callId } } : {}) });
   },
 });

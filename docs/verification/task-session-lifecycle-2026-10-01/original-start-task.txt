@@ -1,0 +1,10 @@
+start taskInput{
+  "title": "Calculator desktop qualification",
+  "objective": "Request separate exact-action approvals to run only open -a Calculator, capture one fresh screenshot after completion, inspect Calculator, and propose one click on its digit 7 button. Do not perform arithmetic, type text, or use MyFactory.",
+  "expectedOutput": "Observed Calculator screen and an exact proposed digit 7 click based on screenshot coordinates, with each operation separately approved.",
+  "threadId": "924157c3-e17b-46e4-b037-07db030f14f3",
+  "maxDurationSeconds": 900,
+  "maxModelSteps": 20,
+  "maxEstimatedCostUsd": 2,
+  "maxWorkers": 1
+}Errorduplicate key value violates unique constraint "task_run_sessions_current"
