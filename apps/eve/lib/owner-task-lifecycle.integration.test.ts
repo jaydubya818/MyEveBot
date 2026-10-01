@@ -70,6 +70,21 @@ suite("owner task lifecycle in real PostgreSQL", () => {
     finally { await restarted.end(); }
     expect((await start("new-owner-call")).id).not.toBe(task.id);
   });
+  it.each(["Run exceeded its runtime boundary.", "15-minute runtime hard stop reached."])("system timeout finalization preserves the failed Run but allows a fresh task: %s", async reason => {
+    const old = await recover();
+    await query("UPDATE task_runs SET status='failed',status_reason=$2,completed_at=now(),deadline_at=now()-interval '1 second' WHERE id=$1", [old, reason]);
+    await expect(recover()).rejects.toThrow("RUN_RECOVERY_REQUIRES_OWNER_REVIEW");
+    await query("INSERT INTO task_transitions(task_id,from_status,to_status,actor,reason) VALUES($1,'running','failed','system',$2)", [old, reason]);
+    const before = (await query("SELECT row_to_json(r) value FROM task_runs r WHERE id=$1", [old]))[0].value;
+    await recover(); await start();
+    expect((await query("SELECT row_to_json(r) value FROM task_runs r WHERE id=$1", [old]))[0].value).toEqual(before);
+  });
+  it.each(["executing", "result_unknown"])("cannot detach an expired Run with an unresolved %s Action", async status => {
+    const old = await recover();
+    await query("UPDATE task_runs SET deadline_at=now()-interval '1 second' WHERE id=$1", [old]);
+    await query("INSERT INTO action_requests(id,owner_id,run_id,action_key,executor,trigger,capability_id,action_class,target,parameter_hash,decision,authority_source,status) VALUES('action-uncertain','owner',$1,'fixture','{}','{}','computer.local.shell','execute','{}','hash','ALLOW','local',$2)", [old, status]);
+    await expect(recover()).rejects.toThrow("RUN_RECOVERY_REQUIRES_OWNER_REVIEW");
+  });
   it.each(["failed", "cancelled", "paused"])("does not revive %s workflows", async status => {
     const old = await recover(); await query("UPDATE task_runs SET status=$2,deadline_at=now()-interval '1 second' WHERE id=$1", [old, status]);
     await expect(recover()).rejects.toThrow("RUN_RECOVERY_REQUIRES_OWNER_REVIEW");

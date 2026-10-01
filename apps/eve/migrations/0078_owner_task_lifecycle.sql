@@ -10,9 +10,15 @@ CREATE FUNCTION owner_run_recoverable(previous task_runs) RETURNS boolean LANGUA
     AND NOT EXISTS(SELECT 1 FROM execution_occurrences WHERE run_id=previous.id)
     AND NOT EXISTS(SELECT 1 FROM owner_channel_requests WHERE run_id=previous.id)
     AND NOT EXISTS(SELECT 1 FROM task_run_sessions WHERE task_id=previous.id AND role<>'orchestrator')
+    AND NOT EXISTS(SELECT 1 FROM action_requests WHERE run_id=previous.id
+      AND status NOT IN ('completed','denied','planned','awaiting_approval'))
     AND ((previous.status='completed' AND (previous.id LIKE 'action_run_%'
           OR (previous.completed_at IS NOT NULL AND previous.result_summary IS NOT NULL)))
-      OR (previous.status IN ('running','awaiting_approval') AND previous.deadline_at<=clock_timestamp()));
+      OR (previous.status IN ('running','awaiting_approval') AND previous.deadline_at<=clock_timestamp())
+      OR (previous.status='failed' AND previous.deadline_at<=clock_timestamp()
+        AND previous.status_reason IN ('Run exceeded its runtime boundary.','15-minute runtime hard stop reached.')
+        AND EXISTS(SELECT 1 FROM task_transitions WHERE task_id=previous.id AND to_status='failed'
+          AND actor='system' AND reason=previous.status_reason)));
 $$;
 -- statement-breakpoint
 CREATE OR REPLACE FUNCTION owner_chat_run(p_owner text,p_session text,p_agent text,p_new_id text,p_recover boolean,p_initialize boolean)
