@@ -1,0 +1,18 @@
+{
+  "description": "Captured first live admission response. Provider item ID replaced with a non-secret marker; complete content shape, phase and proposal text retained. Replayed without a provider call.",
+  "content": [
+    {
+      "text": "{\"operation\":\"start\",\"expectedWorkVersion\":2,\"expectedWorkGeneration\":2}",
+      "type": "text",
+      "providerMetadata": {
+        "openai": {
+          "phase": "final_answer",
+          "itemId": "redacted-provider-item-id"
+        }
+      }
+    }
+  ],
+  "finishReason": {
+    "unified": "stop"
+  }
+}

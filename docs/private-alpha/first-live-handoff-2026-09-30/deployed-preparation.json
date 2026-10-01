@@ -1,0 +1,104 @@
+{
+  "observedAt": "2026-09-30T23:49:35.559316+00:00",
+  "status": "READY_FOR_SECOND_LIVE_ATTEMPT_AWAITING_EXPLICIT_AUTHORIZATION",
+  "repairCodeSha": "b41b81507bda08da1b299bf7db50086a4ba820e8",
+  "deployment": {
+    "id": "dpl_J949enNVwma9nndmqD4F4gpchyL9",
+    "url": "sofie-personal-agent-g4vvieciu-jaydubya818.vercel.app",
+    "readyState": "READY",
+    "gitSource": {
+      "type": "github",
+      "repoId": 1370277686,
+      "ref": "5196df982be2b2e55fed996289eb45b70229a158",
+      "sha": "5196df982be2b2e55fed996289eb45b70229a158"
+    },
+    "alias": [
+      "sofie-personal-agent-jaydubya818.vercel.app",
+      "sofie-personal-agent-git-5196df982be2b2e55fe-a00932-jaydubya818.vercel.app"
+    ],
+    "autoAssignCustomDomains": false
+  },
+  "deploymentScope": "Isolated production-target private-alpha journey runtime. Main production alias deliberately preserved on its newer independent Mac-access release.",
+  "realExecutionApproval": "FALSE_IN_DEPLOYMENT_REQUEST",
+  "approvedWorkBinding": "EMPTY",
+  "providerPreflight": {
+    "status": "PASS",
+    "identity": "VERIFIED_PROJECT_OIDC",
+    "gatewayAuthentication": "PASS",
+    "model": "openai/gpt-5.4-mini",
+    "provider": "openai",
+    "modelEligibility": "eligible",
+    "httpAvailability": "available",
+    "pinnedRoute": "PASS",
+    "pricing": "PASS",
+    "modelOperations": 0,
+    "limitation": "Eligibility and endpoint metadata only; generation and client tool-search round trip remain unexecuted."
+  },
+  "factoryHealth": {
+    "observedAt": "2026-09-30T23:44:08.386Z",
+    "health": "PASS",
+    "httpStatus": 200,
+    "unauthenticatedControl": 401,
+    "authenticatedControl": 200,
+    "execution": "LIVE",
+    "spendEnforced": true,
+    "controls": [
+      "factory.prepare",
+      "factory.dispatch",
+      "factory.observe",
+      "factory.stop"
+    ],
+    "publicationAllowed": false,
+    "modelOperations": 0
+  },
+  "hostedHealth": {
+    "observedAt": "2026-09-30T23:47:50.737458+00:00",
+    "deploymentId": "dpl_J949enNVwma9nndmqD4F4gpchyL9",
+    "url": "https://sofie-personal-agent-g4vvieciu-jaydubya818.vercel.app",
+    "deploymentAccess": "PASS_EXISTING_PROJECT_CREDENTIAL",
+    "canonicalEveHealth": "PASS",
+    "ownerAuthenticationEnforced": "PASS",
+    "credentialCreated": false,
+    "protectionChanges": 0,
+    "modelOperations": 0,
+    "unauthenticatedFactoryAdmission": "DENIED_401",
+    "unauthenticatedResults": "DENIED_401",
+    "productionAliasUnchanged": true,
+    "historicalWorkMutations": 0,
+    "commandsAdmitted": 0,
+    "limitation": "Positive admission qualified locally with captured/synthetic output; deployed requests exercise health and unauthenticated denial only."
+  },
+  "historicalPreservation": {
+    "observedAt": "2026-09-30T23:48:36.228Z",
+    "historicalRowsUnchanged": true,
+    "failedWorkId": "a2dcadef-0738-4194-8b8c-02c16821b5fb",
+    "oldModelCalls": 1,
+    "oldSpentMicrousd": 717,
+    "oldFactoryCommands": 0,
+    "oldRouteRuns": 0,
+    "databaseWrites": 0
+  },
+  "newWork": {
+    "id": "dd60ac6b-5718-4844-be97-39b88eadf6ce",
+    "version": 1,
+    "generation": 1,
+    "control": "paused",
+    "budgetFresh": true,
+    "authorizationFile": "second-work-authorization.json"
+  },
+  "newWorkCounts": {
+    "sofieModelCalls": 0,
+    "routeRuns": 0,
+    "factoryModelCalls": 0,
+    "pendingCommands": 0
+  },
+  "additionalRealModelOperations": 0,
+  "liveFactoryAdmission": "NOT_RUN; positive admission passed captured-response local connected qualification; deployed unauthenticated admission denied",
+  "externalPublication": "DISABLED",
+  "consumerWorker": "NOT_STARTED",
+  "limitations": [
+    "Second live journey not executed or qualified.",
+    "The old Work row remains active/agent and its Eve conversation waits for input; controller/consumer stopped and productive deadline expired. Historical rows preserved unchanged.",
+    "Authenticated provider GET eligibility and endpoint metadata do not prove generation, tool round trip or candidate completion."
+  ]
+}

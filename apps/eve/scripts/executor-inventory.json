@@ -3295,8 +3295,8 @@
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "91895dc0d920f05905eaace79ec07d6da5bb6a434d413b276d3da1b43965afaa"
+      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization.",
+      "sha256": "ec388a8c0c2a20ef7b4ac3a182f555ce9c330efb144e4a37e352e034c8af487f"
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",

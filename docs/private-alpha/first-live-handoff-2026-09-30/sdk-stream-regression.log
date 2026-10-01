@@ -1,0 +1,14 @@
+
+> eve-agent@0.0.0 test
+> vitest run --run lib/engineering/alpha-conversation.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-release/Myeve/apps/eve
+
+ ✓ lib/engineering/alpha-conversation.test.ts (25 tests) 32ms
+
+ Test Files  1 passed (1)
+      Tests  25 passed (25)
+   Start at  16:35:32
+   Duration  532ms (transform 181ms, setup 0ms, collect 303ms, tests 32ms, environment 0ms, prepare 32ms)
+
