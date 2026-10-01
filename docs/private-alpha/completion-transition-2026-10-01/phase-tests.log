@@ -1,0 +1,39 @@
+✔ supervisor commits only a scoped source change and records exact identity (111.581583ms)
+✔ supervisor rejects out-of-scope and symlink changes (43.992833ms)
+✔ supervisor rejects an agent-created commit even if the worktree is clean (47.418334ms)
+✔ completion tree pins only authorized changes; no commit until successful host finalization (164.472333ms)
+✔ preflight checks only version and login status (381.145625ms)
+✔ run keeps prompt literal and returns only event-backed completion (196.054625ms)
+✔ gateway run isolates child auth and pins the Responses provider to loopback (176.802916ms)
+✔ process start callback is awaited before event processing (159.572042ms)
+✔ process start persistence failure terminates the process group and returns failed (2.600875ms)
+✔ exit zero with persuasive final prose but no turn.completed is failure (169.396625ms)
+✔ turn.completed with nonzero exit is failure (151.352542ms)
+✔ malformed JSONL prevents success (157.910917ms)
+✔ timeout and abort stop the process group (3175.691167ms)
+✔ artifacts may not be written inside the task workspace (1.167292ms)
+✔ Attempt 3: exact provider-qualified model reaches the executor as one literal argument (206.682042ms)
+✔ unsafe or ambiguous model references never launch an executor (1.61075ms)
+✔ canonical model references preserve qualified and legacy identity with bounded length (0.10575ms)
+✔ host productive boundary yields a quiescent process without claiming a completed model turn (104.383042ms)
+✔ owner cancellation dominates a productive boundary signal (104.627708ms)
+✔ V2 rejects a plan that cannot fund all productive and completion calls (9.108333ms)
+✔ UNKNOWN is a hard Work-level stop across restart, attempt and model changes (7.342542ms)
+✔ productive calls cannot take completion reserve and host-only completion transition fences old phase (8.565083ms)
+✔ paid operation slots persist across process restart and exact replay cannot dispatch twice (7.28925ms)
+✔ reservation, UNKNOWN, cancellation and authority are checked again at paid dispatch (6.63425ms)
+✔ concurrent ledger connections share the last operation slot (6.120291ms)
+✔ legacy V1 Work budget has no paid admission (6.437375ms)
+✔ process loss retains slot and dollars before dispatch, after dispatch, and in completion (7.672042ms)
+✔ two completion operations cannot race past protected completion slots or dollars (6.841458ms)
+✔ wrong authority, old generation, wrong pricing and phase cannot start paid operation (6.32475ms)
+✔ expired pinned pricing is denied at the ledger even after an earlier reservation (5.790917ms)
+✔ Attempt 5 completion eligibility rejects UNKNOWN, stale generation, fenced writer and used completion (7.314ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5105.606208

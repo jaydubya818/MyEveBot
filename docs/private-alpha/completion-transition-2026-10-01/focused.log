@@ -1,0 +1,31 @@
+✔ request is reserved before provider and settles only authoritative usage (30.179209ms)
+✔ UNKNOWN denies a second paid call despite remaining Work headroom (14.042166ms)
+✔ cancelled Work and expired pricing deny before provider (9.549167ms)
+✔ concurrent requests cannot exceed the productive operation slot limit (12.152416ms)
+✔ streaming completion carries authoritative usage; missing completion stays UNKNOWN (9.151167ms)
+✔ missing, stale, or fractional pricing fails closed (0.311583ms)
+✔ client tool search is metered as part of its model request and hosted search is denied (19.343084ms)
+✔ separately charged hosted tools are denied before reservation (7.677792ms)
+✔ Attempt 4: exhausted productive calls are a local terminal denial, not a provider 503 (13.905125ms)
+✔ Attempt 4 reconnaissance cannot spend the final productive slot without actual implementation (14.128042ms)
+✔ real upstream 503 retains UNKNOWN exposure and repeated local requests never retry upstream (16.296958ms)
+✔ Attempt 5: exhausted productive loop yields to host exactly once without spending completion (15.246084ms)
+✔ V2 rejects a plan that cannot fund all productive and completion calls (9.595583ms)
+✔ UNKNOWN is a hard Work-level stop across restart, attempt and model changes (7.627791ms)
+✔ productive calls cannot take completion reserve and host-only completion transition fences old phase (8.770625ms)
+✔ paid operation slots persist across process restart and exact replay cannot dispatch twice (7.961458ms)
+✔ reservation, UNKNOWN, cancellation and authority are checked again at paid dispatch (8.532541ms)
+✔ concurrent ledger connections share the last operation slot (6.759125ms)
+✔ legacy V1 Work budget has no paid admission (6.7695ms)
+✔ process loss retains slot and dollars before dispatch, after dispatch, and in completion (8.818125ms)
+✔ two completion operations cannot race past protected completion slots or dollars (7.508291ms)
+✔ wrong authority, old generation, wrong pricing and phase cannot start paid operation (6.285125ms)
+✔ expired pinned pricing is denied at the ledger even after an earlier reservation (6.054ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 286.744334

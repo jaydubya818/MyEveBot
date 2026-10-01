@@ -2,8 +2,10 @@
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import assert from 'node:assert/strict';
+const attempt5Fixture=JSON.parse(await readFile(new URL('./fixtures/attempt5-completion-boundary.json',import.meta.url),'utf8'));
 
-export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks=false}={}){
+export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks=false,exerciseProductiveEnd=false}={}){
+ if(exerciseProductiveEnd){assert.equal(attempt5Fixture.productiveOperations,2);assert.equal(attempt5Fixture.completionOperations,0);}
  let phase=null,index=0,target=null,original=null,searchCallId=null,searchOutputs=0;
  return {
   stats:()=>({clientSearchOutputs:searchOutputs}),
@@ -25,12 +27,17 @@ export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks
     assert(tool, 'Installed CLI must expose apply_patch to the controlled provider');
     const patch='*** Begin Patch\n'+(original===null?'*** Add File: quantity.mjs\n':'*** Update File: quantity.mjs\n@@\n'+original.trimEnd().split('\n').map(line=>'-'+line).join('\n')+'\n')+target.trimEnd().split('\n').map(line=>'+'+line).join('\n')+'\n*** End Patch';
     output=[tool.type==='custom'?{type:'custom_tool_call',id:'tool-'+call,call_id:'call-'+call,name:'apply_patch',input:patch,status:'completed'}:{type:'function_call',id:'tool-'+call,call_id:'call-'+call,name:'apply_patch',arguments:JSON.stringify({patch}),status:'completed'}];
-    if(exerciseLocalChecks){
+    if(exerciseLocalChecks&&!exerciseProductiveEnd){
      const shell=request.tools.find(t=>t.name==='exec_command');
      assert(shell,'Installed CLI must expose local exec_command');
      output.push({type:'function_call',id:'check-'+call,call_id:'check-call-'+call,name:'exec_command',arguments:JSON.stringify({cmd:'node --test',yield_time_ms:1000,max_output_tokens:2000}),status:'completed'});
     }
+   }else if(phase==='productive'&&exerciseProductiveEnd&&index===2){
+    assert(request.input.some(i=>i.type==='custom_tool_call_output'||i.type==='function_call_output'),'Edit tool output must precede local tests');
+    const shell=request.tools.find(t=>t.name==='exec_command');assert(shell);
+    output=[{type:'function_call',id:'check-'+call,call_id:'check-call-'+call,name:'exec_command',arguments:JSON.stringify({cmd:'node --test',yield_time_ms:1000,max_output_tokens:2000}),status:'completed'}];
    }else{
+    assert(!(phase==='productive'&&exerciseProductiveEnd),'No third productive request may reach provider');
     if(exerciseLocalChecks&&phase==='productive'){
      assert(request.input.some(i=>i.type==='function_call_output'&&i.call_id.startsWith('check-call-')),'Local test output must reach continuation without an extra model slot');
     }

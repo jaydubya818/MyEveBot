@@ -1,0 +1,17 @@
+{
+  "source": "Preserved fifth live qualification",
+  "sequence": [
+    "productive response: apply_patch quantity.mjs",
+    "productive response: exec_command node --test",
+    "local tests 11/11 PASS",
+    "next productive continuation denied 409 LOCAL_ADMISSION_DENIED"
+  ],
+  "model": "openai/gpt-5.4-mini",
+  "productiveOperations": 2,
+  "completionOperations": 0,
+  "completionReserveMicrousd": 336864,
+  "totalSpentMicrousd": 14352,
+  "candidateCommit": null,
+  "rawSecrets": false,
+  "testUsage": "Replay response/tool structure with synthetic responses; never reuse historical Work or workspace"
+}

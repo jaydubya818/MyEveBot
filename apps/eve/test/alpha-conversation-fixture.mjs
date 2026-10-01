@@ -135,7 +135,9 @@ export async function qualifyAlphaConversation({store,pool,engineering,connectio
   assert(state.result.proof.evidence.every(e=>e.state==='PASS'));
   const retainedWorkspace=(await direct.inspect(work.id)).workspace;
   assert.deepEqual(retainedWorkspace.candidates.at(-1).changedPaths,['quantity.mjs']);
-  recordJourney?.({workId:work.id,model:qualification.modelId,modelOperations:modelCalls+decision.factory_observation.value.spend.paidOperationsUsed,
+  const operationClasses=decision.factory_observation.value.spend.operations.map(o=>o.phase);
+  assert(operationClasses.filter(p=>p==='productive').length<=2);assert.equal(operationClasses.filter(p=>p==='completion').length,1);
+  recordJourney?.({operationClasses:['sofie',...operationClasses,'sofie-explanation'],workId:work.id,model:qualification.modelId,modelOperations:modelCalls+decision.factory_observation.value.spend.paidOperationsUsed,
    sofieOperations:modelCalls,factoryOperations:decision.factory_observation.value.spend.paidOperationsUsed,
    candidate:retainedWorkspace.candidates.at(-1).sha,candidateCustody:'PASS',protectedVerification:'PASS',
    resultId:state.result.id,proof:state.result.proof,finalExplanation:'PASS_SYNTHETIC',publicationEffects:0,additionalRealModelOperations:0});

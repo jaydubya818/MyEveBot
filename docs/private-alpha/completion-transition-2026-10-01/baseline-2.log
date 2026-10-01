@@ -1,0 +1,31 @@
+✖ Attempt 5: exhausted productive loop yields to host exactly once without spending completion (34.982333ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 176.670916
+
+✖ failing tests:
+
+test at apps/supervisor/test/spend-gateway.test.mjs:196:1
+✖ Attempt 5: exhausted productive loop yields to host exactly once without spending completion (34.982333ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'LOCAL_ADMISSION_DENIED'
+  - 'PRODUCTIVE_PHASE_CLOSED'
+  
+      at TestContext.<anonymous> (file:///private/tmp/private-alpha-live-myfactory/apps/supervisor/test/spend-gateway.test.mjs:202:9)
+      at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+      at async Test.run (node:internal/test_runner/test:1332:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:385:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'LOCAL_ADMISSION_DENIED',
+    expected: 'PRODUCTIVE_PHASE_CLOSED',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
