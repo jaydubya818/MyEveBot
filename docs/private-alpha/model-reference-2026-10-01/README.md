@@ -37,4 +37,26 @@ Qualification passed: MyFactory 154 tests plus one gated skip; typecheck, produc
 
 Diagnostics retained locally: the initial Factory full suite needed loopback permissions; the first boundary assertion used `/responses` instead of the actual `/v1/responses` and was corrected only in the test; an unrelated native-repair admission fixture returned `routing_changed` once under concurrent qualification and passed on isolated rerun without weakening checks. No production admission or timeout change was made.
 
-MyFactory repair SHA: `cb2a06f89a8ee39d73d0c8e67cd98617dd18e9e1`. MyEve changes are connected-test coverage and this evidence only. Canonical main was fetched before integration; existing lifecycle/Computer/federation content is preserved. Isolated hosted source remains the qualified `f29cb42676b13612d5566c7dc974a2552877f3f9`; no unrelated production activation is implied. Deployment and new paused Work receipts follow after zero-model preflight.
+MyFactory repair SHA: `cb2a06f89a8ee39d73d0c8e67cd98617dd18e9e1`. MyEve changes are connected-test coverage and this evidence only. Canonical main was fetched before integration; existing lifecycle/Computer/federation content is preserved. Isolated hosted source remains the qualified `f29cb42676b13612d5566c7dc974a2552877f3f9`; no unrelated production activation is implied. Deployment and new paused Work receipts are recorded below.
+
+
+## Deployed preparation and fresh authorization boundary
+
+The repaired installed Factory is exact `cb2a06f89a8ee39d73d0c8e67cd98617dd18e9e1`. Its [post-installation controlled boundary](deployed-installed-boundary.json) passes 22 checks with the same source digest and FactoryVersion as the qualified candidate. The exact `openai/gpt-5.4-mini` reaches `/v1/responses` once for the captured-Sofie boundary scenario, without forwarding to a real provider or generating output. Synthetic UNKNOWN is retained/fenced, not retried. Separate controlled completion tests pass custody and independent verification.
+
+The isolated hosted deployment [dpl_FRqrGYeRrYRq5ucPoPdNnspVStXp](https://sofie-personal-agent-n04imwv18-jaydubya818.vercel.app) is READY on existing qualified MyEve source `f29cb42676b13612d5566c7dc974a2552877f3f9`, with real execution approval false and no approved Work binding. [Hosted health/access-denial](fourth-http-preflight.json), [authenticated Factory health](fourth-runtime-health.json), [source/version and unchanged limits](fourth-runtime-evidence.json), and [OIDC model eligibility](fourth-provider-preflight.json) pass. The shared production alias is untouched. Concurrent Computer/federation code is preserved in canonical Git; no unrelated activation or task lifecycle implementation was changed here.
+
+[Attempt 1](fourth-attempt1-preservation.json), [Attempt 2](fourth-attempt2-preservation.json), [Attempt 3](fourth-attempt3-preservation.json) and [Factory Attempt-3 records](fourth-factory-preservation.json) compare unchanged to their protected historical snapshots. No old Work, envelope, budget, candidate attempt or dispatch is reused.
+
+New [Work](fourth-work.json): **`8a2979a8-6520-4d5e-bae7-7016a221ce04`**, paused, revision/generation **1/1**, with zero Sofie/Factory operations, route runs and pending commands. Exact first-model approval gate: DENIED as required. No consumer started and no new live execution authority granted.
+
+Fresh envelope, pending explicit owner authorization:
+
+- Objective: implement positive-integer stdin validation in `quantity.mjs` and independently verify it; repository `jaydubya818/myeve-golden-work-qual`, approved base `db5d95cf3d1dadf04a118f38bd5b388a5a226c31`.
+- Exact model `openai/gpt-5.4-mini`; project-scoped Vercel OIDC → AI Gateway → OpenAI only, no fallback.
+- At most 5 operations (2 Sofie, 2 productive Factory, 1 Factory completion), 1 candidate attempt, 600 seconds from first Sofie reservation.
+- Total enforced ceiling $1.35: $0.30 Sofie and $1.05 Factory. Protected reserves: $0.336864 Factory completion and $0.15 final Sofie explanation.
+- Allowed effects: one canonical resume, modification of `quantity.mjs` only, local candidate commit, signed custody, protected independent verification, canonical Result, Proof of Work and final explanation.
+- External publication remains disabled. No candidate push, PR, merge, deployment or sharing. UNKNOWN/stop conditions fail closed without expanding the envelope or retrying.
+
+**READY FOR FOURTH LIVE ATTEMPT: YES — awaiting explicit authorization.** All additional real model operations during repair/preparation: **0**. Qualification expires `2026-10-02T23:59:59Z`; current preflight must still pass at admission. Successful controlled tests do not prove future real generation or candidate success.

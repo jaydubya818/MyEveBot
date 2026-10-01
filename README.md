@@ -1,8 +1,8 @@
 # MyEve
 
-[Attempt-3 model-contract repair](docs/private-alpha/model-reference-2026-10-01/README.md): failed live evidence is preserved; the exact namespaced model now reaches the controlled installed-executor boundary without generation.
+[Latest private-alpha qualification](docs/private-alpha/model-reference-2026-10-01/README.md): Attempts 1–3 remain preserved failures. The namespaced model repair is deployed and passes the controlled installed-executor boundary; a fresh Attempt-4 Work is paused pending explicit live authorization.
 
-[Latest private-alpha semantics repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md): both live attempts remain failed and preserved; the complete captured-response handoff passes, the isolated repair is deployed, and a fresh Attempt-3 Work is paused pending explicit live authorization.
+[Prior admission-proposal repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md) preserves Attempts 1–2 and the captured-response handoff qualification. Attempt 3 subsequently proved live admission and stopped at executor model validation; the latest record above supersedes its preparation status.
 
 Deploy a Digital Worker / personal AI agent you own, with persistent memory, goals, proactive work, and controlled access to your tools and computer. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent. MyEve Builder configures and deploys your agent into your own Vercel account from this repository's actual source.
 

@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-01T05:12:41.972973+00:00",
+  "myFactoryRepairAndInstalledSha": "cb2a06f89a8ee39d73d0c8e67cd98617dd18e9e1",
+  "myEveQualificationAndIntegratedSha": "df3fc0ebb677f1799c1683f5282bebca37232b73",
+  "isolatedMyEveSha": "f29cb42676b13612d5566c7dc974a2552877f3f9",
+  "preservedComputerFederationSha": "fff8feef84ccfa8e43c81201653dab08182adacd",
+  "relaySha": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+  "factorySourceDigest": "46078722c868c67face15aad2cda6516c43b667f9ef55e37978cfbe7fe8aaca9",
+  "factoryConfigurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+  "factoryVersion": "dc59e7069f7aaf03415cf44949c31e3c739f0f15732557a072d655932dcc4ba2",
+  "qualificationExpiresAt": "2026-10-02T23:59:59.000Z",
+  "publicationAllowed": false,
+  "additionalRealModelOperations": 0,
+  "historicalAttempts": "1, 2, 3 unchanged; not reusable",
+  "newWorkId": "8a2979a8-6520-4d5e-bae7-7016a221ce04",
+  "newWorkControl": "paused",
+  "newWorkRevisionGeneration": "1/1",
+  "note": "Final documentation receipt commit follows the qualified source; installed runtime remains exact pinned repair. Shared production alias is unchanged by this work."
+}
