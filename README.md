@@ -1,6 +1,6 @@
 # MyEve
 
-[Latest private-alpha semantics repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md): both live attempts remain failed and preserved; complete captured-response handoff passes locally. No third live attempt is authorized.
+[Latest private-alpha semantics repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md): both live attempts remain failed and preserved; the complete captured-response handoff passes, the isolated repair is deployed, and a fresh Attempt-3 Work is paused pending explicit live authorization.
 
 Deploy a Digital Worker / personal AI agent you own, with persistent memory, goals, proactive work, and controlled access to your tools and computer. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent. MyEve Builder configures and deploys your agent into your own Vercel account from this repository's actual source.
 

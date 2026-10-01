@@ -1,0 +1,13 @@
+{
+  "canonicalSha": "63cd10fe45c1d0a139c72bdd7c665b1362e1e69b",
+  "repairSha": "f29cb42676b13612d5566c7dc974a2552877f3f9",
+  "remoteMain": "EXACT",
+  "remoteRelease": "EXACT",
+  "previousMain": "fff8feef84ccfa8e43c81201653dab08182adacd",
+  "ancestry": "NORMAL_MERGE_THEN_FAST_FORWARD",
+  "cleanSource": true,
+  "milestoneTags": "UNCHANGED",
+  "forcePush": false,
+  "deploymentCandidate": "f29cb42676b13612d5566c7dc974a2552877f3f9",
+  "unrelatedComputerDeployment": "NOT_AUTHORIZED_NOT_DEPLOYED"
+}
