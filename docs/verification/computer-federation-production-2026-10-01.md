@@ -1,5 +1,59 @@
 # Approved Computer/federation production rollout — October 1, 2026 UTC
 
+## Latest qualification — approved compatibility candidate
+
+**Deployment PASS; full qualification FAIL/BLOCKED by a newly observed task-binding compatibility defect.** These results supersede the initial rollout status below. The historical record remains intact.
+
+- Explicitly approved candidate `2ce3c2d2a3b7874377184d63687a406eb3a9bd06` deployed through the canonical scoped Vercel production process from an exact clean source snapshot.
+- Deployment `dpl_AiYwttfVFRq6SSPcoM3dVHJt1XSp`, READY, immutable URL https://sofie-personal-agent-r3n13stnq-jaydubya818.vercel.app.
+- At `2026-10-01T04:40:30Z`, production alias still resolved to that SHA; Sofie and Relay health both HTTP 200 / ready. See [final deployment receipt](computer-federation-production-2026-10-01/sofie-compatibility-final-receipt.json).
+- Remote main was fetched before deployment and remained `fc5ed14a893a690b341666e18e88884cc7bf4779` at the final check. Prior Computer base `fff8feef84ccfa8e43c81201653dab08182adacd` is its ancestor. A merge-tree reconciliation with the candidate was conflict-free (`cdbdd09e20c697ede9ecbdbb6d02cf9e51d37f78`). Candidate changes do not modify Factory admission/execution source. No canonical merge, main push, history rewrite or new branch was performed because the qualification gate failed.
+- Real-Factory approval and approved-Work production settings remained absent. The isolated Private Alpha admission deployment, repair and execution ownership were not changed.
+
+| Check | Status | Evidence and limits |
+| --- | --- | --- |
+| Production deployment | PASS | Exact approved candidate, READY, alias/source verified |
+| Mac pairing | PASS | Existing device `mac-998df73639154e45`; authenticated ready heartbeat after companion restart |
+| Mac read | PASS — retained | Prior original-prompt discovery/read and post-restart checksum evidence below; new requested sequence not reached |
+| Mac shell | PASS — retained | Prior approved `pwd` succeeded; the fresh Calculator launch was correctly blocked by expired execution context and did not execute |
+| Mac screenshot | PASS — fresh | Two approved captures, actual images inspected; jobs `c7f5a871-e5ee-4705-ab91-4f3d961abe0e` and `9a8e0800-fdc3-46d5-a5ae-e86f4d387706` |
+| Desktop observation | PASS — fresh | Sofie identified the actual foreground apps from both images |
+| Mac desktop interaction | FAIL — not fully qualified | One approved Escape dispatched, but intended menu dismissal was not verified; Calculator click sequence blocked before shell launch |
+| Desktop approval/cancellation | PASS — retained negative boundary | Prior Cmd+w cancellation remains valid; fresh expired shell action has zero attempts/jobs, not a new cancellation pass |
+| Mac restart persistence | FAIL — requested fresh crash sequence incomplete | Earlier crash recovery passed. Fresh clean service restart preserved pairing and both permissions; post-permission crash/reconnect/read sequence not reached |
+| Completed-task continuation | FAIL — concrete compatibility defect | `start_task` failed against an existing current session binding; full completion → second owner request sequence not reached |
+| Follow-up composer | PASS for draft/send; full requested path BLOCKED | Same-chat drafts remained present and multiple follow-ups submitted, including after a large screenshot result. Post-completed-task follow-up remains unqualified |
+| Alpha federation | PASS — retained | Authenticated correlated Alpha reply and two readbacks below; transport-format caveat retained; adapter unchanged |
+| Generic federation | PASS — retained bounded qualification | Registered-peer contract/discovery and Alpha example only; no Muse/GrokBots or unidentified peer claim |
+| MyFactory intake/readback | PASS — retained | Existing signed intake/readback evidence only; no new intake or execution |
+| MyFactory execution | DEFERRED_TO_PRIVATE_ALPHA_EXECUTION_OWNER | This workstream did not repair, rerun, resume or bypass the owned admission/execution path |
+| README/docs | PASS | Current results, remaining gates and ownership explicit |
+
+### macOS and browser evidence
+
+Accessibility and Screen Recording are enabled for the installed `Sofie Local.app` at `/Users/jaywest/Library/Application Support/Sofie Local/Sofie Local.app` (bundle `com.myeve.sofie-local`). The owner completed macOS authentication directly. No unrelated terminal/shell/helper permission was granted by this workstream. After `local:service restart`, status at `2026-10-01T04:40:07.883Z` reported installed/loaded/connectionReady/desktopReady/screenshotReady/ready all true, worker PID 11074, parent 11070, Accessibility and Screen Recording true. This is clean restart evidence; it is not a fresh crash test.
+
+Live owner chat `wrun_41M3TV4TCX0GWZ0KDVSST9W6HC` accepted several follow-ups with screenshot results in its history. A typed draft was checked across an independent operation and remained present before Send. The earlier disappearing-draft symptom was not reproduced on the candidate. Browser quota itself was not measured; the controlled storage-failure tests remain the causal regression evidence.
+
+Escape job `3d78ed66-1d31-43a7-a2b6-71b8dc2fb12f` dispatched once. The test menu was in a background System Settings window, while the actual foreground was elsewhere. A later screenshot could not establish the intended menu dismissal. This is intentionally not counted as verified desktop interaction.
+
+### New concrete stop: durable task creation collides with current conversation binding
+
+The Calculator shell request (`open -a Calculator`) was submitted at approximately 04:34 UTC. Approval processing occurred after its execution run's 04:37 UTC deadline. The run expiry correctly fenced execution. Sofie then called `start_task` to establish a fresh bounded task, but received `duplicate key value violates unique constraint "task_run_sessions_current"`.
+
+Read-only production metadata confirms:
+
+- current binding: `action_run_dd4f0139-c978-49d5-b424-16040ef7c068`, `awaiting_approval`, deadline `2026-10-01T04:37:00.207528Z`;
+- shell Action `action_1b8c060e-df4f-4fb6-9ebb-93db89b28636`: `awaiting_approval`, pending approval, **zero attempts and zero jobs**;
+- no new durable task replaced the existing binding;
+- source `createDelegatedTask` inserts a new `task_run_sessions` row with default `is_current=true` without reconciling the already-current binding; the partial unique index correctly rejects it.
+
+See the [sanitized run/action/job receipt](computer-federation-production-2026-10-01/sofie-compatibility-task-binding-receipt.json) and [live browser failure](computer-federation-production-2026-10-01/sofie-compatibility-expired-task-binding.png). No production database rows, approvals, deadlines, budgets or session bindings were manually edited to force a pass.
+
+The next compatibility repair must make starting a durable task in an existing owner chat an atomic, owner/agent-scoped transition while preserving historical authority, pending-action fencing, budget limits and the completed-task follow-up contract. It needs focused transaction/concurrency tests and a new qualified candidate. No such runtime change is included in this evidence-only update. The workstream stops at this concrete defect under the owner's instruction; it is not frozen as successfully qualified.
+
+## Historical initial rollout
+
 **Exact approved runtime deployed. Full Computer qualification is incomplete.** This supersedes the pending deployment gate in the [earlier continuation](computer-federation-continuation-2026-09-30.md), while preserving its historical results and limitations.
 
 ## Production identity and ownership

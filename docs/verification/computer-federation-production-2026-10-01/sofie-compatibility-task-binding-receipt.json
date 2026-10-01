@@ -1,0 +1,86 @@
+{
+  "session": "wrun_41M3TV4TCX0GWZ0KDVSST9W6HC",
+  "checkedAt": "2026-10-01T04:40:57.388581+00:00",
+  "runs": [
+    {
+      "id": "action_run_dd4f0139-c978-49d5-b424-16040ef7c068",
+      "kind": "delegated_work",
+      "status": "failed",
+      "deadline": "2026-10-01T04:37:00.207528+00:00",
+      "created": "2026-10-01T04:22:00.205092+00:00",
+      "isCurrent": true,
+      "role": "orchestrator",
+      "completed": "2026-10-01T04:40:20.239+00:00"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action_537da17c-d7ca-40be-947e-0b76b62b4e8d",
+      "status": "completed",
+      "attempts": 1,
+      "approvalStatus": "approved",
+      "approvalExpires": "2026-10-01T05:22:00.911851+00:00",
+      "jobCount": 1
+    },
+    {
+      "id": "action_1b8c060e-df4f-4fb6-9ebb-93db89b28636",
+      "status": "awaiting_approval",
+      "attempts": 0,
+      "approvalStatus": "pending",
+      "approvalExpires": "2026-10-01T05:34:08.628437+00:00",
+      "jobCount": 0
+    },
+    {
+      "id": "action_b9c653a3-8c1f-45bf-aac1-f1d925910f06",
+      "status": "completed",
+      "attempts": 1,
+      "approvalStatus": "approved",
+      "approvalExpires": "2026-10-01T05:25:25.858631+00:00",
+      "jobCount": 1
+    },
+    {
+      "id": "action_975f4b58-3b11-462c-903e-e5e995699a35",
+      "status": "completed",
+      "attempts": 1,
+      "approvalStatus": "approved",
+      "approvalExpires": "2026-10-01T05:23:28.406568+00:00",
+      "jobCount": 1
+    }
+  ],
+  "jobs": [
+    {
+      "id": "c7f5a871-e5ee-4705-ab91-4f3d961abe0e",
+      "status": "completed",
+      "parameters": {
+        "operation": "screenshot"
+      },
+      "imageBase64Length": 601552,
+      "isError": null,
+      "created": "2026-10-01T04:22:32.742507+00:00",
+      "finished": "2026-10-01T04:22:35.616196+00:00"
+    },
+    {
+      "id": "3d78ed66-1d31-43a7-a2b6-71b8dc2fb12f",
+      "status": "completed",
+      "parameters": {
+        "key": "Escape",
+        "operation": "key"
+      },
+      "imageBase64Length": null,
+      "isError": null,
+      "created": "2026-10-01T04:24:08.015321+00:00",
+      "finished": "2026-10-01T04:24:08.894624+00:00"
+    },
+    {
+      "id": "9a8e0800-fdc3-46d5-a5ae-e86f4d387706",
+      "status": "completed",
+      "parameters": {
+        "operation": "screenshot"
+      },
+      "imageBase64Length": 563740,
+      "isError": null,
+      "created": "2026-10-01T04:33:05.718132+00:00",
+      "finished": "2026-10-01T04:33:07.391126+00:00"
+    }
+  ]
+}
