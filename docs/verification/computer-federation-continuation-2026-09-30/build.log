@@ -9,10 +9,10 @@
 Normalized 0 imported skills for Eve.
 Cataloged 79 installed skills.
 ▲ Next.js 16.3.5 (webpack)
-✓ Running next.config.ts took 196ms
+✓ Running next.config.ts took 158ms
 
   Creating an optimized production build ...
-⚠ Compiled with warnings in 5.7s
+⚠ Compiled with warnings in 3.7s
 
 ../../../../private-alpha-release/Myeve/node_modules/@novnc/novnc/core/util/browser.js
 The generated code contains 'async/await' because this module is using "topLevelAwait".
@@ -25,15 +25,15 @@ Import trace for requested module:
 ./components/computer-viewer.tsx
 ./components/computer-workspace.tsx
 
-✓ Compiled successfully in 21.2s
+✓ Compiled successfully in 15.1s
   Running TypeScript ...
-  Finished TypeScript in 9.8s ...
+  Finished TypeScript in 10.4s ...
   Collecting page data using 15 workers ...
   Generating static pages using 15 workers (0/126) ...
   Generating static pages using 15 workers (31/126) 
   Generating static pages using 15 workers (62/126) 
   Generating static pages using 15 workers (94/126) 
-✓ Generating static pages using 15 workers (126/126) in 1524ms
+✓ Generating static pages using 15 workers (126/126) in 2.4s
   Finalizing page optimization ...
   Collecting build traces ...
 

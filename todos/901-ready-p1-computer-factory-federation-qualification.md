@@ -24,14 +24,14 @@ Proceed with independent Computer, UI and federation work; reconcile the active 
 
 ## Acceptance Criteria
 - [ ] Persistent Mac login/restart/health/shutdown/unpair, Keychain credentials, unchanged OS permissions and roots
-- [ ] Explicit canonical Computer read/write/shell/desktop/screenshot grants and negative tests
-- [ ] Plain-language activity; full evidence retained under Proof of Work / Advanced
-- [ ] Generic identity/capability negotiation and governed message/work contracts; negative isolation/replay/grant tests
+- [x] Explicit canonical Computer read/write/shell/desktop/screenshot grants and negative tests
+- [x] Plain-language activity; full evidence retained under Proof of Work / Advanced
+- [x] Generic identity/capability negotiation and governed message/work contracts; negative isolation/replay/grant tests
 - [ ] Second MyEve live exchange if existing identity and authority permit it; named unavailable peers stay WAITING
 - [ ] Canonical Factory PREPARE/START, custody, Gate B/C, independent verification and Result qualification
 - [ ] Real-provider journey only with valid new exact authorization
-- [ ] Desktop/390px/accessibility, typecheck, governance, build and counters
-- [ ] README architecture, operator and product documentation; exact source/evidence
+- [x] Desktop/390px/accessibility, typecheck, governance, build and counters
+- [x] README architecture, operator and product documentation; exact source/evidence
 - [ ] Commit, push, remote verify and integrate qualified fixes into canonical main
 
 ## Work Log
@@ -40,3 +40,5 @@ Read the user's full tranche, preserved prior PASS evidence, fetched canonical m
 
 ### 2026-10-01 UTC — Independent qualification
 Installed native login/crash lifecycle and Keychain custody, migrated plaintext config, preserved roots. Background TCC does not inherit Codex; dedicated Sofie Local app is listed, off, awaiting explicit approval. Revocation server/worker tests pass. Canonical operation grants and plain-language evidence disclosure implemented. Generic peer discovery contract and existing scope/replay/owner tests pass. Full app 2,001 tests, root 144, types/governance and webpack build pass. Connected Factory 19 synthetic checks with actual Docker verification pass; separate second live attempt failed before admission and was not retried. See continuation dossier.
+
+Merged main handoff repair locally; final app 2,017 tests, 144 root checks, 20 connected synthetic Factory checks, build and governance PASS. Branch remotely verified at 395bf55. Production migration 0077 and explicit Computer scopes are prepared before main auto-deployment. Second live attempt is stopped and preserved.

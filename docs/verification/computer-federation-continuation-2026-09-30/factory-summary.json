@@ -1,6 +1,6 @@
 {
   "qualification": "Local real transport, synthetic executor, real independent Docker verifier",
-  "checks": 19,
+  "checks": 20,
   "results": [
     "0057 complete failure rollback",
     "0056\u21920057 and idempotent rerun",
@@ -20,6 +20,7 @@
     "Unavailable preparation retains request and grants no writer",
     "Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation",
     "Alpha UNKNOWN retains common-ledger exposure and prevents another Sofie call or Factory start",
+    "Captured live JSON-text proposal reaches canonical queue/admission exactly once; duplicate and stale proposals do not redispatch",
     "Selected-Work Sofie common ledger \u2192 canonical Factory \u2192 signed custody \u2192 Docker verifier \u2192 bounded Sofie explanation; combined ceiling and original deadline preserved"
   ],
   "executions": 8,

@@ -52,6 +52,8 @@ The ongoing [Computer and federation continuation](docs/verification/computer-fe
 
 ## Deployment and verification
 
+Qualified connection runtime source: `395bf55b99f73765bcc1f5b4a6545478fb4e65f1`, including the canonical handoff repair. [Publication, checks and live limitations](docs/verification/computer-federation-continuation-2026-09-30.md) are recorded separately from source integration.
+
 Feature readiness is connection-specific. [Mac acceptance evidence](docs/verification/local-mac-access-2026-09-30.md) records real README discovery, approval-gated shell execution and screenshot interpretation. [Current connection qualification](docs/verification/connections-2026-09-30.md) records the follow-up chat, MyFactory and peer-message checks for this change. A local SDK test or queued issue must not be presented as a completed production workflow.
 
 The [canonical source status](docs/consolidation/CANONICAL-STATUS.md), [development policy](docs/consolidation/DEVELOPMENT-POLICY.md) and [historical checkpoints](docs/verification/readme-historical-checkpoints.md) retain source and release history.
