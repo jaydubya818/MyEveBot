@@ -1,0 +1,215 @@
+[
+  {
+    "actionId": "action_23963cec-9855-4312-ae12-e27da75b2abd",
+    "receipt": {
+      "operation": "discover",
+      "requestId": null,
+      "status": "discovered"
+    },
+    "response": {
+      "agents": [
+        {
+          "address": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+          "name": "Alpha",
+          "description": "Synthetic Orion test agent",
+          "topics": [],
+          "capabilities": [
+            {
+              "name": "message.send",
+              "version": "1.0"
+            },
+            {
+              "name": "message.receive",
+              "version": "1.0"
+            }
+          ],
+          "verification": "OWNER_REGISTERED",
+          "views": []
+        }
+      ],
+      "next": null,
+      "peers": [
+        {
+          "address": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+          "agentId": "agt_07792b20228443e3b315efea35171d61",
+          "ownerId": "acct_6b62f79de0354823b4376c7dda1365f9",
+          "name": "Alpha",
+          "capabilities": [
+            {
+              "name": "message.send",
+              "version": "1.0"
+            },
+            {
+              "name": "message.receive",
+              "version": "1.0"
+            }
+          ],
+          "requestCapabilities": [
+            "message.send"
+          ],
+          "unsupportedCapabilities": [],
+          "provenance": {
+            "source": "Relay owner registration",
+            "relayOrigin": "https://relay-sage-nine.vercel.app",
+            "verification": "OWNER_REGISTERED"
+          },
+          "authority": "NOT_GRANTED",
+          "executionRecheckRequired": true
+        }
+      ],
+      "discoveryGrantsAuthority": false,
+      "relationships": [
+        {
+          "id": "peer_permission_07e4f5b2-1565-40fd-bb4d-85983f2aabf0",
+          "localAgentId": "agent_e0954312-6a71-4727-a915-f1484a0b8736",
+          "peer": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+          "displayName": "Alpha",
+          "revision": 4,
+          "policies": [
+            {
+              "policy": "REQUIRE_APPROVAL",
+              "topics": [],
+              "resource": "messages",
+              "capability": "message.receive",
+              "recordTypes": [],
+              "effective": "DENY",
+              "relayStatus": "EXACT_REQUEST_REQUIRED",
+              "relayExpiresAt": null,
+              "reason": "Current Relay authority is checked for the exact incoming or proposed request."
+            },
+            {
+              "policy": "REQUIRE_APPROVAL",
+              "topics": [],
+              "resource": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+              "capability": "message.send",
+              "recordTypes": [],
+              "effective": "REQUIRE_APPROVAL",
+              "relayStatus": "ACTIVE",
+              "relayExpiresAt": "2026-10-03T16:14:54.289Z",
+              "reason": "PEER_PERMISSION_ACTIVE"
+            }
+          ],
+          "expiresAt": "2026-10-03T16:09:23.192Z",
+          "revokedAt": null,
+          "updatedAt": "2026-09-26T16:09:23.937Z",
+          "status": "PARTIALLY_AVAILABLE"
+        }
+      ],
+      "managePath": "/manage/relay",
+      "navigation": "Manage \u2192 Relay \u2192 Peer permissions",
+      "privateKnowledge": "DENY",
+      "renewalGuidance": "This Manage route edits local MyEve policy only. Outbound Relay grants must be issued or renewed by the target peer owner through Relay owner administration; changing local policy cannot restore them. MISSING does not reveal grant history or whether a publication is private, expired, unpublished or nonexistent. Never claim a missing grant was never established, and never ask the owner for opaque resource IDs.",
+      "note": "Relay observations do not grant authority. Every execution rechecks current policy and Relay authority. Exact consequential actions always require approval.",
+      "currentTime": "2026-10-01T05:21:55.041Z"
+    }
+  },
+  {
+    "actionId": "action_83e25126-166c-4b69-90a5-48615fc78984",
+    "receipt": {
+      "operation": "permissions",
+      "requestId": null,
+      "status": "discovered"
+    },
+    "response": {
+      "relationships": [
+        {
+          "id": "peer_permission_07e4f5b2-1565-40fd-bb4d-85983f2aabf0",
+          "localAgentId": "agent_e0954312-6a71-4727-a915-f1484a0b8736",
+          "peer": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+          "displayName": "Alpha",
+          "revision": 4,
+          "policies": [
+            {
+              "policy": "REQUIRE_APPROVAL",
+              "topics": [],
+              "resource": "messages",
+              "capability": "message.receive",
+              "recordTypes": [],
+              "effective": "DENY",
+              "relayStatus": "EXACT_REQUEST_REQUIRED",
+              "relayExpiresAt": null,
+              "reason": "Current Relay authority is checked for the exact incoming or proposed request."
+            },
+            {
+              "policy": "REQUIRE_APPROVAL",
+              "topics": [],
+              "resource": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+              "capability": "message.send",
+              "recordTypes": [],
+              "effective": "REQUIRE_APPROVAL",
+              "relayStatus": "ACTIVE",
+              "relayExpiresAt": "2026-10-03T16:14:54.289Z",
+              "reason": "PEER_PERMISSION_ACTIVE"
+            }
+          ],
+          "expiresAt": "2026-10-03T16:09:23.192Z",
+          "revokedAt": null,
+          "updatedAt": "2026-09-26T16:09:23.937Z",
+          "status": "PARTIALLY_AVAILABLE"
+        }
+      ],
+      "managePath": "/manage/relay",
+      "navigation": "Manage \u2192 Relay \u2192 Peer permissions",
+      "privateKnowledge": "DENY",
+      "renewalGuidance": "This Manage route edits local MyEve policy only. Outbound Relay grants must be issued or renewed by the target peer owner through Relay owner administration; changing local policy cannot restore them. MISSING does not reveal grant history or whether a publication is private, expired, unpublished or nonexistent. Never claim a missing grant was never established, and never ask the owner for opaque resource IDs.",
+      "note": "Relay observations do not grant authority. Every execution rechecks current policy and Relay authority. Exact consequential actions always require approval.",
+      "currentTime": "2026-10-01T05:22:07.060Z"
+    }
+  },
+  {
+    "actionId": "action_3cca5de8-0db5-4949-adbe-89aed1c6f6fc",
+    "receipt": {
+      "operation": "request",
+      "requestId": "frq_ccb0b44cb1814545b43c6179b20de137",
+      "status": "AUTHORIZED"
+    },
+    "execution": {
+      "phase": "submitted",
+      "approvalPending": false,
+      "message": "This exact Action has executed and was submitted to Relay. The required approval for this exact Action has been satisfied; this does not indicate standing approval or absence of a native prompt. Owner approval is no longer pending. Relay AUTHORIZED is admission status, not another approval request. Use status with the returned requestId now to retrieve delivery and the actual peer response; do not resubmit or ask for another approval."
+    },
+    "response": {
+      "requestId": "frq_ccb0b44cb1814545b43c6179b20de137",
+      "status": "AUTHORIZED",
+      "idempotentReplay": false
+    }
+  },
+  {
+    "actionId": "action_6081eccb-e495-4cd1-8916-c556f6e1e0a1",
+    "receipt": {
+      "operation": "status",
+      "requestId": "frq_ccb0b44cb1814545b43c6179b20de137",
+      "status": "COMPLETED"
+    },
+    "response": {
+      "requestId": "frq_ccb0b44cb1814545b43c6179b20de137",
+      "status": "COMPLETED",
+      "attempts": 1,
+      "result": {
+        "acknowledged": true,
+        "reply": {
+          "body": "LIFECYCLE-OK",
+          "peer": "relay://acct_6b62f79de0354823b4376c7dda1365f9/agt_07792b20228443e3b315efea35171d61",
+          "replyTo": "frq_ccb0b44cb1814545b43c6179b20de137"
+        }
+      }
+    }
+  },
+  {
+    "actionId": "action_7022c8f0-3d37-4dc4-aa66-98f539f0f0fa",
+    "receipt": {
+      "issueIdentifier": "MYE-14",
+      "issueUrl": "https://linear.app/myevebot/issue/MYE-14/sofie-connection-acceptance-september-30",
+      "receipt": {
+        "issueId": "ee32a8c7-3243-4332-a602-0ad6d678bc1b",
+        "state": "queued",
+        "updatedAt": "2026-09-30T20:07:31.006Z",
+        "version": 1,
+        "workOrderId": "98e4dd04-d11c-46d1-ad15-f04d6f201034",
+        "workOrderUrl": "http://127.0.0.1:8788/?workOrder=98e4dd04-d11c-46d1-ad15-f04d6f201034"
+      },
+      "requestId": "ee32a8c7-3243-4332-a602-0ad6d678bc1b",
+      "status": "received_by_factory"
+    }
+  }
+]

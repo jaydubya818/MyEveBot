@@ -1,0 +1,18 @@
+{
+  "installed": true,
+  "loaded": true,
+  "connectionReady": true,
+  "desktopReady": true,
+  "screenshotReady": true,
+  "ready": true,
+  "health": {
+    "status": "ready",
+    "pid": 2023,
+    "parentPid": 2020,
+    "at": "2026-10-01T05:18:22.213Z",
+    "permissions": {
+      "accessibility": true,
+      "screenRecording": true
+    }
+  }
+}
