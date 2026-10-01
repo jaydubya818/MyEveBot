@@ -42,7 +42,7 @@ export function preflightApprovedBase(profile: RepositoryProfile, approved: Appr
   if (profile.repository === GOLDEN_QUALIFICATION_REPOSITORY) {
     const publicContractBase=expected.sha===GOLDEN_PUBLIC_CONTRACT_BASE_SHA;
     if ((!publicContractBase && expected.sha !== GOLDEN_QUALIFICATION_BASE_SHA) ||
-      (publicContractBase && !profile.publicOutputContract) || profile.baseBranch !== "main" || issueNumber !== 1 ||
+      (publicContractBase && !profile.publicOutputContract) || profile.baseBranch !== (publicContractBase?"codex/private-alpha-release":"main") || issueNumber !== 1 ||
       profile.allowedPaths.length !== 1 || profile.allowedPaths[0] !== "quantity.mjs" ||
       !profile.requiredCI.includes("quantity-ci") || !profile.reviewerLogins.includes("jaydubya818") ||
       expected.files.length !== (publicContractBase?6:5) || expected.files.some(file => file.path === "quantity.mjs") ||

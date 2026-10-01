@@ -3281,7 +3281,7 @@
     "lib/engineering/base-preflight.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure reviewed-base manifest/profile validation; no provider request, write, or grant.",
-      "sha256": "5a7dc67acce852cb5782de18790d1be1d20a3e53741a6fd142232fff81c5a3a9"
+      "sha256": "a8d504113a8eb87e841553e369a8038095ec74b2398bdd5b9f267544e0d2f72a"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",

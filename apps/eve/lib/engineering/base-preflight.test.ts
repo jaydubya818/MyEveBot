@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import publicBase from "../../test/fixtures/quantity-public-contract-base.json";
 import { describe, expect, it } from "vitest";
 import { fixture } from "../../test/engineering-fixtures.ts";
 import {
@@ -29,6 +31,12 @@ function profile() {
 }
 
 describe("Golden Work approved-base preflight", () => {
+  it("pins the specification-only release branch without bypassing main protections",()=>{
+    const revised={...profile(),baseBranch:'codex/private-alpha-release',publicOutputContract:{path:'test/output-contract.json' as const,sha256:createHash('sha256').update(publicBase.files['test/output-contract.json']).digest('hex')},checks:[{...profile().checks[0],expectedOutput:'{"quantity":2}\n',expectedExitCode:0}]};
+    expect(()=>preflightApprovedBase(revised,manifestForSnapshot(publicBase),publicBase,1)).not.toThrow();
+    expect(()=>preflightApprovedBase({...revised,baseBranch:'main'},manifestForSnapshot(publicBase),publicBase,1)).toThrow(/fixture profile/);
+    expect(()=>preflightApprovedBase({...revised,publicOutputContract:undefined},manifestForSnapshot(publicBase),publicBase,1)).toThrow(/fixture profile/);
+  });
   it("accepts the exact pinned revision and reviewed five-file manifest", () => {
     expect(preflightApprovedBase(profile(), manifestForSnapshot(snapshot), snapshot, 1)).toBeUndefined();
   });
