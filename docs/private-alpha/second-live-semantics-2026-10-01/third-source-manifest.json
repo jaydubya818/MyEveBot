@@ -1,0 +1,26 @@
+{
+  "observedAt": "2026-10-01T01:01:52.292839+00:00",
+  "repairAndIsolatedDeploymentSha": "f29cb42676b13612d5566c7dc974a2552877f3f9",
+  "integratedCanonicalSourceSha": "63cd10fe45c1d0a139c72bdd7c665b1362e1e69b",
+  "preservedComputerFederationSha": "fff8feef84ccfa8e43c81201653dab08182adacd",
+  "relaySha": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+  "myFactorySha": "d0c9b149d2fa18d693c501d8862d21e15f669fad",
+  "factoryVersion": "2ccacb678b92b41b594f764434e30344fc164288b39dbd98c78c249505f034a7",
+  "sourceDigest": "6d900e5e2da8f36f18f600886790dd431d1d5dd89b85b549e73c8400ecba145d",
+  "configurationDigest": "3c9f5517ea0452d7bf316a4e053956026b5846040169d995a91f2144a82559a9",
+  "approvedRepositoryBase": "db5d95cf3d1dadf04a118f38bd5b388a5a226c31",
+  "qualificationExpiresAt": "2026-10-02T23:59:59.000Z",
+  "productionAlias": "sofie-personal-agent.vercel.app",
+  "productionAliasDeploymentUnchanged": "dpl_GXhSL7ooxnYeoYgjNkDG7udhhPPx",
+  "sourceReconciliation": "Normal merge on existing release branch, then fast-forward remote main; no reset or force push",
+  "unrelatedComputerActivation": "NOT_PERFORMED",
+  "additionalRealModelOperations": 0,
+  "offlineRuntimePreflight": {
+    "status": "PASS",
+    "pendingCommands": 0,
+    "latestObservedMigration": "0077_computer_revocation.sql",
+    "publicationAllowed": false,
+    "liveAdmission": false
+  },
+  "limitation": "This manifest identifies the qualified runtime and source integration. A subsequent documentation-only commit records these receipts; it is not the isolated deployment source."
+}

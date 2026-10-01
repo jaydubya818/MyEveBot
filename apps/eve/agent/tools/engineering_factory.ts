@@ -1,3 +1,4 @@
+import {FACTORY_TOOL_DESCRIPTION} from "../../lib/engineering/factory-proposal-contract.ts";
 import { engineeringWorkEnabled, hostedFactoryQueue } from "../../lib/engineering/deployment-mode.ts";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
@@ -45,8 +46,7 @@ export default defineDynamic({
         return null;
       return defineTool({
         availableInSubagents: false,
-        description:
-          "Start or reconcile the selected owner-resumed Work through qualified MyFactory. Substantial code production defaults to MyFactory; do not select native execution as an automatic fallback. Exact Work revision and generation are required. Stop or take over only on the direct owner request. Factory results require independent protected verification and remain PARTIAL; never grant Ready or publication. Read Current Truth through engineering_work get. Use reconcile to receive the retained result and advance independent verification; never infer completion from dispatch.",
+        description: FACTORY_TOOL_DESCRIPTION,
         inputSchema: factoryActionSchema,
         async execute(input, toolCtx) {
           if (
@@ -142,6 +142,7 @@ export default defineDynamic({
                       agent.id,
                     ).get(selected)
                   ).projection,
+                  {factoryProposal:true},
                 ),
               };
             },
