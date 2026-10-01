@@ -15,5 +15,8 @@
   "newWorkId": "8a2979a8-6520-4d5e-bae7-7016a221ce04",
   "newWorkControl": "paused",
   "newWorkRevisionGeneration": "1/1",
-  "note": "Final documentation receipt commit follows the qualified source; installed runtime remains exact pinned repair. Shared production alias is unchanged by this work."
+  "note": "Final documentation receipt commit follows the qualified source; installed runtime remains exact pinned repair. Shared production alias is unchanged by this work.",
+  "myEveQualifiedCombinedSourceSha": "f04f6eb89b8a19bd3cb1baffe6da96480155cac6",
+  "preservedLifecycleMainSha": "2efd2b70dfc27656966e2fe4ff46b01afd734835",
+  "integration": "Normal merge of concurrent canonical main; no force or reset. Lifecycle implementation matches incoming main byte-for-byte."
 }

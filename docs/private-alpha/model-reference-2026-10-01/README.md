@@ -60,3 +60,10 @@ Fresh envelope, pending explicit owner authorization:
 - External publication remains disabled. No candidate push, PR, merge, deployment or sharing. UNKNOWN/stop conditions fail closed without expanding the envelope or retrying.
 
 **READY FOR FOURTH LIVE ATTEMPT: YES — awaiting explicit authorization.** All additional real model operations during repair/preparation: **0**. Qualification expires `2026-10-02T23:59:59Z`; current preflight must still pass at admission. Successful controlled tests do not prove future real generation or candidate success.
+
+
+## Final concurrent-main reconciliation
+
+The final push guard detected main advancing to `2efd2b70dfc27656966e2fe4ff46b01afd734835` with the independent owner-task lifecycle repair. It stopped without updating any remote. A normal merge produced `f04f6eb89b8a19bd3cb1baffe6da96480155cac6`; all incoming lifecycle/Computer/federation changes are preserved byte-for-byte. There was no reset or force push.
+
+The combined source passes 1,995 application tests (78 environment-gated skips, including the independently qualified lifecycle PostgreSQL suite), 23 captured connected checks, root regression, 74 ordered migration checks, typecheck, governance and build. [Integration evidence](main-integration/) records the checks. No production migration or unrelated runtime activation was performed by this workstream; the isolated alpha deployment remains pinned to its qualified source, and the fresh Work stays paused.
