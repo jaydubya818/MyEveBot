@@ -172,8 +172,8 @@
     },
     "agent/instructions/persistent-agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated selected Work instructions request fresh engineering_direct inspect and distinguish native PARTIAL from readiness; instructions grant no effects. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "bf3081642f13fd169ecd64e04115c62fb3c7602870b983f195ea858a330108a9"
+      "reason": "Authenticated selected Work instructions request fresh engineering_direct inspect and distinguish native PARTIAL from readiness; instructions grant no effects. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
+      "sha256": "821d3c1e4ddcff07664b4aed0bc1d4784816e0deed1db424545b0c4b71a70e57"
     },
     "agent/instructions/time.ts": {
       "classification": "INTERNAL",
@@ -2015,8 +2015,8 @@
     },
     "lib/capability-registry.ts": {
       "classification": "INTERNAL",
-      "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools.",
-      "sha256": "e2a62e006343e0a218e535ec900d3ea77ad86ec77f64b874cb8e38ca537790a0"
+      "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
+      "sha256": "08f23e004a489fd747914f293e1957c2085d602cb24127eec3d1ac98828178c4"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3297,13 +3297,13 @@
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization.",
-      "sha256": "ec388a8c0c2a20ef7b4ac3a182f555ce9c330efb144e4a37e352e034c8af487f"
+      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
+      "sha256": "92b6825a52e61470c1b495e3fb1d8ebd405f38268a7053fd41bdde0f58eae58f"
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority.",
-      "sha256": "0a73cfcb2ddc96ff9020fa780705d1d3990773d925689c47a75c3acf69e1a176"
+      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
+      "sha256": "c0047f2b042c9e0dac8e1e8b10c699ea0ff32dcc158a874a1bc46365b5361893"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3512,8 +3512,8 @@
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
-      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch.",
-      "sha256": "0efc3d6f2609bbd4bc3725d455e755a98d1fcb1470f54188a3b6197e3e50c3bf",
+      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
+      "sha256": "6910201f02fcc5a4659c14127ccc64b8d93a11819efaa6b1eaab1a091b84e44a",
       "disposition": "gateway"
     },
     "lib/capsules/schema.ts": {
@@ -3710,6 +3710,11 @@
       "classification": "INTERNAL",
       "reason": "Strict nonsecret private-alpha conversation qualification and fixed portions of one Work ceiling; no provider dispatch or execution authority.",
       "sha256": "6820844a9e7ce01e90228a7546f06f900d3b9ddb60738172f99574034228957a"
+    },
+    "lib/engineering/factory-proposal-contract.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Model-facing proposal semantics only; no effects or authority. Shared contract distinguishes request, backend admission, preparation and writer/dispatch.",
+      "sha256": "1643db7fec0cca810fa1ae79f1ea703a7a82058488f44f9c8a6141b4cf0d6c9e"
     }
   }
 }

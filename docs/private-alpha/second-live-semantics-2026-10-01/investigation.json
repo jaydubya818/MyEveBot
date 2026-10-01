@@ -1,0 +1,66 @@
+{
+  "attempt1": {
+    "workId": "a2dcadef-0738-4194-8b8c-02c16821b5fb",
+    "status": "FAILED_HISTORICAL",
+    "modelOperations": 1,
+    "costMicrousd": 717,
+    "factoryExecutions": 0
+  },
+  "attempt2": {
+    "workId": "dd60ac6b-5718-4844-be97-39b88eadf6ce",
+    "status": "FAILED_HISTORICAL",
+    "workVersion": 2,
+    "workGeneration": 2,
+    "modelOperations": 1,
+    "costMicrousd": 1446,
+    "factoryExecutions": 0,
+    "response": {
+      "content": [
+        {
+          "text": "Blocker: I cannot produce a valid canonical Factory start proposal because no admission route is currently confirmed executable from the supplied state.\n\nObserved authoritative Work metadata is present and exact:\n- workId: `dd60ac6b-5718-4844-be97-39b88eadf6ce`\n- expectedWorkVersion: `2`\n- expectedWorkGeneration: `2`\n\nBut the currentTruth explicitly says:\n- `Native execution: NEEDS_ADMISSION; phase NEEDS_ADMISSION; next operation admit.`\n- `Active Run: none currently confirmed executable.`\n- `No route is admitted yet.`\n\nPer your instruction, I must return exactly one engineering_factory start proposal with the exact observed Work version and generation, or explain a blocker. The blocker is that the Work is not yet admitted/executable in the current state, so I cannot honestly claim a valid Factory start proposal.",
+          "type": "text",
+          "providerMetadata": {
+            "openai": {
+              "phase": "final_answer",
+              "itemId": "REDACTED_PROVIDER_ITEM_ID"
+            }
+          }
+        }
+      ],
+      "finishReason": {
+        "unified": "stop"
+      }
+    },
+    "controller": "STOPPED_BEFORE_RETRY",
+    "consumer": "EXITED",
+    "workLifecycle": "active",
+    "workControl": "agent",
+    "route": null,
+    "writer": null
+  },
+  "requestProvenance": {
+    "attempt": 2,
+    "recordedRequestHash": "0aa12cc00b5c6a4f8c79e7bc432f6aaf24da80023588226e37e2a679991c272e",
+    "reconstructedRequestHash": "0aa12cc00b5c6a4f8c79e7bc432f6aaf24da80023588226e37e2a679991c272e",
+    "hashMatches": true,
+    "inputBytes": 8560,
+    "redactions": [
+      "response.content[0].providerMetadata.openai.itemId"
+    ],
+    "recallItems": 0,
+    "learningItems": 0
+  },
+  "firstDivergence": "Admission proposal selection: model returned a blocker solely because execution route was not admitted. No structured proposal reached normalization or backend.",
+  "authorityAudit": {
+    "modelSystem": "Old alpha system permitted a start proposal or blocker without explicitly distinguishing request authority from admitted execution authority.",
+    "tool": "Old engineering_factory description said Start or reconcile through qualified MyFactory; it did not explicitly identify start as request admission.",
+    "selectedWorkContext": "Native NEEDS_ADMISSION/next admit plus no executable Run appeared in a Factory-only admission request. The no-route sentence mentioned proposing admission but did not resolve the conflicting start/execution framing.",
+    "persistentInstructions": "Availability is not authority remains correct; shared proposal semantics now clarify what a request means in both alpha and dogfood instructions.",
+    "capabilityRegistry": "Description now shares the request-only contract.",
+    "actualRequest": "Model wrapper replaced upstream system context. Exact composed request reconstructed and matched recorded hash; retained Recall contained zero items/learning/authority grants."
+  },
+  "repair": "Shared request-only system/tool/capability contract; Factory-specific Current Truth omits irrelevant native action guidance. No backend authority, queue policy, timeout, budget, model, provider or migration changed.",
+  "modelAuthorityGrants": 0,
+  "additionalRealModelOperations": 0,
+  "limits": "Deterministic tests prove guidance, parsing and complete connected dispatch. They cannot guarantee how a future stochastic model will respond. Captured blocker remains prose; it is never converted to a start."
+}

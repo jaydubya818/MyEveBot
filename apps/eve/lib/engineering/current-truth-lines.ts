@@ -12,12 +12,15 @@ export function currentWorkMetadata(projection: EngineeringWorkerProjection) {
 const money=(value:number|null)=>value===null?"unavailable":`$${(value/1_000_000).toFixed(6)}`;
 
 /** The same read-only facts are rendered in Work and selected-Work model context. */
-export function currentTruthLines(projection: EngineeringWorkerProjection): string[] {
+export function currentTruthLines(projection: EngineeringWorkerProjection, options: {factoryProposal?:boolean} = {}): string[] {
   const truth=projection.runTruth;
   const metadata = currentWorkMetadata(projection);
   return [
+    ...(options.factoryProposal ? [!projection.routing && !projection.factoryWriter
+      ? "Factory proposal state: UNROUTED. Owner-selected productive Work may propose admission through engineering_factory start. No admitted route, executable Run or writer is required to request evaluation; proposal grants no execution authority."
+      : "Factory proposal/readback: a proposed route or queued start is not execution authority. Report only persisted route, preparation, writer and dispatch facts; do not infer START from a proposal or preparation."] : []),
     `Work identity: ${JSON.stringify(metadata)}. Copy these observed values exactly when proposing admission; never infer them. The service rejects stale values. This metadata grants no authority.`,
-    ...(!projection.factoryWriter && projection.nativeExecution ? [`Native execution: ${projection.nativeExecution.admissionStatus}; phase ${projection.nativeExecution.phase}; next operation ${projection.nativeExecution.nextOperation??"none"}. Observed state only. Already admitted means no new admission.`] : []),
+    ...(!options.factoryProposal && !projection.factoryWriter && projection.nativeExecution ? [`Native execution: ${projection.nativeExecution.admissionStatus}; phase ${projection.nativeExecution.phase}; next operation ${projection.nativeExecution.nextOperation??"none"}. Observed state only. Already admitted means no new admission.`] : []),
     ...(projection.executionController ? [`Engineering phase: ${projection.executionController.phase}; next ${projection.executionController.nextOperation??"none"}; progress ${projection.executionController.progress.recovery}.`] : []),
     truth.activeRun?`Active Run: ${truth.activeRun.id}; ${truth.activeRun.purpose}; ${truth.activeRun.effectiveStatus}. Fresh checks are required at every action boundary.`:"Active Run: none currently confirmed executable. This does not mean Work has no Run history.",
     truth.latestRun?`Latest Run: ${truth.latestRun.id}; ${truth.latestRun.purpose}; ${truth.latestRun.effectiveStatus}; recorded ${truth.latestRun.storedStatus}; deadline ${truth.latestRun.deadline??"unavailable"}.`

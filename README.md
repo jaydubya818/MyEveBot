@@ -1,3 +1,5 @@
+[Latest private-alpha semantics repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md): both live attempts remain failed and preserved; complete captured-response handoff passes locally. No third live attempt is authorized.
+
 [Latest private-alpha handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md): first live qualification failed and is preserved. The captured-response repair is deployed and passes zero-model qualification; a new paused Work is ready for explicit second-attempt authorization.
 
 # MyEveBot
