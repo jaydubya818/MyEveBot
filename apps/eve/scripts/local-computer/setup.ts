@@ -30,4 +30,4 @@ execFileSync(credentialHelper,["store",deviceId],{input:token,stdio:["pipe","ign
 await writeFile(path.join(directory,"config.json"),JSON.stringify({appUrl:url.origin,deviceId,roots,helper,credentialHelper,keychainAccount:deviceId},null,2)+"\n",{mode:0o600,flag:"wx"});
 console.log(`Pairing metadata saved in ${directory}; secret retained only in macOS Keychain. Configure SOFIE_LOCAL_DEVICE_ID and securely pipe this Keychain item's value into the deployment's encrypted SOFIE_LOCAL_DEVICE_TOKEN setting. Do not paste it into chat or save an env file.`);
 console.log("Set explicit SOFIE_LOCAL_CAPABILITIES, apply migrations, then run local:service install and local:service start.");
-console.log(`For desktop actions, allow ${helper} in macOS Privacy & Security → Accessibility and Screen Recording. File reads and shell do not require these permissions.`);
+console.log("After installation, approve Sofie Local.app in macOS Privacy & Security → Accessibility and Screen Recording. Do not grant an ambiguous Node entry. File reads and shell do not require these permissions.");

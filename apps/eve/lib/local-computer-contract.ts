@@ -53,8 +53,11 @@ export function localOperationCapability(input: LocalTask): LocalComputerCapabil
   if (input.operation === "screenshot") return "computer.local.screenshot";
   return "computer.local.desktop";
 }
-export function localConfiguredGrant(input: LocalTask, env: NodeJS.ProcessEnv = process.env): boolean {
+export function configuredLocalCapabilities(env: NodeJS.ProcessEnv = process.env): LocalComputerCapability[] {
   const configured = (env.SOFIE_LOCAL_CAPABILITIES ?? "").split(",").map(value => value.trim()).filter(Boolean);
-  return configured.length > 0 && configured.every(value => LOCAL_COMPUTER_CAPABILITIES.includes(value as LocalComputerCapability))
-    && configured.includes(localOperationCapability(input));
+  if (!configured.every(value => LOCAL_COMPUTER_CAPABILITIES.includes(value as LocalComputerCapability))) return [];
+  return [...new Set(configured)] as LocalComputerCapability[];
+}
+export function localConfiguredGrant(input: LocalTask, env: NodeJS.ProcessEnv = process.env): boolean {
+  return configuredLocalCapabilities(env).includes(localOperationCapability(input));
 }

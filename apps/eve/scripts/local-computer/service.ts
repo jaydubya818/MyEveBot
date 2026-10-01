@@ -102,7 +102,8 @@ else if(command==="status") {
   const config=JSON.parse(await readFile(configPath,"utf8"));
   const token=readPairingToken(config.credentialHelper,config.keychainAccount);
   const response=await fetch(new URL("/api/local-computer/worker",config.appUrl),{method:"POST",redirect:"error",signal:AbortSignal.timeout(15000),headers:{Authorization:`Bearer ${token}`,"Content-Type":"application/json"},body:JSON.stringify({operation:"revoke"})});
-  if(!response.ok)throw new Error("Server revocation was not confirmed; pairing retained. Stop the service and retry revocation when connected.");
+  const receipt=await response.json().catch(()=>null);
+  if(!response.ok || receipt?.revoked!==true)throw new Error("Server revocation was not confirmed; pairing retained. Stop the service and retry revocation when connected.");
   await stop();execFileSync(config.credentialHelper,["delete",config.keychainAccount],{stdio:["ignore","ignore","pipe"]});
   await unlink(plist);await writeFile(configPath,JSON.stringify({...config,revoked:true},null,2)+"\n",{mode:0o600});
   console.log("Computer unpaired: server authority revoked, local Keychain credential removed, login service removed.");

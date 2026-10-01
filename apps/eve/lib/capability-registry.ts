@@ -1,3 +1,4 @@
+import { configuredLocalCapabilities, type LocalComputerCapability } from "./local-computer-contract.ts";
 import { engineeringWorkEnabled, hostedFactoryQueue } from "./engineering/deployment-mode.ts";
 import { getCapabilityStatuses } from "./capabilities.ts";
 
@@ -312,7 +313,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   }),
   platform("computer.local.read", "Computer: read shared files", "computer", "Read and locate files in the paired Mac's explicitly shared folders.", {
     feature: "local-computer",
-    configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN"],
+    configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN", "SOFIE_LOCAL_CAPABILITIES"],
     permissions: ["computer.local.read"],
     risk: { level: "medium", categories: ["local-device", "personal-data"] },
     keywords: ["mac", "local", "read", "files"],
@@ -558,6 +559,7 @@ function enabledFeatures(env: NodeJS.ProcessEnv): Set<string> {
 }
 
 function configured(definition: CapabilityDefinition, env: NodeJS.ProcessEnv): boolean {
+  if (definition.id.startsWith("computer.local.") && !configuredLocalCapabilities(env).includes(definition.id as LocalComputerCapability)) return false;
   if (definition.id === "model.gateway") {
     return Boolean(env.AI_GATEWAY_API_KEY?.trim() || env.VERCEL_OIDC_TOKEN?.trim() || env.VERCEL === "1");
   }

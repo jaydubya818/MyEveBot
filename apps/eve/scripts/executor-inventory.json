@@ -2014,7 +2014,7 @@
     "lib/capability-registry.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority.",
-      "sha256": "0d6a7052d8c0670212218cc6b6886ce0b173c3e0d05aef81f06e3698840dd1c6"
+      "sha256": "c973dc70841372a9df21fc0e549bb97ab5982bd9cb97f2bb753898601fbc87ad"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -3718,12 +3718,12 @@
     "lib/local-computer-contract.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure bounded operation/result schemas and canonical Computer capability mapping; malformed or missing configured grants deny every operation.",
-      "sha256": "33bd5b7c57a16e23d5800a8652c7c71ee30a7664827efe98954fd61e573cef34"
+      "sha256": "1e83d93404cb2a0ee1fffd2914a4ba867e786ce5cc5c3ae1e4bd00b0fcbf7c04"
     },
     "lib/local-computer-store.ts": {
       "classification": "ENFORCED",
       "reason": "Outbound device queue consumes one-use Action authority; dispatch checks current owner, Agent revision, per-operation grant, approval, Run and pairing revocation. Exactly-once claim and completion; unknown outcomes never replay. Real SQL tests cover revocation and stale results.",
-      "sha256": "0fd8d8245afc7e45dc69f3d8e3fa29ba45ea5c7fcdc583e5f3472303de60661f"
+      "sha256": "dcd758a05a6a74add8a3bfb16950708d1ce3327c5eb025c28e7bd43c29a087be"
     },
     "app/api/local-computer/worker/route.ts": {
       "classification": "ENFORCED",

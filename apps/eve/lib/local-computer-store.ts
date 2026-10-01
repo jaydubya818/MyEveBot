@@ -2,7 +2,7 @@ import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
 import { deploymentOwnerId } from "./owner-identity.ts";
 import { consumeProviderAuthority, type AuthorizedAction } from "./action-gateway.ts";
-import { localConfiguredGrant, LOCAL_COMPUTER_CAPABILITIES, localReadOperation, type LocalOperation, type LocalResult } from "./local-computer-contract.ts";
+import { localConfiguredGrant, configuredLocalCapabilities, localReadOperation, type LocalOperation, type LocalResult } from "./local-computer-contract.ts";
 
 export function localPairing() {
   const token = process.env.SOFIE_LOCAL_DEVICE_TOKEN?.trim();
@@ -66,7 +66,7 @@ export async function pollLocalDevice(roots: string[], permissions: Record<strin
   if (!pairing) throw new Error("Local pairing is not configured.");
   const {ownerId,deviceId,hash} = pairing;
   if(await localPairingRevoked())throw new Error("Computer pairing revoked.");
-  const allowed=LOCAL_COMPUTER_CAPABILITIES.filter(capability => localConfiguredGrant({operation:capability.endsWith(".read")?"roots":capability.endsWith(".write")?"write_text":capability.endsWith(".shell")?"shell":capability.endsWith(".screenshot")?"screenshot":"click"} as LocalOperation));
+  const allowed=configuredLocalCapabilities();
   await db().query(`INSERT INTO local_computer_devices(owner_id,device_id,pairing_hash,roots,permissions)
     VALUES($1,$2,$3,$4::jsonb,$5::jsonb) ON CONFLICT(owner_id,device_id) DO UPDATE
     SET pairing_hash=$3,roots=$4::jsonb,permissions=$5::jsonb,last_seen_at=now()`, [ownerId,deviceId,hash,JSON.stringify(roots),JSON.stringify(permissions)]);
