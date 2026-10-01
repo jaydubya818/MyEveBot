@@ -1,5 +1,6 @@
 "use client";
 
+import { toolPresentation } from "@/lib/tool-presentation";
 import { ownerLocalStorage, ownerSessionStorage } from "@/lib/owner-browser-storage";
 
 
@@ -3173,16 +3174,16 @@ function ChatPart({
 
     case "dynamic-tool": {
       const request = part.toolMetadata?.eve?.inputRequest;
-      const label = part.toolName.replaceAll("_", " ");
+      const {label,failed,governed} = toolPresentation(part.toolName,part.input,"output" in part?part.output:undefined,part.state);
       const running = part.state === "input-streaming" || part.state === "input-available";
-      const expandable = part.input !== undefined || part.state === "output-available";
+      const expandable = part.input !== undefined || part.state === "output-available" || part.state === "output-error";
 
       const marker = (
         <Marker role={running ? "status" : undefined}>
           <MarkerIcon>
             {running ? (
               <Loader size={14} />
-            ) : part.state === "output-error" || part.state === "output-denied" ? (
+            ) : failed ? (
               <XIcon />
             ) : part.state === "output-available" ? (
               <CheckIcon />
@@ -3198,11 +3199,14 @@ function ChatPart({
         <div className="flex flex-col gap-2">
           {expandable ? (
             <details>
-              <summary className="w-fit cursor-pointer list-none rounded-md hover:brightness-125 [&::-webkit-details-marker]:hidden">
+              <summary aria-label={`${label}. Open Proof of Work / Advanced`} className="w-fit cursor-pointer list-none rounded-md hover:brightness-125 [&::-webkit-details-marker]:hidden">
                 {marker}
+                {governed && <span className="ms-5 text-xs text-kumo-subtle">Proof of Work / Advanced</span>}
               </summary>
               <div className="mt-2 flex flex-col gap-2 border-s-2 border-kumo-hairline ps-3">
+                {governed && <p className="text-xs text-kumo-subtle">Technical evidence: {part.toolName}</p>}
                 <ToolPayload label="Input" value={part.input} />
+                {part.state === "output-error" && <ToolPayload label="Error" value={part.errorText} />}
                 {part.state === "output-available" && (
                   <ToolPayload label="Output" value={part.output} />
                 )}
@@ -3213,7 +3217,7 @@ function ChatPart({
           )}
           {part.state === "output-error" && (
             <Bubble variant="destructive">
-              <BubbleContent>{part.errorText}</BubbleContent>
+              <BubbleContent>{governed ? "This action needs attention. Open Proof of Work / Advanced for the details." : part.errorText}</BubbleContent>
             </Bubble>
           )}
           {part.state === "approval-requested" && request && (

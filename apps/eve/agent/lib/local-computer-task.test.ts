@@ -2,7 +2,7 @@ import {beforeEach,afterEach,describe,expect,it,vi} from "vitest";
 import {createHash} from "node:crypto";
 const state=vi.hoisted(()=>({query:vi.fn(),decide:vi.fn(),available:true}));
 vi.mock("./receipts-db.ts",()=>({db:()=>({query:state.query})}));
-vi.mock("./session-settings.ts",()=>({resolveSessionAgent:async()=>({id:"sofie",isPrimary:false,status:"active",riskCeiling:"critical",capabilities:state.available?[{id:"tool.local_computer_task",enabled:true,availability:"available"},{id:"computer.local.read",enabled:true,availability:"available"}]:[]})}));
+vi.mock("./session-settings.ts",()=>({resolveSessionAgent:async()=>({id:"sofie",isPrimary:false,status:"active",riskCeiling:"critical",capabilities:state.available?[{id:"computer.local.shell",enabled:true,availability:"available"},{id:"computer.local.read",enabled:true,availability:"available"}]:[]})}));
 vi.mock("../../lib/approvals.ts",async original=>({...await original<object>(),decideApproval:state.decide}));
 import {approvalBinding,approvalRequestId,canonicalActionValue} from "../../lib/approvals.ts";
 import {localApprovalResponses,prepareLocalApproval,resolveLocalApprovals} from "./local-computer-tool.ts";
@@ -14,9 +14,9 @@ const responses=(approved=true):any[]=>[{role:"assistant",content:[{type:"tool-c
 function row(){
   const target={provider:"local-mac",account:"owner",resource:"mac-test",environment:createHash("sha256").update("a".repeat(64)).digest("hex")};
   return {id:"action",run_id:"run",action_class:"execute",pending_approval_id:approvalRequestId({ownerId:"owner",taskId:"run",requestKey:"action:0:0"}),approval_status:"pending",
-    parameter_hash:approvalBinding({taskId:"run",capabilityId:"tool.local_computer_task",resource:JSON.stringify(canonicalActionValue(target)),action:"execute",parameters:{payload:input,target,executor:{kind:"persistent-agent",agentId:"sofie"},trigger:{kind:"owner_chat",id:"session"},computer:null}})};
+    parameter_hash:approvalBinding({taskId:"run",capabilityId:"computer.local.shell",resource:JSON.stringify(canonicalActionValue(target)),action:"execute",parameters:{payload:input,target,executor:{kind:"persistent-agent",agentId:"sofie"},trigger:{kind:"owner_chat",id:"session"},computer:null}})};
 }
-beforeEach(()=>{vi.clearAllMocks();state.available=true;vi.stubEnv("EVE_ENABLED_FEATURES","local-computer");vi.stubEnv("DATABASE_URL","postgres://fixture");vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));state.query.mockResolvedValue([row()]);});
+beforeEach(()=>{vi.clearAllMocks();state.available=true;vi.stubEnv("EVE_ENABLED_FEATURES","local-computer");vi.stubEnv("SOFIE_LOCAL_CAPABILITIES","computer.local.read,computer.local.write,computer.local.shell,computer.local.screenshot,computer.local.desktop");vi.stubEnv("DATABASE_URL","postgres://fixture");vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));state.query.mockResolvedValue([row()]);});
 afterEach(()=>vi.unstubAllEnvs());
 describe("local Mac approval boundary",()=>{
   it("projects screenshots as image parts without base64 in text",async()=>{
@@ -69,6 +69,13 @@ describe("local Mac approval boundary",()=>{
       await expect(prepareLocalApproval({...ctx,session,callId:"read",toolInput:{operation:"roots"}})).rejects.toThrow();
     }
     state.available=false;await expect(resolveLocalApprovals({...ctx,messages:responses()})).rejects.toThrow();
+  });
+  it("requires a configured operation grant even for the owner",async()=>{
+    vi.stubEnv("SOFIE_LOCAL_CAPABILITIES","computer.local.read");
+    await expect(resolveLocalApprovals({...ctx,messages:responses()})).rejects.toMatchObject({actionId:"computer_grant_required"});
+    expect(await prepareLocalApproval({...ctx,callId:"read",toolInput:{operation:"roots"}})).toBe("not-applicable");
+    vi.stubEnv("SOFIE_LOCAL_CAPABILITIES","computer.local.read,unknown");
+    await expect(prepareLocalApproval({...ctx,callId:"read",toolInput:{operation:"roots"}})).rejects.toThrow();
   });
   it("rejects arbitrary fields and the legacy unconstrained instruction loop",()=>{
     expect(localTaskSchema.safeParse({operation:"roots",command:"pwd"}).success).toBe(false);

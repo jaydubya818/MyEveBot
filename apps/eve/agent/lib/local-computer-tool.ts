@@ -4,15 +4,13 @@ import { z } from "zod";
 import { ActionBlocked, ActionGateway, consumeActionAuthority, type ActionAdapter } from "../../lib/action-gateway.ts";
 import { approvalBinding, approvalRequestId, canonicalActionValue, decideApproval } from "../../lib/approvals.ts";
 import { effectiveCapability } from "../../lib/agents.ts";
-import { localReadOperation, localTaskSchema, type LocalTask, type LocalOperation } from "../../lib/local-computer-contract.ts";
+import { localConfiguredGrant, localOperationCapability, localReadOperation, localTaskSchema, type LocalTask, type LocalOperation } from "../../lib/local-computer-contract.ts";
 import { enqueueLocalOperation, localDeviceStatus, localJob, localPairing } from "../../lib/local-computer-store.ts";
 import { resolveSessionAgent } from "./session-settings.ts";
 import { toolActionRequest } from "./action-context.ts";
 import { db } from "./receipts-db.ts";
 
 type Context = Pick<ToolContext, "session" | "callId"> & Partial<Pick<ToolContext,"abortSignal">>;
-const WRITE = "tool.local_computer_task";
-const READ = "computer.local.read";
 
 async function binding(ctx: {session: Pick<ToolContext["session"],"id"|"auth"> & {parent?:unknown}}, input: LocalTask) {
   const caller = ctx.session.auth.current;
@@ -24,7 +22,8 @@ async function binding(ctx: {session: Pick<ToolContext["session"],"id"|"auth"> &
     || caller.attributes.role === "guest" || caller.attributes.myeveRoleId || ctx.session.parent
     || !pairing || caller.principalId !== pairing.ownerId) throw new ActionBlocked("denied","local_owner_required");
   const agent = await resolveSessionAgent({ownerId:caller.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true});
-  const capabilityId = localReadOperation(input) ? READ : WRITE;
+  const capabilityId = localOperationCapability(input);
+  if (!localConfiguredGrant(input)) throw new ActionBlocked("denied","computer_grant_required");
   if (!agent || !effectiveCapability(agent,capabilityId).allowed) throw new ActionBlocked("denied","local_capability_denied");
   return {agent,pairing,capabilityId};
 }
@@ -40,7 +39,7 @@ export async function executeLocalTool(value: LocalTask, ctx: Context, prepareOn
       return input.job_id ? await waitForJob(pairing.ownerId,agent.id,ctx,input.job_id) : await localDeviceStatus(pairing.ownerId);
     }
     const device=await localDeviceStatus(pairing.ownerId);
-    if(device.status!=="ready")return {...device,message:"The Mac companion is offline. Start npm run local:start on the Mac; no operation was queued."};
+    if(device.status!=="ready")return {...device,message:"The Mac companion is offline. Check npm run local:service -- status on the Mac; no operation was queued."};
     const action=await toolActionRequest(ctx,{capabilityId,actionClass:localReadOperation(input)?"read":"execute",parameters:input});
     if(action.trigger.kind!=="owner_chat" || action.executor.agentId!==agent.id)throw new ActionBlocked("denied","local_owner_required");
     const adapter:ActionAdapter<{jobId:string;status:string}>={
@@ -114,7 +113,7 @@ export function localApprovalResponses(messages:DynamicResolveContext["messages"
 export async function resolveLocalApprovals(ctx:DynamicResolveContext){
   const resolved:string[]=[];
   for(const response of localApprovalResponses(ctx.messages)){
-    const {agent,pairing}=await binding(ctx,response.input);
+    const {agent,pairing,capabilityId}=await binding(ctx,response.input);
     const rows=await db().query(`SELECT a.*,p.id AS pending_approval_id,p.status AS approval_status FROM action_requests a
       JOIN task_approval_decisions p ON p.id=a.approval_id AND p.owner_id=a.owner_id AND p.binding_hash=a.parameter_hash AND p.task_id=a.run_id
         AND p.capability_id=a.capability_id AND p.action_class=a.action_class
@@ -123,12 +122,12 @@ export async function resolveLocalApprovals(ctx:DynamicResolveContext){
         AND a.status='awaiting_approval' AND a.approval_generation=0 AND a.attempt_count=0
         AND p.status IN ('pending','approved','denied') AND p.expires_at>now() AND p.agent_id=$4
         AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now())`,
-      [pairing.ownerId,ctx.session.id,`tool:${response.callId}`,agent.id,WRITE]);
+      [pairing.ownerId,ctx.session.id,`tool:${response.callId}`,agent.id,capabilityId]);
     if(rows.length!==1)continue;
     const row=rows[0]!;
     if(row.pending_approval_id!==approvalRequestId({ownerId:pairing.ownerId,taskId:String(row.run_id),requestKey:`${row.id}:0:0`}))continue;
     const resolvedTarget=target(pairing);
-    const hash=approvalBinding({taskId:String(row.run_id),capabilityId:WRITE,resource:JSON.stringify(canonicalActionValue(resolvedTarget)),action:"execute",
+    const hash=approvalBinding({taskId:String(row.run_id),capabilityId,resource:JSON.stringify(canonicalActionValue(resolvedTarget)),action:"execute",
       parameters:{payload:response.input,target:resolvedTarget,executor:{kind:agent.isPrimary?"primary-agent":"persistent-agent",agentId:agent.id},trigger:{kind:"owner_chat",id:ctx.session.id},computer:null}});
     if(hash!==row.parameter_hash || row.action_class!=="execute")continue;
     if(row.approval_status==="pending")await decideApproval({ownerId:pairing.ownerId,id:String(row.pending_approval_id),bindingHash:hash,decision:response.approved?"approved":"denied",decidedBy:pairing.ownerId});

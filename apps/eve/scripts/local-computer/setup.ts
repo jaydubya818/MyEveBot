@@ -1,6 +1,7 @@
 import { mkdir, writeFile, access } from "node:fs/promises";
 import { randomBytes } from "node:crypto";
 import { execFileSync } from "node:child_process";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -18,7 +19,15 @@ const helper=path.join(directory,"sofie-local-desktop");
 execFileSync("/usr/bin/swiftc",["-module-cache-path",path.join(directory,"swift-cache"),path.join(source,"desktop.swift"),"-o",helper,"-framework","AppKit","-framework","ApplicationServices","-framework","ScreenCaptureKit"],{stdio:"inherit"});
 const token=randomBytes(32).toString("hex");
 const deviceId=`mac-${randomBytes(8).toString("hex")}`;
-await writeFile(path.join(directory,"config.json"),JSON.stringify({appUrl:url.origin,token,deviceId,roots,helper},null,2)+"\n",{mode:0o600,flag:"wx"});
-await writeFile(path.join(directory,"server.env"),`SOFIE_LOCAL_DEVICE_ID=${deviceId}\nSOFIE_LOCAL_DEVICE_TOKEN=${token}\n`,{mode:0o600,flag:"wx"});
-console.log(`Pairing saved privately in ${directory}. Configure the app server with server.env, then run npm run local:start. Do not paste the token into chat.`);
+const credentialDirectory=path.join(os.homedir(),"Library/Application Support/Sofie Local");
+await mkdir(credentialDirectory,{recursive:true,mode:0o700});
+const credentialHelper=path.join(credentialDirectory,"credential-helper");
+try{await access(credentialHelper);}catch(error){
+  if((error as NodeJS.ErrnoException).code!=="ENOENT")throw error;
+  execFileSync("/usr/bin/swiftc",["-module-cache-path",path.join(credentialDirectory,"swift-cache"),path.join(source,"credential-helper.swift"),"-o",credentialHelper,"-framework","Security"],{stdio:"inherit"});
+}
+execFileSync(credentialHelper,["store",deviceId],{input:token,stdio:["pipe","ignore","pipe"]});
+await writeFile(path.join(directory,"config.json"),JSON.stringify({appUrl:url.origin,deviceId,roots,helper,credentialHelper,keychainAccount:deviceId},null,2)+"\n",{mode:0o600,flag:"wx"});
+console.log(`Pairing metadata saved in ${directory}; secret retained only in macOS Keychain. Configure SOFIE_LOCAL_DEVICE_ID and securely pipe this Keychain item's value into the deployment's encrypted SOFIE_LOCAL_DEVICE_TOKEN setting. Do not paste it into chat or save an env file.`);
+console.log("Set explicit SOFIE_LOCAL_CAPABILITIES, apply migrations, then run local:service install and local:service start.");
 console.log(`For desktop actions, allow ${helper} in macOS Privacy & Security → Accessibility and Screen Recording. File reads and shell do not require these permissions.`);

@@ -310,13 +310,25 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     risk: { level: "low", categories: ["sandbox-data"] },
     keywords: ["file", "read", "search", "research"],
   }),
-  platform("computer.local.read", "Local Mac files", "storage", "Read and locate files in the paired Mac's explicitly shared folders.", {
+  platform("computer.local.read", "Computer: read shared files", "computer", "Read and locate files in the paired Mac's explicitly shared folders.", {
     feature: "local-computer",
     configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN"],
-    permissions: ["local.files.read"],
+    permissions: ["computer.local.read"],
     risk: { level: "medium", categories: ["local-device", "personal-data"] },
     keywords: ["mac", "local", "read", "files"],
   }),
+  ...[
+    ["computer.local.write", "Computer: write shared files", "Write within configured folders after exact owner approval."],
+    ["computer.local.shell", "Computer: shell", "Run one approved command with the logged-in user's privileges."],
+    ["computer.local.screenshot", "Computer: screenshots", "Capture the Mac display after exact owner approval."],
+    ["computer.local.desktop", "Computer: desktop interaction", "Perform one approved desktop input with existing macOS permissions."],
+  ].map(([id, name, description]) => platform(id!, name!, "computer", description!, {
+    feature: "local-computer", permissions: [id!], approvalPolicy: { mode: "always" },
+    risk: { level: "critical", categories: ["local-device", "external-side-effect", "credential-boundary"] },
+    configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN", "SOFIE_LOCAL_CAPABILITIES"],
+    source: { type: "builtin", reference: "agent/lib/local-computer-tool.ts" },
+    evidence: { supported: true, required: true, types: ["log"] }, keywords: ["computer", "mac", "local"],
+  })),
   platform("files.write", "File writing", "storage", "Create and update files in the Agent sandbox.", {
     permissions: ["files.write"],
     risk: { level: "medium", categories: ["sandbox-data", "durable-data"] },

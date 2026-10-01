@@ -1,6 +1,6 @@
 # MyEve
 
-Deploy a personal AI agent you own, with persistent memory, goals, proactive work, and controlled access to your tools and computer. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent. MyEve Builder configures and deploys your agent into your own Vercel account from this repository's actual source.
+Deploy a Digital Worker / personal AI agent you own, with persistent memory, goals, proactive work, and controlled access to your tools and computer. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent. MyEve Builder configures and deploys your agent into your own Vercel account from this repository's actual source.
 
 For example, ask Sofie to read a project's README on your Mac, explain the app, exchange a bounded question with an authorized peer, or hand a scoped software request to MyFactory. Each connection has its own setup and evidence: a configured tool is not proof that its remote service has completed the work.
 
@@ -9,18 +9,34 @@ For example, ask Sofie to read a project's README on your Mac, explain the app, 
 | Component | Responsibility | Connection and boundary |
 | --- | --- | --- |
 | **MyEve / Sofie** | Owner conversation, persistent Agents, memory, Knowledge, goals, Work and results | Next.js and the Eve framework; owns local authorization and private context |
-| **Relay** | Agent identity, scoped grants, signed delivery and information exchange across installations | An independently deployed service; authenticated peer messages do not grant access to private memory or the Mac |
-| **MyFactory** | Supervised software WorkOrders, coding attempts, checks, candidate evidence and publication proposals on the Mac | Signed hosted intake through Linear; a verified receipt proves local admission. Coding and publication have separate controls |
-| **Foreman** | Delegated issue workflow with intake, analysis, implementation and independent review | Its own Linear/GitHub agent pipeline producing draft PRs; separate from MyFactory |
+| **Relay** | Governed capability and communication fabric connecting Eves, specialists, Computers, Apps and compatible external agents | Registered identities, scoped grants and signed delivery; the receiving owner retains authority |
+| **MyFactory** | Governed production system for substantial bounded Work | Canonical Work → PREPARE/START → execution → candidate custody → independent protected verification → Result; legacy Linear intake is a separate admission-only path |
+| **Foreman** | Software-production workflow/factory capability used by the existing Linear/GitHub issue pipeline | Currently a separate legacy deployment, not the canonical MyFactory producer or a second automatic stage; it is not part of the canonical Work qualification |
 | **DeepAgent / Deep Agents harness** | Experimental alternative agent execution loop behind a bounded harness interface | Isolated SDK experiment, **not registered in this deployed app and not production-qualified**; it does not replace Eve, Relay or MyFactory |
 
-MyEve retains its own authority and state. Relay transports authorized requests; an execution harness performs bounded work; MyFactory and Foreman manage distinct delivery workflows. None of these connections grants an agent permission to approve, merge or deploy its own changes.
+MyEve retains canonical Work, owner authority and Result state. MyFactory is the canonical bounded production path; the retained Foreman issue workflow is an optional legacy path with separate evidence. A harness executes within its admitted envelope. None can grant itself authority, verify its own candidate, or authorize publication.
+
+```mermaid
+flowchart LR
+  Owner --> Eve["Sofie / MyEve"]
+  Eve --> Work
+  Work --> Connections["Relay / Computer / Apps / peers"]
+  Work --> Factory["MyFactory / production harness"]
+  Factory --> Candidate
+  Candidate --> Verification["Independent protected verification"]
+  Verification --> Result
+  Connections --> Evidence["Authenticated evidence"]
+  Evidence --> Eve
+  Result --> Owner
+```
+
+Normal chat describes progress plainly: sent, received, working, verifying, then verified only when canonical evidence supports it. Tool names, identifiers, signatures and raw payloads remain available in **Proof of Work / Advanced**. A received WorkOrder is not a completed Result.
 
 See [the combined setup and verification guide](docs/setup/myeve-relay-myfactory.md), [Mac setup](docs/local-mac-access.md), and [harness boundaries](docs/setup/deepagent-harness.md).
 
 ## Agent-to-agent communication
 
-Sofie can use the Relay adapter to discover registered peers, inspect their permissions, send an approved message, and retrieve its authenticated, correlated response. Peers may be other MyEve installations or agents and bots built on another platform. **Muse and GrokBots are intended peers, not automatically connected integrations:** each needs an actual identity/address, a compatible adapter, owner-authorized scopes and a running recipient.
+**Sofie can communicate with other authorized agents without sharing your credentials or automatically giving them access to your private information.** She can use the Relay adapter to discover registered peers, inspect their permissions, send an approved message, and retrieve its authenticated, correlated response. Peers may be other MyEve installations or agents and bots built on another platform. **Muse and GrokBots are intended peers, not automatically connected integrations:** each needs an actual identity/address, a compatible adapter, owner-authorized scopes and a running recipient.
 
 - Messages share the message body and only explicitly authorized context. Private conversations, memory, Knowledge and local files are not shared automatically.
 - Outbound messages use exact-action approval. Optional bounded automatic replies use only the receiving agent's approved public profile and the incoming message; they cannot invoke private tools or recursively answer replies.
@@ -31,6 +47,8 @@ Sofie can use the Relay adapter to discover registered peers, inspect their perm
 Live checks on September 30, 2026 passed the original Mac README prompt, same-chat follow-up after task completion, MyFactory intake with signed receipt readback, and Sofie → Relay → Alpha → Sofie with an actual written answer. A second live MyEve installation, Muse and GrokBots still require their own acceptance checks. [See the recorded evidence and limits](docs/verification/connections-2026-09-30.md).
 
 Example: “Ask the configured Alpha peer for a one-sentence acknowledgment through Relay, then show me its actual reply.” If the peer is absent, expired, offline or unable to answer, Sofie must report that state explicitly.
+
+The ongoing [Computer and federation continuation](docs/verification/computer-federation-continuation-2026-09-30.md) records persistent login/restart, Keychain custody, canonical Computer grants, peer negotiation and outstanding live gates. The [first real Factory failure and handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md) are preserved separately; intake and local fixtures must not be read as a passing real production journey.
 
 ## Deployment and verification
 
@@ -52,7 +70,7 @@ Start with [the combined setup guide](docs/setup/myeve-relay-myfactory.md). It g
 | Relay | Scoped cross-agent capabilities, grants, and approvals | Your separately deployed Relay instance |
 | MyFactory | Local WorkOrders, coding attempts, checks, and draft-PR proposals | The Mac work desk at `http://127.0.0.1:8788` |
 
-Ask Sofie to **send a WorkOrder to MyFactory** when you want the local supervised coding path. Ask her to **delegate a Linear issue to Foreman** when you want Foreman's agent session and draft PR. They are separate paths; creating a Linear issue alone does not prove either executor started.
+For substantial production, create/select canonical **Work** and use the configured MyFactory route. The [MyFactory operator guide](docs/myfactory-operator.md) explains its budget, writer, custody and verification gates. Legacy **send a WorkOrder** uses signed Linear intake/readback; **delegate an issue to Foreman** uses the separate issue agent. Neither legacy acknowledgment establishes canonical execution or a verified Result.
 
 ## Filing and following a MyEve issue with Sofie
 

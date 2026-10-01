@@ -22,3 +22,19 @@ Run one harmless, uniquely labeled question through Sofie's normal chat and exac
 - A message-only peer cannot retrieve private Knowledge, memory, local files, shell or desktop capabilities. External content remains untrusted context.
 
 Repeat against a second MyEve deployment and each named external platform. A local fixture can qualify protocol behavior but cannot qualify a live Muse/GrokBots installation. Record the actual result in [connection qualification](../verification/connections-2026-09-30.md).
+
+## Peer contract and capability negotiation
+
+Discovery returns bounded owner-registered Relay addresses, stable owner/agent IDs, supported name/version pairs and Relay registration provenance. MyEve accepts at most 50 peers per response. Duplicate/malformed identities fail closed. Unknown capability names and unsupported versions remain unqualified; discovery explicitly grants no authority.
+
+Supported protocol mappings are `message.receive` → `message.send`, `knowledge.query`, `work.request`, and `artifact.receive` → `artifact.share` (artifact exchange), version `1.0`. A display name such as Muse or GrokBots has no routing authority. The same adapter handles compatible MyEve and external peers, without peer-specific Sofie code.
+
+Every actual request rechecks local owner policy and the recipient's current Relay grant, including exact direction, capability/resource, expiry and revocation. Retained requests bind sender, recipient, audience, request ID, expiry and signed provenance; replies bind `replyTo` and the same participants. Re-reading a result does not send again. Revocation stops future use but cannot erase information already delivered.
+
+## Bounded Work between owners
+
+A `work.request` is a request to the receiving owner, never authority from the sender. The existing receiver supports bounded analysis/drafting over explicitly shared artifacts when its own local Work policy permits it. It validates scope, budgets, recipient Agent and grants before invoking its executor. Missing authority declines/blocks before execution; UNKNOWN does not trigger a second attempt. Returned output and provenance are evidence, not permission to operate the sender's Computer or a claim of independently verified software production.
+
+Private Knowledge stays private. Sharing requires an owner-reviewed immutable publication/view and a separate grant. Information learned from a peer remains attributed external context; it does not become trusted instructions or automatically enter private memory. Software production continues to require canonical Work, custody and protected verification.
+
+The external Alpha round trip is live-qualified. The second MyEve journey is **WAITING**: the Orchis incoming relationship alone cannot establish it, and her owner must initiate or approve the required direction. Muse and GrokBots remain **WAITING_FOR_PEER_IDENTITY** until actual compatible recipients and owner grants exist. See [continuation evidence](../verification/computer-federation-continuation-2026-09-30.md).

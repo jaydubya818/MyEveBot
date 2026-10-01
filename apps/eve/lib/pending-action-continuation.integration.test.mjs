@@ -27,8 +27,8 @@ suite('canonical owner pending-action continuation',()=>{
  }};
  beforeAll(async()=>{
   // Ignores DATABASE_URL and .env; only the disposable loopback fixture.
-  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER});await admin.query(`CREATE SCHEMA ${schema}`);
-  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER,options:`-c search_path=${schema}`});injected.database=database;
+  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER});await admin.query(`CREATE DATABASE ${schema}`);
+  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:schema,user:process.env.USER});injected.database=database;
   const dir=new URL('../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
   await query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent-fixture','owner-fixture','owner-fixture','Fixture','Qualification','Isolated fixture',true,'active',8,60,0.1)`);
  });
@@ -39,7 +39,7 @@ suite('canonical owner pending-action continuation',()=>{
   await query(`INSERT INTO task_runs(id,owner_id,kind,title,agent_id,thread_id,status,max_duration_seconds,max_specialists,max_model_steps,max_retries_per_specialist,max_estimated_cost_usd,deadline_at) VALUES('run-fixture','owner-fixture','delegated_work','Fixture','agent-fixture','thread-fixture','running',60,0,8,0,0.1,now()+interval '60 seconds')`);
   await query("INSERT INTO task_run_sessions(task_id,session_id,role,is_current) VALUES('run-fixture','run-fixture','orchestrator',true)");
  });
- afterAll(async()=>{await pool?.end();if(admin){await admin.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);await admin.end();}});
+ afterAll(async()=>{await pool?.end();if(admin){await admin.query(`DROP DATABASE IF EXISTS ${schema}`);await admin.end();}});
  const action=(runId='run-fixture')=>({ownerId:'owner-fixture',runId,actionKey:'isolated-artifact',capabilityId:'files.write',actionClass:'write',executor:{kind:'primary-agent',agentId:'agent-fixture'},trigger:{kind:'owner_chat',id:runId},parameters:{path:'/workspace/fixture.txt',content:'private synthetic fixture'}});
  async function pending(){
   const request=action(),gateway=new ActionGateway(database);let effects=0;

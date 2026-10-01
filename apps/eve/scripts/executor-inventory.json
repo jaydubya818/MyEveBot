@@ -2012,9 +2012,9 @@
       "sha256": "06f3715165babf9bc5f6c19ef2fa0ff358145d761efad8406d266adb276481cc"
     },
     "lib/capability-registry.ts": {
-      "classification": "INTERNAL",
-      "reason": "Adds canonical engineering_factory declaration under the same configured non-production dogfood availability fence as the existing canonical tools. Local Mac companion: Capability metadata: scoped local reads and always-approved local mutations with explicit device pairing configuration.",
-      "sha256": "2e5acb6dc493591890e39408ad2c477d3900b2dec34eca63a366ed44b958839e"
+      "classification": "NOT_APPLICABLE",
+      "reason": "Declarative registry exposes separate Computer read/write/shell/screenshot/desktop scopes. Consequential operations retain always-approval and critical risk; declarations cannot grant authority.",
+      "sha256": "0d6a7052d8c0670212218cc6b6886ce0b173c3e0d05aef81f06e3698840dd1c6"
     },
     "lib/card-auth.ts": {
       "classification": "INTERNAL",
@@ -2127,9 +2127,9 @@
       "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315"
     },
     "lib/database-schema.ts": {
-      "classification": "INTERNAL",
-      "reason": "Forward-only current migration 0068. Published-main bridge preserves source ledger and atomic schema equivalence; applied migration bytes unchanged. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Local Mac companion: Declares the additive local computer queue migration.",
-      "sha256": "3d8526d5d01477011bb6fbe7faef81dd6db5c639e2f3c4935970b8a962c1ea1d"
+      "classification": "READ_ONLY",
+      "reason": "Checks migration readiness, including Computer revocation migration 0077; performs no execution.",
+      "sha256": "7b599da95d12e47feeaf143f22699f0bfd2e12bdb7b60d62e3fa2b4ac4810ca2"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2663,9 +2663,9 @@
     },
     "agent/lib/federation-tool.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-bound Relay adapter; native exact-call approval responses bind canonical Action approval, original input and generation; prepare cannot transmit; execution retains Action Gateway and provider authority checks.",
+      "reason": "Canonical Federation gateway, current local Agent scope, Relay grants and structured owner approval remain required. Discovery parses bounded registered identities and advertised protocol versions as information only; unknown capabilities do not grant authority.",
       "disposition": "gateway",
-      "sha256": "e2144138621ec49b8f0240dd4be1c1233918899f2bf1fd1967703de370c71cd1"
+      "sha256": "7da5819a678d3e2bb4859b38815707daebce933e789e47ed12ddacf779b1ac71"
     },
     "agent/hooks/owner-chat-run.ts": {
       "classification": "INTERNAL",
@@ -3711,24 +3711,34 @@
     },
     "agent/lib/local-computer-tool.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical Action Gateway binds owner, Agent, device pairing and complete operation; structured native approval only; no autonomous or guest execution.",
-      "sha256": "9162b1ffffee8eb570f23513c7bae83ca7efb2ac587652017dc210c6e06fb405",
+      "reason": "Owner-chat-only Computer adapter. Exact per-operation deployment scope and persistent Agent capability, canonical gateway binding and structured approvals are rechecked before enqueue; tool and SQL negative tests cover expiry, scope and owner mismatch.",
+      "sha256": "306716486efe3188822fe817ddaf2ae1ae77632b3b3eeda29c125aa073d9db83",
       "disposition": "gateway"
     },
     "lib/local-computer-contract.ts": {
-      "classification": "INTERNAL",
-      "reason": "Strict bounded schemas and explicit read allowlist; unknown operations fail closed.",
-      "sha256": "70e60dc803d0d27a2e2b0efa913f582a342f40867141f02446150b4d0ed5cf66"
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure bounded operation/result schemas and canonical Computer capability mapping; malformed or missing configured grants deny every operation.",
+      "sha256": "33bd5b7c57a16e23d5800a8652c7c71ee30a7664827efe98954fd61e573cef34"
     },
     "lib/local-computer-store.ts": {
       "classification": "ENFORCED",
-      "reason": "One-use provider authority enqueues; authenticated device polling rechecks canonical approval, Run, Agent revision and pairing. Atomic claims are never replayed.",
-      "sha256": "fcd74b94e6e4059859821819bfdc09c2c4a38af4a69b2369bf1a556a66601977"
+      "reason": "Outbound device queue consumes one-use Action authority; dispatch checks current owner, Agent revision, per-operation grant, approval, Run and pairing revocation. Exactly-once claim and completion; unknown outcomes never replay. Real SQL tests cover revocation and stale results.",
+      "sha256": "0fd8d8245afc7e45dc69f3d8e3fa29ba45ea5c7fcdc583e5f3472303de60661f"
     },
     "app/api/local-computer/worker/route.ts": {
       "classification": "ENFORCED",
-      "reason": "Token-authenticated bounded device poll/result ingress; no enqueue operation, no browser-origin access.",
-      "sha256": "37356797ecec7323b433279ba474f46bc9420172eefd58e279563bef21e25f34"
+      "reason": "Bounded device-only endpoint authenticates exact pairing bearer and rejects browser Origin. Revocation is authenticated, idempotent and permanently fences this pairing; all poll/complete operations recheck it.",
+      "sha256": "1c17e6dc43eafce0c5c4ae3d4c58ddb4b778ae5240c4f39929b8b7c5d9638ce8"
+    },
+    "lib/relay/peer-contract.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Pure bounded validation of Relay discovery; rejects malformed/duplicate identities, qualifies known versions only and declares discovery authority NOT_GRANTED. No network or mutation.",
+      "sha256": "5ef41534adba67001641e431d0f6160c16dbb549ecd24f292b8abff80c9f478f"
+    },
+    "lib/tool-presentation.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure owner-facing activity labels; receipt and queue states never claim independently verified Results. Full evidence remains in expandable UI.",
+      "sha256": "c972e93c86f4aaf8fd8492dd174608fa0d70a2310b57c587e4c9baaf0d400f72"
     }
   }
 }

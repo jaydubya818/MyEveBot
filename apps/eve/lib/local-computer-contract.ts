@@ -42,3 +42,19 @@ export const localResultSchema = z.object({
   isError: z.boolean().optional(),
 }).strict();
 export type LocalResult = z.infer<typeof localResultSchema>;
+
+/** Canonical operation scopes; display/tool names never grant authority. */
+export const LOCAL_COMPUTER_CAPABILITIES = ["computer.local.read", "computer.local.write", "computer.local.shell", "computer.local.screenshot", "computer.local.desktop"] as const;
+export type LocalComputerCapability = typeof LOCAL_COMPUTER_CAPABILITIES[number];
+export function localOperationCapability(input: LocalTask): LocalComputerCapability {
+  if (localReadOperation(input)) return "computer.local.read";
+  if (input.operation === "write_text") return "computer.local.write";
+  if (input.operation === "shell") return "computer.local.shell";
+  if (input.operation === "screenshot") return "computer.local.screenshot";
+  return "computer.local.desktop";
+}
+export function localConfiguredGrant(input: LocalTask, env: NodeJS.ProcessEnv = process.env): boolean {
+  const configured = (env.SOFIE_LOCAL_CAPABILITIES ?? "").split(",").map(value => value.trim()).filter(Boolean);
+  return configured.length > 0 && configured.every(value => LOCAL_COMPUTER_CAPABILITIES.includes(value as LocalComputerCapability))
+    && configured.includes(localOperationCapability(input));
+}

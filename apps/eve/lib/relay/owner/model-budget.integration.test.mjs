@@ -9,8 +9,8 @@ suite('durable owner model budget',()=>{
  const database={query};
  const input=(stepKey='turn:0')=>({ownerId:'owner',runId:'run',stepKey,requestHash:'sha256:fixture',modelId:'fixture/model',microUsd:60000,tokens:6000});
  beforeAll(async()=>{
-  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER});await admin.query(`CREATE SCHEMA ${schema}`);
-  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER,options:`-c search_path=${schema}`});
+  admin=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:'postgres',user:process.env.USER});await admin.query(`CREATE DATABASE ${schema}`);
+  pool=new Pool({host:'127.0.0.1',port:Number(process.env.MYEVE_OWNER_TEST_PORT??55447),database:schema,user:process.env.USER});
   const dir=new URL('../../../migrations/',import.meta.url);for(const file of (await readdir(dir)).filter(x=>x.endsWith('.sql')).sort())await query(await readFile(new URL(file,dir),'utf8'));
   await query("INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('agent','owner','budget','Budget fixture','Qualification','Synthetic',true,'active',8,60,0.1)");
  });
@@ -22,7 +22,7 @@ suite('durable owner model budget',()=>{
   await query("INSERT INTO owner_channel_requests(relay_account_id,request_id,owner_id,agent_id,source_identity,relay_thread_id,work_hash,run_id,request,expires_at) VALUES('relay','request','owner','agent','source','thread','hash','run','{}',now()+interval '1 hour')");
   budget=new OwnerModelBudget(database);
  });
- afterAll(async()=>{await pool?.end();if(admin){await admin.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);await admin.end();}});
+ afterAll(async()=>{await pool?.end();if(admin){await admin.query(`DROP DATABASE IF EXISTS ${schema}`);await admin.end();}});
  it('serializes concurrent reservations without overspending',async()=>{
   const results=await Promise.allSettled([0,1,2,3].map(i=>budget.reserve(input(`turn:${i}`))));
   expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);

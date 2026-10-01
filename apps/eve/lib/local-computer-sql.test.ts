@@ -10,7 +10,7 @@ import os from "node:os";
 import {Client} from "pg";
 const state=vi.hoisted(()=>({client:null as any,admin:null as any}));
 vi.mock("../agent/lib/receipts-db.ts",()=>({db:()=>({query:async(sql:string,params?:unknown[])=>(await state.client.query(sql,params)).rows})}));
-import {pollLocalDevice,completeLocalJob,localJob,localDeviceStatus} from "./local-computer-store.ts";
+import {revokeLocalPairing,pollLocalDevice,completeLocalJob,localJob,localDeviceStatus} from "./local-computer-store.ts";
 import {loadMigrations,runMigrations} from "../scripts/migration-runner.ts";
 import {POST} from "../app/api/local-computer/worker/route.ts";
 const connection=process.env.LOCAL_COMPUTER_TEST_DATABASE_URL;
@@ -30,13 +30,13 @@ describe.skipIf(!connection)("local companion real SQL dispatch",()=>{
     await state.client.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,max_runtime_seconds,max_steps,max_estimated_cost_usd)
       VALUES('agent','owner','agent','Agent','Test','Test',900,100,10)`);
     await state.client.query(`SELECT owner_chat_run('owner','session','agent','run',true,true)`);
-    vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));
+    vi.stubEnv("SOFIE_LOCAL_CAPABILITIES","computer.local.read,computer.local.shell");vi.stubEnv("MYEVE_OWNER_ID","owner");vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","mac-test");vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));
   },30000);
   afterAll(async()=>{vi.unstubAllEnvs();if(state.client)await state.client.end();if(state.admin){await state.admin.query(`DROP DATABASE IF EXISTS ${schema}`);await state.admin.end();}});
   async function job(needsApproval=false){
     const id=randomUUID(),action=`fixture-action-${++actionNumber}`;
     await state.client.query(`INSERT INTO action_requests(id,owner_id,run_id,action_key,executor,trigger,capability_id,action_class,target,parameter_hash,safe_summary,decision,authority_source,status)
-      VALUES($1,'owner','run',$1,'{}','{}',$2,$3,'{}','binding','{}','ALLOW','fixture','completed')`,[action,needsApproval?"tool.local_computer_task":"computer.local.read",needsApproval?"execute":"read"]);
+      VALUES($1,'owner','run',$1,'{}','{}',$2,$3,'{}','binding','{}','ALLOW','fixture','completed')`,[action,needsApproval?"computer.local.shell":"computer.local.read",needsApproval?"execute":"read"]);
     await state.client.query(`INSERT INTO local_computer_jobs(id,owner_id,device_id,pairing_hash,agent_id,agent_revision,session_id,action_id,parameters,needs_approval)
       SELECT $1,'owner','mac-test',$2,'agent',updated_at,'session',$3,'{"operation":"roots"}',$4 FROM agents WHERE id='agent'`,[id,hash,action,needsApproval]);
     return {id,action};
@@ -59,7 +59,7 @@ describe.skipIf(!connection)("local companion real SQL dispatch",()=>{
     const {id,action}=await job(true);
     await state.client.query(`INSERT INTO task_approval_decisions(id,task_id,owner_id,agent_id,requested_by,prompt,
       capability_id,action,action_class,binding_hash,risk,expires_at,status,decision)
-      VALUES($1,'run','owner','agent','agent','Exact command approval','tool.local_computer_task','execute','execute',
+      VALUES($1,'run','owner','agent','agent','Exact command approval','computer.local.shell','execute','execute',
         'wrong-binding','critical',now()+interval '1 hour','approved','approved')`,[`approval-${action}`]);
     await state.client.query("UPDATE action_requests SET approval_id=$2 WHERE id=$1",[action,`approval-${action}`]);
     expect(await pollLocalDevice(["/shared"],permissions)).toBeNull();
@@ -94,13 +94,25 @@ describe.skipIf(!connection)("local companion real SQL dispatch",()=>{
     });
     await new Promise<void>(resolve=>server.listen(0,"127.0.0.1",resolve));
     const address=server.address() as {port:number};
-    const config=path.join(directory,"config.json");await writeFile(config,JSON.stringify({appUrl:`http://127.0.0.1:${address.port}`,token:"a".repeat(64),roots:[directory],helper:"/nonexistent/helper"}));
+    const credentialHelper=path.join(directory,"fixture-credential");await writeFile(credentialHelper,`#!/bin/sh\nprintf %s ${"a".repeat(64)}\n`,{mode:0o700});
+    const config=path.join(directory,"config.json");await writeFile(config,JSON.stringify({appUrl:`http://127.0.0.1:${address.port}`,deviceId:"mac-test",credentialHelper,keychainAccount:"fixture",roots:[directory],helper:"/nonexistent/helper"}));
     const {id}=await job();await state.client.query("UPDATE local_computer_jobs SET parameters=$2::jsonb WHERE id=$1",[id,JSON.stringify({operation:"read_text",path:readme})]);
-    const worker=spawn(process.execPath,["--import","tsx","scripts/local-computer/worker.ts"],{cwd:process.cwd(),env:{...process.env,SOFIE_LOCAL_CONFIG:config},stdio:"pipe"});
+    const worker=spawn(process.execPath,["--import","tsx",new URL("../scripts/local-computer/worker.ts",import.meta.url).pathname],{cwd:process.cwd(),env:{...process.env,SOFIE_LOCAL_CONFIG:config},stdio:"pipe"});
     try{
       const until=Date.now()+15000;let result;
       do{result=await localJob("owner","agent","session",id);if(result.status==="completed")break;await new Promise(resolve=>setTimeout(resolve,200));}while(Date.now()<until);
       expect(result).toMatchObject({status:"completed"});expect(JSON.parse(result!.result!.text).content).toContain("Actual file on the Mac.");
-    }finally{worker.kill("SIGTERM");await new Promise<void>(resolve=>worker.once("exit",()=>resolve()));await new Promise<void>(resolve=>server.close(()=>resolve()));await rm(directory,{recursive:true,force:true});}
+    }finally{if(worker.exitCode===null){worker.kill("SIGTERM");await new Promise<void>(resolve=>worker.once("exit",()=>resolve()));}await new Promise<void>(resolve=>server.close(()=>resolve()));await rm(directory,{recursive:true,force:true});}
   },20000);
+  it("revokes the exact pairing without permitting queued or stale mutations",async()=>{
+    const {id}=await job();await revokeLocalPairing();
+    expect(await localDeviceStatus("owner")).toMatchObject({status:"revoked"});
+    await expect(pollLocalDevice(["/shared"],permissions)).rejects.toThrow("revoked");
+    expect(await completeLocalJob(id,randomUUID(),{text:"stale"})).toBe(false);
+    expect(await localJob("owner","agent","session",id)).toMatchObject({status:"expired"});
+    const response=await POST(new Request("https://example.com/api/local-computer/worker",{method:"POST",headers:{authorization:`Bearer ${"a".repeat(64)}`},body:JSON.stringify({operation:"poll",roots:["/shared"],permissions})}));
+    expect(response.status).toBe(410);
+    vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","b".repeat(64));
+    expect(await pollLocalDevice(["/shared"],permissions)).toBeNull();
+  });
 });

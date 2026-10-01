@@ -11,7 +11,7 @@ describe("local companion pairing boundary",()=>{
     vi.stubEnv("SOFIE_LOCAL_DEVICE_TOKEN","a".repeat(64));vi.stubEnv("SOFIE_LOCAL_DEVICE_ID","../../bad");expect(localPairing()).toBeNull();
   });
   it("returns plain JSON status even when PostgreSQL returns a Date",async()=>{
-    state.query.mockResolvedValue([{online:true,roots:["/shared"],permissions:{accessibility:true},last_seen_at:new Date("2026-09-30T18:00:00Z")}]);
+    state.query.mockResolvedValueOnce([]).mockResolvedValueOnce([{online:true,roots:["/shared"],permissions:{accessibility:true},last_seen_at:new Date("2026-09-30T18:00:00Z")}]);
     const status=await localDeviceStatus("owner");
     expect(status.lastSeenAt).toBe("2026-09-30T18:00:00.000Z");
     expect(JSON.parse(JSON.stringify(status))).toEqual(status);

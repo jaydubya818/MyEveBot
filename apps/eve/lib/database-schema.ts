@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0076_completed_chat_tasks.sql";
+export const CURRENT_DATABASE_MIGRATION = "0077_computer_revocation.sql";

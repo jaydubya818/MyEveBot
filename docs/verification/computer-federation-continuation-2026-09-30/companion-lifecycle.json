@@ -1,0 +1,29 @@
+{
+  "beforeCrash": {
+    "status": "ready",
+    "pid": 7506,
+    "parentPid": 7505,
+    "at": "2026-10-01T00:30:06.325Z",
+    "permissions": {
+      "accessibility": false,
+      "screenRecording": false
+    }
+  },
+  "afterRestart": {
+    "status": "ready",
+    "pid": 11101,
+    "parentPid": 11100,
+    "at": "2026-10-01T00:36:30.374Z",
+    "permissions": {
+      "accessibility": false,
+      "screenRecording": false
+    }
+  },
+  "differentWorker": true,
+  "differentLauncher": true,
+  "keychainCustody": "verified by installer readback",
+  "plaintextConfigToken": false,
+  "loginInstalled": true,
+  "actualLogoutLogin": "NOT_RUN",
+  "privacyPermissionsChanged": false
+}

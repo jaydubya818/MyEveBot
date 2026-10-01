@@ -2,7 +2,7 @@ import { createHash, randomUUID, timingSafeEqual } from "node:crypto";
 import { db } from "../agent/lib/receipts-db.ts";
 import { deploymentOwnerId } from "./owner-identity.ts";
 import { consumeProviderAuthority, type AuthorizedAction } from "./action-gateway.ts";
-import { localReadOperation, type LocalOperation, type LocalResult } from "./local-computer-contract.ts";
+import { localConfiguredGrant, LOCAL_COMPUTER_CAPABILITIES, localReadOperation, type LocalOperation, type LocalResult } from "./local-computer-contract.ts";
 
 export function localPairing() {
   const token = process.env.SOFIE_LOCAL_DEVICE_TOKEN?.trim();
@@ -22,6 +22,7 @@ export function localWorkerAuthenticated(request: Request): boolean {
 export async function localDeviceStatus(ownerId: string) {
   const pairing = localPairing();
   if (!pairing || pairing.ownerId !== ownerId) return { status: "not_configured" };
+  if(await localPairingRevoked())return {status:"revoked",deviceId:pairing.deviceId};
   const rows = await db().query(`SELECT roots,permissions,last_seen_at,(last_seen_at>now()-interval '30 seconds') AS online
     FROM local_computer_devices WHERE owner_id=$1 AND device_id=$2 AND pairing_hash=$3`, [ownerId, pairing.deviceId, pairing.hash]);
   return { status: rows[0]?.online === true ? "ready" : "offline", deviceId: pairing.deviceId,
@@ -33,6 +34,7 @@ export async function enqueueLocalOperation(input: LocalOperation, sessionId: st
   const pairing = localPairing();
   if (!pairing || authority.target.account !== pairing.ownerId || authority.target.resource !== pairing.deviceId
     || authority.target.environment !== pairing.hash || authority.target.provider !== "local-mac") throw new Error("Local pairing changed.");
+  if (!localConfiguredGrant(input) || await localPairingRevoked()) throw new Error("Computer authority was revoked.");
   await consumeProviderAuthority(authority, input, authority.capabilityId);
   const rows = await db().query(`INSERT INTO local_computer_jobs
     (id,owner_id,device_id,pairing_hash,agent_id,agent_revision,session_id,action_id,parameters,needs_approval)
@@ -63,6 +65,8 @@ export async function pollLocalDevice(roots: string[], permissions: Record<strin
   const pairing = localPairing();
   if (!pairing) throw new Error("Local pairing is not configured.");
   const {ownerId,deviceId,hash} = pairing;
+  if(await localPairingRevoked())throw new Error("Computer pairing revoked.");
+  const allowed=LOCAL_COMPUTER_CAPABILITIES.filter(capability => localConfiguredGrant({operation:capability.endsWith(".read")?"roots":capability.endsWith(".write")?"write_text":capability.endsWith(".shell")?"shell":capability.endsWith(".screenshot")?"screenshot":"click"} as LocalOperation));
   await db().query(`INSERT INTO local_computer_devices(owner_id,device_id,pairing_hash,roots,permissions)
     VALUES($1,$2,$3,$4::jsonb,$5::jsonb) ON CONFLICT(owner_id,device_id) DO UPDATE
     SET pairing_hash=$3,roots=$4::jsonb,permissions=$5::jsonb,last_seen_at=now()`, [ownerId,deviceId,hash,JSON.stringify(roots),JSON.stringify(permissions)]);
@@ -77,7 +81,8 @@ export async function pollLocalDevice(roots: string[], permissions: Record<strin
     JOIN task_run_sessions s ON s.task_id=r.id AND s.session_id=j.session_id AND s.is_current
     LEFT JOIN task_approval_decisions p ON p.id=a.approval_id AND p.owner_id=a.owner_id
     WHERE j.owner_id=$1 AND j.device_id=$2 AND j.pairing_hash=$3 AND j.status='queued'
-      AND j.expires_at>now()+interval '30 seconds' AND a.status='completed'
+      AND j.expires_at>now()+interval '30 seconds' AND a.status='completed' AND a.capability_id=ANY($5::text[])
+      AND NOT EXISTS(SELECT 1 FROM local_computer_revocations v WHERE v.owner_id=j.owner_id AND v.device_id=j.device_id AND v.pairing_hash=j.pairing_hash)
       AND r.status IN ('running','awaiting_approval') AND (r.deadline_at IS NULL OR r.deadline_at>now()+interval '30 seconds')
       AND r.model_steps<r.max_model_steps AND r.estimated_cost_usd<r.max_estimated_cost_usd
       AND g.status='active' AND g.updated_at=j.agent_revision
@@ -86,7 +91,7 @@ export async function pollLocalDevice(roots: string[], permissions: Record<strin
         AND p.action_class=a.action_class AND p.action=a.action_class))
     ORDER BY j.created_at FOR UPDATE OF j SKIP LOCKED LIMIT 1
   ) UPDATE local_computer_jobs j SET status='running',claim_id=$4 FROM candidate c WHERE j.id=c.id
-    RETURNING j.id,j.claim_id,j.parameters,j.expires_at`, [ownerId,deviceId,hash,randomUUID()]);
+    RETURNING j.id,j.claim_id,j.parameters,j.expires_at`, [ownerId,deviceId,hash,randomUUID(),allowed]);
   return rows[0] ?? null;
 }
 
@@ -95,7 +100,21 @@ export async function completeLocalJob(jobId: string, claimId: string, result: L
   if (!pairing) throw new Error("Local pairing is not configured.");
   const rows = await db().query(`UPDATE local_computer_jobs SET status=$6,result=$7::jsonb,finished_at=now()
     WHERE id=$1 AND claim_id=$2 AND owner_id=$3 AND device_id=$4 AND pairing_hash=$5
-      AND status='running' AND expires_at>now() RETURNING id`,
+      AND status='running' AND expires_at>now()
+      AND NOT EXISTS(SELECT 1 FROM local_computer_revocations v WHERE v.owner_id=$3 AND v.device_id=$4 AND v.pairing_hash=$5) RETURNING id`,
     [jobId,claimId,pairing.ownerId,pairing.deviceId,pairing.hash,result.isError ? "failed" : "completed",JSON.stringify(result)]);
   return rows.length === 1;
+}
+
+export async function localPairingRevoked():Promise<boolean> {
+  const pairing=localPairing(); if(!pairing)return true;
+  const rows=await db().query(`SELECT 1 FROM local_computer_revocations WHERE owner_id=$1 AND device_id=$2 AND pairing_hash=$3`,[pairing.ownerId,pairing.deviceId,pairing.hash]);
+  return rows.length>0;
+}
+export async function revokeLocalPairing() {
+  const pairing=localPairing(); if(!pairing)throw new Error("Computer is not paired.");
+  await db().query(`INSERT INTO local_computer_revocations(owner_id,device_id,pairing_hash) VALUES($1,$2,$3) ON CONFLICT DO NOTHING`,[pairing.ownerId,pairing.deviceId,pairing.hash]);
+  // Running operations may already have occurred; retain uncertainty, never replay.
+  await db().query(`UPDATE local_computer_jobs SET status=CASE WHEN status='queued' THEN 'expired' ELSE 'unknown' END WHERE owner_id=$1 AND device_id=$2 AND pairing_hash=$3 AND status IN ('queued','running')`,[pairing.ownerId,pairing.deviceId,pairing.hash]);
+  return {revoked:true};
 }
