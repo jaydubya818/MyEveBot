@@ -26,7 +26,7 @@ function policyMap(): Record<string, string> {
   for (const capability of CAPABILITY_DEFINITIONS) {
     // Federation owns a step-scoped resolver and repeats this capability check
     // at its Action Gateway boundary; avoid two dynamic resolvers for one name.
-    if (capability.id === "federation.request") continue;
+    if (["federation.request", "tool.local_computer_task"].includes(capability.id)) continue;
     if (capability.kind === "tool" && capability.source.reference?.startsWith("agent/tools/")) {
       map[capability.source.reference.slice("agent/tools/".length, -3)] = capability.id;
     }

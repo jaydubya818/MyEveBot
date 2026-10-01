@@ -1,32 +1,64 @@
+# MyEve
+
 [Latest private-alpha semantics repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md): both live attempts remain failed and preserved; complete captured-response handoff passes locally. No third live attempt is authorized.
 
-[Latest private-alpha handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md): first live qualification failed and is preserved. The captured-response repair is deployed and passes zero-model qualification; a new paused Work is ready for explicit second-attempt authorization.
+Deploy a Digital Worker / personal AI agent you own, with persistent memory, goals, proactive work, and controlled access to your tools and computer. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent. MyEve Builder configures and deploys your agent into your own Vercel account from this repository's actual source.
 
-# MyEveBot
+For example, ask Sofie to read a project's README on your Mac, explain the app, exchange a bounded question with an authorized peer, or hand a scoped software request to MyFactory. Each connection has its own setup and evidence: a configured tool is not proof that its remote service has completed the work.
 
-[Live private-alpha deployment dossier](docs/private-alpha/live-2026-09-29/README.md): canonical sources verified; release activation candidates prepared; deployment and real Golden Journey are BLOCKED, not live-qualified.
+## How the components fit together
 
-<!-- CANONICAL-CONSOLIDATION-STATUS -->
-**Private-alpha canonical `main`: independent review and fresh-clone qualification PASS.** The [current status](docs/consolidation/CANONICAL-STATUS.md), [source manifest](docs/consolidation/PRIVATE-ALPHA-SOURCE-MANIFEST.md), and final canonical receipt identify exact source and qualification. MyEve supports explicit private, shared-business and Work-scoped context for two partners. Controlled verification is qualified; live providers and deployment remain separate gates. [Development/migration policy](docs/consolidation/DEVELOPMENT-POLICY.md).
-<!-- /CANONICAL-CONSOLIDATION-STATUS -->
+| Component | Responsibility | Connection and boundary |
+| --- | --- | --- |
+| **MyEve / Sofie** | Owner conversation, persistent Agents, memory, Knowledge, goals, Work and results | Next.js and the Eve framework; owns local authorization and private context |
+| **Relay** | Governed capability and communication fabric connecting Eves, specialists, Computers, Apps and compatible external agents | Registered identities, scoped grants and signed delivery; the receiving owner retains authority |
+| **MyFactory** | Governed production system for substantial bounded Work | Canonical Work → PREPARE/START → execution → candidate custody → independent protected verification → Result; legacy Linear intake is a separate admission-only path |
+| **Foreman** | Software-production workflow/factory capability used by the existing Linear/GitHub issue pipeline | Currently a separate legacy deployment, not the canonical MyFactory producer or a second automatic stage; it is not part of the canonical Work qualification |
+| **DeepAgent / Deep Agents harness** | Experimental alternative agent execution loop behind a bounded harness interface | Isolated SDK experiment, **not registered in this deployed app and not production-qualified**; it does not replace Eve, Relay or MyFactory |
 
-**Historical Q37 private-alpha continuation checkpoint: local qualification and independent review PASS.** Consumer baseline `7bbf296f` is requalified against reconstructed producer `925530a6ba8764df6a7b8637192fe32edcbaff97` on `codex/private-alpha-myfactory`. [Current evidence](docs/verification/2026-09-29-q37-private-alpha/REPORT.md) covers installed CLI/client search, Gate B/C, resource safeguards, custody, protected verification, repair, routing, Current Truth and regression. Lost `efe9e856` is historical only. Billing classification is non-blocking for two trusted owners. **Real provider: NOT_RUN; default execution remains DISABLED.**
+MyEve retains canonical Work, owner authority and Result state. MyFactory is the canonical bounded production path; the retained Foreman issue workflow is an optional legacy path with separate evidence. A harness executes within its admitted envelope. None can grant itself authority, verify its own candidate, or authorize publication.
 
-The dated checkpoints below are historical context; docs/consolidation controls the current source baseline and qualification.
+```mermaid
+flowchart LR
+  Owner --> Eve["Sofie / MyEve"]
+  Eve --> Work
+  Work --> Connections["Relay / Computer / Apps / peers"]
+  Work --> Factory["MyFactory / production harness"]
+  Factory --> Candidate
+  Candidate --> Verification["Independent protected verification"]
+  Verification --> Result
+  Connections --> Evidence["Authenticated evidence"]
+  Evidence --> Eve
+  Result --> Owner
+```
 
-[MyEveBot](https://github.com/jaydubya818/MyEveBot) is the source repository for MyEve, a deployable personal-agent platform. [Sofie](https://sofie-personal-agent.vercel.app) is the production reference agent; MyEve Builder lets anyone name, configure, deploy, and own a persistent personal AI in their own Vercel account. Relay is the internal governed capability layer that connects one or more authorized agents to the owner's digital world. Built on the durable [eve framework](https://eve.dev) with a Next.js chat UI styled with Cloudflare's [Kumo](https://github.com/cloudflare/kumo) components.
+Normal chat describes progress plainly: sent, received, working, verifying, then verified only when canonical evidence supports it. Tool names, identifiers, signatures and raw payloads remain available in **Proof of Work / Advanced**. A received WorkOrder is not a completed Result.
 
-Each deployment serves one owner by default for a simple security boundary. MyEve, Relay, and MyFactory keep separate authority and state: MyEve is the owner's agent, Relay is an optional governed capability plane, and MyFactory is a local software-delivery supervisor. Connecting them is explicit and does not grant an agent permission to approve, merge, or deploy its own work.
+See [the combined setup and verification guide](docs/setup/myeve-relay-myfactory.md), [Mac setup](docs/local-mac-access.md), and [harness boundaries](docs/setup/deepagent-harness.md).
 
-**Orchis → Sofie guided beta (September 27, 2026 UTC):** `WAITING_FOR_TESTER`.
-Relay's exact seven-day, message-only grant is active. Sofie's automatic reply
-is configured but has not been live-qualified because no message from Orchis's
-Eve has reached Sofie's authorized inbox. Reciprocal communication is not a
-pass. See the [live qualification record](docs/federation/orchis-sofie-live-qualification.md).
+## Agent-to-agent communication
 
-## Historical design-partner beta checkpoint
+**Sofie can communicate with other authorized agents without sharing your credentials or automatically giving them access to your private information.** She can use the Relay adapter to discover registered peers, inspect their permissions, send an approved message, and retrieve its authenticated, correlated response. Peers may be other MyEve installations or agents and bots built on another platform. **Muse and GrokBots are intended peers, not automatically connected integrations:** each needs an actual identity/address, a compatible adapter, owner-authorized scopes and a running recipient.
 
-**Historical READY_FOR_FINAL_COMPONENTS checkpoint — superseded by canonical consolidation, not a deployment claim.** The [canonical beta integration dossier](docs/verification/beta-integration/README.md) records the approved activation of `engineering_work`, `engineering_direct` and signed canonical Work decision/control/admission/continuation. Desktop and 390px journeys use persisted Goal, Inbox, Memory, Result and learning state. Fresh-context admission, stale-response fencing, concurrency and process-loss checks pass. Canonical local Results remain PARTIAL; live Sofie is NOT_RUN. MyFactory/Q37 and final Capsules remain pending. The local migration chain is reconciled; no deployment or merge was performed.
+- Messages share the message body and only explicitly authorized context. Private conversations, memory, Knowledge and local files are not shared automatically.
+- Outbound messages use exact-action approval. Optional bounded automatic replies use only the receiving agent's approved public profile and the incoming message; they cannot invoke private tools or recursively answer replies.
+- Knowledge retrieval requires an explicitly published view and its own grant. Messaging permission alone does not authorize Knowledge, file, computer or software execution access.
+- `ACCEPTED` or `RUNNING` means pending; `COMPLETED` with only an acknowledgment proves delivery. A conversation passes only when the actual written reply is bound to the same request, conversation and peer. Poll the same request after uncertainty; do not resend it.
+- Configuration and local tests are not a claim of a live Muse/GrokBots exchange. See [peer setup and acceptance](docs/setup/agent-communication.md) for the exact end-to-end checks.
+
+Live checks on September 30, 2026 passed the original Mac README prompt, same-chat follow-up after task completion, MyFactory intake with signed receipt readback, and Sofie → Relay → Alpha → Sofie with an actual written answer. A second live MyEve installation, Muse and GrokBots still require their own acceptance checks. [See the recorded evidence and limits](docs/verification/connections-2026-09-30.md).
+
+Example: “Ask the configured Alpha peer for a one-sentence acknowledgment through Relay, then show me its actual reply.” If the peer is absent, expired, offline or unable to answer, Sofie must report that state explicitly.
+
+The ongoing [Computer and federation continuation](docs/verification/computer-federation-continuation-2026-09-30.md) records persistent login/restart, Keychain custody, canonical Computer grants, peer negotiation and outstanding live gates. The [first real Factory failure and handoff repair](docs/private-alpha/first-live-handoff-2026-09-30/README.md) are preserved separately; intake and local fixtures must not be read as a passing real production journey.
+
+## Deployment and verification
+
+Qualified connection runtime source: `395bf55b99f73765bcc1f5b4a6545478fb4e65f1`, including the canonical handoff repair. [Publication, checks and live limitations](docs/verification/computer-federation-continuation-2026-09-30.md) are recorded separately from source integration.
+
+Feature readiness is connection-specific. [Mac acceptance evidence](docs/verification/local-mac-access-2026-09-30.md) records real README discovery, approval-gated shell execution and screenshot interpretation. [Current connection qualification](docs/verification/connections-2026-09-30.md) records the follow-up chat, MyFactory and peer-message checks for this change. A local SDK test or queued issue must not be presented as a completed production workflow.
+
+The [canonical source status](docs/consolidation/CANONICAL-STATUS.md), [development policy](docs/consolidation/DEVELOPMENT-POLICY.md) and [historical checkpoints](docs/verification/readme-historical-checkpoints.md) retain source and release history.
 
 ## Finding current priorities
 
@@ -42,7 +74,7 @@ Start with [the combined setup guide](docs/setup/myeve-relay-myfactory.md). It g
 | Relay | Scoped cross-agent capabilities, grants, and approvals | Your separately deployed Relay instance |
 | MyFactory | Local WorkOrders, coding attempts, checks, and draft-PR proposals | The Mac work desk at `http://127.0.0.1:8788` |
 
-Ask Sofie to **send a WorkOrder to MyFactory** when you want the local supervised coding path. Ask her to **delegate a Linear issue to Foreman** when you want Foreman's agent session and draft PR. They are separate paths; creating a Linear issue alone does not prove either executor started.
+For substantial production, create/select canonical **Work** and use the configured MyFactory route. The [MyFactory operator guide](docs/myfactory-operator.md) explains its budget, writer, custody and verification gates. Legacy **send a WorkOrder** uses signed Linear intake/readback; **delegate an issue to Foreman** uses the separate issue agent. Neither legacy acknowledgment establishes canonical execution or a verified Result.
 
 ## Filing and following a MyEve issue with Sofie
 
@@ -130,7 +162,7 @@ Core chat, goals, reviews, agents, skills, reminders, and authenticated owner sc
 | Relay federation | Separate Relay installation, explicit owner grants, and the disabled-by-default `MYEVE_RELAY_*` settings |
 | Email | AgentMail key or a key saved from `/email` |
 | Cloud computer | Orgo key or a key saved under Manage → Computer |
-| Local Mac control | Sofie Local MCP bridge, token, and an optional Cloudflare Access pair |
+| Local Mac control | Outbound paired Mac companion, `local-computer` feature, and per-action approvals; [setup](docs/local-mac-access.md) |
 | Card workflows | Agentcard backend credentials, database, and admin token |
 | Routed iMessage | Photon Spectrum router or an `IMESSAGE_ROUTER_URL` |
 | Dedicated phone | AgentPhone key and admin token |
@@ -146,6 +178,7 @@ Requires Node 24.
 ```bash
 npm install
 cp apps/eve/.env.example apps/eve/.env.local   # then fill in values
+npm run db:migrate
 npm run dev --workspace=eve-agent -- --port 3001
 ```
 
@@ -170,7 +203,7 @@ See [`apps/eve/.env.example`](apps/eve/.env.example) for the full annotated list
 | `BLOB_READ_WRITE_TOKEN` | Private artifacts, file sharing, and skill store |
 | `AGENTMAIL_*` | Agent inbox, custom domain, and inbound email webhook |
 | `ORGO_*` | Persistent cloud desktop and computer tasks |
-| `SOFIE_LOCAL_*` | Approval-gated local Mac bridge |
+| `SOFIE_LOCAL_*` | Paired outbound Mac companion; shared-root reads and approval-gated shell/desktop changes |
 | `AGENTCARD_*` | Card connection, verification, consent, and spending workflows |
 | `SPECTRUM_*`, `IMESSAGE_*` | Shared-number iMessage router and pairing |
 | `AGENTPHONE_*` | Dedicated phone, text, iMessage, and voice |
@@ -186,7 +219,7 @@ Before starting a local or deployed app, apply the checked-in database migration
 npm run db:migrate
 ```
 
-Migrations are ordered and checksum-protected; already-recorded migrations are skipped. The current schema includes migrations through `0029_routine_admission.sql`.
+Migrations are ordered and checksum-protected; already-recorded migrations are skipped. The required migration is declared in [`apps/eve/lib/database-schema.ts`](apps/eve/lib/database-schema.ts); this source includes `0077_computer_revocation.sql`.
 
 **Migration runner limitation:** the Neon HTTP runner rejects migration blocks containing multiple SQL statements with `cannot insert multiple commands into a prepared statement`. If encountered, apply the pending files through a PostgreSQL client, with each file and its migration-ledger entry in the same transaction. Preserve the original files and their SHA-256 checksums; do not mark an unapplied migration as complete.
 
@@ -249,7 +282,7 @@ Sofie runs in the existing Vercel project `sofie-personal-agent`:
 | Vercel root directory | `apps/eve` |
 | Current template release | [The checked-in release number](apps/eve/.eve-template-release) |
 
-The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. Pushes to `main` create production deployments through the Vercel Git integration. Other branches create previews.
+The agent service is bundled into the Next.js deployment and routed under `/eve/v1/**`. The repository currently disables automatic deployment from `main` in `apps/eve/vercel.json`; production uses an explicitly approved manual release. Other enabled branches create previews. A canonical merge is not evidence of production activation.
 
 Before shipping, run the repository checks from the root:
 
@@ -280,4 +313,4 @@ After deployment, verify the Vercel deployment is Ready, confirm `/eve/v1/health
 
 The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approvals/Files/Team/Apps/Computer surfaces, global search and weekly review over existing contracts. See the [product guide](docs/private-alpha/PRODUCT-GUIDE.md), [qualification dossier](docs/verification/private-alpha/README.md), [parity matrix](docs/private-alpha/PLUTO-PARITY.md), and [canonical integration crosswalk](docs/private-alpha/INTEGRATION-CROSSWALK.md).
 
-This is a source candidate, not a deployed release. Canonical Q37/MyFactory, Capsules and governed learning are integrated and locally qualified. Explicit two-owner private/business/Work scopes are implemented; final independent review and canonical merge are pending. The Work Canvas remains a disconnected preview.
+These are historical product qualification records. Use the current source and connection evidence linked above for deployment claims; a qualified interface does not imply that every live provider or delivery path is enabled.

@@ -1,0 +1,36 @@
+{
+  "qualification": "Local real transport, synthetic executor, real independent Docker verifier",
+  "checks": 20,
+  "results": [
+    "0057 complete failure rollback",
+    "0056\u21920057 and idempotent rerun",
+    "LIVE spend-unqualified or unusable Factory transport does not block DIRECT/HUMAN; PRODUCE is denied before transport or preparation",
+    "Backend Work-bound intent routes investigation/planning/qualified bounded operations DIRECT and unsupported/judgment/unclassified HUMAN before Factory preparation; replay grants no writer",
+    "Actual producer admission denies pending pricing/completion/accounting while PLAN, INVESTIGATE and HUMAN remain available",
+    "Actual HTTP/SQLite/Git signed candidate \u2192 PostgreSQL custody \u2192 real Docker verification PASS; restarted driver replay cannot dispatch twice",
+    "Connected Q37 local Relay \u2192 Factory \u2192 verifier \u2192 trusted publisher/CI/review \u2192 scoped advisory learning contract",
+    "Actual HTTP/SQLite/Git signed candidate \u2192 PostgreSQL custody \u2192 real Docker verification FAIL; restarted driver replay cannot dispatch twice",
+    "Connected Factory failure \u2192 normal new native Run \u2192 failed repair stays FAILED \u2192 bounded repair PASS; immutable Factory history survives",
+    "Private-alpha queue: duplicate intent deduplicates; exclusive worker; canonical dispatch/custody/protected verification; restart never redispatches",
+    "Separate restarted MyEve worker autonomously reconciles response loss, admits receipt, takes custody, verifies and retains PARTIAL",
+    "RESPONSE_LOST: durable UNKNOWN \u2192 restarted readback \u2192 exact terminal fence, never resend dispatch",
+    "BEFORE_HTTP: durable UNKNOWN \u2192 restarted readback \u2192 exact terminal fence, never resend dispatch",
+    "Connected RUNNING \u2192 STOPPING retains writer until actual executor settles \u2192 terminal tombstone rejects delayed START",
+    "Real signed CANCELLED and FAILED receipts survive terminal fencing and reconstructed-driver replay without candidate, verifier or writer authority",
+    "Unavailable preparation retains request and grants no writer",
+    "Real gateway UNKNOWN exposure survives terminal writer fencing and reconstructed consumer replay; Current Truth retains exposure and denies another paid operation",
+    "Alpha UNKNOWN retains common-ledger exposure and prevents another Sofie call or Factory start",
+    "Captured live JSON-text proposal reaches canonical queue/admission exactly once; duplicate and stale proposals do not redispatch",
+    "Selected-Work Sofie common ledger \u2192 canonical Factory \u2192 signed custody \u2192 Docker verifier \u2192 bounded Sofie explanation; combined ceiling and original deadline preserved"
+  ],
+  "executions": 8,
+  "counters": {
+    "concurrentWriters": 0,
+    "duplicateDispatches": 0,
+    "falseReady": 0,
+    "unauthenticatedAdmissions": 0
+  },
+  "liveMyFactory": "NOT_RUN",
+  "spendFixture": true,
+  "providerCalls": 11
+}

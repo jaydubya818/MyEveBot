@@ -1,4 +1,5 @@
 import type { ModelMessage } from "ai";
+import { defineState } from "eve/context";
 
 import { ensurePrimaryAgent, getAgent, type AgentReasoning, type AgentView } from "../../lib/agents.ts";
 import { db } from "./receipts-db.ts";
@@ -12,6 +13,14 @@ export interface ClientTurnSettings {
 }
 
 const EMPTY: ClientTurnSettings = { model: null, reasoning: null };
+const chatSelection = defineState<ClientTurnSettings>("myeve.primary-chat-selection", () => ({ ...EMPTY }));
+
+/** Request context is ephemeral; approval continuations must retain the last picker selection. */
+export function rememberedChatSettings(requested: ClientTurnSettings): ClientTurnSettings {
+  if (requested.model) chatSelection.update(() => ({ ...requested }));
+  return requested.model ? requested : chatSelection.get();
+}
+
 
 interface SessionPrincipal {
   principalId?: string;
@@ -67,6 +76,20 @@ export function clientTurnSettings(messages: readonly ModelMessage[]): ClientTur
     for (const text of texts) { const parsed = marker(text); if (parsed) return parsed; }
   }
   return EMPTY;
+}
+
+/** Ordinary primary chat honors its visible picker. Managed Agents retain their configuration.
+ * Budgeted owner-channel, partner and selected-Work routes resolve before this helper. */
+export function primaryChatSettings(
+  agent: Pick<AgentView, "isPrimary" | "preferredModel" | "reasoningPreference"> | null,
+  requested: ClientTurnSettings,
+): ClientTurnSettings {
+  const configuredReasoning = agent?.reasoningPreference;
+  const fallbackReasoning = configuredReasoning && configuredReasoning !== "default" ? configuredReasoning : requested.reasoning;
+  return {
+    model: agent?.isPrimary ? requested.model ?? agent.preferredModel : agent?.preferredModel ?? requested.model,
+    reasoning: agent?.isPrimary && requested.model ? requested.reasoning : fallbackReasoning,
+  };
 }
 
 function attribute(principal: SessionPrincipal | null | undefined, name: string): string | null {

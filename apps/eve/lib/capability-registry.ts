@@ -1,4 +1,5 @@
 import {FACTORY_START_PROPOSAL_CONTRACT} from "./engineering/factory-proposal-contract.ts";
+import { configuredLocalCapabilities, type LocalComputerCapability } from "./local-computer-contract.ts";
 import { engineeringWorkEnabled, hostedFactoryQueue } from "./engineering/deployment-mode.ts";
 import { getCapabilityStatuses } from "./capabilities.ts";
 
@@ -311,6 +312,25 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
     risk: { level: "low", categories: ["sandbox-data"] },
     keywords: ["file", "read", "search", "research"],
   }),
+  platform("computer.local.read", "Computer: read shared files", "computer", "Read and locate files in the paired Mac's explicitly shared folders.", {
+    feature: "local-computer",
+    configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN", "SOFIE_LOCAL_CAPABILITIES"],
+    permissions: ["computer.local.read"],
+    risk: { level: "medium", categories: ["local-device", "personal-data"] },
+    keywords: ["mac", "local", "read", "files"],
+  }),
+  ...[
+    ["computer.local.write", "Computer: write shared files", "Write within configured folders after exact owner approval."],
+    ["computer.local.shell", "Computer: shell", "Run one approved command with the logged-in user's privileges."],
+    ["computer.local.screenshot", "Computer: screenshots", "Capture the Mac display after exact owner approval."],
+    ["computer.local.desktop", "Computer: desktop interaction", "Perform one approved desktop input with existing macOS permissions."],
+  ].map(([id, name, description]) => platform(id!, name!, "computer", description!, {
+    feature: "local-computer", permissions: [id!], approvalPolicy: { mode: "always" },
+    risk: { level: "critical", categories: ["local-device", "external-side-effect", "credential-boundary"] },
+    configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN", "SOFIE_LOCAL_CAPABILITIES"],
+    source: { type: "builtin", reference: "agent/lib/local-computer-tool.ts" },
+    evidence: { supported: true, required: true, types: ["log"] }, keywords: ["computer", "mac", "local"],
+  })),
   platform("files.write", "File writing", "storage", "Create and update files in the Agent sandbox.", {
     permissions: ["files.write"],
     risk: { level: "medium", categories: ["sandbox-data", "durable-data"] },
@@ -500,7 +520,7 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("agentphone", { description: "Send texts and place calls from the agent's dedicated phone number.", feature: "integrations", permissions: ["messages.send", "calls.place"], risk: "high", riskCategories: ["external-communication", "metered-action"], approval: "owner_policy", configuration: ["AGENTPHONE_API_KEY or DATABASE_URL"], keywords: ["phone", "text", "sms", "call"] }),
   tool("imessage", { description: "Send messages and reactions through the configured iMessage channel.", feature: "integrations", permissions: ["messages.send"], risk: "high", riskCategories: ["external-communication"], approval: "owner_policy", configuration: ["SPECTRUM_PROJECT_ID or IMESSAGE_ROUTER_URL"], keywords: ["imessage", "message", "reaction"] }),
   tool("computer", { description: "Operate an Agent-isolated persistent cloud desktop with owner takeover for authentication.", feature: "integrations", permissions: ["computer.execute"], risk: "high", riskCategories: ["external-side-effect", "credential-boundary"], approval: "owner_policy", configuration: ["DATABASE_URL", "ORGO_API_KEY or DATABASE_URL"], evidence: { supported: true, types: ["screenshot", "log"] }, keywords: ["computer", "desktop", "browser", "profile", "login", "task"] }),
-  tool("local_computer_task", { description: "Run an approved bounded task through the owner's local computer bridge.", feature: "integrations", permissions: ["computer.execute"], risk: "critical", riskCategories: ["local-device", "external-side-effect", "credential-boundary"], approval: "always", configuration: ["SOFIE_LOCAL_MCP_URL", "SOFIE_LOCAL_MCP_TOKEN"], evidence: { supported: true, types: ["screenshot", "log"] }, keywords: ["local computer", "mac", "desktop", "task"] }),
+  tool("local_computer_task", { description: "Execute one exact owner-approved shell, file, or desktop operation on the paired Mac.", feature: "local-computer", permissions: ["computer.execute"], risk: "critical", riskCategories: ["local-device", "external-side-effect", "credential-boundary"], approval: "always", configuration: ["DATABASE_URL", "SOFIE_LOCAL_DEVICE_ID", "SOFIE_LOCAL_DEVICE_TOKEN"], evidence: { supported: true, types: ["screenshot", "log"] }, keywords: ["local computer", "mac", "desktop", "task"] }),
   tool("email_address", { description: "Read the agent inbox address and unread count.", feature: "integrations", permissions: ["email.read"], configuration: ["AGENTMAIL_API_KEY or DATABASE_URL"], keywords: ["email", "address", "inbox"] }),
   tool("list_emails", { description: "List conversations in the agent inbox.", feature: "integrations", permissions: ["email.read"], configuration: ["AGENTMAIL_API_KEY or DATABASE_URL"], keywords: ["email", "inbox", "unread"] }),
   tool("read_email", { description: "Read a complete email conversation and optionally mark it read.", feature: "integrations", permissions: ["email.read", "email.write"], risk: "medium", riskCategories: ["personal-data", "durable-data"], approval: "owner_policy", configuration: ["AGENTMAIL_API_KEY or DATABASE_URL"], keywords: ["email", "read", "thread"] }),
@@ -524,8 +544,8 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
   tool("query_receipts", { description: "Search recorded receipts.", feature: "receipts", permissions: ["finance.read"], configuration: ["DATABASE_URL"], dependencies: ["finance.receipts"], keywords: ["receipt", "expense", "search"] }),
   tool("spending_summary", { description: "Summarize recorded spending by time and category.", feature: "receipts", permissions: ["finance.read"], configuration: ["DATABASE_URL"], dependencies: ["finance.receipts"], keywords: ["spending", "summary", "budget"] }),
   tool("delete_receipt", { description: "Delete a recorded receipt.", feature: "receipts", permissions: ["finance.delete"], risk: "high", riskCategories: ["durable-delete", "financial-data"], approval: "conditional", configuration: ["DATABASE_URL"], dependencies: ["finance.receipts"], keywords: ["receipt", "delete"] }),
-  tool("create_factory_work_order", { description: "Submit signed intake to the local MyFactory through Linear; no execution or publication authority.", feature: "integrations", permissions: ["factory.workorder.create"], risk: "medium", riskCategories: ["external-side-effect"], approval: "none", configuration: ["MYFACTORY_LINEAR_CONNECTOR", "MYFACTORY_CLIENT_TOKEN", "MYFACTORY_REPOSITORY"], evidence: { supported: true, required: true, types: ["linear-issue", "factory-receipt"] }, keywords: ["myfactory", "local factory", "work order"] }),
-  tool("get_factory_work_order", { description: "Read a signed local factory receipt for a previous handoff.", feature: "integrations", permissions: ["factory.workorder.read"], risk: "low", approval: "none", configuration: ["MYFACTORY_LINEAR_CONNECTOR", "MYFACTORY_CLIENT_TOKEN", "MYFACTORY_RECEIPT_PUBLIC_KEY"], evidence: { supported: true, required: true, types: ["factory-receipt"] }, keywords: ["myfactory", "local factory", "work order", "status"] }),
+  tool("create_factory_work_order", { description: "Submit signed intake to the local MyFactory through Linear; no execution or publication authority.", feature: "myfactory", permissions: ["factory.workorder.create"], risk: "medium", riskCategories: ["external-side-effect"], approval: "none", configuration: ["MYFACTORY_LINEAR_CONNECTOR", "MYFACTORY_CLIENT_TOKEN", "MYFACTORY_REPOSITORY"], evidence: { supported: true, required: true, types: ["linear-issue", "factory-receipt"] }, keywords: ["myfactory", "local factory", "work order"] }),
+  tool("get_factory_work_order", { description: "Read a signed local factory receipt for a previous handoff.", feature: "myfactory", permissions: ["factory.workorder.read"], risk: "low", approval: "none", configuration: ["MYFACTORY_LINEAR_CONNECTOR", "MYFACTORY_CLIENT_TOKEN", "MYFACTORY_RECEIPT_PUBLIC_KEY"], evidence: { supported: true, required: true, types: ["factory-receipt"] }, keywords: ["myfactory", "local factory", "work order", "status"] }),
   tool("delegate_foreman_issue", { description: "Create and delegate a scoped Linear issue to Foreman from explicit owner chat; draft PR only.", feature: "integrations", permissions: ["linear.issue.create", "linear.issue.delegate"], risk: "medium", riskCategories: ["external-side-effect", "metered-action"], approval: "none", configuration: ["FOREMAN_LINEAR_CONNECTOR", "FOREMAN_LINEAR_WORKSPACE_ID", "FOREMAN_LINEAR_TEAM_ID", "FOREMAN_LINEAR_DELEGATE_ID", "FOREMAN_REPO"], evidence: { supported: true, required: true, types: ["linear-issue", "agent-session"] }, keywords: ["foreman", "linear", "issue", "software factory", "delegate"] }),
   tool("get_weather", { description: "Get current weather information.", feature: "utilities", permissions: ["internet.read"], keywords: ["weather", "temperature", "forecast"] }),
   tool("roll_dice", { description: "Generate a bounded random dice result.", feature: "utilities", permissions: ["utility.execute"], keywords: ["dice", "random"] }),
@@ -540,6 +560,7 @@ function enabledFeatures(env: NodeJS.ProcessEnv): Set<string> {
 }
 
 function configured(definition: CapabilityDefinition, env: NodeJS.ProcessEnv): boolean {
+  if (definition.id.startsWith("computer.local.") && !configuredLocalCapabilities(env).includes(definition.id as LocalComputerCapability)) return false;
   if (definition.id === "model.gateway") {
     return Boolean(env.AI_GATEWAY_API_KEY?.trim() || env.VERCEL_OIDC_TOKEN?.trim() || env.VERCEL === "1");
   }
@@ -564,7 +585,9 @@ function availabilityFor(
   if (definition.id === "federation.request" && env.MYEVE_RELAY_ENABLED !== "true") {
     return {status: "disabled", configured: false, reason: "Federation is disabled in this deployment."};
   }
-  if (definition.feature && !enabledFeatures(env).has(definition.feature)) {
+  const features = enabledFeatures(env);
+  const legacyFactory = definition.feature === "myfactory" && features.has("integrations");
+  if (definition.feature && !features.has(definition.feature) && !legacyFactory) {
     return { status: "disabled", configured: false, reason: "Not included in this deployment." };
   }
   const isConfigured = configured(definition, env);

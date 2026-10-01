@@ -1,5 +1,6 @@
 import { readFile, writeFile, rename, mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
+import { acceptsMessage } from './message-contract.mjs';
 import { verifyEnvelope } from '../../apps/eve/lib/relay/transport.ts';
 
 const configFile = process.env.ALPHA_RELAY_CONFIG_FILE;
@@ -104,10 +105,7 @@ async function cycle() {
   const { deliveries } = await command({ operation: 'poll' });
   for (const delivery of deliveries) {
     const envelope = verifyEnvelope(delivery.token, identity);
-    if (envelope.id !== delivery.requestId || envelope.capability !== 'message.send' ||
-      envelope.resource !== 'messages' ||
-      envelope.caller.ownerId !== sofieOwnerId || envelope.caller.agentId !== sofieAgentId ||
-      typeof envelope.payload?.body !== 'string' || envelope.payload.body.length > 4000) {
+    if (!acceptsMessage(envelope, delivery.requestId, { alphaAddress, sofieOwnerId, sofieAgentId })) {
       await command({ operation: 'respond', requestId: delivery.requestId, input: { status: 'REJECTED' } });
       continue;
     }

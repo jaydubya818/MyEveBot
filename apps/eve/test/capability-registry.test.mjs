@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   CAPABILITY_DEFINITIONS,
+  getCapability,
   checkCapabilityAvailability,
   findCapabilities,
   getAvailableCapabilities,
@@ -69,4 +70,15 @@ test("structured Knowledge is database-backed and independent of Supermemory", (
   assert.ok(capabilities.some((capability) => capability.id === "knowledge.structured"));
   assert.ok(capabilities.some((capability) => capability.id === "tool.list_decisions"));
   assert.ok(capabilities.every((capability) => capability.id !== "memory.supermemory"));
+});
+
+// Factory intake must be selectable independently of email and other integrations.
+test("MyFactory has a narrow feature gate and keeps legacy integrations compatibility", () => {
+  const configured = { MYFACTORY_LINEAR_CONNECTOR: "linear/test", MYFACTORY_CLIENT_TOKEN: "fixture", MYFACTORY_REPOSITORY: "owner/repo", MYFACTORY_RECEIPT_PUBLIC_KEY: "fixture" };
+  for (const feature of ["myfactory", "integrations"]) {
+    const env = { ...configured, EVE_ENABLED_FEATURES: feature };
+    for (const id of ["tool.create_factory_work_order", "tool.get_factory_work_order"])
+      assert.equal(getCapability(id, env).availability.status, "available");
+  }
+  assert.equal(getCapability("tool.create_factory_work_order", { ...configured, EVE_ENABLED_FEATURES: "memory" }).availability.status, "disabled");
 });

@@ -12,7 +12,7 @@ Use separate credentials and data stores for each installation. Keep secrets in 
 
 MyFactory runs on the owner's Mac. In its [source repository](https://github.com/jaydubya818/MyFactory), follow [Run the work desk](https://github.com/jaydubya818/MyFactory#run-the-work-desk) and [hosted routing](https://github.com/jaydubya818/MyFactory/blob/codex/local-factory/docs/hosted-routing.md). Register a `myeve` client for the approved repository, configure its route (repository path, base ref, and check commands), enable `FACTORY_HOSTED_INTAKE=true`, and configure the host's Linear connection. Start the connected supervisor with `npm run start:connected`; its work desk is loopback-only at `http://127.0.0.1:8788`. The host polls Linear every 15 seconds, so the Mac must be awake and the supervisor running to admit queued requests. The [connection guide](https://github.com/jaydubya818/MyFactory/blob/codex/local-factory/docs/connections.md) covers registration, token custody, and read-only Linear verification.
 
-Attach the approved Linear connector to **your MyEve Vercel project**. Set these values in that project's server-side environment and redeploy:
+Attach the approved Linear connector to **your MyEve Vercel project**. Append `myfactory` to `EVE_ENABLED_FEATURES` to expose only MyFactory intake/readback (the broader `integrations` switch remains compatible). Set these values in that project's server-side environment and redeploy:
 
 | MyEve setting | Source |
 | --- | --- |
@@ -22,11 +22,13 @@ Attach the approved Linear connector to **your MyEve Vercel project**. Set these
 | `MYFACTORY_CLIENT_TOKEN` | Private token for the registered `myeve` client; server-side only |
 | `MYFACTORY_RECEIPT_PUBLIC_KEY` | Public half of the host's receipt-signing key |
 
+The receipt reader supports both legacy envelopes and current key-ID envelopes, verifying either against `MYFACTORY_RECEIPT_PUBLIC_KEY`. A key ID does not add trust: rotating the host key requires explicitly updating the pinned public key on MyEve and redeploying.
+
 The hosted app submits a signed request through Linear; it never calls the Mac's loopback port from the cloud. Ask Sofie: “Create one MyFactory WorkOrder for `owner/repo` to update the setup guide. Limit changes to `README.md`; acceptance criteria: the three components and verification steps are documented. Do not start coding or publish anything.” Sofie should return a request ID and Linear issue link. An `awaiting_local_factory` result proves only that the request is queued. Ask Sofie to check the **same request ID** with `get_factory_work_order`, then compare the verified receipt's WorkOrder ID with the local work desk. A `received_by_factory` receipt proves admission, not completed coding. If a response is uncertain, read back the same request ID before any retry; do not file a replacement issue.
 
 The local owner chooses when to start a coding attempt, reviews exact checks and diff, and confirms any draft-PR publication. Merge and deployment remain separate owner decisions.
 
-MyFactory's current README describes the first real target-repository draft-PR qualification as pending. Treat receipt/admission verification and draft-PR publication as separate milestones.
+Treat receipt/admission verification and draft-PR publication as separate milestones. Check the host's current qualification record before authorizing a delivery attempt; the connection test below does not start one.
 
 ## 3. Connect Relay only when its boundary is ready
 
@@ -36,7 +38,7 @@ Relay can also submit MyFactory WorkOrders from its own `/factory` surface where
 
 ## 4. Use Foreman when you want delegated issue work
 
-Foreman is a separate Linear agent workflow. Follow the [Sofie–Foreman setup](../../apps/eve/docs/qualification/sofie-foreman-handoff.md) to attach its Linear connector and configure `FOREMAN_LINEAR_CONNECTOR`, `FOREMAN_LINEAR_WORKSPACE_ID`, `FOREMAN_LINEAR_TEAM_ID`, `FOREMAN_LINEAR_DELEGATE_ID`, and `FOREMAN_REPO`. Set `NEXT_PUBLIC_LINEAR_WORKSPACE_URL` to show the **Linear issues** shortcut in MyEve's sidebar. Tell Sofie to delegate one scoped issue and ask for the issue URL. In Linear, confirm the Foreman delegate in Properties and use **View progress** to open its session; Activity shows updates. Foreman may produce a draft PR. It is not the local MyFactory WorkOrder path.
+Foreman is a separate Linear agent workflow. Its tools require the `integrations` feature and their own connector configuration; the narrow `myfactory` feature does not expose them. Follow the [Sofie–Foreman setup](../../apps/eve/docs/qualification/sofie-foreman-handoff.md) to attach its Linear connector and configure `FOREMAN_LINEAR_CONNECTOR`, `FOREMAN_LINEAR_WORKSPACE_ID`, `FOREMAN_LINEAR_TEAM_ID`, `FOREMAN_LINEAR_DELEGATE_ID`, and `FOREMAN_REPO`. Set `NEXT_PUBLIC_LINEAR_WORKSPACE_URL` to show the **Linear issues** shortcut in MyEve's sidebar. Tell Sofie to delegate one scoped issue and ask for the issue URL. In Linear, confirm the Foreman delegate in Properties and use **View progress** to open its session; Activity shows updates. Foreman may produce a draft PR. It is not the local MyFactory WorkOrder path.
 
 ## Check the whole path
 
@@ -47,3 +49,7 @@ Foreman is a separate Linear agent workflow. Follow the [Sofie–Foreman setup](
 5. If using Foreman, delegate a separate test issue and verify the Linear agent session and any draft PR independently.
 
 If Sofie reports a 404 HTML response to chat, check the production alias and the app's `/eve/v1/**` route before diagnosing Linear or MyFactory. If a WorkOrder remains `awaiting_local_factory`, check the host's intake status, Linear access, and whether the Mac is awake; read back the same request ID. Do not weaken authentication or copy another component's token to make a test pass.
+
+## Agent peers and execution harnesses
+
+For other MyEve installations, Muse, GrokBots and compatible external agents, follow [agent communication setup and acceptance](agent-communication.md). Messaging is a separate connection from software delivery and local computer control. See [Deep Agents harness boundaries](deepagent-harness.md) for the experimental execution provider; it is not active in the deployed agent.

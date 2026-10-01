@@ -1,4 +1,4 @@
-import { createHash, createHmac, timingSafeEqual, sign, verify } from "node:crypto";
+import { createHash, createHmac, createPublicKey, timingSafeEqual, sign, verify } from "node:crypto";
 
 const REQUEST = "MYFACTORY_REQUEST_V1";
 const RECEIPT = "MYFACTORY_RECEIPT_V1";
@@ -76,9 +76,25 @@ export function receiptDescription(description, receipt, privateKey) {
 }
 export function readReceipt(description, publicKey, issueId) {
   if (!description?.includes(`<!-- ${RECEIPT} -->`)) return null;
-  const { encoded, signature } = extract(description, RECEIPT);
+  const envelope = extract(description, RECEIPT);
+  if (!envelope || typeof envelope !== "object" || Array.isArray(envelope) ||
+      Object.keys(envelope).some(key => !["encoded", "signature", "keyId"].includes(key)))
+    throw new Error("Unverified factory receipt");
+  const { encoded, signature, keyId } = envelope;
   if (typeof encoded !== "string" || encoded.length > 8000 || typeof signature !== "string" ||
-      !verify(null, Buffer.from(`${RECEIPT}\0${encoded}`), publicKey, Buffer.from(signature, "base64url"))) throw new Error("Unverified factory receipt");
+      !/^[A-Za-z0-9_-]{86}$/.test(signature)) throw new Error("Unverified factory receipt");
+  const signatureBytes = Buffer.from(signature, "base64url");
+  if (signatureBytes.toString("base64url") !== signature) throw new Error("Unverified factory receipt");
+  let signedPayload = `${RECEIPT}\0${encoded}`;
+  if (keyId !== undefined) {
+    // Keyring-era hosts bind the key identity into the signature. Derive that
+    // identity from our pinned key; an envelope cannot introduce a trusted key.
+    const key = publicKey?.type === "public" ? publicKey : createPublicKey(publicKey);
+    const expectedId = `ed25519-${createHash("sha256").update(key.export({ format: "der", type: "spki" })).digest("hex").slice(0, 32)}`;
+    if (key.asymmetricKeyType !== "ed25519" || keyId !== expectedId) throw new Error("Unverified factory receipt");
+    signedPayload = `${RECEIPT}\0${expectedId}\0${encoded}`;
+  }
+  if (!verify(null, Buffer.from(signedPayload), publicKey, signatureBytes)) throw new Error("Unverified factory receipt");
   const receipt = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8"));
   if (receipt.version !== 1 || receipt.issueId !== issueId || typeof receipt.workOrderId !== "string") throw new Error("Wrong factory receipt");
   return receipt;

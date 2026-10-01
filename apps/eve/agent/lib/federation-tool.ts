@@ -1,3 +1,4 @@
+import { peerDiscovery } from "../../lib/relay/peer-contract.ts";
 import type { ApprovalContext } from "eve/tools/approval";
 import type { DynamicResolveContext, ToolContext } from "eve/tools";
 import { z } from "zod";
@@ -154,7 +155,7 @@ export async function executeFederationTool(value: Input, ctx: Pick<ToolContext,
         else if (input.operation === "permissions") {
           response = { ...await peerReadModel(fresh.store, fresh.agent.id), currentTime: new Date().toISOString() };
         } else {
-          const discovery = await relayOperation(() => new RelayClient(fresh.connection.credential).command({operation: "discover", input: {}}));
+          const discovery = peerDiscovery(await relayOperation(() => new RelayClient(fresh.connection.credential).command({operation: "discover", input: {}})),relayOrigin());
           response = {...discovery, ...await peerReadModel(fresh.store, fresh.agent.id), currentTime: new Date().toISOString()};
         }
         return response!;

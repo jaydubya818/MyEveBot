@@ -7,6 +7,8 @@
     "#evals/*": "./evals/*"
   },
   "scripts": {
+    "local:setup": "node --import tsx scripts/local-computer/setup.ts",
+    "local:start": "node --import tsx scripts/local-computer/service.ts start",
     "computer:prewarm": "node --env-file-if-exists=.env.local --import tsx scripts/prewarm-computer.ts",
     "build": "npm run skills:prepare && next build",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.ts",
@@ -28,7 +30,8 @@
     "start": "next start",
     "test": "vitest run",
     "typecheck": "tsc && tsx scripts/check-capability-registry.ts && npm run skills:validate && node --import tsx scripts/check-executor-governance.ts",
-    "decision:evaluate": "node scripts/decision-evaluate.ts"
+    "decision:evaluate": "node scripts/decision-evaluate.ts",
+    "local:service": "node --import tsx scripts/local-computer/service.ts"
   },
   "dependencies": {
     "@agent-browser/eve": "^0.38.1",
