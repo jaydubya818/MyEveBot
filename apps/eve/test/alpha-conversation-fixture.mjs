@@ -16,7 +16,7 @@ import {FactoryRouteAuthority} from '../lib/engineering/factory-routing.ts';
 import {FactoryWorkDriver} from '../lib/engineering/factory-work-driver.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {DockerProtectedVerifier} from '../lib/engineering/docker-executor.ts';
-export async function qualifyAlphaConversation({store,pool,engineering,connection,direct,source,commands,pass,executionCount,stopAtProviderBoundary}) {
+export async function qualifyAlphaConversation({store,pool,engineering,connection,direct,source,commands,pass,executionCount,stopAtProviderBoundary,recordJourney}) {
  await pool.query('UPDATE agents SET max_estimated_cost_usd=GREATEST(max_estimated_cost_usd,1.35),max_steps=GREATEST(max_steps,5) WHERE id=$1 AND owner_id=$2',[engineering.agentId,engineering.ownerId]);
  const qualification={mode:'FACTORY_CONVERSATION_V1',modelId:'openai/gpt-5.4-mini',expiresAt:new Date(Date.now()+3600000).toISOString(),evidenceRef:'synthetic connected fixture only',ceilingMicrousd:300000,perCallMicrousd:150000,maxCalls:2,maxOutputTokens:1024,factoryCeilingMicrousd:1050000};
  const config={...engineering,conversationQualification:qualification};
@@ -131,6 +131,14 @@ export async function qualifyAlphaConversation({store,pool,engineering,connectio
   await assert.rejects(model(3).doGenerate(options),/budget denied|phase operation already used/);assert.equal(modelCalls,2);
   const balance=(await pool.query('SELECT * FROM engineering_work_model_budget WHERE work_id=$1',[work.id])).rows[0];assert.equal(Number(balance.spent_microusd),2000);assert.equal(Number(balance.ceiling_microusd),300000);assert.equal(Number(balance.reserved_microusd),0);
   assert.equal(decision.factory_observation.value.spend.ceilingMicrousd,1050000);assert.equal(decision.factory_observation.value.spend.maxPaidOperations,3);assert.equal(decision.factory_observation.value.spend.completionReserveMicrousd,336864);
+  assert.equal(state.result.proof.outcome,'PARTIAL');
+  assert(state.result.proof.evidence.every(e=>e.state==='PASS'));
+  const retainedWorkspace=(await direct.inspect(work.id)).workspace;
+  assert.deepEqual(retainedWorkspace.candidates.at(-1).changedPaths,['quantity.mjs']);
+  recordJourney?.({workId:work.id,model:qualification.modelId,modelOperations:modelCalls+decision.factory_observation.value.spend.paidOperationsUsed,
+   sofieOperations:modelCalls,factoryOperations:decision.factory_observation.value.spend.paidOperationsUsed,
+   candidate:retainedWorkspace.candidates.at(-1).sha,candidateCustody:'PASS',protectedVerification:'PASS',
+   resultId:state.result.id,proof:state.result.proof,finalExplanation:'PASS_SYNTHETIC',publicationEffects:0,additionalRealModelOperations:0});
   pass('Selected-Work Sofie common ledger → canonical Factory → signed custody → Docker verifier → bounded Sofie explanation; combined ceiling and original deadline preserved');
  } finally {approvalKeys.forEach((k,i)=>previous[i]===undefined?delete process.env[k]:process.env[k]=previous[i]);}
  return 1;

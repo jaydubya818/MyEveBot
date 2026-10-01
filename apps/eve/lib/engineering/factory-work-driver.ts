@@ -121,7 +121,9 @@ export class FactoryWorkDriver {
    // A result and resource observation are separate; neither substitutes for the other.
    const request=await this.receipts.request(run.factory_request_id);
    let receiptId:string|undefined,receiptStatus:string|undefined;
-   if(['COMPLETED','FAILED','CANCELLED'].includes(remote.state)){
+   // Reconciliation may observe terminal after the earlier remote read was RUNNING.
+   // Retain its signed receipt in this same step before the controller stops.
+   if(['COMPLETED','FAILED','CANCELLED'].includes(remote.state)||(run.dispatch_state==='TERMINAL'&&['COMPLETED','FAILED','CANCELLED'].includes(run.status))){
     const returned=await adapter.result(request.binding);
     if(returned.result){const admitted=await admitFactoryResult(this.receipts,request.id,returned.result,{keys:()=>adapter.keys()});receiptStatus=admitted.status;if(admitted.status==='ADMITTED')receiptId=admitted.receiptId;else if(!historicalTerminal)throw new WorkError('factory_result_denied','Factory result was not admitted: '+admitted.status);}
    }
