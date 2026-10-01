@@ -16,7 +16,7 @@ import {FactoryRouteAuthority} from '../lib/engineering/factory-routing.ts';
 import {FactoryWorkDriver} from '../lib/engineering/factory-work-driver.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {DockerProtectedVerifier} from '../lib/engineering/docker-executor.ts';
-export async function qualifyAlphaConversation({store,pool,engineering,connection,direct,source,commands,pass,executionCount}) {
+export async function qualifyAlphaConversation({store,pool,engineering,connection,direct,source,commands,pass,executionCount,stopAtProviderBoundary}) {
  await pool.query('UPDATE agents SET max_estimated_cost_usd=GREATEST(max_estimated_cost_usd,1.35),max_steps=GREATEST(max_steps,5) WHERE id=$1 AND owner_id=$2',[engineering.agentId,engineering.ownerId]);
  const qualification={mode:'FACTORY_CONVERSATION_V1',modelId:'openai/gpt-5.4-mini',expiresAt:new Date(Date.now()+3600000).toISOString(),evidenceRef:'synthetic connected fixture only',ceilingMicrousd:300000,perCallMicrousd:150000,maxCalls:2,maxOutputTokens:1024,factoryCeilingMicrousd:1050000};
  const config={...engineering,conversationQualification:qualification};
@@ -101,7 +101,23 @@ export async function qualifyAlphaConversation({store,pool,engineering,connectio
   assert.deepEqual(rows,[{status:'done'}]);
   pass('Captured live JSON-text proposal reaches canonical queue/admission exactly once; duplicate and stale proposals do not redispatch');
   const waiting=await model(1).doGenerate(options);assert.equal(modelCalls,1);assert.equal(waiting.content[0].type,'text');
-  for(let i=0;i<150&&!['PARTIAL','FAILED','TERMINAL'].includes(state.state);i++){await new Promise(r=>setTimeout(r,50));state=await driver().step(work.id);}
+  for(let i=0;i<(stopAtProviderBoundary?400:150)&&!['PARTIAL','FAILED','TERMINAL'].includes(state.state);i++){await new Promise(r=>setTimeout(r,50));state=await driver().step(work.id);}
+  if(stopAtProviderBoundary){
+   const boundary=stopAtProviderBoundary();assert.equal(boundary.model,qualification.modelId);assert.equal(boundary.forwarded,false);assert.equal(boundary.realModelOperations,0);
+   assert(['FAILED','TERMINAL'].includes(state.state));
+   const truth=(await new EngineeringWorkerProjectionStore(store,engineering.agentId).get(work.id)).projection;
+   assert.equal(truth.routing.status,'ADMITTED');assert.equal(truth.factoryWriter.state,'TERMINAL');
+   assert.equal(truth.factoryWriter.observation.snapshot.configuration.model,qualification.modelId);
+   assert.equal(truth.factoryWriter.observation.snapshot.factoryVersion,factoryConfig.connection.factoryVersion);
+   assert.equal(truth.factoryWriter.observation.spend.operations.length,1);
+   assert.equal(truth.factoryWriter.observation.spend.operations[0].model,qualification.modelId);
+   assert.equal(truth.factoryWriter.observation.spend.operations[0].state,'unknown');
+   assert.equal(truth.readiness.ready,false);assert.equal(truth.nativeResult,null);
+   assert.equal(executionCount()-beforeExecutions,1);assert.equal(modelCalls,1);
+   assert.deepEqual(handoff,['NONPRODUCTIVE_PREPARE','BACKEND_ADMITTED_WRITER_DISPATCH']);
+   pass('Attempt 3: captured Sofie → admitted exact-model snapshot → one START → installed executor → controlled provider boundary; no forwarding/generation, terminal UNKNOWN fenced');
+   return 1;
+  }
   assert.equal(state.state,'PARTIAL');
   const readback=(await new EngineeringWorkerProjectionStore(store,engineering.agentId).get(work.id)).projection;
   assert.equal(readback.routing.status,'ADMITTED');assert.equal(readback.routing.selectedRoute,'MYFACTORY');
