@@ -3676,8 +3676,8 @@
     },
     "lib/owner-browser-storage.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner namespace required before private browser persistence, legacy caches visible only to primary owner. Negative cross-owner cache tests.",
-      "sha256": "2dc676d019f202030d104736e2d5216758e11ee397078518725f61825ee12447"
+      "reason": "Signed owner namespace before browser persistence or current-page quota fallback; fallback clears on owner change/logout, storage areas remain separate, legacy cache restricted to primary owner. Negative owner/storage and quota recovery tests.",
+      "sha256": "bb0cf9b68746a2770949bdb534e1d2bdcc3a5e49ac97fa874b8c04f602483a0c"
     },
     "agent/lib/partner-model.ts": {
       "classification": "ENFORCED",

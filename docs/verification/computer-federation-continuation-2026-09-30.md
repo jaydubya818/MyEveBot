@@ -68,3 +68,7 @@ Canonical `main` and `codex/sofie-local-access` were both remotely verified at *
 Automatic approval review rejected the manual production deployment: Git integration was authorized, but the reviewer requires explicit authorization for the live Computer/revocation rollout. The deployment command did not run and no workaround was attempted. Approval was requested for source `9782b1109d73c15504368be0eae069660553204d`. Existing production remains unchanged. Migration 0077 and the explicit scope setting are backward-compatible preparation, not deployment proof.
 
 A second pending approval is for **Sofie Local.app only** in macOS Accessibility and Screen Recording, requiring the owner's Touch ID/password. No Node, Full Disk Access, or other app permission was enabled. Until approved and tested, background desktop control remains unqualified.
+
+## Subsequent explicitly approved rollout
+
+The owner approved `fff8feef84ccfa8e43c81201653dab08182adacd`; it is now deployed. The [October 1 production dossier](computer-federation-production-2026-10-01.md) supersedes the pending deployment approval above, preserves all historical failures, and records the remaining macOS handoff and fresh browser-continuation defect.
