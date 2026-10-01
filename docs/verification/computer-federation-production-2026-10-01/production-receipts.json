@@ -1,0 +1,245 @@
+{
+  "recordedAt": "2026-10-01T01:22:14.225297+00:00",
+  "production": {
+    "checkedAt": "2026-10-01T01:04:18.860581+00:00",
+    "id": "dpl_DjiW59cXWYfNiJkbtmHrtoGtjuJb",
+    "url": "sofie-personal-agent-o6pkt76c1-jaydubya818.vercel.app",
+    "state": "READY",
+    "alias": [
+      "sofie-personal-agent.vercel.app",
+      "sofie-personal-agent-jaydubya818.vercel.app"
+    ],
+    "sha": "fff8feef84ccfa8e43c81201653dab08182adacd"
+  },
+  "jobs": [
+    {
+      "id": "30e2d030-f1a7-4251-a52a-0293140f3a08",
+      "session": "wrun_41M3TFXDJX0GMD8E6TSZG4XKGW",
+      "action": "action_508e923e-3f8a-41d7-8574-970ced67f741",
+      "operation": "find_files",
+      "status": "completed",
+      "approvedRequired": false,
+      "sha256": null,
+      "finishedAt": "2026-10-01T01:05:58.147487+00:00"
+    },
+    {
+      "id": "b03a2739-f376-4ddd-9eb1-661ab5d9f6c6",
+      "session": "wrun_41M3TFXDJX0GMD8E6TSZG4XKGW",
+      "action": "action_c87003c5-b2ad-41bb-8c01-02119e7ef190",
+      "operation": "read_text",
+      "status": "completed",
+      "approvedRequired": false,
+      "sha256": "b06d65982097a6afda0df43faa15aac00b350ed3471afe2be145988bb5b5bf46",
+      "finishedAt": "2026-10-01T01:06:09.125788+00:00"
+    },
+    {
+      "id": "0dfeb28a-9758-4809-a802-d44c9fd578cb",
+      "session": "wrun_41M3TGEYH30GH13DV9YZ4HMM76",
+      "action": "action_9608a1f9-93ee-4985-aabc-7afb0b6ac986",
+      "operation": "shell",
+      "status": "completed",
+      "approvedRequired": true,
+      "sha256": null,
+      "finishedAt": "2026-10-01T01:16:43.664894+00:00"
+    },
+    {
+      "id": "a6f90ee8-ff08-4624-82dc-93295847f5e5",
+      "session": "wrun_41M3TGSGMF0GVHBQAM5Z45PAHM",
+      "action": "action_483d7dca-5055-40aa-87ec-52f1042c7028",
+      "operation": "read_text",
+      "status": "completed",
+      "approvedRequired": false,
+      "sha256": "b06d65982097a6afda0df43faa15aac00b350ed3471afe2be145988bb5b5bf46",
+      "finishedAt": "2026-10-01T01:21:07.529895+00:00"
+    }
+  ],
+  "actions": [
+    {
+      "id": "action_508e923e-3f8a-41d7-8574-970ced67f741",
+      "capability": "computer.local.read",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "jobId": "30e2d030-f1a7-4251-a52a-0293140f3a08",
+        "status": "queued",
+        "meaning": "Dispatch only; inspect the local job result before claiming the operation completed."
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:05:53.339644+00:00"
+    },
+    {
+      "id": "action_c87003c5-b2ad-41bb-8c01-02119e7ef190",
+      "capability": "computer.local.read",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "jobId": "b03a2739-f376-4ddd-9eb1-661ab5d9f6c6",
+        "status": "queued",
+        "meaning": "Dispatch only; inspect the local job result before claiming the operation completed."
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:06:07.456031+00:00"
+    },
+    {
+      "id": "action_2f581cd7-f657-4771-b0e0-755d46ef8171",
+      "capability": "tool.get_factory_work_order",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "received_by_factory",
+        "receipt": {
+          "state": "queued",
+          "issueId": "ee32a8c7-3243-4332-a602-0ad6d678bc1b",
+          "version": 1,
+          "updatedAt": "2026-09-30T20:07:31.006Z",
+          "workOrderId": "98e4dd04-d11c-46d1-ad15-f04d6f201034",
+          "workOrderUrl": "http://127.0.0.1:8788/?workOrder=98e4dd04-d11c-46d1-ad15-f04d6f201034"
+        },
+        "issueUrl": "https://linear.app/myevebot/issue/MYE-14/sofie-connection-acceptance-september-30",
+        "requestId": "ee32a8c7-3243-4332-a602-0ad6d678bc1b",
+        "issueIdentifier": "MYE-14"
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:10:27.486626+00:00"
+    },
+    {
+      "id": "action_92b13727-1fc8-48c4-a80f-416f3ff065bc",
+      "capability": "tool.get_factory_work_order",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "received_by_factory",
+        "receipt": {
+          "state": "queued",
+          "issueId": "ee32a8c7-3243-4332-a602-0ad6d678bc1b",
+          "version": 1,
+          "updatedAt": "2026-09-30T20:07:31.006Z",
+          "workOrderId": "98e4dd04-d11c-46d1-ad15-f04d6f201034",
+          "workOrderUrl": "http://127.0.0.1:8788/?workOrder=98e4dd04-d11c-46d1-ad15-f04d6f201034"
+        },
+        "issueUrl": "https://linear.app/myevebot/issue/MYE-14/sofie-connection-acceptance-september-30",
+        "requestId": "ee32a8c7-3243-4332-a602-0ad6d678bc1b",
+        "issueIdentifier": "MYE-14"
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:10:34.56794+00:00"
+    },
+    {
+      "id": "action_c38b2cbd-f79f-461b-aa39-a8d7564981e8",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "discovered",
+        "operation": "discover",
+        "requestId": null
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:11:48.737774+00:00"
+    },
+    {
+      "id": "action_d75357e0-2ee1-4bb2-8296-4199ac4066c7",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "discovered",
+        "operation": "permissions",
+        "requestId": null
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:11:57.469088+00:00"
+    },
+    {
+      "id": "action_e7852fb0-a7d4-44e7-a7df-84214dc7e161",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "AUTHORIZED",
+        "operation": "request",
+        "requestId": "frq_bec2e5dd7895490a91b3876833fee54a"
+      },
+      "approvalStatus": "approved",
+      "createdAt": "2026-10-01T01:12:15.906564+00:00"
+    },
+    {
+      "id": "action_3b99fe66-686a-4854-b75f-9cad6de244ae",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "COMPLETED",
+        "operation": "status",
+        "requestId": "frq_bec2e5dd7895490a91b3876833fee54a"
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:12:43.750631+00:00"
+    },
+    {
+      "id": "action_5eb443ee-3acf-468f-a231-75bf62ed16d4",
+      "capability": "federation.request",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "status": "COMPLETED",
+        "operation": "status",
+        "requestId": "frq_bec2e5dd7895490a91b3876833fee54a"
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:12:56.099103+00:00"
+    },
+    {
+      "id": "action_9608a1f9-93ee-4985-aabc-7afb0b6ac986",
+      "capability": "computer.local.shell",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "jobId": "0dfeb28a-9758-4809-a802-d44c9fd578cb",
+        "status": "queued",
+        "meaning": "Dispatch only; inspect the local job result before claiming the operation completed."
+      },
+      "approvalStatus": "approved",
+      "createdAt": "2026-10-01T01:15:17.855934+00:00"
+    },
+    {
+      "id": "action_4904c8e8-0a03-4669-a7c9-b034c46daa42",
+      "capability": "computer.local.desktop",
+      "status": "awaiting_approval",
+      "attempts": 0,
+      "receipt": null,
+      "approvalStatus": "denied",
+      "createdAt": "2026-10-01T01:18:34.165852+00:00"
+    },
+    {
+      "id": "action_483d7dca-5055-40aa-87ec-52f1042c7028",
+      "capability": "computer.local.read",
+      "status": "completed",
+      "attempts": 1,
+      "receipt": {
+        "jobId": "a6f90ee8-ff08-4624-82dc-93295847f5e5",
+        "status": "queued",
+        "meaning": "Dispatch only; inspect the local job result before claiming the operation completed."
+      },
+      "approvalStatus": null,
+      "createdAt": "2026-10-01T01:21:03.526822+00:00"
+    }
+  ],
+  "companion": [
+    {
+      "device": "mac-998df73639154e45",
+      "lastSeen": "2026-10-01T01:22:14.497502+00:00",
+      "permissions": {
+        "accessibility": false,
+        "screenRecording": false
+      },
+      "roots": [
+        "/Users/jaywest/Myeve",
+        "/Users/jaywest/Desktop",
+        "/Users/jaywest/Documents",
+        "/Users/jaywest/Downloads"
+      ]
+    }
+  ],
+  "factoryExecutionEnvKeys": []
+}

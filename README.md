@@ -56,7 +56,7 @@ The ongoing [Computer and federation continuation](docs/verification/computer-fe
 
 ## Deployment and verification
 
-Qualified connection runtime source: `395bf55b99f73765bcc1f5b4a6545478fb4e65f1`, including the canonical handoff repair. [Publication, checks and live limitations](docs/verification/computer-federation-continuation-2026-09-30.md) are recorded separately from source integration.
+Production runs the explicitly approved compatibility candidate `2ce3c2d2a3b7874377184d63687a406eb3a9bd06`. [Production deployment and qualification evidence](docs/verification/computer-federation-production-2026-10-01.md) record both Sofie Local-only macOS permissions enabled, successful screenshots/desktop observation, and working same-chat draft retention and submission. Full qualification remains blocked: after execution expiry, `start_task` collides with the existing current conversation binding. A verified harmless desktop interaction, a fresh crash/restart sequence, and completed-task follow-up remain outstanding. Canonical integration is withheld until those gates pass. Earlier Mac read/shell, Alpha/generic federation and MyFactory intake/readback evidence is retained. MyFactory execution remains `DEFERRED_TO_PRIVATE_ALPHA_EXECUTION_OWNER`; no Factory execution was initiated by this workstream.
 
 Feature readiness is connection-specific. [Mac acceptance evidence](docs/verification/local-mac-access-2026-09-30.md) records real README discovery, approval-gated shell execution and screenshot interpretation. [Current connection qualification](docs/verification/connections-2026-09-30.md) records the follow-up chat, MyFactory and peer-message checks for this change. A local SDK test or queued issue must not be presented as a completed production workflow.
 

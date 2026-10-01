@@ -1,0 +1,29 @@
+{
+  "checkedAt": "2026-10-01T04:40:30.498922+00:00",
+  "id": "dpl_AiYwttfVFRq6SSPcoM3dVHJt1XSp",
+  "url": "sofie-personal-agent-r3n13stnq-jaydubya818.vercel.app",
+  "state": "READY",
+  "sha": "2ce3c2d2a3b7874377184d63687a406eb3a9bd06",
+  "alias": [
+    "sofie-personal-agent.vercel.app",
+    "sofie-personal-agent-jaydubya818.vercel.app"
+  ],
+  "sofieHealth": {
+    "httpStatus": 200,
+    "body": {
+      "ok": true,
+      "status": "ready",
+      "workflowId": "workflow//eve//workflowEntry"
+    }
+  },
+  "relayHealth": {
+    "httpStatus": 200,
+    "body": {
+      "ok": true,
+      "service": "relay",
+      "database": "ready",
+      "datastore": "postgresql",
+      "timestamp": "2026-10-01T04:40:30.912Z"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+RUN  v3.2.7 /Users/jaywest/.codex/worktrees/sofie-local-access/Myeve/apps/eve
+
+ ✓ lib/pending-action-continuation.integration.test.mjs (20 tests) 1491ms
+ ✓ lib/local-computer-sql.test.ts (8 tests) 3845ms
+   ✓ local companion real SQL dispatch > runs the actual outbound companion and returns the requested local file  3375ms
+
+ Test Files  2 passed (2)
+      Tests  28 passed (28)
+   Start at  22:05:46
+   Duration  4.27s (transform 251ms, setup 0ms, collect 386ms, tests 5.34s, environment 0ms, prepare 62ms)

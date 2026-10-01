@@ -1,0 +1,61 @@
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/sofie-local-access/Myeve/apps/eve
+
+ ❯ lib/owner-browser-storage.test.ts (3 tests | 3 failed) 3ms
+   × retains the current chat when browser quota prevents persistence 2ms
+     → Quota full
+   × does not carry failed writes between owners or storage areas 0ms
+     → Quota full
+   × keeps failed overwrites newer than an old disk value, then resumes persistence 0ms
+     → Quota full
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  lib/owner-browser-storage.test.ts > retains the current chat when browser quota prevents persistence
+QuotaExceededError: Quota full
+ ❯ Object.setItem lib/owner-browser-storage.test.ts:7:49
+      5|   return {get length(){return values.size;},key:(i:number)=>[...values…
+      6|     getItem:(key:string)=>values.get(key)??null,
+      7|     setItem:(_key:string,_value:string)=>{throw new DOMException('Quot…
+       |                                                 ^
+      8|     removeItem:(key:string)=>{values.delete(key);},clear:()=>values.cl…
+      9| }
+ ❯ Object.setItem lib/owner-browser-storage.ts:19:45
+ ❯ lib/owner-browser-storage.test.ts:13:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  lib/owner-browser-storage.test.ts > does not carry failed writes between owners or storage areas
+QuotaExceededError: Quota full
+ ❯ Object.setItem lib/owner-browser-storage.test.ts:7:49
+      5|   return {get length(){return values.size;},key:(i:number)=>[...values…
+      6|     getItem:(key:string)=>values.get(key)??null,
+      7|     setItem:(_key:string,_value:string)=>{throw new DOMException('Quot…
+       |                                                 ^
+      8|     removeItem:(key:string)=>{values.delete(key);},clear:()=>values.cl…
+      9| }
+ ❯ Object.setItem lib/owner-browser-storage.ts:19:45
+ ❯ lib/owner-browser-storage.test.ts:18:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  lib/owner-browser-storage.test.ts > keeps failed overwrites newer than an old disk value, then resumes persistence
+QuotaExceededError: Quota full
+ ❯ Object.setItem lib/owner-browser-storage.test.ts:7:49
+      5|   return {get length(){return values.size;},key:(i:number)=>[...values…
+      6|     getItem:(key:string)=>values.get(key)??null,
+      7|     setItem:(_key:string,_value:string)=>{throw new DOMException('Quot…
+       |                                                 ^
+      8|     removeItem:(key:string)=>{values.delete(key);},clear:()=>values.cl…
+      9| }
+ ❯ Object.setItem lib/owner-browser-storage.ts:19:45
+ ❯ lib/owner-browser-storage.test.ts:24:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  18:13:09
+   Duration  341ms (transform 21ms, setup 0ms, collect 17ms, tests 3ms, environment 0ms, prepare 45ms)
+
