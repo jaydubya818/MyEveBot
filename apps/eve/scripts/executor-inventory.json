@@ -3166,7 +3166,7 @@
     "lib/engineering/contract.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "0706c046c97f7537a6db35ba9ec2a81b91cae781b82a0eb1bbc4c1cae299a17e"
+      "sha256": "96c426b236d884bcf7abefc684c4f4d14b5cd5d53ddc6168b8a26bfc93026b76"
     },
     "lib/engineering/types.ts": {
       "classification": "INTERNAL",
@@ -3186,7 +3186,7 @@
     "lib/digital-worker/contracts.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure versioned Digital Worker contracts, behavior-pack metadata or route decision logic; no provider invocation, effect execution or authority grant.",
-      "sha256": "6120b20b25eb22ec37aaf08fb5ba2d7ab57c2b2eceb173559f7657b0dee12a30"
+      "sha256": "a51b758e222f2b91a2b1659b5ba0482b598e96a8766bc2c367775c85f9fae10f"
     },
     "lib/digital-worker/routing.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3206,7 +3206,7 @@
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
       "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain.",
-      "sha256": "a61218c7de012880dc124e3f3baa6fa25a11aa4dfbff7f12d6c7aab0c9bfc344"
+      "sha256": "f0842b0d5311d29502798e688c421ebabc4b7a4b029089ff1a70746e422a9105"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3281,7 +3281,7 @@
     "lib/engineering/base-preflight.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Pure reviewed-base manifest/profile validation; no provider request, write, or grant.",
-      "sha256": "d3e41cd7bfeafea521586c774038b0fadf213e887ae010ad945450bf8c91f66e"
+      "sha256": "5a7dc67acce852cb5782de18790d1be1d20a3e53741a6fd142232fff81c5a3a9"
     },
     "lib/engineering/completion-budget-plan.ts": {
       "classification": "READ_ONLY",
@@ -3301,7 +3301,7 @@
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
-      "sha256": "c0047f2b042c9e0dac8e1e8b10c699ea0ff32dcc158a874a1bc46365b5361893"
+      "sha256": "63a48397e05ffc9c6063021ed98de1c6bb4ff9aa62f554ad47b86bd7d2ad4660"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3316,7 +3316,7 @@
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
       "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows.",
-      "sha256": "50b0019b2939b15cc7cd87b9baedc8c220aa1bdd2654cf3bdb12209ee6a09d08"
+      "sha256": "73bb06b69f811c54ba09baacf7f75bbd1c24603cef16398235bc37080f0f6db4"
     },
     "lib/engineering/execution-api.ts": {
       "classification": "INTERNAL",
@@ -3436,7 +3436,7 @@
     "lib/engineering/native-results.ts": {
       "classification": "ENFORCED",
       "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority.",
-      "sha256": "ebbc1f7faee880ac9f7bffb115e992a987d2704c21a9652a6de194dd6e08cf1f"
+      "sha256": "27c06dd5784cad41ea3de19b0e43c54c8a9a077027d9eafeace771e572a854d7"
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
@@ -3466,12 +3466,12 @@
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
       "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "dc1dbfde751e1976e942471c8d13256e09432ae5b0ba65933613a6e7a1bedbe4"
+      "sha256": "0e04b3e9e505b7e538a554e14b004c908bfd45828325cc2812c616377bdd62c6"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
-      "sha256": "88554a05140b9d7ceb041802c93320b70fabe3d6a418011d5600e3e6d5f8d840"
+      "sha256": "e605f164c377aaace5079fc93f48511c0a459dc503b238d8157eac0a768093a9"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3744,6 +3744,21 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Model-facing proposal semantics only; no effects or authority. Shared contract distinguishes request, backend admission, preparation and writer/dispatch.",
       "sha256": "1643db7fec0cca810fa1ae79f1ea703a7a82058488f44f9c8a6141b4cf0d6c9e"
+    },
+    "lib/engineering/journey-accounting.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner/Work-scoped ledger reads; deduplicated settled charges and retained UNKNOWN exposure. Does not reserve, reconcile, dispatch or grant authority.",
+      "sha256": "0a2607a26f471a9086080a8dc07f7aefce3455bbc90bf3e673284b32c3017d1a"
+    },
+    "lib/engineering/public-output-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Validates pinned public serialization artifact and protected expectations; contains no hidden inputs, answers, execution or authority.",
+      "sha256": "81e8544a9d5b8d7315ab2354dafa16a95afade18bff46abc94562dd4cb64a92d"
+    },
+    "lib/digital-worker/model-accounting.ts": {
+      "classification": "INTERNAL",
+      "reason": "Validated model-cost snapshot schema and owner-facing cost formatting; no effects or authority.",
+      "sha256": "ba9924ae8c37d280ecbc507303e68103080f17f96533e9857335e3f7be401200"
     }
   }
 }

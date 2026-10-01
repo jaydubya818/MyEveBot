@@ -1,3 +1,4 @@
+import { journeyAccountingSchema } from "./model-accounting.ts";
 import { z } from "zod";
 
 export const DIGITAL_WORKER_CONTRACT_VERSION = 2 as const;
@@ -152,6 +153,7 @@ export const proofOfWorkSchema = z.object({
     contentHash: z.string().regex(/^sha256:[a-f0-9]{64}$/),
     observedAt: z.string().datetime({ offset: true }),
   }).strict()).max(100),
+  modelAccounting: journeyAccountingSchema.optional(),
   artifactRefs: z.array(referenceSchema).max(100),
   limitations: z.array(z.string().trim().min(1).max(1000)).max(30),
 }).strict();

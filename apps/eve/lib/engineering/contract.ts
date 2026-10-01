@@ -1,3 +1,4 @@
+import { publicOutputBindingSchema } from "./public-output-contract.ts";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { criteriaSchema, WorkError, type Work, type WorkPrincipal } from "./types.ts";
@@ -12,6 +13,7 @@ export const profileSchema = z.object({
   id: z.string().min(1).max(100), version: z.number().int().positive(),
   repository: z.string().regex(/^[\w.-]+\/[\w.-]+$/),
   privateQualification: z.literal(true),
+  publicOutputContract: publicOutputBindingSchema.optional(),
   baseBranch: z.string().regex(/^[\w/-]+$/),
   allowedPaths: z.array(pathSchema).min(1).max(30),
   // The trusted supervisor compares black-box output; candidate code cannot terminate its assertions.

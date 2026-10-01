@@ -1,0 +1,96 @@
+{
+  "workId": "dde61458-496e-4cb1-b034-e872712120bc",
+  "calls": [
+    {
+      "id": "af9d1302-8383-4de5-814a-e376a6e2742d",
+      "purpose": "CONVERSATION_REASONING",
+      "status": "RECONCILED",
+      "spent_microusd": "963",
+      "reserved_microusd": "24357"
+    },
+    {
+      "id": "28451d26-ae4d-4196-a46a-5e6e6e17b424",
+      "purpose": "CONVERSATION_REASONING",
+      "status": "RECONCILED",
+      "spent_microusd": "3805",
+      "reserved_microusd": "22724"
+    }
+  ],
+  "spend": {
+    "unit": "microUSD",
+    "phase": "completion",
+    "reason": "Real provider through the bounded Work ledger",
+    "status": "KNOWN",
+    "workId": "dde61458-496e-4cb1-b034-e872712120bc",
+    "currency": "USD",
+    "deadline": "2026-10-01T18:34:39.388Z",
+    "cancelled": false,
+    "requestId": "d19d3a3c-4b1b-4fa0-8047-a788b950f6aa",
+    "operations": [
+      {
+        "model": "openai/gpt-5.4-mini",
+        "phase": "productive",
+        "runId": "a288211e-2062-414b-94ed-443f75be3cc9",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 7538,
+          "output_tokens": 259
+        },
+        "workId": "dde61458-496e-4cb1-b034-e872712120bc",
+        "requestId": "d19d3a3c-4b1b-4fa0-8047-a788b950f6aa",
+        "operationId": "ade5163d-92af-4884-8a7c-f37d69c57293",
+        "workOrderId": "35206351-426b-40b5-a357-0ef843913010",
+        "actualMicrousd": 6820,
+        "factoryVersion": "68070aef2e454e3a2c36d1e0e711f2920f89982c0a746d245744f84327d5bde5",
+        "workGeneration": 2,
+        "pricingRevision": "gateway-openai-20260930",
+        "dispatchIdentity": "78b06fff-7ac9-40c3-b43c-311275aa6441",
+        "reservedMicrousd": 336864,
+        "providerRequestId": "gen_01M3WBCG6G09VWZZEFYF2PYHAN"
+      },
+      {
+        "model": "openai/gpt-5.4-mini",
+        "phase": "completion",
+        "runId": "a288211e-2062-414b-94ed-443f75be3cc9",
+        "state": "settled",
+        "usage": {
+          "input_tokens": 7082,
+          "output_tokens": 236
+        },
+        "workId": "dde61458-496e-4cb1-b034-e872712120bc",
+        "requestId": "d19d3a3c-4b1b-4fa0-8047-a788b950f6aa",
+        "operationId": "a11eeaf3-21bc-4261-aecf-fd48aa5caa17",
+        "workOrderId": "35206351-426b-40b5-a357-0ef843913010",
+        "actualMicrousd": 6374,
+        "factoryVersion": "68070aef2e454e3a2c36d1e0e711f2920f89982c0a746d245744f84327d5bde5",
+        "workGeneration": 2,
+        "pricingRevision": "gateway-openai-20260930",
+        "dispatchIdentity": "78b06fff-7ac9-40c3-b43c-311275aa6441",
+        "reservedMicrousd": 336864,
+        "providerRequestId": "gen_01M3WBCN3ESHFRD73APYW473VT"
+      }
+    ],
+    "workOrderId": "35206351-426b-40b5-a357-0ef843913010",
+    "authorityState": "fenced",
+    "workGeneration": 2,
+    "ceilingMicrousd": 1050000,
+    "contractVersion": "WORK_LEDGER_V2",
+    "pricingRevision": "gateway-openai-20260930",
+    "settledMicrousd": 13194,
+    "pricingQualified": true,
+    "retainedMicrousd": 0,
+    "availableMicrousd": 1036806,
+    "maxPaidOperations": 3,
+    "accountingComplete": true,
+    "paidOperationsUsed": 2,
+    "unknownExposureMicrousd": 0,
+    "completionOperationsUsed": 1,
+    "completionReserveMicrousd": 336864,
+    "perOperationReserveMicrousd": 336864,
+    "plannedCompletionOperations": 1,
+    "plannedProductiveOperations": 2,
+    "completionOperationSlotsRemaining": 0,
+    "completionReserveRemainingMicrousd": 330490,
+    "productiveAllowanceRemainingMicrousd": 706316
+  }
+}

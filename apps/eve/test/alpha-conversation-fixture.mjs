@@ -132,12 +132,19 @@ export async function qualifyAlphaConversation({store,pool,engineering,connectio
   const balance=(await pool.query('SELECT * FROM engineering_work_model_budget WHERE work_id=$1',[work.id])).rows[0];assert.equal(Number(balance.spent_microusd),2000);assert.equal(Number(balance.ceiling_microusd),300000);assert.equal(Number(balance.reserved_microusd),0);
   assert.equal(decision.factory_observation.value.spend.ceilingMicrousd,1050000);assert.equal(decision.factory_observation.value.spend.maxPaidOperations,3);assert.equal(decision.factory_observation.value.spend.completionReserveMicrousd,336864);
   assert.equal(state.result.proof.outcome,'PARTIAL');
+  const finalAccounting=(await new EngineeringWorkerProjectionStore(store,engineering.agentId).get(work.id)).projection.journeyAccounting;
+  assert.equal(finalAccounting.coverage,'COMPLETE');assert.equal(finalAccounting.sofieMicrousd,2000);
+  assert.equal(finalAccounting.factoryMicrousd,decision.factory_observation.value.spend.settledMicrousd);
+  assert.equal(finalAccounting.settledMicrousd,2000+finalAccounting.factoryMicrousd);
+  assert.equal(state.result.proof.modelAccounting.sofieMicrousd,1000);
+  assert.equal(state.result.proof.modelAccounting.factoryMicrousd,finalAccounting.factoryMicrousd);
+  pass('Proof snapshot includes Factory and Sofie; current journey accounting also includes final explanation without mutating immutable Proof');
   assert(state.result.proof.evidence.every(e=>e.state==='PASS'));
   const retainedWorkspace=(await direct.inspect(work.id)).workspace;
   assert.deepEqual(retainedWorkspace.candidates.at(-1).changedPaths,['quantity.mjs']);
   const operationClasses=decision.factory_observation.value.spend.operations.map(o=>o.phase);
   assert(operationClasses.filter(p=>p==='productive').length<=2);assert.equal(operationClasses.filter(p=>p==='completion').length,1);
-  recordJourney?.({operationClasses:['sofie',...operationClasses,'sofie-explanation'],workId:work.id,model:qualification.modelId,modelOperations:modelCalls+decision.factory_observation.value.spend.paidOperationsUsed,
+  recordJourney?.({journeyAccounting:finalAccounting,operationClasses:['sofie',...operationClasses,'sofie-explanation'],workId:work.id,model:qualification.modelId,modelOperations:modelCalls+decision.factory_observation.value.spend.paidOperationsUsed,
    sofieOperations:modelCalls,factoryOperations:decision.factory_observation.value.spend.paidOperationsUsed,
    candidate:retainedWorkspace.candidates.at(-1).sha,candidateCustody:'PASS',protectedVerification:'PASS',
    resultId:state.result.id,proof:state.result.proof,finalExplanation:'PASS_SYNTHETIC',publicationEffects:0,additionalRealModelOperations:0});

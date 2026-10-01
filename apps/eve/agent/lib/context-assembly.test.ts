@@ -8,7 +8,7 @@ vi.mock("../../lib/agents.ts", () => ({ getAgent: mocks.getAgent }));
 vi.mock("../../lib/engineering/store.ts", () => ({
   WorkStore: class {
     principal: unknown;
-    database = { query: async () => [] };
+    database = { query: async (sql:string) => sql.includes("jsonb_agg(c)") ? [{calls:[],observations:[],legacy:null}] : [] };
     constructor(principal: unknown) { this.principal = principal; mocks.principal(principal); }
     get = mocks.getWork;
     events = async () => [];

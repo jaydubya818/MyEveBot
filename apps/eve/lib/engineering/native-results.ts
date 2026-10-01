@@ -1,3 +1,5 @@
+import { readJourneyAccounting } from "./journey-accounting.ts";
+import { journeyCostText } from "../digital-worker/model-accounting.ts";
 import { randomUUID } from "node:crypto";
 import { digitalWorkContractSchema, proofOfWorkSchema, type ProofOfWork } from "../digital-worker/contracts.ts";
 import { digest } from "./contract.ts";
@@ -14,18 +16,9 @@ export class NativeResultStore {
     const store = this.direct.workStore;
     const scope = [store.principal.scopeId, store.principal.scopeKind, id];
     const [source] = await store.database.query(
-      `SELECT d.admission_authority_snapshot,
-        CASE WHEN b.work_id IS NULL THEN n.spent_microusd ELSE costs.spent END AS spent_microusd,
-        CASE WHEN b.work_id IS NULL THEN n.reserved_microusd ELSE costs.reserved END AS reserved_microusd,
-        CASE WHEN b.work_id IS NULL THEN n.usage_unknown ELSE costs.unknown OR b.status<>'ACTIVE' END AS usage_unknown
+      `SELECT d.admission_authority_snapshot
        FROM engineering_routing_decisions d
        JOIN engineering_direct_verification_jobs j ON j.scope_id=d.scope_id AND j.scope_kind=d.scope_kind AND j.work_id=d.work_id
-       LEFT JOIN engineering_native_runtime n ON n.scope_id=d.scope_id AND n.scope_kind=d.scope_kind AND n.work_id=d.work_id
-       LEFT JOIN engineering_work_model_budget b ON b.scope_id=d.scope_id AND b.scope_kind=d.scope_kind AND b.work_id=d.work_id
-       LEFT JOIN LATERAL (SELECT COALESCE(sum(c.spent_microusd) FILTER(WHERE c.status='RECONCILED'),0) AS spent,
-         COALESCE(sum(c.reserved_microusd) FILTER(WHERE c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED','USAGE_UNKNOWN')),0) AS reserved,
-         COALESCE(bool_or(c.status IN ('RESERVED','DISPATCHED','RESULT_RETAINED','USAGE_UNKNOWN')),false) AS unknown
-         FROM engineering_work_model_calls c WHERE c.scope_id=d.scope_id AND c.scope_kind=d.scope_kind AND c.work_id=d.work_id AND c.purpose='NATIVE_EXECUTION') costs ON true
        WHERE d.scope_id=$1 AND d.scope_kind=$2 AND d.work_id=$3 AND d.id=$4 AND j.candidate_sha=$5 AND j.status='COMPLETED'`,
       [...scope, workspace.decisionId, candidate.sha]);
     if (!source) throw new WorkError("native_result_unverified", "Protected verification must be durably completed before retaining Proof of Work.");
@@ -48,17 +41,16 @@ export class NativeResultStore {
         sourceRef: `native-verification:${id}:${candidate.sha}:${criterion.id}`,
         contentHash: `sha256:${digest(linked)}`, observedAt: workspace.updatedAt };
     });
-    const hasUsage = source.spent_microusd != null && !source.usage_unknown && Number(source.reserved_microusd) === 0;
+    const accounting = await readJourneyAccounting(store,id);
     const proof = proofOfWorkSchema.parse({ contractVersion: 2, workId: id, workVersion: workspace.workVersion,
-      criteriaVersion: workspace.criteriaVersion, outcome: evidence.every(item => item.state === "PASS") ? "PARTIAL" : "FAILED",
+      criteriaVersion: workspace.criteriaVersion, modelAccounting: accounting, outcome: evidence.every(item => item.state === "PASS") ? "PARTIAL" : "FAILED",
       resultRevision: candidate.sha, createdAt: workspace.updatedAt, evidence,
       artifactRefs: [`${candidate.producer==="MYFACTORY"?"factory-candidate":"native-candidate"}:${candidate.id}:sha256:${candidate.artifactHash}`,
         ...(candidate.factoryProvenance ? [`factory-receipt:${candidate.factoryProvenance.receiptId}`,`factory-version:${candidate.factoryProvenance.factoryVersion}`] : []),
         ...checks.map(check => `protected-evidence:sha256:${check.artifactHash}`),
         ...candidate.changedPaths.map(path=>`changed-source:${path}`)],
       limitations: [`${candidate.producer==="MYFACTORY" ? "Factory-produced candidate in MyEve custody" : "Native source development"} and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.`,
-        hasUsage ? `Recorded native model spend: $${(Number(source.spent_microusd) / 1_000_000).toFixed(6)}. Infrastructure costs are not covered.` :
-          "Native model cost coverage is UNKNOWN. No zero-cost or complete-cost claim is made."],
+        `Accounting snapshot at ${accounting.observedAt}; later explanation calls are shown in current journey accounting. ${journeyCostText(accounting)}`],
     });
     await store.database.query(
       `INSERT INTO engineering_native_results(id,scope_id,scope_kind,work_id,candidate_sha,work_version,work_generation,proof,content_hash)

@@ -17,7 +17,7 @@ let held:number|null=null;
 const work={...fixture().work,id:retained.workspace.work_id,version:2,generation:2,criteriaVersion:1,control:"agent" as const,lifecycle:"active" as const};
 function reader(authority=vi.fn().mockRejectedValue(new Error("revoked"))){
  const store={principal:{scopeId:"authenticated-native-fixture",scopeKind:"personal",actorId:"authenticated-native-fixture"},get:async()=>work,database:{query:async(sql:string)=>{
- queries.push(sql);if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
+ queries.push(sql);if(sql.includes('jsonb_agg(c)'))return [{calls:[],observations:[],legacy:{spent_microusd:0,reserved_microusd:0,usage_unknown:false}}];if(sql.includes("to_regprocedure"))return [{present:held===null?null:"function"}];
  if(sql.includes("SELECT engineering_completion_remaining"))throw new Error("Budget and hold must use one SQL snapshot");
  if(sql.includes("FROM engineering_direct_workspaces n"))return[data.workspace];
  if(sql.includes("FROM engineering_native_runtime"))return[data.runtime];

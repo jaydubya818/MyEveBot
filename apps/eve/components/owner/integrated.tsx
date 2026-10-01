@@ -7,6 +7,7 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
+import { journeyCostText, type JourneyAccounting } from "@/lib/digital-worker/model-accounting";
 import { ownerRequest, OwnerRequestError } from "./data";
 import { Card, Empty, State, date } from "./primitives";
 import type { GoalWorkQueries } from "@/lib/goal-work/projections";
@@ -29,6 +30,7 @@ type Result = {
   id: string;
   work_id: string;
   proof: ProofOfWork;
+  journeyAccounting?: JourneyAccounting;
   content_hash: string;
   source: "LOCAL_FIXTURE" | "CANONICAL";
   created_at: string;
@@ -392,6 +394,7 @@ export function IntegratedExperience({
             </p>
             <details>
               <summary>Proof of Work</summary>
+              {r.journeyAccounting && <p>{journeyCostText(r.journeyAccounting)}</p>}
               <ul className="owner-list">
                 {r.proof.evidence.map((e) => (
                   <li key={e.criterionId}>

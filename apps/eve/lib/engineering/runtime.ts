@@ -26,7 +26,10 @@ export const runtimeSchema=z.object({
   nativeMode:z.enum(["normal","potato"]).default("normal"),
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
-}).strict();
+}).strict().superRefine((config,ctx)=>{
+  const binding=config.profile.publicOutputContract;
+  if(binding&&!config.approvedBase.files.some(f=>f.path===binding.path&&f.sha256===binding.sha256))ctx.addIssue({code:'custom',message:'Public output contract must be pinned in the approved base manifest'});
+});
 export async function engineeringConfig() {
   if(process.env.MYEVE_ENGINEERING_MODE!=="dogfood"||process.env.VERCEL_ENV==="production")throw new WorkError("engineering_disabled","Golden Work is restricted to an isolated dogfood runtime.",404);
   const file=process.env.MYEVE_ENGINEERING_CONFIG;

@@ -1,3 +1,4 @@
+import { readJourneyAccounting, type JourneyAccounting } from "./journey-accounting.ts";
 import type {FactorySpend,FactorySpendSummary} from './factory-spend.ts';
 import { nativeExecutionCapsule, type NativeExecutionCapsule } from "./native-execution-controller.ts";
 import { proofOfWorkSchema, type ProofOfWork } from "../digital-worker/contracts.ts";
@@ -14,6 +15,7 @@ type CurrentManifest = ReturnType<typeof manifest>;
 
 export interface EngineeringWorkerProjection {
   factoryAccounting?:FactorySpendSummary;
+  journeyAccounting?:JourneyAccounting;
   factoryPreparation?: {requestId:string;state:string;blocker:string|null};
   factoryWriter?: {requestId?:string;dispatchIdentity?:string;remoteRunId?:string;runId:string;writerGeneration:number;state:string;stopReason:string|null;candidateProducer:string|null;factoryId?:string;factoryVersion?:string;workOrderId?:string;attempt?:number;receiptId?:string;observation?:{state?:string;reason?:string;blocker?:string;spend?:FactorySpend;accounting?:FactorySpendSummary}};
   workId: string;
@@ -137,6 +139,7 @@ export class EngineeringWorkerProjectionStore {
 
   private async snapshot(work: Work): Promise<EngineeringProjectionSnapshot> {
     const id = work.id;
+    const journeyAccounting = await readJourneyAccounting(this.workStore,id);
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
     const [completionFunction]=await this.workStore.database.query(
@@ -462,7 +465,7 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const projection: EngineeringWorkerProjection = {
-      factoryAccounting,factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
+      journeyAccounting,factoryAccounting,factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
       objective: work.objective,

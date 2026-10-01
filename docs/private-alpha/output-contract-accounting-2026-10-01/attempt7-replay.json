@@ -1,0 +1,12 @@
+{
+  "capturedCandidate": "b39e3f4c188e352cef0f3c1254011d5bd07e278b",
+  "retainedCustody": "PASS",
+  "retainedProofOutcome": "FAILED",
+  "protectedComparatorReplay": {
+    "fail": 10,
+    "onlyMissingTerminalLF": 10
+  },
+  "replayKind": "Captured outputs through unchanged protected comparator; no rerun of historical Work",
+  "historicalSnapshotSha256": "2fcd18ebc81b62f8f73381613efe2f5a24967ffc60338b951b0ce213879eed88",
+  "realModelOperations": 0
+}

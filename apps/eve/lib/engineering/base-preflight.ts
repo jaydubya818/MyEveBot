@@ -1,3 +1,4 @@
+import { validatePublicOutputContract } from "./public-output-contract.ts";
 import { createHash } from "node:crypto";
 import { z } from "zod";
 import { shaSchema, type RepositoryProfile } from "./contract.ts";
@@ -5,6 +6,7 @@ import type { RepositorySnapshot } from "./github.ts";
 import { WorkError } from "./types.ts";
 
 export const GOLDEN_QUALIFICATION_REPOSITORY = "jaydubya818/myeve-golden-work-qual";
+export const GOLDEN_PUBLIC_CONTRACT_BASE_SHA = "7380d3324224a5660daa1556384c7a1a17d7d21e";
 export const GOLDEN_QUALIFICATION_BASE_SHA = "db5d95cf3d1dadf04a118f38bd5b388a5a226c31";
 
 const manifestPathSchema = z.string().min(1).max(240).refine(path =>
@@ -36,11 +38,14 @@ export function manifestForSnapshot(snapshot: RepositorySnapshot): ApprovedBase 
 /** Admission uses a separately pinned, reviewed manifest; it never learns its approval from the current GitHub response. */
 export function preflightApprovedBase(profile: RepositoryProfile, approved: ApprovedBase, observed: RepositorySnapshot, issueNumber: number) {
   const expected = approvedBaseSchema.parse(approved);
+  if(profile.publicOutputContract)validatePublicOutputContract(profile.publicOutputContract,observed.files,profile.checks);
   if (profile.repository === GOLDEN_QUALIFICATION_REPOSITORY) {
-    if (expected.sha !== GOLDEN_QUALIFICATION_BASE_SHA || profile.baseBranch !== "main" || issueNumber !== 1 ||
+    const publicContractBase=expected.sha===GOLDEN_PUBLIC_CONTRACT_BASE_SHA;
+    if ((!publicContractBase && expected.sha !== GOLDEN_QUALIFICATION_BASE_SHA) ||
+      (publicContractBase && !profile.publicOutputContract) || profile.baseBranch !== "main" || issueNumber !== 1 ||
       profile.allowedPaths.length !== 1 || profile.allowedPaths[0] !== "quantity.mjs" ||
       !profile.requiredCI.includes("quantity-ci") || !profile.reviewerLogins.includes("jaydubya818") ||
-      expected.files.length !== 5 || expected.files.some(file => file.path === "quantity.mjs") ||
+      expected.files.length !== (publicContractBase?6:5) || expected.files.some(file => file.path === "quantity.mjs") ||
       ![".github/workflows/quantity-ci.yml", "package.json", "test/quantity.test.mjs"].every(path =>
         expected.files.some(file => file.path === path)))
       throw new WorkError("fixture_profile_changed", "The Golden Work fixture profile or approved base manifest changed; review it before admission.");

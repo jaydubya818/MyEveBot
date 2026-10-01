@@ -222,6 +222,7 @@ export class DockerProtectedVerifier implements ProtectedVerifier {
           result=protectedCheckResult(container,observed,
             await docker(["container","inspect","--format","{{json .}}",container]),
             check.expectedExitCode,check.expectedOutput);
+          if(contract.profile.publicOutputContract && observed.err!=="")result="FAIL";
         } catch(error) { artifact=String(error); }
         finally {
           const exists=verifierContainer(container,
