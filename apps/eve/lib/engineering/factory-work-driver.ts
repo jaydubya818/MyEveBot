@@ -1,3 +1,4 @@
+import {FactoryCloudProtectedVerifier} from './factory-cloud-verifier.ts';
 import {assertFactorySpendCanStart,assertSpendContinuation,workSpendSchema} from './factory-spend.ts';
 import {preflightApprovedBase} from './base-preflight.ts';
 import {randomUUID} from 'node:crypto';
@@ -137,10 +138,16 @@ export class FactoryWorkDriver {
    await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
    const ws=(await this.direct.inspect(id)).workspace;
    if(!ws||ws.routeRunId!==run.id)return {state:'HISTORICAL'};
-   const verification=new DirectVerificationDriver(this.direct,this.verifier);
+   const protectedVerifier='source' in config.connection?new FactoryCloudProtectedVerifier(this.receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):this.verifier;
+   const verification=new DirectVerificationDriver(this.direct,protectedVerifier);
    const candidate=ws.candidates.at(-1)!;
    const job=await verification.inspectJob(id,candidate.sha);
-   if(job?.status==='RECOVERY_REQUIRED')await verification.retryAfterResourceCheck(id,candidate.sha,new DockerVerificationResourceInspector());
+   if(job?.status==='RECOVERY_REQUIRED'){
+    // CLOUD only reprojects an already destroyed verifier's signed receipt. No
+    // provider execution is repeated and no local Docker fallback is permitted.
+    const inspector='source' in config.connection?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
+    await verification.retryAfterResourceCheck(id,candidate.sha,inspector);
+   }
    await verification.run(id);
    const result=await new NativeResultStore(this.direct).retain(id);
    await this.observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
