@@ -322,3 +322,12 @@ The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approva
 These are historical product qualification records. Use the current source and connection evidence linked above for deployment claims; a qualified interface does not imply that every live provider or delivery path is enabled.
 
 Private-alpha Attempt 5 completion repair and complete zero-model qualification: [evidence](docs/private-alpha/completion-transition-2026-10-01/README.md). Live retry remains unapproved.
+
+
+## Execution Environments
+
+Environment Fabric is **PARTIAL**. MyFactory now contains tested environment/capability contracts, deterministic routing functions and local metadata adapters, following an exact-commit T3 Code architecture review. Production Work routing and MyEve UI integration remain pending. Cloud runtime image distribution remains externally blocked; no laptop-independence claim is made.
+
+The architecture is MyEve → MyFactory → execution environment → harness → candidate custody → independent verifier → Result/Proof → owner-controlled effect. Relay supplies governed capabilities and communication across these boundaries. Cloud is intended for eligible background Work; Owner Computer for explicitly local files and desktop access; Local Factory for deliberate development/qualification. DeepAgent is a replaceable harness when qualified, not the environment fabric.
+
+The [capability matrix and evidence](docs/environment-fabric/qualification.md) distinguish deterministic tests, unrun connected gates and existing functionality. This checkpoint preserves the canonical Attempt-8 publisher and the current Mac integration.

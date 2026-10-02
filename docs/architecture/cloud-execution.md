@@ -56,3 +56,14 @@ This branch disables its Git-triggered MyEve deployment using the repository's e
 The pinned Node 24/Git worker image builds locally. Both documented managed VCR images return 404, and legacy Docker, compressed Buildx and independent host-side crane uploads fail at the TLS upload boundary. Provider inventories show no published image and no sandbox. [Failure evidence and required provider/network configuration](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/phase-2/image-blocker.md). No production credential, TLS weakening or alternate provider workaround was introduced.
 
 Resume after a compatible immutable image is accessible to this staging project. Allocation/teardown, cloud harness, custody/verifier, Result/Proof and Mac-off P0 remain NOT_RUN. No real-model authorization is requested at this checkpoint.
+
+
+## Execution Environment Fabric review
+
+Canonical source reviewed before implementation: MyEve `2b22e387c053ba0631efc27c2e8f8a99fff1055e`, Relay `a61f0ef697b02cf22da72ff2904c584d7faa026a`, MyFactory `c0b4c1155a6a98f91375163443938042e6a0be10`. Existing cloud branches are preserved in `codex/environment-fabric`: MyEve `125bd01`, MyFactory `7a69c472f05d540f490a41e33014b978f1165e82`.
+
+T3 Code upstream `99e08526e5ec84f294940cba5929841518c52fec` was reviewed from README, internals and implementation. [MyFactory owns the crosswalk and contracts](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/environment-fabric/t3-crosswalk.md). Adopt environment-owned execution, capability-aware compatibility and server-state reconnect. Preserve existing provider/harness, Work, authority and publisher boundaries. Defer hidden Git refs: productive checks and immutable custody remain authoritative. No fork, copied T3 implementation or runtime dependency.
+
+Current implementation is **PARTIAL**: MyFactory has a strict V1 environment descriptor, typed capabilities, deterministic scope/qualification/availability-aware routing, and Owner Computer/Local Factory metadata projections. The local lifecycle provider is correctly labeled LOCAL_FACTORY. These functions are not integrated into production admission or the MyEve UI. Durable registry, authenticated remote commands, cloud custody/verifier and natural-input P0 journeys remain pending. MyEve's existing loopback-only Factory contract is intentionally preserved until its remote security and durability replacement is implemented.
+
+The existing VCR immutable-image access failure is still the connected cloud blocker. No repeated upload, provider switch, production rollout or paid model operation was performed. [Detailed qualification limits](../environment-fabric/qualification.md). A cloud descriptor or a unit-test pass must not advertise laptop independence.
