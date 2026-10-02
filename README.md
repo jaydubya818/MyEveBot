@@ -322,3 +322,6 @@ The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approva
 These are historical product qualification records. Use the current source and connection evidence linked above for deployment claims; a qualified interface does not imply that every live provider or delivery path is enabled.
 
 Private-alpha Attempt 5 completion repair and complete zero-model qualification: [evidence](docs/private-alpha/completion-transition-2026-10-01/README.md). Live retry remains unapproved.
+
+
+MyFactory staging checkpoint [`1d31332`](https://github.com/jaydubya818/MyFactory/commit/1d3133273343d11833851c28c7f9c90cc302ec15) adds the canonical PostgreSQL V2 spend ledger and hosted private queue delivery. Connected queue completion occurred after the requesting process exited; duplicate submission reused the receipt. This is infrastructure qualification only. MyEve cloud Work routing, cloud harness, independent verifier and Mac-off/P0 remain unqualified; cloud admission and paid model calls remain disabled. The Attempt-8 publisher is unchanged.
