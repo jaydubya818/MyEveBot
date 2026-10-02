@@ -15,7 +15,7 @@ The [Factory report](https://github.com/jaydubya818/MyFactory/blob/codex/environ
 | Environment Fabric | PARTIAL — tested pure contracts/routing; registry/admission/UI pending |
 | Owner Computer | PASS deterministic regressions; connected E2E NOT_RUN |
 | Local Factory | PASS Factory deterministic regression; full environment binding pending |
-| Cloud Factory | NOT_QUALIFIED — immutable image blocker; lifecycle NOT_RUN |
+| Cloud Factory | NOT_QUALIFIED end to end — separate cloud owner advanced infrastructure; HEADLESS/Mac-off pending |
 | Existing Factory harness | PASS deterministic regression; live NOT_RUN here |
 | DeepAgent | NOT_QUALIFIED |
 | Candidate custody / verifier | Existing local regressions PASS; cloud NOT_RUN |
@@ -26,4 +26,4 @@ The [Factory report](https://github.com/jaydubya818/MyFactory/blob/codex/environ
 
 No end-to-end safety counter is reported as zero without running its campaign. Paid model calls and production publication effects initiated by this mission are zero. No candidate or historical Proof changed.
 
-Next external prerequisite: restore VCR upload or make a compatible private Node 24 + Git linux/amd64 image available by immutable digest to dedicated MyFactory staging. [Exact project, registry and constraints](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/phase-2/image-blocker.md). Then finish registry/admission/UI and the cloud lifecycle before Mac-off deterministic qualification and the separately approved paid canary.
+Current coordination: Cloud Execution owns the independently advanced `faf93359a4c54daaf3e0b713a601366db02ba8d6` provider/controller checkpoint. Its provider-native image qualification supersedes the old VCR blocker; do not restart image work. Complete its existing harness → deterministic cloud execution → independent verifier → Mac-off Golden Journey sequence. Fabric owns the [optional session contract](session-surfaces.md), which must not delay that sequence. No MyEve runtime or publication behavior changed here.

@@ -51,11 +51,11 @@ Promotion later moves code, migrations, FactoryVersion, image and qualified poli
 
 This branch disables its Git-triggered MyEve deployment using the repository's existing `git.deploymentEnabled` convention.
 
-## External unblock before allocation
+## Historical image-distribution blocker (superseded)
 
 The pinned Node 24/Git worker image builds locally. Both documented managed VCR images return 404, and legacy Docker, compressed Buildx and independent host-side crane uploads fail at the TLS upload boundary. Provider inventories show no published image and no sandbox. [Failure evidence and required provider/network configuration](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/phase-2/image-blocker.md). No production credential, TLS weakening or alternate provider workaround was introduced.
 
-Resume after a compatible immutable image is accessible to this staging project. Allocation/teardown, cloud harness, custody/verifier, Result/Proof and Mac-off P0 remain NOT_RUN. No real-model authorization is requested at this checkpoint.
+This historical resume condition was superseded by the Cloud Execution owner at `faf93359a4c54daaf3e0b713a601366db02ba8d6`, which qualified provider-native images and infrastructure lifecycle and implemented its qualification-only hosted controller. The full canonical harness/verifier/Result/Mac-off/P0 journey remains pending in its report. No real-model authorization is requested here.
 
 
 ## Execution Environment Fabric review
@@ -66,6 +66,10 @@ T3 Code upstream `99e08526e5ec84f294940cba5929841518c52fec` was reviewed from RE
 
 Current implementation is **PARTIAL**: MyFactory has a strict V1 environment descriptor, typed capabilities, deterministic scope/qualification/availability-aware routing, and Owner Computer/Local Factory metadata projections. The local lifecycle provider is correctly labeled LOCAL_FACTORY. These functions are not integrated into production admission or the MyEve UI. Durable registry, authenticated remote commands, cloud custody/verifier and natural-input P0 journeys remain pending. MyEve's existing loopback-only Factory contract is intentionally preserved until its remote security and durability replacement is implemented.
 
-The existing VCR immutable-image access failure is still the connected cloud blocker. No repeated upload, provider switch, production rollout or paid model operation was performed. [Detailed qualification limits](../environment-fabric/qualification.md). A cloud descriptor or a unit-test pass must not advertise laptop independence.
+The old VCR immutable-image failure is retained history, superseded by the separate Cloud Execution owner. No repeated upload, provider switch, production rollout or paid model operation was performed. [Detailed qualification limits](../environment-fabric/qualification.md). A cloud descriptor or a unit-test pass must not advertise laptop independence.
 
 Canonical reconciliation: merged MyEve main `d75091eb333a531fa91ed9d39e273948aa9d0eaf` after it landed during checkpoint verification. All Attempt-8 runtime changes are preserved unchanged; only README prose required resolution.
+
+## Optional session surfaces
+
+ExecutionEnvironment → ExecutionProvider → HarnessProvider/existing harness → optional SessionSurfaceProvider. Fabric owns the typed contract/capabilities; Cloud Execution owns CLOUD + HEADLESS and optional CLOUD + TMUX. [Session handoff](../environment-fabric/session-surfaces.md). No MyEve UI action or live adapter is enabled. CMUX/TMUX must never become productive lifecycle, lease, verification or publication dependencies.

@@ -1,6 +1,8 @@
 # MyEve
 
-[Cloud execution migration](docs/architecture/cloud-execution.md): the local Factory provider seam is qualified, and dedicated staging database/private storage/hosted readiness are provisioned. Worker-image distribution is externally blocked; see the retained evidence. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
+[Cloud execution migration](docs/architecture/cloud-execution.md): the local Factory provider seam is qualified, and dedicated staging database/private storage/hosted readiness are provisioned. The separate Cloud Execution owner superseded the historical image blocker at `faf93359a4c54daaf3e0b713a601366db02ba8d6`; see the current ownership addendum. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
+
+[Optional session surfaces](docs/environment-fabric/session-surfaces.md): Fabric has a typed observation/attachment contract and deterministic scope checks. CMUX/TMUX adapters and Control Center actions are deferred; neither is a production execution dependency.
 
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner confirmed publication to draft PR #2; exact-candidate readback and real GitHub CI passed. Independent review found a numeric-range defect; the candidate remains unchanged and owner acceptance is NOT_RUN. The current-evidence presentation repair is qualified but not deployed. Historical Attempts 1–8 and the verified candidate remain immutable.
 
