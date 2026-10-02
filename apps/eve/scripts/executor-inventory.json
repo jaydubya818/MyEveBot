@@ -2127,9 +2127,9 @@
       "sha256": "34ec19e9225e297cf8cef59fffd2124600c9c513ef12408e68e962e03ded0315"
     },
     "lib/database-schema.ts": {
-      "classification": "READ_ONLY",
-      "reason": "Checks migration readiness, including Computer revocation migration 0077; performs no execution.",
-      "sha256": "dca6508acaafaddf29813d080d9170933179137d124e1666a59876bad219a9b9"
+      "classification": "INTERNAL",
+      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required.",
+      "sha256": "854fa715690e499195a474430f605dbb180d5b60b36f270b6096aeb667872896"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3759,6 +3759,31 @@
       "classification": "INTERNAL",
       "reason": "Validated model-cost snapshot schema and owner-facing cost formatting; no effects or authority.",
       "sha256": "ba9924ae8c37d280ecbc507303e68103080f17f96533e9857335e3f7be401200"
+    },
+    "app/api/beta/owner-decision/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Signed owner session, same-origin check, bounded body. GET reads retained canonical Result; POST records only an exact candidate-bound decision. No GitHub credentials or external effects in web process. Qualified by publication contract and real-route Playwright tests.",
+      "sha256": "86210950661af1390a27bdae7dafb9586b6a3f4ff7800ed91066a22ac4c19032"
+    },
+    "lib/engineering/owner-publication.ts": {
+      "classification": "INTERNAL",
+      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls.",
+      "sha256": "8d37e8f42b39590264a0b5001522ef2eb88e24e2c99193473afd74aff9ea1aae"
+    },
+    "lib/engineering/publication-contract.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority.",
+      "sha256": "96eaedc8fd4dfef024c1449d44b0c9b73869a354bf227dcfe36c893254572d86"
+    },
+    "lib/engineering/candidate-publication.ts": {
+      "classification": "ENFORCED",
+      "reason": "Explicit owner decision, per-Work advisory lock, durable per-Result effect claims before any mutation. Base ref/SHA and immutable custody rechecked; UNKNOWN permits readback only. Repeated clicks/restarts cannot repeat push or PR. Controlled PostgreSQL regression and P0 browser journey cover four choices.",
+      "sha256": "d75a0b1196a84799c6439c656e85fafd04181db7648d6a1b1afedf1b2370eff7"
+    },
+    "lib/engineering/candidate-publication-github.ts": {
+      "classification": "ENFORCED",
+      "reason": "Only called by durable canonical candidate publisher after exact owner approval. Materializes signed immutable Git objects in fresh bare repository, recomputes tree, checks parent/base ref and exact diff. Create-only branch CAS and one draft PR; no merge/deploy. No mutable workspace input; process output/errors withhold secrets.",
+      "sha256": "a852a5b206cbf425fb2a696c8cee1c118bd5102350f2a7c848891b95e476bbd5"
     }
   }
 }

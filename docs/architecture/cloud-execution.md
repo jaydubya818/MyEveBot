@@ -6,7 +6,7 @@
 
 | Repository | Canonical main inspected |
 | --- | --- |
-| MyEve | `1bd482e1b6de1e4ca52f130b3c23724589c4859b` |
+| MyEve | `2b22e387c053ba0631efc27c2e8f8a99fff1055e` |
 | Relay | `a61f0ef697b02cf22da72ff2904c584d7faa026a` |
 | MyFactory | `c0b4c1155a6a98f91375163443938042e6a0be10` |
 
@@ -30,13 +30,13 @@ MyFactory dispatch now uses an `ExecutionProvider` seam. Its local adapter wraps
 | Static/build | Producer types, governance, workspace types and build PASS |
 | CONNECTED CLOUD / LIVE | NOT_RUN |
 
-No cloud safety counters were measured. Do not report zero local dependencies, secret disclosures or duplicate cloud executions from this local evidence. DeepAgent remains NOT_QUALIFIED. The retained canonical source describes Attempt 8 as awaiting authorization; reconcile the concurrent publisher's exact source/evidence when it lands.
+No cloud safety counters were measured. Do not report zero local dependencies, secret disclosures or duplicate cloud executions from this local evidence. DeepAgent remains NOT_QUALIFIED. During this work, canonical MyEve main advanced from `1bd482e1b6de1e4ca52f130b3c23724589c4859b` to `2b22e387c053ba0631efc27c2e8f8a99fff1055e`. The latter records Attempt 8's successful real local Golden Journey and adds the qualified owner-decision/exact-candidate publisher. It is merged into this cloud branch unchanged; real publication and owner acceptance remain gated. The Factory checkpoint above retains the earlier inventory as historical evidence.
 
 ## What MyEve still needs
 
 The current `apps/eve/lib/engineering/factory-live-adapter.ts` explicitly admits a loopback producer and an absolute local repository path. `factory-runtime.ts` reads source with local Git and instantiates `DockerProtectedVerifier`. Candidate custody also retains local dependencies. Removing an origin restriction alone would break the trust boundary without providing cloud execution.
 
-The next coordinated milestone needs a versioned authenticated HTTPS contract, Factory-owned durable PostgreSQL queue/ledger and remote resource identities, private immutable artifact custody, a separate cloud verifier, cloud-native source reads, canonical Result/Proof readback and production-path deterministic model fixtures. Preserve the current publisher and owner-decision authority; do not fork it. P0 must start naturally in Sofie and run while browser, local companion, local Factory and local verifier are off.
+The next coordinated milestone needs a versioned authenticated HTTPS contract, Factory-owned durable PostgreSQL queue/ledger and remote resource identities, private immutable artifact custody, a separate cloud verifier, cloud-native source reads, canonical Result/Proof readback and production-path deterministic model fixtures. Reuse canonical `owner-publication.ts`, `candidate-publication.ts`, `candidate-publication-github.ts` and migration 0079. Its current host consumer already reconstructs candidate Git objects independently of a mutable Factory workspace; cloud hosting and scoped publisher identity remain to be qualified. Preserve those exact-candidate and owner-decision controls; do not fork them. P0 must start naturally in Sofie and run while browser, local companion, local Factory and local verifier are off.
 
 ## Staging scope decision
 
