@@ -1,3 +1,4 @@
+import { currentPublicationReadback } from '../engineering/publication-contract.ts';
 import { readJourneyAccounting } from "../engineering/journey-accounting.ts";
 import { enqueueFactoryCommand } from "../engineering/factory-commands.ts";
 import { BusinessScopes } from "../business-scopes.ts";
@@ -504,12 +505,14 @@ export async function betaRequest(
         return Response.json(
           {
             results: await Promise.all((await beta.query(
-              `SELECT r.id,r.work_id,r.proof,r.content_hash,r.created_at,r.candidate_sha,COALESCE(p.source,'CANONICAL') AS source,CASE rd.selected_route WHEN 'DEEP_AGENT' THEN 'DIRECT_SOFIE' WHEN 'MYFACTORY' THEN 'MYFACTORY' WHEN 'HUMAN' THEN 'HUMAN' ELSE NULL END AS route, CASE WHEN p.source='LOCAL_FIXTURE' OR EXISTS(SELECT FROM jsonb_array_elements(COALESCE(ws.evidence,'[]'::jsonb)) e WHERE e#>>'{artifact,qualification}'='CONTROLLED_LOCAL_FIXTURE_NOT_LIVE') THEN 'CONTROLLED_LOCAL_FIXTURE' ELSE 'NOT_LIVE_QUALIFIED' END AS verification_mode FROM engineering_native_results r
+              `SELECT r.id,r.work_id,r.work_version,r.work_generation,w.version AS current_work_version,w.generation AS current_work_generation,r.proof,r.content_hash,r.created_at,r.candidate_sha,pub.state AS publication_state,pub.remote AS publication_remote,COALESCE(p.source,'CANONICAL') AS source,CASE rd.selected_route WHEN 'DEEP_AGENT' THEN 'DIRECT_SOFIE' WHEN 'MYFACTORY' THEN 'MYFACTORY' WHEN 'HUMAN' THEN 'HUMAN' ELSE NULL END AS route, CASE WHEN p.source='LOCAL_FIXTURE' OR EXISTS(SELECT FROM jsonb_array_elements(COALESCE(ws.evidence,'[]'::jsonb)) e WHERE e#>>'{artifact,qualification}'='CONTROLLED_LOCAL_FIXTURE_NOT_LIVE') THEN 'CONTROLLED_LOCAL_FIXTURE' ELSE 'NOT_LIVE_QUALIFIED' END AS verification_mode FROM engineering_native_results r
         LEFT JOIN beta_result_provenance p ON p.owner_id=r.scope_id AND p.result_id=r.id
+          LEFT JOIN engineering_candidate_publications pub ON pub.owner_id=r.scope_id AND pub.result_id=r.id
+          JOIN engineering_work w ON w.scope_id=r.scope_id AND w.scope_kind=r.scope_kind AND w.id=r.work_id
           LEFT JOIN engineering_direct_workspaces ws ON ws.scope_id=r.scope_id AND ws.scope_kind=r.scope_kind AND ws.work_id=r.work_id
           LEFT JOIN engineering_routing_decisions rd ON rd.id=ws.decision_id WHERE r.scope_id=$1 AND r.scope_kind='personal' AND (p.result_id IS NOT NULL OR rd.admission_authority_snapshot IS NOT NULL) ORDER BY r.created_at DESC,r.id LIMIT 100`,
               [owner],
-            )).map(async result=>({...result,journeyAccounting:await readJourneyAccounting(beta.store(owner),String(result.work_id))}))),
+            )).map(async result=>({...result,publicationReadback:result.publication_state==='PR_OPEN'?currentPublicationReadback(result.publication_remote,{owner,workId:result.work_id,resultId:result.id,resultHash:result.content_hash,version:Number(result.current_work_version),generation:Number(result.current_work_generation),candidate:result.candidate_sha}):null,journeyAccounting:await readJourneyAccounting(beta.store(owner),String(result.work_id))}))),
           },
           { headers },
         );

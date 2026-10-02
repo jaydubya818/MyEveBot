@@ -1,3 +1,4 @@
+import { currentPublicationReadback, type PublicationReadback } from './publication-contract.ts';
 import { readJourneyAccounting, type JourneyAccounting } from "./journey-accounting.ts";
 import type {FactorySpend,FactorySpendSummary} from './factory-spend.ts';
 import { nativeExecutionCapsule, type NativeExecutionCapsule } from "./native-execution-controller.ts";
@@ -14,6 +15,7 @@ import { WorkError, type Work } from "./types.ts";
 type CurrentManifest = ReturnType<typeof manifest>;
 
 export interface EngineeringWorkerProjection {
+  publicationReadback?:PublicationReadback|null;
   factoryAccounting?:FactorySpendSummary;
   journeyAccounting?:JourneyAccounting;
   factoryPreparation?: {requestId:string;state:string;blocker:string|null};
@@ -164,13 +166,14 @@ export class EngineeringWorkerProjectionStore {
                 n.producer,n.phase,n.revision,n.deadline,n.candidates,n.evidence,n.updated_at,n.draft_files,n.profile_hash,n.base_sha,
                 d.admission_authority_snapshot->'contract'->>'coordinatingAgentId' AS agent_id,
                 result.id AS native_result_id,result.proof AS native_proof,result.content_hash AS native_proof_hash,
-                result.work_generation AS native_result_generation
+                result.work_generation AS native_result_generation,publication.remote AS publication_remote,publication.state AS publication_state
          FROM engineering_direct_workspaces n
          JOIN engineering_routing_decisions d ON d.id=n.decision_id AND d.scope_id=n.scope_id
            AND d.scope_kind=n.scope_kind AND d.work_id=n.work_id
          LEFT JOIN LATERAL (SELECT * FROM engineering_native_results p
            WHERE p.scope_id=n.scope_id AND p.scope_kind=n.scope_kind AND p.work_id=n.work_id
            ORDER BY p.created_at DESC,p.id DESC LIMIT 1) result ON true
+         LEFT JOIN engineering_candidate_publications publication ON publication.owner_id=n.scope_id AND publication.result_id=result.id
          WHERE n.scope_id=$1 AND n.scope_kind=$2 AND n.work_id=$3`, scope,
       ),
       this.workStore.database.query(
@@ -464,7 +467,9 @@ export class EngineeringWorkerProjectionStore {
     const lastChange = changes.sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0] ?? null;
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
+    const publicationReadback=nativeResult&&nativeRow?.publication_state==='PR_OPEN'?currentPublicationReadback(nativeRow?.publication_remote,{owner:this.workStore.principal.scopeId,workId:id,resultId:nativeResult.id,resultHash:nativeResult.contentHash,version:work.version,generation:work.generation,candidate:nativeResult.proof.resultRevision??''}):null;
     const projection: EngineeringWorkerProjection = {
+      publicationReadback,
       journeyAccounting,factoryAccounting,factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
@@ -495,13 +500,13 @@ export class EngineeringWorkerProjectionStore {
       qualificationMode: execution?.qualificationMode ?? null,
       status: factoryActivity?.status ?? (factoryPreparation?.blocker?"Needs reconciliation":null) ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
       activity: factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
-      nextStep: factoryAccounting?.blocker && factoryWriter?.state==='TERMINAL' ? `Factory execution is fenced. ${factoryAccounting.blocker}. Accounting reconciliation grants no new execution authority.` : factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
+      nextStep: publicationReadback ? (publicationReadback.review.status==='FAIL'?'Inspect the independent review finding. Any correction requires a separately authorized candidate lifecycle; do not modify the published candidate.':'Review the observed publication and CI evidence; owner acceptance is a separate decision.') : factoryAccounting?.blocker && factoryWriter?.state==='TERMINAL' ? `Factory execution is fenced. ${factoryAccounting.blocker}. Accounting reconciliation grants no new execution authority.` : factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
         ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
         : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."
         : `Native execution is blocked. ${executionController.known.plan?.blockers.join("; ") || (executionController.progress.recovery==="STOP" ? "Bounded no-progress recovery is exhausted." : "Recheck current authority and completion capacity.")} No productive operation is recommended.`
         : routeActivity?.nextStep) ?? noExecutionNextStep(work),
-      readiness: truth?.readiness ?? { ready: false, reasons: nativeResult
+      readiness: truth?.readiness ?? { ready: false, reasons: publicationReadback ? [`Publication: PASS. GitHub CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. ${publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result remains PARTIAL.`] : nativeResult
         ? [`${nativeRow?.producer==="MYFACTORY"?"Factory candidate / MyEve":"Native"} protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },
       currentRun: runTruth.activeRun ? {id:runTruth.activeRun.id,status:runTruth.activeRun.storedStatus,
@@ -511,7 +516,7 @@ export class EngineeringWorkerProjectionStore {
       latestResult: result
         ? { id: result.id, version: result.version, summary: result.summary, candidate: result.candidate, createdAt: result.createdAt }
         : nativeResult ? {id:nativeResult.id,version:nativeResult.proof.workVersion,
-          summary:`${nativeRow?.producer==="MYFACTORY"?"Factory candidate":"Native development"}: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
+          summary:publicationReadback?`Published candidate. CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. Owner acceptance: NOT_RUN. Result: PARTIAL.`:`${nativeRow?.producer==="MYFACTORY"?"Factory candidate":"Native development"}: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
           candidate:nativeResult.proof.resultRevision??"",createdAt:nativeResult.proof.createdAt} : null,
       nativeDevelopment,
       nativeResult,

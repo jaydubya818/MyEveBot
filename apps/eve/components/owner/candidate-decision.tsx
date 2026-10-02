@@ -33,10 +33,11 @@ export function OwnerCandidateDecision({workId}:{workId:string}){
  <details><summary>Proof of Work</summary>
  <p>Candidate: {data.binding.candidate}<br/>Verified tree: {data.binding.verifiedTree}</p>
  <p>Sofie: {money(data.accounting.sofieMicrousd)} · Factory: {money(data.accounting.factoryMicrousd)}</p>
- <p>Result: {data.proof.outcome}. Owner acceptance: NOT_RUN.</p>
+ <p>Historical Result: {data.proof.outcome}. Owner acceptance: NOT_RUN.</p>
+ {data.readback&&<section aria-label="Current publication evidence"><p>Publication readback ({data.readback.observedAt}): PASS · GitHub CI: {data.readback.ci.status} · Independent review: {data.readback.review.status}</p><p>{data.readback.review.summary}</p><p>Current Result: PARTIAL. Owner acceptance remains NOT_RUN.</p><a href={data.readback.ci.url}>GitHub CI for this candidate</a></section>}
  <p>The historical Proof is an immutable snapshot. Current accounting above includes the final explanation.</p>
  <ul>{data.proof.evidence.map(e=><li key={e.criterionId}>{e.state} — {e.producer}: {e.sourceRef}</li>)}</ul>
- <details><summary>Canonical evidence references</summary><ul>{data.proof.artifactRefs.map((s,i)=><li key={i}>{s}</li>)}</ul></details>
+ <details><summary>Canonical evidence references</summary><ul>{[...new Set(data.proof.artifactRefs)].map(s=><li key={s}>{s}{data.proof.artifactRefs.filter(ref=>ref===s).length>1?` — referenced by ${data.proof.artifactRefs.filter(ref=>ref===s).length} checks`:''}</li>)}</ul></details>
  </details>
  <section aria-labelledby="owner-decision-title"><h2 id="owner-decision-title">Needs You — owner decision</h2>
  {data.decision&&<p role="status">{data.decision.action==='reject'?'Candidate rejected.':data.decision.action==='keep_private'?'Kept private.':`Decision recorded: ${choices.find(c=>c.id===data.decision.action)?.label}.`} {data.publication?`Publication: ${data.publication.state}.`:'No GitHub writes.'}</p>}

@@ -7,7 +7,7 @@ import type { GoalConnection } from "../goal-work/database.ts";
 import { WorkStore } from "./store.ts";
 import { engineeringConversationConfig } from "./runtime.ts";
 import { readJourneyAccounting } from "./journey-accounting.ts";
-import { assertPublicationCustody, bindingHash, decisionInput, deny, type PublicationBinding } from "./publication-contract.ts";
+import { assertPublicationCustody, bindingHash, decisionInput, deny, publicationReadbackSchema, currentPublicationReadback, type PublicationBinding } from "./publication-contract.ts";
 import type { Candidate } from "./execution.ts";
 import { sha256 } from "./factory-producer-protocol.ts";
 
@@ -68,9 +68,27 @@ export class OwnerPublication {
   const accounting=await readJourneyAccounting(store,workId);
   return {binding,bindingHash:bindingHash(binding),candidate,sourceFiles:row.source_files,proof:proofOfWorkSchema.parse(row.proof),accounting,
    implementation:{passed:implementationPassed,total:implementationTotal},verification:{passed:row.evidence_count,total:row.evidence_count},
-   decision:decision??null,publication:publication??null};
+   decision:decision??null,publication:publication??null,readback:publication?.state==='PR_OPEN'?currentPublicationReadback(publication.remote,binding):null};
  }
  async view(owner:string,workId:string){const {candidate,sourceFiles,...view}=await this.current(owner,workId);return view;}
+ /** Local trusted host only; this is not exposed through the owner decision POST. */
+ async retainReadback(owner:string,workId:string,value:unknown){
+  const readback=publicationReadbackSchema.parse(value),config=await this.configuration();
+  if(readback.ci.status==='PASS'&&config.profile.requiredCI.some(name=>!readback.ci.checks.some(check=>check.name===name&&check.result==='PASS')))deny('Required CI checks are missing from readback.');
+  return this.db.transaction(async(c:GoalConnection)=>{
+   const db:Query={query:async(s,p)=>(await c.query(s,p)).rows};
+   await c.query("SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 FOR UPDATE",[owner,workId]);
+   const current=await this.current(owner,workId,db);
+   if(bindingHash(readback.binding)!==current.bindingHash||current.publication?.state!=='PR_OPEN'||
+      current.publication.remote?.pr?.number!==readback.prNumber||current.decision?.action!=='open_pr')deny('Readback is not bound to this published Result.');
+   const [row]=await db.query('SELECT remote FROM engineering_candidate_publications WHERE owner_id=$1 AND result_id=$2 FOR UPDATE',[owner,current.binding.resultId]);
+   const history=row.remote.readbacks??[];
+   if(history.some((r:unknown)=>digest(r)===digest(readback)))return readback;
+   if(history.length>=100)deny('Readback retention limit requires explicit reconciliation.');
+   await db.query("UPDATE engineering_candidate_publications SET remote=jsonb_set(remote,'{readbacks}',$3::jsonb),updated_at=now() WHERE owner_id=$1 AND result_id=$2",[owner,current.binding.resultId,JSON.stringify([...history,readback])]);
+   return readback;
+  });
+ }
  async decide(owner:string,value:unknown){
   const input=decisionInput.parse(value);
   return this.db.transaction(async(c:GoalConnection)=>{

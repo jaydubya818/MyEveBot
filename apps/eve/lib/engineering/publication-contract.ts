@@ -33,3 +33,30 @@ export function assertPublicationCustody(binding: PublicationBinding, candidate:
 export const decisionInput = z.object({workId:z.uuid(),bindingHash:z.string().regex(/^[a-f0-9]{64}$/),
  previousId:z.uuid().nullable(),action:ownerAction,confirmed:z.literal(true)}).strict();
 export const bindingHash = (binding: PublicationBinding) => digest(binding);
+
+// Host-observed post-publication evidence is additive. It never grants execution,
+// merge, deployment or owner-acceptance authority and never rewrites a Proof.
+export const publicationReadbackSchema = z.object({
+ binding: publicationBinding, observedAt: z.iso.datetime(),
+ branchCount:z.literal(1), prCount:z.literal(1), candidate:hash, tree:hash,
+ baseRef:z.string(), baseSha:hash, prNumber:z.number().int().positive(), prUrl:z.string().url(),
+ draft:z.literal(true), merged:z.literal(false), files:z.array(z.string()),
+ ci:z.object({status:z.enum(['PASS','FAIL','PENDING']),workflow:z.string(),candidate:hash,runId:z.string(),url:z.string().url(),checks:z.array(z.object({name:z.string(),candidate:hash,result:z.enum(['PASS','FAIL','PENDING'])}))}).strict(),
+ review:z.object({status:z.enum(['PASS','FAIL','PENDING']),candidate:hash,reviewer:z.string(),mode:z.literal('INDEPENDENT_READ_ONLY'),reportHash:z.string().regex(/^[a-f0-9]{64}$/),summary:z.string().max(4000),testsPassed:z.number().int().nonnegative(),findings:z.array(z.string().max(2000)),limitations:z.array(z.string().max(2000))}).strict(),
+ ownerAcceptance:z.literal('NOT_RUN'),merge:z.literal('NOT_RUN'),deployment:z.literal('NOT_RUN'),
+}).strict().superRefine((r,c)=>{
+ const b=r.binding;
+ if(r.candidate!==b.candidate||r.tree!==b.verifiedTree||r.baseRef!==b.baseRef||r.baseSha!==b.expectedBaseSha||
+    r.ci.candidate!==b.candidate||r.review.candidate!==b.candidate||r.ci.checks.some(x=>x.candidate!==b.candidate)||
+    r.prUrl!==`https://github.com/${b.repository}/pull/${r.prNumber}`||
+    JSON.stringify([...r.files].sort())!==JSON.stringify([...b.allowedPaths].sort())||
+    (r.ci.status==='PASS'&&(!r.ci.checks.length||r.ci.checks.some(x=>x.result!=='PASS')))||
+    (r.review.status==='PASS'&&r.review.findings.length>0))c.addIssue({code:'custom',message:'Readback does not match exact publication or its evidence'});
+});
+export type PublicationReadback=z.infer<typeof publicationReadbackSchema>;
+export function currentPublicationReadback(remote:unknown, expected:Pick<PublicationBinding,'owner'|'workId'|'resultId'|'resultHash'|'version'|'generation'|'candidate'>):PublicationReadback|null {
+ const rows=(remote as {readbacks?:unknown[]}|null)?.readbacks;
+ const parsed=publicationReadbackSchema.safeParse(Array.isArray(rows)?rows.at(-1):null);
+ if(!parsed.success||(['owner','workId','resultId','resultHash','version','generation','candidate'] as const).some(key=>parsed.data.binding[key]!==expected[key]))return null;
+ return parsed.data;
+}
