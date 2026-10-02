@@ -64,3 +64,35 @@ test('failed independent review is visible inline without opening Proof',async({
  expect((await service.view('owner',workId)).proof).toEqual(view.proof);
  await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-inline-review-failure.png`,fullPage:true});
 });
+
+// Readback-only P0 coverage. No background execution or cloud qualification.
+test('reconnect and a second owner client retain one canonical Work without effects',async({page,context},info)=>{
+ const before=await page.request.get('/api/work-thread?threadId='+thread);
+ const saved=await before.json();expect(saved.works).toHaveLength(1);
+ const identity=(body:any)=>body.works.map(({projection:p}:any)=>({workId:p.workId,version:p.workVersion,generation:p.workGeneration,resultId:p.latestResult?.id??p.nativeResult?.id}));
+ const initial=identity(saved);
+ const stored=(await pool.query('SELECT id,version,generation FROM engineering_work WHERE id=$1',[workId])).rows;
+ await page.goto('/chat');
+ const canvas=page.getByRole('region',{name:'Work in this conversation'});
+ await expect(canvas.locator('[data-work-id]')).toHaveCount(1);
+ // Page bootstrap is stubbed; a second authenticated client reads the real API.
+ // No fabricated environment endpoint participates in this qualification.
+ const second=await context.newPage();
+ try{
+  const result=await second.request.get('/api/work-thread?threadId='+thread);
+  expect(result.status()).toBe(200);expect(identity(await result.json())).toEqual(initial);
+  await context.setOffline(true);
+  await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+  await expect(canvas.getByRole('alert')).toContainText('could not be refreshed');
+  await expect(canvas.getByRole('button',{name:'Review decision'})).toHaveCount(0);
+  await context.setOffline(false);
+  await page.evaluate(()=>window.dispatchEvent(new Event('online')));
+  await expect(canvas.getByRole('alert')).toHaveCount(0);
+  await expect(canvas.getByRole('heading',{name:'Needs You — owner decision'})).toBeVisible();
+  const after=await page.request.get('/api/work-thread?threadId='+thread);
+  expect(identity(await after.json())).toEqual(initial);
+  expect((await pool.query('SELECT id,version,generation FROM engineering_work WHERE id=$1',[workId])).rows).toEqual(stored);
+  expect((await pool.query('SELECT pushes,prs FROM publication_boundary_fixture')).rows[0]).toEqual({pushes:0,prs:0});
+  await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-work-reconnect.png`,fullPage:true});
+ }finally{await context.setOffline(false);await second.close();}
+});

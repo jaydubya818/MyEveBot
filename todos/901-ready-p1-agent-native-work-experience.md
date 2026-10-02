@@ -33,7 +33,7 @@ Execute the supplied mission in priority order, commit/push/verify each accepted
 
 ## Work Log
 ### 2026-10-02 — Inventory
-Fetched all three canonical remote main branches. Reused clean isolated checkout on codex/agent-native-work-experience. Existing source branch 52141ba retained. No protected checkout changed. Coordination message rejected by automatic review; explicit permission pending, read-only inspection continues.
+Fetched all three canonical remote main branches. Reused clean isolated checkout on codex/agent-native-work-experience. Existing source branch 52141ba retained. No protected checkout changed. Initial coordination was rejected pending explicit permission. Jay subsequently approved it; see the coordination checkpoint below.
 
 ### Checkpoint A
 Implemented read-only conversation association and canonical inline Result/Proof/decision. 8 PostgreSQL checks, 27 unit regressions, 25 publication integration checks, 12 production-build browser scenarios; 8 scoped accessibility scans pass. Full mission acceptance remains open.
@@ -55,3 +55,6 @@ Added owner-scoped Relay handoff metadata view and explicit Group schema/identit
 
 ### Canonical reconciliation and qualification
 Reconciled landed MyEve main d75091e with a presentation-only conflict resolution. Preserved canonical failed independent review and exposed it inline. Final evidence: 1,991 unit passes/94 gated skips, 75 product PostgreSQL checks, 29 publication contract checks, 32 product browser cases and 12 canonical publication browser cases. Remaining full-mission gates remain unchecked; see qualification-summary.md and integration crosswalk. Routine stale-edit race now returns an explicit conflict and preserves the concurrent edit.
+
+### Environment Fabric coordination
+Delivered the authorized nine-P0 handoff to both Fabric and cloud execution owners. Received Fabric’s pinned source contract and incorporated its exact exports and missing admission/registry/origin boundaries. Cloud branch progress is recorded separately from the older Fabric image blocker. No runtime schema/router/provider copied, protected worktree modified or capability enabled. Continue deterministic product readback qualification; cloud/Routine E2E remains PARTIAL / NOT_READY.

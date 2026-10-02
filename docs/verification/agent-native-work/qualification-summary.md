@@ -40,4 +40,8 @@ Natural agent-management execution; full natural prompt → productive specialis
 
 Current canonical candidate publication evidence has CI PASS and independent review FAIL. Historical protected tests and immutable Proof remain intact; this product work does not fix, regenerate, accept, merge or deploy that candidate.
 
-Automatic approval review rejected a coordination message to “Review and extend execution fabric” because it did not recognize explicit authorization to message that thread. The explicit permission question remains pending. Independent product work continued; no rejected message was sent through another channel.
+The earlier coordination approval rejection was resolved by Jay’s explicit authorization. The nine P0 requirements were delivered to both execution owners, and Fabric’s prepared handoff was received by read-only artifact inspection. The [consumer contract](../../product/environment-fabric-product-contract.md) pins its source definitions and missing integrations. No protected worktree or execution authority changed.
+
+## Coordination follow-up
+
+[Coordination/readback checkpoint](coordination-checkpoint.md): Fabric contracts received and incorporated; clearer offline guidance; 16 affected Work Canvas browser cases PASS, including 2 new desktop/390px reconnect readback cases. Build/typecheck/governance PASS. These are deterministic product checks; cloud/background status remains PARTIAL / NOT_READY.

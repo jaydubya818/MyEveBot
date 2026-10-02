@@ -25,8 +25,8 @@ export function WorkThread({ threadId }: { threadId: string }) {
         if (!response.ok) throw Error('Work progress could not be refreshed.');
         const body = await response.json() as WorkThreadView;
         if (!disposed && !current.signal.aborted) { setData(body); setError(''); }
-      } catch (cause) {
-        if (!disposed && !current.signal.aborted) setError(cause instanceof Error ? cause.message : 'Work progress is unavailable.');
+      } catch {
+        if (!disposed && !current.signal.aborted) setError('Work progress could not be refreshed. Check your connection and try again.');
       } finally { if (!disposed && !current.signal.aborted) timer = setTimeout(load, 10000); }
     }
     function refresh() { clearTimeout(timer); void load(); }

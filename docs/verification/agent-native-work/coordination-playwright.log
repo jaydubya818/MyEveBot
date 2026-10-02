@@ -1,0 +1,25 @@
+
+Running 16 tests using 1 worker
+
+(node:60557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Open a pull request (5.6s)
+  ✓   2 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Push branch only (5.3s)
+  ✓   3 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Keep private (992ms)
+  ✓   4 [desktop] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Reject candidate (981ms)
+  ✓   5 [desktop] › test/agent-native/work-thread.spec.ts:40:1 › unsigned, other-thread and fork data cannot reveal Work (102ms)
+  ✓   6 [desktop] › test/agent-native/work-thread.spec.ts:46:1 › refresh failure hides decision controls until canonical recovery (447ms)
+  ✓   7 [desktop] › test/agent-native/work-thread.spec.ts:58:1 › failed independent review is visible inline without opening Proof (5.1s)
+  ✓   8 [desktop] › test/agent-native/work-thread.spec.ts:69:1 › reconnect and a second owner client retain one canonical Work without effects (442ms)
+(node:61700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Open a pull request (5.1s)
+  ✓  10 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Push branch only (5.2s)
+  ✓  11 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Keep private (787ms)
+  ✓  12 [390px] › test/agent-native/work-thread.spec.ts:18:2 › conversation → canonical Result → Reject candidate (813ms)
+  ✓  13 [390px] › test/agent-native/work-thread.spec.ts:40:1 › unsigned, other-thread and fork data cannot reveal Work (115ms)
+  ✓  14 [390px] › test/agent-native/work-thread.spec.ts:46:1 › refresh failure hides decision controls until canonical recovery (438ms)
+  ✓  15 [390px] › test/agent-native/work-thread.spec.ts:58:1 › failed independent review is visible inline without opening Proof (5.0s)
+  ✓  16 [390px] › test/agent-native/work-thread.spec.ts:69:1 › reconnect and a second owner client retain one canonical Work without effects (422ms)
+
+  16 passed (38.9s)
