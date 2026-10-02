@@ -1,3 +1,4 @@
+import {cloudRoutingEvidenceSchema,assertCloudRoutingWork} from './cloud-environment-routing.ts';
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
 import {
@@ -22,6 +23,7 @@ const admissionInputSchema = z.object({
 }).strict();
 
 const authoritySnapshotSchema = z.object({
+  environment:cloudRoutingEvidenceSchema.optional(),
   contract: digitalWorkContractSchema,
   context: contextPackageSchema,
   facts: routeFactsSchema,
@@ -99,6 +101,10 @@ export class RouteAdmissionService {
     // The authority source is supplied by trusted server code, never by the request or proposal.
     const snapshot = authoritySnapshotSchema.parse(await this.authority.read(work));
     const { contract, context, facts } = snapshot;
+    if(snapshot.environment){
+      if(input.request.route!=='MYFACTORY')throw new WorkError('cloud_environment_route','Cloud qualification requires Factory admission.',403);
+      assertCloudRoutingWork(snapshot.environment,work,facts.routePolicy.providers.MYFACTORY?.version);
+    }
     if (snapshot.binding && (input.expectedWorkGeneration === undefined ||
         input.expectedWorkGeneration !== work.generation || snapshot.binding.workGeneration !== input.expectedWorkGeneration))
       throw new WorkError("routing_changed", "Native admission requires the current observed Work generation.");
@@ -119,7 +125,7 @@ export class RouteAdmissionService {
 
     const admissionReason = "Current scoped Work, context, budget, policy and qualified provider passed admission. Provider execution has not started.";
     const runId = randomUUID();
-    const authoritySnapshot = { contract, facts, ...(snapshot.factory ? {factory:snapshot.factory} : {}), ...(snapshot.binding ? { binding: snapshot.binding } : {}),
+    const authoritySnapshot = { contract, facts, ...(snapshot.environment?{environment:snapshot.environment}:{}), ...(snapshot.factory ? {factory:snapshot.factory} : {}), ...(snapshot.binding ? { binding: snapshot.binding } : {}),
       ...(completion ? {completion:{...completion,id:runId,runId}} : {}) };
     const decisionId = input.decisionId;
     const transitionId = randomUUID();

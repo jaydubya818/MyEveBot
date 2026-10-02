@@ -99,6 +99,7 @@ export class FactoryWorkDriver {
    if(run.dispatch_state==='PREPARED'){
     const current=await this.authority.read(work,run.factory_request_id,preparation.request);
     const prior=decision.admission_authority_snapshot;
+    if(digest(current.environment?.binding??null)!==digest(prior.environment?.binding??null))throw new WorkError('cloud_environment_binding_changed','The admitted cloud environment changed; reconcile without redispatch.');
     if(digest(current.binding)!==digest(prior.binding))throw new WorkError('factory_authority_changed','Owner Agent or configuration changed. Stop and reconcile the retained attempt.');
     const eligible=decideExecutionRoute(prior.contract,current.context,decision.admission_request,{...current.facts,writerState:'NONE'});
     if(!eligible.admitted)throw new WorkError('factory_dispatch_denied',eligible.reasons.join(' '),403);

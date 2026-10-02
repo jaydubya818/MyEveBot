@@ -3451,7 +3451,7 @@
     "lib/engineering/route-admission.ts": {
       "classification": "INTERNAL",
       "reason": "Existing atomic Work-row admission and sole route Run/session custody. Factory pin is server-supplied; sequential native session rebind requires prior proven quiescence and sealed historical custody. No provider dispatch or new budget.",
-      "sha256": "c119b5427aea8ebbe8f566fa9fd6d7af2004019942817ac4029a892b7586f71a"
+      "sha256": "5151368e3aeb4f4117e88f4f94ec073364b4cec62e6d05320273cefc8004a0c9"
     },
     "lib/engineering/routing-store.ts": {
       "classification": "INTERNAL",
@@ -3597,7 +3597,7 @@
     "lib/engineering/factory-work-driver.ts": {
       "classification": "ENFORCED",
       "reason": "Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved.",
-      "sha256": "0f64e4e5fdd8cea342ddc4fa7f99a4866d0c713e774250fdc074c0737136cd9e"
+      "sha256": "f86ffd67253b05571876d02b3f4f67f9aea4bf1531dc59aa7cd20e473ff3fbf9"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "ENFORCED",
@@ -3838,7 +3838,7 @@
     "lib/engineering/cloud-environment-routing.ts": {
       "classification": "ENFORCED",
       "reason": "Accepted Fabric derives repository CLOUD requirements; exact scope/pinned environment/image/version and reviewed bounded qualification, no local fallback or execution grant.",
-      "sha256": "cf41cb20178bb6d146c000454eb951b1267052ea68c88e5a9686ffbd69ae2dc6"
+      "sha256": "84506d51c598ab1c3d1de150a758907ec3e5a58601294e46a92fec36e2131486"
     },
     "lib/engineering/cloud-runtime-guard.ts": {
       "classification": "ENFORCED",
