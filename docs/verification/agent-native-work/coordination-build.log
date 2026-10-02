@@ -17,9 +17,9 @@ Cataloged 79 installed skills.
   Finished TypeScript in 4.4s ...
   Collecting page data using 15 workers ...
   Generating static pages using 15 workers (0/130) ...
-  Generating static pages using 15 workers (32/130) 
-  Generating static pages using 15 workers (64/130) 
-  Generating static pages using 15 workers (97/130) 
+  Generating static pages using 15 workers (32/130)
+  Generating static pages using 15 workers (64/130)
+  Generating static pages using 15 workers (97/130)
 ✓ Generating static pages using 15 workers (130/130) in 370ms
   Finalizing page optimization ...
 
@@ -198,4 +198,3 @@ Route (app)
 
 ○  (Static)   prerendered as static content
 ƒ  (Dynamic)  server-rendered on demand
-

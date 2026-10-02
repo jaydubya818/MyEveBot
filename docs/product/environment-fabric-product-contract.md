@@ -11,8 +11,8 @@ Jay explicitly authorized information/integration coordination. The nine P0 requ
 | Product MyEve | ac56e5a6397a707c41a6882ac7752523a870aa49 | Remotely verified product candidate; reconciles main d75091eb333a531fa91ed9d39e273948aa9d0eaf |
 | Fabric MyFactory | fc8c26f4fb8190d938247a855b2bc7711bf3c677 | Remotely verified descriptor/router/metadata source; not merged canonical main |
 | Fabric MyEve | 314036c36b94b1ccbc5f6f343ce922be26098b7e | Remotely verified documentation and canonical reconciliation |
-| Cloud MyFactory | faf93359a4c54daaf3e0b713a601366db02ba8d6 | Read-only inspection of hosted staging controller and V2 contract checkpoint |
-| Cloud MyEve | be64a838137efa12e2cfef2fae3d9fa4a2a39653 | Read-only inspection of V2 transport and cloud custody checkpoint |
+| Cloud MyFactory | faf93359a4c54daaf3e0b713a601366db02ba8d6 | Remote verified; read-only inspection of hosted staging controller and V2 contract checkpoint |
+| Cloud MyEve | be64a838137efa12e2cfef2fae3d9fa4a2a39653 | Remote verified; read-only inspection of V2 transport and cloud custody checkpoint |
 
 Cloud development continues independently. Its committed Phase 3 report has progressed beyond Fabric's older image-access blocker to provider-native image qualification and hosted infrastructure/queue evidence. This does not retroactively qualify the Fabric checkpoint, Routine execution, or cloud Work E2E. Readiness requires exact later evidence, not the date or existence of a deployment. No feature branch was merged or modified by this handoff.
 

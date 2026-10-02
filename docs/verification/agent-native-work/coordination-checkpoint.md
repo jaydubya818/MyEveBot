@@ -13,4 +13,4 @@ The initial offline test exposed raw `Failed to fetch` copy and failed its user-
 
 Evidence: [build](coordination-build.log), [typecheck](coordination-typecheck.log), [Playwright](coordination-playwright.log), [desktop screenshot](../../../output/playwright/agent-native/desktop-work-reconnect.png), [390px screenshot](../../../output/playwright/agent-native/390px-work-reconnect.png). Screenshots reviewed at both sizes. The mobile capture shows the decision and persistent composer in the conversation's scrolled viewport; it is not a full top-of-conversation capture.
 
-The source commit containing this file is the durability checkpoint; its exact SHA and remote equality are recorded in the thread after push. Historical A–F evidence is not relabeled as new cloud evidence.
+**SHA:** `0b01408bba0f27b3be2a9e16cfe1741770e09930`. **Remote verified:** YES. This implementation/evidence checkpoint was pushed to `codex/agent-native-work-experience` and exactly matched `git ls-remote`; the following documentation commit normalizes build-log whitespace and records this receipt. Historical A–F evidence is not relabeled as new cloud evidence.
