@@ -3345,8 +3345,8 @@
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
-      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects.",
-      "sha256": "c6266eb0e64974577ef5df3bc8db21ac497b86910aed336bfab444dec0807c26"
+      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects. Snapshot V2 requires source tree and immutable cloud policy/resource pins; legacy V1 stays strict. Cloud client accepts deterministic evidence only.",
+      "sha256": "704b3224de3cbdd848cf27ec16307d3586645fffb4ab4df272355a084b3bb6b8"
     },
     "lib/engineering/factory-producer-signature.ts": {
       "classification": "INTERNAL",
@@ -3581,8 +3581,8 @@
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
-      "sha256": "8ff1bb832ca6b026c48c00fd7d5dc7a184cbe4ff9d738e00db062e3f46316af0"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Snapshot V2 requires source tree and immutable cloud policy/resource pins; legacy V1 stays strict. Cloud client accepts deterministic evidence only.",
+      "sha256": "aa4942ac2cfe2b55f0d367efa68b834f7d913d73db1d824dd0a447eb899b1b5f"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",

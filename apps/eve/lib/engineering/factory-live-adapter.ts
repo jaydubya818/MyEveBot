@@ -68,6 +68,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   if(canonical(request.spendContract??null)!==canonical(this.config.spendPlan??null))throw Error('Factory preparation plan differs from reviewed configuration');
   validateSpendBinding(data.spend,{...request,workOrderId:data.workOrderId,factoryVersion:this.config.factoryVersion,remoteRunId:data.runId??undefined},request.maxSpendUsd,request.spendContract);
   const s=data.snapshot;if(!s){if(data.state!=='PREPARING')throw Error('Prepared execution snapshot missing');return data;}
+  if('source' in this.config&&(s.version!==2||s.inputTree!==this.config.source.tree||s.configuration.workerProfile!=='container'||!s.configuration.cloud||s.configuration.cloud.evidenceClass!=='DETERMINISTIC'))throw Error('Cloud snapshot source/runtime/evidence mismatch');
   if(s.factoryId!==this.config.factoryId||s.factoryVersion!==this.config.factoryVersion||s.sourceDigest!==this.config.sourceDigest||s.configurationDigest!==this.config.configurationDigest||
    s.requestId!==request.requestId||s.workOrderId!==data.workOrderId||s.runId!==data.runId||s.inputCommit!==request.input.baseRef||s.attemptNumber!==1||
    canonical(s.configuration.allowedPaths)!==canonical(request.input.allowedPaths)||canonical(s.configuration.commands)!==canonical(request.input.checkCommands)||

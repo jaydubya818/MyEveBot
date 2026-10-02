@@ -11,3 +11,6 @@ CONNECTED owner-side isolation: new web project `sofie-cloud-qualification` (`pr
 Existing Sofie project/previews were not modified. The isolated cloud worktree is linked to the new project; no web deployment has been created yet. Factory execution state, model ledger and private candidate/evidence custody remain in MyFactory staging. No Factory database, Blob, worker or verifier credential is given to Sofie.
 
 Mac-off, browser-off, canonical cloud queue-to-Work execution, independent cloud verifier and P0 Playwright remain NOT_RUN. Paid model calls and new publication effects remain zero.
+
+
+Cloud execution snapshot V2 now pins the source tree, worker/verifier image digests, provider, policies, resource bounds, versioned skills and evidence class. MyEve verifies the same synthetic signed packet as Factory and rejects tampering and V1 downgrade. Cloud preparation requires V2 DETERMINISTIC evidence; local V1 behavior is retained. Validation: 2,003 tests passed, 94 skipped; typecheck, capability, skill routing and executor governance passed. Hosted cloud Work, verifier, Mac-off and P0 remain NOT_RUN. No paid models or publication were invoked.
