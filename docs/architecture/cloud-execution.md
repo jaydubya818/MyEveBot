@@ -10,13 +10,13 @@
 | Relay | `a61f0ef697b02cf22da72ff2904c584d7faa026a` |
 | MyFactory | `c0b4c1155a6a98f91375163443938042e6a0be10` |
 
-MyFactory implementation checkpoint: [`d0ec44dde7724957934a6361a6ea271335165bba`](https://github.com/jaydubya818/MyFactory/commit/d0ec44dde7724957934a6361a6ea271335165bba), branch `codex/cloud-execution`. Pushed and exact remote SHA verified on 2026-10-02 UTC. Runtime source is recorded by hash in its qualification report. No canonical main, runtime deployment, owner database or historical Work was changed.
+MyFactory implementation checkpoint: [`71a9776f33b87398c52c7a8fa04827a64d5c7112`](https://github.com/jaydubya818/MyFactory/commit/71a9776f33b87398c52c7a8fa04827a64d5c7112), branch `codex/cloud-execution`. Pushed and exact remote SHA verified on 2026-10-02 UTC. Runtime source is recorded by hash in its qualification report. No canonical main, runtime deployment, owner database or historical Work was changed.
 
-- [Architecture decision, inventory and trust boundaries](https://github.com/jaydubya818/MyFactory/blob/d0ec44dde7724957934a6361a6ea271335165bba/docs/architecture/cloud-execution.md)
-- [Qualification report and retained logs](https://github.com/jaydubya818/MyFactory/blob/d0ec44dde7724957934a6361a6ea271335165bba/docs/cloud-execution/phase-1/README.md)
-- [Runbook](https://github.com/jaydubya818/MyFactory/blob/d0ec44dde7724957934a6361a6ea271335165bba/docs/runbooks/cloud-execution.md)
-- [Staging resource proposal](https://github.com/jaydubya818/MyFactory/blob/d0ec44dde7724957934a6361a6ea271335165bba/docs/cloud-execution/staging-proposal.json)
-- [Supplied mission attachments and completeness notes](https://github.com/jaydubya818/MyFactory/blob/d0ec44dde7724957934a6361a6ea271335165bba/docs/cloud-execution/mission-sources.json)
+- [Architecture decision, inventory and trust boundaries](https://github.com/jaydubya818/MyFactory/blob/71a9776f33b87398c52c7a8fa04827a64d5c7112/docs/architecture/cloud-execution.md)
+- [Qualification report and retained logs](https://github.com/jaydubya818/MyFactory/blob/71a9776f33b87398c52c7a8fa04827a64d5c7112/docs/cloud-execution/phase-1/README.md)
+- [Runbook](https://github.com/jaydubya818/MyFactory/blob/71a9776f33b87398c52c7a8fa04827a64d5c7112/docs/runbooks/cloud-execution.md)
+- [Staging resource proposal](https://github.com/jaydubya818/MyFactory/blob/71a9776f33b87398c52c7a8fa04827a64d5c7112/docs/cloud-execution/staging-proposal.json)
+- [Supplied mission attachments and completeness notes](https://github.com/jaydubya818/MyFactory/blob/71a9776f33b87398c52c7a8fa04827a64d5c7112/docs/cloud-execution/mission-sources.json)
 
 ## What is established
 
@@ -30,7 +30,7 @@ MyFactory dispatch now uses an `ExecutionProvider` seam. Its local adapter wraps
 | Static/build | Producer types, governance, workspace types and build PASS |
 | CONNECTED CLOUD / LIVE | NOT_RUN |
 
-No cloud safety counters were measured. Do not report zero local dependencies, secret disclosures or duplicate cloud executions from this local evidence. DeepAgent remains NOT_QUALIFIED. During this work, canonical MyEve main advanced from `1bd482e1b6de1e4ca52f130b3c23724589c4859b` to `2b22e387c053ba0631efc27c2e8f8a99fff1055e`. The latter records Attempt 8's successful real local Golden Journey and adds the qualified owner-decision/exact-candidate publisher. It is merged into this cloud branch unchanged; real publication and owner acceptance remain gated. The Factory checkpoint above retains the earlier inventory as historical evidence.
+No cloud safety counters were measured. Do not report zero local dependencies, secret disclosures or duplicate cloud executions from this local evidence. DeepAgent remains NOT_QUALIFIED. During this work, canonical MyEve main advanced from `1bd482e1b6de1e4ca52f130b3c23724589c4859b` to `2b22e387c053ba0631efc27c2e8f8a99fff1055e`. The latter records Attempt 8's successful real local Golden Journey and adds the qualified owner-decision/exact-candidate publisher. It is merged into this cloud branch unchanged; real publication and owner acceptance remain gated. The Factory checkpoint records both initial inventory and refreshed canonical source.
 
 ## What MyEve still needs
 
