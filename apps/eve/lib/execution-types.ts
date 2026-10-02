@@ -15,6 +15,11 @@ export const routineConfigurationSchema = z.object({
     version:z.literal(1),tools:z.array(z.string()).max(100),required:z.array(z.string()).max(100),
     optional:z.array(z.object({capabilityId:z.literal("notification.send"),fallback:z.literal("in_app_result")}).strict()).max(1),
   }).strict().optional(),
+  responsibility: z.object({
+    condition: z.string().trim().min(1).max(1000),
+    notify: z.enum(["condition_met", "every_run"]).default("condition_met"),
+    stopWhenMet: z.boolean().default(false),
+  }).strict().optional(),
   instructions: z.string().min(1).max(4000),
   authority: z.object({
     allowedCapabilities: z.array(z.string().min(1)).max(100),

@@ -16,6 +16,8 @@ Duplicate configuration creates a fresh identity with instructions and preferenc
 
 Routines represent ongoing responsibilities; schedules determine their triggers. Existing execution_routines and reminder admission remain canonical. At this checkpoint background execution is disabled and is shown as Waiting, not Monitoring. General laptop-independent operation is not qualified.
 
+Owner review can specify a condition, whether every check should notify, and whether a successful check should stop the Routine. All completed checks retain a result reference; a condition that is not met may stay quiet. Uncertainty still notifies. This is a condition observation, not permission to purchase, publish or send. These lifecycle semantics have deterministic evidence; natural creation through live background completion is not yet qualified.
+
 Groups will represent explicit collaboration around an objective; Relay remains the messaging plane. No Group inherits its members' combined authority. Persistent Group coordination and real multi-agent handoff are still implementation/qualification work, not shipped claims.
 
 ## Readiness

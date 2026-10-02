@@ -418,12 +418,12 @@
     "agent/lib/reminders-db.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "44007513dc78ff4e02470898b8d941e522c9bd79de39c27fbb74fe8b7591dacb"
+      "sha256": "991306fa40c6d8da961f809b875dbdb8473a569a8b5ca2aa491c880a96c1a742"
     },
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "df4fd3088a71dea320c104fb1d3ea90058037df84dbcbf7a6a26f75722431d7e"
+      "sha256": "e2a765d51fe8ac84a90fb0810dfafae85f70f7a8352f5d00ded3d2db4af1ec4c"
     },
     "agent/lib/run-assigned-qa-suite-tool.ts": {
       "classification": "BLOCKED",
@@ -1123,7 +1123,7 @@
     "agent/tools/list_routines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "bad1ac2c11b7e145b7de8f3eb98f745a9cd0ec06cdac3426e2fba7ff30b6ef2e"
+      "sha256": "c68babbc15b03083053937a9d1fe6a78e47c84ece056975b0543079fd7f6635e"
     },
     "agent/tools/list_solution_packs.ts": {
       "classification": "READ_ONLY",
@@ -1148,7 +1148,7 @@
     "agent/tools/make_routine.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b84ce860835e37677c35d68f89ad2b541387926e3e22a803fdb1f532080f8ae2"
+      "sha256": "d86c01112fa3d5b8e272448e273c01b6eca75ad55ca57220678e61b21c1194ff"
     },
     "agent/tools/manage_agent.ts": {
       "classification": "BLOCKED",
@@ -1174,7 +1174,7 @@
     "agent/tools/manage_routine.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "17dfa81a14ddfa90f4dbce6fa4dc1eee6567c576afe8edccd7120b2f93151001"
+      "sha256": "7d816e76e9c27ea38d38a0a00f37ad969875117a5f690770e7df36b71d34f701"
     },
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "INTERNAL",
@@ -1226,7 +1226,7 @@
     "agent/tools/record_observation.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "34ca43679c120610de439658a65066a12ff91888d3ae70937d6b7904f4219974"
+      "sha256": "a29ac345f4c7c4a9b50940e0c0cb13ea02f01bdb2ae29b2d3a0013c50e186a35"
     },
     "agent/tools/record_outcome.ts": {
       "classification": "INTERNAL",
@@ -2234,12 +2234,12 @@
     "lib/execution-store.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f54b6818043e9a3b3618c4500b1a3a52c78a4a4b466d85598e34f717f5f147d1"
+      "sha256": "a636bdd7aebc0fb74ee59f32030a0b6e3be435fd9bb7f73c859ff6587532268d"
     },
     "lib/execution-types.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Types, schemas and pure validation helpers; no provider operation.",
-      "sha256": "7fd610ca60ec02445dfe56d417f281b091e93c86e673109ad4b6bd3691625156"
+      "sha256": "7a26a7d3b9308770fc0076158536b99cb40fcb0244f177f97b312bbfa3f384f8"
     },
     "lib/execution-worker.ts": {
       "classification": "INTERNAL",
@@ -2534,7 +2534,7 @@
     "lib/routine-admission.ts": {
       "classification": "INTERNAL",
       "reason": "Deterministic admission from immutable manifest, current Agent and metadata dependencies. No provider execution. Gateway remains authoritative.",
-      "sha256": "7d7bfe353d2c17821e393cf9d6075974a0995bbdbcf885b56fd04ea71a6d11db"
+      "sha256": "55410140c4510f11dcc3303881531befc7831e52c8e36a20f39d92422c3faa1a"
     },
     "lib/routine-availability.ts": {
       "classification": "READ_ONLY",
@@ -2564,7 +2564,7 @@
     "lib/routine-review.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8034e6fec098d1573a1d30ed85b96e800487c64e65aae817528638639e6ddff3"
+      "sha256": "7582fdc79d0bbba7c40d33768d8270b190c53d8be7ce1efac6631fa2c7278174"
     },
     "lib/routine-run-now.ts": {
       "classification": "INTERNAL",
@@ -3804,6 +3804,16 @@
       "classification": "READ_ONLY",
       "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
       "sha256": "7457a12079d7be7b445ef7090464ef349ab676d77008d77d363bc1c5080b6556"
+    },
+    "lib/routine-check.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped Routine state; no external effect. Conditional checks retain bounded evidence under current claim fencing; release gate remains closed.",
+      "sha256": "47f221ebaf1ee71044e73c2b93d55fccecd7b2058e963360dd4cb76fa02e207b"
+    },
+    "agent/lib/routine-owner.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped Routine state; no external effect. Conditional checks retain bounded evidence under current claim fencing; release gate remains closed.",
+      "sha256": "e3309ab09e2341503f0d27ba19254ac23f1ccb0dbb49f852fec14b1a0384c5cd"
     }
   }
 }

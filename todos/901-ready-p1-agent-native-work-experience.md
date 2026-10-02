@@ -40,3 +40,6 @@ Implemented read-only conversation association and canonical inline Result/Proof
 
 ### Checkpoint B
 Operational agent home and safe configuration copy deterministically qualified: 12 PostgreSQL assertions; 4 browser scenarios; 2 accessibility scans. Natural specialist creation/execution is not yet qualified.
+
+### Checkpoint C
+Conditional Run results/notification/stop and scoped Routine authoring implemented. 19 condition and 12 owner assertions, 62 unit regressions, full existing execution-reliability suite and 4 fixture browser scenarios pass. Natural creation, distinct-trigger coalescing and cloud execution remain open.

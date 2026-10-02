@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:51768) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › test/agent-native/routines.spec.ts:8:1 › owner reviews condition and notification with execution gate visible (1.0s)
+  ✓  2 [desktop] › test/agent-native/routines.spec.ts:25:1 › routine load outage offers retry without claiming monitoring (397ms)
+(node:51907) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [390px] › test/agent-native/routines.spec.ts:8:1 › owner reviews condition and notification with execution gate visible (726ms)
+  ✓  4 [390px] › test/agent-native/routines.spec.ts:25:1 › routine load outage offers retry without claiming monitoring (379ms)
+
+  4 passed (4.1s)
