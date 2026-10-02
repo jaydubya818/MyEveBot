@@ -16,11 +16,11 @@ neonConfig.fetchFunction=async(_url,options)=>{
 };
 try{
  const sofie=await readAgentHome(beta,'owner','agent_e0954312-6a71-4727-a915-f1484a0b8736');
- assert.equal(sofie.works.length,1);assert.equal(sofie.routineExecutionQualified,false);assert.ok(sofie.threads.some(t=>t.id==='agent-native-controlled-thread'));
+ assert.equal(typeof sofie.agent.handle,'string');assert.ok(sofie.authority.some(c=>c.id==='tool.send_email'&&c.approval==='owner_policy'));assert.ok(sofie.authority.every(c=>typeof c.allowed==='boolean'));assert.equal(sofie.works.length,1);assert.equal(sofie.routineExecutionQualified,false);assert.ok(sofie.threads.some(t=>t.id==='agent-native-controlled-thread'));
  await assert.rejects(()=>readAgentHome(beta,'different-owner',sofie.agent.id),e=>e.status===404);
  const source=await createAgent('owner',{name:'Researcher qualification',role:'Researcher',instructions:'Review public information.',capabilityIds:['web.read']},{type:'owner',id:'owner'});
  const copy=await duplicateAgent('owner',source.id,undefined,{type:'owner',id:'owner'});
  assert.notEqual(copy.id,source.id);assert.equal(copy.instructions,source.instructions);assert.equal(copy.capabilities.filter(c=>c.enabled).length,0);assert.equal(copy.isPrimary,false);
  const home=await readAgentHome(beta,'owner',copy.id);assert.equal(home.works.length,0);assert.equal(home.threads.length,0);assert.equal(home.routines.length,0);assert.equal(home.runs.length,0);
- console.log(JSON.stringify({category:'DETERMINISTIC',checks:12,freshIdentity:true,inheritedCapabilityGrants:0,inheritedWork:0,crossOwnerDisclosures:0,liveAgentExecution:'NOT_RUN'}));
+ console.log(JSON.stringify({category:'DETERMINISTIC',checks:15,freshIdentity:true,inheritedCapabilityGrants:0,inheritedWork:0,crossOwnerDisclosures:0,liveAgentExecution:'NOT_RUN'}));
 }finally{neonConfig.fetchFunction=old;await pool.end();}

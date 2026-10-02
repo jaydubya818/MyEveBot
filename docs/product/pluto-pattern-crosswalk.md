@@ -75,3 +75,7 @@ Completed scope and tests are recorded in checkpoints A–F under docs/verificat
 ## Product continuation
 
 Work Inbox automatic settlement, Today and agent-home status use canonical Current Truth; chat archival is independent. Controlled natural authoring and existing Routine lifecycle qualification are recorded in [the continuation checkpoint](../verification/agent-native-work/product-continuation.md). The [dependency audit](current-product-dependencies.md) replaces the stale blanket Q37 wait with specific current gates. Designer→Engineer→Reviewer→Sofie is domain/Relay-contract evidence only; no real multi-agent or CLOUD claim.
+
+## Visual / IA refinement
+
+[Live Agent Cards, Rooms and Today](pluto-visual-ia-addendum.md) records the adopted navigation, capability/authority distinction, specialist editor, landing proposal and explicit limits. Rooms is a product name over Groups; no new communication or execution system is introduced.

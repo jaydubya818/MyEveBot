@@ -1927,8 +1927,8 @@
     },
     "lib/agent-api.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "cc5b89f7267280b530a5db89c973caa23af29b2fa3235b926aa460af994ee174"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
+      "sha256": "8fff37e289c88909bd092bd53ca1611fd10102518b1b6d6782f7a40fdb8edd3a"
     },
     "lib/agentcard-http.ts": {
       "classification": "INTERNAL",
@@ -1937,8 +1937,8 @@
     },
     "lib/agents.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Configuration duplication now copies no capability grants, Work or Memory; fresh identity and isolation qualified in agent-home.integration.mjs. Profile-only update explicitly omits grant/risk/limit columns and uses atomic audit, preserving concurrent revocations.",
-      "sha256": "f3149bdb314c290d13c12e93a97e0b55fa88223f20d4194f5e6a6e80159300c0"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Configuration duplication now copies no capability grants, Work or Memory; fresh identity and isolation qualified in agent-home.integration.mjs. Profile-only update explicitly omits grant/risk/limit columns and uses atomic audit, preserving concurrent revocations. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
+      "sha256": "47d7db6637d81ef856ce515ebc77afa21deacb4c2e74dd67d5b6e3e4b6a0eb9e"
     },
     "lib/api-errors.ts": {
       "classification": "INTERNAL",
@@ -3796,8 +3796,8 @@
     },
     "lib/product/agent-home.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
-      "sha256": "85aa7fbad7797044f5f23710d0ce2954abc9188896d7e2c8e074492ba7dfdbfa"
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
+      "sha256": "074385c427dbbd4859e0a3e2795c33e9a0f76b565607fd29a5512aadc62919d6"
     },
     "app/api/agents/[id]/home/route.ts": {
       "classification": "READ_ONLY",

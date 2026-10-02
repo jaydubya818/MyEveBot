@@ -5,13 +5,13 @@ import { Card } from "@/components/owner/primitives";
 export default function Page() {
   return (
     <ProductShell
-      title="Agent collaboration"
-      description="Retained handoffs between agents, with their current status and evidence."
+      title="Rooms"
+      description="One shared objective, the right specialists, and their Work and Results."
     >
       <CollaborationActivity />
-      <Card title="Persistent Groups are not enabled">
+      <Card title="Rooms are not enabled yet">
         <p>
-          Persistent Group membership and per-agent Relay identity are not yet integrated. Shared Work and artifact access require explicit scope. Adding names to a room must not grant access to
+          Persistent Room membership and per-agent Relay identity are not yet integrated. Shared Work and artifact access require explicit scope. Adding names to a room must not grant access to
           private memory or external actions.
         </p>
         <p>
@@ -19,7 +19,8 @@ export default function Page() {
           connections.
         </p>
         <div className="owner-actions">
-          <Link href="/team">Open Team</Link>
+          <Link href="/team">Open Agents</Link>
+          <Link href="/product-preview#room-preview">Explore the Room interaction preview</Link>
           <Link href="/manage/peers">Relay connections</Link>
           <Link href="/privacy">Private and shared boundaries</Link>
         </div>

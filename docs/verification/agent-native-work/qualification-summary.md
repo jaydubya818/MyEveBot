@@ -49,3 +49,7 @@ The earlier coordination approval rejection was resolved by Jay’s explicit aut
 ## Current Product continuation
 
 The [2026-10-02 continuation checkpoint](product-continuation.md) supersedes earlier counts and blanket Q37 terminology: 1,997 unit tests passed (94 skipped), 113 checks across six PostgreSQL scripts passed, and all 36 desktop/390px agent-native browser cases passed. Work Inbox automatic settlement, direct-owner agent management, deterministic Routine recovery and proposed persistent Group-domain qualification are added. Full natural browser productive execution, real Group identities and the six CLOUD gates remain open; see the [specific current dependencies](../../product/current-product-dependencies.md).
+
+## Visual / IA refinement
+
+[Live Agent Cards, Rooms and Today qualification](visual-ia-qualification.md): 50 full-suite browser cases pass; 32 light/dark desktop/390px visual baselines pass normal comparison. Unit suite 1,997 passed / 94 skipped; 37 targeted PostgreSQL checks pass. Product refinement does not promote Room, Routine release or CLOUD qualification.

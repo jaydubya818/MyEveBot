@@ -6,7 +6,7 @@ test.beforeEach(async({context,page})=>{
 });
 test('handoff evidence stays collapsed and Group status stays honest',async({page},info)=>{
  await page.goto('/rooms');const panel=page.locator('[data-collaboration]');await expect(panel.getByText('Response recorded',{exact:true})).toBeVisible();
- await expect(page.getByRole('heading',{name:'Persistent Groups are not enabled'})).toBeVisible();await expect(panel.getByText('relay://fixture-owner/fixture-researcher',{exact:true})).not.toBeVisible();
+ await expect(page.getByRole('heading',{name:'Rooms are not enabled yet'})).toBeVisible();await expect(panel.getByText('relay://fixture-owner/fixture-researcher',{exact:true})).not.toBeVisible();
  const proof=panel.getByText('Proof of handoff',{exact:true});await proof.focus();await page.keyboard.press('Enter');await expect(panel.getByText('relay://fixture-owner/fixture-researcher',{exact:true})).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});const violations=await panel.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);expect(violations.map((v:any)=>v.id)).toEqual([]);

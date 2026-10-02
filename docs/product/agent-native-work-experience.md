@@ -37,3 +37,7 @@ The collaboration page shows retained Relay transport metadata with expandable c
 Direct-owner approved agent management creates/copies identities with no capability grants. Profile edits preserve permissions and execution limits. Service, delegated and execution callers cannot use this tool. Routine stop cancels the existing reminder; reviewed execution remains subject to canonical admission. Deterministic restart/recovery uses a new worker/store identity and expired-claim fencing, not a physical Mac/cloud shutdown.
 
 [Continuation evidence](../verification/agent-native-work/product-continuation.md) distinguishes controlled tool authoring, browser retained-Result journeys, proposed Group persistence and the missing combined natural browser productive journey. No general Routine release, production Group migration or CLOUD claim accompanies this checkpoint.
+
+## Visual interaction refinement
+
+Live Agent Cards read canonical identity, Work status, responsibility and approval-policy projections. Today shows unfinished Work by state, plus agents. Rooms names the existing Group product concept; its interaction preview remains visibly separated from production integration. Specialist creation reuses the existing editor and avatar storage, with technical settings under Advanced. See the [IA decisions and landing proposal](pluto-visual-ia-addendum.md).

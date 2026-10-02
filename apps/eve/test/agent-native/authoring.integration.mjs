@@ -5,6 +5,8 @@ import {Pool} from 'pg';
 import {neonConfig} from '@neondatabase/serverless';
 import {generateText,tool} from 'ai';
 import {MockLanguageModelV3} from 'ai/test';
+import {updateAgent,getAgent} from '../../lib/agents.ts';
+import {parseAgentWriteInput} from '../../lib/agent-api.ts';
 import manageAgent from '../../agent/tools/manage_agent.ts';
 import engineeringWork from '../../agent/tools/engineering_work.ts';
 import {BetaIntegration} from '../../lib/beta-integration/runtime.ts';
@@ -25,6 +27,9 @@ try{
  eq((await c.query('SELECT count(*)::int AS n FROM agents')).rows[0].n,0);
  // Explicit owner approval is a harness step; no claim of browser approval here.
  const agent=await manageAgent.execute(agentInput,ctx);eq(agent.capabilities.filter(c=>c.enabled).length,0);
+ const appearance=parseAgentWriteInput({name:agent.name,role:agent.role,instructions:agent.instructions,avatarConfig:{style:'robot',tone:'clay'}});assert(appearance);checks++;
+ await updateAgent(owner,agent.id,appearance,{type:'owner',id:owner});eq((await getAgent(owner,agent.id)).avatarConfig,{style:'robot',tone:'clay'});
+ eq(parseAgentWriteInput({...appearance,avatarConfig:{style:'robot',tone:'clay',externalUrl:'https://example.invalid'}}),null);
  await c.query("INSERT INTO agent_capabilities(owner_id,agent_id,capability_id,assigned_by_type) VALUES($1,$2,'web.read','owner')",[owner,agent.id]);
  await manageAgent.execute(manageAgent.inputSchema.parse({action:'update',agentId:agent.id,configuration:{name:'Software Engineer',role:'Engineer',instructions:'Respect independent review.'}}),ctx);eq((await c.query('SELECT count(*)::int AS n FROM agent_capabilities WHERE agent_id=$1',[agent.id])).rows[0].n,1);
  const copy=await manageAgent.execute({action:'duplicate',agentId:agent.id},ctx);assert.notEqual(agent.id,copy.id);checks++;eq(copy.capabilities.filter(c=>c.enabled).length,0);

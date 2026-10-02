@@ -37,7 +37,7 @@ export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
           compact ? "grid grid-cols-2 gap-1 px-2 pb-3" : "owner-primary"
         }
       >
-        {(compact?productDestinations.slice(0,15):productDestinations.filter(item=>["/today","/chat","/work","/inbox","/needs-you","/team","/workspace"].includes(item.href))).map(({ href, label }) => (
+        {(compact?productDestinations.slice(0,15):productDestinations.filter(item=>["/today","/chat","/work","/inbox","/needs-you","/team","/rooms"].includes(item.href))).map(({ href, label }) => (
           <Link
             key={href}
             href={href}
@@ -55,7 +55,8 @@ export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
             {label}
           </Link>
         ))}
-        {!compact&&<details className="owner-more"><summary>More</summary><div>{productDestinations.filter(item=>!["/today","/chat","/work","/inbox","/needs-you","/team","/workspace","/search"].includes(item.href)).map(({href,label})=><Link key={href} href={href} aria-current={pathname===href?'page':undefined}>{label}</Link>)}</div></details>}
+        {!compact&&<div className="owner-work-navigation" aria-label="Work states">{['Working','Monitoring','Recent'].map(label=><a key={label} href={`/inbox?state=${label==='Recent'?'Completed':label}#work-inbox`}>{label}</a>)}</div>}
+        {!compact&&<details className="owner-more"><summary>More</summary><div>{productDestinations.filter(item=>!["/today","/chat","/work","/inbox","/needs-you","/team","/rooms","/search"].includes(item.href)).map(({href,label})=><Link key={href} href={href} aria-current={pathname===href?'page':undefined}>{label}</Link>)}</div></details>}
         {!compact && (
           <button
             onClick={() => setOpen(true)}

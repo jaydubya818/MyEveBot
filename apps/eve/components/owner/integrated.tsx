@@ -19,6 +19,7 @@ import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
 import { Responsibilities } from "./responsibilities";
+import { AgentOverview } from "./agent-overview";
 import { WorkInbox } from "./work-inbox";
 import { OwnerNavigation } from "./navigation";
 
@@ -505,10 +506,7 @@ export function IntegratedExperience({
             <Link href="/work/new">New Goal</Link>
           </div>
         </header>
-        <p className="owner-muted">
-          Private alpha integration · Local execution only · Live Relay
-          unavailable
-        </p>
+        <details className="owner-muted"><summary>Private-alpha availability</summary><p>Open each Work for its admitted execution and Proof. General cloud background execution remains under qualification.</p></details>
         {loading && <p role="status">Checking your current state…</p>}
         {!!errors.length && (
           <div className="owner-notice" role="alert">
@@ -565,7 +563,9 @@ export function IntegratedExperience({
             )}
             {view === "today" && (
               <>
-                <WorkInbox />
+                <WorkInbox overview />
+                {needs.length>0&&<Card title="Owner attention"><ul className="owner-list">{needs.slice(0,3).map(item=><li key={item.id}><strong>{item.title}</strong><p>{item.summary}</p></li>)}</ul><Link href="/needs-you">Review all decisions and approvals</Link></Card>}
+                <AgentOverview />
                 <Responsibilities />
                 <div className="owner-grid">
                   <Card title="Current Goals">
@@ -579,22 +579,10 @@ export function IntegratedExperience({
                       </button>
                     )}
                   </Card>
-                  <Card title="Needs you">
-                    <p>
-                      {needs.length
-                        ? `${needs.length} decisions need your judgment.`
-                        : "No decisions need your attention in this page."}
-                    </p>
-                    <Link href="/needs-you">Review decisions</Link>
-                  </Card>
-                  <Card title="Verified outcomes">
-                    <p>{completed.length} Goals complete in this page.</p>
-                    <Link href="/results">Review Results and proof</Link>
-                  </Card>
                 </div>
               </>
             )}
-            {["today", "brief"].includes(view) && (
+            {view === "brief" && (
               <>
                 <Card title="Active Work">
                   {works.filter((w) => w.lifecycle === "active").length ? (
@@ -915,7 +903,7 @@ export function IntegratedExperience({
             )}
             {view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
-            {["today", "brief", "activity"].includes(view) && (
+            {["brief", "activity"].includes(view) && (
               <Card title="Memory and learning changes">
                 {activity.length ? (
                   <ul className="owner-list">

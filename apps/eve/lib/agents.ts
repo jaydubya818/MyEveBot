@@ -58,7 +58,9 @@ export interface AgentView {
   archivedAt: string | null;
 }
 
+export type AgentLook = { style: "initials" | "robot"; tone: "sage" | "clay" | "slate" };
 export interface AgentWriteInput {
+  avatarConfig?: AgentLook;
   name: string;
   role: string;
   description?: string;
@@ -114,6 +116,7 @@ export function validateAgentInput(input: AgentWriteInput): string | null {
   if (!Number.isInteger(limits.maxRuntimeSeconds) || limits.maxRuntimeSeconds < 10 || limits.maxRuntimeSeconds > 86_400) return "Max runtime must be between 10 and 86,400 seconds.";
   if (!Number.isFinite(limits.maxEstimatedCostUsd) || limits.maxEstimatedCostUsd <= 0) return "Max estimated cost must be greater than zero.";
   if (!Number.isInteger(limits.maxRetries) || limits.maxRetries < 0 || limits.maxRetries > 10) return "Max retries must be between 0 and 10.";
+  if (input.avatarConfig && (!["initials","robot"].includes(input.avatarConfig.style) || !["sage","clay","slate"].includes(input.avatarConfig.tone) || Object.keys(input.avatarConfig).some(k=>!["style","tone"].includes(k)))) return "Choose a supported agent look.";
   const ids = [...new Set(input.capabilityIds ?? [])];
   if (ids.length !== (input.capabilityIds ?? []).length) return "Capability ids must be unique.";
   for (const id of ids) {
@@ -218,8 +221,8 @@ export async function createAgent(ownerId: string, input: AgentWriteInput, actor
   const limits = { ...DEFAULT_LIMITS, ...input.limits };
   const capabilityIds = input.capabilityIds ?? [];
   await db().transaction((tx) => [
-    tx`INSERT INTO agents (id,owner_id,name,slug,role,description,instructions,preferred_model,reasoning_preference,risk_ceiling,notification_policy,max_steps,max_runtime_seconds,max_estimated_cost_usd,max_retries,created_by_type,created_by_id)
-       VALUES (${id},${ownerId},${input.name.trim()},${slug},${input.role.trim()},${input.description?.trim() ?? ""},${input.instructions.trim()},${input.preferredModel || null},${input.reasoningPreference ?? "default"},${input.riskCeiling ?? "low"},${input.notificationPolicy ?? "activity"},${limits.maxSteps},${limits.maxRuntimeSeconds},${limits.maxEstimatedCostUsd},${limits.maxRetries},${actor.type},${actor.id ?? null})`,
+    tx`INSERT INTO agents (id,owner_id,name,slug,role,description,instructions,preferred_model,reasoning_preference,risk_ceiling,notification_policy,max_steps,max_runtime_seconds,max_estimated_cost_usd,max_retries,created_by_type,created_by_id,avatar_config)
+       VALUES (${id},${ownerId},${input.name.trim()},${slug},${input.role.trim()},${input.description?.trim() ?? ""},${input.instructions.trim()},${input.preferredModel || null},${input.reasoningPreference ?? "default"},${input.riskCeiling ?? "low"},${input.notificationPolicy ?? "activity"},${limits.maxSteps},${limits.maxRuntimeSeconds},${limits.maxEstimatedCostUsd},${limits.maxRetries},${actor.type},${actor.id ?? null},${JSON.stringify(input.avatarConfig??{})}::jsonb)`,
     ...capabilityIds.map((capabilityId) => tx`INSERT INTO agent_capabilities (owner_id, agent_id, capability_id, assigned_by_type, assigned_by_id) VALUES (${ownerId},${id},${capabilityId},${actor.type},${actor.id ?? null})`),
     tx`INSERT INTO agent_audit_events (id,owner_id,agent_id,event_type,actor_type,actor_id,summary,changes)
        VALUES (${`agent_event_${randomUUID()}`},${ownerId},${id},'created',${actor.type},${actor.id ?? null},${`${input.name.trim()} Agent created.`},${JSON.stringify({ capabilityIds })}::jsonb)`,
@@ -236,7 +239,7 @@ export async function updateAgent(ownerId: string, agentId: string, input: Agent
   const afterCapabilities = [...(input.capabilityIds ?? [])].sort();
   const capabilitiesChanged = JSON.stringify(beforeCapabilities) !== JSON.stringify(afterCapabilities);
   await db().transaction((tx) => [
-    tx`UPDATE agents SET name=${input.name.trim()},slug=${slug},role=${input.role.trim()},description=${input.description?.trim() ?? ""},instructions=${input.instructions.trim()},preferred_model=${input.preferredModel || null},reasoning_preference=${input.reasoningPreference ?? "default"},risk_ceiling=${input.riskCeiling ?? "low"},notification_policy=${input.notificationPolicy ?? "activity"},max_steps=${limits.maxSteps},max_runtime_seconds=${limits.maxRuntimeSeconds},max_estimated_cost_usd=${limits.maxEstimatedCostUsd},max_retries=${limits.maxRetries},updated_at=now() WHERE owner_id=${ownerId} AND id=${agentId}`,
+    tx`UPDATE agents SET name=${input.name.trim()},slug=${slug},role=${input.role.trim()},description=${input.description?.trim() ?? ""},instructions=${input.instructions.trim()},preferred_model=${input.preferredModel || null},reasoning_preference=${input.reasoningPreference ?? "default"},risk_ceiling=${input.riskCeiling ?? "low"},notification_policy=${input.notificationPolicy ?? "activity"},max_steps=${limits.maxSteps},max_runtime_seconds=${limits.maxRuntimeSeconds},max_estimated_cost_usd=${limits.maxEstimatedCostUsd},max_retries=${limits.maxRetries},avatar_config=${JSON.stringify(input.avatarConfig??current.avatarConfig)}::jsonb,updated_at=now() WHERE owner_id=${ownerId} AND id=${agentId}`,
     tx`DELETE FROM agent_capabilities WHERE owner_id=${ownerId} AND agent_id=${agentId}`,
     ...afterCapabilities.map((capabilityId) => tx`INSERT INTO agent_capabilities (owner_id, agent_id, capability_id, assigned_by_type, assigned_by_id) VALUES (${ownerId},${agentId},${capabilityId},${actor.type},${actor.id ?? null})`),
     tx`INSERT INTO agent_audit_events (id,owner_id,agent_id,event_type,actor_type,actor_id,summary,changes)
