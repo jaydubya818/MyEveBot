@@ -1,3 +1,4 @@
+import { cloudQualificationProject } from "../lib/engineering/cloud-access-qualification.ts";
 import { hostedFactoryQueue } from "../lib/engineering/deployment-mode.ts";
 import { partnerPrivateModel } from "./lib/partner-model.ts";
 import { isPartnerPrincipal } from "../lib/private-owner-boundary.ts";
@@ -54,6 +55,7 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": (_event, ctx) => {
         const select = async () => {
+        if(cloudQualificationProject())throw new Error("Cloud qualification requires the deterministic model boundary; real model selection is disabled.");
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
         if(ownerRuntime && ctx.session.auth.current?.attributes.myeveEngineeringWorkId!==undefined)
           throw new Error("Owner-channel and selected-Work spending authorities cannot be mixed.");

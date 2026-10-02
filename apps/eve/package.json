@@ -10,7 +10,7 @@
     "local:setup": "node --import tsx scripts/local-computer/setup.ts",
     "local:start": "node --import tsx scripts/local-computer/service.ts start",
     "computer:prewarm": "node --env-file-if-exists=.env.local --import tsx scripts/prewarm-computer.ts",
-    "build": "npm run skills:prepare && next build",
+    "build": "npm run skills:prepare && next build && node scripts/check-cloud-client-credentials.mjs",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate-database.ts",
     "db:migrations:check": "node scripts/migrate-database.ts --check",
     "dev": "next dev",

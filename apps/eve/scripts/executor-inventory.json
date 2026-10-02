@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes.",
-      "sha256": "23991891540c8c2bf4af258960c3b7b2c1b8a6a7ceb5184067a7d3e81cc9b670"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. The dedicated cloud qualification project denies model resolution before any provider selection until its deterministic boundary is implemented.",
+      "sha256": "2e0a68ea316ccee134d66a9eb7fef0b21e13b216fb8c9c2fa6b9da5cc756179b"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -3794,6 +3794,16 @@
       "classification": "INTERNAL",
       "reason": "Bounded pure-data cloud custody projection; verifies source tree, preserves signed candidate identity through existing publisher guard, no local process or external capability.",
       "sha256": "ebf1b51dc6986bb4c5dea51e12632ed0474271c7aaac32fa4a86f38d3262c98c"
+    },
+    "lib/engineering/cloud-access-qualification.ts": {
+      "classification": "INTERNAL",
+      "reason": "Dedicated staging-only access qualification: fixed server-side requests, independent operator authentication, no valid Work creation or execution; credentials never returned. Staging ingress denies all other routes until deterministic model boundary is qualified.",
+      "sha256": "c80e1434fbd2a7a23d9636765f0c95714a0295f5ff11c5e2744a075fa0cd51a0"
+    },
+    "app/api/cloud-qualification/access/route.ts": {
+      "classification": "INTERNAL",
+      "reason": "Dedicated staging-only access qualification: fixed server-side requests, independent operator authentication, no valid Work creation or execution; credentials never returned. Staging ingress denies all other routes until deterministic model boundary is qualified.",
+      "sha256": "321d2eaa2e5f00de377caf5d816f4d3d72fd6cb54a978eaa02b11adaee92dbdd"
     }
   }
 }
