@@ -259,9 +259,10 @@ export async function transitionAgent(ownerId: string, agentId: string, status: 
   return (await getAgent(ownerId, agentId))!;
 }
 
+/** A configuration copy has a fresh identity and no inherited capability grants. */
 export async function duplicateAgent(ownerId: string, agentId: string, name: string | undefined, actor: AgentActor): Promise<AgentView> {
   const source = await getAgent(ownerId, agentId); if (!source) throw new Error("Agent not found.");
-  const copy = await createAgent(ownerId, { name: name?.trim() || `${source.name} Copy`, role: source.role, description: source.description, instructions: source.instructions, preferredModel: source.preferredModel, reasoningPreference: source.reasoningPreference, riskCeiling: source.riskCeiling, notificationPolicy: source.notificationPolicy, limits: source.limits, capabilityIds: source.capabilities.filter((cap) => cap.enabled).map((cap) => cap.id) }, actor);
+  const copy = await createAgent(ownerId, { name: name?.trim() || `${source.name} Copy`, role: source.role, description: source.description, instructions: source.instructions, preferredModel: source.preferredModel, reasoningPreference: source.reasoningPreference, riskCeiling: source.riskCeiling, notificationPolicy: source.notificationPolicy, limits: source.limits, capabilityIds: [] }, actor);
   await recordAudit(ownerId, copy.id, "duplicated", actor, `${copy.name} duplicated from ${source.name}.`, { sourceAgentId: source.id });
   return copy;
 }

@@ -6,6 +6,7 @@
       "test",
       "-c",
       "test/agent-native/playwright.config.ts",
+      "agent-home.spec.ts",
       "--max-failures=1"
     ],
     "configFile": "/Users/jaywest/.codex/worktrees/private-alpha-product-expansion/Myeve/apps/eve/test/agent-native/playwright.config.ts",
@@ -84,13 +85,13 @@
   },
   "suites": [
     {
-      "title": "work-thread.spec.ts",
-      "file": "work-thread.spec.ts",
+      "title": "agent-home.spec.ts",
+      "file": "agent-home.spec.ts",
       "column": 0,
       "line": 0,
       "specs": [
         {
-          "title": "conversation → canonical Result → Open a pull request",
+          "title": "persistent agent home shows canonical Work and history with Advanced collapsed",
           "ok": true,
           "tags": [],
           "tests": [
@@ -105,12 +106,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5403,
+                  "duration": 1024,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T07:24:06.725Z",
+                  "startTime": "2026-10-02T07:32:17.817Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -118,149 +119,13 @@
               "status": "expected"
             }
           ],
-          "id": "96fe15630165729d862d-a31e824e08b3282e1b0f",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "conversation → canonical Result → Push branch only",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop",
-              "projectName": "desktop",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 5396,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:12.437Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-a8036160f36342fc1b0a",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "conversation → canonical Result → Keep private",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop",
-              "projectName": "desktop",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 959,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:17.840Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-7beeebbcefd3ae21002a",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "conversation → canonical Result → Reject candidate",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop",
-              "projectName": "desktop",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 982,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:18.804Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-a24006e222a4331ab291",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "unsigned, other-thread and fork data cannot reveal Work",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "desktop",
-              "projectName": "desktop",
-              "results": [
-                {
-                  "workerIndex": 0,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 110,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:19.791Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-71ca96a23398f197eed8",
-          "file": "work-thread.spec.ts",
-          "line": 40,
+          "id": "3f42122402e39c5c9771-d2705847253a3f2c6d61",
+          "file": "agent-home.spec.ts",
+          "line": 13,
           "column": 1
         },
         {
-          "title": "refresh failure hides decision controls until canonical recovery",
+          "title": "agent home authorization and honest outage recovery",
           "ok": true,
           "tags": [],
           "tests": [
@@ -275,12 +140,12 @@
                   "workerIndex": 0,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 478,
+                  "duration": 425,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T07:24:19.905Z",
+                  "startTime": "2026-10-02T07:32:19.578Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -288,13 +153,13 @@
               "status": "expected"
             }
           ],
-          "id": "96fe15630165729d862d-9ce1ec6ea8103e8003d0",
-          "file": "work-thread.spec.ts",
-          "line": 46,
+          "id": "3f42122402e39c5c9771-a65bacf44850ad500a53",
+          "file": "agent-home.spec.ts",
+          "line": 27,
           "column": 1
         },
         {
-          "title": "conversation → canonical Result → Open a pull request",
+          "title": "persistent agent home shows canonical Work and history with Advanced collapsed",
           "ok": true,
           "tags": [],
           "tests": [
@@ -309,12 +174,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 5335,
+                  "duration": 715,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T07:24:20.935Z",
+                  "startTime": "2026-10-02T07:32:20.345Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -322,149 +187,13 @@
               "status": "expected"
             }
           ],
-          "id": "96fe15630165729d862d-81369cc3af3b1304a81a",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "conversation → canonical Result → Push branch only",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "390px",
-              "projectName": "390px",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 5186,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:26.560Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-688ac2f4828f3f120482",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "conversation → canonical Result → Keep private",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "390px",
-              "projectName": "390px",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 888,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:31.750Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-7bd5b852f7175ae3e034",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "conversation → canonical Result → Reject candidate",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "390px",
-              "projectName": "390px",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 794,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:32.643Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-0344aebafc951ccc307f",
-          "file": "work-thread.spec.ts",
-          "line": 18,
-          "column": 2
-        },
-        {
-          "title": "unsigned, other-thread and fork data cannot reveal Work",
-          "ok": true,
-          "tags": [],
-          "tests": [
-            {
-              "timeout": 60000,
-              "annotations": [],
-              "expectedStatus": "passed",
-              "projectId": "390px",
-              "projectName": "390px",
-              "results": [
-                {
-                  "workerIndex": 1,
-                  "parallelIndex": 0,
-                  "status": "passed",
-                  "duration": 117,
-                  "errors": [],
-                  "stdout": [],
-                  "stderr": [],
-                  "retry": 0,
-                  "startTime": "2026-10-02T07:24:33.441Z",
-                  "annotations": [],
-                  "attachments": []
-                }
-              ],
-              "status": "expected"
-            }
-          ],
-          "id": "96fe15630165729d862d-067b0a5c2412a69fcebd",
-          "file": "work-thread.spec.ts",
-          "line": 40,
+          "id": "3f42122402e39c5c9771-2a9a0127a6abdd2e0db9",
+          "file": "agent-home.spec.ts",
+          "line": 13,
           "column": 1
         },
         {
-          "title": "refresh failure hides decision controls until canonical recovery",
+          "title": "agent home authorization and honest outage recovery",
           "ok": true,
           "tags": [],
           "tests": [
@@ -479,12 +208,12 @@
                   "workerIndex": 1,
                   "parallelIndex": 0,
                   "status": "passed",
-                  "duration": 448,
+                  "duration": 402,
                   "errors": [],
                   "stdout": [],
                   "stderr": [],
                   "retry": 0,
-                  "startTime": "2026-10-02T07:24:33.564Z",
+                  "startTime": "2026-10-02T07:32:21.258Z",
                   "annotations": [],
                   "attachments": []
                 }
@@ -492,9 +221,9 @@
               "status": "expected"
             }
           ],
-          "id": "96fe15630165729d862d-61c754b22d69aea733c7",
-          "file": "work-thread.spec.ts",
-          "line": 46,
+          "id": "3f42122402e39c5c9771-c4db55d758b493c190bf",
+          "file": "agent-home.spec.ts",
+          "line": 27,
           "column": 1
         }
       ]
@@ -502,9 +231,9 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-10-02T07:24:06.276Z",
-    "duration": 27887.845,
-    "expected": 12,
+    "startTime": "2026-10-02T07:32:17.566Z",
+    "duration": 4225.332,
+    "expected": 4,
     "skipped": 0,
     "unexpected": 0,
     "flaky": 0

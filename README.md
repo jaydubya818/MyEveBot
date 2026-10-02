@@ -320,3 +320,7 @@ The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approva
 These are historical product qualification records. Use the current source and connection evidence linked above for deployment claims; a qualified interface does not imply that every live provider or delivery path is enabled.
 
 Private-alpha Attempt 5 completion repair and complete zero-model qualification: [evidence](docs/private-alpha/completion-transition-2026-10-01/README.md). Live retry remains unapproved.
+
+## Agent-native product work
+
+The dedicated product source adds canonical Work/Result/Proof and the existing owner decision inline in chat, plus persistent agent homes and capability-free configuration copies. These surfaces are deterministically qualified; natural specialist execution, full Routine lifecycle, Groups and laptop-independent cloud execution remain separate gates. See [the product guide](docs/product/agent-native-work-experience.md) and [qualification evidence](docs/verification/agent-native-work/checkpoint-b.md).

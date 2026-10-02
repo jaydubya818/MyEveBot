@@ -37,3 +37,6 @@ Fetched all three canonical remote main branches. Reused clean isolated checkout
 
 ### Checkpoint A
 Implemented read-only conversation association and canonical inline Result/Proof/decision. 8 PostgreSQL checks, 27 unit regressions, 25 publication integration checks, 12 production-build browser scenarios; 8 scoped accessibility scans pass. Full mission acceptance remains open.
+
+### Checkpoint B
+Operational agent home and safe configuration copy deterministically qualified: 12 PostgreSQL assertions; 4 browser scenarios; 2 accessibility scans. Natural specialist creation/execution is not yet qualified.

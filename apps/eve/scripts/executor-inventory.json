@@ -1938,8 +1938,8 @@
     },
     "lib/agents.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "29f5cf3c0c92de6d54357164324cabaede15493616c3efa56e189bb791cf8201"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Configuration duplication now copies no capability grants, Work or Memory; fresh identity and isolation qualified in agent-home.integration.mjs.",
+      "sha256": "b0e9d50d8636371c8943c88238e7d31c401487f1d3f33e61e78c2e8ff2691d4f"
     },
     "lib/api-errors.ts": {
       "classification": "INTERNAL",
@@ -3794,6 +3794,16 @@
       "classification": "READ_ONLY",
       "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
       "sha256": "c74b07465dcaa017d2dadfee6e286b6cff1004a17542424b82ba558e07b48422"
+    },
+    "lib/product/agent-home.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
+      "sha256": "2e10e2f415e8496f84547366d9f9c254129be8f1f79d5b26bb7069f674a14dec"
+    },
+    "app/api/agents/[id]/home/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
+      "sha256": "7457a12079d7be7b445ef7090464ef349ab676d77008d77d363bc1c5080b6556"
     }
   }
 }
