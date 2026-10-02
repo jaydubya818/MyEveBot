@@ -2,7 +2,7 @@
 
 **Overall: PARTIAL. Live cloud canary is not ready.**
 
-The starting canonical main SHA is `2b22e387c053ba0631efc27c2e8f8a99fff1055e`. This branch preserves cloud documentation checkpoint `125bd01`, including canonical Attempt-8 publication. No MyEve runtime code changed in this checkpoint. Another task's local `d75091eb333a531fa91ed9d39e273948aa9d0eaf` publication-readback/presentation repair remains untouched and must be reconciled when canonical.
+The starting canonical main SHA is `2b22e387c053ba0631efc27c2e8f8a99fff1055e`. This branch preserves cloud documentation checkpoint `125bd01`, including canonical Attempt-8 publication. No MyEve runtime code changed in this checkpoint. Canonical main advanced to `d75091eb333a531fa91ed9d39e273948aa9d0eaf` during remote verification. Its publication-readback/presentation repair was merged unchanged; the README conflict retains both publication and cloud status. No publication behavior was edited by this mission.
 
 [Mac deterministic regressions](mac-regressions.txt): **46 PASS, 8 SKIPPED**. The SQL suite requires its explicitly disposable PostgreSQL configuration and was not enabled; real Mac desktop/screenshot operations were not performed. Existing installed dependency tree was reused for this documentation-only MyEve checkpoint; this is not a fresh dependency-install qualification.
 
