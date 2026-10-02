@@ -46,3 +46,6 @@ Conditional Run results/notification/stop and scoped Routine authoring implement
 
 ### Checkpoint D
 Recorded canonical deterministic restart/lease/recovery and delivery regressions. Browser-disconnected real execution and Mac-off CLOUD remain NOT_RUN; release stays disabled. Read-only Environment Fabric report remains PARTIAL; no candidate merged. Continue E/F.
+
+### Checkpoint E
+Canonical owner-scoped responsibility reads added to Today/Inbox, with quiet-result separation and timezone-aware schedule display. Desktop rail/mobile Menu reduce navigation complexity. 27 PostgreSQL assertions and 6 browser scenarios pass; 4 accessibility scans clear. Full all-channel and live background qualification remains open.

@@ -23,3 +23,7 @@ Groups will represent explicit collaboration around an objective; Relay remains 
 ## Readiness
 
 See [baseline and capability crosswalk](pluto-pattern-crosswalk.md) and [checkpoint evidence](../verification/agent-native-work/checkpoint-a.md). Implemented, deterministically qualified and live-qualified are separate. This source branch is not deployed or merged into canonical main by this work.
+
+## Today and Inbox
+
+Today surfaces ongoing responsibilities with the responsible agent and retained last/next checks. A scheduled time is not proof of execution. Inbox shows existing Routine result notifications; quiet checks remain in agent history. Both refresh after reconnect and remove stale data when a refresh fails. Product pages use a persistent desktop rail and a compact mobile Menu, with secondary destinations under More.

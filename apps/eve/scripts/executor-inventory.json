@@ -3814,6 +3814,16 @@
       "classification": "INTERNAL",
       "reason": "Owner-scoped Routine state; no external effect. Conditional checks retain bounded evidence under current claim fencing; release gate remains closed.",
       "sha256": "e3309ab09e2341503f0d27ba19254ac23f1ccb0dbb49f852fec14b1a0384c5cd"
+    },
+    "lib/product/responsibilities.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
+      "sha256": "4ceba41515ccf7c59d1ca01641aaf0c4b952d8d2e4807ad2685b7e8a7f452f14"
+    },
+    "app/api/responsibilities/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
+      "sha256": "c8c3e7de1a174f43f8ccdca8298c1ff96599d18a49f94578ddcf84c4e9cc4671"
     }
   }
 }

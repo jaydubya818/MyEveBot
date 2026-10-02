@@ -5,6 +5,7 @@ import type { AgentView } from "@/lib/agents";
 import type { ChannelStatusView } from "@/lib/channels";
 import type { EmailThreadSummary } from "@/lib/email-api";
 import type { WeeklyReviewView } from "@/lib/review-types";
+import { Responsibilities } from "./responsibilities";
 import { ProductShell, ResourceState } from "./product-shell";
 import { useProductResource } from "./resource";
 import { Card, Empty, State, date } from "./primitives";
@@ -159,6 +160,7 @@ export function InboxHub() {
         <Link href="/email">Open email & drafts</Link>
         <Link href="/manage/peers">Relay connections</Link>
       </div>
+      <Responsibilities view="inbox" />
       <ResourceState {...channels} />
       <div className="owner-grid">
         {channels.data?.channels.map((channel) => (
