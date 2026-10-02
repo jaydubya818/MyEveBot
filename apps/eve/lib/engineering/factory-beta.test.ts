@@ -2,7 +2,7 @@ import {describe,it,expect,vi} from 'vitest';
 import {randomUUID} from 'node:crypto';
 import {betaRoute} from './factory-routing.ts';
 import {factoryActionSchema,handleFactoryRequest} from './factory-api.ts';
-import {LiveFactoryAdapter,type FactoryConnection} from './factory-live-adapter.ts';
+import {LiveFactoryAdapter,repairWorkOrderFor,type FactoryConnection} from './factory-live-adapter.ts';
 import {digest} from './factory-producer-protocol.ts';
 const sourceDigest='a'.repeat(64),configurationDigest='b'.repeat(64);
 const config:FactoryConnection={origin:'http://127.0.0.1:12345',token:'c'.repeat(64),factoryId:'fixture',sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),repositoryPath:'/fixture',keys:[{factoryId:'fixture',keyId:'k',publicKey:'fixture',activeFrom:'2020-01-01',notAfter:'2099-01-01'}],qualification:{scopeId:'owner',profileHash:'d'.repeat(64),evidenceRef:'local',qualifiedAt:'2026-01-01T00:00:00Z',expiresAt:'2099-01-01T00:00:00Z',mode:'LOCAL_FIXTURE',spendEnforced:true}};
@@ -23,7 +23,7 @@ describe('Factory beta boundaries',()=>{
  it.each(['https://evil.invalid','http://localhost:12345','http://127.0.0.1:12345/private','http://x:y@127.0.0.1:12345'])('rejects unqualified credential destination %s',origin=>{expect(()=>new LiveFactoryAdapter({...config,origin})).toThrow();});
  it('rejects owner-supplied connection, qualification or dispatch bindings',()=>{
   const input={operation:'start',expectedWorkVersion:2,expectedWorkGeneration:2};expect(factoryActionSchema.safeParse(input).success).toBe(true);
-  for(const field of ['factoryVersion','keys','token','qualification','runId','writerGeneration','spendPlan','spendContract','routing','intent','boundedOperationQualified'])expect(factoryActionSchema.safeParse({...input,[field]:'injected'}).success).toBe(false);
+  for(const field of ['factoryVersion','keys','token','qualification','runId','writerGeneration','spendPlan','spendContract','routing','intent','boundedOperationQualified','repairBinding','repairWorkOrderId'])expect(factoryActionSchema.safeParse({...input,[field]:'injected'}).success).toBe(false);
  });
  it('requires authenticated owner before resolving a Factory control',async()=>{
   vi.stubEnv('MYEVE_ENGINEERING_MODE','dogfood');try{const response=await handleFactoryRequest(new Request('http://localhost/api/engineering/work/x/factory',{method:'POST'}),randomUUID());expect(response.status).toBe(401);}finally{vi.unstubAllEnvs();}
@@ -39,5 +39,28 @@ describe('Factory beta boundaries',()=>{
   expect(await adapter.observe(id)).toBeNull();reply={...body,quiescent:true};await expect(adapter.observe(id)).rejects.toThrow(/terminal/);
   reply={...body,identity:{...id,writerGeneration:2}};await expect(adapter.observe(id)).rejects.toThrow(/exact writer/);
   const offline=new LiveFactoryAdapter(config,vi.fn(async()=>new Response('',{status:503})) as unknown as typeof fetch);await expect(offline.observe(id)).rejects.toThrow(/unavailable/);
+ });
+});
+
+describe('review-repair exact consumer binding',()=>{
+ const work={id:randomUUID(),version:2,generation:2};
+ const binding={workId:work.id,workVersion:2,workGeneration:2,workOrderId:randomUUID()};
+ it('accepts only the exact configured Work and never reads authority from findings',()=>{
+  expect(repairWorkOrderFor(config,work)).toBeUndefined();
+  expect(repairWorkOrderFor({...config,repairBinding:binding},work)).toBe(binding.workOrderId);
+  for(const changed of [{...work,id:randomUUID()},{...work,version:3},{...work,generation:3}])expect(()=>repairWorkOrderFor({...config,repairBinding:binding},changed)).toThrow(/exact current Work/);
+ });
+ it('denies changed or unconfigured repair binding before any network effect',async()=>{
+  const fetcher=vi.fn();const adapter=new LiveFactoryAdapter({...config,repairBinding:binding},fetcher);
+  for(const request of [{workId:work.id,workGeneration:2},{workId:randomUUID(),workGeneration:2,repairWorkOrderId:binding.workOrderId},{workId:work.id,workGeneration:3,repairWorkOrderId:binding.workOrderId}])await expect(adapter.prepare(request as never)).rejects.toThrow(/reviewed host binding/);
+  await expect(new LiveFactoryAdapter(config,fetcher).prepare({repairWorkOrderId:binding.workOrderId} as never)).rejects.toThrow(/reviewed host binding/);
+  expect(fetcher).not.toHaveBeenCalled();
+ });
+ it('passes the approved id through the normal endpoint and rejects a substituted WorkOrder',async()=>{
+  const request={requestId:randomUUID(),workId:work.id,workGeneration:2,repairWorkOrderId:binding.workOrderId};
+  const fetcher=vi.fn(async(_url:unknown,_init?:RequestInit)=>Response.json({requestId:request.requestId,workOrderId:randomUUID(),runId:null,snapshot:null,identity:null,state:'PREPARING',quiescent:false,evidenceRef:null,spend:{status:'KNOWN',ceilingUsd:1},blocker:null}));
+  const adapter=new LiveFactoryAdapter({...config,repairBinding:binding},fetcher as typeof fetch);
+  await expect(adapter.prepare(request as never)).rejects.toThrow(/different repair WorkOrder/);
+  expect(JSON.parse(String(fetcher.mock.calls[0]?.[1]?.body))).toMatchObject({repairWorkOrderId:binding.workOrderId});
  });
 });
