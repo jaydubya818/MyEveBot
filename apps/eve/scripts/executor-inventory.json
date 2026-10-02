@@ -3,9 +3,9 @@
   "note": "Source-level inventory: classifications describe consequential effects; mixed sources may also contain reads/internal state. Every helper/API change requires review. See docs/action-executor-audit.md.",
   "executors": {
     "agent/agent.ts": {
-      "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. The dedicated cloud qualification project denies model resolution before any provider selection until its deterministic boundary is implemented.",
-      "sha256": "2e0a68ea316ccee134d66a9eb7fef0b21e13b216fb8c9c2fa6b9da5cc756179b"
+      "classification": "ENFORCED",
+      "reason": "Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained.",
+      "sha256": "9c3f909508b8386390da32cf253bca98fe593cd3d9f7ba034d956d363a10759e"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -3164,9 +3164,9 @@
       "sha256": "b4f68a72e2464227e2654c5a874d6938a74fa0cb87292bf32bd8242efb83a247"
     },
     "lib/engineering/contract.ts": {
-      "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "96c426b236d884bcf7abefc684c4f4d14b5cd5d53ddc6168b8a26bfc93026b76"
+      "classification": "ENFORCED",
+      "reason": "Explicit factory-cloud profile identifies cloud execution without claiming a local harness. Existing profile/criterion limits and immutable hashes retained.",
+      "sha256": "41fe9dd50fc511f7918ef56a14b81bddbd349aacf66a83a246acc2d90d280e29"
     },
     "lib/engineering/types.ts": {
       "classification": "INTERNAL",
@@ -3205,8 +3205,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain.",
-      "sha256": "f0842b0d5311d29502798e688c421ebabc4b7a4b029089ff1a70746e422a9105"
+      "reason": "Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged.",
+      "sha256": "16dba1e56aa8b582dbd999254e5701be4c160e54e0290e2d59ab4bad5e5f6051"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3315,8 +3315,8 @@
     },
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
-      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows.",
-      "sha256": "73bb06b69f811c54ba09baacf7f75bbd1c24603cef16398235bc37080f0f6db4"
+      "reason": "Cloud profiles rejected before any local Docker producer/verifier resource effect. Existing local behavior retained.",
+      "sha256": "65bdefce41c057f6fc7d7924f301cfa83975bb9ca30c3eaf2aaa726cd1bc717b"
     },
     "lib/engineering/execution-api.ts": {
       "classification": "INTERNAL",
@@ -3435,8 +3435,8 @@
     },
     "lib/engineering/native-results.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority.",
-      "sha256": "27c06dd5784cad41ea3de19b0e43c54c8a9a077027d9eafeace771e572a854d7"
+      "reason": "Existing Result/Proof labels cloud verification accurately; no new readiness or publication authority.",
+      "sha256": "c5ca54e911b45c2310e3709da141191556175858184fd13095928b0fb54bed61"
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
@@ -3464,9 +3464,9 @@
       "sha256": "3c63612dff7c6a63750deb02834fcf2a81c102633e189156dd9856997ee30b5b"
     },
     "lib/engineering/runtime.ts": {
-      "classification": "INTERNAL",
-      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "0e04b3e9e505b7e538a554e14b004c908bfd45828325cc2812c616377bdd62c6"
+      "classification": "ENFORCED",
+      "reason": "Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged.",
+      "sha256": "88e056aa7b35c00e381ca67483989c0b8cc18c1a6409aa9d25d9ed2b19f50235"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
@@ -3575,9 +3575,9 @@
       "sha256": "c834aeddac76c586315998bc0af341266c5d89ba0b73e20e0462de0356a58b10"
     },
     "lib/engineering/factory-runtime.ts": {
-      "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
-      "sha256": "8ed4e7398e0361a5a9aa82147aa679291d24ac0f57271314b6b963a7f2ea2f83"
+      "classification": "ENFORCED",
+      "reason": "Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner.",
+      "sha256": "a4cdb6f051f49222a5b35e13a6f16e7d095e11ce6aaf3b85881d0c5ff8ece542"
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "ENFORCED",
@@ -3596,13 +3596,13 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical admission, writer, spending, custody and current Result checks preserved. CLOUD projects independently signed protected evidence; recovery requires destroyed resource proof and never falls back to local Docker.",
-      "sha256": "6c55d39a86c81d33eafda130707608cde33ee77787e74ce5d7ca27359a637d89"
+      "reason": "Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved.",
+      "sha256": "0f64e4e5fdd8cea342ddc4fa7f99a4866d0c713e774250fdc074c0737136cd9e"
     },
     "lib/engineering/factory-api.ts": {
-      "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "f6468d10df78a4aa7900d48f55642a56c0550c5f64f6b419873f52d826d7e7b9"
+      "classification": "ENFORCED",
+      "reason": "Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks.",
+      "sha256": "25b4ec69a2f2c5eeaa8899ac139d284f33e7c946e5f1553e0c441d99844aeab4"
     },
     "lib/engineering/factory-observation.ts": {
       "classification": "READ_ONLY",
@@ -3615,9 +3615,9 @@
       "sha256": "99ee0f29497ac6ac51efbed866046bb669a1c90a75fea7841ecdd314ed0f5ee1"
     },
     "lib/engineering/factory-routing.ts": {
-      "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "98346e08620a824b8f9450a780a75275384f7790b1d3d44682159c46aee31330"
+      "classification": "ENFORCED",
+      "reason": "Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback.",
+      "sha256": "f0f8dbb4f44f369ada7c67b23787df9db5ca73e964dd37406deace0ce0ffeb8f"
     },
     "app/api/capsules/route.ts": {
       "classification": "INTERNAL",
@@ -3695,9 +3695,9 @@
       "sha256": "396f9a5cde0cb5b189ee18abad713f7b8c73bf60604e381148734561b20108d8"
     },
     "lib/engineering/deployment-mode.ts": {
-      "classification": "INTERNAL",
-      "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission.",
-      "sha256": "b220fa93ba54255d52f433ea14eefa3d7728cca42ef9c4614852aa2de94aaaf9"
+      "classification": "ENFORCED",
+      "reason": "Exact hosted preview guard enables command queue only for dedicated staging Factory and explicit synthetic owner.",
+      "sha256": "3dd215e90f7433195187048a9703867f4178e61550d0c71ed3e3a987fe5f9d24"
     },
     "lib/engineering/factory-worker-approval.ts": {
       "classification": "INTERNAL",
@@ -3814,6 +3814,51 @@
       "classification": "ENFORCED",
       "reason": "Backend-only exact Sofie preview workload identity to validated Factory destination. Reject wrong project/team/environment/expiry, no static credential fallback, never persist identity in a connection profile.",
       "sha256": "93216885406d5cae1761b0abeaab80d6d8c45606f24d785fe907c3efbff58c60"
+    },
+    "lib/engineering/cloud-controller-delivery.ts": {
+      "classification": "ENFORCED",
+      "reason": "Strict bounded deployment/topic/region wakeup; next recovery scheduled before effects, no identity/authority payload, expiry and count bounded.",
+      "sha256": "b054ce61d1f53781b051a652f9cc88c9682895fe3c76991cb3568eaefbb3f418"
+    },
+    "lib/engineering/cloud-controller-queue.ts": {
+      "classification": "ENFORCED",
+      "reason": "Backend OIDC queue sends only command correlation. Persistent command timestamp bounds recovery; current owner required and no Factory infrastructure token exists here.",
+      "sha256": "d19f0b196bf71005c42157116fb7c057f1b24a30711b0dda89c0fc087f40c79e"
+    },
+    "lib/engineering/cloud-controller.ts": {
+      "classification": "ENFORCED",
+      "reason": "Dedicated preview only, verified TLS unpooled database session lock, existing command consumer and canonical driver. Replay reconciles retained attempt; no allocation/provider credentials.",
+      "sha256": "34fb874e370b8145768209956f017a2ab44d98d0f202f12f02bdfdebe45317d7"
+    },
+    "lib/engineering/cloud-conversation-model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Fixed corpus at real Eve model boundary: active synthetic primary owner and Work scope, 8-step bound, ordinary tool proposals only, zero network model fallback.",
+      "sha256": "e89859b53f919e600fc15aa79b9800d5245b88247733e862500a67060eb3bc0f"
+    },
+    "lib/engineering/cloud-environment-routing.ts": {
+      "classification": "ENFORCED",
+      "reason": "Accepted Fabric derives repository CLOUD requirements; exact scope/pinned environment/image/version and reviewed bounded qualification, no local fallback or execution grant.",
+      "sha256": "cf41cb20178bb6d146c000454eb951b1267052ea68c88e5a9686ffbd69ae2dc6"
+    },
+    "lib/engineering/cloud-runtime-guard.ts": {
+      "classification": "ENFORCED",
+      "reason": "Installation-only exact preview/project flag and narrow ingress; no app identity or Work grant. Paid/local/static Factory conflicts denied.",
+      "sha256": "43cab9e1c8cc1ea2527f448a04d52da01006ff0dbfcd0d6b3ba7604426379a47"
+    },
+    "lib/environment-fabric/environment.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Accepted immutable Environment Fabric contract copied at pinned source revision; validation/presentation only.",
+      "sha256": "1844f841db35c591b227dec0a6486c91badbbed2fb2135d6895723f0e69bc8ae"
+    },
+    "lib/environment-fabric/router.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Accepted Fabric deterministic capability/authority router; no harness-specific routing or environment fallback.",
+      "sha256": "9abd19a54a6a012aea9458cd217ae8ddb61d671673f5030e2da802bb4ac69352"
+    },
+    "app/api/cloud-qualification/controller/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Queue SDK authenticated callback plus exact hosted runtime gate. Wakeup cannot supply Work authority; canonical controller retains checks.",
+      "sha256": "07ba93972de56e48d6827367fadbf421e30f11490a14efa620dad9c5205c4c8c"
     }
   }
 }

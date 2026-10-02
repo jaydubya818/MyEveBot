@@ -20,5 +20,15 @@
       "codex/telegram-current-integration": false,
       "codex/cloud-execution": false
     }
+  },
+  "functions": {
+    "app/api/cloud-qualification/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-cloud-work-v1"
+        }
+      ]
+    }
   }
 }

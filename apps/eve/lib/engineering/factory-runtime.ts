@@ -1,3 +1,6 @@
+import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
+import {z} from 'zod';
+import {treeObjects} from './github.ts';
 import {execFile} from 'node:child_process';
 import {promisify} from 'node:util';
 import {factoryConfig,FactoryRouteAuthority} from './factory-routing.ts';
@@ -10,7 +13,16 @@ const exec=promisify(execFile);
 /** Only reviewed exact Git objects; no ambient credentials or mutable checkout. */
 export async function factoryRuntime(store:WorkStore){
  const config=await factoryConfig(),c=config.engineering;
- if('transport' in config.connection)throw new Error('Cloud source and independent verifier runtime are not yet qualified');
+ if('transport' in config.connection){
+  if(!cloudRuntimeEnabled()||store.principal.scopeKind!=='personal'||store.principal.scopeId!==c.ownerId||store.principal.actorId!==c.ownerId)throw Error('CLOUD_QUALIFICATION_OWNER_REQUIRED');
+  const snapshot=z.object({sha:z.string().regex(/^[a-f0-9]{40}$/),files:z.record(z.string(),z.string().max(100000))}).strict().parse(cloudRuntimeConfiguration().source);
+  if(snapshot.sha!==config.connection.source.commit||treeObjects(snapshot.files).sha!==config.connection.source.tree)throw Error('CLOUD_QUALIFICATION_SOURCE_PIN');
+  preflightApprovedBase(c.profile,c.approvedBase,snapshot,1);
+  // FactoryWorkDriver consumes the separately signed protected cloud evidence.
+  // This sentinel makes any accidental local-verifier route fail closed.
+  const verifier={verify:async()=>{throw Error('LOCAL_VERIFIER_FORBIDDEN_IN_CLOUD');}};
+  return new FactoryWorkDriver(store,new FactoryRouteAuthority(store),new DirectDevelopmentStore(store,{profile:c.profile,approvedBase:c.approvedBase,objective:c.objective,criteria:c.criteria,agentId:c.agentId,issueNumber:1}),verifier,async()=>structuredClone(snapshot));
+ }
  const repositoryPath=config.connection.repositoryPath;
  const source=async()=>{
   const files:Record<string,string>={};

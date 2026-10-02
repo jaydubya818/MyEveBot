@@ -1,3 +1,4 @@
+import {cloudRuntimeEnabled,cloudIngressAllowed} from './lib/engineering/cloud-runtime-guard';
 import { cloudQualificationProject } from "./lib/engineering/cloud-access-qualification";
 import { qualificationEnabled, qualifyIngress } from "./lib/qualification/client";
 import type { NextRequest } from "next/server";
@@ -6,11 +7,12 @@ import { NextResponse } from "next/server";
 import { webAuthConfigStatus, webAuthRequired, webPrincipal } from "@/lib/web-auth";
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  // Until the deterministic model boundary is qualified, no agent/tool/API entry
-  // point in this isolated project may trigger automatic Gateway/OIDC spending.
+  // The dedicated preview exposes only the deterministic, authenticated journey.
+  // An absent installation flag keeps every productive entry closed.
   if (cloudQualificationProject()) {
     if (process.env.VERCEL_ENV === "preview" && request.nextUrl.pathname === "/api/cloud-qualification/access") return NextResponse.next();
-    return new NextResponse(null, {status:403});
+    if(!cloudRuntimeEnabled()||!cloudIngressAllowed(request.nextUrl.pathname,request.method))return new NextResponse(null,{status:403});
+    // Continue through existing web/session and endpoint authentication below.
   }
   if (qualificationEnabled()) {
     if(request.nextUrl.pathname === "/api/relay/qualification-artifacts") return NextResponse.next();

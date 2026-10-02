@@ -112,6 +112,7 @@ export class DockerClaudeExecutor implements Executor {
   readonly capabilities={resumeSession:false,automaticFailover:false} as const;
   constructor(private readonly config:{brokerPort:number;brokerSecret:string;model:string}) {}
   async start(contract:WorkContract,run:EngineeringRun,snapshot:RepositorySnapshot) {
+    if(contract.profile.executor!=="claude-code")throw Error("LOCAL_EXECUTOR_FORBIDDEN_FOR_CLOUD");
     assertResource(run);
     if (!Number.isInteger(this.config.brokerPort)||this.config.brokerPort<1024||this.config.brokerPort>65535) throw new Error("Invalid isolated broker port.");
     const name=run.resource,image=contract.profile.image;
@@ -196,6 +197,7 @@ export class DockerClaudeExecutor implements Executor {
 
 export class DockerProtectedVerifier implements ProtectedVerifier {
   async verify(contract:Pick<WorkContract,"workId"|"baseSha"|"criteriaVersion"|"profileHash"|"profile">,candidate:Candidate):Promise<Evidence[]> {
+    if(contract.profile.executor!=="claude-code")throw Error("LOCAL_VERIFIER_FORBIDDEN_FOR_CLOUD");
     const name=`myeve-golden-verify-${candidate.id}`,image=contract.profile.image;
     const evidence:Evidence[]=[];
     let initializedVolume=false;

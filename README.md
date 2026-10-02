@@ -1,3 +1,5 @@
+> Cloud staging implementation: [deterministic controller and Eve model boundary](docs/architecture/cloud-deterministic-composition.md). Hosted productive Work / Mac-off / P0 remain **NOT_RUN**; paid calls 0, production and publication disabled.
+
 # MyEve
 
 Dedicated cloud staging now has an approved preview-only OIDC transport to Factory, with no static Factory bypass. Local transport/security regressions pass; hosted access, revocation and CLOUD Golden Journey remain pending. [Implementation and evidence limits](docs/architecture/cloud-factory-oidc.md).
