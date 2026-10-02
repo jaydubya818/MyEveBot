@@ -1,6 +1,6 @@
 # MyEve
 
-[Cloud execution migration](docs/architecture/cloud-execution.md): architecture inventory and the local Factory provider seam are qualified. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
+[Cloud execution migration](docs/architecture/cloud-execution.md): the local Factory provider seam is qualified, and dedicated staging database/private storage/hosted readiness are provisioned. Worker-image distribution is externally blocked; see the retained evidence. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
 
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner-decision and exact-candidate publication handoff is qualified; publication and owner acceptance remain separately gated. Historical Attempts 1–8 and the verified candidate remain immutable.
 
