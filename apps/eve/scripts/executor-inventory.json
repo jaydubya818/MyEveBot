@@ -3784,6 +3784,16 @@
       "classification": "ENFORCED",
       "reason": "Only called by durable canonical candidate publisher after exact owner approval. Materializes signed immutable Git objects in fresh bare repository, recomputes tree, checks parent/base ref and exact diff. Create-only branch CAS and one draft PR; no merge/deploy. No mutable workspace input; process output/errors withhold secrets.",
       "sha256": "a852a5b206cbf425fb2a696c8cee1c118bd5102350f2a7c848891b95e476bbd5"
+    },
+    "lib/product/work-thread.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
+      "sha256": "e0c4e291b2367685cee1d65afb07dc386696d39578cefa6c119c5c984e0e7fe7"
+    },
+    "app/api/work-thread/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
+      "sha256": "c74b07465dcaa017d2dadfee6e286b6cff1004a17542424b82ba558e07b48422"
     }
   }
 }

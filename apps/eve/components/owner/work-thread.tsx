@@ -1,0 +1,56 @@
+"use client";
+import { useEffect, useState } from 'react';
+import type { WorkThreadView } from '@/lib/product/work-thread';
+import { CurrentWorkTruth } from '../engineering/current-work-truth';
+import { OwnerCandidateDecision } from './candidate-decision';
+import './work-thread.css';
+
+/** One observation per Work. Polling only refreshes canonical state; it never
+ * starts, resumes or approves execution. Unmount does not stop durable Work. */
+export function WorkThread({ threadId }: { threadId: string }) {
+  const [data, setData] = useState<WorkThreadView | null>(null);
+  const [error, setError] = useState('');
+  const [revision, setRevision] = useState(0);
+  const [offset, setOffset] = useState(0);
+  useEffect(() => {
+    let disposed = false;
+    let timer: ReturnType<typeof setTimeout>;
+    let controller: AbortController | undefined;
+    async function load() {
+      controller?.abort();
+      const current = new AbortController(); controller = current;
+      try {
+        const response = await fetch(`/api/work-thread?threadId=${encodeURIComponent(threadId)}&offset=${offset}`, { cache: 'no-store', signal: current.signal });
+        if (response.status === 404) { if (!disposed) { setData({works:[],nextOffset:null}); setError(''); } return; }
+        if (!response.ok) throw Error('Work progress could not be refreshed.');
+        const body = await response.json() as WorkThreadView;
+        if (!disposed && !current.signal.aborted) { setData(body); setError(''); }
+      } catch (cause) {
+        if (!disposed && !current.signal.aborted) setError(cause instanceof Error ? cause.message : 'Work progress is unavailable.');
+      } finally { if (!disposed && !current.signal.aborted) timer = setTimeout(load, 10000); }
+    }
+    function refresh() { clearTimeout(timer); void load(); }
+    function visible() { if (document.visibilityState === 'visible') refresh(); }
+    void load(); window.addEventListener('online', refresh); document.addEventListener('visibilitychange', visible);
+    return () => { disposed = true; clearTimeout(timer); controller?.abort(); window.removeEventListener('online', refresh); document.removeEventListener('visibilitychange', visible); };
+  }, [threadId, offset, revision]);
+  if (!data && !error) return <p className="text-xs text-kumo-subtle" role="status">Checking saved Work…</p>;
+  if (!error && !data?.works.length && offset === 0) return null;
+  return <section className="work-thread" aria-label="Work in this conversation" data-thread-id={threadId}>
+    {error && <div role="alert"><p>{error} {data ? 'Previously loaded progress is shown below; refresh before deciding.' : ''}</p><button type="button" onClick={() => setRevision(v => v + 1)}>Retry Work progress</button></div>}
+    {data?.works.map(({ projection: work }) => <article key={work.workId} data-work-id={work.workId} data-result-id={work.latestResult?.id ?? work.nativeResult?.id}>
+      <header><p className="text-xs text-kumo-subtle">Work · {work.factoryWriter ? 'Software engineering' : 'Sofie'}</p><h2>{work.title}</h2><p role="status">{work.status}</p></header>
+      <p>{work.activity}</p>
+      {work.latestResult && <section aria-label="Result"><h3>Result</h3><p>{work.latestResult.summary}</p></section>}
+      <p className="text-sm text-kumo-subtle">{work.nextStep}</p>
+      <details><summary>Proof of Work / Advanced</summary><CurrentWorkTruth projection={work}/></details>
+      {work.nativeDevelopment?.phase === 'VERIFICATION_PASSED' && work.nativeResult?.current && work.factoryWriter && !error &&
+        <OwnerCandidateDecision key={`${work.workId}:${work.workVersion}:${work.workGeneration}:${work.latestResult?.id ?? work.nativeResult?.id}`} workId={work.workId} embedded />}
+      <a href={`/work?kind=work&id=${encodeURIComponent(work.workId)}`}>Work details</a>
+    </article>)}
+    {(offset > 0 || data?.nextOffset !== null && data?.nextOffset !== undefined) && <nav aria-label="Work history pages">
+      {offset > 0 && <button onClick={() => { setData(null); setOffset(Math.max(0, offset - 10)); }}>Newer Work</button>}
+      {data?.nextOffset != null && <button onClick={() => { setData(null); setOffset(data.nextOffset!); }}>Older Work</button>}
+    </nav>}
+  </section>;
+}

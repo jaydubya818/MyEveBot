@@ -1,0 +1,2 @@
+import {defineConfig} from '@playwright/test';
+export default defineConfig({testDir:'.',testMatch:'*.spec.ts',workers:1,timeout:60000,expect:{timeout:15000},reporter:[['list'],['json',{outputFile:'../../../../output/playwright/agent-native/report.json'}]],outputDir:'../../../../output/playwright/agent-native/artifacts',use:{baseURL:'http://localhost:3198',channel:'chrome',headless:true,trace:'retain-on-failure'},projects:[{name:'desktop',use:{viewport:{width:1440,height:1000}}},{name:'390px',use:{viewport:{width:390,height:844},isMobile:true,hasTouch:true}}]});
