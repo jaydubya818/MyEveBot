@@ -7,16 +7,17 @@ import assert from 'node:assert/strict';
 const attempt6Fixture=JSON.parse(await readFile(new URL('./fixtures/attempt6-implementation.json',import.meta.url),'utf8'));
 const attempt5Fixture=JSON.parse(await readFile(new URL('./fixtures/attempt5-completion-boundary.json',import.meta.url),'utf8'));
 
-export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks=false,exerciseProductiveEnd=false,exerciseCheckpoint=false,exerciseOutputContract=false,exerciseNumericRange=false}={}){
+export function controlledCliResponses({exerciseSearch=false,exerciseLocalChecks=false,exerciseProductiveEnd=false,exerciseCheckpoint=false,exerciseOutputContract=false,exerciseNumericRange=false,exerciseProductiveContract=false,correctFirstPass=false}={}){
  if(exerciseProductiveEnd){assert.equal(attempt5Fixture.productiveOperations,2);assert.equal(attempt5Fixture.completionOperations,0);}
  let phase=null,index=0,target=null,original=null,searchCallId=null,searchOutputs=0;
  return {
   stats:()=>({clientSearchOutputs:searchOutputs}),
-  async begin(input,contents){if(exerciseLocalChecks){assert(input.prompt.includes('HOST_SOURCE_CONTEXT')||input.sandbox==='read-only');assert(input.prompt.includes('quantity.mjs'));}phase=input.sandbox==='read-only'?'completion':'productive';index=0;target=exerciseCheckpoint&&phase==='productive'&&!input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK')?(exerciseNumericRange?numericRangeFixture.source:exerciseOutputContract?attempt7Fixture.source:attempt6Fixture.capturedImplementation):contents;if(exerciseCheckpoint&&input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK')){assert(input.prompt.includes(exerciseOutputContract?'ERR_ASSERTION':'stdout is not JSON'));assert(input.prompt.includes('CURRENT_SOURCE_CONTEXT'));}original=await readFile(join(input.workspacePath,'quantity.mjs'),'utf8').catch(error=>{if(error.code==='ENOENT')return null;throw error;});},
+  async begin(input,contents){if(exerciseLocalChecks){assert(input.prompt.includes('HOST_SOURCE_CONTEXT')||input.sandbox==='read-only');assert(input.prompt.includes('quantity.mjs'));}phase=input.sandbox==='read-only'?'completion':'productive';index=0;target=exerciseCheckpoint&&!correctFirstPass&&phase==='productive'&&!input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK')?(exerciseNumericRange?numericRangeFixture.source:exerciseOutputContract?attempt7Fixture.source:attempt6Fixture.capturedImplementation):contents;if(exerciseCheckpoint&&input.prompt.includes('HOST_IMPLEMENTATION_FEEDBACK')){assert(input.prompt.includes(exerciseOutputContract?'ERR_ASSERTION':'stdout is not JSON'));assert(input.prompt.includes('CURRENT_SOURCE_CONTEXT'));}original=await readFile(join(input.workspacePath,'quantity.mjs'),'utf8').catch(error=>{if(error.code==='ENOENT')return null;throw error;});},
   async respond(req,res,call){
    const chunks=[];for await(const chunk of req)chunks.push(chunk);
    const request=JSON.parse(Buffer.concat(chunks).toString());
    assert(phase);index++;
+   if(exerciseProductiveContract){const protocol=JSON.stringify(request.input.filter(item=>item.role==='developer'));assert.equal(protocol.includes('FACTORY_BOUNDED_PRODUCTIVE_V1'),phase==='productive');}
    const id='controlled-response-'+call;
    let output;
    if(phase==='productive'&&exerciseSearch&&index===1){

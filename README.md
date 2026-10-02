@@ -320,3 +320,5 @@ The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approva
 These are historical product qualification records. Use the current source and connection evidence linked above for deployment claims; a qualified interface does not imply that every live provider or delivery path is enabled.
 
 Private-alpha Attempt 5 completion repair and complete zero-model qualification: [evidence](docs/private-alpha/completion-transition-2026-10-01/README.md). Live retry remains unapproved.
+
+Safe-integer successor no-edit failure: [captured context, productive instruction repair and zero-model qualification](docs/private-alpha/no-edit-productive-2026-10-02/README.md). Fresh successor is paused; another live execution requires approval.
