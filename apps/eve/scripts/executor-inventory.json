@@ -3360,8 +3360,8 @@
     },
     "lib/engineering/factory-result-channel.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect.",
-      "sha256": "98f389bb9b7a2f7461230b056acbd9fc7eeb1f819f1a3fed16563508aa941966"
+      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "sha256": "a9fc95baa1ea69f2094924b2c031ccbfed43a7475acd7cf5e59e4eb1d7032a7d"
     },
     "lib/engineering/factory-result-consumer.ts": {
       "classification": "INTERNAL",
@@ -3505,8 +3505,8 @@
     },
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
-      "sha256": "7159ebf1ed1a5228a7e6786368e78b88586979b386be8cf28c87ed089aa09306"
+      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "sha256": "3d4ec2c144f3cce97be2e95379af6e3d857ba8f37c9cbd87ee3caaebf1d8732d"
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
@@ -3576,13 +3576,13 @@
     },
     "lib/engineering/factory-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "689a6b10b332626eff3c80648403965ccf8763d006ae100ce542da8afd0f649b"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "sha256": "8ed4e7398e0361a5a9aa82147aa679291d24ac0f57271314b6b963a7f2ea2f83"
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "fe1256720aa37494f9df6867f02a28707cf1e2f32cac03de67cca1ba80c9c5bb"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "sha256": "8ff1bb832ca6b026c48c00fd7d5dc7a184cbe4ff9d738e00db062e3f46316af0"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3596,8 +3596,8 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs.",
-      "sha256": "43b059bfa52e1dcf1107f18280a846af68d0efc0fe11a4d4d49a406bbf38ea6a"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "sha256": "6f0f3c41911f3132031a4921ef415d30c2392c563dd920631325a7a48b6d4f16"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3784,6 +3784,11 @@
       "classification": "ENFORCED",
       "reason": "Only called by durable canonical candidate publisher after exact owner approval. Materializes signed immutable Git objects in fresh bare repository, recomputes tree, checks parent/base ref and exact diff. Create-only branch CAS and one draft PR; no merge/deploy. No mutable workspace input; process output/errors withhold secrets.",
       "sha256": "a852a5b206cbf425fb2a696c8cee1c118bd5102350f2a7c848891b95e476bbd5"
+    },
+    "lib/engineering/factory-transport.ts": {
+      "classification": "ENFORCED",
+      "reason": "Reviewed Factory destination boundary. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "sha256": "a4b79206dccde1eb6b1f18e6e8537b536131205b08de04487b2498bb70b55e50"
     }
   }
 }

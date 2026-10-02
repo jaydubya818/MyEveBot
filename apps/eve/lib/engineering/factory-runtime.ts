@@ -10,10 +10,12 @@ const exec=promisify(execFile);
 /** Only reviewed exact Git objects; no ambient credentials or mutable checkout. */
 export async function factoryRuntime(store:WorkStore){
  const config=await factoryConfig(),c=config.engineering;
+ if('transport' in config.connection)throw new Error('Cloud source and independent verifier runtime are not yet qualified');
+ const repositoryPath=config.connection.repositoryPath;
  const source=async()=>{
   const files:Record<string,string>={};
   for(const file of c.approvedBase.files){
-   const {stdout}=await exec('git',['-C',config.connection.repositoryPath,'show',`${c.approvedBase.sha}:${file.path}`],{encoding:'utf8',maxBuffer:1000000,timeout:10000});
+   const {stdout}=await exec('git',['-C',repositoryPath,'show',`${c.approvedBase.sha}:${file.path}`],{encoding:'utf8',maxBuffer:1000000,timeout:10000});
    files[file.path]=stdout;
   }
   const snapshot={sha:c.approvedBase.sha,files};preflightApprovedBase(c.profile,c.approvedBase,snapshot,1);return snapshot;

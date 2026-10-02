@@ -1,3 +1,4 @@
+import {factoryTransport} from './factory-transport.ts';
 import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,validateSpendBinding,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
 import {z} from 'zod';
 import {boundedJson} from '../relay/client.ts';
@@ -9,29 +10,36 @@ import type {FactoryBinding} from './factory-receipt-store.ts';
 const states=['PREPARING','PREPARED','DISPATCHING','RUNNING','UNKNOWN','STOPPING','COMPLETED','FAILED','CANCELLED','NOT_DISPATCHED'] as const;
 const readbackSchema=z.object({requestId:z.string().uuid(),workOrderId:z.string().uuid(),runId:z.string().uuid().nullable(),snapshot:z.record(z.string(),z.unknown()).nullable(),identity:z.record(z.string(),z.unknown()).nullable(),state:z.enum(states),quiescent:z.boolean(),evidenceRef:z.string().nullable(),spend:factorySpendSchema,blocker:z.string().nullable()}).strict();
 const hash=z.string().regex(/^[a-f0-9]{64}$/);
-export const factoryConnectionSchema=z.object({spendPlan:factorySpendPlanSchema.optional(),spendContract:factorySpendContractSchema.optional(),origin:z.string().url(),token:z.string().regex(/^[a-f0-9]{64}$/),factoryId:z.string().min(1),
+const localFactoryConnectionSchema=z.object({spendPlan:factorySpendPlanSchema.optional(),spendContract:factorySpendContractSchema.optional(),origin:z.string().url(),token:z.string().regex(/^[a-f0-9]{64}$/),factoryId:z.string().min(1),
  sourceDigest:hash,configurationDigest:hash,factoryVersion:hash,repositoryPath:z.string().startsWith('/'),
  keys:z.array(z.object({factoryId:z.string(),keyId:z.string(),publicKey:z.string(),activeFrom:z.string(),notAfter:z.string(),retiredAt:z.string().optional(),revokedAt:z.string().optional()}).strict()).min(1),
  qualification:z.object({scopeId:z.string(),profileHash:hash,evidenceRef:z.string().min(1),qualifiedAt:z.string().datetime(),expiresAt:z.string().datetime(),
  mode:z.enum(['LOCAL_FIXTURE','LOCAL_SPEND_FIXTURE','LIVE']),spendEnforced:z.boolean(),spendReview:factorySpendReviewSchema.optional()}).strict()}).strict();
+export const cloudFactoryConnectionSchema=localFactoryConnectionSchema.omit({repositoryPath:true,qualification:true}).extend({
+ transport:z.literal('CLOUD'),protocol:z.literal('MYFACTORY_EXECUTION_V2'),projectId:z.literal('prj_IRXTY6HOzS2q9wRPdabsJnmddzl4'),
+ source:z.object({repository:z.string().regex(/^[-\w.]+\/[-\w.]+$/),commit:z.string().regex(/^[a-f0-9]{40}$/),tree:z.string().regex(/^[a-f0-9]{40}$/)}).strict(),
+ protectionBypass:z.string().min(32).optional(),
+ qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('CLOUD_DETERMINISTIC')}),
+}).strict();
+export const factoryConnectionSchema=z.union([localFactoryConnectionSchema,cloudFactoryConnectionSchema]);
 export type FactoryConnection=z.infer<typeof factoryConnectionSchema>;
-export interface FactoryPrepareRequest {spendContract?:FactorySpendPlan;requestId:string;workId:string;workGeneration:number;repository:string;deadline:string;maxSpendUsd:number;input:{title:string;description:string;kind:'feature';repositoryPath:string;baseRef:string;acceptanceCriteria:string[];reproductionCommand:null;expectedFailureText:null;checkCommands:string[];allowedPaths:string[];workerProfile:'mac'}}
+export interface FactoryPrepareRequest {spendContract?:FactorySpendPlan;requestId:string;workId:string;workGeneration:number;repository:string;deadline:string;maxSpendUsd:number;input:{title:string;description:string;kind:'feature';repositoryPath?:string;baseRef:string;acceptanceCriteria:string[];reproductionCommand:null;expectedFailureText:null;checkCommands:string[];allowedPaths:string[];workerProfile:'mac'|'container'}}
 export interface FactoryReadback {requestId:string;workOrderId:string;runId:string|null;snapshot:ExecutionSnapshot|null;identity:FactoryExecutionIdentity|null;state:string;quiescent:boolean;evidenceRef:string|null;spend:FactorySpend;accounting:FactorySpendSummary;blocker:string|null}
 /** Extends the existing authenticated loopback producer channel. Configuration
  * pins come from reviewed server configuration, never a result or model reply. */
 export class LiveFactoryAdapter implements FactoryExecutionTransport {
  readonly config:FactoryConnection;
  private readonly fetcher:typeof fetch;
+ private readonly transport:ReturnType<typeof factoryTransport>;
  constructor(config:FactoryConnection,fetcher:typeof fetch=fetch){
   this.config=factoryConnectionSchema.parse(config);this.fetcher=fetcher;
-  const u=new URL(config.origin);
-  if(u.protocol!=='http:'||u.hostname!=='127.0.0.1'||u.pathname!=='/'||u.search||u.hash||u.username||u.password||
-   digest({sourceDigest:config.sourceDigest,configurationDigest:config.configurationDigest})!==config.factoryVersion)
+  this.transport=factoryTransport(this.config);
+  if(digest({sourceDigest:config.sourceDigest,configurationDigest:config.configurationDigest})!==config.factoryVersion)
    throw Error('Exact configured loopback producer and FactoryVersion are required');
  }
  private async request(path:string,body?:unknown):Promise<FactoryReadback>{
-  const response=await this.fetcher(new URL('/api/connect/v1/dispatches'+path,this.config.origin),{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(15000),
-   headers:{authorization:'Bearer '+this.config.token,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches'+path,this.transport.origin),{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(15000),
+   headers:{...this.transport.headers,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
   if(!response.ok)throw Error('Factory control unavailable ('+response.status+'); reconcile the same request');
   const data=readbackSchema.parse(await boundedJson(response,128000)) as unknown as FactoryReadback;
   if(isWorkSpend(data.spend)){
@@ -40,11 +48,20 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   return {...data,accounting:factorySpendSummary(data.spend,this.config)};
  }
  async healthy(){
-  try{const response=await this.fetcher(new URL('/api/connect/v1/actions',this.config.origin),{headers:{authorization:'Bearer '+this.config.token},redirect:'error',signal:AbortSignal.timeout(5000)});
+  try{const response=await this.fetcher(new URL(this.transport.prefix+'/actions',this.transport.origin),{headers:this.transport.headers,redirect:'error',signal:AbortSignal.timeout(5000)});
    if(!response.ok)return false;const data=await boundedJson(response,32000) as {controls?:string[];execution?:{mode:string;spendEnforced:boolean}};return data.execution?.mode===this.config.qualification.mode&&data.execution.spendEnforced===true&& ['factory.prepare','factory.dispatch','factory.observe','factory.stop'].every(action=>data.controls?.includes(action));
   }catch{return false;}
  }
- async prepare(request:FactoryPrepareRequest){const data=await this.request('',request);return this.validatePreparation(request,data);}
+ async prepare(request:FactoryPrepareRequest){
+  let body:unknown=request;
+  if('transport' in this.config){
+   const source=this.config.source;
+   if(request.repository!==source.repository||request.input.baseRef!==source.commit||request.input.repositoryPath!==undefined||request.input.workerProfile!=='container')throw Error('Cloud preparation requires exact source and no local filesystem');
+   const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=request.input;
+   body={protocol:this.config.protocol,requestId:request.requestId,workId:request.workId,workGeneration:request.workGeneration,repository:request.repository,deadline:request.deadline,maxSpendUsd:request.maxSpendUsd,source,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}};
+  }else if(!request.input.repositoryPath?.startsWith('/')||request.input.workerProfile!=='mac')throw Error('Local preparation requires the qualified local profile');
+  const data=await this.request('',body);return this.validatePreparation(request,data);
+ }
  async prepared(request:FactoryPrepareRequest){const data=await this.request('/'+encodeURIComponent(request.requestId));return this.validatePreparation(request,data);}
  private validatePreparation(request:FactoryPrepareRequest,data:FactoryReadback){
   if(data.requestId!==request.requestId)throw Error('Factory preparation request mismatch');
