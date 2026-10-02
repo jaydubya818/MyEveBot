@@ -4,6 +4,8 @@
 
 [Optional session surfaces](docs/environment-fabric/session-surfaces.md): Fabric has a typed observation/attachment contract and deterministic scope checks. CMUX/TMUX adapters and Control Center actions are deferred; neither is a production execution dependency.
 
+[Harness-neutral environment architecture](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/architecture/harness-neutral-environments.md) keeps agent identity independent of resource location and harness choice. Future CLOUD_COMPUTER is an optional qualified CLOUD capability profile; its runtime is deferred.
+
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner confirmed publication to draft PR #2; exact-candidate readback and real GitHub CI passed. Independent review found a numeric-range defect; the candidate remains unchanged and owner acceptance is NOT_RUN. The current-evidence presentation repair is qualified but not deployed. Historical Attempts 1–8 and the verified candidate remain immutable.
 
 [Prior admission-proposal repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md) preserves Attempts 1–2 and the captured-response handoff qualification. Attempt 3 subsequently proved live admission and stopped at executor model validation; the latest record above supersedes its preparation status.

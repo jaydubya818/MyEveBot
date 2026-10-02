@@ -73,3 +73,11 @@ Canonical reconciliation: merged MyEve main `d75091eb333a531fa91ed9d39e273948aa9
 ## Optional session surfaces
 
 ExecutionEnvironment → ExecutionProvider → HarnessProvider/existing harness → optional SessionSurfaceProvider. Fabric owns the typed contract/capabilities; Cloud Execution owns CLOUD + HEADLESS and optional CLOUD + TMUX. [Session handoff](../environment-fabric/session-surfaces.md). No MyEve UI action or live adapter is enabled. CMUX/TMUX must never become productive lifecycle, lease, verification or publication dependencies.
+
+## Harness-neutral environments and future cloud computer
+
+[Canonical Fabric contract](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/architecture/harness-neutral-environments.md): ExecutionEnvironment determines where Work runs; ExecutionProvider owns resource lifecycle; HarnessProvider determines how agentic Work runs; SessionSurfaceProvider supplies optional operator observation/attachment. The environment schema/provider interface contains no Codex, Claude Code, DeepAgent or Cursor selector. Existing qualified concrete harness behavior is preserved; alternate live harnesses remain separately qualified.
+
+CLOUD_COMPUTER is a future qualified profile of CLOUD, not a new environment type or agent identity. Browser, desktop, screenshot and appInteraction are independently optional capabilities. No cloud computer runtime is built or advertised here. Software Engineer, Designer, Researcher, Sofie and future specialists retain their identity across qualified environments; resource requirements, policy, authority and qualification determine routing. An agent receives bounded environment access rather than owning a computer. No role-to-environment mapping is permitted.
+
+This addition is contract/documentation only for MyEve. Cloud Execution continues existing harness → deterministic cloud execution → independent verifier → Mac-off Golden Journey → P0, without a new architecture gate.
