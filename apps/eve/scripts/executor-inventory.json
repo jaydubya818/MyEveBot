@@ -3344,9 +3344,9 @@
       "sha256": "8348346984611bc0aeb950f3fb9f3415dba0ddd2f0175f9162ffd1e154aa5bbf"
     },
     "lib/engineering/factory-producer-protocol.ts": {
-      "classification": "INTERNAL",
-      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects. Snapshot V2 requires source tree and immutable cloud policy/resource pins; legacy V1 stays strict. Cloud client accepts deterministic evidence only.",
-      "sha256": "704b3224de3cbdd848cf27ec16307d3586645fffb4ab4df272355a084b3bb6b8"
+      "classification": "READ_ONLY",
+      "reason": "Strict signed Result validation; legacy V1 unchanged. Optional cloud-only verification binds candidate, policy, distinct resources and cleanup; attestation alone cannot grant owner/publication authority.",
+      "sha256": "97aae7704f9ce78ea912f8f4dc7aa3d5d62f8302adbfc6c3fd702244d898d2d1"
     },
     "lib/engineering/factory-producer-signature.ts": {
       "classification": "INTERNAL",
@@ -3360,8 +3360,8 @@
     },
     "lib/engineering/factory-result-channel.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
-      "sha256": "a9fc95baa1ea69f2094924b2c031ccbfed43a7475acd7cf5e59e4eb1d7032a7d"
+      "reason": "Existing signed Result channel uses per-request cloud OIDC and application bearer; bounded bytes and redirect denial preserved. Readback cannot dispatch Work.",
+      "sha256": "0d2e18fd4ec411806f28027c296acb084d45bf1aebd5b745291e97ea4a0cb462"
     },
     "lib/engineering/factory-result-consumer.ts": {
       "classification": "INTERNAL",
@@ -3580,9 +3580,9 @@
       "sha256": "8ed4e7398e0361a5a9aa82147aa679291d24ac0f57271314b6b963a7f2ea2f83"
     },
     "lib/engineering/factory-live-adapter.ts": {
-      "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Snapshot V2 requires source tree and immutable cloud policy/resource pins; legacy V1 stays strict. Cloud client accepts deterministic evidence only.",
-      "sha256": "1024c68d2359a35b0793dcb5d48cfb7ecf1fcded2f7b773988111cf316c0b8b7"
+      "classification": "ENFORCED",
+      "reason": "Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback.",
+      "sha256": "eca33b404b4a436059dcade98b814be630689ddb6f57c42fc69e6271fdb34afa"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3595,9 +3595,9 @@
       "sha256": "c49d20666fd59d3d79928958178e8be56e46d7bef256c3639e6c8882732e3b89"
     },
     "lib/engineering/factory-work-driver.ts": {
-      "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
-      "sha256": "07dfd9752e082ba7cbcfa60ed24fabe05f9cd751cfac281a1bb121ba220eab69"
+      "classification": "ENFORCED",
+      "reason": "Canonical admission, writer, spending, custody and current Result checks preserved. CLOUD projects independently signed protected evidence; recovery requires destroyed resource proof and never falls back to local Docker.",
+      "sha256": "6c55d39a86c81d33eafda130707608cde33ee77787e74ce5d7ca27359a637d89"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3786,9 +3786,9 @@
       "sha256": "a852a5b206cbf425fb2a696c8cee1c118bd5102350f2a7c848891b95e476bbd5"
     },
     "lib/engineering/factory-transport.ts": {
-      "classification": "ENFORCED",
-      "reason": "Reviewed Factory destination boundary. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
-      "sha256": "a4b79206dccde1eb6b1f18e6e8537b536131205b08de04487b2498bb70b55e50"
+      "classification": "NOT_APPLICABLE",
+      "reason": "Pure exact-cloud-destination/transport validation and existing local transport; contains no static bypass field or token acquisition.",
+      "sha256": "403e0793f3359980ae45a7769b741fc078b92f2e12a4af1ff76cb33995e5e71b"
     },
     "lib/engineering/factory-cloud-custody.ts": {
       "classification": "INTERNAL",
@@ -3796,14 +3796,24 @@
       "sha256": "23b27acbece87f36b81dd54af4321f7edd0fe7aa7c0ba8b6e7e8144575de1ae4"
     },
     "lib/engineering/cloud-access-qualification.ts": {
-      "classification": "INTERNAL",
-      "reason": "Dedicated staging-only access qualification: fixed server-side requests, independent operator authentication, no valid Work creation or execution; credentials never returned. Staging ingress denies all other routes until deterministic model boundary is qualified.",
-      "sha256": "dd0b0cf5eae2754575434ecd84d7a1034a7694b30b4dc1cbfe81bd5359e79b10"
+      "classification": "ENFORCED",
+      "reason": "Exact Sofie qualification preview and independent operator authentication before request-scoped OIDC. Fixed access cases only, unauthorized Work deliberately denied, bounded responses scanned and reduced to statuses; no arbitrary proxy or Work launcher.",
+      "sha256": "27b75495c81e8916cfa4f871360dc99f2a6ac2194726a186f604c1ee43aeeacb"
     },
     "app/api/cloud-qualification/access/route.ts": {
       "classification": "INTERNAL",
       "reason": "Dedicated staging-only access qualification: fixed server-side requests, independent operator authentication, no valid Work creation or execution; credentials never returned. Staging ingress denies all other routes until deterministic model boundary is qualified.",
       "sha256": "321d2eaa2e5f00de377caf5d816f4d3d72fd6cb54a978eaa02b11adaee92dbdd"
+    },
+    "lib/engineering/factory-cloud-verifier.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Rechecks current scoped Gate C admission, exact candidate/Work/profile/version and current signing keys. Projects independent cloud receipt into canonical protected Evidence; no allocation, model, local Docker or publication capability.",
+      "sha256": "b02d8c7fee7874d519a726cffc49e6c37c48f5df46abbad356a08349d392101c"
+    },
+    "lib/engineering/factory-request-headers.ts": {
+      "classification": "ENFORCED",
+      "reason": "Backend-only exact Sofie preview workload identity to validated Factory destination. Reject wrong project/team/environment/expiry, no static credential fallback, never persist identity in a connection profile.",
+      "sha256": "93216885406d5cae1761b0abeaab80d6d8c45606f24d785fe907c3efbff58c60"
     }
   }
 }
