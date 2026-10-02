@@ -1,0 +1,462 @@
+{
+  "status": "PASS",
+  "liveSuccessorContractQualification": "NOT_RUN",
+  "cases": [
+    {
+      "case": "proposal normalization",
+      "origin": "Attempt 1",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-proposal-semantics.test.ts",
+          "sha256": "1dd8335b237902ca982fa286c2284b30703c8ddf0c00f370ded94212b55efa8e"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "MyEve docs/private-alpha/first-live-handoff-2026-09-30/README.md",
+      "assertion": "Captured model response normalizes to canonical proposal; malformed response fails closed."
+    },
+    {
+      "case": "admission semantics",
+      "origin": "Attempt 2",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-proposal-semantics.test.ts",
+          "sha256": "1dd8335b237902ca982fa286c2284b30703c8ddf0c00f370ded94212b55efa8e"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-commands.test.ts",
+          "sha256": "0cb04d97aba929f3a034f99aee19263d478246749c04e6ab6164274d4313018b"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "MyEve docs/private-alpha/second-live-semantics-2026-10-01/README.md",
+      "assertion": "UNROUTED proposal requests admission, grants no authority; stale/direct/human and duplicate admissions remain fenced."
+    },
+    {
+      "case": "namespaced model identifiers",
+      "origin": "Attempt 3",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "packages/agents/test/agents.test.mjs",
+          "sha256": "b1e0326ad1afc86b00c502b366434f861f594e5297ab23b62fcde62614fece6f"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "MyEve docs/private-alpha/model-reference-2026-10-01/README.md",
+      "assertion": "openai/gpt-5.4-mini identity preserved; no fallback."
+    },
+    {
+      "case": "bounded repository context",
+      "origin": "Attempt 4",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/execution-context.test.mjs",
+          "sha256": "996557640ad66fff5d9cd1c8cd9838c14636c29804c40b9904f4e0badedda9fe"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/productive-context.test.mjs",
+          "sha256": "8c278f4eae1f0fbce9890932e3a7438c37c5abd9d3a7f562925dc38dcf6a3b94"
+        }
+      ],
+      "evidence": "MyFactory docs/private-alpha/execution-capacity-2026-10-01/README.md",
+      "assertion": "Host supplies bounded source, public contract/tests and runtime information; protected holdouts excluded."
+    },
+    {
+      "case": "productive capacity and ambiguous provider failure",
+      "origin": "Attempt 4",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/spend-codex-cli.test.mjs",
+          "sha256": "74d0c1b061f9f5a5b14a7312f1f2fb34d60caf469541b80fdfb6d3fa9e45a3ab"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/spend-review-regressions.test.mjs",
+          "sha256": "39631f070949cf331ed5b0b00af3856a4823cafaf564bbb0d74d2eeda73c3b07"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-metered-cli.log",
+      "assertion": "Meter productive capacity; distinguish local denial from upstream UNKNOWN, retain exposure and never auto-retry."
+    },
+    {
+      "case": "implementation feedback",
+      "origin": "Attempt 6",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/implementation-loop.test.mjs",
+          "sha256": "3e44d68bcdd443e79f509b70bb92d4481531fd34a0b5c8a475df0fb3d20c10bd"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/productive-context.test.mjs",
+          "sha256": "8c278f4eae1f0fbce9890932e3a7438c37c5abd9d3a7f562925dc38dcf6a3b94"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-checkpoints.log",
+      "assertion": "Host reaps executor, checks visible tests; bounded second productive operation only if eligible; repeated failure stops."
+    },
+    {
+      "case": "completion transition",
+      "origin": "Attempt 5",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/jobs.test.mjs",
+          "sha256": "1e12f3f9ce8d59490db97efe506de12676502f3df62942aca6c811f32fddaede"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/implementation-loop.test.mjs",
+          "sha256": "3e44d68bcdd443e79f509b70bb92d4481531fd34a0b5c8a475df0fb3d20c10bd"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "MyEve docs/private-alpha/completion-transition-2026-10-01/README.md",
+      "assertion": "Close production, validate immutable scoped tree, admit read-only/tool-free completion and commit only that tree."
+    },
+    {
+      "case": "exact-byte output",
+      "origin": "Attempts 7\u20138",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/public-output-contract.test.ts",
+          "sha256": "578ac67527ed3a5ee4ee10135744866c9451be38af4da3d55811af4165e0e8ce"
+        }
+      ],
+      "evidence": "MyEve docs/private-alpha/output-contract-accounting-2026-10-01/README.md",
+      "assertion": "Compact JSON, exactly one terminal LF, exit zero and empty stderr are public requirements."
+    },
+    {
+      "case": "safe-integer boundaries",
+      "origin": "Attempt 8 downstream review escape",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "packages/verification/test/corpus/quantity-safe-integer.json",
+          "sha256": "a896696cde9fb6f384c3f1abee43d14c881b1bad346557b718f60574f7d89611"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "packages/verification/test/numeric-range.test.mjs",
+          "sha256": "cc4ffae5a2291ed207fc7d806261aec0094fbdfbf4f6e71efe09b48035d7a75a"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/numeric-range-checkpoint.test.mjs",
+          "sha256": "315f6d69331ab45007512539b70298f299d9bb675b1e551b6b8efa3671c42ded"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/numeric-range-protected.test.mjs",
+          "sha256": "cd0e4db5c89e14ff93edb6b8fab507c97962d3d3015577f11409deebb226fe51"
+        }
+      ],
+      "evidence": "attempt8-numeric-range-20261002/summary.json",
+      "assertion": "Public 1..9007199254740991 inclusive; old source fails four public cases; control 17/17, independent protected control 11/11. Producer never receives protected cases."
+    },
+    {
+      "case": "no-edit productive turn",
+      "origin": "Failed safe-integer successor",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/fixtures/no-edit-productive.json",
+          "sha256": "8ae47acda3c5d96a70825bc324e3acc256705fa378243d410f6e4990de04645f"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/productive-context.test.mjs",
+          "sha256": "8c278f4eae1f0fbce9890932e3a7438c37c5abd9d3a7f562925dc38dcf6a3b94"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "packages/agents/test/agents.test.mjs",
+          "sha256": "b1e0326ad1afc86b00c502b366434f861f594e5297ab23b62fcde62614fece6f"
+        }
+      ],
+      "evidence": "no-edit-productive-repair-20261002/no-edit-source-manifest.json",
+      "assertion": "Actual pwd/rg-only capture still fails closed. Fixed trusted developer instruction qualifies sufficient context, targeted inspection, no-edit/scope denial, correct-first and bounded repair; live adherence unproven."
+    },
+    {
+      "case": "candidate custody",
+      "origin": "Attempts 1\u20138 retained safety corpus",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/producer-results.test.mjs",
+          "sha256": "b76882853807bcb52c69cedc3013b6d9a51157040b7c8cf6b049cab75af5f5f5"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-authenticated-result.test.ts",
+          "sha256": "9fd57519ce3690e4b3df5663dbc7f78d298315586eacfa55e8cd213f2185da0b"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-myeve-connected-final.json",
+      "assertion": "Signed candidate identity and exact immutable checked tree; no model authority."
+    },
+    {
+      "case": "protected verification and Gate B/C",
+      "origin": "Attempts 1\u20138 retained safety corpus",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/numeric-range-protected.test.mjs",
+          "sha256": "cd0e4db5c89e14ff93edb6b8fab507c97962d3d3015577f11409deebb226fe51"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-myeve-connected-final.json",
+      "assertion": "Independent Docker verification and Gate C/B; no readiness from missing/failed evidence."
+    },
+    {
+      "case": "accounting and immutable Proof",
+      "origin": "Attempts 7\u20138",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/journey-accounting.test.ts",
+          "sha256": "528310454240c4a3d24841cd3b1cdfb7a00d8f88fc268bf58b58737cc4620d04"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-spend.test.ts",
+          "sha256": "daa93c2e9bd4e869d7b8a78c260aa32d0f36d388e7f6da11569de2fc7f1d44b2"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-myeve-tests.log",
+      "assertion": "Current totals include Sofie and Factory, UNKNOWN separate; immutable pre-final-Sofie snapshot never rewritten."
+    },
+    {
+      "case": "exact-tree/base and exactly-once publication",
+      "origin": "Attempt 8 publisher",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/publication/contract.integration.mjs",
+          "sha256": "ad3bd18411e6d4f7ef356b56d2b4b830476b3ca2953fb1156306aba5fc09aab4"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/publication/owner.spec.ts",
+          "sha256": "121ed8b791c6a957ce5dc1598d70e5e38016770d5e6a62227b85fab268bca03f"
+        }
+      ],
+      "evidence": "attempt8-publication-ci-review-20261002/owner-publication-readback-contract.log",
+      "assertion": "Owner decision binds candidate/tree/base/Result/revision; create-only ref, durable claims/locks; one push/PR, uncertain effects reconcile read-only."
+    },
+    {
+      "case": "CI readback",
+      "origin": "Attempt 8 publisher",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/publication/contract.integration.mjs",
+          "sha256": "ad3bd18411e6d4f7ef356b56d2b4b830476b3ca2953fb1156306aba5fc09aab4"
+        }
+      ],
+      "evidence": "attempt8-publication-ci-review-20261002/ci-run.json",
+      "assertion": "Actual quantity-ci exact candidate run 36968129128 PASS; local checks are not CI. Wrong/stale head/base/tree evidence rejected."
+    },
+    {
+      "case": "independent review",
+      "origin": "Attempt 8 downstream failure",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/publication/contract.integration.mjs",
+          "sha256": "ad3bd18411e6d4f7ef356b56d2b4b830476b3ca2953fb1156306aba5fc09aab4"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "packages/verification/test/numeric-range.test.mjs",
+          "sha256": "cc4ffae5a2291ed207fc7d806261aec0094fbdfbf4f6e71efe09b48035d7a75a"
+        }
+      ],
+      "evidence": "attempt8-publication-ci-review-20261002/independent-review.json",
+      "assertion": "Original review FAIL retained; precision/null regressions reject old source. No inferred acceptance or weakened review."
+    },
+    {
+      "case": "Review \u2192 Repair \u2192 Reverify",
+      "origin": "Accepted offline extension only",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/review-repair.test.mjs",
+          "sha256": "8c2b0b8020a06dc996022ee3f87f74d299bd10d8462004dd0b65d059a531c2e1"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "packages/verification/test/corpus/quantity-review-repair.json",
+          "sha256": "bf58c8a09d880c580a5fbb2c0292ca66bd267721a5bd390211bbb96c1485587c"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/productive-context.test.mjs",
+          "sha256": "8c278f4eae1f0fbce9890932e3a7438c37c5abd9d3a7f562925dc38dcf6a3b94"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-beta.test.ts",
+          "sha256": "c8d9e5a60d2d145633fad90a195fdd07ec54aa1f79e47e36a00e00dc9117691d"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-tests.log",
+      "assertion": "A immutable \u2192 authenticated findings \u2192 owner-approved bounded new Work \u2192 B; fresh evidence, no ancestor verdict reuse, full quotas/deadline, Needs You on exhaustion; no automatic repair/merge/deploy."
+    },
+    {
+      "case": "writer, deduplication, UNKNOWN and recovery",
+      "origin": "Attempts 1\u20138 retained safety corpus",
+      "status": "PASS",
+      "scope": "offline deterministic regression",
+      "sources": [
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-writer.test.ts",
+          "sha256": "f2426a2eb6af71e38030a3677505b16b013c7893281940706190ef18c50f93fd"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/lib/engineering/factory-worker-approval.test.ts",
+          "sha256": "defdfdf03748c3904a57f46a77e812250a6e87f89bb1c83398b8200331b30a81"
+        },
+        {
+          "repository": "MyFactory",
+          "sourceCommit": "7fe3397ad0f2423e60299872c85e7ce1fe9eed19",
+          "path": "apps/supervisor/test/dispatch-control.test.mjs",
+          "sha256": "68f27f8451e2872acf61bb1e29c1e575f73fbd5b8e35fec453a36ef7b772b272"
+        },
+        {
+          "repository": "MyEve",
+          "sourceCommit": "fadf08e12340035e3691c6f047b4927b1ab21264",
+          "path": "apps/eve/test/factory-live.integration.mjs",
+          "sha256": "078f572d14cd9af2d4279919f2c36a9c70153ff1623243d4d23f6adb58d1dc7b"
+        }
+      ],
+      "evidence": "bounded-review-repair-20261002/review-repair-myeve-connected-final.json",
+      "assertion": "Single writer/exactly-once dispatch, stale admission denied, UNKNOWN hard stop, cancellation/recovery fenced."
+    }
+  ]
+}
