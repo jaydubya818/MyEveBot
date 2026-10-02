@@ -3612,7 +3612,7 @@
     "lib/engineering/factory-writer.ts": {
       "classification": "ENFORCED",
       "reason": "Trusted owner-scoped backend uses the existing route Run and 0056 serialized SQL boundary. Durable UNKNOWN claim precedes exact-attempt dispatch; no blind retry or release without trusted quiescence. Authenticated Gate C bytes are bounded in an isolated temporary Git repository, never executed, and enter immutable producer-preserving custody only after writer termination. No model-facing transport or Ready/publication grant. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "fb5a092e3183c992a5bccb671d200634f3026922b1e1b7e6863906fb5ecf53a9"
+      "sha256": "99ee0f29497ac6ac51efbed866046bb669a1c90a75fea7841ecdd314ed0f5ee1"
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
@@ -3789,6 +3789,11 @@
       "classification": "ENFORCED",
       "reason": "Reviewed Factory destination boundary. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
       "sha256": "a4b79206dccde1eb6b1f18e6e8537b536131205b08de04487b2498bb70b55e50"
+    },
+    "lib/engineering/factory-cloud-custody.ts": {
+      "classification": "INTERNAL",
+      "reason": "Bounded pure-data cloud custody projection; verifies source tree, preserves signed candidate identity through existing publisher guard, no local process or external capability.",
+      "sha256": "ebf1b51dc6986bb4c5dea51e12632ed0474271c7aaac32fa4a86f38d3262c98c"
     }
   }
 }
