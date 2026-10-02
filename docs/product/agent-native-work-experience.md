@@ -27,3 +27,5 @@ See [baseline and capability crosswalk](pluto-pattern-crosswalk.md) and [checkpo
 ## Today and Inbox
 
 Today surfaces ongoing responsibilities with the responsible agent and retained last/next checks. A scheduled time is not proof of execution. Inbox shows existing Routine result notifications; quiet checks remain in agent history. Both refresh after reconnect and remove stale data when a refresh fails. Product pages use a persistent desktop rail and a compact mobile Menu, with secondary destinations under More.
+
+The collaboration page shows retained Relay transport metadata with expandable correlation evidence. It deliberately excludes private message payloads. A recorded response is not itself a verified Result. Persistent Group membership and independent member Relay identities remain a canonical integration boundary; see the [Group schema proposal](schema-proposals/agent-groups.md).

@@ -49,3 +49,6 @@ Recorded canonical deterministic restart/lease/recovery and delivery regressions
 
 ### Checkpoint E
 Canonical owner-scoped responsibility reads added to Today/Inbox, with quiet-result separation and timezone-aware schedule display. Desktop rail/mobile Menu reduce navigation complexity. 27 PostgreSQL assertions and 6 browser scenarios pass; 4 accessibility scans clear. Full all-channel and live background qualification remains open.
+
+### Checkpoint F
+Added owner-scoped Relay handoff metadata view and explicit Group schema/identity proposal. 14 PostgreSQL assertions and 4 browser scenarios pass; 2 accessibility scans clear. Persistent Groups and real agent coordination remain NOT_QUALIFIED. No transport or execution implementation forked.

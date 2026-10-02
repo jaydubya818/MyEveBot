@@ -3824,6 +3824,16 @@
       "classification": "READ_ONLY",
       "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
       "sha256": "c8c3e7de1a174f43f8ccdca8298c1ff96599d18a49f94578ddcf84c4e9cc4671"
+    },
+    "lib/product/collaboration.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated read of existing Relay transport metadata; no credential/payload decryption, private Memory, Group authority or messages. Partner service-connection restriction preserved.",
+      "sha256": "1cd2055a14d29d1a0c2e9ac1e859c735b2a03dd26dda917a953c76bc584d9e16"
+    },
+    "app/api/collaboration/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated read of existing Relay transport metadata; no credential/payload decryption, private Memory, Group authority or messages. Partner service-connection restriction preserved.",
+      "sha256": "a844106593cc15f8f1d1c45ab235b3d0cc1a2d4579fd285bfb795f567810fa8e"
     }
   }
 }

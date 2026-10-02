@@ -1,16 +1,17 @@
+import { CollaborationActivity } from "@/components/owner/collaboration";
 import Link from "next/link";
 import { ProductShell } from "@/components/owner/product-shell";
 import { Card } from "@/components/owner/primitives";
 export default function Page() {
   return (
     <ProductShell
-      title="Shared rooms"
-      description="A room brings a team together around one outcome, with an explicit audience."
+      title="Agent collaboration"
+      description="Retained handoffs between agents, with their current status and evidence."
     >
-      <Card title="Shared rooms are not enabled">
+      <CollaborationActivity />
+      <Card title="Persistent Groups are not enabled">
         <p>
-          Room membership, shared Work and artifact access need the canonical
-          Relay contract. Adding names to a room must not grant access to
+          Persistent Group membership and per-agent Relay identity are not yet integrated. Shared Work and artifact access require explicit scope. Adding names to a room must not grant access to
           private memory or external actions.
         </p>
         <p>
