@@ -1,6 +1,6 @@
 # MyEve
 
-[Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner-decision and exact-candidate publication handoff is qualified; publication and owner acceptance remain separately gated. Historical Attempts 1–8 and the verified candidate remain immutable.
+[Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner confirmed publication to draft PR #2; exact-candidate readback and real GitHub CI passed. Independent review found a numeric-range defect; the candidate remains unchanged and owner acceptance is NOT_RUN. The current-evidence presentation repair is qualified but not deployed. Historical Attempts 1–8 and the verified candidate remain immutable.
 
 [Prior admission-proposal repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md) preserves Attempts 1–2 and the captured-response handoff qualification. Attempt 3 subsequently proved live admission and stopped at executor model validation; the latest record above supersedes its preparation status.
 
@@ -323,4 +323,4 @@ Private-alpha Attempt 5 completion repair and complete zero-model qualification:
 
 ## Agent-native product work
 
-The dedicated product source adds canonical Work/Result/Proof and the existing owner decision inline in chat, plus persistent agent homes and capability-free configuration copies. These surfaces are deterministically qualified; natural specialist execution, full Routine lifecycle, Groups and laptop-independent cloud execution remain separate gates. See [the product guide](docs/product/agent-native-work-experience.md) and [qualification evidence](docs/verification/agent-native-work/checkpoint-b.md).
+The dedicated product source adds canonical Work/Result/Proof and the existing owner decision inline in chat, plus persistent agent homes, capability-free configuration copies, conditional Routine checks, Today/Inbox responsibility progress and read-only Relay handoff evidence. Product navigation is simpler on desktop and mobile. These scoped surfaces are deterministically qualified; natural specialist execution, complete Routine lifecycle, persistent Groups and laptop-independent cloud execution remain separate gates. See [the product guide](docs/product/agent-native-work-experience.md) and [qualification and integration gates](docs/product/agent-native-integration-crosswalk.md).

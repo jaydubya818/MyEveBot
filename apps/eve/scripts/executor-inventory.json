@@ -418,7 +418,7 @@
     "agent/lib/reminders-db.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "991306fa40c6d8da961f809b875dbdb8473a569a8b5ca2aa491c880a96c1a742"
+      "sha256": "9d87c9f10f0166f415c285451fadb6bd04c04facf15a01f22cb06d88f4fcf526"
     },
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
@@ -3205,8 +3205,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain.",
-      "sha256": "f0842b0d5311d29502798e688c421ebabc4b7a4b029089ff1a70746e422a9105"
+      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
+      "sha256": "347b6d5f475e798d1c7c55f926f1fbb11493c5c0607516dbb8d2ec492e19b89e"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3470,8 +3470,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
-      "sha256": "e605f164c377aaace5079fc93f48511c0a459dc503b238d8157eac0a768093a9"
+      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
+      "sha256": "317510ab1feae445040ae9b596fd56b0cc48f4bdd77be23e082b9df7039d7d46"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3767,13 +3767,13 @@
     },
     "lib/engineering/owner-publication.ts": {
       "classification": "INTERNAL",
-      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls.",
-      "sha256": "8d37e8f42b39590264a0b5001522ef2eb88e24e2c99193473afd74aff9ea1aae"
+      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
+      "sha256": "4981477fff4b2e5294cf19c9d9f0336e8e35e1946db14079ab90cc690386e4a1"
     },
     "lib/engineering/publication-contract.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority.",
-      "sha256": "96eaedc8fd4dfef024c1449d44b0c9b73869a354bf227dcfe36c893254572d86"
+      "reason": "Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
+      "sha256": "f8be7f7d9656b97e1cfeb9e37e62c3c922c78fad87e16a9e7ae22592c5600f14"
     },
     "lib/engineering/candidate-publication.ts": {
       "classification": "ENFORCED",

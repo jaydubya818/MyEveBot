@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {pool,reset} from '../publication/harness.mjs';
+import {pool,reset,service,workId} from '../publication/harness.mjs';
 const thread='agent-native-controlled-thread';
 test.beforeEach(async({context,page})=>{
  await reset();const r=await context.request.post('/api/auth/login',{data:{password:'owner-publication-fixture-only'}});expect(r.status()).toBe(200);
@@ -53,4 +53,14 @@ test('refresh failure hides decision controls until canonical recovery',async({p
  await page.unroute('**/api/work-thread?**');
  await canvas.getByRole('button',{name:'Retry Work progress'}).click();
  await expect(canvas.getByRole('heading',{name:'Needs You — owner decision'})).toBeVisible();
+});
+
+test('failed independent review is visible inline without opening Proof',async({page},info)=>{
+ await page.goto('/chat');const canvas=page.getByRole('region',{name:'Work in this conversation'});
+ await canvas.getByRole('radio',{name:'Open a pull request',exact:true}).check();await canvas.getByRole('button',{name:'Review decision'}).click();await canvas.getByRole('button',{name:'Confirm decision',exact:true}).click();await expect(canvas.getByText(/Publication: PR_OPEN/)).toBeVisible();
+ const view=await service.view('owner',workId),b=view.binding;
+ await service.retainReadback('owner',workId,{binding:b,observedAt:new Date().toISOString(),branchCount:1,prCount:1,candidate:b.candidate,tree:b.verifiedTree,baseRef:b.baseRef,baseSha:b.expectedBaseSha,prNumber:1,prUrl:`https://github.com/${b.repository}/pull/1`,draft:true,merged:false,files:b.allowedPaths,ci:{status:'PASS',workflow:'quantity-ci',candidate:b.candidate,runId:'controlled',url:'https://github.com/example/controlled',checks:[{name:'quantity-ci',candidate:b.candidate,result:'PASS'}]},review:{status:'FAIL',candidate:b.candidate,reviewer:'independent-controlled-review',mode:'INDEPENDENT_READ_ONLY',reportHash:'a'.repeat(64),summary:'Numeric range requires separate candidate lifecycle.',testsPassed:11,findings:['Precision loss'],limitations:[]},ownerAcceptance:'NOT_RUN',merge:'NOT_RUN',deployment:'NOT_RUN'});
+ await page.reload();await expect(canvas.getByRole('alert')).toContainText('Independent review found an issue: Numeric range requires separate candidate lifecycle.');await expect(canvas.getByRole('alert')).toContainText('Current Result remains partial.');
+ expect((await service.view('owner',workId)).proof).toEqual(view.proof);
+ await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-inline-review-failure.png`,fullPage:true});
 });

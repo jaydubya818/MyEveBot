@@ -1,4 +1,5 @@
 "use client";
+import type { PublicationReadback } from '@/lib/engineering/publication-contract';
 import {
   useEffect,
   useRef,
@@ -32,6 +33,7 @@ type Result = {
   work_id: string;
   proof: ProofOfWork;
   journeyAccounting?: JourneyAccounting;
+  publicationReadback?: PublicationReadback | null;
   content_hash: string;
   source: "LOCAL_FIXTURE" | "CANONICAL";
   created_at: string;
@@ -397,6 +399,7 @@ export function IntegratedExperience({
             <details>
               <summary>Proof of Work</summary>
               {r.journeyAccounting && <p>{journeyCostText(r.journeyAccounting)}</p>}
+              {r.publicationReadback && <p>Current publication: PASS · GitHub CI: {r.publicationReadback.ci.status} · Independent review: {r.publicationReadback.review.status}. {r.publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result: PARTIAL.</p>}
               <ul className="owner-list">
                 {r.proof.evidence.map((e) => (
                   <li key={e.criterionId}>
@@ -407,8 +410,8 @@ export function IntegratedExperience({
               </ul>
               <p className="owner-muted">Result digest: {r.content_hash}</p>
               <ul className="owner-list">
-                {r.proof.artifactRefs.map((ref) => (
-                  <li key={ref}>{ref}</li>
+                {[...new Set(r.proof.artifactRefs)].map((ref) => (
+                  <li key={ref}>{ref}{r.proof.artifactRefs.filter(value=>value===ref).length>1?` — referenced by ${r.proof.artifactRefs.filter(value=>value===ref).length} checks`:''}</li>
                 ))}
               </ul>
               {r.proof.limitations.map((l, i) => (

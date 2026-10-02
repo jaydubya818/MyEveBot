@@ -46,3 +46,28 @@ Keep existing primary navigation and chat history. Add live Work as an inline co
 ## Evidence discipline
 
 DETERMINISTIC = controlled providers/clock; CONNECTED = real services without asserting paid live execution; LIVE = actual deployed dependencies exercised. PASS always names the tested scope. Unrun safety counters are NOT_RUN, never zero by assumption.
+
+## Product source after checkpoints A–F
+
+These statuses describe the scoped evidence in this source candidate, not deployment readiness. The overall mission remains PARTIAL / NOT_READY.
+
+| Pluto-visible capability | MyEve | Evidence and remaining gap |
+| --- | --- | --- |
+| Persistent named agents | PASS (persistence/UI) | Fresh durable identities, real owner-scoped configuration/home; natural manage_agent execution remains fenced |
+| Agent profile | PASS (product projection) | Purpose, actual Work/Result associations, responsibilities and Advanced settings |
+| Agent conversation history | PARTIAL | Bounded owned history with links; full natural specialist continuity canary NOT_RUN |
+| Conversation forks | PARTIAL | Existing fork preserved; copied event logs cannot inherit canonical Work association |
+| Web research | PARTIAL | Existing governed capabilities reused; no new live research canary |
+| Email | PARTIAL | Existing inbox/drafts/approval contracts; natural email → Work → reply LIVE NOT_RUN here |
+| Files/workspace | PARTIAL | Existing artifact workspace retained; no new storage engine |
+| Computer | PARTIAL | Inherited owner Mac evidence; cloud/Mac-off NOT_QUALIFIED |
+| Voice | PARTIAL | Existing source retained; provider voice qualification NOT_RUN here |
+| Recurring responsibilities | PARTIAL | Versioned review, condition results/notifications/stop; release disabled and natural creation E2E pending |
+| Last/next check | PASS (read projection) | Actual occurrence/reminder records, timezone-aware next schedule, release-aware waiting state |
+| Groups | PARTIAL | Shared schema/identity proposal prepared; persistent Group runtime NOT_QUALIFIED |
+| Real agent coordination | PARTIAL | Existing Relay request evidence surfaced; Researcher → Engineer → Sofie LIVE NOT_RUN |
+| Background execution | PARTIAL | Deterministic lease/recovery/duplicate-key semantics pass; browser/Mac-off LIVE NOT_RUN |
+| Unified Work journey | PARTIAL | Inline retained Work/Result/Proof/owner decisions pass; natural request → productive specialist canary pending |
+| Owner publication | PARTIAL | Exact canonical contract/UI reused; current landed main records CI PASS and independent review FAIL for historical candidate; no acceptance implied |
+
+Completed scope and tests are recorded in checkpoints A–F under docs/verification/agent-native-work. No unrun safety counter is reported as zero. UI status, productive execution, provider qualification and owner acceptance remain separate claims.

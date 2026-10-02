@@ -52,3 +52,6 @@ Canonical owner-scoped responsibility reads added to Today/Inbox, with quiet-res
 
 ### Checkpoint F
 Added owner-scoped Relay handoff metadata view and explicit Group schema/identity proposal. 14 PostgreSQL assertions and 4 browser scenarios pass; 2 accessibility scans clear. Persistent Groups and real agent coordination remain NOT_QUALIFIED. No transport or execution implementation forked.
+
+### Canonical reconciliation and qualification
+Reconciled landed MyEve main d75091e with a presentation-only conflict resolution. Preserved canonical failed independent review and exposed it inline. Final evidence: 1,991 unit passes/94 gated skips, 75 product PostgreSQL checks, 29 publication contract checks, 32 product browser cases and 12 canonical publication browser cases. Remaining full-mission gates remain unchecked; see qualification-summary.md and integration crosswalk. Routine stale-edit race now returns an explicit conflict and preserves the concurrent edit.

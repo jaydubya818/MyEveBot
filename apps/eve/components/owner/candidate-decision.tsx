@@ -25,19 +25,21 @@ export function OwnerCandidateDecision({workId,embedded=false}:{workId:string;em
   const body=await response.json();if(!response.ok)throw Error(body.error);await load();setConfirm(false);setSaved(true);
  }catch(e){setError(e instanceof Error?e.message:'Decision unavailable.');}finally{setBusy(false);}}
  const content = <>
- {!embedded&&<><Link href="/results">Results</Link><h1>{data?'Sofie finished the work':'Owner decision'}</h1></>}
+ {!embedded&&<><Link href="/results">Results</Link><h1>{data?(data.readback?.review.status==='FAIL'?'Result needs attention':'Sofie finished the work'):'Owner decision'}</h1></>}
  {error&&<p role="alert">{error}</p>}{!data&&!error&&<p role="status">Loading retained Result…</p>}
  {data&&<>
+ {data.readback?.review.status==='FAIL'&&<p role="alert">Independent review found an issue: {data.readback.review.summary} Current Result remains partial.</p>}
  <p>{data.binding.allowedPaths.join(', ')} was implemented and independently verified.</p>
  <p>Implementation checks: <strong>{data.implementation.passed}/{data.implementation.total}</strong><br/>Independent verification: <strong>{data.verification.passed}/{data.verification.total}</strong></p>
  <p>Total journey model cost: <strong>{money(data.accounting.settledMicrousd)}</strong></p>
  <details><summary>Proof of Work</summary>
  <p>Candidate: {data.binding.candidate}<br/>Verified tree: {data.binding.verifiedTree}</p>
  <p>Sofie: {money(data.accounting.sofieMicrousd)} · Factory: {money(data.accounting.factoryMicrousd)}</p>
- <p>Result: {data.proof.outcome}. Owner acceptance: NOT_RUN.</p>
+ <p>Historical Result: {data.proof.outcome}. Owner acceptance: NOT_RUN.</p>
+ {data.readback&&<section aria-label="Current publication evidence"><p>Publication readback ({data.readback.observedAt}): PASS · GitHub CI: {data.readback.ci.status} · Independent review: {data.readback.review.status}</p><p>{data.readback.review.summary}</p><p>Current Result: PARTIAL. Owner acceptance remains NOT_RUN.</p><a href={data.readback.ci.url}>GitHub CI for this candidate</a></section>}
  <p>The historical Proof is an immutable snapshot. Current accounting above includes the final explanation.</p>
  <ul>{data.proof.evidence.map(e=><li key={e.criterionId}>{e.state} — {e.producer}: {e.sourceRef}</li>)}</ul>
- <details><summary>Canonical evidence references</summary><ul>{[...new Set(data.proof.artifactRefs)].map((s,i)=><li key={i}>{s}</li>)}</ul></details>
+ <details><summary>Canonical evidence references</summary><ul>{[...new Set(data.proof.artifactRefs)].map(s=><li key={s}>{s}{data.proof.artifactRefs.filter(ref=>ref===s).length>1?` — referenced by ${data.proof.artifactRefs.filter(ref=>ref===s).length} checks`:''}</li>)}</ul></details>
  </details>
  <section aria-labelledby={titleId}><h2 id={titleId}>Needs You — owner decision</h2>
  {data.decision&&<p role="status">{data.decision.action==='reject'?'Candidate rejected.':data.decision.action==='keep_private'?'Kept private.':`Decision recorded: ${choices.find(c=>c.id===data.decision.action)?.label}.`} {data.publication?`Publication: ${data.publication.state}.`:'No GitHub writes.'}</p>}
