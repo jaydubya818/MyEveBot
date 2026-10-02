@@ -388,6 +388,7 @@ export function IntegratedExperience({
             <p className="owner-muted">
               Candidate: {r.candidate_sha ?? r.proof.resultRevision}
             </p>
+            {r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS") && <p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></p>}
             <p>
               Work revision {r.proof.workVersion} · Criteria revision{" "}
               {r.proof.criteriaVersion}
@@ -905,6 +906,7 @@ export function IntegratedExperience({
                 Load more Inbox items
               </button>
             )}
+            {view === "needs-you" && results.filter(r => r.route === "MYFACTORY" && r.proof.evidence.every(e => e.state === "PASS")).map(r => <Card key={r.id} title="Verified work needs your decision"><p>Review the retained candidate and choose whether to publish it, keep it private or reject it.</p><Link href={`/work/${r.work_id}/decision`}>Review owner decision</Link></Card>)}
             {view === "results" && resultCards()}
             {["today", "brief", "activity"].includes(view) && (
               <Card title="Memory and learning changes">

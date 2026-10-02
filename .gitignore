@@ -15,3 +15,7 @@ node_modules
 .playwright-cli/
 
 .local-computer/
+
+# Local controlled publication browser traces (archived as qualification evidence).
+/apps/eve/output/playwright/publication/
+/output/playwright/publication/
