@@ -58,3 +58,6 @@ Reconciled landed MyEve main d75091e with a presentation-only conflict resolutio
 
 ### Environment Fabric coordination
 Delivered the authorized nine-P0 handoff to both Fabric and cloud execution owners. Received Fabric’s pinned source contract and incorporated its exact exports and missing admission/registry/origin boundaries. Cloud branch progress is recorded separately from the older Fabric image blocker. No runtime schema/router/provider copied, protected worktree modified or capability enabled. Continue deterministic product readback qualification; cloud/Routine E2E remains PARTIAL / NOT_READY.
+
+### Product continuation after accepted coordination checkpoint
+Revalidated all canonical mains; blanket Q37 wait is stale. Implemented Work Inbox settlement independent of archival, shared agent/Today status, direct-owner profile tools without permission expansion, Routine stop and controlled natural authoring/scheduler/recovery qualification. Group domain and proposed PostgreSQL aggregate are deterministically tested with canonical Relay contracts and canonical Inbox attention references. No shared migration allocated or protected execution source changed. Remaining gates are detailed in docs/product/current-product-dependencies.md; incomplete browser-natural/productive and real-peer/cloud gates remain unchecked.

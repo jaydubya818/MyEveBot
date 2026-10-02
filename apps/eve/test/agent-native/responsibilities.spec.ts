@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 test.beforeEach(async({context,page})=>{
  await context.request.post('/api/auth/login',{data:{password:'owner-publication-fixture-only'}});const state=await context.storageState();await context.addCookies(state.cookies.map(c=>({...c,secure:false})));
  await page.route('**/api/**',route=>{
-  const path=new URL(route.request().url()).pathname;if(path.startsWith('/api/auth/')||path==='/api/responsibilities')return route.continue();
+  const path=new URL(route.request().url()).pathname;if(path.startsWith('/api/auth/')||path==='/api/responsibilities'||path==='/api/work-inbox')return route.continue();
   const responses:Record<string,unknown>={'/api/beta/activity':{changes:[]},'/api/beta/goals':{contractVersion:1,goals:[],nextCursor:null,canProceed:[],doing:[],blocked:[],needsYou:[],recentlyCompleted:[]},'/api/beta/work':{works:[]},'/api/beta/results':{results:[]},'/api/beta/inbox':{items:[],nextCursor:null},'/api/channels':{channels:[]},'/api/email':{configured:false,threads:[]},'/api/threads':{threads:[]},'/api/commands':{commands:[]},'/api/models':{models:[]}};
   return route.fulfill({json:responses[path]??{}});
  });

@@ -7,8 +7,8 @@ test.beforeEach(async({context,page})=>{
  await page.addInitScript(({thread})=>{const prefix='myeve-private:owner:';localStorage.setItem(prefix+'eve-web-threads',JSON.stringify({activeId:thread,threads:[{id:thread,title:'Review quantity validation',updatedAt:1}]}));localStorage.setItem(prefix+'eve-web-chat:'+thread,JSON.stringify({events:[]}));},{thread});
  // Unrelated chat bootstrap only. Work/publication use real routes + PostgreSQL.
  await page.route('**/api/**',async route=>{const path=new URL(route.request().url()).pathname;
-  if(path.startsWith('/api/auth/')||path==='/api/work-thread'||path==='/api/beta/owner-decision')return route.continue();
-  const bodies:Record<string,unknown>={'/api/threads':{threads:[{id:thread,title:'Review quantity validation',updatedAt:1}]},['/api/threads/'+thread]:{chat:{events:[]}},'/api/capabilities':{capabilities:[]},'/api/task-runs':{tasks:[]},'/api/agents':{agents:[]},'/api/models':{models:[]},'/api/commands':{commands:[]}};
+  if(path.startsWith('/api/auth/')||path==='/api/work-thread'||path==='/api/work-inbox'||path==='/api/beta/owner-decision')return route.continue();
+  const bodies:Record<string,unknown>={'/api/responsibilities':{executionQualified:false,routines:[],results:[]},'/api/channels':{channels:[]},'/api/email':{configured:false,threads:[]},'/api/threads':{threads:[{id:thread,title:'Review quantity validation',updatedAt:1}]},['/api/threads/'+thread]:{chat:{events:[]}},'/api/capabilities':{capabilities:[]},'/api/task-runs':{tasks:[]},'/api/agents':{agents:[]},'/api/models':{models:[]},'/api/commands':{commands:[]}};
   return route.fulfill({json:bodies[path]??{}});
  });
  await page.route('**/eve/v1/**',route=>route.fulfill({status:503,json:{error:'No model execution in deterministic presentation test'}}));
@@ -95,4 +95,24 @@ test('reconnect and a second owner client retain one canonical Work without effe
   expect((await pool.query('SELECT pushes,prs FROM publication_boundary_fixture')).rows[0]).toEqual({pushes:0,prs:0});
   await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-work-reconnect.png`,fullPage:true});
  }finally{await context.setOffline(false);await second.close();}
+});
+
+test('Work settles into Completed without archiving its conversation',async({page},info)=>{
+ await page.goto('/chat');const canvas=page.getByRole('region',{name:'Work in this conversation'});
+ await canvas.getByRole('radio',{name:'Keep private',exact:true}).check();
+ await canvas.getByRole('button',{name:'Review decision'}).click();
+ await canvas.getByRole('button',{name:'Confirm decision',exact:true}).click();
+ await expect(canvas.getByText('Kept private.',{exact:false}).first()).toBeVisible();
+ await page.goto('/inbox');const inbox=page.getByRole('region',{name:'Work Inbox',exact:true});
+ const completed=inbox.getByRole('button',{name:/^Completed/});await completed.focus();await page.keyboard.press('Enter');
+ await expect(inbox.locator(`[data-work-id="${workId}"]`)).toHaveAttribute('data-work-state','Completed');
+ await expect(inbox.getByText('Verified Result kept private. Conversation remains open.')).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+ expect(await inbox.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations)).toEqual([]);
+ await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-work-inbox-settled.png`,fullPage:true});
+ await inbox.getByRole('link',{name:'Continue conversation'}).click();
+ await expect(page.getByRole('region',{name:'Work in this conversation'}).locator('[data-work-id]')).toHaveCount(1);
+ await expect(page.getByRole('region',{name:'Work in this conversation'})).toHaveAttribute('data-thread-id',thread);
+ expect((await page.request.get('/api/work-inbox',{headers:{cookie:''}})).status()).toBe(401);
 });

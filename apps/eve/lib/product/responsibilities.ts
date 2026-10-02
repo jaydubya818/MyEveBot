@@ -7,7 +7,7 @@ const instant=(value:unknown)=>value==null?null:new Date(String(value)).toISOStr
  * Work association or authority and never infers success from agent prose. */
 export async function readResponsibilities(db:ExecutionDatabase,ownerId:string){
  const [routines,results]=await Promise.all([
-  db.query(`SELECT r.id,r.name,r.status,r.agent_id,a.name AS agent_name,m.next_fire_at,m.timezone,
+  db.query(`SELECT r.id,r.name,r.status,r.agent_id,a.name AS agent_name,m.status AS schedule_status,m.next_fire_at,m.timezone,
     o.status AS last_status,(o.lease_expires_at>now()) AS live_claim,o.scheduled_for,o.completed_at,o.run_id,t.result_summary,
     h.id AS thread_id
     FROM execution_routines r JOIN agents a ON a.owner_id=r.owner_id AND a.id=r.agent_id
@@ -28,7 +28,7 @@ export async function readResponsibilities(db:ExecutionDatabase,ownerId:string){
  return {
   executionQualified:ROUTINE_RELEASE.enabled,
   routines:routines.map(r=>({id:String(r.id),name:String(r.name),agentId:String(r.agent_id),agentName:String(r.agent_name),
-   state:r.status!=='active'?(r.status==='disabled'?'Stopped':String(r.status).replaceAll('_',' ')):['waiting','recovery_required','failed','blocked_precheck'].includes(String(r.last_status))?'Needs you':!ROUTINE_RELEASE.enabled?'Waiting':r.last_status==='running'?(r.live_claim?'Working':'Needs you'):'Scheduled',
+   state:r.schedule_status==='cancelled'?'Stopped':r.status!=='active'?(r.status==='disabled'?'Stopped':String(r.status).replaceAll('_',' ')):['waiting','recovery_required','failed','blocked_precheck'].includes(String(r.last_status))?'Needs you':!ROUTINE_RELEASE.enabled?'Waiting':r.last_status==='running'?(r.live_claim?'Working':'Needs you'):r.next_fire_at?'Monitoring':'Waiting',
    nextRun:r.status==='active'?instant(r.next_fire_at):null,timezone:textOrNull(r.timezone),
    lastRun:instant(r.completed_at??r.scheduled_for),lastStatus:textOrNull(r.last_status),
    summary:textOrNull(r.result_summary),threadId:textOrNull(r.thread_id)})),

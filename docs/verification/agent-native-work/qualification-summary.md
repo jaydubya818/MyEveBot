@@ -12,7 +12,7 @@ Overall: PARTIAL / NOT_READY. Source branch: codex/agent-native-work-experience.
 - Read-only Relay handoff metadata; persistent Group schema/identity integration proposal remains explicitly unavailable.
 - Reconciliation of canonical main d75091eb333a531fa91ed9d39e273948aa9d0eaf, including additive CI/review readback and grouped Proof references. Independent review FAIL is visible inline.
 
-## Final evidence
+## Evidence at the earlier integration checkpoint
 
 | Check | Result | Scope |
 | --- | --- | --- |
@@ -34,7 +34,7 @@ The source diff against reconciled canonical main has no modifications to engine
 
 See the exact [integration crosswalk](../../product/agent-native-integration-crosswalk.md) and [parity matrix](../../product/pluto-pattern-crosswalk.md). A–F are remotely verified incremental checkpoints, not six fully accepted end-to-end capabilities.
 
-## Open gates
+## Open gates at the earlier integration checkpoint
 
 Natural agent-management execution; full natural prompt → productive specialist Work; exactly-once natural Routine creation/agent binding; distinct-trigger coalescing; additional lifetime/run-count limits; browser-disconnected real execution; qualified CLOUD with zero Mac dependency; persistent Groups/per-member Relay identities; real Group synthesis; real second deployment/external peers; and complete email/research/proactive end-to-end journeys remain open. Shared Group/transactional admission schema belongs in canonical integration. No safety counter for these unrun gates is assumed to be zero.
 
@@ -45,3 +45,7 @@ The earlier coordination approval rejection was resolved by Jay’s explicit aut
 ## Coordination follow-up
 
 [Coordination/readback checkpoint](coordination-checkpoint.md): Fabric contracts received and incorporated; clearer offline guidance; 16 affected Work Canvas browser cases PASS, including 2 new desktop/390px reconnect readback cases. Build/typecheck/governance PASS. These are deterministic product checks; cloud/background status remains PARTIAL / NOT_READY.
+
+## Current Product continuation
+
+The [2026-10-02 continuation checkpoint](product-continuation.md) supersedes earlier counts and blanket Q37 terminology: 1,997 unit tests passed (94 skipped), 113 checks across six PostgreSQL scripts passed, and all 36 desktop/390px agent-native browser cases passed. Work Inbox automatic settlement, direct-owner agent management, deterministic Routine recovery and proposed persistent Group-domain qualification are added. Full natural browser productive execution, real Group identities and the six CLOUD gates remain open; see the [specific current dependencies](../../product/current-product-dependencies.md).

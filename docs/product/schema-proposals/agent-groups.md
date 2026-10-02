@@ -1,6 +1,6 @@
 # Persistent Agent Groups — schema and canonical integration proposal
 
-Status: PROPOSED, NOT MIGRATED. No migration number allocated. Preserve concurrent Q37/MyFactory/Environment Fabric ownership. This is not a Group runtime implementation.
+Status: PROPOSED, NOT MIGRATED. No migration number allocated. Preserve concurrent Q37/MyFactory/Environment Fabric ownership. A Group domain and PostgreSQL repository now implement this proposal in isolated qualification schemas. No production route is enabled before shared-schema acceptance.
 
 ## Existing source constraints
 
@@ -10,21 +10,17 @@ Status: PROPOSED, NOT MIGRATED. No migration number allocated. Preserve concurre
 - Shared rooms currently have no persisted membership/objective model. Relay conversation IDs alone do not create Groups.
 - Goal/Work/Result/artifact/Memory owners remain canonical. A Group holds authorized references, not copies of private records or combined capability grants.
 
-## Proposed records
+## Proposed storage
 
-| Record | Required fields and constraints |
-| --- | --- |
-| agent_groups | group ID; owner/business scope; name; objective; coordinator agent reference; status; version; created/updated. Unique identity in scope. Personal is the initial default. Business groups require existing BusinessScopes authorization. |
-| agent_group_members | scope + Group + canonical agent identity; coordinator/member/reviewer; member revision; active/revoked; timestamps. Agent scope and Group access checked independently; exactly one active coordinator. No tools, credentials or inherited grants. |
-| agent_group_links | scope + Group + kind (Goal/Work/Result/artifact/conversation) + canonical reference/revision; sharing decision/reference; revoked_at. Resolve through source authorization on every read; no arbitrary URLs or copied contents. |
-| agent_group_handoffs | Group version/member revision; canonical Relay sender/recipient identities; conversation/request/reply IDs; bounded approved context digest/references; status. Unique Relay request ID in scope; reply must reference a known matching request. No separate transport queue. |
-| agent_group_audit | owner/business scope; actor; Group/version; creation/membership/delegation/sharing/revocation/synthesis event; canonical evidence references. Append only. |
+[Unnumbered SQL proposal](agent-groups.sql) and `apps/eve/lib/product/{groups,group-repository}.ts` implement a bounded personal-owner aggregate: at most 12 members, 100 authorized source references and 100 retained Relay handoffs. One `agent_groups` row binds owner, ID, version and validated document. `agent_group_audit` records each accepted revision atomically. Compare-and-swap rejects concurrent/stale updates.
 
-Keep migration allocation with the shared-schema integration owner. Product APIs should call canonical Group repository contracts after that schema is accepted; do not store Groups in preferences, chat prose, Memory or a second filesystem registry.
+Membership, source references and handoff associations change under one revision. Canonical agent, Work, Result, artifact and Inbox sources remain separate; the document contains references and roles, no copied content, Memory or capability grants. Reads reauthorize references. Needs You is a pointer to canonical Work attention, refreshed from that source; handoff completion cannot settle its decision. Group membership alone never permits an external action.
+
+The smaller aggregate keeps revision validation atomic during this initial bounded personal-owner phase. Business groups, unbounded membership/history and production retention/role policy require canonical shared-schema review. Do not run this proposal against a shared or deployed database or allocate a competing migration number. Tests install it only in an isolated schema of the task-owned disposable PostgreSQL.
 
 ## Required canonical adapter contracts
 
-1. Resolve each member's persistent local identity to its own qualified Relay identity. Missing mapping returns WAITING_FOR_CANONICAL_Q37, never substitutes Sofie.
+1. Resolve each member's persistent local identity to its own qualified Relay identity. Missing mapping returns WAITING_FOR_DISTINCT_RELAY_IDENTITIES, never substitutes Sofie.
 2. Validate current Group membership, actor scope and source access; then call the existing Relay permission/action pipeline for the specific recipient and bounded payload.
 3. Revalidate membership and grants before send/receive; revocation invalidates queued authority. Group membership alone never authorizes a capability.
 4. Retain Relay request/correlation and a separately owned Work/Result reference. Duplicate delivery reuses the same identity. Timeout/uncertain outcome enters canonical recovery, never blind resend.

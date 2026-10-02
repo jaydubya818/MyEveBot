@@ -2,6 +2,7 @@ import type { BetaIntegration } from '../beta-integration/runtime.ts';
 import { CanonicalBetaWork } from '../beta-integration/canonical-work.ts';
 import { OwnerPublication } from '../engineering/owner-publication.ts';
 import { WorkError } from '../engineering/types.ts';
+import { workState } from './work-state.ts';
 import { ROUTINE_RELEASE } from '../routine-release.ts';
 
 /** Agent identity is never inferred from a role label or from the producer. */
@@ -14,7 +15,7 @@ export async function readAgentHome(beta: BetaIntegration, owner: string, agentI
       JOIN agent_runs r ON r.id=c.agent_run_id AND r.owner_id=c.owner_id AND r.agent_id=c.agent_id AND r.thread_id=c.thread_id AND r.session_id=c.session_id
       JOIN engineering_work w ON w.scope_id=c.owner_id AND w.scope_kind='personal' AND c.source_refs @> jsonb_build_array('engineering-work:' || w.id::text)
       WHERE c.owner_id=$1 AND c.agent_id=$2 GROUP BY w.id ORDER BY max(c.created_at) DESC,w.id DESC LIMIT 10`,[owner,agentId]),
-    beta.query(`SELECT r.id,r.name,r.status,r.last_success_at,m.next_fire_at,m.timezone,
+    beta.query(`SELECT r.id,r.name,CASE WHEN m.status='cancelled' THEN 'stopped' ELSE r.status END AS status,r.last_success_at,m.next_fire_at,m.timezone,
       (SELECT jsonb_build_object('status',o.status,'at',o.completed_at,'runId',o.run_id) FROM execution_occurrences o WHERE o.owner_id=r.owner_id AND o.routine_id=r.id ORDER BY o.scheduled_for DESC LIMIT 1) AS last_run
       FROM execution_routines r LEFT JOIN reminders m ON m.owner_id=r.owner_id AND m.execution_routine_id=r.id
       WHERE r.owner_id=$1 AND r.agent_id=$2 AND r.status<>'archived' ORDER BY r.updated_at DESC,r.id DESC LIMIT 20`,[owner,agentId]),
@@ -22,12 +23,13 @@ export async function readAgentHome(beta: BetaIntegration, owner: string, agentI
   ]);
   const works = await Promise.all(references.map(async reference => {
     const {projection} = await new CanonicalBetaWork(beta).projection(owner,String(reference.id));
-    let needsDecision = !!projection.attention || projection.pendingDecisions.length > 0;
+    let publication: Awaited<ReturnType<OwnerPublication["view"]>> | null = null;
     if (projection.nativeResult?.current && projection.factoryWriter && projection.nativeDevelopment?.phase === 'VERIFICATION_PASSED') {
-      try { const decision = await new OwnerPublication(beta).view(owner, projection.workId); needsDecision ||= !decision.decision; }
+      try { publication = await new OwnerPublication(beta).view(owner, projection.workId); }
       catch (error) { if (!(error instanceof WorkError)) throw error; }
     }
-    return {projection,needsDecision};
+    const state=workState(projection,publication);
+    return {projection,needsDecision:state.lane === "Needs You",state};
   }));
   return {
     agent: {id:String(agent.id),name:String(agent.name),configurationStatus:String(agent.status)},

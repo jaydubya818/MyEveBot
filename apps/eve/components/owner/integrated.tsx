@@ -19,6 +19,7 @@ import type { LearningFamily } from "@/lib/total-recall/learning";
 import type { AttentionView } from "@/lib/universal-inbox/contracts";
 import "./owner.css";
 import { Responsibilities } from "./responsibilities";
+import { WorkInbox } from "./work-inbox";
 import { OwnerNavigation } from "./navigation";
 
 type CanonicalWork = Awaited<
@@ -564,6 +565,7 @@ export function IntegratedExperience({
             )}
             {view === "today" && (
               <>
+                <WorkInbox />
                 <Responsibilities />
                 <div className="owner-grid">
                   <Card title="Current Goals">

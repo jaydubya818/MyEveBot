@@ -417,8 +417,8 @@
     },
     "agent/lib/reminders-db.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "9d87c9f10f0166f415c285451fadb6bd04c04facf15a01f22cb06d88f4fcf526"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed owner-scoped stop cancels active/paused schedule using existing invalidation trigger; no execution release, grants or new engine. Controlled lifecycle/recovery test covers owner isolation.",
+      "sha256": "9dfa8406cc3781e5aa17dca5499912e1b84899c794fecb0eea664099dc03bc3b"
     },
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
@@ -1151,10 +1151,9 @@
       "sha256": "d86c01112fa3d5b8e272448e273c01b6eca75ad55ca57220678e61b21c1194ff"
     },
     "agent/tools/manage_agent.ts": {
-      "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "f0a812a316bff5388b3c6fca1eb748bef4008f49a3bfebe23c8c97d4d26d8e50",
-      "disposition": "blocked"
+      "classification": "INTERNAL",
+      "reason": "Direct authenticated root owner plus framework always-approval; reuses canonical profile services. Creation/copy grants zero capabilities; updates preserve existing risk/limits/grants; service/delegated/execution identities denied. Permission expansion requires existing owner settings; no execution dispatch.",
+      "sha256": "3a8ad4b6ba5ae41d8003bbbabc6e8bd3666cd036aab687e75e7564c78d003044"
     },
     "agent/tools/manage_computer_session.ts": {
       "classification": "INTERNAL",
@@ -1173,8 +1172,8 @@
     },
     "agent/tools/manage_routine.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "7d816e76e9c27ea38d38a0a00f37ad969875117a5f690770e7df36b71d34f701"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed owner-scoped stop cancels active/paused schedule using existing invalidation trigger; no execution release, grants or new engine. Controlled lifecycle/recovery test covers owner isolation.",
+      "sha256": "9f2ba76fbf1747ddae15ffe4dead66c0fc72bbef75f52ef7f5ed25c68ff6bc74"
     },
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "INTERNAL",
@@ -1938,8 +1937,8 @@
     },
     "lib/agents.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Configuration duplication now copies no capability grants, Work or Memory; fresh identity and isolation qualified in agent-home.integration.mjs.",
-      "sha256": "b0e9d50d8636371c8943c88238e7d31c401487f1d3f33e61e78c2e8ff2691d4f"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Configuration duplication now copies no capability grants, Work or Memory; fresh identity and isolation qualified in agent-home.integration.mjs. Profile-only update explicitly omits grant/risk/limit columns and uses atomic audit, preserving concurrent revocations.",
+      "sha256": "f3149bdb314c290d13c12e93a97e0b55fa88223f20d4194f5e6a6e80159300c0"
     },
     "lib/api-errors.ts": {
       "classification": "INTERNAL",
@@ -3797,8 +3796,8 @@
     },
     "lib/product/agent-home.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
-      "sha256": "2e10e2f415e8496f84547366d9f9c254129be8f1f79d5b26bb7069f674a14dec"
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "85aa7fbad7797044f5f23710d0ce2954abc9188896d7e2c8e074492ba7dfdbfa"
     },
     "app/api/agents/[id]/home/route.ts": {
       "classification": "READ_ONLY",
@@ -3818,7 +3817,7 @@
     "lib/product/responsibilities.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
-      "sha256": "4ceba41515ccf7c59d1ca01641aaf0c4b952d8d2e4807ad2685b7e8a7f452f14"
+      "sha256": "7e8270c7adf912f41c5cda656e3ca9dcc78b44940631c3885a37396363ddc268"
     },
     "app/api/responsibilities/route.ts": {
       "classification": "READ_ONLY",
@@ -3834,6 +3833,31 @@
       "classification": "READ_ONLY",
       "reason": "Owner-authenticated read of existing Relay transport metadata; no credential/payload decryption, private Memory, Group authority or messages. Partner service-connection restriction preserved.",
       "sha256": "a844106593cc15f8f1d1c45ab235b3d0cc1a2d4579fd285bfb795f567810fa8e"
+    },
+    "lib/product/work-state.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "7015b3f5d30afd863cd73e376c29fda491a26bfc5de875daef6d681048f6fb95"
+    },
+    "lib/product/work-inbox.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "e0df0071e0125ba4d1826223cc3d695242e8f20aa40f869e4adc74b14dd23a74"
+    },
+    "app/api/work-inbox/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "8b46356e04b79e58bc3b3d33b65ed3edcdd927243e61e6ce5b1c95a5e2c718ba"
+    },
+    "lib/product/groups.ts": {
+      "classification": "INTERNAL",
+      "reason": "Group metadata only; exact owner/member/revision checks and source reauthorization. Existing Relay proposal/receipt and canonical Inbox reference only; no sending, execution or new authority. Not wired until shared schema and per-agent identities are accepted.",
+      "sha256": "7ce35879e5f8ea926527d6374d9b8d5b83d665b5b96dd70edf6223803ec39843"
+    },
+    "lib/product/group-repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Proposed bounded Group metadata persistence with owner-scoped CAS and atomic audit; no production route or allocated migration. Qualified only against isolated proposed schema.",
+      "sha256": "cd529adf3466f58f38056b07ea2330458b18f7e3cbcefb4c62739f738db9127e"
     }
   }
 }

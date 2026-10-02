@@ -247,6 +247,23 @@ export async function updateAgent(ownerId: string, agentId: string, input: Agent
   return (await getAgent(ownerId, agentId))!;
 }
 
+/** Profile-only edits never rewrite capability grants or execution ceilings.
+ * Keeping these columns out of the UPDATE also preserves concurrent revocations. */
+export async function updateAgentProfile(ownerId: string, agentId: string, input: Pick<AgentWriteInput,"name"|"role"|"description"|"instructions"|"preferredModel"|"reasoningPreference"|"notificationPolicy">, actor: AgentActor): Promise<AgentView> {
+  const error=validateAgentInput(input);if(error)throw new Error(error);
+  const current=await getAgent(ownerId,agentId);if(!current)throw new Error("Agent not found.");
+  const slug=input.name.trim()===current.name?current.slug:await uniqueSlug(ownerId,input.name,agentId);
+  const rows=await db().query(`WITH updated AS (
+    UPDATE agents SET name=$3,slug=$4,role=$5,description=$6,instructions=$7,preferred_model=$8,reasoning_preference=$9,notification_policy=$10,updated_at=now()
+    WHERE owner_id=$1 AND id=$2 AND status<>'archived' RETURNING id
+  ), audit AS (
+    INSERT INTO agent_audit_events(id,owner_id,agent_id,event_type,actor_type,actor_id,summary,changes)
+    SELECT $11,$1,id,'updated',$12,$13,'Agent profile updated without changing permissions or limits.','{}'::jsonb FROM updated RETURNING id
+  ) SELECT id FROM updated`,[ownerId,agentId,input.name.trim(),slug,input.role.trim(),input.description?.trim()??"",input.instructions.trim(),input.preferredModel??current.preferredModel,input.reasoningPreference??current.reasoningPreference,input.notificationPolicy??current.notificationPolicy,`agent_event_${randomUUID()}`,actor.type,actor.id??null]);
+  if(!rows[0])throw new Error("Agent not found or archived.");
+  return (await getAgent(ownerId,agentId))!;
+}
+
 export async function transitionAgent(ownerId: string, agentId: string, status: Exclude<AgentStatus,"disabled"> | "disabled", actor: AgentActor): Promise<AgentView> {
   const current = await getAgent(ownerId, agentId); if (!current) throw new Error("Agent not found.");
   if (current.isPrimary && status !== "active") throw new Error("The primary Agent cannot be paused, disabled, or archived without a replacement.");

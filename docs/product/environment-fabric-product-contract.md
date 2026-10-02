@@ -1,6 +1,6 @@
 # Product / Environment Fabric integration contract
 
-Status: **PARTIAL / NOT_READY**. Dependency boundary: **WAITING_FOR_CANONICAL_Q37**. Recorded 2026-10-02. This is a consumer crosswalk and acceptance contract, not a new execution protocol.
+Status: **PARTIAL / NOT_READY**. Integration boundary: **WAITING_FOR_CANONICAL_ENVIRONMENT_FABRIC**; real execution evidence: **WAITING_FOR_CLOUD_EXECUTION_QUALIFICATION**. The earlier blanket Q37 label is stale; see [current dependency audit](current-product-dependencies.md). Recorded 2026-10-02. This is a consumer crosswalk and acceptance contract, not a new execution protocol.
 
 ## Coordination and source authority
 
@@ -58,3 +58,7 @@ The added reconnect regression exercises an already-retained deterministic Work:
 Background Routines: **PARTIAL / NOT_READY**. Cloud natural Work: **PARTIAL / NOT_READY**. Qualified cloud execution, browser-off/Mac-off production, natural Routine creation and real Group execution remain **NOT_RUN** in this workstream. No unrun safety counter is reported as zero.
 
 The canonical beta-integration owner receives this crosswalk with the source candidate. Future execution candidates must be reviewed and integrated there; this product branch will not automatically merge them. Coordination authorizes no deployment, cloud admission, production resources, paid model calls, publication, merge, force push/reset or protected-worktree edits.
+
+## Current Product continuation handoff
+
+The execution owner confirms `WAITING_FOR_CANONICAL_STAGING_COMPOSITION`: no qualified deterministic model/worker hook yet spans the real Eve browser endpoint to productive Work and durable Result. The [current dependency audit](current-product-dependencies.md) records the exact missing composition and latest read-only cloud/Fabric source pins. Product's controlled natural SDK authoring, canonical Routine scheduler/recovery and proposed Group-domain qualification do not satisfy that combined browser or CLOUD gate. Fabric optional sessions remain independently qualified observation capabilities; HEADLESS execution must not wait for TMUX/CMUX or duplicate their contracts here.

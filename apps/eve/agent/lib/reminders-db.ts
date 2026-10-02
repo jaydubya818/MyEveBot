@@ -102,10 +102,14 @@ function requireUpdatedRoutine(rows: ReminderRow[]): ReminderRow {
   return rows[0];
 }
 
-export async function manageRoutine(input: { ownerId: string; id: number; action: "pause" | "resume" | "update"; prompt?: string; cron?: string; timezone?: string; approvalBoundary?: string }): Promise<ReminderRow> {
+export async function manageRoutine(input: { ownerId: string; id: number; action: "pause" | "resume" | "update" | "stop"; prompt?: string; cron?: string; timezone?: string; approvalBoundary?: string }): Promise<ReminderRow> {
   await ensureTable();
   const current = (await db().query(`SELECT ${PROJECTION} FROM reminders WHERE id=$1 AND owner_id=$2 AND routine_name IS NOT NULL LIMIT 1`, [input.id,input.ownerId]) as ReminderRow[])[0];
   if (!current) throw new Error("Routine not found.");
+  if (input.action === "stop") {
+    if (!["active","paused"].includes(current.status)) throw new Error(`Routine cannot stop from ${current.status}.`);
+    return requireUpdatedRoutine(await db().query(`UPDATE reminders SET status='cancelled',claimed_until=NULL WHERE id=$1 AND owner_id=$2 AND status IN ('active','paused') RETURNING ${PROJECTION}`, [input.id,input.ownerId]) as ReminderRow[]);
+  }
   if (input.action === "pause") {
     if (current.status !== "active") throw new Error(`Routine cannot pause from ${current.status}.`);
     return requireUpdatedRoutine(await db().query(`UPDATE reminders SET status='paused',claimed_until=NULL WHERE id=$1 AND owner_id=$2 AND status='active' RETURNING ${PROJECTION}`, [input.id,input.ownerId]) as ReminderRow[]);

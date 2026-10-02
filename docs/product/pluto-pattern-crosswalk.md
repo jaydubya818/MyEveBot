@@ -53,7 +53,7 @@ These statuses describe the scoped evidence in this source candidate, not deploy
 
 | Pluto-visible capability | MyEve | Evidence and remaining gap |
 | --- | --- | --- |
-| Persistent named agents | PASS (persistence/UI) | Fresh durable identities, real owner-scoped configuration/home; natural manage_agent execution remains fenced |
+| Persistent named agents | PASS (persistence/UI) | Fresh durable identities, real owner-scoped configuration/home; direct-owner approved profile tools now qualified deterministically; productive specialist execution remains separate |
 | Agent profile | PASS (product projection) | Purpose, actual Work/Result associations, responsibilities and Advanced settings |
 | Agent conversation history | PARTIAL | Bounded owned history with links; full natural specialist continuity canary NOT_RUN |
 | Conversation forks | PARTIAL | Existing fork preserved; copied event logs cannot inherit canonical Work association |
@@ -62,12 +62,16 @@ These statuses describe the scoped evidence in this source candidate, not deploy
 | Files/workspace | PARTIAL | Existing artifact workspace retained; no new storage engine |
 | Computer | PARTIAL | Inherited owner Mac evidence; cloud/Mac-off NOT_QUALIFIED |
 | Voice | PARTIAL | Existing source retained; provider voice qualification NOT_RUN here |
-| Recurring responsibilities | PARTIAL | Versioned review, condition results/notifications/stop; release disabled and natural creation E2E pending |
+| Recurring responsibilities | PARTIAL | Versioned review, condition results/notifications/stop; controlled SDK creation → explicit review → scheduler/worker/Result/recovery qualified; browser natural approval and live execution pending |
 | Last/next check | PASS (read projection) | Actual occurrence/reminder records, timezone-aware next schedule, release-aware waiting state |
-| Groups | PARTIAL | Shared schema/identity proposal prepared; persistent Group runtime NOT_QUALIFIED |
+| Groups | PARTIAL | PostgreSQL domain/reference/handoff proposal qualified with distinct fixtures; shared-schema allocation, identity integration and real Group execution pending |
 | Real agent coordination | PARTIAL | Existing Relay request evidence surfaced; Researcher → Engineer → Sofie LIVE NOT_RUN |
 | Background execution | PARTIAL | Deterministic lease/recovery/duplicate-key semantics pass; browser/Mac-off LIVE NOT_RUN |
 | Unified Work journey | PARTIAL | Inline retained Work/Result/Proof/owner decisions pass; natural request → productive specialist canary pending |
 | Owner publication | PARTIAL | Exact canonical contract/UI reused; current landed main records CI PASS and independent review FAIL for historical candidate; no acceptance implied |
 
 Completed scope and tests are recorded in checkpoints A–F under docs/verification/agent-native-work. No unrun safety counter is reported as zero. UI status, productive execution, provider qualification and owner acceptance remain separate claims.
+
+## Product continuation
+
+Work Inbox automatic settlement, Today and agent-home status use canonical Current Truth; chat archival is independent. Controlled natural authoring and existing Routine lifecycle qualification are recorded in [the continuation checkpoint](../verification/agent-native-work/product-continuation.md). The [dependency audit](current-product-dependencies.md) replaces the stale blanket Q37 wait with specific current gates. Designer→Engineer→Reviewer→Sofie is domain/Relay-contract evidence only; no real multi-agent or CLOUD claim.

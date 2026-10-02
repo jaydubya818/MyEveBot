@@ -23,7 +23,7 @@ The landed MyEve publication readback change is reconciled from canonical main. 
 | Routine condition lifecycle | Existing execution_routines, occurrences, task_milestones, review_deliveries | Versioned review; current claim; no alternate scheduler; release gate remains disabled |
 | Today/Inbox responsibilities | Existing owned Runs and deliveries | Read only; quiet checks retained without new notification |
 | Collaboration evidence | Existing myeve_relay_requests | Metadata/correlation only; no message bus or private payload copy |
-| Persistent Groups | Proposed shared schema + per-agent Relay identity mapping | WAITING_FOR_CANONICAL_Q37; no fabricated membership or sender substitution |
+| Persistent Groups | Proposed shared schema + per-agent Relay identity mapping | WAITING_FOR_GROUP_SCHEMA_INTEGRATION / WAITING_FOR_DISTINCT_RELAY_IDENTITIES; no fabricated membership or sender substitution |
 | Environment placement | Separate Environment Fabric owner | Consume final qualified contracts; do not implement cloud/provider dispatch here |
 | Capsules | Existing canonical capability | Preserve current contracts; no copied implementation |
 
@@ -33,11 +33,15 @@ A d589ce459c72d77f8f7148d6d765eb521eed88a1; B 3deb47bcb72319aae7e51948c385fa7226
 
 ## Outstanding integration gates
 
-1. Natural specialist management remains blocked in canonical manage_agent executor. Preserve its guard until that executor is qualified; existing UI/API persistence does not prove agent-native creation.
-2. Routine natural creation/responsible identity, distinct-trigger non-overlap/coalescing and expiry/max-run limits remain incomplete. Proposed overlap invariant needs shared schema/transaction ownership; do not fake it with a process-local lock. Same-trigger deduplication is already covered.
+1. Direct-owner specialist profile management is now deterministically qualified through the real tool and persistence, without new capability grants. Browser natural approval and productive specialist execution remain separate gates; no general autonomous management is enabled.
+2. Routine controlled SDK proposal → explicit harness approval → canonical persistence/scheduler is now qualified; combined browser productive creation/responsible identity, distinct-trigger non-overlap/coalescing and expiry/max-run limits remain incomplete. Proposed overlap invariant needs shared schema/transaction ownership; do not fake it with a process-local lock. Same-trigger deduplication is already covered.
 3. Qualified cloud execution and real provider canary require execution-owner evidence. The received Fabric feature checkpoint still lacks registry/admission/UI/origin integration. The independent cloud branch has progressed beyond the historical image blocker; that progress is not cloud Work qualification. See the [pinned consumer contract and nine P0 gates](environment-fabric-product-contract.md). No general cloud claim is made here.
 4. Persistent Group identity/membership and governed per-member Relay handoff require the schema/adapter proposal. Real Group canary, second MyEve deployment and external peers remain NOT_RUN.
 5. Full email/research/proactive natural journeys remain end-to-end qualification work; existing prototype surfaces are not live evidence.
 6. Historical candidate independent review FAIL remains authoritative. Corrections need a new authorized candidate lifecycle; neither UI success nor CI PASS authorizes acceptance, merge or deployment.
 
 Canonical beta integration should inspect the source diff against d75091e, preserve these ownership boundaries and run the same qualification before accepting any portion. This branch does not merge a future execution candidate automatically.
+
+## Current dependency audit
+
+The blanket Q37 label is stale. See [current dependencies and independently completed Product work](current-product-dependencies.md). Fabric integration, real-cloud qualification, Group schema allocation and distinct member Relay identities are separate, evidence-backed gates.
