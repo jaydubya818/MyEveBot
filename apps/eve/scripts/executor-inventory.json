@@ -3798,7 +3798,7 @@
     "lib/engineering/cloud-access-qualification.ts": {
       "classification": "INTERNAL",
       "reason": "Dedicated staging-only access qualification: fixed server-side requests, independent operator authentication, no valid Work creation or execution; credentials never returned. Staging ingress denies all other routes until deterministic model boundary is qualified.",
-      "sha256": "c80e1434fbd2a7a23d9636765f0c95714a0295f5ff11c5e2744a075fa0cd51a0"
+      "sha256": "dd0b0cf5eae2754575434ecd84d7a1034a7694b30b4dc1cbfe81bd5359e79b10"
     },
     "app/api/cloud-qualification/access/route.ts": {
       "classification": "INTERNAL",

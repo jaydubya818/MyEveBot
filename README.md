@@ -338,3 +338,6 @@ The V2 cloud custody path now accepts a bounded Factory file projection without 
 Dedicated staging access approval is configured server-side only. A fixed operator probe and browser-bundle credential scan now guard the qualification path; hosted boundary tests are pending. All other isolated staging ingress remains closed until deterministic models are qualified. See [access boundary](docs/cloud-execution/phase-3/access-boundary.md).
 
 The hosted bundle credential scan passed (77 files). The access matrix remains NOT_RUN: operator ingress to the separately protected Sofie staging project requires its own grant or authenticated Vercel session. No Sofie bypass has been created. The Factory bypass remains backend-only; canonical cloud Work and Mac-off/P0 remain NOT_RUN.
+
+
+Dedicated Sofie CLOUD qualification now scans all four server credentials, including the explicitly approved Vercel runtime bypass, against browser bundles, prerendered HTML/hydration metadata, public files and public environment configuration. [Hosted build evidence](docs/cloud-execution/phase-3/sofie-runtime-bypass-build.json): containment and application-denial checks pass; Factory transport repair and canonical staging composition remain pending. Product status: **WAITING_FOR_CANONICAL_STAGING_COMPOSITION**. No paid model operations or production/publication changes.

@@ -35,7 +35,7 @@ export async function qualifyCloudAccess(request: Request, env: Readonly<Record<
    const response = await send(new URL(transport.prefix+item.path, transport.origin), {method: item.body ? 'POST' : 'GET', headers: item.headers as Record<string,string>, body: item.body, redirect: 'manual', cache: 'no-store', signal: AbortSignal.timeout(15000)});
    const reader = response.body?.getReader(); let text = '', bytes = 0;
    if(reader) {try {while(true){const chunk=await reader.read();if(chunk.done)break;bytes+=chunk.value.length;if(bytes>128000)throw Error('RESPONSE_BOUND');text+=new TextDecoder().decode(chunk.value);}} finally {await reader.cancel();}}
-   if ([token,bypass,expected].some(secret=>text.includes(secret))) throw Error('CREDENTIAL_DISCLOSURE');
+   if ([token,bypass,expected,env.VERCEL_AUTOMATION_BYPASS_SECRET].filter((secret): secret is string=>!!secret).some(secret=>text.includes(secret))) throw Error('CREDENTIAL_DISCLOSURE');
    let body: Record<string,unknown> = {}; try {body=JSON.parse(text);} catch { /* Provider protection can return HTML. */ }
    const pass = item.name==='without_bypass' ? [302,307,401,403].includes(response.status) && body.error!=='UNAUTHORIZED'
     : item.name==='authorized_identity' ? response.status===200 && body.admission==='DISABLED' && body.qualificationOnly===true

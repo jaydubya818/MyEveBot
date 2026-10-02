@@ -1,6 +1,6 @@
 import {describe,it,expect,vi} from 'vitest';
 import {qualifyCloudAccess,sofieCloudProject} from './cloud-access-qualification.ts';
-const env={VERCEL_PROJECT_ID:sofieCloudProject,VERCEL_ENV:'preview',SOFIE_CLOUD_QUALIFICATION_TOKEN:'o'.repeat(64),FACTORY_SOFIE_STAGING_TOKEN:'t'.repeat(64),FACTORY_STAGING_PROTECTION_BYPASS:'b'.repeat(64),FACTORY_STAGING_ORIGIN:'https://myfactory-cloud-staging-test-jaydubya818.vercel.app'};
+const env={VERCEL_PROJECT_ID:sofieCloudProject,VERCEL_ENV:'preview',VERCEL_AUTOMATION_BYPASS_SECRET:'v'.repeat(64),SOFIE_CLOUD_QUALIFICATION_TOKEN:'o'.repeat(64),FACTORY_SOFIE_STAGING_TOKEN:'t'.repeat(64),FACTORY_STAGING_PROTECTION_BYPASS:'b'.repeat(64),FACTORY_STAGING_ORIGIN:'https://myfactory-cloud-staging-test-jaydubya818.vercel.app'};
 const request=(token=env.SOFIE_CLOUD_QUALIFICATION_TOKEN)=>new Request('https://sofie.invalid/api/cloud-qualification/access',{method:'POST',headers:{authorization:'Bearer '+token}});
 describe('cloud access boundary',()=>{
  it('denies wrong operator/project/production before any outbound request',async()=>{
@@ -23,5 +23,6 @@ describe('cloud access boundary',()=>{
  it('does not label service errors or leaked credential responses as PASS',async()=>{
   const fail=await qualifyCloudAccess(request(),env,async()=>Response.json({error:'CLOUD_WORK_UNAVAILABLE'},{status:503}));expect(fail.status).toBe(409);
   const leak=await qualifyCloudAccess(request(),env,async()=>new Response(env.FACTORY_STAGING_PROTECTION_BYPASS));expect(leak.status).toBe(503);expect(await leak.text()).not.toContain(env.FACTORY_STAGING_PROTECTION_BYPASS);
+  const runtimeLeak=await qualifyCloudAccess(request(),env,async()=>new Response(env.VERCEL_AUTOMATION_BYPASS_SECRET));expect(runtimeLeak.status).toBe(503);expect(await runtimeLeak.text()).not.toContain(env.VERCEL_AUTOMATION_BYPASS_SECRET);
  });
 });
