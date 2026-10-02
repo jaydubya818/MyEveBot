@@ -3843,7 +3843,7 @@
     "lib/engineering/cloud-runtime-guard.ts": {
       "classification": "ENFORCED",
       "reason": "Installation-only exact preview/project flag and narrow ingress; no app identity or Work grant. Paid/local/static Factory conflicts denied.",
-      "sha256": "43cab9e1c8cc1ea2527f448a04d52da01006ff0dbfcd0d6b3ba7604426379a47"
+      "sha256": "35ea67d56d638a543606965219e5810604d9c22484541d1338d869f3dfb2b938"
     },
     "lib/environment-fabric/environment.ts": {
       "classification": "NOT_APPLICABLE",

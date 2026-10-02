@@ -21,7 +21,7 @@ export function cloudIngressAllowed(path:string,method:string){
  if(path==='/api/cloud-qualification/controller')return method==='POST';
  if(/^\/eve\/v1\/(health|session(?:\/[^/]+)?(?:\/(stream|cancel|compact|clear|reset))?)$/.test(path))return ['GET','POST'].includes(method);
  if(/^\/api\/auth\/(login|logout|status)$/.test(path))return ['GET','POST'].includes(method);
- if(/^\/api\/threads(?:\/[^/]+)?$/.test(path))return ['GET','POST','PATCH','DELETE'].includes(method);
+ if(/^\/api\/threads(?:\/[^/]+)?$/.test(path))return ['GET','POST','PUT','PATCH','DELETE'].includes(method);
  if(/^\/api\/beta\/(work|factory)$/.test(path))return ['GET','POST'].includes(method);
  if(method==='GET'&&(/^\/api\/(features|agents|capabilities|settings|app-settings|task-runs|beta\/(results|inbox|activity|goals))$/.test(path)||/^\/(?:$|login$|chat(?:\/|$)|work(?:\/|$)|_next\/|favicon\.ico$)/.test(path)))return true;
  return false;
