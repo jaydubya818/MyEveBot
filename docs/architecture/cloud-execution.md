@@ -10,13 +10,13 @@
 | Relay | `a61f0ef697b02cf22da72ff2904c584d7faa026a` |
 | MyFactory | `c0b4c1155a6a98f91375163443938042e6a0be10` |
 
-MyFactory implementation checkpoint: [`7a69c472f05d540f490a41e33014b978f1165e82`](https://github.com/jaydubya818/MyFactory/commit/7a69c472f05d540f490a41e33014b978f1165e82), branch `codex/cloud-execution`. Pushed and exact remote SHA verified on 2026-10-02 UTC. Runtime source is recorded by hash in its qualification report. No canonical main, existing production service, owner database or historical Work was changed. A separate staging readiness service is now deployed.
+MyFactory implementation checkpoint: [`4e5f7ebe7582125d8ba896751e32b405460346a0`](https://github.com/jaydubya818/MyFactory/commit/4e5f7ebe7582125d8ba896751e32b405460346a0), branch `codex/cloud-execution`. Pushed and exact remote SHA verified on 2026-10-02 UTC. Runtime source is recorded by hash in its qualification report. No canonical main, existing production service, owner database or historical Work was changed. Dedicated staging readiness and a bounded infrastructure-only controller are deployed.
 
-- [Architecture decision, inventory and trust boundaries](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/architecture/cloud-execution.md)
-- [Qualification report and retained logs](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/phase-1/README.md)
-- [Runbook](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/runbooks/cloud-execution.md)
-- [Staging resource proposal](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/staging-proposal.json)
-- [Supplied mission attachments and completeness notes](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/mission-sources.json)
+- [Architecture decision, inventory and trust boundaries](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/architecture/cloud-execution.md)
+- [Qualification report and retained logs](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/phase-1/README.md)
+- [Runbook](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/runbooks/cloud-execution.md)
+- [Staging resource proposal](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/staging-proposal.json)
+- [Supplied mission attachments and completeness notes](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/mission-sources.json)
 
 ## What is established
 
@@ -25,7 +25,7 @@ MyFactory dispatch now uses an `ExecutionProvider` seam. Its local adapter wraps
 | Evidence tier | Outcome |
 | --- | --- |
 | DETERMINISTIC baseline | 170 pass, 0 fail, 5 gated skips |
-| DETERMINISTIC latest | 187 pass, 0 fail, 5 gated skips |
+| DETERMINISTIC latest | 197 pass, 0 fail, 5 gated skips |
 | CONNECTED LOCAL | The 5 gated CLI/Docker cases separately pass with synthetic Responses; no paid model |
 | Static/build | Producer types, governance, workspace types and build PASS |
 | CONNECTED CLOUD foundation | Dedicated DB migration and hosted DB/Blob/Sandbox readiness PASS; Work admission disabled |
@@ -43,16 +43,18 @@ The next coordinated milestone needs a versioned authenticated HTTPS contract, F
 
 Owner approved the dedicated MyFactory boundary. Created `myfactory-cloud-staging` (`prj_IRXTY6HOzS2q9wRPdabsJnmddzl4`), separate free-plan Neon database, private Blob custody store and private worker registry in iad1. Only staging preview receives credentials. No Factory state or credentials live in Sofie preview resources; no owner records were copied. Producer/verifier identities and canonical cloud Work admission are still pending qualification.
 
-[Phase 2 evidence](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/phase-2/README.md) records resource IDs, test counts and the verified preview deployment. Hosted liveness succeeds; authenticated readiness reports dependencies available but `ready=false`, `admission=DISABLED`. Vercel's automatic first-deployment production labeling affected only the new staging project; that deployment was removed and a real preview verified.
+[Phase 2 evidence](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/phase-2/README.md) records resource IDs, test counts and the verified preview deployment. Hosted liveness succeeds; authenticated readiness reports dependencies available but `ready=false`, `admission=DISABLED`. Vercel's automatic first-deployment production labeling affected only the new staging project; that deployment was removed and a real preview verified.
 
-Next: immutable worker image, exact public source checkout, deterministic infrastructure execution, private artifact collection and confirmed teardown. No paid model or DeepAgent follows merely from booting a sandbox. Keep the existing harness and all Attempt-8 publication boundaries.
+Image qualification, exact public source checkout, hosted deterministic infrastructure execution, private artifact collection and confirmed teardown now pass. Next: canonical cloud Work/storage and the existing harness with deterministic responses. No paid model or DeepAgent follows merely from booting a sandbox. Keep the existing harness and all Attempt-8 publication boundaries.
 
 Promotion later moves code, migrations, FactoryVersion, image and qualified policies/configuration only. Staging database rows, Work and candidates never become production state.
 
 This branch disables its Git-triggered MyEve deployment using the repository's existing `git.deploymentEnabled` convention.
 
-## External unblock before allocation
+## Image blocker resolved; hosted infrastructure qualified
 
-The pinned Node 24/Git worker image builds locally. Both documented managed VCR images return 404, and legacy Docker, compressed Buildx and independent host-side crane uploads fail at the TLS upload boundary. Provider inventories show no published image and no sandbox. [Failure evidence and required provider/network configuration](https://github.com/jaydubya818/MyFactory/blob/7a69c472f05d540f490a41e33014b978f1165e82/docs/cloud-execution/phase-2/image-blocker.md). No production credential, TLS weakening or alternate provider workaround was introduced.
+The provider-native Node 24 image resolves through `Sandbox.create()` and is pinned at `vercel/sandbox/node@sha256:6ad1291a9fe7d243ee9f23626e6b08614a596431801c55e14cc5ee9d525f28d1`. Direct OCI manifest 404 did not establish managed runtime unavailability. Custom VCR upload TLS failures remain unexplained but are nonblocking. No TLS weakening or replacement hosting architecture was needed.
 
-Resume after a compatible immutable image is accessible to this staging project. Allocation/teardown, cloud harness, custody/verifier, Result/Proof and Mac-off P0 remain NOT_RUN. No real-model authorization is requested at this checkpoint.
+CONNECTED PASS: the hosted Factory control plane allocated the pinned sandbox, explicitly checked out the exact public commit/tree as an unprivileged user, disabled egress, ran six deterministic checks, collected a hash-validated artifact into dedicated private Blob storage and confirmed sandbox deletion. Independent post-teardown readback matched the artifact hash and anonymous access was denied. Repeated submission returned the original receipt. All failed requests/attempts and their repairs are preserved in the [Phase 2 evidence](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/phase-2/README.md).
+
+This is a fixed infrastructure qualification endpoint with a separate operator token, one active sandbox, a 120-second worker deadline and an eight-attempt ceiling. It is not the MyEve Work contract. Sofie has no Factory database, artifact or worker credentials. Cloud admission remains DISABLED; paid model operations and publications remain 0. Canonical cloud Work, candidate custody, independent verifier, Result/Proof, browser-off and Mac-off P0 remain NOT_RUN. No real-model authorization is requested.
