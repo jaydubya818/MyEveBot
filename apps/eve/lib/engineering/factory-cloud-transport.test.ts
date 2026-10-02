@@ -1,10 +1,13 @@
-import {describe,it,expect,vi} from 'vitest';
+import {describe,it,expect,vi,beforeEach,afterEach} from 'vitest';
 import {randomUUID} from 'node:crypto';
 import {LiveFactoryAdapter,type FactoryConnection,type FactoryPrepareRequest} from './factory-live-adapter.ts';
 import {factoryTransport} from './factory-transport.ts';
 import {readFactoryAttempt} from './factory-result-channel.ts';
 import {factorySpendAdmission} from './factory-spend.ts';
 import {digest} from './factory-producer-protocol.ts';
+vi.mock('@vercel/oidc',()=>({getVercelOidcToken:async()=>'eyJhbGciOiJub25lIn0.'+Buffer.from(JSON.stringify({project_id:'prj_XU7fJW735PtsnKoAYtGfzdnsotIB',owner_id:'team_p8z8exJRTGfOPk1GC9vUOpv3',environment:'preview',exp:Math.floor(Date.now()/1000)+300})).toString('base64url')+'.synthetic-test-signature'}));
+beforeEach(()=>{vi.stubEnv('VERCEL','1');vi.stubEnv('VERCEL_PROJECT_ID','prj_XU7fJW735PtsnKoAYtGfzdnsotIB');vi.stubEnv('VERCEL_ENV','preview');});
+afterEach(()=>vi.unstubAllEnvs());
 const sourceDigest='a'.repeat(64),configurationDigest='b'.repeat(64);
 const source={repository:'fixture/quantity',commit:'c'.repeat(40),tree:'d'.repeat(40)};
 const config:FactoryConnection={transport:'CLOUD',protocol:'MYFACTORY_EXECUTION_V2',projectId:'prj_IRXTY6HOzS2q9wRPdabsJnmddzl4',origin:'https://myfactory-cloud-staging-azozoxm0r-jaydubya818.vercel.app',token:'a'.repeat(64),factoryId:'staging',sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),source,keys:[{factoryId:'staging',keyId:'test',publicKey:'test',activeFrom:'2020-01-01',notAfter:'2099-01-01'}],qualification:{scopeId:'synthetic-owner',profileHash:'e'.repeat(64),evidenceRef:'pending',qualifiedAt:'2026-01-01T00:00:00Z',expiresAt:'2099-01-01T00:00:00Z',mode:'CLOUD_DETERMINISTIC',spendEnforced:true}};

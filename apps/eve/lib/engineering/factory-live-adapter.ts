@@ -1,5 +1,6 @@
 import {cloudCustodyProjection} from './factory-cloud-custody.ts';
 import {factoryTransport} from './factory-transport.ts';
+import {factoryRequestHeaders} from './factory-request-headers.ts';
 import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,validateSpendBinding,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
 import {z} from 'zod';
 import {boundedJson} from '../relay/client.ts';
@@ -19,7 +20,6 @@ const localFactoryConnectionSchema=z.object({spendPlan:factorySpendPlanSchema.op
 export const cloudFactoryConnectionSchema=localFactoryConnectionSchema.omit({repositoryPath:true,qualification:true}).extend({
  transport:z.literal('CLOUD'),protocol:z.literal('MYFACTORY_EXECUTION_V2'),projectId:z.literal('prj_IRXTY6HOzS2q9wRPdabsJnmddzl4'),
  source:z.object({repository:z.string().regex(/^[-\w.]+\/[-\w.]+$/),commit:z.string().regex(/^[a-f0-9]{40}$/),tree:z.string().regex(/^[a-f0-9]{40}$/)}).strict(),
- protectionBypass:z.string().min(32).optional(),
  qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('CLOUD_DETERMINISTIC')}),
 }).strict();
 export const factoryConnectionSchema=z.union([localFactoryConnectionSchema,cloudFactoryConnectionSchema]);
@@ -40,7 +40,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  }
  private async request(path:string,body?:unknown):Promise<FactoryReadback>{
   const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches'+path,this.transport.origin),{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(15000),
-   headers:{...this.transport.headers,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
+   headers:{...await factoryRequestHeaders(this.config),'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
   if(!response.ok)throw Error('Factory control unavailable ('+response.status+'); reconcile the same request');
   const data=readbackSchema.parse(await boundedJson(response,128000)) as unknown as FactoryReadback;
   if(isWorkSpend(data.spend)){
@@ -49,7 +49,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   return {...data,accounting:factorySpendSummary(data.spend,this.config)};
  }
  async healthy(){
-  try{const response=await this.fetcher(new URL(this.transport.prefix+'/actions',this.transport.origin),{headers:this.transport.headers,redirect:'error',signal:AbortSignal.timeout(5000)});
+  try{const response=await this.fetcher(new URL(this.transport.prefix+'/actions',this.transport.origin),{headers:await factoryRequestHeaders(this.config),redirect:'error',signal:AbortSignal.timeout(5000)});
    if(!response.ok)return false;const data=await boundedJson(response,32000) as {controls?:string[];execution?:{mode:string;spendEnforced:boolean}};return data.execution?.mode===this.config.qualification.mode&&data.execution.spendEnforced===true&& ['factory.prepare','factory.dispatch','factory.observe','factory.stop'].every(action=>data.controls?.includes(action));
   }catch{return false;}
  }
@@ -98,7 +98,7 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  async custody(identity:FactoryExecutionIdentity){
   const config=this.config;
   if(!('source' in config)||identity.factoryId!==config.factoryId||identity.factoryVersion!==config.factoryVersion||identity.repository!==config.source.repository||identity.baseSha!==config.source.commit||!z.string().uuid().safeParse(identity.requestId).success)throw Error('Cloud custody requires the admitted Factory identity');
-  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches/'+identity.requestId+'/custody',this.transport.origin),{headers:this.transport.headers,redirect:'error',signal:AbortSignal.timeout(15000)});
+  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches/'+identity.requestId+'/custody',this.transport.origin),{headers:await factoryRequestHeaders(this.config),redirect:'error',signal:AbortSignal.timeout(15000)});
   if(!response.ok)throw Error('Cloud custody unavailable; reconcile the same candidate');
   return cloudCustodyProjection(await boundedJson(response,1100000),config.source);
  }

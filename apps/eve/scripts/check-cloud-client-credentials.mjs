@@ -2,11 +2,12 @@ import {readFileSync,readdirSync,existsSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 
-export const cloudCredentialNames = ['FACTORY_STAGING_PROTECTION_BYPASS','FACTORY_SOFIE_STAGING_TOKEN','SOFIE_CLOUD_QUALIFICATION_TOKEN','VERCEL_AUTOMATION_BYPASS_SECRET'];
+export const cloudCredentialNames = ['VERCEL_OIDC_TOKEN','FACTORY_SOFIE_STAGING_TOKEN','SOFIE_CLOUD_QUALIFICATION_TOKEN','VERCEL_AUTOMATION_BYPASS_SECRET'];
 /** Scan deployable client data, not trusted server code. Errors never contain values. */
 export function checkCloudClientCredentials(root='.', env=process.env) {
  if(env.VERCEL_PROJECT_ID!=='prj_XU7fJW735PtsnKoAYtGfzdnsotIB')return null;
  if(env.VERCEL_ENV!=='preview')throw Error('CLOUD_QUALIFICATION_PREVIEW_REQUIRED');
+ if(env.FACTORY_STAGING_PROTECTION_BYPASS)throw Error('STATIC_FACTORY_BYPASS_FORBIDDEN');
  const secrets=cloudCredentialNames.map(k=>env[k]);
  if(secrets.some(s=>!s || s.length<32))throw Error('CLOUD_SERVER_CREDENTIAL_MISSING');
  const needles=secrets.flatMap(s=>[Buffer.from(s),Buffer.from(Buffer.from(s).toString('base64'))]);

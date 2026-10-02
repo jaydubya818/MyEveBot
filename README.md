@@ -1,5 +1,7 @@
 # MyEve
 
+Dedicated cloud staging now has an approved preview-only OIDC transport to Factory, with no static Factory bypass. Local transport/security regressions pass; hosted access, revocation and CLOUD Golden Journey remain pending. [Implementation and evidence limits](docs/architecture/cloud-factory-oidc.md).
+
 [Cloud execution migration](docs/architecture/cloud-execution.md): the local Factory provider seam is qualified, and dedicated staging database/private storage/hosted readiness are provisioned. The pinned managed image and hosted deterministic infrastructure lifecycle now pass, including private artifact readback after sandbox deletion; see the retained evidence. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
 
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner-decision and exact-candidate publication handoff is qualified; publication and owner acceptance remain separately gated. Historical Attempts 1–8 and the verified candidate remain immutable.
