@@ -1,5 +1,7 @@
 # MyEve
 
+[Cloud execution migration](docs/architecture/cloud-execution.md): architecture inventory and the local Factory provider seam are qualified. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
+
 [Latest private-alpha qualification](docs/private-alpha/output-contract-accounting-2026-10-01/README.md): Attempts 1–7 remain preserved failed live qualifications. Public JSON-line serialization and complete journey accounting are reconciled and pass the complete controlled offline journey. Attempt 8 requires fresh paused Work and separate live authorization; publication remains disabled.
 
 [Prior admission-proposal repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md) preserves Attempts 1–2 and the captured-response handoff qualification. Attempt 3 subsequently proved live admission and stopped at executor model validation; the latest record above supersedes its preparation status.
