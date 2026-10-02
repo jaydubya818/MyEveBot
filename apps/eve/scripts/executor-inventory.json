@@ -3582,7 +3582,7 @@
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Snapshot V2 requires source tree and immutable cloud policy/resource pins; legacy V1 stays strict. Cloud client accepts deterministic evidence only.",
-      "sha256": "aa4942ac2cfe2b55f0d367efa68b834f7d913d73db1d824dd0a447eb899b1b5f"
+      "sha256": "1024c68d2359a35b0793dcb5d48cfb7ecf1fcded2f7b773988111cf316c0b8b7"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3597,7 +3597,7 @@
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
-      "sha256": "6f0f3c41911f3132031a4921ef415d30c2392c563dd920631325a7a48b6d4f16"
+      "sha256": "07dfd9752e082ba7cbcfa60ed24fabe05f9cd751cfac281a1bb121ba220eab69"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3793,7 +3793,7 @@
     "lib/engineering/factory-cloud-custody.ts": {
       "classification": "INTERNAL",
       "reason": "Bounded pure-data cloud custody projection; verifies source tree, preserves signed candidate identity through existing publisher guard, no local process or external capability.",
-      "sha256": "ebf1b51dc6986bb4c5dea51e12632ed0474271c7aaac32fa4a86f38d3262c98c"
+      "sha256": "23b27acbece87f36b81dd54af4321f7edd0fe7aa7c0ba8b6e7e8144575de1ae4"
     },
     "lib/engineering/cloud-access-qualification.ts": {
       "classification": "INTERNAL",

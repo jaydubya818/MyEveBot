@@ -133,7 +133,8 @@ export class FactoryWorkDriver {
    if(historicalTerminal)return {state:'TERMINAL',outcome:run.status,receiptStatus};
    receiptId??=(await this.receipts.admission(request.id))?.receipt_id as string|undefined;
    if(!receiptId)return {state:'AWAITING_RESULT'};
-   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()});
+   const cloudCustody='source' in config.connection?await adapter.custody(identity):undefined;
+   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
    const ws=(await this.direct.inspect(id)).workspace;
    if(!ws||ws.routeRunId!==run.id)return {state:'HISTORICAL'};
    const verification=new DirectVerificationDriver(this.direct,this.verifier);

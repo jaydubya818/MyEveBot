@@ -17,3 +17,13 @@ export function cloudCustodyFiles(source:RepositorySnapshot,files:unknown,snapsh
  if(treeObjects(source.files).sha!==snapshot.inputTree)throw Error('Cloud custody source tree mismatch');
  return structuredClone(files);
 }
+
+/** Authenticated transport data still needs exact source/tree and signed custody checks. */
+export function cloudCustodyProjection(value:unknown, source:{commit:string;tree:string}) {
+ if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).sort().join(',')!=='base,candidateCommit,candidateTree,files,sourceFiles')throw Error('Cloud custody projection shape');
+ const data=value as {base:string;candidateCommit:string;candidateTree:string;files:Record<string,string>;sourceFiles:Record<string,string>};
+ if(data.base!==source.commit||!/^([a-f0-9]{40})$/.test(data.candidateCommit)||!/^([a-f0-9]{40})$/.test(data.candidateTree))throw Error('Cloud custody projection binding');
+ boundedFiles(data.sourceFiles);boundedFiles(data.files);
+ if(treeObjects(data.sourceFiles).sha!==source.tree||treeObjects(data.files).sha!==data.candidateTree)throw Error('Cloud custody projection tree mismatch');
+ return structuredClone(data);
+}

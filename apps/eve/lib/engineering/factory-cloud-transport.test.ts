@@ -37,3 +37,18 @@ describe('dedicated staging Factory transport',()=>{
   expect(()=>factoryTransport({...config,transport:undefined})).toThrow();expect(()=>factoryTransport({...config,projectId:'other'})).toThrow();
  });
 });
+
+describe('cloud custody delivery into the canonical writer',()=>{
+ it('uses only the admitted staging identity and bounded custody endpoint',async()=>{
+  const {treeObjects}=await import('./github.ts');
+  const sourceFiles={'quantity.mjs':'export const quantity = 1;\n'},files={'quantity.mjs':'export const quantity = 2;\n'};
+  const source={repository:'fixture/quantity',commit:'c'.repeat(40),tree:treeObjects(sourceFiles).sha};
+  const packet={base:source.commit,candidateCommit:'e'.repeat(40),candidateTree:treeObjects(files).sha,sourceFiles,files};
+  const fetcher=vi.fn(async()=>Response.json(packet)),adapter=new LiveFactoryAdapter({...config,source},fetcher);
+  const identity={factoryId:config.factoryId,factoryVersion:config.factoryVersion,repository:source.repository,baseSha:source.commit,requestId:randomUUID()} as import('./factory-writer.ts').FactoryExecutionIdentity;
+  await expect(adapter.custody(identity)).resolves.toEqual(packet);
+  const [url,init]=fetcher.mock.calls[0] as unknown as [URL,RequestInit];expect(url.pathname).toBe('/api/connect/v2/dispatches/'+identity.requestId+'/custody');expect(init.redirect).toBe('error');
+  await expect(adapter.custody({...identity,factoryVersion:'f'.repeat(64)})).rejects.toThrow(/admitted/);expect(fetcher).toHaveBeenCalledTimes(1);
+  for(const altered of [{...packet,base:'a'.repeat(40)},{...packet,candidateTree:'a'.repeat(40)},{...packet,sourceFiles:{'quantity.mjs':'different'}},{...packet,files:{'../secret':'x'}},{...packet,artifactUrl:'https://other.invalid'}])await expect(new LiveFactoryAdapter({...config,source},async()=>Response.json(altered)).custody(identity)).rejects.toThrow();
+ });
+});

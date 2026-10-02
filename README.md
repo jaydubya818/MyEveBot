@@ -341,3 +341,6 @@ The hosted bundle credential scan passed (77 files). The access matrix remains N
 
 
 Dedicated Sofie CLOUD qualification now scans all four server credentials, including the explicitly approved Vercel runtime bypass, against browser bundles, prerendered HTML/hydration metadata, public files and public environment configuration. [Hosted build evidence](docs/cloud-execution/phase-3/sofie-runtime-bypass-build.json): containment and application-denial checks pass; Factory transport repair and canonical staging composition remain pending. Product status: **WAITING_FOR_CANONICAL_STAGING_COMPOSITION**. No paid model operations or production/publication changes.
+
+
+Dedicated Sofie staging access and revocation are CONNECTED PASS; the tested bypass is revoked. Cloud candidate readback now feeds the canonical custody writer with exact-tree validation (39 targeted tests and typecheck PASS). Hosted harness, independent cloud verifier, Mac-off and P0 remain NOT_RUN. [Current qualification status](docs/cloud-execution/phase-3/README.md).

@@ -1,3 +1,4 @@
+import {cloudCustodyProjection} from './factory-cloud-custody.ts';
 import {factoryTransport} from './factory-transport.ts';
 import {factorySpendSchema,factorySpendContractSchema,factorySpendReviewSchema,factorySpendPlanSchema,isWorkSpendV2,factorySpendSummary,isWorkSpend,validateSpendBinding,type FactorySpendPlan,type FactorySpend,type FactorySpendSummary} from './factory-spend.ts';
 import {z} from 'zod';
@@ -94,5 +95,12 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   return {...identity,state:data.state as FactoryQuiescence['state'],quiescent:true,evidenceRef:data.evidenceRef};
  }
  async result(binding:FactoryBinding){return readFactoryAttempt(this.config,binding,this.fetcher);}
+ async custody(identity:FactoryExecutionIdentity){
+  const config=this.config;
+  if(!('source' in config)||identity.factoryId!==config.factoryId||identity.factoryVersion!==config.factoryVersion||identity.repository!==config.source.repository||identity.baseSha!==config.source.commit||!z.string().uuid().safeParse(identity.requestId).success)throw Error('Cloud custody requires the admitted Factory identity');
+  const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches/'+identity.requestId+'/custody',this.transport.origin),{headers:this.transport.headers,redirect:'error',signal:AbortSignal.timeout(15000)});
+  if(!response.ok)throw Error('Cloud custody unavailable; reconcile the same candidate');
+  return cloudCustodyProjection(await boundedJson(response,1100000),config.source);
+ }
  async keys():Promise<ResultKey[]>{return this.config.keys;}
 }

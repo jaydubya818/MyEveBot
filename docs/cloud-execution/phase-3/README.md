@@ -8,7 +8,7 @@ DETERMINISTIC: full MyEve suite **2,001 passed, 94 skipped** across 211 passing 
 
 CONNECTED owner-side isolation: new web project `sofie-cloud-qualification` (`prj_XU7fJW735PtsnKoAYtGfzdnsotIB`) and fresh free Neon database `sofie-cloud-qualification-db` (`store_fOPC5aF0CPD0FfOW`, Neon project `calm-recipe-29472969`, iad1). Only preview receives its database binding. [Canonical migrations through 0079 passed](staging-migrations.log) after proving the database was empty. No owner data was copied. A persistent qualification marker prevents accidentally adopting another database on migration rerun.
 
-Existing Sofie project/previews were not modified. The isolated cloud worktree is linked to the new project; no web deployment has been created yet. Factory execution state, model ledger and private candidate/evidence custody remain in MyFactory staging. No Factory database, Blob, worker or verifier credential is given to Sofie.
+Existing Sofie project/previews were not modified. The isolated cloud worktree is linked to the new project; a protected preview deployment has now passed the access-only matrix. Factory execution state, model ledger and private candidate/evidence custody remain in MyFactory staging. No Factory database, Blob, worker or verifier credential is given to Sofie.
 
 Mac-off, browser-off, canonical cloud queue-to-Work execution, independent cloud verifier and P0 Playwright remain NOT_RUN. Paid model calls and new publication effects remain zero.
 
@@ -17,3 +17,8 @@ Cloud execution snapshot V2 now pins the source tree, worker/verifier image dige
 
 
 The V2 cloud custody path now accepts a bounded Factory file projection without running local Git, recomputes the exact source tree, and applies the existing authenticated candidate/commit identity guard. The local V1 custody path and Attempt-8 publisher remain unchanged. Full validation: 2,005 passed, 94 skipped; typecheck/governance passed. Hosted cloud Work, independent verifier, Mac-off and P0 remain NOT_RUN.
+
+
+The dedicated Sofie runtime bypass access matrix is now CONNECTED PASS, including the nested MyFactory authentication matrix. Build scans covered 77 browser files, 934 HTML/hydration metadata files and two public files; observed request logs contained no credential matches. The qualification credential was revoked and the same automation request returned deployment-protection denial. Exact evidence is retained in [MyFactory checkpoint 9a3f2a0](https://github.com/jaydubya818/MyFactory/blob/9a3f2a00af415e5f23d3772c0247654ab318c064/docs/cloud-execution/phase-3/sofie-runtime-access.md). Earlier failure evidence is historical, not the current access result.
+
+Cloud candidate readback is now connected to the existing Factory Work driver and custody writer. The authenticated dispatch request must match the pinned source/version, and bounded private file projections must reproduce the exact source and candidate Git trees before the existing signed candidate guard accepts them. DETERMINISTIC: 39 targeted transport/custody/writer tests and type checking passed. This wiring has not yet executed hosted Work; CLOUD runtime admission remains disabled pending the existing harness and independent verifier. Product remains **WAITING_FOR_CANONICAL_STAGING_COMPOSITION**.
