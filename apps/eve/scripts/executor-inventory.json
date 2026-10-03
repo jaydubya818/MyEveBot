@@ -3841,8 +3841,8 @@
     },
     "lib/engineering/cloud-runtime-guard.ts": {
       "classification": "ENFORCED",
-      "reason": "Installation-only exact preview/project flag and narrow ingress; no app identity or Work grant. Paid/local/static Factory conflicts denied. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "efe3a0718a03b29a65d30f9f8223ceb80269764317f6cd9944a43d5e1700cbd8"
+      "reason": "Installation-only exact preview/project flag and narrow ingress; no app identity or Work grant. Paid/local/static Factory conflicts denied. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Dedicated preview permits exact GET Result/evidence/owner-decision surfaces while POST owner decisions remain denied.",
+      "sha256": "fd2498295bf935fb92324385875e437f1d091feca81de6ec3a8b79e1a04e2c1b"
     },
     "lib/environment-fabric/environment.ts": {
       "classification": "NOT_APPLICABLE",

@@ -3,6 +3,7 @@ import {readFileSync,mkdtempSync,rmSync,chmodSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
+const trigger=JSON.parse(readFileSync(path.resolve(import.meta.dirname,'../../../../.github/'+(process.env.MYEVE_CONSOLIDATION_P0==='1'?'consolidation-cloud-qualification.json':'cloud-qualification-trigger.json')),'utf8'));
 const enabled=process.env.MYEVE_CLOUD_P0==='approved-deterministic-staging';
 // The backend proxy carries only the separately authorized Sofie protection
 // credential. This browser never receives Factory infrastructure credentials.
@@ -28,7 +29,23 @@ test('P0 real Eve → canonical CLOUD Work → browser-off → independent Proof
   // No browser poll, local worker or local verifier drives this interval.
   await new Promise(resolve=>setTimeout(resolve,210000));
   context=await browser.newContext({baseURL});page=await context.newPage();await login(page);await context.tracing.start({snapshots:true,screenshots:true,sources:false});tracing=true;report.reconnectedAt=new Date().toISOString();
-  const results=(await read(page,'/api/beta/results')).results.filter((r:any)=>r.work_id===work.id);expect(results).toHaveLength(1);const result=results[0];expect(result.route).toBe('MYFACTORY');expect(result.proof.artifactRefs).toContain('factory-version:da7b51a56a62980ee8f96a029b1a60fc84f495fd7897438fbb74ede3a0e161fe');expect(result.proof.evidence.length).toBeGreaterThan(0);expect(result.proof.evidence.every((e:any)=>e.state==='PASS'&&e.producer==='trusted-verifier')).toBe(true);expect(result.proof.outcome).toBe('PARTIAL');expect(result.proof.artifactRefs.some((r:string)=>r.startsWith('factory-receipt:'))).toBe(true);expect(result.proof.limitations.some((r:string)=>r.includes('independent cloud'))).toBe(true);
+  const results=(await read(page,'/api/beta/results')).results.filter((r:any)=>r.work_id===work.id);expect(results).toHaveLength(1);const result=results[0];expect(result.route).toBe('MYFACTORY');expect(result.proof.artifactRefs).toContain('factory-version:'+trigger.factoryVersion);expect(result.proof.evidence.length).toBeGreaterThan(0);expect(result.proof.evidence.every((e:any)=>e.state==='PASS'&&e.producer==='trusted-verifier')).toBe(true);expect(result.proof.outcome).toBe('PARTIAL');expect(result.proof.artifactRefs.some((r:string)=>r.startsWith('factory-receipt:'))).toBe(true);expect(result.proof.limitations.some((r:string)=>r.includes('independent cloud'))).toBe(true);
+  if(process.env.MYEVE_CONSOLIDATION_P0==='1'){
+   const refs=result.proof.artifactRefs.filter((ref:string)=>ref.startsWith('factory-evidence:sha256:'));expect(refs).toHaveLength(2);
+   report.evidence=[];
+   for(const ref of refs){
+    const url=`/api/beta/evidence?workId=${work.id}&resultId=${result.id}&reference=${encodeURIComponent(ref)}`;
+    const response=await page.request.get(url);expect(response.status()).toBe(200);expect(response.headers()['content-type']).toBe('application/octet-stream');
+    const bytes=await response.body();expect(bytes.length).toBeGreaterThan(0);report.evidence.push({reference:ref,bytes:bytes.length,disposition:response.headers()['content-disposition']});
+    const denied=await page.request.get(url+'&owner=other-owner');expect([403,404]).toContain(denied.status());
+    if(before.length){const other=await page.request.get(url.replace('workId='+work.id,'workId='+before[0]));expect(other.status()).toBe(404);}
+   }
+   await page.goto('/results');await page.getByText('Proof of Work',{exact:true}).first().click();
+   await expect(page.getByRole('link',{name:'Download retained Factory evidence'})).toHaveCount(2);
+   const decision=await page.request.get('/api/beta/owner-decision?workId='+work.id);expect(decision.status()).toBe(200);
+   report.ownerDecisionSurface='READ_QUALIFIED_NO_EFFECT';
+   report.noLocalStatement='zero local runtime dependencies were observed; physical Mac power state was not independently observed.';
+  }
   await page.goto('/work?kind=work&id='+work.id);await page.getByText('Proof of Work',{exact:true}).click();await expect(page.getByText('Candidate: '+result.candidate_sha,{exact:true})).toBeVisible();
   const body=await page.locator('body').innerText();expect(body).not.toContain(credentials().MYEVE_ACCESS_PASSWORD);report.result={id:result.id,candidate:result.candidate_sha,proof:result.proof};report.status='PASS';
   // Physical Mac-off is an independent connected gate, never inferred from this test.

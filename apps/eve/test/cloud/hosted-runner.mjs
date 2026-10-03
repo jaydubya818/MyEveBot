@@ -5,15 +5,17 @@ import {mkdtempSync,readFileSync,writeFileSync,rmSync,existsSync} from 'node:fs'
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 const root=path.resolve(import.meta.dirname,'../../../..');
-const origin='https://sofie-cloud-qualification-824wbmd9r-jaydubya818.vercel.app';
+const consolidation=process.env.MYEVE_CONSOLIDATION_P0==='1';
+const trigger=JSON.parse(readFileSync(path.join(root,consolidation?'.github/consolidation-cloud-qualification.json':'.github/cloud-qualification-trigger.json'),'utf8'));
+const origin=trigger.origin;
+if(!/^https:\/\/sofie-cloud-qualification-[a-z0-9]+-jaydubya818\.vercel\.app$/.test(origin))throw Error('PINNED_QUALIFICATION_ORIGIN_REQUIRED');
 const local='http://127.0.0.1:3097';
 const bypass=process.env.SOFIE_QUALIFICATION_BYPASS;
 const password=process.env.SOFIE_QUALIFICATION_PASSWORD;
 delete process.env.SOFIE_QUALIFICATION_BYPASS;
 delete process.env.SOFIE_QUALIFICATION_PASSWORD;
-if(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_REPOSITORY!=='jaydubya818/MyEveBot'||process.env.GITHUB_REF!=='refs/heads/codex/cloud-execution'||!bypass||!password)throw Error('ISOLATED_OPERATOR_CONFIGURATION_REQUIRED');
+if(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_REPOSITORY!=='jaydubya818/MyEveBot'||process.env.GITHUB_REF!==(consolidation?'refs/heads/codex/final-alpha-convergence':'refs/heads/codex/cloud-execution')||!bypass||!password)throw Error('ISOLATED_OPERATOR_CONFIGURATION_REQUIRED');
 if(Object.keys(process.env).some(k=>/FACTORY.*(TOKEN|SECRET|BYPASS|OIDC)|VERCEL.*(TOKEN|SECRET)|DATABASE_URL|OPENAI_API_KEY|ANTHROPIC_API_KEY/i.test(k)))throw Error('FORBIDDEN_RUNNER_CREDENTIAL');
-const trigger=JSON.parse(readFileSync(path.join(root,'.github/cloud-qualification-trigger.json'),'utf8'));
 if(trigger.origin!==origin||trigger.paidModelOperations!==0||trigger.publication!=='DISABLED'||trigger.productionAdmission!=='DISABLED'||trigger.maxNewWork!==1||trigger.runAttempt!==process.env.GITHUB_RUN_ATTEMPT||process.env.GITHUB_RUN_ATTEMPT!=='1')throw Error('ONE_SHOT_QUALIFICATION_ENVELOPE_REQUIRED');
 const secrets=[bypass,password,Buffer.from(bypass).toString('base64'),Buffer.from(password).toString('base64')];
 const leaks=text=>secrets.some(s=>text.includes(s))||/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/.test(text);
@@ -52,18 +54,19 @@ process.on('SIGINT',()=>{cleanup();process.exit(1);});
 try{
  await new Promise((resolve,reject)=>{server.once('error',reject);server.listen(3097,'127.0.0.1',resolve);});
  console.log(JSON.stringify({origin,runId:process.env.GITHUB_RUN_ID,runner:'GitHub-hosted Linux',factoryInfrastructureCredentials:0,localFactory:false,localVerifier:false,sofieLocal:false,paidModelOperations:0}));
- const childEnv={...process.env,MYEVE_CLOUD_P0:'approved-deterministic-staging',MYEVE_CLOUD_OWNER_CREDENTIAL_FILE:credentialFile};
+ const artifactDir=consolidation?'output/playwright/consolidation-cloud':'output/playwright/cloud';
+ const childEnv={...process.env,MYEVE_CLOUD_ARTIFACT_DIR:artifactDir,MYEVE_CLOUD_P0:'approved-deterministic-staging',MYEVE_CLOUD_OWNER_CREDENTIAL_FILE:credentialFile};
  child=spawn(process.execPath,[path.join(root,'node_modules/@playwright/test/cli.js'),'test','--config','apps/eve/test/cloud/playwright.config.ts'],{cwd:root,env:childEnv,stdio:['ignore','pipe','pipe']});
  let output='';child.stdout.on('data',b=>{output+=b;if(output.length>2000000)child.kill('SIGTERM');});child.stderr.on('data',b=>{output+=b;if(output.length>2000000)child.kill('SIGTERM');});
  const code=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('close',resolve);});child=undefined;
  if(leaks(output))exposure=true;
- const scanner=spawn('python3',[path.join(import.meta.dirname,'scan-artifacts.py'),path.join(root,'output/playwright/cloud')],{stdio:['pipe','pipe','pipe'],env:process.env});
+ const scanner=spawn('python3',[path.join(import.meta.dirname,'scan-artifacts.py'),path.join(root,artifactDir)],{stdio:['pipe','pipe','pipe'],env:process.env});
  scanner.stdin.end(JSON.stringify(secrets));let scan='';scanner.stdout.on('data',b=>scan+=b);scanner.stderr.on('data',()=>{});
  const scanCode=await new Promise((resolve,reject)=>{scanner.once('error',reject);scanner.once('close',resolve);});
- if(scanCode!==0||exposure){rmSync(path.join(root,'output/playwright/cloud'),{recursive:true,force:true});throw Error('CREDENTIAL_SCAN_FAILED_ARTIFACTS_REMOVED');}
+ if(scanCode!==0||exposure){rmSync(path.join(root,artifactDir),{recursive:true,force:true});throw Error('CREDENTIAL_SCAN_FAILED_ARTIFACTS_REMOVED');}
  console.log(output);console.log(scan);
- if(!existsSync(path.join(root,'output/playwright/cloud/report.json')))throw Error('REPORT_MISSING');
- writeFileSync(path.join(root,'output/playwright/cloud/runner.json'),JSON.stringify({runId:process.env.GITHUB_RUN_ID,commit:process.env.GITHUB_SHA,trigger,runner:'GitHub-hosted Linux',platform:process.platform,factoryInfrastructureCredentials:0,producerOnRunner:false,verifierOnRunner:false,sofieLocal:false,browserProtectionCredential:0,artifactCredentialScan:'PASS',physicalMacPowerState:'NOT_OBSERVED'},null,2));
- writeFileSync(path.join(root,'output/playwright/cloud/scan-pass.json'),JSON.stringify({status:'PASS'}));
+ if(!existsSync(path.join(root,artifactDir+'/report.json')))throw Error('REPORT_MISSING');
+ writeFileSync(path.join(root,artifactDir+'/runner.json'),JSON.stringify({runId:process.env.GITHUB_RUN_ID,commit:process.env.GITHUB_SHA,trigger,runner:'GitHub-hosted Linux',platform:process.platform,factoryInfrastructureCredentials:0,producerOnRunner:false,verifierOnRunner:false,sofieLocal:false,browserProtectionCredential:0,artifactCredentialScan:'PASS',physicalMacPowerState:'NOT_OBSERVED'},null,2));
+ writeFileSync(path.join(root,artifactDir+'/scan-pass.json'),JSON.stringify({status:'PASS'}));
  process.exitCode=code===0?0:1;
 }finally{cleanup();}
