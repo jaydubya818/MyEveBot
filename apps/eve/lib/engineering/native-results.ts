@@ -49,7 +49,7 @@ export class NativeResultStore {
         ...(candidate.factoryProvenance ? [`factory-receipt:${candidate.factoryProvenance.receiptId}`,`factory-version:${candidate.factoryProvenance.factoryVersion}`] : []),
         ...checks.map(check => `protected-evidence:sha256:${check.artifactHash}`),
         ...candidate.changedPaths.map(path=>`changed-source:${path}`)],
-      limitations: [`${candidate.producer==="MYFACTORY" ? "Factory-produced candidate in MyEve custody" : "Native source development"} and protected local verification only. GitHub publication, CI, review and owner acceptance have not been established.`,
+      limitations: [`${candidate.producer==="MYFACTORY" ? "Factory-produced candidate in MyEve custody" : "Native source development"} and ${profile.executor==="factory-cloud"?"independent cloud":"protected local"} verification only. GitHub publication, CI, review and owner acceptance have not been established.`,
         `Accounting snapshot at ${accounting.observedAt}; later explanation calls are shown in current journey accounting. ${journeyCostText(accounting)}`],
     });
     await store.database.query(

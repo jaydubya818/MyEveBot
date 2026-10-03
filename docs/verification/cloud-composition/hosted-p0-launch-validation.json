@@ -1,0 +1,12 @@
+{
+  "status": "FAIL_WORKFLOW_VALIDATION",
+  "runId": 37103355424,
+  "commit": "a874ea4fc8f1de17dca508992bc790f4207f2098",
+  "jobs": 0,
+  "hostedP0Executions": 0,
+  "canonicalWorkCreated": 0,
+  "modelOperations": 0,
+  "diagnostic": "Nested mappings are not allowed in compact mappings at line 13, column 9",
+  "repair": "Use YAML folded block for exact commit-message condition; no change to scope or execution limits.",
+  "priorPreparedWorkflowValidationFailure": 37102304057
+}

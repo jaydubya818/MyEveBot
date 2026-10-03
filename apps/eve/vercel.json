@@ -17,7 +17,18 @@
       "codex/relay-renewal-guidance": false,
       "codex/relay-grant-expiry-settings": false,
       "codex/peer-conversation-ui": false,
-      "codex/telegram-current-integration": false
+      "codex/telegram-current-integration": false,
+      "codex/cloud-execution": false
+    }
+  },
+  "functions": {
+    "app/api/cloud-qualification/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-cloud-work-v1"
+        }
+      ]
     }
   }
 }

@@ -1,3 +1,9 @@
+> **Current: DETERMINISTIC CLOUD GOLDEN JOURNEY PASS.** [Hosted P0 evidence](docs/verification/cloud-composition/hosted-p0.md). Zero local dependencies, paid model calls and production effects. Cloud feature development FROZEN; production admission/publication DISABLED. Older checkpoint statuses below are historical.
+
+> Current qualification: [hosted attempt 4](docs/verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
+
+> Cloud staging implementation: [deterministic controller and Eve model boundary](docs/architecture/cloud-deterministic-composition.md). Hosted productive Work / Mac-off / P0 remain **NOT_RUN**; paid calls 0, production and publication disabled.
+
 # MyEve
 
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner confirmed publication to draft PR #2; exact-candidate readback and real GitHub CI passed. Independent review found a numeric-range defect; the candidate remains unchanged and owner acceptance is NOT_RUN. The current-evidence presentation repair is qualified but not deployed. Historical Attempts 1–8 and the verified candidate remain immutable.
@@ -322,3 +328,29 @@ These are historical product qualification records. Use the current source and c
 Private-alpha Attempt 5 completion repair and complete zero-model qualification: [evidence](docs/private-alpha/completion-transition-2026-10-01/README.md). Live retry remains unapproved.
 
 Safe-integer successor no-edit failure: [captured context, productive instruction repair and zero-model qualification](docs/private-alpha/no-edit-productive-2026-10-02/README.md). Fresh successor is paused; another live execution requires approval.
+
+
+MyFactory staging checkpoint [`1d31332`](https://github.com/jaydubya818/MyFactory/commit/1d3133273343d11833851c28c7f9c90cc302ec15) adds the canonical PostgreSQL V2 spend ledger and hosted private queue delivery. Connected queue completion occurred after the requesting process exited; duplicate submission reused the receipt. This is infrastructure qualification only. MyEve cloud Work routing, cloud harness, independent verifier and Mac-off/P0 remain unqualified; cloud admission and paid model calls remain disabled. The Attempt-8 publisher is unchanged.
+
+
+The explicit cloud client transport now pins MyFactory staging HTTPS and serializes immutable repository source without laptop paths. Local transport remains loopback-only. The isolated Sofie qualification project/database are provisioned with canonical migrations and no copied owner data. [Evidence](docs/cloud-execution/phase-3/README.md). Full MyEve regression: 2,001 passed, 94 skipped; typecheck and executor governance passed. Cloud runtime admission remains blocked pending source/verifier integration; Mac-off/P0 is NOT_RUN.
+
+
+Cloud execution snapshot V2 now pins the source tree, worker/verifier image digests, provider, policies, resource bounds, versioned skills and evidence class. MyEve verifies the same synthetic signed packet as Factory and rejects tampering and V1 downgrade. Cloud preparation requires V2 DETERMINISTIC evidence; local V1 behavior is retained. Validation: 2,003 tests passed, 94 skipped; typecheck, capability, skill routing and executor governance passed. Hosted cloud Work, verifier, Mac-off and P0 remain NOT_RUN. No paid models or publication were invoked.
+
+
+The V2 cloud custody path now accepts a bounded Factory file projection without running local Git, recomputes the exact source tree, and applies the existing authenticated candidate/commit identity guard. The local V1 custody path and Attempt-8 publisher remain unchanged. Full validation: 2,005 passed, 94 skipped; typecheck/governance passed. Hosted cloud Work, independent verifier, Mac-off and P0 remain NOT_RUN.
+
+Dedicated staging access approval is configured server-side only. A fixed operator probe and browser-bundle credential scan now guard the qualification path; hosted boundary tests are pending. All other isolated staging ingress remains closed until deterministic models are qualified. See [access boundary](docs/cloud-execution/phase-3/access-boundary.md).
+
+The hosted bundle credential scan passed (77 files). The access matrix remains NOT_RUN: operator ingress to the separately protected Sofie staging project requires its own grant or authenticated Vercel session. No Sofie bypass has been created. The Factory bypass remains backend-only; canonical cloud Work and Mac-off/P0 remain NOT_RUN.
+
+
+Dedicated Sofie CLOUD qualification now scans all four server credentials, including the explicitly approved Vercel runtime bypass, against browser bundles, prerendered HTML/hydration metadata, public files and public environment configuration. [Hosted build evidence](docs/cloud-execution/phase-3/sofie-runtime-bypass-build.json): containment and application-denial checks pass; Factory transport repair and canonical staging composition remain pending. Product status: **WAITING_FOR_CANONICAL_STAGING_COMPOSITION**. No paid model operations or production/publication changes.
+
+
+Dedicated Sofie staging access and revocation are CONNECTED PASS; the tested bypass is revoked. Cloud candidate readback now feeds the canonical custody writer with exact-tree validation (39 targeted tests and typecheck PASS). Hosted harness, independent cloud verifier, Mac-off and P0 remain NOT_RUN. [Current qualification status](docs/cloud-execution/phase-3/README.md).
+
+Cloud qualification: exact Sofie preview → Factory preview OIDC access and remove/restore revocation pass. The independent cloud verifier and strict signed Result consumer are implemented with 180 consumer regression tests passing. [Implementation/evidence limits](docs/architecture/cloud-factory-oidc.md). Product remains `WAITING_FOR_CANONICAL_STAGING_COMPOSITION`; hosted harness/verifier and Mac-off/P0 are NOT_RUN. Paid models: 0; production admission/publication: DISABLED.
+
+Cloud staging qualification: composed OIDC access PASS; [hosted deterministic attempt 1](docs/verification/cloud-composition/attempt-1.md) failed before allocation on a strict admission-schema mismatch. Repair/regression retained; hosted Golden Journey remains NOT_RUN.

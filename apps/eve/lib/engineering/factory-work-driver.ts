@@ -1,3 +1,4 @@
+import {FactoryCloudProtectedVerifier} from './factory-cloud-verifier.ts';
 import {assertFactorySpendCanStart,assertSpendContinuation,workSpendSchema} from './factory-spend.ts';
 import {preflightApprovedBase} from './base-preflight.ts';
 import {randomUUID} from 'node:crypto';
@@ -66,10 +67,10 @@ export class FactoryWorkDriver {
    if(!budget || Date.parse(String(budget.deadline))<=Date.now())throw new WorkError('factory_conversation_budget','Current canonical Sofie allowance and deadline are required.');
    deadline=new Date(budget.deadline as string).toISOString();
   }
-  const prepare:FactoryPrepareRequest={...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
-   input:{title:work.title,description:work.objective,kind:'feature',repositoryPath:config.connection.repositoryPath,baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'mac'}};
+  const prepare:FactoryPrepareRequest= {...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
+   input:{title:work.title,description:work.objective,kind:'feature',...('source' in config.connection?{}:{repositoryPath:config.connection.repositoryPath}),baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'source' in config.connection?'container':'mac'}};
   const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
-   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:digest(config)})]);
+   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:digest(config),...(snapshot.environment?{environment:snapshot.environment}:{})})]);
   if(!saved&&!((await this.decision(id))?.factory_preparation))throw new WorkError('factory_prepare_changed','Preparation changed before it was persisted.');
   return this.step(id);
  }
@@ -99,6 +100,7 @@ export class FactoryWorkDriver {
    if(run.dispatch_state==='PREPARED'){
     const current=await this.authority.read(work,run.factory_request_id,preparation.request);
     const prior=decision.admission_authority_snapshot;
+    if(digest(current.environment?.binding??null)!==digest(prior.environment?.binding??null))throw new WorkError('cloud_environment_binding_changed','The admitted cloud environment changed; reconcile without redispatch.');
     if(digest(current.binding)!==digest(prior.binding))throw new WorkError('factory_authority_changed','Owner Agent or configuration changed. Stop and reconcile the retained attempt.');
     const eligible=decideExecutionRoute(prior.contract,current.context,decision.admission_request,{...current.facts,writerState:'NONE'});
     if(!eligible.admitted)throw new WorkError('factory_dispatch_denied',eligible.reasons.join(' '),403);
@@ -134,13 +136,20 @@ export class FactoryWorkDriver {
    if(historicalTerminal)return {state:'TERMINAL',outcome:run.status,receiptStatus};
    receiptId??=(await this.receipts.admission(request.id))?.receipt_id as string|undefined;
    if(!receiptId)return {state:'AWAITING_RESULT'};
-   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()});
+   const cloudCustody='source' in config.connection?await adapter.custody(identity):undefined;
+   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
    const ws=(await this.direct.inspect(id)).workspace;
    if(!ws||ws.routeRunId!==run.id)return {state:'HISTORICAL'};
-   const verification=new DirectVerificationDriver(this.direct,this.verifier);
+   const protectedVerifier='source' in config.connection?new FactoryCloudProtectedVerifier(this.receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):this.verifier;
+   const verification=new DirectVerificationDriver(this.direct,protectedVerifier);
    const candidate=ws.candidates.at(-1)!;
    const job=await verification.inspectJob(id,candidate.sha);
-   if(job?.status==='RECOVERY_REQUIRED')await verification.retryAfterResourceCheck(id,candidate.sha,new DockerVerificationResourceInspector());
+   if(job?.status==='RECOVERY_REQUIRED'){
+    // CLOUD only reprojects an already destroyed verifier's signed receipt. No
+    // provider execution is repeated and no local Docker fallback is permitted.
+    const inspector='source' in config.connection?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
+    await verification.retryAfterResourceCheck(id,candidate.sha,inspector);
+   }
    await verification.run(id);
    const result=await new NativeResultStore(this.direct).retain(id);
    await this.observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});

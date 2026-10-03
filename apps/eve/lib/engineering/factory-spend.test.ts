@@ -24,7 +24,7 @@ function ledger(state?:'reserved'|'dispatched'|'unknown'|'settled'):WorkSpendV2{
  reservedMicrousd:1200,phase:'productive',state,actualMicrousd:state==='settled'?30:null,providerRequestId:state==='settled'?'provider-1':null,
  usage:state==='settled'?{input_tokens:10,output_tokens:10}:null}]:[]};
 }
-function connection():FactoryConnection{return {...profile(),origin:'http://127.0.0.1:12345',token:'c'.repeat(64),factoryId:'fixture',configurationDigest,repositoryPath:'/fixture',keys:[{factoryId:'fixture',keyId:'key',publicKey:'fixture',activeFrom:'2020-01-01',notAfter:'2099-01-01'}],qualification:{...profile().qualification,scopeId:'owner',profileHash:'d'.repeat(64),evidenceRef:'fixture',qualifiedAt:'2020-01-01T00:00:00.000Z',expiresAt:binding.deadline}};}
+function connection():FactoryConnection{return {...profile(),origin:'http://127.0.0.1:12345',token:'c'.repeat(64),factoryId:'fixture',configurationDigest,repositoryPath:'/fixture',keys:[{factoryId:'fixture',keyId:'key',publicKey:'fixture',activeFrom:'2020-01-01',notAfter:'2099-01-01'}],qualification:{...profile().qualification,mode:'LOCAL_SPEND_FIXTURE',scopeId:'owner',profileHash:'d'.repeat(64),evidenceRef:'fixture',qualifiedAt:'2020-01-01T00:00:00.000Z',expiresAt:binding.deadline}};}
 const identity={...binding,runId:randomUUID(),writerGeneration:1,factoryId:'fixture',repository:'fixture/golden',baseSha:'a'.repeat(40),allowedPaths:['quantity.mjs']};
 const body=(spend:WorkSpendV2,state='COMPLETED',quiescent=true)=>({requestId:binding.requestId,workOrderId:binding.workOrderId,runId:binding.remoteRunId,snapshot:null,identity,state,quiescent,evidenceRef:quiescent?'terminal-proof':null,spend,blocker:null});
 describe('candidate Work spend contract (not live qualification)',()=>{

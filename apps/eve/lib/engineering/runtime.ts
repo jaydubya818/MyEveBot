@@ -1,3 +1,4 @@
+import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import { hostedFactoryQueue } from "./deployment-mode.ts";
 import { alphaConversationQualificationSchema } from "./alpha-conversation-policy.ts";
 import { nativeCompletionPolicySchema } from "./native-completion.ts";
@@ -31,6 +32,12 @@ export const runtimeSchema=z.object({
   if(binding&&!config.approvedBase.files.some(f=>f.path===binding.path&&f.sha256===binding.sha256))ctx.addIssue({code:'custom',message:'Public output contract must be pinned in the approved base manifest'});
 });
 export async function engineeringConfig() {
+  if(cloudRuntimeEnabled()) {
+    const parsed=runtimeSchema.parse(cloudRuntimeConfiguration().engineering);
+    if(parsed.ownerId!==process.env.MYEVE_OWNER_ID||parsed.profile.executor!=="factory-cloud"||parsed.nativeQualification||parsed.githubApp||parsed.conversationQualification||parsed.profile.repository!==process.env.MYEVE_ALPHA_REPOSITORY)
+      throw new WorkError("cloud_qualification_profile","Dedicated deterministic owner/repository profile required.",503);
+    return parsed;
+  }
   if(process.env.MYEVE_ENGINEERING_MODE!=="dogfood"||process.env.VERCEL_ENV==="production")throw new WorkError("engineering_disabled","Golden Work is restricted to an isolated dogfood runtime.",404);
   const file=process.env.MYEVE_ENGINEERING_CONFIG;
   if(!file?.startsWith("/"))throw new WorkError("engineering_setup","An approved qualification repository profile is required before execution.");
@@ -39,6 +46,7 @@ export async function engineeringConfig() {
   return parsed.data;
 }
 export async function engineeringRuntime(principal:WorkPrincipal,store=new WorkStore(principal)) {
+  if(cloudRuntimeEnabled())throw new WorkError("local_executor_forbidden","Local execution and publication are disabled in cloud qualification.",403);
   const config=await engineeringConfig();
   if(principal.scopeKind!=="personal"||principal.scopeId!==config.ownerId||principal.actorId!==config.ownerId)throw new WorkError("engineering_scope","This qualification profile belongs to another owner.",403);
   const authorityCurrent=async()=>{const agent=await getAgent(principal.scopeId,config.agentId,store.database);return !!agent&&agent.isPrimary&&agent.status==="active";};
@@ -71,7 +79,7 @@ export async function intakeIssue(principal:WorkPrincipal,value:unknown) {
 /** Hosted conversation receives only the reviewed, nonsecret repository profile.
  * This does not enable the isolated native executor or read local credentials. */
 export async function engineeringConversationConfig() {
-  if (!hostedFactoryQueue()) return engineeringConfig();
+  if (cloudRuntimeEnabled() || !hostedFactoryQueue()) return engineeringConfig();
   const parsed=runtimeSchema.safeParse(JSON.parse(process.env.MYEVE_ALPHA_CONVERSATION_CONFIG??"null"));
   if(!parsed.success || !parsed.data.conversationQualification || parsed.data.nativeQualification ||
      parsed.data.ownerId!==process.env.MYEVE_OWNER_ID || parsed.data.profile.repository!==process.env.MYEVE_ALPHA_REPOSITORY)

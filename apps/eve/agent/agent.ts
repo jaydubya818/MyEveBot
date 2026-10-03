@@ -1,3 +1,5 @@
+import {cloudConversationModel} from '../lib/engineering/cloud-conversation-model.ts';
+import { cloudQualificationProject } from "../lib/engineering/cloud-access-qualification.ts";
 import { hostedFactoryQueue } from "../lib/engineering/deployment-mode.ts";
 import { partnerPrivateModel } from "./lib/partner-model.ts";
 import { isPartnerPrincipal } from "../lib/private-owner-boundary.ts";
@@ -54,6 +56,15 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": (_event, ctx) => {
         const select = async () => {
+        if(cloudQualificationProject()){
+          const current=ctx.session.auth.current;
+          if(!current||current.authenticator!=="myeve-web-session"||current.principalType!=="user"||current.attributes.owner!=="true"||current.attributes.role==="guest"||current.attributes.myeveRoleId||("parent" in ctx.session&&ctx.session.parent))throw Error("CLOUD_CONVERSATION_AUTHENTICATION");
+          const agent=await resolveSessionAgent({ownerId:current.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true});
+          if(!agent?.isPrimary)throw Error("CLOUD_CONVERSATION_PRIMARY_AGENT");
+          const selected=current.attributes.myeveEngineeringWorkId;
+          if(selected!==undefined&&typeof selected!=="string")throw Error("CLOUD_CONVERSATION_WORK");
+          return {model:cloudConversationModel({ownerId:current.principalId,agentId:agent.id,sessionId:ctx.session.id,stepKey:ownerModelStepKey(_event),workId:selected,productive:current.attributes.myeveEngineeringIntent==="continue"}),modelContextWindowTokens:64000};
+        }
         const ownerRuntime=ownerRuntimeFromAuth(ctx.session.auth);
         if(ownerRuntime && ctx.session.auth.current?.attributes.myeveEngineeringWorkId!==undefined)
           throw new Error("Owner-channel and selected-Work spending authorities cannot be mixed.");

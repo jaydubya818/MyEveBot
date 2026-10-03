@@ -1,0 +1,24 @@
+{
+  "attempt": 1,
+  "kind": "CONNECTED",
+  "path": "real Eve browser endpoint",
+  "paidModelOperations": 0,
+  "workDispatched": false,
+  "requests": [
+    {
+      "path": "/eve/v1/session",
+      "status": 202
+    },
+    {
+      "path": "/eve/v1/session/wrun_41M3Z6JEQC0GN5G9Y6EKBD6A1B/stream",
+      "status": 200
+    },
+    {
+      "path": "/eve/v1/session/wrun_41M3Z6JEQC0GN5G9Y6EKBD6A1B/stream",
+      "status": 200
+    }
+  ],
+  "browserText": "Sofie\nAdvanced tools\nOur business\nToday\nAsk Sofie\nWork\nInbox\nNeeds You\nApprovals\nFiles\nResults\nMemory\nKnowledge\nCapsules\nTeam\nApps\nComputer\nNew conversation\n\nToday\n\nSofie, please implement project slug validat\u2026\n1:58 PM\nSofie, please implement project slug validation, verify the change, and bring it back for my review.\nengineering work\n\nThe saved Work response is shown above. Open Work to review its current state, Result and Proof. Execution and publication still require their own authority.\n\n0 in / 0 out\nclaude-sonnet-5\n\n\u00a0",
+  "works": [],
+  "status": "FAIL"
+}

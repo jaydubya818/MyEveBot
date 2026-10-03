@@ -19,3 +19,6 @@ node_modules
 # Local controlled publication browser traces (archived as qualification evidence).
 /apps/eve/output/playwright/publication/
 /output/playwright/publication/
+
+# Credential-scanned CLOUD P0 evidence is published by its isolated test runner.
+/output/playwright/cloud/

@@ -1,3 +1,5 @@
+import {cloudRuntimeEnabled} from './cloud-runtime-guard.ts';
+import {wakeCloudController} from './cloud-controller-queue.ts';
 import { hostedFactoryQueue } from "./deployment-mode.ts";
 import { enqueueFactoryCommand } from "./factory-commands.ts";
 import { betaConfiguration } from "../beta-integration/configuration.ts";
@@ -10,7 +12,15 @@ import {WorkStore} from './store.ts';
 import {WorkError} from './types.ts';
 export const factoryActionSchema=z.object({operation:z.enum(['start','reconcile','stop','takeover']),expectedWorkVersion:z.number().int().positive(),expectedWorkGeneration:z.number().int().positive()}).strict();
 export async function factoryAction(store:WorkStore,id:string,value:unknown){
- if(hostedFactoryQueue())return enqueueFactoryCommand(store,id,value,{ownerId:process.env.MYEVE_OWNER_ID!,...betaConfiguration().policy});
+ if(hostedFactoryQueue()){
+  const queued=await enqueueFactoryCommand(store,id,value,{ownerId:process.env.MYEVE_OWNER_ID!,...betaConfiguration().policy});
+  if(cloudRuntimeEnabled())await wakeCloudController(store,queued.command.id);
+  return queued;
+ }
+ return executeFactoryCommand(store,id,value);
+}
+/** The canonical executor; only the locked controller or existing local caller invokes it. */
+export async function executeFactoryCommand(store:WorkStore,id:string,value:unknown){
  const input=factoryActionSchema.parse(value),work=await store.get(id);
  if(work.version!==input.expectedWorkVersion||work.generation!==input.expectedWorkGeneration)throw new WorkError('factory_work_changed','Reload the current Work before acting.');
  if(input.operation==='start')await assertBusinessEffect(store,id,{operation:"execute_factory"});

@@ -23,7 +23,7 @@ export const profileSchema = z.object({
   requiredCI: z.array(z.string().min(1).max(100)).min(1).max(10),
   reviewerLogins: z.array(z.string().regex(/^[\w-]+$/)).min(1).max(10),
   policyVersion: z.number().int().positive(),
-  executor: z.literal("claude-code"),
+  executor: z.enum(["claude-code","factory-cloud"]),
   image: z.string().regex(/^[\w./:-]+@sha256:[a-f0-9]{64}$/),
   maxRuns: z.number().int().min(1).max(8),
   maxModelRequests: z.number().int().min(1).max(30),
@@ -36,7 +36,7 @@ export interface WorkContract {
   repository: string; issue: number; issueUrl: string; issueBody: string; objective: string;
   criteriaVersion: number; criteria: Work["criteria"]; baseSha: string;
   allowedOperations: string[]; forbiddenOperations: string[];
-  executor: "claude-code"; limits: { maxRuns: number; maxDurationSeconds: number; maxModelRequests: number };
+  executor: "claude-code" | "factory-cloud"; limits: { maxRuns: number; maxDurationSeconds: number; maxModelRequests: number };
   budgetUsd: number; deadline: string; profile: RepositoryProfile; profileHash: string;
   policyVersion: number; definitionOfDone: string[]; requiredVerification: string[];
   publicationPolicy: "exact-candidate-approval-then-bounded-updates";
@@ -64,7 +64,7 @@ export function makeContract(work: Work, principal: WorkPrincipal, profileValue:
     objective: work.objective, criteriaVersion: work.criteriaVersion, criteria: work.criteria, baseSha,
     allowedOperations: ["repository.read", "sandbox.write", "candidate.create", "verification.request"],
     forbiddenOperations: ["merge", "deploy", "production", "repository.admin", "secrets.mutate", "workflows.mutate", "mcp.mutate"],
-    executor: "claude-code", limits: { maxRuns: profile.maxRuns, maxDurationSeconds: work.maxDurationSeconds, maxModelRequests: profile.maxModelRequests },
+    executor: profile.executor, limits: { maxRuns: profile.maxRuns, maxDurationSeconds: work.maxDurationSeconds, maxModelRequests: profile.maxModelRequests },
     budgetUsd: work.maxCostUsd, deadline: new Date(now + work.maxDurationSeconds * 1000).toISOString(),
     profile, profileHash: digest(profile), policyVersion: profile.policyVersion,
     definitionOfDone: ["Current protected verification and CI pass", "Review requirements addressed", "No unresolved effects or human decisions", "Current approved candidate is the draft PR head"],

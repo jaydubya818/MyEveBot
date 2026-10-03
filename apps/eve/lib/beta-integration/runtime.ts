@@ -1,4 +1,5 @@
 import { currentPublicationReadback } from '../engineering/publication-contract.ts';
+import {cloudRuntimeEnabled} from '../engineering/cloud-runtime-guard.ts';
 import { readJourneyAccounting } from "../engineering/journey-accounting.ts";
 import { enqueueFactoryCommand } from "../engineering/factory-commands.ts";
 import { BusinessScopes } from "../business-scopes.ts";
@@ -536,9 +537,9 @@ export async function betaRequest(
         .strict()
         .parse(await boundedJson(new Response(request.body), 4000));
       if(process.env.MYEVE_BETA_MODE === 'private-alpha') {
-        if(process.env.MYEVE_FACTORY_WORKER_ENABLED !== 'true')throw new WorkError('factory_disabled','The private-alpha worker is not enabled.',503);
+        if(process.env.MYEVE_FACTORY_WORKER_ENABLED !== 'true'&&!cloudRuntimeEnabled())throw new WorkError('factory_disabled','The private-alpha worker is not enabled.',503);
         const {workId,...action}=input;
-        const result=await enqueueFactoryCommand(beta.store(owner),workId,action,{ownerId:process.env.MYEVE_OWNER_ID??'',...betaConfiguration().policy});
+        const result=cloudRuntimeEnabled()?await factoryAction(beta.store(owner),workId,action):await enqueueFactoryCommand(beta.store(owner),workId,action,{ownerId:process.env.MYEVE_OWNER_ID??'',...betaConfiguration().policy});
         return Response.json({result},{status:202,headers});
       }
       const config = await factoryConfig();

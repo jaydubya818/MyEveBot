@@ -10,7 +10,7 @@ const authorityState=z.enum(['prepared','active','fenced']);
 const evidence=z.object({status:z.enum(['QUALIFIED','PENDING']),evidenceRef:z.string().min(1).max(1000).nullable()}).strict();
 /** Consumer-reviewed evidence, never a producer grant or a model-selected policy. */
 export const factorySpendReviewSchema=z.object({
- environment:z.enum(['LOCAL_FIXTURE','LIVE']),sourceDigest:hash,factoryVersion:hash,
+ environment:z.enum(['LOCAL_FIXTURE','CLOUD_DETERMINISTIC','LIVE']),sourceDigest:hash,factoryVersion:hash,
  expiresAt:z.string().datetime(),hardCeiling:evidence,preCallEnforcement:evidence,
  accounting:evidence,unknownRetention:evidence,completion:evidence,
  pricing:evidence.extend({model:text,revision:text,validUntil:z.string().datetime()}).strict(),
@@ -25,7 +25,7 @@ export const factorySpendPlanSchema=z.object({
 export type FactorySpendPlan=z.infer<typeof factorySpendPlanSchema>;
 export const factorySpendContractSchema=z.object({version:z.enum(['WORK_LEDGER_V1','WORK_LEDGER_V2']),sourceDigest:hash}).strict();
 export type FactorySpendProfile={sourceDigest:string;factoryVersion:string;spendContract?:z.infer<typeof factorySpendContractSchema>;
- spendPlan?:FactorySpendPlan;qualification:{mode:'LOCAL_FIXTURE'|'LOCAL_SPEND_FIXTURE'|'LIVE';spendEnforced:boolean;spendReview?:FactorySpendReview}};
+ spendPlan?:FactorySpendPlan;qualification:{mode:'LOCAL_FIXTURE'|'LOCAL_SPEND_FIXTURE'|'CLOUD_DETERMINISTIC'|'LIVE';spendEnforced:boolean;spendReview?:FactorySpendReview}};
 export function factorySpendAdmission(profile:FactorySpendProfile,now=Date.now()){
  const q=profile.qualification,r=q.spendReview,reasons:string[]=[];
  if(q.mode==='LOCAL_FIXTURE')return {allowed:true,reasons};
@@ -34,7 +34,7 @@ export function factorySpendAdmission(profile:FactorySpendProfile,now=Date.now()
   reasons.push('Reviewed Work ledger V2 contract is required for paid production');
  const plan=factorySpendPlanSchema.safeParse(profile.spendPlan);
  if(!plan.success)reasons.push('Complete bounded productive/completion plan is missing');
- if(!r||r.sourceDigest!==profile.sourceDigest||r.factoryVersion!==profile.factoryVersion||Date.parse(r.expiresAt)<=now||r.environment!==(q.mode==='LIVE'?'LIVE':'LOCAL_FIXTURE')){
+ if(!r||r.sourceDigest!==profile.sourceDigest||r.factoryVersion!==profile.factoryVersion||Date.parse(r.expiresAt)<=now||r.environment!==(q.mode==='LIVE'?'LIVE':q.mode==='CLOUD_DETERMINISTIC'?'CLOUD_DETERMINISTIC':'LOCAL_FIXTURE')){
   reasons.push('Current producer-bound spend qualification is missing');return {allowed:false,reasons};
  }
  for(const key of ['hardCeiling','preCallEnforcement','accounting','unknownRetention','completion'] as const)
@@ -161,7 +161,7 @@ export function factorySpendSummary(spend:FactorySpend,profile:FactorySpendProfi
   v2.operations.some(op=>op.phase==='completion'&&op.workGeneration===v2.workGeneration&&op.state==='settled');
  const blocker=!ledger?'Legacy zero-cost fixture; paid accounting unavailable':(completed?null:admissionBlocker)??(!review.allowed?review.reasons.join('; '):null);
  const candidate=profile.qualification.spendReview;
- const r=candidate&&candidate.sourceDigest===profile.sourceDigest&&candidate.factoryVersion===profile.factoryVersion&&candidate.environment===(profile.qualification.mode==='LIVE'?'LIVE':'LOCAL_FIXTURE')&&Date.parse(candidate.expiresAt)>Date.now()?candidate:undefined;
+ const r=candidate&&candidate.sourceDigest===profile.sourceDigest&&candidate.factoryVersion===profile.factoryVersion&&candidate.environment===(profile.qualification.mode==='LIVE'?'LIVE':profile.qualification.mode==='CLOUD_DETERMINISTIC'?'CLOUD_DETERMINISTIC':'LOCAL_FIXTURE')&&Date.parse(candidate.expiresAt)>Date.now()?candidate:undefined;
  return {ceilingMicrousd:ledger?.ceilingMicrousd??null,settledMicrousd:ledger?.settledMicrousd??null,
   reservedMicrousd:ledger?.retainedMicrousd??null,unknownMicrousd,activeMicrousd,availableMicrousd:ledger?.availableMicrousd??null,
   safeAllowanceMicrousd:!blocker&&!admissionBlocker&&v2?v2.productiveAllowanceRemainingMicrousd:0,
