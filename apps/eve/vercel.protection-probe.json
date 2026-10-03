@@ -1,0 +1,35 @@
+{
+  "framework": "nextjs",
+  "outputDirectory": null,
+  "git": {
+    "deploymentEnabled": {
+      "main": false,
+      "codex/peer-message-answers": false,
+      "codex/federation-request-deadline": false,
+      "codex/federation-final-consolidation": false,
+      "codex/myeve-relay-final": false,
+      "codex/federation-callable-tool": false,
+      "codex/federation-approval-continuation": false,
+      "fix/expired-run-action-admission": false,
+      "codex/multirun-peer-permissions": false,
+      "codex/jev-chat-release": false,
+      "codex/jev-chat-evaluation": false,
+      "codex/relay-renewal-guidance": false,
+      "codex/relay-grant-expiry-settings": false,
+      "codex/peer-conversation-ui": false,
+      "codex/telegram-current-integration": false,
+      "codex/cloud-execution": false
+    }
+  },
+  "functions": {
+    "app/api/cloud-qualification/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-cloud-work-v1"
+        }
+      ]
+    }
+  },
+  "buildCommand": "node ../../scripts/qualification/check-production-trust-denial.mjs && cd ../.. && npx turbo run build --filter=eve-agent"
+}
