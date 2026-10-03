@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "mode": "Explicit operator invocation of canonical migration runner",
+  "applied": {
+    "name": "0080_factory_evidence_custody.sql",
+    "checksum": "73389ac8499c6d4535f905381e3f0ca5d4d935084f45aab2fb14edd41c24f3e8"
+  },
+  "logs": [
+    "Applied 0080_factory_evidence_custody.sql"
+  ],
+  "automaticBuildOrRequestHook": false
+}

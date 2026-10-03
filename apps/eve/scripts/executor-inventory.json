@@ -3956,13 +3956,13 @@
     },
     "lib/engineering/production-installation.ts": {
       "classification": "READ_ONLY",
-      "reason": "Exact production-to-production outbound workload identity plus independent application authentication for owner-scoped installation observation only. Staging remains separately pinned. No execution connection, writer, source grant or qualification is created; credentials never enter the owner projection. Mismatched source identity, contradictory readiness and cross-owner sessions fail closed.",
-      "sha256": "f62006d7cf69e6c468f97e4bf920792fdf0ff7e871d7dece3f44393f70569d88"
+      "reason": "Owner-only exact production installation observation and bounded authentication denial probes. Fixed destination and deliberately invalid Work; no execution, model, publication or caller-controlled authority. Separate app/OIDC gates and response sanitization retained.",
+      "sha256": "e9dfb0336f6479724796d42c1c86523ba60651757476378638b906907305232e"
     },
     "app/api/beta/factory-installation/route.ts": {
       "classification": "READ_ONLY",
-      "reason": "Exact production-to-production outbound workload identity plus independent application authentication for owner-scoped installation observation only. Staging remains separately pinned. No execution connection, writer, source grant or qualification is created; credentials never enter the owner projection. Mismatched source identity, contradictory readiness and cross-owner sessions fail closed.",
-      "sha256": "c15326f8cbfa0a35b737fbe3252d2e753986a6c9b5fd6cf27a06861229410f74"
+      "reason": "Owner-only exact production installation observation and bounded authentication denial probes. Fixed destination and deliberately invalid Work; no execution, model, publication or caller-controlled authority. Separate app/OIDC gates and response sanitization retained.",
+      "sha256": "aaa128ff5983be7d20b63c01e98b70f7598fc802b71d5efc7d68e435a1175ba4"
     }
   }
 }
