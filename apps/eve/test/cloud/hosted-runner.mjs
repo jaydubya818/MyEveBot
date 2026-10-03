@@ -16,7 +16,8 @@ delete process.env.SOFIE_QUALIFICATION_BYPASS;
 delete process.env.SOFIE_QUALIFICATION_PASSWORD;
 if(process.env.GITHUB_ACTIONS!=='true'||process.env.GITHUB_REPOSITORY!=='jaydubya818/MyEveBot'||process.env.GITHUB_REF!==(consolidation?'refs/heads/codex/final-alpha-convergence':'refs/heads/codex/cloud-execution')||!bypass||!password)throw Error('ISOLATED_OPERATOR_CONFIGURATION_REQUIRED');
 if(Object.keys(process.env).some(k=>/FACTORY.*(TOKEN|SECRET|BYPASS|OIDC)|VERCEL.*(TOKEN|SECRET)|DATABASE_URL|OPENAI_API_KEY|ANTHROPIC_API_KEY/i.test(k)))throw Error('FORBIDDEN_RUNNER_CREDENTIAL');
-if(trigger.origin!==origin||trigger.paidModelOperations!==0||trigger.publication!=='DISABLED'||trigger.productionAdmission!=='DISABLED'||trigger.maxNewWork!==1||trigger.runAttempt!==process.env.GITHUB_RUN_ATTEMPT||process.env.GITHUB_RUN_ATTEMPT!=='1')throw Error('ONE_SHOT_QUALIFICATION_ENVELOPE_REQUIRED');
+const readbackOnly=consolidation&&trigger.maxNewWork===0&&/^[a-f0-9-]{36}$/.test(trigger.recoverWorkId??'')&&/^[a-f0-9]{40}$/.test(trigger.candidate??'');
+if(trigger.origin!==origin||trigger.paidModelOperations!==0||trigger.publication!=='DISABLED'||trigger.productionAdmission!=='DISABLED'||(!readbackOnly&&trigger.maxNewWork!==1)||trigger.runAttempt!==process.env.GITHUB_RUN_ATTEMPT||process.env.GITHUB_RUN_ATTEMPT!=='1')throw Error('ONE_SHOT_QUALIFICATION_ENVELOPE_REQUIRED');
 const secrets=[bypass,password,Buffer.from(bypass).toString('base64'),Buffer.from(password).toString('base64')];
 const leaks=text=>secrets.some(s=>text.includes(s))||/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/.test(text);
 const dir=mkdtempSync(path.join(tmpdir(),'sofie-operator-'));
@@ -26,6 +27,7 @@ let exposure=false;
 const server=createServer(async(req,res)=>{
  try{
   const target=new URL(req.url??'',origin);
+  if(readbackOnly&&!['GET','HEAD'].includes(req.method)&&!(req.method==='POST'&&target.pathname==='/api/auth/login'))throw Error('READBACK_ONLY');
   if(!req.url?.startsWith('/')||req.url.startsWith('//')||target.origin!==origin)throw Error('PATH');
   const headers=new Headers();
   for(const [key,value] of Object.entries(req.headers))if(value&&!['host','connection','content-length','accept-encoding','x-vercel-protection-bypass','x-vercel-oidc-token','x-vercel-set-bypass-cookie'].includes(key))headers.set(key,Array.isArray(value)?value.join(','):value);

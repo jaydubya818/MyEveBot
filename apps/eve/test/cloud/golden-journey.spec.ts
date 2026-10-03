@@ -11,7 +11,7 @@ const credentials=()=>JSON.parse(readFileSync(process.env.MYEVE_CLOUD_OWNER_CRED
 async function login(page:Page){await page.goto('/login');await page.getByLabel('Your access password').fill(credentials().MYEVE_ACCESS_PASSWORD);await page.getByRole('button',{name:'Open Sofie',exact:true}).click();await page.waitForURL(u=>u.pathname!=='/login');}
 async function read(page:Page,path:string){return page.evaluate(async path=>{const r=await fetch(path);if(!r.ok)throw Error('Canonical read failed: '+r.status);return r.json();},path);}
 test('P0 real Eve → canonical CLOUD Work → browser-off → independent Proof',async({browser,baseURL},info)=>{
- test.skip(!enabled,'NOT_RUN: dedicated staging configuration and explicit deterministic runner activation are required.');
+ test.skip(!enabled||!!trigger.recoverWorkId,'NOT_RUN: dedicated staging configuration and explicit deterministic runner activation are required.');
  expect(Object.keys(process.env).filter(k=>/FACTORY.*(TOKEN|BYPASS|SECRET|OIDC)/i.test(k))).toEqual([]);
  const report:any={kind:'CONNECTED',modelBoundary:'DETERMINISTIC',retries:0,startedAt:new Date().toISOString(),macOff:process.env.GITHUB_ACTIONS==='true'?'REMOTE_RUNNER_NO_MAC_DEPENDENCY':'NOT_RUN',runner:process.env.GITHUB_RUN_ID??'local',status:'RUNNING'};
  let context=await browser.newContext({baseURL}),page=await context.newPage(),tracing=false;

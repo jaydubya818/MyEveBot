@@ -1,5 +1,5 @@
 {
-  "attempt": "consolidation-1",
+  "attempt": "consolidation-readback-1",
   "origin": "https://sofie-cloud-qualification-6w6edaoqx-jaydubya818.vercel.app",
   "factoryVersion": "7f021fae886ea107d0df98401ccd772c6b893ccc16803d41c9f3ee931c969df9",
   "factorySourceSha": "b7550c84e6ab53ef9b87c6729a37871b5bcaa48f",
@@ -7,9 +7,9 @@
   "paidModelOperations": 0,
   "publication": "DISABLED",
   "productionAdmission": "DISABLED",
-  "maxNewWork": 1,
+  "maxNewWork": 0,
   "runAttempt": "1",
-  "authorization": "Remaining mission sections7\u201312: one bounded assembled deterministic hosted release qualification; production and generated-code effects disabled.",
+  "authorization": "Read-only recovery of the one already-completed assembled hosted Work; proxy blocks mutation except owner login. No execution retry or new Work.",
   "myeveDeploymentId": "dpl_Ev3aa9WN7nmawvZ69eYhcMYTo1C5",
   "runnerPreflightFailures": [
     {
@@ -17,5 +17,8 @@
       "reason": "Qualification environment branch allowlist rejected consolidation before any job step",
       "workCreated": false
     }
-  ]
+  ],
+  "recoverWorkId": "6d6b4cc2-af3d-4c96-a46c-84a0089eb6d4",
+  "candidate": "282da900fa619caa5993bec37d80758485f28da0",
+  "priorExecutionRunId": 37152375269
 }
