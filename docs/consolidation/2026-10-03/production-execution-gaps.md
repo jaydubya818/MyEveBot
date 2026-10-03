@@ -17,4 +17,4 @@ The canonical Factory production control boundary currently denies dispatch befo
 
 Qualify the composed production contract deterministically with no paid call, review independently, and retain an explicit admission-disabled state until the owner authorizes the exact Section17 envelope. That envelope must name Work, repository/objective, model/provider, harness/FactoryVersion, Environment, operations/attempts/duration/spend/completion reserve, allowed files/effects, independent verifier and Result/Proof requirements. Publication, merge and generated-code deployment remain disabled.
 
-Owner login is currently required for live installation checks. It does not itself qualify any item in this inventory or authorize a paid model call.
+Owner login and live installation checks now pass. These observations do not qualify any item in this inventory or authorize a paid model call.

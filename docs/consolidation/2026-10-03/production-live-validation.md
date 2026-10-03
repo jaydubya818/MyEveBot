@@ -15,7 +15,7 @@ Automatic approval review rejected the persistent change to All Deployments as o
 | Untrusted source |302 to Vercel authentication; redirects not followed; Factory response not exposed |
 | Invalid workload token |302 to Vercel authentication; redirects not followed |
 | Exact Sofie project, Development identity |403 with `TRUSTED_SOURCES_ENVIRONMENT_MISMATCH` |
-| Exact Sofie project, Preview identity |Hosted probe pending. CLI env run with Preview variables produces a local Development identity and is not evidence for Preview. |
+| Exact Sofie project, Preview identity |Hosted Preview identity:403 with `TRUSTED_SOURCES_ENVIRONMENT_MISMATCH`. CLI env run with Preview variables produces a local Development identity and was not used as Preview evidence. |
 | Production Sofie, missing Factory application identity |Factory401 UNAUTHORIZED; live owner panel PASS |
 | Production Sofie, invalid Factory application identity |Factory401 UNAUTHORIZED; live owner panel PASS |
 | Production Sofie, valid application identity, unauthorized Work |Factory403 PRODUCTION_WORK_NOT_AUTHORIZED; live owner panel PASS |
@@ -31,6 +31,6 @@ Historical Attempt8 Result/Proof rendering was observed read-only in production.
 
 Production EvidenceProvider transport and new durable Proof ingestion, full deterministic production qualification, explicit production execution contract, protected verification policy and the bounded canary envelope remain unfinished. Existing Result rendering is not new production EvidenceProvider ingestion. Resource availability is not execution authority. Paid model calls and generated publication effects initiated by this validation:0. Other unobserved global counters are not asserted zero.
 
-The explicit Preview-only qualification config runs a memory-only denial probe before a normal Preview build. Normal builds do not invoke it. It refuses local/Production/wrong identity scope and requires the exact provider403 code; seven tests and independent read-only review passed. The probe records no token or provider response body and sends no Factory application credential.
+The explicit Preview-only qualification config runs a memory-only denial probe before a normal Preview build. Normal builds do not invoke it. It refuses local/Production/wrong identity scope and requires the exact provider403 code; seven tests and independent read-only review passed. The hosted probe at source `6206a9ddb587cb9c61b8ef2d6b22d11b56a9de3a`, deployment `dpl_2rn3DeE17iVBnek37Roit8aewzjk`, returned the exact required403 denial. The probe records no token or provider response body and sends no Factory application credential.
 
 Receipts: [live evidence](evidence/production-live/). The earlier [rollout record](production-rollout.md) remains historical evidence.
