@@ -3,7 +3,7 @@ import { isIP } from "node:net";
 
 // The operator configures one public Relay origin for this Builder deployment.
 // The wizard never accepts a caller-provided URL.
-function betaRelayOrigin(input: string | undefined): string {
+export function betaRelayOrigin(input: string | undefined): string {
   if (!input) throw new Error("Builder Relay origin is not configured.");
   let url: URL;
   try {

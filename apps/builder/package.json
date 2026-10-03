@@ -7,7 +7,8 @@
     "dev": "next dev --port 3100",
     "start": "next start",
     "typecheck": "tsc && tsx scripts/check-manifest.ts",
-    "test": "node --import tsx --test lib/*.test.ts"
+    "test": "node --import tsx --test --test-concurrency=1 lib/*.test.ts managed/*.test.ts",
+    "managed:migrate": "tsx managed/migrate.ts"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -15,6 +16,7 @@
     "frosted-ui": "^0.0.1-canary.153",
     "lucide-react": "^1.25.0",
     "next": "^16.3.5",
+    "pg": "^8.23.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "tailwind-merge": "^3.6.0",
@@ -23,6 +25,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "24.x",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@types/web-push": "^3.6.4",

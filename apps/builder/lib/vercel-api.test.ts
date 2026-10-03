@@ -15,7 +15,8 @@ test("a source bundle above Vercel's request cap uploads files by digest", async
     assert.match(url, /\/v13\/deployments/);
     deploymentBytes = Buffer.byteLength(String(init?.body));
     const body = JSON.parse(String(init?.body)) as { files: { sha?: string; size?: number }[] };
-    assert.equal(body.files.filter((file) => file.sha && file.size).length, uploaded.length);
+    assert.equal(body.files.filter((file) => file.sha && file.size).length, 3);
+    assert.equal(new Set(body.files.map((file) => file.sha)).size, uploaded.length);
     return Response.json({ id: "dpl_test", url: "test.vercel.app", target: "production" });
   });
   const contents = Buffer.alloc(3_000_000, "a").toString("base64");
@@ -24,4 +25,25 @@ test("a source bundle above Vercel's request cap uploads files by digest", async
   assert.equal(result.id, "dpl_test");
   assert.ok(uploaded.length >= 1);
   assert.ok(deploymentBytes < 10_000_000);
+});
+
+test("a closed upload connection retries the same digest before deployment", async (context) => {
+  const attempts: string[] = [];
+  context.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+    const url = String(input);
+    if (url.includes("/v2/files")) {
+      const sha = String((init?.headers as Record<string, string>)["x-vercel-digest"]);
+      attempts.push(sha);
+      if (attempts.length === 1) throw new TypeError("fetch failed");
+      return Response.json({});
+    }
+    assert.match(url, /\/v13\/deployments/);
+    assert.equal(attempts.length, 2);
+    assert.equal(attempts[0], attempts[1]);
+    return Response.json({ id: "dpl_retry", url: "retry.vercel.app", target: "production" });
+  });
+  const result = await createDeployment("test-token", "team_test", "test-project", [
+    { file: "a.txt", data: Buffer.from("qualification").toString("base64"), encoding: "base64" },
+  ]);
+  assert.equal(result.id, "dpl_retry");
 });

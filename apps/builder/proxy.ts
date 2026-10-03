@@ -5,6 +5,13 @@ import { type NextRequest, NextResponse } from "next/server";
 // Components needs to prerender it; and unlike a `redirects()` rule, this
 // drops the legacy param instead of carrying it into the destination URL.
 export function proxy(request: NextRequest): NextResponse {
+  if (request.nextUrl.pathname === "/join") {
+    const response = NextResponse.next();
+    response.headers.set("Referrer-Policy", "no-referrer");
+    response.headers.set("Cache-Control", "no-store");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+  }
   const project = request.nextUrl.searchParams.get("update")?.trim();
   if (project === undefined || project.length === 0) return NextResponse.next();
 
@@ -14,4 +21,4 @@ export function proxy(request: NextRequest): NextResponse {
   return NextResponse.redirect(destination);
 }
 
-export const config = { matcher: "/" };
+export const config = { matcher: ["/", "/join"] };

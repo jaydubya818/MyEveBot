@@ -40,6 +40,7 @@ export interface BuilderManifest {
   features: FeatureId[];
   projectName: string;
   deployedAt: string;
+  managed?: boolean;
 }
 
 export interface TemplateInfo {
@@ -61,6 +62,8 @@ export interface AssembleInput {
   /** Present for new Builder deployments; updates fall back to baked public identity. */
   agentName?: string;
   model?: string;
+  /** Managed beta projects initialize their dedicated database during build. */
+  managed?: boolean;
 }
 
 /** Locates apps/eve both in dev (cwd = apps/builder) and in the traced Vercel bundle. */
@@ -190,34 +193,35 @@ export async function assembleDeployment(input: AssembleInput): Promise<DeployFi
     } else if (relative === "package.json") {
       const parsed = JSON.parse(data.toString("utf8")) as Record<string, unknown>;
       parsed.name = input.projectName;
-      if (!input.features.includes("browser")) delete (parsed.scripts as Record<string, unknown>)["computer:prewarm"];
+      const scripts = parsed.scripts as Record<string, string>;
+      if (!input.features.includes("browser")) delete scripts["computer:prewarm"];
+      if (input.managed) scripts.build = `npm run db:migrate && ${scripts.build}`;
       data = Buffer.from(`${JSON.stringify(parsed, null, 2)}\n`, "utf8");
     } else if (!input.features.includes("browser") && relative === "lib/computer-runtime-config.ts") {
       data = Buffer.from("export const COMPUTER_RUNTIME_ENABLED = false;\n");
     } else if (!input.features.includes("browser") && relative === "lib/computer-sandbox-backend.ts") {
-      // Keep a type-compatible, explicit deny provider. Removing the root
-      // definition would let Eve select its default sandbox provider.
+      // Keep an explicit deny backend: deleting the root definition enables Eve's default backend.
       data = Buffer.from(`import { defineSandboxProvider } from "eve/sandbox/provider";
 import type { SandboxSession, SandboxNetworkPolicy } from "eve/sandbox";
 export class ComputerSandboxAuthorityRequired extends Error {}
-export async function bindPreparedComputer(..._args: unknown[]): Promise<never> { throw new Error("Computer is disabled in this deployment."); }
-export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new Error("Computer is disabled in this deployment."); }
-export interface ComputerSandboxSession extends SandboxSession {
+export interface DisabledComputerSession extends SandboxSession {
   readonly id: string;
   setNetworkPolicy(policy: SandboxNetworkPolicy): Promise<void>;
 }
+export async function bindPreparedComputer(..._args: unknown[]): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); }
+export async function withPreparedComputer<T>(_prepared: unknown, _authority: unknown, _parameters: unknown, _work: () => Promise<T>): Promise<T> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); }
 export const computerSandboxBackend = {
   name: "myeve-computer-disabled",
   async prewarm() { return { reused: false }; },
-  async create() { throw new Error("Computer is disabled in this deployment."); },
+  async create(): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); },
 };
-export const ComputerSandbox = defineSandboxProvider<undefined, { networkPolicy?: SandboxNetworkPolicy }, { files: [] }, { lifecycleId: string }, ComputerSandboxSession>({
+export const ComputerSandbox = defineSandboxProvider<undefined, undefined, {}, {}, DisabledComputerSession>({
   name: "myeve-computer-disabled",
   environment() {
     return {
-      async prepare() { return { files: [] as [] }; },
-      async start() { throw new ComputerSandboxAuthorityRequired(); },
-      async resume() { throw new ComputerSandboxAuthorityRequired(); },
+      async prepare() { return {}; },
+      async start(): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); },
+      async resume(): Promise<never> { throw new ComputerSandboxAuthorityRequired("Computer is disabled in this deployment."); },
     };
   },
 });
@@ -261,6 +265,7 @@ export const vercelTemplateProvider: ComputerTemplateProvider = {
     features: [...input.features],
     projectName: input.projectName,
     deployedAt: new Date().toISOString(),
+    ...(input.managed ? { managed: true } : {}),
   };
   out.push({
     file: BUILDER_MANIFEST_FILE,

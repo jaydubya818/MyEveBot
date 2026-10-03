@@ -1,16 +1,13 @@
 import { assembleDeployment, templateFiles, templateInfo } from "@/lib/assemble";
-import { buildEnv } from "@/lib/deploy-env";
 import { requiredKeys, validateConfig, type AgentConfig, type DeployTarget } from "@/lib/config";
 import { validCron } from "@/lib/schedule-codegen";
 import { resolveBetaRelayTrust } from "@/lib/relay-trust";
+import { buildEnv, connectStorage } from "@/lib/deploy-service";
 import {
   assertRequiredProjectEnvKeys,
-  connectStoreToProject,
-  createBlobStore,
   createDeployment,
   createProject,
   listProjectEnvKeys,
-  provisionNeonDatabase,
   upsertEnv,
   VercelApiError,
 } from "@/lib/vercel-api";
@@ -31,70 +28,6 @@ interface DeployRequest {
    * env vars and production deployment); without it we return 409 so the
    * wizard can ask the user first. */
   confirmExisting?: boolean;
-}
-
-/**
- * Store names must be unique across the account, and a redeploy (or a
- * deleted-then-recreated project) would otherwise try to reuse the same
- * name and fail. A random hex suffix keeps every provisioned store
- * distinct even under concurrent creates; the project-name prefix is
- * truncated so the whole name stays within Vercel's 32-character limit.
- */
-function uniqueStoreName(projectName: string, kind: "db" | "blob"): string {
-  const stamp = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
-  const suffix = `-${kind}-${stamp}`;
-  const prefix = projectName.slice(0, 32 - suffix.length).replace(/[-._]+$/, "");
-  return `${prefix}${suffix}`;
-}
-
-/**
- * Connects the selected stores to the project and verifies Vercel injected
- * the env vars the agent needs — the safety net for picking a database whose
- * integration doesn't provide DATABASE_URL.
- */
-async function connectStorage(
-  token: string,
-  teamId: string | null,
-  projectId: string,
-  projectName: string,
-  config: AgentConfig,
-): Promise<void> {
-  const wantBlob = requiredKeys(config.features).blob;
-
-  if (config.postgres.mode === "create") {
-    const storeId = await provisionNeonDatabase(
-      token,
-      teamId,
-      uniqueStoreName(projectName, "db"),
-    );
-    await connectStoreToProject(token, teamId, storeId, projectId);
-  } else if (config.postgres.mode === "connect") {
-    await connectStoreToProject(token, teamId, config.postgres.storeId, projectId);
-  }
-  if (wantBlob && config.blob.mode !== "manual") {
-    const storeId =
-      config.blob.mode === "create"
-        ? await createBlobStore(token, teamId, uniqueStoreName(projectName, "blob"))
-        : config.blob.storeId;
-    await connectStoreToProject(token, teamId, storeId, projectId);
-  }
-
-  const expected: string[] = [];
-  if (config.postgres.mode !== "manual") expected.push("DATABASE_URL");
-  if (wantBlob && config.blob.mode !== "manual") expected.push("BLOB_READ_WRITE_TOKEN");
-  if (expected.length === 0) return;
-
-  const keys = await listProjectEnvKeys(token, teamId, projectId);
-  for (const key of expected) {
-    if (!keys.includes(key)) {
-      throw new VercelApiError(
-        "storage",
-        key === "DATABASE_URL"
-          ? "The connected database didn't provide DATABASE_URL. Pick a Neon database, or paste a connection string instead."
-          : "The connected Blob store didn't provide BLOB_READ_WRITE_TOKEN. Paste a token instead.",
-      );
-    }
-  }
 }
 
 export async function POST(request: Request): Promise<Response> {
