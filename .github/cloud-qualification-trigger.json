@@ -7,5 +7,6 @@
   "productionAdmission": "DISABLED",
   "maxNewWork": 1,
   "runAttempt": "1",
-  "authorization": "Owner approved dedicated GitHub Environment custody and exactly one bounded hosted deterministic P0."
+  "authorization": "Owner approved dedicated GitHub Environment custody and exactly one bounded hosted deterministic P0.",
+  "launchCorrection": "Quote the YAML expression containing a colon; prior launch had zero jobs."
 }
