@@ -3,7 +3,7 @@ import { currentPublicationReadback } from '../engineering/publication-contract.
 import {cloudRuntimeEnabled} from '../engineering/cloud-runtime-guard.ts';
 import { readJourneyAccounting } from "../engineering/journey-accounting.ts";
 import { enqueueFactoryCommand } from "../engineering/factory-commands.ts";
-import { BusinessScopes } from "../business-scopes.ts";
+import { BusinessScopes, ScopeDenied } from "../business-scopes.ts";
 import {
   factoryAction,
   factoryActionSchema,
@@ -741,7 +741,9 @@ export async function betaRequest(
     return Response.json({ error: "Not available." }, { status: 404, headers });
   } catch (error) {
     const status =
-      error instanceof z.ZodError
+      error instanceof ScopeDenied
+        ? 403
+        : error instanceof z.ZodError
         ? 400
         : error instanceof WorkError
           ? error.status
