@@ -1,3 +1,5 @@
+> **Current: DETERMINISTIC CLOUD GOLDEN JOURNEY PASS.** [Hosted P0 evidence](docs/verification/cloud-composition/hosted-p0.md). Zero local dependencies, paid model calls and production effects. Cloud feature development FROZEN; production admission/publication DISABLED. Older checkpoint statuses below are historical.
+
 > Current qualification: [hosted attempt 4](docs/verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
 
 > Cloud staging implementation: [deterministic controller and Eve model boundary](docs/architecture/cloud-deterministic-composition.md). Hosted productive Work / Mac-off / P0 remain **NOT_RUN**; paid calls 0, production and publication disabled.

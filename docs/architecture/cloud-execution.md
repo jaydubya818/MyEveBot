@@ -1,3 +1,5 @@
+> **Current: DETERMINISTIC CLOUD GOLDEN JOURNEY PASS.** [Hosted P0 evidence](../verification/cloud-composition/hosted-p0.md). Zero local dependencies, paid model calls and production effects. Cloud feature development FROZEN; production admission/publication DISABLED. Older checkpoint statuses below are historical.
+
 # Cloud execution: current migration checkpoint
 
 **Overall: NOT_READY.** The local Factory provider seam is implemented and qualified. Cloud Work, independent cloud verification and Mac-off Golden Journey remain NOT_RUN. This is not a laptop-independence launch claim.
