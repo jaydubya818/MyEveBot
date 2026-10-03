@@ -15,7 +15,10 @@
         "SUPERMEMORY_*",
         "TELEGRAM_*",
         "BLOB_*",
-        "VERCEL_*"
+        "VERCEL_*",
+        "MYEVE_*",
+        "SOFIE_*",
+        "FACTORY_*"
       ]
     },
     "typecheck": {

@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
 import {factoryTransport} from './factory-transport.ts';
 import {boundedJson} from '../relay/client.ts';
-import {webPrincipal} from '../web-auth.ts';
+import {webPrincipal,requireSameOrigin} from '../web-auth.ts';
 
 const installationSchema=z.object({version:z.literal(1),ownerScope:z.string().min(1).max(200),
  projectId:z.literal('prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'),sourceDigest:z.string().regex(/^[a-f0-9]{64}$/),origin:z.string().url()}).strict();
@@ -37,4 +37,35 @@ export async function handleProductionInstallation(request:Request){
  if(principal.id!==process.env.MYEVE_OWNER_ID)return Response.json({error:'This connection is private to its owner.'},{status:403,headers});
  try{return Response.json(await productionInstallationStatus(),{headers});}
  catch{return Response.json({environment:'CLOUD',platform:'UNAVAILABLE',admission:'DISABLED',error:'Cloud installation is not ready. No Work has been dispatched.'},{status:503,headers});}
+}
+
+/** Bounded operator smoke: no caller-controlled destination, credentials or Work.
+ * Deliberately invalid Work cannot become an execution grant. Only statuses and
+ * fixed error codes leave the server; workload identity stays request-scoped. */
+export async function productionInstallationSecurityStatus(env:Readonly<Record<string,string|undefined>>=process.env,fetcher:typeof fetch=fetch,headers=factoryRequestHeaders){
+ const {connection}=productionInstallation(env);
+ const trusted=await headers(connection);
+ const probe=async(name:string,path:string,authorization:string|undefined,expectedStatus:number,expectedError:string,method='GET')=>{
+  const outgoing={...trusted};delete outgoing.authorization;
+  if(authorization)outgoing.authorization=authorization;
+  const response=await fetcher(new URL(path,connection.origin),{method,headers:{...outgoing,'content-type':'application/json'},...(method==='POST'?{body:JSON.stringify({work:null})}:{}),redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000)});
+  let code:unknown;try{const value=await boundedJson(response,8000);if(value&&typeof value==='object'&&'error' in value)code=value.error;}catch{/* An infrastructure HTML denial is not an application-authentication PASS. */}
+  return {name,status:response.status,result:response.status===expectedStatus&&code===expectedError?'PASS':'FAIL'} as const;
+ };
+ const checks=await Promise.all([
+  probe('production-workload-without-application-authentication','/api/readiness',undefined,401,'UNAUTHORIZED'),
+  probe('production-workload-invalid-application-identity','/api/readiness','Bearer invalid-production-smoke-identity',401,'UNAUTHORIZED'),
+  probe('valid-application-identity-unauthorized-work','/api/connect/v2/dispatches',trusted.authorization,403,'PRODUCTION_WORK_NOT_AUTHORIZED','POST'),
+ ]);
+ const installation=await productionInstallationStatus(env,fetcher,headers);
+ return {status:checks.every(check=>check.result==='PASS')&&installation.platform==='AVAILABLE'?'PASS':'FAIL',checks,installation,workAdmitted:false,modelOperations:0} as const;
+}
+export async function handleProductionInstallationSecurity(request:Request){
+ const headers={'cache-control':'private, no-store'};
+ const crossOrigin=requireSameOrigin(request);if(crossOrigin)return crossOrigin;
+ const principal=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+ if(!principal)return Response.json({error:'Sign in to this workspace first.'},{status:401,headers});
+ if(principal.id!==process.env.MYEVE_OWNER_ID)return Response.json({error:'This connection is private to its owner.'},{status:403,headers});
+ try{const report=await productionInstallationSecurityStatus();return Response.json(report,{status:report.status==='PASS'?200:503,headers});}
+ catch{return Response.json({status:'FAIL',error:'Production installation security check unavailable.',workAdmitted:false},{status:503,headers});}
 }
