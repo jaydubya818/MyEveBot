@@ -2,7 +2,7 @@
 
 The assembled hosted deterministic journey is **PASS**, including same-Work recovery, durable Test/Diff evidence, scope denials and the canonical owner-decision view. See [hosted receipt](hosted-assembled.md). The original failed test runs remain failures; read-only recoveries used the same Work and candidate.
 
-The production installation successor is being qualified. Fresh Factory production resources exist; no production Work has been admitted. Main integration, production deployment and real-model canary readiness are not yet claimed. See [production installation](production-installation.md).
+The production installation foundation and its one-time SQL plan passed local qualification, fresh-clone suites and independent read-only review. Fresh Factory production resources exist; the database is still empty and no production Work has been admitted. Main integration, production deployment and real-model canary readiness are not yet claimed. See [production installation](production-installation.md).
 
 The sections below retain the earlier source-qualification record. Their pending hosted statements are historical and superseded by the hosted receipt above.
 

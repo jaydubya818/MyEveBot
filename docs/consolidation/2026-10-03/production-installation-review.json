@@ -11,5 +11,19 @@
   ],
   "productionTrust": "PREPARED_NOT_SAVED",
   "executionAdmission": "DISABLED",
-  "canary": "NOT_READY"
+  "canary": "NOT_READY",
+  "sqlPlanReview": {
+    "status": "PASS",
+    "reviewer": "independent_consolidation_review",
+    "reviewedFactoryCommit": "d7016a7ce38d728b9da3ec2936f93dcdaf12daff",
+    "findingsResolved": [
+      "canonical version/sha256 ledger",
+      "extensionless migration IDs",
+      "unchanged-byte migration hashes",
+      "canonical advisory lock"
+    ],
+    "remainingFindings": 0,
+    "scope": "SQL installation plan and production foundation; not production execution or paid canary",
+    "sqlExecutedByReviewer": false
+  }
 }
