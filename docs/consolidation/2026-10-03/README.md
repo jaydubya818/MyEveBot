@@ -16,17 +16,17 @@ The Cloud Production Promotion Manifest remains PREPARED_NOT_APPROVED_FOR_PRODUC
 - Retain Cloud V2 source, OIDC, custody, independent verification, immutable provider identity and no-local-fallback boundaries. Local repair binding cannot be silently omitted or promoted into Cloud authority; Cloud rejects it until separately implemented and qualified.
 - Retain canonical current publication readback alongside Cloud composition, plus Product's owner-scoped origin joins and current decision controls.
 - Preserve Fabric environment/session contracts and Cloud's newer controller. HEADLESS is independent of optional session surfaces.
-- Preserve EvidenceProvider's producer custody, authenticated transport and exact candidate binding. Its MyEve durable Proof consumer is explicitly still pending; collection/transport does not mean protected verification PASS.
+- Preserve EvidenceProvider's producer custody, authenticated transport and exact candidate binding. Its MyEve durable Proof consumer now passes local composed custody/readback qualification; assembled hosted readback remains pending. Collection/transport does not mean protected verification PASS.
 - Resolve duplicate Product work-order 901 as 902. Preserve canonical 901.
 - Keep Node credential-scan tests in the Node runner. Pin accessibility dependencies and allow separate numeric loopback qualification ports, preserving isolated database names and host restrictions.
 
 ## Qualification and remaining gates
 
-Initial full suites found test-runner/fixture/identifier collisions; their logs are retained separately from corrected runs. Type checks, governance and builds pass. MyEve migrations remain 75 ordered immutable files; no production Group schema is activated. Two-owner PostgreSQL isolation: 24 PASS, private disclosures/credential transfers/implicit promotions zero. Factory's dedicated TLS migration runner passes through migration 006; 21 PostgreSQL ledger/dispatch/verifier tests pass.
+Initial full suites found test-runner/fixture/identifier collisions; their logs are retained separately from corrected runs. Type checks, governance and builds pass. MyEve migrations now contain 76 ordered files, including required immutable evidence custody migration0080; all preceding bytes remain unchanged; no production Group schema is activated. Two-owner PostgreSQL isolation: 24 PASS, private disclosures/credential transfers/implicit promotions zero. Factory's dedicated TLS migration runner passes through migration 006; 21 PostgreSQL ledger/dispatch/verifier tests pass.
 
 Product natural browser → productive Work → same-conversation Result must be qualified on the composed runtime. Retained-Result UI tests and the historical hosted Cloud journey are separate evidence. EvidenceProvider's actual MyEve Proof storage/readback and live/recovery extensions retain their handoff limits. Independent review and fresh-clone/local gates pass as recorded below. Canonical main integration and hosted deployment qualification remain pending. No production readiness claim is made.
 
-The user referenced a final mission with sections 1–19, but the received message contains placeholders. Full deployment/live limits were requested while source assembly continued. Ordinary compatibility repair is authorized; missing instructions do not grant live provider or production authority.
+The complete remaining mission is now durably recorded in [remaining-mission.md](remaining-mission.md). It authorizes main integration, qualified migrations and platform production deployment after deterministic gates pass. It does not authorize paid real-model Work or generated-code publication, merge or deployment.
 
 ## Final source qualification receipt
 
@@ -44,4 +44,10 @@ Initial failures are retained in this task's `/private/tmp/convergence-*` logs: 
 
 Canonical remote mains remain MyEve `d75091eb333a531fa91ed9d39e273948aa9d0eaf`, MyFactory `c0b4c1155a6a98f91375163443938042e6a0be10`, Relay `a61f0ef697b02cf22da72ff2904c584d7faa026a`. Candidate branch pushes generated normal MyEve Preview deployments; no production promotion was initiated. GitHub records a Production deployment for MyEve main `d75091e`, so a main push is not assumed deployment-neutral. Existing milestone tags and dirty primary checkouts are preserved. No remote branches were deleted in this convergence.
 
-Before further promotion, obtain the referenced full mission sections1–19 and its exact hosted/live scope. Resolve the documented EvidenceProvider consumer scope, qualify composed hosted identities and natural same-conversation journey in the authorized isolated environment, then perform the approved canonical/promotion sequence. Do not activate production from the frozen PREPARED_NOT_APPROVED_FOR_PRODUCTION manifest. No fresh owner feature work was requested.
+Before promotion, finish the assembled hosted journey and reconcile production installation against the explicit remaining-mission authorization. The original frozen promotion manifest is historical input, not an instruction to reuse qualification state. Fresh production identities/resources and exact production workload trust are required. No fresh feature work was requested from frozen owners.
+
+## Evidence consumer successor
+
+[Evidence consumer qualification](evidence-consumer.md) records real local custody/transport/MyEve immutable storage/Proof readback:19 PASS across6 synthetic executions. Scope denial and credential renewal do not redispatch the candidate. Independent read-only review passed35 checks after four findings were fixed. Fresh MyEve source4860ecce passes2059 application cases/94 explicit skips,227 root cases/2 skips, types, governance and production build. Fresh Factory source65a0290 passes450 cases/20 explicit skips, types and governance. Factory actual TLS PostgreSQL qualification passes22 cases. These are overlapping suites and must not be summed as unique coverage.
+
+The first assembled Sofie hosted build failed while packaging the Eve service on the standard8GB build machine. No Work ran. A bounded rebuild of the same source uses a per-deployment larger machine; no persistent project build setting was changed. Preserve that failed deployment separately from Work execution counts.
