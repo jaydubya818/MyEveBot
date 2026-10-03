@@ -20,7 +20,7 @@
     "productionResourcesProvisioned": 0
   },
   "cloudEvidenceBoundary": "Frozen Cloud checkpoint proved zero local runtime dependencies. Physical Mac power state was not independently observed. Evidence does not automatically qualify the assembled runtime.",
-  "deploymentAuthorization": "Full mission sections 1\u201319 were referenced but not supplied; clarification pending. Frozen promotion manifest is PREPARED_NOT_APPROVED_FOR_PRODUCTION.",
+  "deploymentAuthorization": "Explicit platform production authorization in remaining-mission.md, gated on EvidenceProvider and composed hosted/full release qualification. Paid real-model canary requires separate approval.",
   "reviewedSources": {
     "MyEve": "1f0469ac0ab75a16b360bfca45c8f506d13c5e10",
     "MyFactory": "0fbc881d1dcac99f87f1e5992baeafac565afa7a",
@@ -73,5 +73,12 @@
       "productionPublicationEffects": 0
     }
   },
-  "qualificationSourceDependency": "5cd13fa1f307a0c0f42f6317d966bb3179ad77c9 retained as Factory ancestor without tree changes"
+  "qualificationSourceDependency": "5cd13fa1f307a0c0f42f6317d966bb3179ad77c9 retained as Factory ancestor without tree changes",
+  "evidenceConsumer": {
+    "disposition": "adapt",
+    "producer": "MyFactory accepted EvidenceProvider plus Cloud custody projection",
+    "consumer": "MyEve durable receipt-bound bytes and native Proof",
+    "qualification": "evidence-consumer.md",
+    "migration": "0080_factory_evidence_custody.sql"
+  }
 }

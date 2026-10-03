@@ -13,6 +13,7 @@ const states=['PREPARING','PREPARED','DISPATCHING','RUNNING','UNKNOWN','STOPPING
 const readbackSchema=z.object({requestId:z.string().uuid(),workOrderId:z.string().uuid(),runId:z.string().uuid().nullable(),snapshot:z.record(z.string(),z.unknown()).nullable(),identity:z.record(z.string(),z.unknown()).nullable(),state:z.enum(states),quiescent:z.boolean(),evidenceRef:z.string().nullable(),spend:factorySpendSchema,blocker:z.string().nullable()}).strict();
 const hash=z.string().regex(/^[a-f0-9]{64}$/);
 const localFactoryConnectionSchema=z.object({
+ evidence:z.object({ownerScope:z.string().min(1),token:z.string().regex(/^[a-f0-9]{64}$/),expiresAt:z.string().datetime()}).strict().optional(),
  repairBinding:z.object({workId:z.uuid(),workVersion:z.number().int().positive(),workGeneration:z.number().int().positive(),workOrderId:z.uuid()}).strict().optional(),
  spendPlan:factorySpendPlanSchema.optional(),spendContract:factorySpendContractSchema.optional(),origin:z.string().url(),token:z.string().regex(/^[a-f0-9]{64}$/),factoryId:z.string().min(1),
  sourceDigest:hash,configurationDigest:hash,factoryVersion:hash,repositoryPath:z.string().startsWith('/'),

@@ -1,3 +1,4 @@
+import { FactoryEvidenceStore } from "../engineering/factory-evidence-store.ts";
 import { currentPublicationReadback } from '../engineering/publication-contract.ts';
 import {cloudRuntimeEnabled} from '../engineering/cloud-runtime-guard.ts';
 import { readJourneyAccounting } from "../engineering/journey-accounting.ts";
@@ -437,6 +438,22 @@ export async function betaRequest(
       );
     const beta = betaIntegration(),
       owner = principal.id;
+    if (resource === "evidence") {
+      if (request.method !== "GET") return Response.json({ error: "Read only." }, { status: 405, headers });
+      const params = new URL(request.url).searchParams;
+      const workId = z.string().uuid().parse(params.get("workId")), resultId = z.string().uuid().parse(params.get("resultId"));
+      const reference = z.string().regex(/^factory-evidence:sha256:[a-f0-9]{64}$/).parse(params.get("reference"));
+      const evidenceOwner = params.get("owner") ?? owner;
+      if (evidenceOwner !== owner) {
+        // Only this exact explicitly shared Result is authorized, never arbitrary owner APIs.
+        await new BusinessScopes(owner, beta).read({ scope: "BUSINESS_SHARED" }, { kind: "RESULT", id: resultId, owner: evidenceOwner });
+      }
+      const evidence = await new FactoryEvidenceStore(beta.store(evidenceOwner)).readProof(workId, resultId, reference);
+      return new Response(new Uint8Array(evidence.bytes), { headers: { ...headers,
+        "content-type": "application/octet-stream", "x-content-type-options": "nosniff",
+        "content-disposition": `attachment; filename="${evidence.ref.kind}-${evidence.ref.sha256.slice(0,12)}.${evidence.ref.kind === "TestEvidence" ? "json" : "diff"}"`,
+        "content-length": String(evidence.bytes.length) } });
+    }
     if (resource === "goals")
       return createGoalApi({
         authenticate: signedGoalAuthenticator(),

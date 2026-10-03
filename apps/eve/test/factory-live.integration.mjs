@@ -1,3 +1,5 @@
+import {FactoryEvidenceClient} from "../lib/engineering/factory-evidence.ts";
+import {FactoryEvidenceStore} from "../lib/engineering/factory-evidence-store.ts";
 import {qualifyAlphaConversation} from './alpha-conversation-fixture.mjs';
 import {enqueueFactoryCommand} from '../lib/engineering/factory-commands.ts';
 import {CURRENT_DATABASE_MIGRATION} from "../lib/database-schema.ts";
@@ -71,9 +73,9 @@ try{
   engineering.profile.checks=cases.map((c,i)=>({id:'numeric-'+i,program:'quantity.mjs',input:c.input,expectedOutput:c.stdout,expectedExitCode:0,criterionIds:engineering.criteria.map(c=>c.id)}));
   engineering.criteria[0].statement='Accept decimal integer quantities from 1 through Number.MAX_SAFE_INTEGER inclusive; reject unsafe, malformed, fractional, zero and negative input. Compact JSON plus exactly one LF, exit 0, empty stderr.';
  }else if(attempt7){engineering.profile.checks.push({id:'independent-positive',program:'quantity.mjs',input:'113\n',expectedOutput:'{"quantity":113}\n',expectedExitCode:0,criterionIds:engineering.criteria.map(c=>c.id)});}
- const pair=generateKeyPairSync('ed25519'),token='a'.repeat(64),key={factoryId:'factory-beta',keyId:'local',publicKey:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
+ const pair=generateKeyPairSync('ed25519'),token='a'.repeat(64),proofToken='b'.repeat(64),proofExpires=new Date(Date.now()+3600000).toISOString(),key={factoryId:'factory-beta',keyId:'local',publicKey:pair.publicKey.export({type:'spki',format:'pem'}).toString(),activeFrom:'2020-01-01T00:00:00Z',notAfter:'2099-01-01T00:00:00Z'};
  const signing={factoryId:key.factoryId,currentKeyId:key.keyId,privateKey:pair.privateKey.export({type:'pkcs8',format:'pem'}).toString(),keys:[key]};
- await writeFile(join(dataDir,'connections.json'),JSON.stringify({clients:[{id:'myeve',name:'Local qualification',tokenSha256:createHash('sha256').update(token).digest('hex'),repositoryPaths:[repo],actions:['factory.prepare','factory.dispatch','factory.observe','factory.stop']}]}));
+ await writeFile(join(dataDir,'connections.json'),JSON.stringify({clients:[{id:'myeve',name:'Local qualification',tokenSha256:createHash('sha256').update(token).digest('hex'),ownerScope:owner,repositoryPaths:[repo],actions:['factory.prepare','factory.dispatch','factory.observe','factory.stop']},{id:'myeve-proof',name:'Proof qualification',tokenSha256:createHash('sha256').update(proofToken).digest('hex'),ownerScope:owner,purpose:'myeve-proof',expiresAt:proofExpires,repositoryPaths:[repo],actions:['evidence.read']}]}));
  let executions=0,completionExecutions=0,failCandidate=false,failedExecution=false,heldExecution=null,unknownProvider=false;
  if(spendFixture){spendProvider=createServer((req,res)=>{providerCalls++;if(boundaryEnabled){void (async()=>{const chunks=[];for await(const chunk of req)chunks.push(chunk);const request=JSON.parse(Buffer.concat(chunks).toString());assert.equal(request.model,'openai/gpt-5.4-mini');assert.equal(req.url,'/v1/responses');assert.equal(boundaryCapture,null,'Duplicate controlled boundary request');boundaryCapture={model:request.model,path:req.url,realModelOperations:0,forwarded:false};res.writeHead(503);res.end('Controlled boundary: stop before model generation');setTimeout(()=>boundaryAbort.abort(),100);})().catch(error=>{boundaryError=error.message;res.writeHead(500);res.end('Fixture assertion failed');boundaryAbort.abort();});return;}if(unknownProvider){res.writeHead(503);res.end('synthetic response lost');return;}if(installedCli){void cliProvider.respond(req,res,providerCalls).catch(error=>{console.error('Controlled provider:',String(error));res.writeHead(500);res.end(String(error));});return;}res.writeHead(200,{'content-type':'application/json','x-request-id':'synthetic-provider-'+providerCalls});res.end(JSON.stringify({id:'fixture-response-'+providerCalls,status:'completed',usage:{input_tokens:10,output_tokens:10}}));});await new Promise(r=>spendProvider.listen(0,'127.0.0.1',r));}
  const price={revision:envelope?'openai-gpt54mini-20260928':'synthetic-v1',model:envelope?.model??'openai/gpt-5.4-mini',validUntil:new Date(Date.now()+3600000).toISOString(),contextLimitTokens:attempt4?400000:envelope?.contextLimitTokens??(installedCli?100000:1000),outputLimitTokens:attempt4?8192:envelope?.outputLimitTokens??(installedCli?4000:100),inputMicrousdPerMillion:attempt4?750000:envelope?.inputMicrousdPerMillion??1000000,outputMicrousdPerMillion:attempt4?4500000:envelope?.outputMicrousdPerMillion??2000000};
@@ -91,11 +93,12 @@ try{
  supervisor=createSupervisor({dataDir,resultSigning:signing,jobDependencies:deps,localFactoryFixture:!spendFixture,...(spendFixture?{localSpendFixture:{upstreamOrigin:'http://127.0.0.1:'+spendProvider.address().port,upstreamApiKey:'synthetic-provider-only',price}}:{})});await new Promise(r=>supervisor.server.listen(0,'127.0.0.1',r));
  const configuration={model:price.model,executor:'codex-cli',executorVersion:cliVersion,skillRevision:'fd8f20a879b507cf09feba08663a1edf7a949353',workerProfile:'mac',verificationImage:DEFAULT_VERIFICATION_IMAGE,nodeVersion:process.version,platform:process.platform,architecture:process.arch,commands:['node --test'],allowedPaths:engineering.profile.allowedPaths,timeoutMs:1800000};
  const sourceDigest=sourceIdentity(),configurationDigest=digest(configuration);
- const connection={origin:'http://127.0.0.1:'+supervisor.server.address().port,token,factoryId:key.factoryId,sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),repositoryPath:repo,keys:[key],qualification:{scopeId:owner,profileHash:digest(engineering.profile),evidenceRef:'connected local qualification',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),mode:'LOCAL_FIXTURE',spendEnforced:true}};
+ const connection={evidence:{ownerScope:owner,token:proofToken,expiresAt:proofExpires},origin:'http://127.0.0.1:'+supervisor.server.address().port,token,factoryId:key.factoryId,sourceDigest,configurationDigest,factoryVersion:digest({sourceDigest,configurationDigest}),repositoryPath:repo,keys:[key],qualification:{scopeId:owner,profileHash:digest(engineering.profile),evidenceRef:'connected local qualification',qualifiedAt:new Date(Date.now()-1000).toISOString(),expiresAt:new Date(Date.now()+3600000).toISOString(),mode:'LOCAL_FIXTURE',spendEnforced:true}};
  if(spendFixture){const proof={status:'QUALIFIED',evidenceRef:'controlled local consumer fixture; not real provider qualification'};connection.qualification.mode='LOCAL_SPEND_FIXTURE';connection.spendContract={version:'WORK_LEDGER_V2',sourceDigest};connection.spendPlan={version:'WORK_LEDGER_V2',pricingRevision:price.revision,plannedProductiveOperations:envelope?.plannedProductiveOperations??2,plannedCompletionOperations:1,maxPaidOperations:envelope?.maxPaidOperations??3,completionReserveMicrousd:perOperationReserve};connection.qualification.spendReview={environment:'LOCAL_FIXTURE',sourceDigest,factoryVersion:connection.factoryVersion,expiresAt:price.validUntil,hardCeiling:proof,preCallEnforcement:proof,accounting:proof,unknownRetention:proof,completion:proof,pricing:{...proof,model:price.model,revision:price.revision,validUntil:price.validUntil}};}
  const config={engineering,connection,commands:configuration.commands,routing:{intent:'PRODUCE',boundedOperationQualified:false}},store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database);
  const authority=new FactoryRouteAuthority(store,async()=>config),direct=new DirectDevelopmentStore(store,{profile:engineering.profile,approvedBase:engineering.approvedBase,objective:engineering.objective,criteria:engineering.criteria,agentId,issueNumber:1});
- const driver=(adapterFor)=>new FactoryWorkDriver(store,authority,direct,new DockerProtectedVerifier(),async()=>source,adapterFor);
+ let holdEvidence=false;
+ const driver=(adapterFor)=>new FactoryWorkDriver(store,authority,direct,new DockerProtectedVerifier(),async()=>source,adapterFor,c=>new FactoryEvidenceClient(c,async(url,init)=>holdEvidence?new Response('{}',{status:503}):fetch(url,init)));
  // The real action driver reads backend policy before source acquisition or PREPARE.
  for(const routingConnection of [connection,{...connection,qualification:{...connection.qualification,mode:'LIVE',spendEnforced:false}},{...connection,origin:'https://unqualified.invalid',qualification:{...connection.qualification,mode:'LIVE',spendEnforced:false}}])
  for(const [intent,qualified,route] of [['INVESTIGATE',false,'DIRECT'],['PLAN',false,'DIRECT'],['BOUNDED_OPERATION',true,'DIRECT'],['BOUNDED_OPERATION',false,'HUMAN'],['UNSUPPORTED',false,'HUMAN'],['APPROVE',false,'HUMAN'],['JUDGMENT',false,'HUMAN'],[null,false,'HUMAN']]){
@@ -135,11 +138,33 @@ try{
   failCandidate=failed;
   let {work}=await store.create({title:'Connected Factory '+(failed?'failure':'success'),objective:engineering.objective,repository:engineering.profile.repository,criteria:engineering.criteria,maxCostUsd:workCeiling,maxDurationSeconds:600,idempotencyKey:randomUUID()});work=await store.change(work.id,{operation:'resume',expectedVersion:work.version});
   const relay=localRelay(work,agentId);
+  holdEvidence=!failed;
   let state=await driver().start(work.id,work.version,work.generation);
+  if(!failed){
+   for(let i=0;i<(installedCli?600:100)&&state.state!=='WAITING_FOR_EVIDENCE';i++){await new Promise(r=>setTimeout(r,50));state=await driver().step(work.id);}
+   assert.equal(state.state,'WAITING_FOR_EVIDENCE');const before=executions;
+   const records=JSON.parse(await readFile(join(dataDir,'connections.json'),'utf8'));
+   connection.evidence.token='c'.repeat(64);connection.evidence.expiresAt=new Date(Date.now()+7200000).toISOString();
+   records.clients[1].tokenSha256=createHash('sha256').update(connection.evidence.token).digest('hex');records.clients[1].expiresAt=connection.evidence.expiresAt;
+   await writeFile(join(dataDir,'connections.json'),JSON.stringify(records));holdEvidence=false;
+   state=await driver().step(work.id);assert.equal(executions,before);
+   pass('Transient evidence failure → credential renewal → same retained candidate/receipt → Proof without redispatch');
+  }
   for(let i=0;i<(installedCli?600:100)&&!['PARTIAL','FAILED','TERMINAL'].includes(state.state);i++){await new Promise(r=>setTimeout(r,50));state=await driver().step(work.id);}
   if(installedCli&&!['PARTIAL','FAILED','TERMINAL'].includes(state.state))console.error('Controlled journey:',JSON.stringify(state),JSON.stringify(supervisor.storage.listWorkOrders().flatMap(o=>supervisor.storage.listEvents(o.id)).filter(e=>e.type.startsWith('run.')&&e.type!=='run.signed_result')));
   assert.equal(state.state,failed?'FAILED':'PARTIAL');assert.equal(executions,failed?2:1);
   const ws=(await direct.inspect(work.id)).workspace;assert.equal(ws.producer,'MYFACTORY');assert(ws.evidence.length);assert.equal((await driver().step(work.id)).state,state.state);assert.equal(executions,failed?2:1);
+  const evidenceRefs=state.result.proof.artifactRefs.filter(ref=>ref.startsWith('factory-evidence:sha256:'));assert.equal(evidenceRefs.length,2);
+  const evidenceStore=new FactoryEvidenceStore(store),beforeEvidence=JSON.stringify(ws.candidates);
+  const retainedEvidence=await Promise.all(evidenceRefs.map(ref=>evidenceStore.readProof(work.id,state.result.id,ref)));
+  assert.deepEqual(retainedEvidence.map(e=>e.ref.kind).sort(),['DiffEvidence','TestEvidence']);
+  for(const ref of evidenceRefs){
+   await assert.rejects(new FactoryEvidenceStore(new WorkStore({scopeId:'other-owner',actorId:'other-owner',scopeKind:'personal'},database)).readProof(work.id,state.result.id,ref));
+   await assert.rejects(evidenceStore.readProof(randomUUID(),state.result.id,ref));
+  }
+  await assert.rejects(pool.query('UPDATE engineering_factory_evidence SET bytes=$1 WHERE work_id=$2',[Buffer.from('tampered'),work.id]),/immutable/);
+  assert.equal(JSON.stringify((await direct.inspect(work.id)).workspace.candidates),beforeEvidence);
+  pass('TestEvidence/DiffEvidence → MyEve durable bytes → canonical Proof; cross-owner and cross-Work denied; immutable candidate');
   const truth=(await new EngineeringWorkerProjectionStore(store,agentId).get(work.id)).projection;assert.equal(truth.readiness.ready,false);assert(truth.factoryWriter.dispatchIdentity);assert(truth.factoryWriter.remoteRunId);assert(truth.factoryWriter.requestId);assert.equal(truth.factoryPreparation.state,'COMPLETED');
   if(spendFixture){assert.equal(truth.factoryAccounting.settledMicrousd,settledPerCall*(envelope?4:installedCli?(firstPass||attempt6&&failed?2:3):2));assert.equal(truth.factoryAccounting.reservedMicrousd,0);assert.equal(truth.factoryAccounting.paidOperationsUsed,envelope?4:installedCli?(firstPass||attempt6&&failed?2:3):2);assert.equal(truth.factoryAccounting.ceilingMicrousd,Math.floor(workCeiling*1e6));assert(currentTruthLines(truth).some(line=>line.includes('Factory Work budget:')));}
   const decision=await driver().decision(work.id);await assert.rejects(pool.query("UPDATE engineering_routing_decisions SET factory_preparation='{}' WHERE id=$1",[decision.id]),/immutable/);await assert.rejects(pool.query('DELETE FROM engineering_routing_decisions WHERE id=$1',[decision.id]),/deleted/);
@@ -301,6 +326,13 @@ try{
   if(attempt6){const checkpoints=events.filter(e=>e.type==='run.implementation_checkpoint');assert.deepEqual(checkpoints.map(e=>e.payload.passed),firstPass?[true]:[false,true]);if(firstPass)assert(!events.some(e=>e.type==='run.productive_repair_admitted'));else assert(events.some(e=>e.type==='run.productive_repair_admitted'&&e.payload.feedback.includes(attempt7?'ERR_ASSERTION':'stdout is not JSON')));pass(firstPass?'Correct first pass → visible checks → completion → custody → independent protected boundaries PASS':numericRange?'Attempt 8 captured numeric-range escape → public checkpoint failure → bounded repair → independent boundary verification PASS':attempt7?'Attempt 7 captured missing LF → public checkpoint failure → bounded repair → independent hidden case PASS':'Attempt 6 captured implementation → host test failure → bounded feedback → second productive repair → checked tree PASS');}
   pass('Attempt 5 captured edit → test → host yield → immutable tree checks → one completion → exact-tree candidate commit');
  }
+ const firstJourney=journeys[0];
+ await rm(join(dataDir,'evidence'),{recursive:true,force:true});
+ const [durableProof]=await database.query('SELECT proof FROM engineering_native_results WHERE id=$1',[firstJourney.resultId]);
+ for(const ref of durableProof.proof.artifactRefs.filter(ref=>ref.startsWith('factory-evidence:sha256:'))){
+  const saved=await new FactoryEvidenceStore(store).readProof(firstJourney.workId,firstJourney.resultId,ref);assert(saved.bytes.length>0);
+ }
+ pass('MyEve evidence readback survives Factory evidence cleanup');
  const output={firstPass,productiveContract,numericRange,attempt7,attempt6,completionTransition,alphaJourney,attempt5,attempt4,additionalRealModelOperations:0,...cliProvider.stats(),modelBoundary,boundaryCapture,spendFixture,installedCli,envelopeDryRun,price,workCeiling,fixtureBase:source.sha,factoryVersion:connection.factoryVersion,sourceDigest,configurationDigest,configuration,cliVersion,completionExecutions,providerCalls,checks,results,journeys,terminalReceipts,composition,executions,counters:{concurrentWriters:overlap,duplicateDispatches:executions-(spendFixture?7:6)-alphaExecutions,falseReady:0,unauthenticatedAdmissions:0},liveMyFactory:'NOT_RUN',qualification:installedCli?'Installed CLI, controlled loopback Responses, real transport/custody and independent Docker verifier; no live provider':'Local real transport, synthetic executor, real independent Docker verifier'};
  if(process.env.FACTORY_BETA_EVIDENCE)await writeFile(process.env.FACTORY_BETA_EVIDENCE,JSON.stringify(output,null,2)+'\n');console.log(JSON.stringify(output));
 }finally{

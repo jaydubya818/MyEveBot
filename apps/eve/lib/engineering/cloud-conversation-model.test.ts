@@ -37,7 +37,7 @@ describe('real Eve deterministic cloud model boundary',()=>{
   expect(()=>cloudFixtureResponse(prompt('x'.repeat(200001)),identity,config)).toThrow();
  });
  it('exposes only the owner journey and authenticated queue, denying local, Relay, publication and arbitrary APIs',()=>{
-  for(const [path,method] of [['/','GET'],['/login','GET'],['/api/auth/login','POST'],['/eve/v1/session','POST'],['/api/beta/work','POST'],['/api/threads/thread-synthetic','PUT'],['/api/cloud-qualification/controller','POST']])expect(cloudIngressAllowed(path,method)).toBe(true);
-  for(const path of ['/api/local-computer/worker','/api/relay/work','/api/beta/owner-decision','/api/engineering/publish','/api/voice/token','/api/cloud-qualification/controller/other'])expect(cloudIngressAllowed(path,'POST')).toBe(false);
+  for(const [path,method] of [['/api/beta/evidence','GET'],['/','GET'],['/login','GET'],['/api/auth/login','POST'],['/eve/v1/session','POST'],['/api/beta/work','POST'],['/api/threads/thread-synthetic','PUT'],['/api/cloud-qualification/controller','POST']])expect(cloudIngressAllowed(path,method)).toBe(true);
+  for(const path of ['/api/beta/evidence','/api/local-computer/worker','/api/relay/work','/api/beta/owner-decision','/api/engineering/publish','/api/voice/token','/api/cloud-qualification/controller/other'])expect(cloudIngressAllowed(path,'POST')).toBe(false);
  });
 });

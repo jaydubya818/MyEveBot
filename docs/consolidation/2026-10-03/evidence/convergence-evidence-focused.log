@@ -1,0 +1,30 @@
+✔ checks every required credential, static output and prerender data (3.010875ms)
+✔ rejects runtime bypass in browser bundle, HTML, hydration and public files without logging it (2.203292ms)
+✔ rejects public variables and base64 client leakage (1.377667ms)
+✔ fails closed on production target and missing outputs (1.229042ms)
+✔ rejects Proof read credential leakage (1.294833ms)
+✔ accepted transport bytes independently match signed patch and test records (2.540583ms)
+✔ scope mismatch denied: ownerScope (0.308208ms)
+✔ scope mismatch denied: repository (0.212708ms)
+✔ scope mismatch denied: workId (0.209416ms)
+✔ scope mismatch denied: workGeneration (0.207166ms)
+✔ scope mismatch denied: requestId (0.202584ms)
+✔ metadata mismatch denied: workOrderId (0.221584ms)
+✔ metadata mismatch denied: runId (0.189625ms)
+✔ metadata mismatch denied: candidateCommit (0.216708ms)
+✔ metadata mismatch denied: factoryVersion (0.232667ms)
+✔ metadata mismatch denied: kind (0.1875ms)
+✔ metadata mismatch denied: sha256 (0.178875ms)
+✔ metadata mismatch denied: size (0.194916ms)
+✔ self-consistent but unrelated evidence is denied by admitted signed Result (0.395334ms)
+✔ noncanonical encoding, oversized and storage-path response are denied (0.667542ms)
+✔ Proof credential renewal preserves execution hash, scope changes do not (0.213208ms)
+✔ transport outage waits, integrity failure and execution credential reuse fail closed (14.281166ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 234.987417

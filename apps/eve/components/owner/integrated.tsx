@@ -413,7 +413,7 @@ export function IntegratedExperience({
               <p className="owner-muted">Result digest: {r.content_hash}</p>
               <ul className="owner-list">
                 {[...new Set(r.proof.artifactRefs)].map((ref) => (
-                  <li key={ref}>{ref}{r.proof.artifactRefs.filter(value=>value===ref).length>1?` — referenced by ${r.proof.artifactRefs.filter(value=>value===ref).length} checks`:''}</li>
+                  <li key={ref}>{ref.startsWith("factory-evidence:sha256:") ? <a href={`/api/beta/evidence?workId=${encodeURIComponent(r.work_id)}&resultId=${encodeURIComponent(r.id)}&reference=${encodeURIComponent(ref)}`}>Download retained Factory evidence</a> : ref}{r.proof.artifactRefs.filter(value=>value===ref).length>1?` — referenced by ${r.proof.artifactRefs.filter(value=>value===ref).length} checks`:''}</li>
                 ))}
               </ul>
               {r.proof.limitations.map((l, i) => (

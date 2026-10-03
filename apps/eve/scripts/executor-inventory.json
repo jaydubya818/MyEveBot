@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required.",
-      "sha256": "854fa715690e499195a474430f605dbb180d5b60b36f270b6096aeb667872896"
+      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "2a103b438be36440a1a43fe433ba748ed31f762aec8d61aed25c470e83e02d38"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3204,8 +3204,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
-      "sha256": "1acc963e74c1a2603fbdff84e80b38f04a7153429222058bf852961999cb76d5"
+      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "c899c7772a749860ffb4fd16fb45ca4bb86b4a7e75f856be56fd9b65fa2e5bc5"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3434,8 +3434,8 @@
     },
     "lib/engineering/native-results.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority. Consolidated boundary: Existing Result/Proof labels cloud verification accurately; no new readiness or publication authority. Consolidated boundary: Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority.",
-      "sha256": "c5ca54e911b45c2310e3709da141191556175858184fd13095928b0fb54bed61"
+      "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority. Consolidated boundary: Existing Result/Proof labels cloud verification accurately; no new readiness or publication authority. Consolidated boundary: Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "8917c4574818a30a90adf76dc5ae32bbbc2ac849bbeccecb1bdb95cfa940f9e6"
     },
     "lib/engineering/native-routing.ts": {
       "classification": "ENFORCED",
@@ -3469,8 +3469,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
-      "sha256": "317510ab1feae445040ae9b596fd56b0cc48f4bdd77be23e082b9df7039d7d46"
+      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "b0d98425b93fa6bc8a0604a8bcdf20a0f5618ec535445180e46eccaade0b21f5"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3580,8 +3580,8 @@
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback.",
-      "sha256": "d3e5de0cdd7e27e710a55c9d4517cc29e20ffe009d90356249973a19c0d25bb2"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "91f8e12f8da2e9d09da745156567aa47be1a62ec6061f5cc38ed7c78b4639d3d"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3595,8 +3595,8 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs.",
-      "sha256": "7911e24aa6cd0d84e16a268aa5c5fac1e66f2a95ded667d5b47bc10930dd5140"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "8c524fdecc359255ff8a9a1953e38d9a5bc72d9a5745fba3b99253e71f568521"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3615,8 +3615,8 @@
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "f0f8dbb4f44f369ada7c67b23787df9db5ca73e964dd37406deace0ce0ffeb8f"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "e013ef3ae3c642b911046019261c8d50817123cbf9093b265d031c4f42c4ec5d"
     },
     "app/api/capsules/route.ts": {
       "classification": "INTERNAL",
@@ -3841,8 +3841,8 @@
     },
     "lib/engineering/cloud-runtime-guard.ts": {
       "classification": "ENFORCED",
-      "reason": "Installation-only exact preview/project flag and narrow ingress; no app identity or Work grant. Paid/local/static Factory conflicts denied.",
-      "sha256": "35ea67d56d638a543606965219e5810604d9c22484541d1338d869f3dfb2b938"
+      "reason": "Installation-only exact preview/project flag and narrow ingress; no app identity or Work grant. Paid/local/static Factory conflicts denied. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
+      "sha256": "efe3a0718a03b29a65d30f9f8223ceb80269764317f6cd9944a43d5e1700cbd8"
     },
     "lib/environment-fabric/environment.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3933,6 +3933,21 @@
       "classification": "INTERNAL",
       "reason": "Proposed bounded Group metadata persistence with owner-scoped CAS and atomic audit; no production route or allocated migration. Qualified only against isolated proposed schema.",
       "sha256": "cd529adf3466f58f38056b07ea2330458b18f7e3cbcefb4c62739f738db9127e"
+    },
+    "lib/engineering/factory-evidence.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Separate expiring Proof credential, exact configured origin/OIDC, bounded reads; scope/run/version/digest/size and admitted signed patch/check binding; transport never evaluates PASS or dispatches.",
+      "sha256": "6d9d299cb8eeddba62cfd28769a292345ef05fdd828fbc2fb6aa03abb7db4bc2"
+    },
+    "lib/engineering/factory-evidence-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Immutable owner/Work/receipt/candidate byte custody, current admission and workspace at insert; durable revalidation and exact retained Proof membership on download; no execution/publication authority.",
+      "sha256": "e36b6096f70478d5da039944836c1cacf8418ca8ed4cf4a812bacdb12ba8fc61"
+    },
+    "app/api/beta/evidence/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated same-origin exact Work/Result evidence download through canonical beta boundary; cross-owner access requires explicit current shared RESULT grant.",
+      "sha256": "6655edbc434926e4dd2ddbdfc8bd71cdb1718670524e9ae5730918355400ef42"
     }
   }
 }

@@ -2,7 +2,7 @@ import {readFileSync,readdirSync,existsSync} from 'node:fs';
 import {join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 
-export const cloudCredentialNames = ['VERCEL_OIDC_TOKEN','FACTORY_SOFIE_STAGING_TOKEN','SOFIE_CLOUD_QUALIFICATION_TOKEN','VERCEL_AUTOMATION_BYPASS_SECRET'];
+export const cloudCredentialNames = ['FACTORY_PROOF_TOKEN','VERCEL_OIDC_TOKEN','FACTORY_SOFIE_STAGING_TOKEN','SOFIE_CLOUD_QUALIFICATION_TOKEN','VERCEL_AUTOMATION_BYPASS_SECRET'];
 /** Scan deployable client data, not trusted server code. Errors never contain values. */
 export function checkCloudClientCredentials(root='.', env=process.env) {
  if(env.VERCEL_PROJECT_ID!=='prj_XU7fJW735PtsnKoAYtGfzdnsotIB')return null;

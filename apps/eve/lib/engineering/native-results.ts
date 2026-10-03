@@ -1,3 +1,4 @@
+import { FactoryEvidenceStore } from "./factory-evidence-store.ts";
 import { readJourneyAccounting } from "./journey-accounting.ts";
 import { journeyCostText } from "../digital-worker/model-accounting.ts";
 import { randomUUID } from "node:crypto";
@@ -15,6 +16,16 @@ export class NativeResultStore {
       throw new WorkError("native_result_missing", "An independently checked frozen candidate is required.");
     const store = this.direct.workStore;
     const scope = [store.principal.scopeId, store.principal.scopeKind, id];
+    // Previously retained historical Proof remains immutable, including pre-EvidenceProvider results.
+    const [existing] = await store.database.query(`SELECT id,proof,content_hash FROM engineering_native_results WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND candidate_sha=$4`, [...scope, candidate.sha]);
+    if (existing) {
+      if (digest(existing.proof) !== existing.content_hash) throw new WorkError("native_result_changed", "Retained Proof integrity failed.");
+      return { id: String(existing.id), proof: proofOfWorkSchema.parse(existing.proof), contentHash: String(existing.content_hash) };
+    }
+    const factoryEvidence = candidate.producer === "MYFACTORY" && candidate.factoryProvenance
+      ? await new FactoryEvidenceStore(store).list(id, candidate.sha, candidate.factoryProvenance.receiptId) : [];
+    if (candidate.producer === "MYFACTORY" && factoryEvidence.length !== 2)
+      throw new WorkError("native_result_evidence_missing", "TestEvidence and DiffEvidence must be in durable MyEve custody before Proof.");
     const [source] = await store.database.query(
       `SELECT d.admission_authority_snapshot
        FROM engineering_routing_decisions d
@@ -47,6 +58,7 @@ export class NativeResultStore {
       resultRevision: candidate.sha, createdAt: workspace.updatedAt, evidence,
       artifactRefs: [`${candidate.producer==="MYFACTORY"?"factory-candidate":"native-candidate"}:${candidate.id}:sha256:${candidate.artifactHash}`,
         ...(candidate.factoryProvenance ? [`factory-receipt:${candidate.factoryProvenance.receiptId}`,`factory-version:${candidate.factoryProvenance.factoryVersion}`] : []),
+        ...factoryEvidence.map(item => item.proofReference),
         ...checks.map(check => `protected-evidence:sha256:${check.artifactHash}`),
         ...candidate.changedPaths.map(path=>`changed-source:${path}`)],
       limitations: [`${candidate.producer==="MYFACTORY" ? "Factory-produced candidate in MyEve custody" : "Native source development"} and ${profile.executor==="factory-cloud"?"independent cloud":"protected local"} verification only. GitHub publication, CI, review and owner acceptance have not been established.`,

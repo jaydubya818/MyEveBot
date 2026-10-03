@@ -17,7 +17,7 @@ export async function factoryConfig(){
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
  if(cloudRuntimeEnabled()){
   const raw=cloudRuntimeConfiguration().factory as Record<string,unknown>;
-  const connection={...(raw?.connection as Record<string,unknown>),token:process.env.FACTORY_SOFIE_STAGING_TOKEN,origin:process.env.FACTORY_STAGING_ORIGIN};
+  const connection={...(raw?.connection as Record<string,unknown>),evidence:{ownerScope:engineering.ownerId,token:process.env.FACTORY_PROOF_TOKEN,expiresAt:process.env.FACTORY_PROOF_EXPIRES_AT},token:process.env.FACTORY_SOFIE_STAGING_TOKEN,origin:process.env.FACTORY_STAGING_ORIGIN};
   const factory=factoryRuntimeSchema.parse({...raw,connection});
   if(!('source' in factory.connection)||factory.connection.factoryId!=='myfactory-cloud-staging'||factory.connection.qualification.mode!=='CLOUD_DETERMINISTIC'||factory.connection.qualification.scopeId!==engineering.ownerId||factory.connection.qualification.profileHash!==digest(engineering.profile))throw Error('CLOUD_QUALIFICATION_FACTORY_BINDING');
   return {engineering,...factory};

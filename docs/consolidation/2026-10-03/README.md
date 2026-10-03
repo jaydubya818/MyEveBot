@@ -1,3 +1,5 @@
+> Superseding authorization: [remaining mission](remaining-mission.md) authorizes platform main integration and production deployment after the new EvidenceProvider and composed-hosted gates pass. Prior missing-mission approval boundary below is historical. Paid real-model production Work remains unauthorized.
+
 # Final private-alpha convergence — 2026-10-03
 
 Status: **SOURCE CONSOLIDATION REVIEW PASS; LOCAL QUALIFICATION PASS. Hosted/promotion scope remains pending.** This candidate is not a production promotion approval. Exact frozen inputs are in [source-manifest.json](source-manifest.json). Every listed MyEve input is an ancestor of the candidate; MyFactory is assembled separately on `codex/final-alpha-convergence`. Relay canonical main is unchanged.
