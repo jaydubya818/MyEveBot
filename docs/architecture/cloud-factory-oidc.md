@@ -1,3 +1,5 @@
+> Current qualification: [hosted attempt 4](../verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
+
 # Dedicated staging Factory OIDC transport
 
 The owner approved `sofie-cloud-qualification` preview → `myfactory-cloud-staging` preview using Vercel Trusted Sources. The provider rule is configured for exactly that source project and environment; no static Factory bypass is created. Protection grants no application or Work authority.

@@ -1,3 +1,5 @@
+> Current qualification: [hosted attempt 4](../verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
+
 # Deterministic CLOUD composition
 
 Implementation checkpoint, 2026-10-02. Hosted productive execution, independent sandbox verification, Mac-off and P0 are **NOT_RUN**. Paid model calls: 0. Production admission and publication: DISABLED.

@@ -1,0 +1,40 @@
+name: Dedicated Sofie CLOUD qualification
+on:
+  push:
+    branches: [codex/cloud-execution]
+    paths: [.github/cloud-qualification-trigger.json]
+permissions:
+  contents: read
+concurrency:
+  group: dedicated-sofie-cloud-qualification
+  cancel-in-progress: false
+jobs:
+  deterministic-p0:
+    if: github.event.head_commit.message == 'test(cloud): qualify hosted deterministic journey attempt 5'
+    environment: sofie-cloud-qualification
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+      - name: Install locked test dependencies without qualification credentials
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Install browser before loading operator credentials
+        run: npx playwright install --with-deps chrome
+      - name: One bounded deterministic Work through real Eve browser endpoint
+        env:
+          SOFIE_QUALIFICATION_BYPASS: ${{ secrets.SOFIE_QUALIFICATION_BYPASS }}
+          SOFIE_QUALIFICATION_PASSWORD: ${{ secrets.SOFIE_QUALIFICATION_PASSWORD }}
+        run: node apps/eve/test/cloud/hosted-runner.mjs
+      - name: Retain credential-scanned first-run evidence
+        if: always() && hashFiles('output/playwright/cloud/scan-pass.json') != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: deterministic-cloud-p0-${{ github.run_id }}
+          path: output/playwright/cloud/
+          retention-days: 3
+          if-no-files-found: ignore

@@ -1,3 +1,5 @@
+> Current qualification: [hosted attempt 4](../../verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
+
 # Cloud client transport — partial
 
 The existing Factory client now supports an explicit `MYFACTORY_EXECUTION_V2` configuration pinned to the dedicated staging project and exact HTTPS preview origin. Legacy connections remain loopback-only. Cloud preparation transmits a repository/commit/tree identity and bounded Work input, with no laptop path. Result reads use the same destination and versioned contract; redirects, foreign origins and local spending evidence cannot qualify cloud execution.
