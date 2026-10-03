@@ -2,7 +2,7 @@
 
 The assembled hosted deterministic journey is **PASS**, including same-Work recovery, durable Test/Diff evidence, scope denials and the canonical owner-decision view. See [hosted receipt](hosted-assembled.md). The original failed test runs remain failures; read-only recoveries used the same Work and candidate.
 
-The production installation foundation and its one-time SQL plan passed local qualification, fresh-clone suites and independent read-only review. Fresh Factory production resources exist; the database is still empty and no production Work has been admitted. Main integration, production deployment and real-model canary readiness are not yet claimed. See [production installation](production-installation.md).
+Overall production qualification remains **PARTIAL**. The qualified consolidation PRs and production compatibility PR44 are merged. Both canonical applications are deployed; exact Production Sofie → Production Factory trust is saved, required operator migrations are applied, and anonymous security/credential-containment checks pass. Live owner-authenticated checks await the owner session. The explicit production execution contract and protected-verification policy remain unfinished; Work admission is disabled and the paid canary is **NOT_READY**. See [production rollout](production-rollout.md) for current receipts and limitations. The earlier installation and source records below are historical.
 
 The sections below retain the earlier source-qualification record. Their pending hosted statements are historical and superseded by the hosted receipt above.
 
