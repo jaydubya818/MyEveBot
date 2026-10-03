@@ -6,6 +6,8 @@ import type { RepositorySnapshot } from "./github.ts";
 import { WorkError } from "./types.ts";
 
 export const GOLDEN_QUALIFICATION_REPOSITORY = "jaydubya818/myeve-golden-work-qual";
+export const GOLDEN_SAFE_INTEGER_BASE_SHA = "0d61cf7cbad18831543ae93f118f18595d2a0be2";
+export const GOLDEN_SAFE_INTEGER_BASE_BRANCH = "codex/quantity-safe-integer-contract";
 export const GOLDEN_PUBLIC_CONTRACT_BASE_SHA = "7380d3324224a5660daa1556384c7a1a17d7d21e";
 export const GOLDEN_QUALIFICATION_BASE_SHA = "db5d95cf3d1dadf04a118f38bd5b388a5a226c31";
 
@@ -40,12 +42,14 @@ export function preflightApprovedBase(profile: RepositoryProfile, approved: Appr
   const expected = approvedBaseSchema.parse(approved);
   if(profile.publicOutputContract)validatePublicOutputContract(profile.publicOutputContract,observed.files,profile.checks);
   if (profile.repository === GOLDEN_QUALIFICATION_REPOSITORY) {
-    const publicContractBase=expected.sha===GOLDEN_PUBLIC_CONTRACT_BASE_SHA;
+    const safeIntegerBase = expected.sha === GOLDEN_SAFE_INTEGER_BASE_SHA;
+    const publicContractBase = safeIntegerBase || expected.sha === GOLDEN_PUBLIC_CONTRACT_BASE_SHA;
     if ((!publicContractBase && expected.sha !== GOLDEN_QUALIFICATION_BASE_SHA) ||
-      (publicContractBase && !profile.publicOutputContract) || profile.baseBranch !== (publicContractBase?"codex/private-alpha-release":"main") || issueNumber !== 1 ||
+      (publicContractBase && !profile.publicOutputContract) || profile.baseBranch !== (safeIntegerBase ? GOLDEN_SAFE_INTEGER_BASE_BRANCH : publicContractBase ? "codex/private-alpha-release" : "main") || issueNumber !== 1 ||
       profile.allowedPaths.length !== 1 || profile.allowedPaths[0] !== "quantity.mjs" ||
       !profile.requiredCI.includes("quantity-ci") || !profile.reviewerLogins.includes("jaydubya818") ||
-      expected.files.length !== (publicContractBase?6:5) || expected.files.some(file => file.path === "quantity.mjs") ||
+      expected.files.length !== (safeIntegerBase ? 7 : publicContractBase ? 6 : 5) || expected.files.some(file => file.path === "quantity.mjs") ||
+      (safeIntegerBase && !expected.files.some(file => file.path === "test/quantity-contract.json")) ||
       ![".github/workflows/quantity-ci.yml", "package.json", "test/quantity.test.mjs"].every(path =>
         expected.files.some(file => file.path === path)))
       throw new WorkError("fixture_profile_changed", "The Golden Work fixture profile or approved base manifest changed; review it before admission.");

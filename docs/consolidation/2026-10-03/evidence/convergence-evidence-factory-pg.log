@@ -1,0 +1,33 @@
+▶ CONNECTED canonical cloud dispatch admission, concurrency, cancellation and leases
+  ✔ Evidence HTTP detail/read uses real PG identity lookup, durable owner binding and signed receipt (45.004666ms)
+  ✔ prepare replay retains canonical IDs; conflicting input and cross-client read fail (17.073333ms)
+  ✔ two dispatchers claim once; cancelled late allocation remains recorded without replacement (39.340708ms)
+  ✔ stop before queue delivery creates a durable tombstone and prevents any resource allocation (20.479291ms)
+  ✔ delivery receipts cannot grant new authority or regress callback-before-send observation (20.463584ms)
+  ✔ private custody is immutable, survives cancel/cleanup and never revives execution (38.693875ms)
+  ✔ database lease expiry cannot be revived; restart reconciles the same ambiguous resource (29.604458ms)
+  ✔ qualification lifetime limit cannot expand with a fresh request or Work ID (8.919958ms)
+✔ CONNECTED canonical cloud dispatch admission, concurrency, cancellation and leases (286.836583ms)
+▶ CONNECTED PostgreSQL canonical ledger parity, race, recovery and fencing
+  ✔ identical V2 accounting through checkpoint, repair allowance and completion (82.930583ms)
+  ✔ two connections racing for the last productive slot admit exactly one (30.712084ms)
+  ✔ UNKNOWN persists across connection restart and generation changes (49.676709ms)
+  ✔ cancel after reservation prevents dispatch, and stale writers cannot spend (24.32875ms)
+  ✔ database time denies expired pricing and recovery keeps unsettled exposure (26.851916ms)
+✔ CONNECTED PostgreSQL canonical ledger parity, race, recovery and fencing (266.27125ms)
+▶ CONNECTED independent verifier admission, concurrency, fencing and cleanup
+  ✔ one concurrent claim, exact policy pin and immutable provider identity (41.743583ms)
+  ✔ producer presence, unpinned policy and cancellation deny verifier admission (14.654458ms)
+  ✔ cancellation races late success; cleanup cannot authorize a result (19.485916ms)
+  ✔ lost allocation receipt cannot establish early absence or allocate again (17.656042ms)
+  ✔ deadline and malformed checks fence results (18.63ms)
+  ✔ terminal Result waits for independent cleanup and retains failed protected verdict (29.6465ms)
+✔ CONNECTED independent verifier admission, concurrency, fencing and cleanup (217.166584ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 22
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 557.366791

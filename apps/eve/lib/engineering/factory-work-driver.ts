@@ -1,3 +1,6 @@
+import { FactoryEvidenceStore } from "./factory-evidence-store.ts";
+import { FactoryEvidenceClient, EvidenceWaiting } from "./factory-evidence.ts";
+import {FactoryCloudProtectedVerifier} from './factory-cloud-verifier.ts';
 import {assertFactorySpendCanStart,assertSpendContinuation,workSpendSchema} from './factory-spend.ts';
 import {preflightApprovedBase} from './base-preflight.ts';
 import {randomUUID} from 'node:crypto';
@@ -6,7 +9,7 @@ import {decideExecutionRoute} from '../digital-worker/routing.ts';
 import {RoutingStore} from './routing-store.ts';
 import {RouteAdmissionService} from './route-admission.ts';
 import {FactoryRouteAuthority,type FactoryRuntime} from './factory-routing.ts';
-import {LiveFactoryAdapter,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
+import {LiveFactoryAdapter,repairWorkOrderFor,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
 import {FactoryWriterStore} from './factory-writer.ts';
 import {FactoryReceiptStore} from './factory-receipt-store.ts';
 import {prepareAuthenticatedFactoryInput} from './factory-authenticated-result.ts';
@@ -18,13 +21,19 @@ import type {RepositorySnapshot} from './github.ts';
 import {WorkStore} from './store.ts';
 import {WorkError} from './types.ts';
 
+// Read-only credential renewal cannot change frozen execution authority.
+export function factoryExecutionConfigurationHash(config: FactoryRuntime) {
+ const {evidence,...connection}=config.connection;
+ return digest({...config,connection:{...connection,...(evidence?{evidence:{ownerScope:evidence.ownerScope}}:{})}});
+}
+
 /** Durable steps re-read existing state; an unattended local worker and operator
  * use the same methods. Only admission acquires a writer. Observations never do. */
 export class FactoryWorkDriver {
  readonly writers:FactoryWriterStore;
  readonly receipts:FactoryReceiptStore;
  constructor(readonly store:WorkStore,readonly authority:FactoryRouteAuthority,readonly direct:DirectDevelopmentStore,
-  readonly verifier:DirectProtectedVerifier,readonly source:()=>Promise<RepositorySnapshot>,readonly adapterFor:(config:FactoryConnection)=>LiveFactoryAdapter=config=>new LiveFactoryAdapter(config)){
+  readonly verifier:DirectProtectedVerifier,readonly source:()=>Promise<RepositorySnapshot>,readonly adapterFor:(config:FactoryConnection)=>LiveFactoryAdapter=config=>new LiveFactoryAdapter(config),readonly evidenceFor:(config:FactoryConnection)=>FactoryEvidenceClient=config=>new FactoryEvidenceClient(config)){
   this.writers=new FactoryWriterStore(store);this.receipts=new FactoryReceiptStore(store.principal,store.database);
  }
  private scope(id:string){return [this.store.principal.scopeId,this.store.principal.scopeKind,id];}
@@ -38,6 +47,7 @@ export class FactoryWorkDriver {
   await this.store.database.query('UPDATE engineering_routing_decisions SET factory_observation=$5::jsonb WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4',[...this.scope(id),decisionId,JSON.stringify({observedAt:new Date().toISOString(),value})]);}
  async start(id:string,expectedVersion:number,expectedGeneration:number){
   const work=await this.store.get(id),config=await this.authority.readConfig();
+  const repairWorkOrderId=repairWorkOrderFor(config.connection,work);
   if(work.version!==expectedVersion||work.generation!==expectedGeneration)throw new WorkError('factory_work_changed','Select the current Work revision.');
   let decision=await this.decision(id);
   if(decision?.work_version===work.version&&decision.factory_preparation)return this.step(id);
@@ -65,10 +75,10 @@ export class FactoryWorkDriver {
    if(!budget || Date.parse(String(budget.deadline))<=Date.now())throw new WorkError('factory_conversation_budget','Current canonical Sofie allowance and deadline are required.');
    deadline=new Date(budget.deadline as string).toISOString();
   }
-  const prepare:FactoryPrepareRequest={...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
-   input:{title:work.title,description:work.objective,kind:'feature',repositoryPath:config.connection.repositoryPath,baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'mac'}};
+  const prepare:FactoryPrepareRequest= {...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
+   input:{title:work.title,description:work.objective,kind:'feature',...('source' in config.connection?{}:{repositoryPath:config.connection.repositoryPath}),baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'source' in config.connection?'container':'mac'}};
   const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
-   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:digest(config)})]);
+   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:factoryExecutionConfigurationHash(config),...(snapshot.environment?{environment:snapshot.environment}:{})})]);
   if(!saved&&!((await this.decision(id))?.factory_preparation))throw new WorkError('factory_prepare_changed','Preparation changed before it was persisted.');
   return this.step(id);
  }
@@ -79,7 +89,7 @@ export class FactoryWorkDriver {
   const preparation=decision.factory_preparation as {request:FactoryPrepareRequest;configurationHash:string};
   if(work.version!==decision.work_version||work.generation!==preparation.request.workGeneration)return {state:'HISTORICAL'};
   try{
-   if(preparation.configurationHash!==digest(config))throw new WorkError('factory_configuration_changed','Retained Factory configuration changed; reconcile without redispatch.');
+   if(preparation.configurationHash!==factoryExecutionConfigurationHash(config))throw new WorkError('factory_configuration_changed','Retained Factory configuration changed; reconcile without redispatch.');
    if(decision.status==='PROPOSED'){
     const response=await adapter.prepare(preparation.request);await this.observation(id,decision.id,response);
     if(!response.snapshot)return {state:response.state};
@@ -98,6 +108,7 @@ export class FactoryWorkDriver {
    if(run.dispatch_state==='PREPARED'){
     const current=await this.authority.read(work,run.factory_request_id,preparation.request);
     const prior=decision.admission_authority_snapshot;
+    if(digest(current.environment?.binding??null)!==digest(prior.environment?.binding??null))throw new WorkError('cloud_environment_binding_changed','The admitted cloud environment changed; reconcile without redispatch.');
     if(digest(current.binding)!==digest(prior.binding))throw new WorkError('factory_authority_changed','Owner Agent or configuration changed. Stop and reconcile the retained attempt.');
     const eligible=decideExecutionRoute(prior.contract,current.context,decision.admission_request,{...current.facts,writerState:'NONE'});
     if(!eligible.admitted)throw new WorkError('factory_dispatch_denied',eligible.reasons.join(' '),403);
@@ -133,18 +144,31 @@ export class FactoryWorkDriver {
    if(historicalTerminal)return {state:'TERMINAL',outcome:run.status,receiptStatus};
    receiptId??=(await this.receipts.admission(request.id))?.receipt_id as string|undefined;
    if(!receiptId)return {state:'AWAITING_RESULT'};
-   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()});
+   const cloudCustody='source' in config.connection?await adapter.custody(identity):undefined;
+   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
    const ws=(await this.direct.inspect(id)).workspace;
    if(!ws||ws.routeRunId!==run.id)return {state:'HISTORICAL'};
-   const verification=new DirectVerificationDriver(this.direct,this.verifier);
+   const protectedVerifier='source' in config.connection?new FactoryCloudProtectedVerifier(this.receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):this.verifier;
+   const verification=new DirectVerificationDriver(this.direct,protectedVerifier);
    const candidate=ws.candidates.at(-1)!;
    const job=await verification.inspectJob(id,candidate.sha);
-   if(job?.status==='RECOVERY_REQUIRED')await verification.retryAfterResourceCheck(id,candidate.sha,new DockerVerificationResourceInspector());
+   if(job?.status==='RECOVERY_REQUIRED'){
+    // CLOUD only reprojects an already destroyed verifier's signed receipt. No
+    // provider execution is repeated and no local Docker fallback is permitted.
+    const inspector='source' in config.connection?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
+    await verification.retryAfterResourceCheck(id,candidate.sha,inspector);
+   }
+   const [retainedProof] = await this.store.database.query('SELECT id FROM engineering_native_results WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND candidate_sha=$4',[...this.scope(id),candidate.sha]);
+   if(!retainedProof)await new FactoryEvidenceStore(this.store).ingest(id,request.id,receiptId,this.evidenceFor(config.connection));
    await verification.run(id);
    const result=await new NativeResultStore(this.direct).retain(id);
    await this.observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
    return {state:result.proof.outcome,result};
   }catch(error){
+   if(error instanceof EvidenceWaiting){
+    await this.observation(id,decision.id,{...(await this.decision(id))?.factory_observation?.value,state:'WAITING_FOR_EVIDENCE',reason:error.message});
+    return {state:'WAITING_FOR_EVIDENCE'};
+   }
    const retained=(await this.decision(id))?.factory_observation?.value;
    await this.observation(id,decision.id,{...retained,
     ...(retained?.accounting?{accounting:{...retained.accounting,accountingCompleteness:'STALE_READBACK',safeAllowanceMicrousd:null,unknownMicrousd:null,spendEnforcementQualified:false,blocker:'Latest accounting is unverified; retained exposure is not released'}}:{}),

@@ -1,3 +1,5 @@
+import {cloudEnvironmentRouting} from './cloud-environment-routing.ts';
+import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import {factorySpendAdmission} from './factory-spend.ts';
 import {readFile} from 'node:fs/promises';
 import {z} from 'zod';
@@ -13,6 +15,13 @@ const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualifi
 export const factoryRuntimeSchema=z.object({routing:betaPolicySchema.default({intent:'UNSUPPORTED',boundedOperationQualified:false}),connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
 export async function factoryConfig(){
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
+ if(cloudRuntimeEnabled()){
+  const raw=cloudRuntimeConfiguration().factory as Record<string,unknown>;
+  const connection={...(raw?.connection as Record<string,unknown>),evidence:{ownerScope:engineering.ownerId,token:process.env.FACTORY_PROOF_TOKEN,expiresAt:process.env.FACTORY_PROOF_EXPIRES_AT},token:process.env.FACTORY_SOFIE_STAGING_TOKEN,origin:process.env.FACTORY_STAGING_ORIGIN};
+  const factory=factoryRuntimeSchema.parse({...raw,connection});
+  if(!('source' in factory.connection)||factory.connection.factoryId!=='myfactory-cloud-staging'||factory.connection.qualification.mode!=='CLOUD_DETERMINISTIC'||factory.connection.qualification.scopeId!==engineering.ownerId||factory.connection.qualification.profileHash!==digest(engineering.profile))throw Error('CLOUD_QUALIFICATION_FACTORY_BINDING');
+  return {engineering,...factory};
+ }
  if(!file?.startsWith('/'))throw new WorkError('factory_setup','A reviewed MyFactory connection profile is required.',503);
  const factory=factoryRuntimeSchema.parse(JSON.parse(await readFile(file,'utf8')));
  return {engineering,...factory};
@@ -52,7 +61,8 @@ export class FactoryRouteAuthority {
   const facts={...native.facts,allowedRoutes:['MYFACTORY' as const],allowedOperations:['factory.submit'],
    routePolicy:{...contract.routePolicy,allowedRoutes:contract.allowedRoutes,providers},factoryAdmission:qualified&&healthy?'ALLOW':'DENY',
    qualifications:{...providers,MYFACTORY:{provider,scope:contract.scope,status:qualified?'QUALIFIED':'UNQUALIFIED',health:healthy?'HEALTHY':'UNHEALTHY',evidenceRef:q.evidenceRef,observedAt:new Date(now).toISOString(),expiresAt:q.expiresAt}}};
-  return {selection,contract,context:native.context,facts,binding:native.binding,
+  const environment='source' in connection?cloudEnvironmentRouting(work,config,healthy,contract.deadline,now):undefined;
+  return {selection,contract,context:native.context,facts,binding:native.binding,...(environment?{environment}:{}),
    ...(requestId?{factory:{requestId,repository:work.repository,baseSha:config.engineering.approvedBase.sha,profileHash:digest(config.engineering.profile),allowedPaths:config.engineering.profile.allowedPaths,deadline:contract.deadline}}:{})};
  }
 }

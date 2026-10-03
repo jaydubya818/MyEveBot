@@ -1,0 +1,52 @@
+{
+  "observedAt": "2026-10-03T21:57:15.796812+00:00",
+  "status": "PASS",
+  "scope": "Fresh-clone source qualification; not production deployment",
+  "heads": {
+    "MyEve": "3ca08ee3a14ea0bea67778cca235c4e0201194bd",
+    "MyFactory": "d7016a7ce38d728b9da3ec2936f93dcdaf12daff"
+  },
+  "suites": {
+    "MyEve": {
+      "passed": 2089,
+      "skipped": 94,
+      "failed": 0
+    },
+    "MyFactory": {
+      "passed": 460,
+      "skipped": 21,
+      "failed": 0
+    }
+  },
+  "ci": {
+    "MyEve": {
+      "run": 37155845952,
+      "status": "PASS"
+    },
+    "MyFactory": {
+      "run": 37156239324,
+      "status": "PASS"
+    }
+  },
+  "logs": {
+    "myeve": {
+      "path": "evidence/production-foundation-fresh-myeve.log",
+      "sha256": "7be5b385adde5bfe4fe9f4f94f1bb8ee221e5deb32024e73387732b1ff92f4e2"
+    },
+    "myfactory": {
+      "path": "evidence/production-foundation-fresh-myfactory.log",
+      "sha256": "36df138ebe2ca66f462e77794bb4582455c65a8a049e6ea64c6b230e8785c822"
+    }
+  },
+  "production": {
+    "mainMerged": false,
+    "sqlApplied": false,
+    "configurationApplied": false,
+    "platformDeployed": false,
+    "trust": "PENDING_ACTION_TIME_CONFIRMATION",
+    "executionAdmission": "DISABLED",
+    "canary": "NOT_READY",
+    "paidModelCallsInitiated": 0,
+    "generatedPublicationEffectsInitiated": 0
+  }
+}

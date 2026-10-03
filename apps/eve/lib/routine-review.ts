@@ -70,7 +70,7 @@ export class RoutineReviewStore {
     const hash=(value:unknown)=>createHash("sha256").update(JSON.stringify(canonicalActionValue(value))).digest("hex");
     const reviewBinding={ownerId:input.ownerId,reminderVersion:input.expectedVersion,
       instructionsHash:hash(config.instructions),scheduleHash:hash({cron:reminder.cron,timezone:reminder.timezone,...(!reminder.cron?{nextFireAt:next.toISOString()}: {})}),
-      authorityHash:hash({agentId:input.agentId,authority:config.authority,manifest:config.manifest}),budgetHash:hash(config.limits),policyHash:hash({retry:config.retry,missedPolicy:config.missedPolicy,deliveryChannel:config.deliveryChannel})};
+      authorityHash:hash({agentId:input.agentId,authority:config.authority,manifest:config.manifest}),budgetHash:hash(config.limits),policyHash:hash({retry:config.retry,missedPolicy:config.missedPolicy,deliveryChannel:config.deliveryChannel,...(config.responsibility?{responsibility:config.responsibility}:{})})};
     const result=await this.database.query(`WITH reviewed AS (
       UPDATE reminders SET owner_id=$2,reviewed_version=configuration_version,reviewed_at=now(),status='active',
         next_fire_at=$5::timestamptz,claimed_until=NULL,execution_routine_id=$7

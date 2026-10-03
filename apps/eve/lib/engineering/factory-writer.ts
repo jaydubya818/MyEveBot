@@ -1,3 +1,4 @@
+import { cloudCustodyFiles } from './factory-cloud-custody.ts';
 import { assertBusinessEffect } from "../business-effects.ts";
 import {randomUUID} from 'node:crypto';
 import {execFile} from 'node:child_process';
@@ -91,7 +92,7 @@ export class FactoryWriterStore {
   }
   return this.call(run,'reconcile',{observation});
  }
- async takeCustody(run:FactoryWriter,receiptId:string,source:RepositorySnapshot,profile:RepositoryProfile,options:ConsumerOptions) {
+ async takeCustody(run:FactoryWriter,receiptId:string,source:RepositorySnapshot,profile:RepositoryProfile,options:ConsumerOptions,cloudFiles?:Record<string,string>) {
   const receipts=new FactoryReceiptStore(this.work.principal,this.work.database);
   const admitted=await resumeFactoryResult(receipts,run.factory_request_id,receiptId,options);
   if(admitted.status!=='ADMITTED' || !admitted.eligibleForCurrentAdmission)throw new WorkError('factory_receipt_historical','Only a current authenticated Gate C admission may enter current custody.');
@@ -102,7 +103,7 @@ export class FactoryWriterStore {
    JSON.stringify([...identity.allowedPaths].sort())!==JSON.stringify([...profile.allowedPaths].sort()))throw new WorkError('factory_candidate_scope','Candidate scope differs from admitted Factory authority.');
   const envelope=JSON.parse(receipt.envelope) as SignedResult;
   const artifact=(id:string)=>{const value=envelope.artifacts.find(a=>a.id===id);if(!value)throw new Error('Missing authenticated artifact');return Buffer.from(value.base64,'base64');};
-  const files=await applyFactoryPatch(source.files,artifact(c.patchArtifactId));
+  const files=manifest!.execution.version===2 ? cloudCustodyFiles(source,cloudFiles,manifest!.execution) : await applyFactoryPatch(source.files,artifact(c.patchArtifactId));
   const changedPaths=[...new Set([...Object.keys(source.files),...Object.keys(files)])].filter(p=>source.files[p]!==files[p]).sort();
   const patch=JSON.stringify(changedPaths.map(path=>({path,before:source.files[path]??null,after:files[path]??null})));
   // Stable candidate ID makes a crash/replay converge on exactly the same custody.

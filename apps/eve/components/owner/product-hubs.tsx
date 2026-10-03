@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link";
+import {LiveAgentTile} from "../live-agent-card";
 import { useState } from "react";
 import type { AgentView } from "@/lib/agents";
 import type { ChannelStatusView } from "@/lib/channels";
 import type { EmailThreadSummary } from "@/lib/email-api";
 import type { WeeklyReviewView } from "@/lib/review-types";
+import { Responsibilities } from "./responsibilities";
+import { WorkInbox } from "./work-inbox";
 import { ProductShell, ResourceState } from "./product-shell";
 import { useProductResource } from "./resource";
 import { Card, Empty, State, date } from "./primitives";
@@ -13,7 +16,7 @@ export function TeamHub() {
   const source = useProductResource<{ agents: AgentView[] }>("/api/agents");
   return (
     <ProductShell
-      title="Sofie’s team"
+      title="Agents"
       description="Your persisted specialists, their roles, and the capabilities available to them."
     >
       <div className="owner-actions">
@@ -24,55 +27,14 @@ export function TeamHub() {
       </div>
       <ResourceState {...source} />
       <div className="owner-grid">
-        {source.data?.agents.map((agent) => (
-          <Card key={agent.id} title={agent.name}>
-            <State value={agent.status} />
-            <p>
-              <strong>{agent.role}</strong>
-            </p>
-            <p>{agent.description}</p>
-            <h3>Configured capabilities</h3>
-            <ul>
-              {agent.capabilities
-                .filter((c) => c.enabled)
-                .map((c) => (
-                  <li key={c.id}>
-                    {c.name} · {c.availability}
-                    {c.availabilityReason ? ` — ${c.availabilityReason}` : ""}
-                  </li>
-                ))}
-            </ul>
-            {!agent.capabilities.some((c) => c.enabled) && (
-              <p>No capabilities enabled.</p>
-            )}
-            <p className="owner-muted">
-              A configured capability still requires runtime authority. Private
-              memory is not automatically shared with specialists.
-            </p>
-            <p>
-              Limit: {agent.limits.maxSteps} steps ·{" "}
-              {agent.limits.maxRuntimeSeconds}s · $
-              {agent.limits.maxEstimatedCostUsd} estimated
-            </p>
-            <Link href="/agents">Inspect configuration and activity</Link>
-          </Card>
-        ))}
+        {source.data?.agents.slice(0,12).map(agent=><LiveAgentTile key={agent.id} agentId={agent.id}/>)}
       </div>
       {!source.loading && !source.error && !source.data?.agents.length && (
         <Empty title="No specialists recorded">
           Create a specialist when you have a recurring role for them.
         </Empty>
       )}
-      <Card title="Software Engineer">
-        <p>
-          Engineering production is awaiting its qualified integration. It is
-          not available to dispatch from this workspace.
-        </p>
-        <details>
-          <summary>Integration status</summary>
-          <code>WAITING_FOR_CANONICAL_Q37</code>
-        </details>
-      </Card>
+      <p className="owner-muted">Up to 12 agents. <Link href="/agents">Open all agent profiles</Link>. Availability is checked for each request; cloud background execution remains unqualified.</p>
     </ProductShell>
   );
 }
@@ -159,6 +121,8 @@ export function InboxHub() {
         <Link href="/email">Open email & drafts</Link>
         <Link href="/manage/peers">Relay connections</Link>
       </div>
+      <WorkInbox />
+      <Responsibilities view="inbox" />
       <ResourceState {...channels} />
       <div className="owner-grid">
         {channels.data?.channels.map((channel) => (

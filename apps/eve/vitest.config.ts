@@ -15,6 +15,7 @@ export default defineConfig({
       "**/.next/**",
       "**/.eve/**",
       "test/**",
+      "scripts/*.test.mjs", // Node test runner; included by the root test command.
       "agent/skills/**",
     ],
   },

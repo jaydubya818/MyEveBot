@@ -1,16 +1,20 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useId, useRef } from "react";
 import { CommandPalette } from "@/components/command-palette";
 import { productDestinations } from "./destinations";
 
 export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
   const pathname = usePathname();
+  const navigationId=useId();
+  const menuButton=useRef<HTMLButtonElement>(null);
+  const [menuOpen,setMenuOpen]=useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (compact) return;
     const key = (event: KeyboardEvent) => {
+      if(event.key==="Escape"){setMenuOpen(false);if(menuOpen)menuButton.current?.focus();}
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
         setOpen((value) => !value);
@@ -18,19 +22,22 @@ export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
     };
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
-  }, [compact]);
+  }, [compact,menuOpen]);
   const go = (href: string) => {
     window.location.assign(href);
   };
   return (
     <>
+      {!compact&&<button ref={menuButton} className="owner-menu-toggle" aria-expanded={menuOpen} aria-controls={navigationId} onClick={()=>setMenuOpen(value=>!value)}>Menu</button>}
       <nav
+        id={navigationId}
+        data-open={menuOpen}
         aria-label="Primary"
         className={
           compact ? "grid grid-cols-2 gap-1 px-2 pb-3" : "owner-primary"
         }
       >
-        {productDestinations.slice(0, 15).map(({ href, label }) => (
+        {(compact?productDestinations.slice(0,15):productDestinations.filter(item=>["/today","/chat","/work","/inbox","/needs-you","/team","/rooms"].includes(item.href))).map(({ href, label }) => (
           <Link
             key={href}
             href={href}
@@ -48,6 +55,8 @@ export function OwnerNavigation({ compact = false }: { compact?: boolean }) {
             {label}
           </Link>
         ))}
+        {!compact&&<div className="owner-work-navigation" aria-label="Work states">{['Working','Monitoring','Recent'].map(label=><a key={label} href={`/inbox?state=${label==='Recent'?'Completed':label}#work-inbox`}>{label}</a>)}</div>}
+        {!compact&&<details className="owner-more"><summary>More</summary><div>{productDestinations.filter(item=>!["/today","/chat","/work","/inbox","/needs-you","/team","/rooms","/search"].includes(item.href)).map(({href,label})=><Link key={href} href={href} aria-current={pathname===href?'page':undefined}>{label}</Link>)}</div></details>}
         {!compact && (
           <button
             onClick={() => setOpen(true)}

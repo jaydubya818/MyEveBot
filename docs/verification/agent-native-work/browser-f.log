@@ -1,0 +1,13 @@
+
+Running 4 tests using 1 worker
+
+(node:88784) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [desktop] › test/agent-native/collaboration.spec.ts:7:1 › handoff evidence stays collapsed and Group status stays honest (596ms)
+  ✓  2 [desktop] › test/agent-native/collaboration.spec.ts:15:1 › collaboration authentication and failed refresh are explicit (390ms)
+(node:88834) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [390px] › test/agent-native/collaboration.spec.ts:7:1 › handoff evidence stays collapsed and Group status stays honest (351ms)
+  ✓  4 [390px] › test/agent-native/collaboration.spec.ts:15:1 › collaboration authentication and failed refresh are explicit (268ms)
+
+  4 passed (3.3s)

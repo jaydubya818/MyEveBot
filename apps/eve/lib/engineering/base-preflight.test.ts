@@ -1,3 +1,4 @@
+import safeBase from "../../test/fixtures/quantity-safe-integer-base.json";
 import { createHash } from "node:crypto";
 import publicBase from "../../test/fixtures/quantity-public-contract-base.json";
 import { describe, expect, it } from "vitest";
@@ -31,6 +32,20 @@ function profile() {
 }
 
 describe("Golden Work approved-base preflight", () => {
+  it("admits the separately pinned safe-range prerequisite and rejects drift without changing old bases", () => {
+    const revised = {...profile(), baseBranch: "codex/quantity-safe-integer-contract", publicOutputContract: {
+      path: "test/output-contract.json" as const,
+      sha256: createHash("sha256").update(safeBase.files["test/output-contract.json"]).digest("hex"),
+    }, checks: [{...profile().checks[0], expectedOutput: '{"quantity":2}\n', expectedExitCode: 0}]};
+    const approved = manifestForSnapshot(safeBase);
+    expect(() => preflightApprovedBase(revised, approved, safeBase, 1)).not.toThrow();
+    expect(() => preflightApprovedBase({...revised, baseBranch: "codex/private-alpha-release"}, approved, safeBase, 1)).toThrow(/fixture profile/);
+    const changed = {...safeBase, files: {...safeBase.files, "test/quantity-contract.json": "{}"}};
+    expect(() => preflightApprovedBase(revised, approved, changed, 1)).toThrow(/base files differ/);
+    const omitted = {...safeBase, files: Object.fromEntries(Object.entries(safeBase.files).filter(([path]) => path !== "test/quantity-contract.json"))};
+    expect(() => preflightApprovedBase(revised, manifestForSnapshot(omitted), omitted, 1)).toThrow(/fixture profile/);
+  });
+
   it("pins the specification-only release branch without bypassing main protections",()=>{
     const revised={...profile(),baseBranch:'codex/private-alpha-release',publicOutputContract:{path:'test/output-contract.json' as const,sha256:createHash('sha256').update(publicBase.files['test/output-contract.json']).digest('hex')},checks:[{...profile().checks[0],expectedOutput:'{"quantity":2}\n',expectedExitCode:0}]};
     expect(()=>preflightApprovedBase(revised,manifestForSnapshot(publicBase),publicBase,1)).not.toThrow();

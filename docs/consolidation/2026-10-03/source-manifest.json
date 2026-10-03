@@ -1,0 +1,84 @@
+{
+  "status": "SOURCE_CONSOLIDATION_REVIEW_PASS_AWAITING_HOSTED_PROMOTION_SCOPE",
+  "canonicalBase": "d75091eb333a531fa91ed9d39e273948aa9d0eaf",
+  "inputs": {
+    "privateAlpha": "db13cfad7d97ff6caffa657eede58bead41a8929",
+    "cloud": "00a82b783224db355b0172446554e0af2de7e35b",
+    "fabric": "d156f07fc62f5519beb2c481679b8a0902bbf79c",
+    "product": "9decd3169ab122bb60b612fc75fe079c10ddeaf6"
+  },
+  "relayCanonical": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+  "myfactoryInputs": {
+    "privateAlpha": "5d435c3bcf6e1dc500e51bf34053a595fcf2f9b9",
+    "cloud": "0fef220b723d53f8f891956be880b48f7490d96c",
+    "fabric": "65d1e976ea0f45aedbb3b1444c5537a7e29c99d0",
+    "evidenceProvider": "721adc93af318ba341286074780330512b0be9d4"
+  },
+  "effects": {
+    "paidModelCalls": 0,
+    "productionEffects": 0,
+    "productionResourcesProvisioned": 0
+  },
+  "cloudEvidenceBoundary": "Frozen Cloud checkpoint proved zero local runtime dependencies. Physical Mac power state was not independently observed. Evidence does not automatically qualify the assembled runtime.",
+  "deploymentAuthorization": "Explicit platform production authorization in remaining-mission.md, gated on EvidenceProvider and composed hosted/full release qualification. Paid real-model canary requires separate approval.",
+  "reviewedSources": {
+    "MyEve": "1f0469ac0ab75a16b360bfca45c8f506d13c5e10",
+    "MyFactory": "0fbc881d1dcac99f87f1e5992baeafac565afa7a",
+    "Relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a"
+  },
+  "qualification": {
+    "freshMyEveApplication": {
+      "passed": 2059,
+      "skipped": 94
+    },
+    "freshMyEveRoot": {
+      "passed": 209,
+      "skipped": 2
+    },
+    "freshFactory": {
+      "passed": 447,
+      "skipped": 20
+    },
+    "freshRelay": {
+      "passed": 450,
+      "skipped": 6
+    },
+    "ProductBrowser": {
+      "passed": 50,
+      "desktopAnd390px": true,
+      "visualBaselinesChanged": false
+    },
+    "ownerIsolation": {
+      "passed": 24,
+      "privateDisclosures": 0,
+      "credentialTransfers": 0,
+      "implicitPromotions": 0
+    },
+    "FactoryTLSPostgres": {
+      "passed": 21,
+      "migration": "006"
+    },
+    "isolatedInstalledHarness": {
+      "passed": 18,
+      "realProviderCalls": 0
+    },
+    "composedMyEveFactoryJourney": {
+      "passed": 26,
+      "executions": 8,
+      "concurrentWriters": 0,
+      "duplicateDispatches": 0,
+      "falseReady": 0,
+      "unauthenticatedAdmissions": 0,
+      "liveProviderCalls": 0,
+      "productionPublicationEffects": 0
+    }
+  },
+  "qualificationSourceDependency": "5cd13fa1f307a0c0f42f6317d966bb3179ad77c9 retained as Factory ancestor without tree changes",
+  "evidenceConsumer": {
+    "disposition": "adapt",
+    "producer": "MyFactory accepted EvidenceProvider plus Cloud custody projection",
+    "consumer": "MyEve durable receipt-bound bytes and native Proof",
+    "qualification": "evidence-consumer.md",
+    "migration": "0080_factory_evidence_custody.sql"
+  }
+}

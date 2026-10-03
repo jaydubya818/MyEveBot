@@ -1,3 +1,4 @@
+import { readRoutineCheck } from "./routine-check.ts";
 import { RoutineAdmission,snapshotRoutineConfiguration } from "./routine-admission.ts";
 import { db } from "../agent/lib/receipts-db.ts";
 import { LostExecutionClaim, occurrenceIdentity, retryDecision, routineConfigurationSchema,
@@ -141,6 +142,9 @@ export class ExecutionStore {
 
   async complete(claim: ExecutionClaim, resultReference: string): Promise<void> {
     if (!resultReference) throw new Error("A persisted result is required before completion.");
+    const check = await readRoutineCheck(this.database,claim);
+    const notify = !check || claim.configuration.responsibility?.notify === 'every_run' || check.condition !== 'not_met';
+    const stop = check?.condition === 'met' && claim.configuration.responsibility?.stopWhenMet === true;
     const rows = await this.database.query(`WITH completed AS (
       UPDATE execution_occurrences o SET status='completed',completed_at=now(),claimed_by=NULL,lease_expires_at=NULL,updated_at=now()
       WHERE owner_id=$1 AND id=$2 AND claim_version=$3 AND claimed_by=$4 AND status='running' AND lease_expires_at>now()
@@ -150,17 +154,21 @@ export class ExecutionStore {
       UPDATE execution_attempts a SET status='completed',finished_at=now() FROM completed c
       WHERE a.owner_id=c.owner_id AND a.occurrence_id=c.id AND a.attempt_number=c.attempt_count
     ), run AS (
-      UPDATE task_runs r SET status='completed',completed_at=now(),updated_at=now(),result_summary='Routine result available'
+      UPDATE task_runs r SET status='completed',completed_at=now(),updated_at=now(),result_summary=$7
       FROM completed c WHERE r.owner_id=c.owner_id AND r.id=c.run_id
+    ), result AS (
+      INSERT INTO task_milestones(task_id,kind,summary,metadata) SELECT c.run_id,'routine_result',$7,jsonb_build_object('resultReference',$5::text,'notify',$8::boolean,'condition',$10::text) FROM completed c
     ), routine AS (
-      UPDATE execution_routines r SET consecutive_failures=0,last_success_at=now(),last_failure=NULL,updated_at=now()
+      UPDATE execution_routines r SET consecutive_failures=0,last_success_at=now(),last_failure=NULL,updated_at=now(),status=CASE WHEN $9 THEN 'disabled' ELSE r.status END
       FROM completed c WHERE r.owner_id=c.owner_id AND r.id=c.routine_id
+    ), stopped AS (
+      UPDATE reminders m SET status='done',claimed_until=NULL FROM completed c WHERE $9 AND m.owner_id=c.owner_id AND m.execution_routine_id=c.routine_id
     ), delivery AS (
       INSERT INTO review_deliveries(id,owner_id,local_period_key,scheduled_for,requested_channel,channel,deduplication_key,
         occurrence_id,run_id,result_reference)
-      SELECT c.id||'_delivery',c.owner_id,c.occurrence_key,c.scheduled_for,$6,$6,c.id||':result',$2,c.run_id,$5 FROM completed c
+      SELECT c.id||'_delivery',c.owner_id,c.occurrence_key,c.scheduled_for,$6,$6,c.id||':result',$2,c.run_id,$5 FROM completed c WHERE $8
       ON CONFLICT(deduplication_key) DO NOTHING
-    ) SELECT id FROM completed`, [claim.ownerId,claim.occurrenceId,claim.version,claim.workerId,resultReference,claim.configuration.deliveryChannel]);
+    ) SELECT id FROM completed`, [claim.ownerId,claim.occurrenceId,claim.version,claim.workerId,resultReference,claim.configuration.deliveryChannel,check?.summary??'Routine result available',notify,stop,check?.condition??null]);
     if (!rows[0]) throw new LostExecutionClaim();
   }
 

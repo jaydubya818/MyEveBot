@@ -1,0 +1,62 @@
+{
+  "status": "PRODUCTION_INSTALLATION_PENDING",
+  "authority": "remaining-mission.md sections14\u201316",
+  "review": {
+    "mode": "INDEPENDENT_READ_ONLY",
+    "myeve": "4860ecce1af8089378aadf1321ed5c4bdabee6b1",
+    "myfactory": "65a02901435bfc2dd97957b86bf1162702e7bf84",
+    "conclusion": "Ordinary promotion implementation is authorized; no inherent need for broader workload identity authority."
+  },
+  "classifications": {
+    "PROMOTE": [
+      "Environment contracts and routing invariants",
+      "HarnessProvider boundary and qualified existing harness",
+      "lease/dispatch fencing",
+      "candidate custody and independent verifier isolation",
+      "MyEve durable EvidenceProvider and Proof consumer"
+    ],
+    "PROMOTE_WITH_PRODUCTION_SPECIFIC_CONFIGURATION": [
+      "exact service/workload source and destination identities",
+      "fresh Factory database, storage and queue resources",
+      "scoped independent application execution/read credentials",
+      "production environment registry with actual readiness",
+      "hosted controller installation and recovery",
+      "enforced paid admission denial until separately authorized envelope"
+    ],
+    "QUALIFICATION_ONLY": [
+      "synthetic owner and owner password",
+      "deterministic Sofie conversation/model responses",
+      "fixed project-slug qualification grant and protected probe inputs",
+      "synthetic pricing review",
+      "PREVIEW-to-PREVIEW trust",
+      "staging resources/rows/custody",
+      "GitHub qualification operator credentials",
+      "qualification ingress allowlists and Work ceilings"
+    ],
+    "DEFER": [
+      "DeepAgent",
+      "CLOUD_COMPUTER",
+      "CMUX/TMUX runtime adapters",
+      "additional HarnessProviders",
+      "Muse/GrokBots",
+      "Event-to-Work",
+      "unqualified persistent Groups/Rooms execution",
+      "automatic generated-code publication/merge/deployment",
+      "dynamic candidate visual verification"
+    ]
+  },
+  "implementationRequirements": [
+    "Keep qualification installation guards intact; add a distinct validated production installation.",
+    "Preserve Factory migrations001\u2013006; qualify a forward production boundary migration against a fresh database. EvidenceProvider itself has no Factory migration.",
+    "Production disabled admission must reject before prepare/dispatch rather than merely reporting DISABLED.",
+    "Use exact production-to-production short-lived workload identity with independent application and Work authority.",
+    "Never substitute qualified fixture responses or staging state for production readiness."
+  ],
+  "ownerBoundary": [
+    "materially broader credential scope",
+    "static infrastructure protection bypass",
+    "materially different production identity mechanism",
+    "copying staging credentials",
+    "paid production model execution before exact canary approval"
+  ]
+}

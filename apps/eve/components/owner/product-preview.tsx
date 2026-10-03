@@ -1,4 +1,5 @@
 "use client";
+import { RoomPreview } from "./room-preview";
 import { useState } from "react";
 import { ProductShell } from "./product-shell";
 import { Card } from "./primitives";
@@ -36,6 +37,7 @@ export function ProductPreview() {
       <p>
         <a href="/work-canvas">Explore the Work Canvas interaction preview</a>
       </p>
+      <RoomPreview />
       <h2>Three consequential proposals</h2>
       <div className="owner-stack">
         {approvals.map((item) => (

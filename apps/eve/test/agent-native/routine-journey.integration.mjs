@@ -1,0 +1,75 @@
+import assert from 'node:assert/strict';
+import {readFile,readdir} from 'node:fs/promises';
+import {Pool} from 'pg';
+import {neonConfig} from '@neondatabase/serverless';
+import {generateText,tool} from 'ai';
+import {MockLanguageModelV3} from 'ai/test';
+import makeRoutine from '../../agent/tools/make_routine.ts';
+import manageRoutine from '../../agent/tools/manage_routine.ts';
+import {RoutineReviewStore} from '../../lib/routine-review.ts';
+import {ExecutionStore} from '../../lib/execution-store.ts';
+import {enqueueReviewedReminders} from '../../lib/reminder-execution.ts';
+import {executeNextOccurrence} from '../../lib/execution-worker.ts';
+import {routineConfigurationSchema} from '../../lib/execution-types.ts';
+import {ROUTINE_RELEASE} from '../../lib/routine-release.ts';
+import {retainRoutineCheck} from '../../lib/routine-check.ts';
+import {admissionFixture} from '../admission-fixtures.mjs';
+if(process.env.MYEVE_PRODUCT_TEST_PORT && !/^[0-9]{1,5}$/.test(process.env.MYEVE_PRODUCT_TEST_PORT))throw Error('Numeric disposable loopback port required');
+const url=process.env.MYEVE_PRODUCT_TEST_DATABASE;
+if(url!==`postgresql://postgres@127.0.0.1:${process.env.MYEVE_PRODUCT_TEST_PORT??'55509'}/myeve_beta_publication`)throw Error('Task-owned disposable database required');
+process.env.DATABASE_URL=url;
+const pool=new Pool({connectionString:url}),client=await pool.connect(),schema='routine_journey_'+Date.now(),old=neonConfig.fetchFunction;
+let checks=0;const eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
+const owner='routine-journey-owner',ctx={session:{id:'controlled-natural-routine',auth:{current:{principalId:owner,principalType:'user',attributes:{owner:'true'}}}}};
+try{
+ await client.query(`CREATE SCHEMA ${schema}`);await client.query(`SET search_path TO ${schema}`);
+ for(const f of (await readdir(new URL('../../migrations/',import.meta.url))).filter(f=>f.endsWith('.sql')).sort())await client.query(await readFile(new URL('../../migrations/'+f,import.meta.url),'utf8'));
+ neonConfig.fetchFunction=async(_url,options)=>{const {query,params}=JSON.parse(options.body);const r=await client.query({text:query,values:params,rowMode:'array',types:{getTypeParser:()=>v=>v}});return Response.json({fields:r.fields.map(f=>({name:f.name,dataTypeID:f.dataTypeID})),rows:r.rows,rowCount:r.rowCount,command:r.command,rowAsArray:true});};
+ const db={query:async(s,p)=>(await client.query(s,p)).rows};
+ await db.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,is_primary,status,risk_ceiling,max_steps,max_runtime_seconds,max_estimated_cost_usd) VALUES('watcher',$1,'watcher','Personal Shopper','Research','Read public information',true,'active','medium',30,600,1)`,[owner]);
+ const input={name:'Public availability',prompt:'Check whether the public item is available. Notify me only when available.',cron:'0 * * * *',timezone:'UTC',approvalBoundary:'Read public information only; never buy or reserve.'};
+ const model=new MockLanguageModelV3({doGenerate:async options=>{
+  assert(JSON.stringify(options.prompt).includes('Every hour'));checks++;
+  return {content:[{type:'tool-call',toolCallId:'routine-proposal-1',toolName:'make_routine',input:JSON.stringify(input)}],finishReason:{unified:'tool-calls',raw:'tool_calls'},usage:{inputTokens:{total:1},outputTokens:{total:1}},warnings:[]};
+ }});
+ // Controlled model proposal goes through the real tool schema. Owner approval
+ // is explicitly exercised as a separate test step, not silently bypassed.
+ const proposal=await generateText({model,prompt:'Every hour in UTC, have Personal Shopper check public availability. Tell me only when it is available. Do not buy anything.',tools:{make_routine:tool({inputSchema:makeRoutine.inputSchema})}});
+ eq((await db.query('SELECT count(*)::int AS n FROM reminders'))[0].n,0);
+ const selected=proposal.toolCalls[0];eq(selected.toolName,'make_routine');
+ const reminder=await makeRoutine.execute(selected.input,ctx);
+ const config=routineConfigurationSchema.parse({instructions:input.prompt,authority:{maximumRisk:'medium',allowedCapabilities:['web.read','tool.record_observation']},responsibility:{condition:'Public item available',notify:'condition_met',stopWhenMet:false}});
+ const review=new RoutineReviewStore(db,owner);
+ await review.review({ownerId:owner,reminderId:reminder.id,expectedVersion:1,agentId:'watcher',configuration:config});
+ const id='routine_reminder_'+reminder.id;
+ const store=()=>new ExecutionStore(db,admissionFixture(db));
+ const due=new Date(Date.now()-1000);await db.query('UPDATE reminders SET next_fire_at=$2 WHERE id=$1',[reminder.id,due]);
+ await enqueueReviewedReminders(owner,db,new Date(),store());
+ await enqueueReviewedReminders(owner,db,new Date(),store());
+ eq((await db.query('SELECT count(*)::int AS n FROM execution_occurrences'))[0].n,1);
+ let runs=0;
+ const runner={preflight:async()=>{},run:async claim=>{runs++;await retainRoutineCheck(db,claim,{condition:'not_met',summary:'Still unavailable.',evidenceReferences:['fixture:public-source']});return {resultReference:'fixture:quiet-result'};}};
+ await executeNextOccurrence({ownerId:owner,workerId:'first-process',store:store(),runner});
+ await executeNextOccurrence({ownerId:owner,workerId:'restarted-process',store:store(),runner});
+ eq(runs,1);eq((await db.query('SELECT count(*)::int AS n FROM review_deliveries'))[0].n,0);
+ eq((await db.query('SELECT result_summary FROM task_runs'))[0].result_summary,'Still unavailable.');
+ const schedule=(await db.query('SELECT next_fire_at,last_fired_at FROM reminders WHERE id=$1',[reminder.id]))[0];assert(schedule.last_fired_at);assert(new Date(schedule.next_fire_at)>new Date());checks+=2;
+ await manageRoutine.execute({id:reminder.id,action:'pause'},ctx);
+ eq((await db.query('SELECT status FROM execution_routines WHERE id=$1',[id]))[0].status,'paused');
+ await manageRoutine.execute({id:reminder.id,action:'resume'},ctx);
+ // Resuming schedule does not silently restore reviewed execution authority.
+ eq((await db.query('SELECT status FROM execution_routines WHERE id=$1',[id]))[0].status,'paused');
+ await review.review({ownerId:owner,reminderId:reminder.id,expectedVersion:1,expectedRoutineVersion:1,agentId:'watcher',configuration:config});
+ await db.query('UPDATE reminders SET next_fire_at=$2 WHERE id=$1',[reminder.id,new Date(Date.now()-1000)]);
+ await enqueueReviewedReminders(owner,db,new Date(),store());
+ const orphan=await store().claim(owner,'terminated-process',1);assert(orphan);checks++;
+ await db.query("UPDATE execution_occurrences SET lease_expires_at=now()-interval '1 second' WHERE id=$1",[orphan.occurrenceId]);
+ const restarted=store();eq(await restarted.recoverExpired(owner),1);
+ await assert.rejects(()=>restarted.complete(orphan,'fixture:late'));checks++;
+ await manageRoutine.execute({id:reminder.id,action:'stop'},ctx);
+ eq((await db.query('SELECT status FROM reminders WHERE id=$1',[reminder.id]))[0].status,'cancelled');
+ eq(await enqueueReviewedReminders(owner,db,new Date(Date.now()+7200000),store()),0);
+ await assert.rejects(()=>manageRoutine.execute({id:reminder.id,action:'stop'},{session:{...ctx.session,auth:{current:{...ctx.session.auth.current,principalId:'foreign'}}}}));checks++;
+ eq(ROUTINE_RELEASE.enabled,false);
+ console.log(JSON.stringify({category:'DETERMINISTIC',checks,model:'controlled SDK proposal; not live inference',approval:'explicit harness step; browser approval NOT_RUN',scheduler:'canonical',quietResult:true,restart:'new store and worker identity; expired claim fenced',productionRelease:false,cloud:'NOT_RUN'}));
+}finally{neonConfig.fetchFunction=old;await client.query('SET search_path TO public');await client.query(`DROP SCHEMA ${schema} CASCADE`);client.release();await pool.end();}

@@ -1,0 +1,21 @@
+{
+  "sourceRepository": "jaydubya818/MyFactory",
+  "sourceCommit": "65d1e976ea0f45aedbb3b1444c5537a7e29c99d0",
+  "qualification": "Contract adoption only; runtime CLOUD Golden Journey NOT_RUN",
+  "files": [
+    {
+      "source": "packages/contracts/src/environment.ts",
+      "destination": "apps/eve/lib/environment-fabric/environment.ts",
+      "sourceSha256": "1844f841db35c591b227dec0a6486c91badbbed2fb2135d6895723f0e69bc8ae",
+      "sha256": "1844f841db35c591b227dec0a6486c91badbbed2fb2135d6895723f0e69bc8ae",
+      "adaptation": "None"
+    },
+    {
+      "source": "apps/supervisor/src/environment-router.ts",
+      "destination": "apps/eve/lib/environment-fabric/router.ts",
+      "sourceSha256": "ceda26ac688371aa3acf71d134f1ca0e62a02bf71e3f2f4411953b86be2f1c8c",
+      "sha256": "9abd19a54a6a012aea9458cd217ae8ddb61d671673f5030e2da802bb4ac69352",
+      "adaptation": "Relative import only"
+    }
+  ]
+}

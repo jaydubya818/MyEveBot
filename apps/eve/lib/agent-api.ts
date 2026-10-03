@@ -25,7 +25,9 @@ export function parseAgentWriteInput(value: unknown): AgentWriteInput | null {
   const reasoning = AGENT_REASONING.includes(body.reasoningPreference as never) ? body.reasoningPreference as AgentWriteInput["reasoningPreference"] : undefined;
   const risk = AGENT_RISK_CEILINGS.includes(body.riskCeiling as never) ? body.riskCeiling as AgentWriteInput["riskCeiling"] : undefined;
   const notification = AGENT_NOTIFICATION_POLICIES.includes(body.notificationPolicy as never) ? body.notificationPolicy as AgentWriteInput["notificationPolicy"] : undefined;
+  if (body.avatarConfig !== undefined && (!body.avatarConfig || typeof body.avatarConfig !== "object" || Array.isArray(body.avatarConfig) || !["initials","robot"].includes((body.avatarConfig as Record<string,unknown>).style as string) || !["sage","clay","slate"].includes((body.avatarConfig as Record<string,unknown>).tone as string) || Object.keys(body.avatarConfig).some(k=>!["style","tone"].includes(k)))) return null;
   return {
+    ...(body.avatarConfig ? {avatarConfig:body.avatarConfig as AgentWriteInput["avatarConfig"]}:{}),
     name: body.name,
     role: body.role,
     instructions: body.instructions,

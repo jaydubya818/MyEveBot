@@ -543,3 +543,31 @@
 /* Canonical action forms retain their full-width input layout. */
 .owner-form { display: grid; gap: 1rem; }
 .owner-shell select { width: 100%; }
+
+/* Product navigation stays persistent on desktop and leaves room for the
+   current outcome on small screens. Secondary destinations remain reachable. */
+@media (min-width: 901px) {
+  .owner-shell { display: grid; grid-template-columns: 220px minmax(0, 1fr); align-content: start; }
+  .owner-shell > .owner-top { grid-column: 1; grid-row: 1 / span 3; position: sticky; top: 0; height: 100dvh; align-self: start; overflow-y: auto; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 28px 18px; border-bottom: 0; border-right: 1px solid #51584d; }
+  .owner-shell > .owner-content { grid-column: 2; width: 100%; min-width: 0; }
+  .owner-primary { flex-direction: column; flex-wrap: nowrap; }
+}
+.owner-more > summary { min-height: 44px; padding: 12px 16px; cursor: pointer; font-size: 14px; }
+.owner-more > div { display: grid; }
+.owner-shell .owner-menu-toggle { display: none; }
+@media (max-width: 900px) {
+  .owner-shell > .owner-top { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; padding: 12px 16px; gap: 12px; }
+  .owner-shell .owner-menu-toggle { display: inline-flex; margin-left: auto; }
+  .owner-primary { display: none; width: 100%; }
+  .owner-primary[data-open="true"] { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .owner-more { grid-column: 1 / -1; }
+  .owner-more > div { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+
+.owner-work-overview { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,240px),1fr)); gap: 16px; margin: 20px 0; }
+.owner-work-lane { border: 1px solid var(--color-kumo-hairline); border-radius: 12px; padding: 16px; min-width: 0; }
+.owner-work-lane h3 { margin-top: 0; }
+.owner-work-navigation { display: grid; border-top: 1px solid var(--color-kumo-hairline); padding-top: 8px; }
+@media(max-width:900px) { .owner-work-navigation { grid-column: 1 / -1; grid-template-columns: repeat(3,minmax(0,1fr)); } }
+
+.owner-room-canvas { min-height: 220px; padding: 16px 0; border-bottom: 1px solid var(--color-kumo-hairline); margin-bottom: 16px; }

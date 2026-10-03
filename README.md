@@ -1,4 +1,19 @@
+> Current assembly status: [final private-alpha convergence](docs/consolidation/2026-10-03/README.md). Frozen Cloud P0 passed at its pinned runtime; historical checkpoint notes below retain their original evidence limits. The composed candidate is undergoing qualification.
+
+> **Current: DETERMINISTIC CLOUD GOLDEN JOURNEY PASS.** [Hosted P0 evidence](docs/verification/cloud-composition/hosted-p0.md). Zero local dependencies, paid model calls and production effects. Cloud feature development FROZEN; production admission/publication DISABLED. Older checkpoint statuses below are historical.
+
+> Current qualification: [hosted attempt 4](docs/verification/cloud-composition/attempt-4.md) passes deterministic CLOUD harness, private custody, independent verifier, durable Result/Proof and teardown. Fresh browser recovery PASS. Local P0 first run FAIL_TIMEOUT; Mac-off/hosted P0 NOT_RUN pending hosted test credential-destination approval. Paid calls 0; production/publication DISABLED. Older checkpoints below retain their original status.
+
+> Cloud staging implementation: [deterministic controller and Eve model boundary](docs/architecture/cloud-deterministic-composition.md). Hosted productive Work / Mac-off / P0 remain **NOT_RUN**; paid calls 0, production and publication disabled.
+
 # MyEve
+
+
+[Cloud execution migration](docs/architecture/cloud-execution.md): the local Factory provider seam is qualified, and dedicated staging database/private storage/hosted readiness are provisioned. The separate Cloud Execution owner superseded the historical image blocker at `faf93359a4c54daaf3e0b713a601366db02ba8d6`; see the current ownership addendum. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
+
+[Optional session surfaces](docs/environment-fabric/session-surfaces.md): Fabric has a typed observation/attachment contract and deterministic scope checks. CMUX/TMUX adapters and Control Center actions are deferred; neither is a production execution dependency.
+
+[Harness-neutral environment architecture](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/architecture/harness-neutral-environments.md) keeps agent identity independent of resource location and harness choice. Future CLOUD_COMPUTER is an optional qualified CLOUD capability profile; its runtime is deferred.
 
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner confirmed publication to draft PR #2; exact-candidate readback and real GitHub CI passed. Independent review found a numeric-range defect; the candidate remains unchanged and owner acceptance is NOT_RUN. The current-evidence presentation repair is qualified but not deployed. Historical Attempts 1–8 and the verified candidate remain immutable.
 
@@ -320,3 +335,48 @@ The isolated product candidate adds navigable Today/Work/Inbox/Needs You/Approva
 These are historical product qualification records. Use the current source and connection evidence linked above for deployment claims; a qualified interface does not imply that every live provider or delivery path is enabled.
 
 Private-alpha Attempt 5 completion repair and complete zero-model qualification: [evidence](docs/private-alpha/completion-transition-2026-10-01/README.md). Live retry remains unapproved.
+
+Safe-integer successor no-edit failure: [captured context, productive instruction repair and zero-model qualification](docs/private-alpha/no-edit-productive-2026-10-02/README.md). Fresh successor is paused; another live execution requires approval.
+
+
+MyFactory staging checkpoint [`1d31332`](https://github.com/jaydubya818/MyFactory/commit/1d3133273343d11833851c28c7f9c90cc302ec15) adds the canonical PostgreSQL V2 spend ledger and hosted private queue delivery. Connected queue completion occurred after the requesting process exited; duplicate submission reused the receipt. This is infrastructure qualification only. MyEve cloud Work routing, cloud harness, independent verifier and Mac-off/P0 remain unqualified; cloud admission and paid model calls remain disabled. The Attempt-8 publisher is unchanged.
+
+
+The explicit cloud client transport now pins MyFactory staging HTTPS and serializes immutable repository source without laptop paths. Local transport remains loopback-only. The isolated Sofie qualification project/database are provisioned with canonical migrations and no copied owner data. [Evidence](docs/cloud-execution/phase-3/README.md). Full MyEve regression: 2,001 passed, 94 skipped; typecheck and executor governance passed. Cloud runtime admission remains blocked pending source/verifier integration; Mac-off/P0 is NOT_RUN.
+
+
+Cloud execution snapshot V2 now pins the source tree, worker/verifier image digests, provider, policies, resource bounds, versioned skills and evidence class. MyEve verifies the same synthetic signed packet as Factory and rejects tampering and V1 downgrade. Cloud preparation requires V2 DETERMINISTIC evidence; local V1 behavior is retained. Validation: 2,003 tests passed, 94 skipped; typecheck, capability, skill routing and executor governance passed. Hosted cloud Work, verifier, Mac-off and P0 remain NOT_RUN. No paid models or publication were invoked.
+
+
+The V2 cloud custody path now accepts a bounded Factory file projection without running local Git, recomputes the exact source tree, and applies the existing authenticated candidate/commit identity guard. The local V1 custody path and Attempt-8 publisher remain unchanged. Full validation: 2,005 passed, 94 skipped; typecheck/governance passed. Hosted cloud Work, independent verifier, Mac-off and P0 remain NOT_RUN.
+
+Dedicated staging access approval is configured server-side only. A fixed operator probe and browser-bundle credential scan now guard the qualification path; hosted boundary tests are pending. All other isolated staging ingress remains closed until deterministic models are qualified. See [access boundary](docs/cloud-execution/phase-3/access-boundary.md).
+
+The hosted bundle credential scan passed (77 files). The access matrix remains NOT_RUN: operator ingress to the separately protected Sofie staging project requires its own grant or authenticated Vercel session. No Sofie bypass has been created. The Factory bypass remains backend-only; canonical cloud Work and Mac-off/P0 remain NOT_RUN.
+
+
+Dedicated Sofie CLOUD qualification now scans all four server credentials, including the explicitly approved Vercel runtime bypass, against browser bundles, prerendered HTML/hydration metadata, public files and public environment configuration. [Hosted build evidence](docs/cloud-execution/phase-3/sofie-runtime-bypass-build.json): containment and application-denial checks pass; Factory transport repair and canonical staging composition remain pending. Product status: **WAITING_FOR_CANONICAL_STAGING_COMPOSITION**. No paid model operations or production/publication changes.
+
+
+Dedicated Sofie staging access and revocation are CONNECTED PASS; the tested bypass is revoked. Cloud candidate readback now feeds the canonical custody writer with exact-tree validation (39 targeted tests and typecheck PASS). Hosted harness, independent cloud verifier, Mac-off and P0 remain NOT_RUN. [Current qualification status](docs/cloud-execution/phase-3/README.md).
+
+Cloud qualification: exact Sofie preview → Factory preview OIDC access and remove/restore revocation pass. The independent cloud verifier and strict signed Result consumer are implemented with 180 consumer regression tests passing. [Implementation/evidence limits](docs/architecture/cloud-factory-oidc.md). Product remains `WAITING_FOR_CANONICAL_STAGING_COMPOSITION`; hosted harness/verifier and Mac-off/P0 are NOT_RUN. Paid models: 0; production admission/publication: DISABLED.
+
+Cloud staging qualification: composed OIDC access PASS; [hosted deterministic attempt 1](docs/verification/cloud-composition/attempt-1.md) failed before allocation on a strict admission-schema mismatch. Repair/regression retained; hosted Golden Journey remains NOT_RUN.
+
+
+## Execution Environments
+
+Environment Fabric is **PARTIAL**. MyFactory now contains tested environment/capability contracts, deterministic routing functions and local metadata adapters, following an exact-commit T3 Code architecture review. Production Work routing and MyEve UI integration remain pending. Cloud runtime image distribution remains externally blocked; no laptop-independence claim is made.
+
+The architecture is MyEve → MyFactory → execution environment → harness → candidate custody → independent verifier → Result/Proof → owner-controlled effect. Relay supplies governed capabilities and communication across these boundaries. Cloud is intended for eligible background Work; Owner Computer for explicitly local files and desktop access; Local Factory for deliberate development/qualification. DeepAgent is a replaceable harness when qualified, not the environment fabric.
+
+The [capability matrix and evidence](docs/environment-fabric/qualification.md) distinguish deterministic tests, unrun connected gates and existing functionality. This checkpoint preserves the canonical Attempt-8 publisher and the current Mac integration.
+
+## Agent-native product work
+
+The dedicated product source adds canonical Work/Result/Proof and the existing owner decision inline in chat, plus persistent agent homes, capability-free configuration copies, conditional Routine checks, Today/Inbox responsibility progress and read-only Relay handoff evidence. Product navigation is simpler on desktop and mobile. These scoped surfaces are deterministically qualified; natural specialist execution, complete Routine lifecycle, persistent Groups and laptop-independent cloud execution remain separate gates. See [the product guide](docs/product/agent-native-work-experience.md) and [qualification and integration gates](docs/product/agent-native-integration-crosswalk.md).
+
+Agent-native continuation adds automatic Work Inbox settlement, shared Today/agent status, direct-owner profile tools without permission expansion, and deterministic Routine authoring/recovery. A bounded persistent Group domain and Designer→Engineer→Reviewer handoff contract are qualified against proposed isolated storage; production Group integration and real peers remain pending. The blanket Q37 dependency is stale: see [specific current dependencies](docs/product/current-product-dependencies.md) and [scoped qualification evidence](docs/verification/agent-native-work/product-continuation.md). Real CLOUD gates remain NOT_RUN; Routine release remains disabled.
+
+Product IA refinement adds Live Agent Cards, Work-state navigation, a simpler specialist editor, and an explicitly labeled Room preview. [Design decisions](docs/product/pluto-visual-ia-addendum.md) and [light/dark desktop/mobile qualification](docs/verification/agent-native-work/visual-ia-qualification.md) keep current cloud/Room integration limits explicit.

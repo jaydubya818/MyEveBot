@@ -1,0 +1,109 @@
+{
+  "observedAt": "2026-10-03T20:10:01.858466+00:00",
+  "mode": "read-only deployed target metadata",
+  "projects": {
+    "sofie-personal-agent": {
+      "id": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "rootDirectory": "apps/eve",
+      "targets": {
+        "production": {
+          "id": "dpl_8KkNLRY72vcCCLZrFRho5mVmHXt8",
+          "url": "sofie-personal-agent-qs8uxqs31-jaydubya818.vercel.app",
+          "sha": "fbeffa3f2df64aca0373bdfa39d2895fda145f9e",
+          "aliases": [
+            "sofie-personal-agent.vercel.app",
+            "sofie-personal-agent-jaydubya818.vercel.app"
+          ]
+        },
+        "preview": {
+          "id": "dpl_FubaHRwqWJWxfEFsF42u3VEqnAEP",
+          "url": "sofie-personal-agent-70y7t6vfm-jaydubya818.vercel.app",
+          "sha": "8689c602d5d10c2e0691590e11f14819bd2e3481",
+          "aliases": [
+            "sofie-personal-agent-git-codex-final-alpha-c-b2c835-jaydubya818.vercel.app"
+          ]
+        }
+      },
+      "trustedSources": null
+    },
+    "myfactory-cloud-staging": {
+      "id": "prj_IRXTY6HOzS2q9wRPdabsJnmddzl4",
+      "rootDirectory": "apps/cloud-control",
+      "targets": {
+        "preview": {
+          "id": "dpl_7T6LLm4VfhwiJUwHE7T5dtd3vwJM",
+          "url": "myfactory-cloud-staging-1tagdc8ao-jaydubya818.vercel.app",
+          "sha": "d84721cbb407db16598ee28e8f0dc5db27af6f5b",
+          "aliases": []
+        }
+      },
+      "trustedSources": {
+        "projects": {
+          "prj_XU7fJW735PtsnKoAYtGfzdnsotIB": {
+            "label": "Approved Sofie preview to Factory preview only; zero application or Work authority.",
+            "customAllow": [
+              {
+                "from": {
+                  "slugs": [
+                    "preview"
+                  ]
+                },
+                "to": {
+                  "slugs": [
+                    "preview"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "sofie-cloud-qualification": {
+      "id": "prj_XU7fJW735PtsnKoAYtGfzdnsotIB",
+      "rootDirectory": "apps/eve",
+      "targets": {
+        "production": {
+          "id": "dpl_CAntbLKfTFREn6yhABdr1JGVEmrw",
+          "url": "sofie-cloud-qualification-2r9035meo-jaydubya818.vercel.app",
+          "sha": null,
+          "aliases": [
+            "sofie-cloud-qualification-jaydubya818.vercel.app"
+          ]
+        },
+        "preview": {
+          "id": "dpl_2PY8W7Apit5pXD22kUaCy2iD14N3",
+          "url": "sofie-cloud-qualification-824wbmd9r-jaydubya818.vercel.app",
+          "sha": null,
+          "aliases": []
+        }
+      },
+      "trustedSources": null
+    },
+    "relay": {
+      "id": "prj_3IRvr9knK5VJcBTgTYMvhv6ixmJK",
+      "rootDirectory": null,
+      "targets": {
+        "production": {
+          "id": "dpl_EsMTWKbWmxW5xe5DzdTWZDgfLyvP",
+          "url": "relay-db6v0zoi2-jaydubya818.vercel.app",
+          "sha": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+          "aliases": [
+            "relay-sage-nine.vercel.app",
+            "relay-jaydubya818.vercel.app"
+          ]
+        },
+        "preview": {
+          "id": "dpl_2s6uf2GypCdLXFnJDgjgamei5EVP",
+          "url": "relay-xl3p4go3r-jaydubya818.vercel.app",
+          "sha": "837e670512152c5d65dc05ba9680285e9d20da01",
+          "aliases": [
+            "relay-git-codex-canonical-consolidation-jaydubya818.vercel.app"
+          ]
+        }
+      },
+      "trustedSources": null
+    }
+  },
+  "note": "Production target/alias is distinct from latest target=production build. Qualification SHA without provider metadata must be verified from retained handoff/build source."
+}

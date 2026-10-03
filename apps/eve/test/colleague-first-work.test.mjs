@@ -45,6 +45,6 @@ test("routines retain approval boundaries and safe management controls", async (
   ]);
   assert.match(migration, /approval_boundary/);
   assert.match(makeRoutine, /sourceOutcomeId/);
-  assert.match(manageRoutine, /"pause", "resume", "update", "test"/);
+  assert.match(manageRoutine, /"pause", "resume", "stop", "update", "test"/);
   assert.match(manageRoutine, /dryRun: true/);
 });
