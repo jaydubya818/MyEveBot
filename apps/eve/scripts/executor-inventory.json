@@ -3785,9 +3785,9 @@
       "sha256": "a852a5b206cbf425fb2a696c8cee1c118bd5102350f2a7c848891b95e476bbd5"
     },
     "lib/engineering/factory-transport.ts": {
-      "classification": "NOT_APPLICABLE",
-      "reason": "Pure exact-cloud-destination/transport validation and existing local transport; contains no static bypass field or token acquisition.",
-      "sha256": "403e0793f3359980ae45a7769b741fc078b92f2e12a4af1ff76cb33995e5e71b"
+      "classification": "ENFORCED",
+      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer.",
+      "sha256": "86c7e021dd7e392b214008b4c5b223486d8788bdb52654c68d2955ec33a46144"
     },
     "lib/engineering/factory-cloud-custody.ts": {
       "classification": "INTERNAL",
@@ -3811,8 +3811,8 @@
     },
     "lib/engineering/factory-request-headers.ts": {
       "classification": "ENFORCED",
-      "reason": "Backend-only exact Sofie preview workload identity to validated Factory destination. Reject wrong project/team/environment/expiry, no static credential fallback, never persist identity in a connection profile.",
-      "sha256": "93216885406d5cae1761b0abeaab80d6d8c45606f24d785fe907c3efbff58c60"
+      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer.",
+      "sha256": "944e0c57f92c96b08c1e9854356f61359815419dbc3d354ca1da5cd59e333132"
     },
     "lib/engineering/cloud-controller-delivery.ts": {
       "classification": "ENFORCED",
@@ -3953,6 +3953,16 @@
       "classification": "INTERNAL",
       "reason": "Pure strict Node TAP/spec implementation count display parser. Caller independently verifies signed bytes; counts grant no execution/publication authority.",
       "sha256": "d56e777af8be9aec90ece926ba8621317bc6bee472bdee70aa59ea61a87798e1"
+    },
+    "lib/engineering/production-installation.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Exact production-to-production outbound workload identity plus independent application authentication for owner-scoped installation observation only. Staging remains separately pinned. No execution connection, writer, source grant or qualification is created; credentials never enter the owner projection. Mismatched source identity, contradictory readiness and cross-owner sessions fail closed.",
+      "sha256": "f62006d7cf69e6c468f97e4bf920792fdf0ff7e871d7dece3f44393f70569d88"
+    },
+    "app/api/beta/factory-installation/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Exact production-to-production outbound workload identity plus independent application authentication for owner-scoped installation observation only. Staging remains separately pinned. No execution connection, writer, source grant or qualification is created; credentials never enter the owner projection. Mismatched source identity, contradictory readiness and cross-owner sessions fail closed.",
+      "sha256": "c15326f8cbfa0a35b737fbe3252d2e753986a6c9b5fd6cf27a06861229410f74"
     }
   }
 }

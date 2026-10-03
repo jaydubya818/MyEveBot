@@ -11,3 +11,20 @@ test('rejects public variables and base64 client leakage',t=>{const {root,env}=f
 test('fails closed on production target and missing outputs',t=>{const {root,env}=fixture(t);assert.throws(()=>checkCloudClientCredentials(root,{...env,VERCEL_ENV:'production'}),/PREVIEW_REQUIRED/);rmSync(join(root,'.next/static'),{recursive:true});assert.throws(()=>checkCloudClientCredentials(root,env),/CLIENT_ARTIFACTS_MISSING/);});
 
 test('rejects Proof read credential leakage',t=>{const {root,env}=fixture(t);writeFileSync(join(root,'.next/static/app.js'),env.FACTORY_PROOF_TOKEN);assert.throws(()=>checkCloudClientCredentials(root,env),/CLIENT_CREDENTIAL_DISCLOSURE/);});
+
+test('production scans fresh application and session credentials and rejects qualification configuration',t=>{
+ const {root}=fixture(t),env={VERCEL_PROJECT_ID:'prj_L6faw25wnFGUZtrLKBIccg8gIDLR',VERCEL_ENV:'production',MYEVE_FACTORY_PRODUCTION_APPLICATION_TOKEN:'p'.repeat(64),VERCEL_OIDC_TOKEN:'o'.repeat(64),MYEVE_SESSION_SECRET:'s'.repeat(64)};
+ assert.equal(checkCloudClientCredentials(root,env).credentials,3);
+ assert.throws(()=>checkCloudClientCredentials(root,{...env,SOFIE_CLOUD_QUALIFICATION_TOKEN:'q'.repeat(64)}),/QUALIFICATION_CREDENTIALS_IN_PRODUCTION/);
+ for(const file of ['.next/static/app.js','.next/server/index.html']){
+  writeFileSync(join(root,file),env.MYEVE_FACTORY_PRODUCTION_APPLICATION_TOKEN);assert.throws(()=>checkCloudClientCredentials(root,env),/CLIENT_CREDENTIAL_DISCLOSURE/);writeFileSync(join(root,file),'safe');
+ }
+});
+
+test('production contains partner credentials in public variables, plain bundles and base64 hydration',t=>{
+ const {root}=fixture(t),secret='partner-private-password-12345',env={VERCEL_PROJECT_ID:'prj_L6faw25wnFGUZtrLKBIccg8gIDLR',VERCEL_ENV:'production',MYEVE_FACTORY_PRODUCTION_APPLICATION_TOKEN:'p'.repeat(64),VERCEL_OIDC_TOKEN:'o'.repeat(64),MYEVE_PARTNER_ACCESS_PASSWORD:secret};
+ assert.throws(()=>checkCloudClientCredentials(root,{...env,NEXT_PUBLIC_PARTNER_PASSWORD:secret}),/PUBLIC_CREDENTIAL_CONFIGURATION/);
+ for(const [file,value] of [['.next/static/app.js',secret],['.next/server/page.rsc',Buffer.from(secret).toString('base64')]]){
+  writeFileSync(join(root,file),value);assert.throws(()=>checkCloudClientCredentials(root,env),/CLIENT_CREDENTIAL_DISCLOSURE/);writeFileSync(join(root,file),'safe');
+ }
+});
