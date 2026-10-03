@@ -1,16 +1,16 @@
 {
-  "attempt": "consolidation-readback-1",
-  "origin": "https://sofie-cloud-qualification-6w6edaoqx-jaydubya818.vercel.app",
+  "attempt": "consolidation-readback-2",
+  "origin": "https://sofie-cloud-qualification-pebguiohn-jaydubya818.vercel.app",
   "factoryVersion": "7f021fae886ea107d0df98401ccd772c6b893ccc16803d41c9f3ee931c969df9",
   "factorySourceSha": "b7550c84e6ab53ef9b87c6729a37871b5bcaa48f",
-  "myeveSourceSha": "4860ecce1af8089378aadf1321ed5c4bdabee6b1",
+  "myeveSourceSha": "138480b7f9a5820b45beecff2dd01fed546e5ac4",
   "paidModelOperations": 0,
   "publication": "DISABLED",
   "productionAdmission": "DISABLED",
   "maxNewWork": 0,
   "runAttempt": "1",
   "authorization": "Read-only recovery of the one already-completed assembled hosted Work; proxy blocks mutation except owner login. No execution retry or new Work.",
-  "myeveDeploymentId": "dpl_Ev3aa9WN7nmawvZ69eYhcMYTo1C5",
+  "myeveDeploymentId": "dpl_5ySJ5jcR9o1CEVWXLJSZcYz3rSCX",
   "runnerPreflightFailures": [
     {
       "runId": 37152278612,
@@ -20,5 +20,6 @@
   ],
   "recoverWorkId": "6d6b4cc2-af3d-4c96-a46c-84a0089eb6d4",
   "candidate": "282da900fa619caa5993bec37d80758485f28da0",
-  "priorExecutionRunId": 37152375269
+  "priorExecutionRunId": 37152375269,
+  "priorReadbackRunId": 37152868237
 }
