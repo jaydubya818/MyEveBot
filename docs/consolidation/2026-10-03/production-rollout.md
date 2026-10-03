@@ -36,3 +36,5 @@ Read-only MyEve production reconciliation after deployment: head0080, no pending
 Current status: platform deployment observed; full production deterministic qualification PARTIAL; execution contract NOT_READY; protected-verification policy NOT_READY; first paid canary NOT_READY. No production Work or paid model call was initiated by this rollout. No generated candidate publication, merge or deployment was initiated. Unobserved global safety metrics are not asserted zero.
 
 Relay production `/api/health/ready` returned200 with database, migrations, events and federation ready; remote main remained `a61f0ef697b02cf22da72ff2904c584d7faa026a`. Independent read-only review of the deployment checkpoint and gap inventory at `b9d03123` found no concrete factual/safety findings. No live calls or source edits were performed by the reviewer.
+
+A subsequent read-only production Factory ledger query returned all seven version/checksum pairs. Comparison against canonical Factory migration bytes passed with zero checksum mismatches and zero database mutations; exact CSV and validation receipt are retained.
