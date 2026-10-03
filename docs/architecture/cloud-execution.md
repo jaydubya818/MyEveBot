@@ -55,6 +55,8 @@ This branch disables its Git-triggered MyEve deployment using the repository's e
 
 ## Image blocker resolved; hosted infrastructure qualified
 
+## Historical image-distribution blocker (superseded)
+
 The provider-native Node 24 image resolves through `Sandbox.create()` and is pinned at `vercel/sandbox/node@sha256:6ad1291a9fe7d243ee9f23626e6b08614a596431801c55e14cc5ee9d525f28d1`. Direct OCI manifest 404 did not establish managed runtime unavailability. Custom VCR upload TLS failures remain unexplained but are nonblocking. No TLS weakening or replacement hosting architecture was needed.
 
 CONNECTED PASS: the hosted Factory control plane allocated the pinned sandbox, explicitly checked out the exact public commit/tree as an unprivileged user, disabled egress, ran six deterministic checks, collected a hash-validated artifact into dedicated private Blob storage and confirmed sandbox deletion. Independent post-teardown readback matched the artifact hash and anonymous access was denied. Repeated submission returned the original receipt. All failed requests/attempts and their repairs are preserved in the [Phase 2 evidence](https://github.com/jaydubya818/MyFactory/blob/4e5f7ebe7582125d8ba896751e32b405460346a0/docs/cloud-execution/phase-2/README.md).
@@ -76,3 +78,30 @@ The V2 cloud custody path now accepts a bounded Factory file projection without 
 Dedicated staging access approval is configured server-side only. A fixed operator probe and browser-bundle credential scan now guard the qualification path; hosted boundary tests are pending. All other isolated staging ingress remains closed until deterministic models are qualified. See [access boundary](../cloud-execution/phase-3/access-boundary.md).
 
 The hosted bundle credential scan passed (77 files). The access matrix remains NOT_RUN: operator ingress to the separately protected Sofie staging project requires its own grant or authenticated Vercel session. No Sofie bypass has been created. The Factory bypass remains backend-only; canonical cloud Work and Mac-off/P0 remain NOT_RUN.
+
+This historical resume condition was superseded by the Cloud Execution owner at `faf93359a4c54daaf3e0b713a601366db02ba8d6`, which qualified provider-native images and infrastructure lifecycle and implemented its qualification-only hosted controller. The full canonical harness/verifier/Result/Mac-off/P0 journey remains pending in its report. No real-model authorization is requested here.
+
+
+## Execution Environment Fabric review
+
+Canonical source reviewed before implementation: MyEve `2b22e387c053ba0631efc27c2e8f8a99fff1055e`, Relay `a61f0ef697b02cf22da72ff2904c584d7faa026a`, MyFactory `c0b4c1155a6a98f91375163443938042e6a0be10`. Existing cloud branches are preserved in `codex/environment-fabric`: MyEve `125bd01`, MyFactory `7a69c472f05d540f490a41e33014b978f1165e82`.
+
+T3 Code upstream `99e08526e5ec84f294940cba5929841518c52fec` was reviewed from README, internals and implementation. [MyFactory owns the crosswalk and contracts](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/environment-fabric/t3-crosswalk.md). Adopt environment-owned execution, capability-aware compatibility and server-state reconnect. Preserve existing provider/harness, Work, authority and publisher boundaries. Defer hidden Git refs: productive checks and immutable custody remain authoritative. No fork, copied T3 implementation or runtime dependency.
+
+Current implementation is **PARTIAL**: MyFactory has a strict V1 environment descriptor, typed capabilities, deterministic scope/qualification/availability-aware routing, and Owner Computer/Local Factory metadata projections. The local lifecycle provider is correctly labeled LOCAL_FACTORY. These functions are not integrated into production admission or the MyEve UI. Durable registry, authenticated remote commands, cloud custody/verifier and natural-input P0 journeys remain pending. MyEve's existing loopback-only Factory contract is intentionally preserved until its remote security and durability replacement is implemented.
+
+The old VCR immutable-image failure is retained history, superseded by the separate Cloud Execution owner. No repeated upload, provider switch, production rollout or paid model operation was performed. [Detailed qualification limits](../environment-fabric/qualification.md). A cloud descriptor or a unit-test pass must not advertise laptop independence.
+
+Canonical reconciliation: merged MyEve main `d75091eb333a531fa91ed9d39e273948aa9d0eaf` after it landed during checkpoint verification. All Attempt-8 runtime changes are preserved unchanged; only README prose required resolution.
+
+## Optional session surfaces
+
+ExecutionEnvironment → ExecutionProvider → HarnessProvider/existing harness → optional SessionSurfaceProvider. Fabric owns the typed contract/capabilities; Cloud Execution owns CLOUD + HEADLESS and optional CLOUD + TMUX. [Session handoff](../environment-fabric/session-surfaces.md). No MyEve UI action or live adapter is enabled. CMUX/TMUX must never become productive lifecycle, lease, verification or publication dependencies.
+
+## Harness-neutral environments and future cloud computer
+
+[Canonical Fabric contract](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/architecture/harness-neutral-environments.md): ExecutionEnvironment determines where Work runs; ExecutionProvider owns resource lifecycle; HarnessProvider determines how agentic Work runs; SessionSurfaceProvider supplies optional operator observation/attachment. The environment schema/provider interface contains no Codex, Claude Code, DeepAgent or Cursor selector. Existing qualified concrete harness behavior is preserved; alternate live harnesses remain separately qualified.
+
+CLOUD_COMPUTER is a future qualified profile of CLOUD, not a new environment type or agent identity. Browser, desktop, screenshot and appInteraction are independently optional capabilities. No cloud computer runtime is built or advertised here. Software Engineer, Designer, Researcher, Sofie and future specialists retain their identity across qualified environments; resource requirements, policy, authority and qualification determine routing. An agent receives bounded environment access rather than owning a computer. No role-to-environment mapping is permitted.
+
+This addition is contract/documentation only for MyEve. Cloud Execution continues existing harness → deterministic cloud execution → independent verifier → Mac-off Golden Journey → P0, without a new architecture gate.

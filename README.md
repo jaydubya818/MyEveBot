@@ -6,6 +6,13 @@
 
 # MyEve
 
+
+[Cloud execution migration](docs/architecture/cloud-execution.md): the local Factory provider seam is qualified, and dedicated staging database/private storage/hosted readiness are provisioned. The separate Cloud Execution owner superseded the historical image blocker at `faf93359a4c54daaf3e0b713a601366db02ba8d6`; see the current ownership addendum. Cloud execution remains **NOT_READY**; Mac-off, independent cloud verification and the live canary are not yet qualified.
+
+[Optional session surfaces](docs/environment-fabric/session-surfaces.md): Fabric has a typed observation/attachment contract and deterministic scope checks. CMUX/TMUX adapters and Control Center actions are deferred; neither is a production execution dependency.
+
+[Harness-neutral environment architecture](https://github.com/jaydubya818/MyFactory/blob/codex/environment-fabric/docs/architecture/harness-neutral-environments.md) keeps agent identity independent of resource location and harness choice. Future CLOUD_COMPUTER is an optional qualified CLOUD capability profile; its runtime is deferred.
+
 [Latest private-alpha qualification](docs/private-alpha/owner-publication-2026-10-02/README.md): Attempt 8 passed the first real local Sofie → MyFactory Golden Journey. The owner confirmed publication to draft PR #2; exact-candidate readback and real GitHub CI passed. Independent review found a numeric-range defect; the candidate remains unchanged and owner acceptance is NOT_RUN. The current-evidence presentation repair is qualified but not deployed. Historical Attempts 1–8 and the verified candidate remain immutable.
 
 [Prior admission-proposal repair](docs/private-alpha/second-live-semantics-2026-10-01/README.md) preserves Attempts 1–2 and the captured-response handoff qualification. Attempt 3 subsequently proved live admission and stopped at executor model validation; the latest record above supersedes its preparation status.
@@ -354,3 +361,12 @@ Dedicated Sofie staging access and revocation are CONNECTED PASS; the tested byp
 Cloud qualification: exact Sofie preview → Factory preview OIDC access and remove/restore revocation pass. The independent cloud verifier and strict signed Result consumer are implemented with 180 consumer regression tests passing. [Implementation/evidence limits](docs/architecture/cloud-factory-oidc.md). Product remains `WAITING_FOR_CANONICAL_STAGING_COMPOSITION`; hosted harness/verifier and Mac-off/P0 are NOT_RUN. Paid models: 0; production admission/publication: DISABLED.
 
 Cloud staging qualification: composed OIDC access PASS; [hosted deterministic attempt 1](docs/verification/cloud-composition/attempt-1.md) failed before allocation on a strict admission-schema mismatch. Repair/regression retained; hosted Golden Journey remains NOT_RUN.
+
+
+## Execution Environments
+
+Environment Fabric is **PARTIAL**. MyFactory now contains tested environment/capability contracts, deterministic routing functions and local metadata adapters, following an exact-commit T3 Code architecture review. Production Work routing and MyEve UI integration remain pending. Cloud runtime image distribution remains externally blocked; no laptop-independence claim is made.
+
+The architecture is MyEve → MyFactory → execution environment → harness → candidate custody → independent verifier → Result/Proof → owner-controlled effect. Relay supplies governed capabilities and communication across these boundaries. Cloud is intended for eligible background Work; Owner Computer for explicitly local files and desktop access; Local Factory for deliberate development/qualification. DeepAgent is a replaceable harness when qualified, not the environment fabric.
+
+The [capability matrix and evidence](docs/environment-fabric/qualification.md) distinguish deterministic tests, unrun connected gates and existing functionality. This checkpoint preserves the canonical Attempt-8 publisher and the current Mac integration.
