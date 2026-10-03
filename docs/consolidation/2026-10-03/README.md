@@ -1,3 +1,13 @@
+# Current continuation status — 2026-10-03
+
+The assembled hosted deterministic journey is **PASS**, including same-Work recovery, durable Test/Diff evidence, scope denials and the canonical owner-decision view. See [hosted receipt](hosted-assembled.md). The original failed test runs remain failures; read-only recoveries used the same Work and candidate.
+
+The production installation successor is being qualified. Fresh Factory production resources exist; no production Work has been admitted. Main integration, production deployment and real-model canary readiness are not yet claimed. See [production installation](production-installation.md).
+
+The sections below retain the earlier source-qualification record. Their pending hosted statements are historical and superseded by the hosted receipt above.
+
+---
+
 > Superseding authorization: [remaining mission](remaining-mission.md) authorizes platform main integration and production deployment after the new EvidenceProvider and composed-hosted gates pass. Prior missing-mission approval boundary below is historical. Paid real-model production Work remains unauthorized.
 
 # Final private-alpha convergence — 2026-10-03

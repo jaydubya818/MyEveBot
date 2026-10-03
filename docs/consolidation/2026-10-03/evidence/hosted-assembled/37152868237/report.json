@@ -1,0 +1,261 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/24.21.0/x64/bin/node",
+      "/home/runner/work/MyEveBot/MyEveBot/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "apps/eve/test/cloud/playwright.config.ts"
+    ],
+    "configFile": "/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/playwright.config.ts",
+    "rootDir": "/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/jaydubya818/MyEveBot/commit/84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+        "commitHash": "84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+        "buildHref": "https://github.com/jaydubya818/MyEveBot/actions/runs/37152868237"
+      },
+      "gitCommit": {
+        "shortHash": "84ded64",
+        "hash": "84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+        "subject": "test(consolidation): qualify assembled hosted deterministic journey",
+        "body": "test(consolidation): qualify assembled hosted deterministic journey\n",
+        "author": {
+          "name": "jaydubya818",
+          "email": "jaydubya818@gmail.com",
+          "time": 1791060516000
+        },
+        "committer": {
+          "name": "jaydubya818",
+          "email": "jaydubya818@gmail.com",
+          "time": 1791060516000
+        },
+        "branch": "codex/final-alpha-convergence"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/MyEveBot/MyEveBot/output/playwright/consolidation-cloud/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/jaydubya818/MyEveBot/commit/84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+            "commitHash": "84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+            "buildHref": "https://github.com/jaydubya818/MyEveBot/actions/runs/37152868237"
+          },
+          "gitCommit": {
+            "shortHash": "84ded64",
+            "hash": "84ded641116b83b05a27b8afbdab0c1fecf8cad2",
+            "subject": "test(consolidation): qualify assembled hosted deterministic journey",
+            "body": "test(consolidation): qualify assembled hosted deterministic journey\n",
+            "author": {
+              "name": "jaydubya818",
+              "email": "jaydubya818@gmail.com",
+              "time": 1791060516000
+            },
+            "committer": {
+              "name": "jaydubya818",
+              "email": "jaydubya818@gmail.com",
+              "time": 1791060516000
+            },
+            "branch": "codex/final-alpha-convergence"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud",
+        "testIgnore": [],
+        "testMatch": [
+          "*.spec.ts"
+        ],
+        "timeout": 420000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "/home/runner/work/MyEveBot/MyEveBot/output/playwright/consolidation-cloud/report.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "golden-journey.spec.ts",
+      "file": "golden-journey.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P0 real Eve → canonical CLOUD Work → browser-off → independent Proof",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "NOT_RUN: dedicated staging configuration and explicit deterministic runner activation are required.",
+                  "location": {
+                    "file": "/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/golden-journey.spec.ts",
+                    "line": 14,
+                    "column": 7
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 4,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T20:50:02.468Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "NOT_RUN: dedicated staging configuration and explicit deterministic runner activation are required.",
+                      "location": {
+                        "file": "/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/golden-journey.spec.ts",
+                        "line": 14,
+                        "column": 7
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "69331a4bd2edf8e0a016-2c0b4da6036c4fed21ba",
+          "file": "golden-journey.spec.ts",
+          "line": 13,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "readback-recovery.spec.ts",
+      "file": "readback-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "read-only browser recovery retains the original hosted candidate and evidence",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 420000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2625,
+                  "error": {
+                    "message": "Error: page.evaluate: Error: Canonical read failed: 409\n    at eval (eval at evaluate (:311:30), <anonymous>:3:22)\n    at async <anonymous>:337:30",
+                    "stack": "Error: page.evaluate: Error: Canonical read failed: 409\n    at eval (eval at evaluate (:311:30), <anonymous>:3:22)\n    at async <anonymous>:337:30\n    at eval (eval at evaluate (:311:30), <anonymous>:3:22)\n    at async <anonymous>:337:30\n    at read (/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/readback-recovery.spec.ts:7:55)\n    at /home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/readback-recovery.spec.ts:28:9",
+                    "location": {
+                      "file": "eval at evaluate (:311:30), <anonymous>",
+                      "column": 22,
+                      "line": 3
+                    }
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "eval at evaluate (:311:30), <anonymous>",
+                        "column": 22,
+                        "line": 3
+                      },
+                      "message": "Error: page.evaluate: Error: Canonical read failed: 409\n    at eval (eval at evaluate (:311:30), <anonymous>:3:22)\n    at async <anonymous>:337:30\n    at eval (eval at evaluate (:311:30), <anonymous>:3:22)\n    at async <anonymous>:337:30\n    at read (/home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/readback-recovery.spec.ts:7:55)\n    at /home/runner/work/MyEveBot/MyEveBot/apps/eve/test/cloud/readback-recovery.spec.ts:28:9"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-03T20:50:02.772Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "cloud-readback",
+                      "contentType": "application/json",
+                      "body": "ewogICJraW5kIjogIkNPTk5FQ1RFRF9SRUFEQkFDSyIsCiAgInByaW9yRXhlY3V0aW9uUnVuSWQiOiAzNzE1MjM3NTI2OSwKICAid29ya0lkIjogIjZkNmI0Y2MyLWFmM2QtNGM5Ni1hNDZjLTg0YTAwODllYjZkNCIsCiAgImNhbmRpZGF0ZSI6ICIyODJkYTkwMGZhNjE5Y2FhNTk5M2JlYzM3ZDgwNzU4NDg1ZjI4ZGEwIiwKICAibmV3V29yayI6IDAsCiAgImV4ZWN1dGlvblJldHJpZXMiOiAwLAogICJzdGF0dXMiOiAiRkFJTCIsCiAgImV2aWRlbmNlIjogWwogICAgewogICAgICAicmVmZXJlbmNlIjogImZhY3RvcnktZXZpZGVuY2U6c2hhMjU2OmNmMWQxZTY2MDhhZTZkMjc1YzlhNWI1N2VlZjZmNTFlMzUyYjBiMDFmMWEzM2E4NDg3MWFlODdlNjI2NGUyMzkiLAogICAgICAic3RhdHVzIjogMjAwLAogICAgICAidHlwZSI6ICJhcHBsaWNhdGlvbi9vY3RldC1zdHJlYW0iLAogICAgICAiZGlzcG9zaXRpb24iOiAiYXR0YWNobWVudDsgZmlsZW5hbWU9XCJEaWZmRXZpZGVuY2UtY2UzMTM3ODc5NmNhLmRpZmZcIiIsCiAgICAgICJieXRlcyI6IDU3NiwKICAgICAgImNyb3NzT3duZXJTdGF0dXMiOiA0MDMsCiAgICAgICJjcm9zc1dvcmtTdGF0dXMiOiA0MDQKICAgIH0sCiAgICB7CiAgICAgICJyZWZlcmVuY2UiOiAiZmFjdG9yeS1ldmlkZW5jZTpzaGEyNTY6ZmQxMTZlOWZmMTMwMTVhNDNjMWY2ZWU4MDA0ZWFjMzkxNWIwMGFhYjRjYmZjYjVkMmUyOTAyZjM1ODk1MDI3YiIsCiAgICAgICJzdGF0dXMiOiAyMDAsCiAgICAgICJ0eXBlIjogImFwcGxpY2F0aW9uL29jdGV0LXN0cmVhbSIsCiAgICAgICJkaXNwb3NpdGlvbiI6ICJhdHRhY2htZW50OyBmaWxlbmFtZT1cIlRlc3RFdmlkZW5jZS0zMGNkMGY1YzgwMmEuanNvblwiIiwKICAgICAgImJ5dGVzIjogMTY2LAogICAgICAiY3Jvc3NPd25lclN0YXR1cyI6IDQwMywKICAgICAgImNyb3NzV29ya1N0YXR1cyI6IDQwNAogICAgfQogIF0sCiAgImJyb3dzZXJEb3dubG9hZCI6ICJEaWZmRXZpZGVuY2UtY2UzMTM3ODc5NmNhLmRpZmYiLAogICJmYWlsdXJlIjogIkVycm9yOiBwYWdlLmV2YWx1YXRlOiBFcnJvcjogQ2Fub25pY2FsIHJlYWQgZmFpbGVkOiA0MDlcbiAgICBhdCBldmFsIChldmFsIGF0IGV2YWx1YXRlICg6MzExOjMwKSwgPGFub255bW91cz46MzoyMilcbiAgICBhdCBhc3luYyA8YW5vbnltb3VzPjozMzc6MzAiCn0="
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/runner/work/MyEveBot/MyEveBot/output/playwright/consolidation-cloud/artifacts/readback-recovery-read-onl-df0d3-sted-candidate-and-evidence/error-context.md"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "eval at evaluate (:311:30), <anonymous>",
+                    "column": 22,
+                    "line": 3
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "6b761896b8dee56b9bdc-aa733e46b0a13cd2503e",
+          "file": "readback-recovery.spec.ts",
+          "line": 9,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-03T20:50:01.950Z",
+    "duration": 3538.9040000000005,
+    "expected": 0,
+    "skipped": 1,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}
