@@ -1,3 +1,4 @@
+import { nodeTestSummary } from './node-test-summary.ts';
 import { proofOfWorkSchema } from "../digital-worker/contracts.ts";
 import { observeAuthenticatedFactoryResult } from "./factory-authenticated-result.ts";
 import { randomUUID } from "node:crypto";
@@ -49,16 +50,16 @@ export class OwnerPublication {
    const raw=envelope.artifacts.find((a:any)=>a.id===check.logArtifactId);
    if(check.status!=="passed"||check.exitCode!==0||!meta||!raw)deny("Implementation checks unavailable.");
    const bytes=Buffer.from(raw.base64,"base64");if(sha256(bytes)!==meta.sha256)deny("Implementation evidence changed.");
-   const log=bytes.toString("utf8"),total=Number(log.match(/^# tests (\d+)$/m)?.[1]),pass=Number(log.match(/^# pass (\d+)$/m)?.[1]);
-   if(!Number.isSafeInteger(total)||total<1||pass!==total)deny("Implementation test counts unavailable.");
-   implementationPassed+=pass;implementationTotal+=total;
+   const counts=nodeTestSummary(bytes.toString("utf8"));
+   if(!counts)deny("Implementation test counts unavailable.");
+   implementationPassed+=counts.passed;implementationTotal+=counts.total;
   }
   if(!implementationTotal)deny("No implementation evidence.");
   const binding:PublicationBinding={owner,workId,resultId:row.result_id,resultHash:row.content_hash,version:work.version,generation:work.generation,
    candidate:candidate.sha,verifiedTree:candidate.tree,repository:work.repository,baseRef:config.profile.baseBranch,
    expectedBaseSha:config.approvedBase.sha,branch:`codex/factory/wo-${candidate.factoryProvenance!.workOrderId}`,
    receiptId:candidate.id,profileHash:row.profile_hash,allowedPaths:config.profile.allowedPaths,
-   title:"Implement positive-integer quantity validation",
+   title:work.title.slice(0,200),
    body:`Implement ${candidate.changedPaths.join(", ")} under the reviewed public contract.\n\nImplementation checks: ${implementationPassed}/${implementationTotal}. Independent protected checks: ${row.evidence_count}/${row.evidence_count}.\n\nCandidate: ${candidate.sha}\nVerified tree: ${candidate.tree}\nWork: ${workId}\n\nGitHub CI and independent review remain pending. No merge, deployment or owner acceptance is authorized.`,
    publicationReady:true,ownerAcceptance:"NOT_RUN"};
   if(work.repository!==config.profile.repository)deny("Repository differs from qualified custody.");

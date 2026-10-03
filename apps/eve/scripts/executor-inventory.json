@@ -3766,8 +3766,8 @@
     },
     "lib/engineering/owner-publication.ts": {
       "classification": "INTERNAL",
-      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
-      "sha256": "4981477fff4b2e5294cf19c9d9f0336e8e35e1946db14079ab90cc690386e4a1"
+      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Cloud compatibility: signed Node TAP/spec summaries require unique safe passing counts; actual Work title replaces historical fixture title. All custody/protected-verification/owner guards remain.",
+      "sha256": "b00ee27751d845fdaff9647ab788d190ded52ebc1baa6ab2031623b9e55104c8"
     },
     "lib/engineering/publication-contract.ts": {
       "classification": "INTERNAL",
@@ -3948,6 +3948,11 @@
       "classification": "READ_ONLY",
       "reason": "Authenticated same-origin exact Work/Result evidence download through canonical beta boundary; cross-owner access requires explicit current shared RESULT grant.",
       "sha256": "6655edbc434926e4dd2ddbdfc8bd71cdb1718670524e9ae5730918355400ef42"
+    },
+    "lib/engineering/node-test-summary.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure strict Node TAP/spec implementation count display parser. Caller independently verifies signed bytes; counts grant no execution/publication authority.",
+      "sha256": "d56e777af8be9aec90ece926ba8621317bc6bee472bdee70aa59ea61a87798e1"
     }
   }
 }
