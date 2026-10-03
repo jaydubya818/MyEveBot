@@ -1,5 +1,5 @@
 {
-  "status": "ASSEMBLED_QUALIFICATION_IN_PROGRESS",
+  "status": "SOURCE_CONSOLIDATION_REVIEW_PASS_AWAITING_HOSTED_PROMOTION_SCOPE",
   "canonicalBase": "d75091eb333a531fa91ed9d39e273948aa9d0eaf",
   "inputs": {
     "privateAlpha": "db13cfad7d97ff6caffa657eede58bead41a8929",
@@ -20,5 +20,58 @@
     "productionResourcesProvisioned": 0
   },
   "cloudEvidenceBoundary": "Frozen Cloud checkpoint proved zero local runtime dependencies. Physical Mac power state was not independently observed. Evidence does not automatically qualify the assembled runtime.",
-  "deploymentAuthorization": "Full mission sections 1\u201319 were referenced but not supplied; clarification pending. Frozen promotion manifest is PREPARED_NOT_APPROVED_FOR_PRODUCTION."
+  "deploymentAuthorization": "Full mission sections 1\u201319 were referenced but not supplied; clarification pending. Frozen promotion manifest is PREPARED_NOT_APPROVED_FOR_PRODUCTION.",
+  "reviewedSources": {
+    "MyEve": "1f0469ac0ab75a16b360bfca45c8f506d13c5e10",
+    "MyFactory": "0fbc881d1dcac99f87f1e5992baeafac565afa7a",
+    "Relay": "a61f0ef697b02cf22da72ff2904c584d7faa026a"
+  },
+  "qualification": {
+    "freshMyEveApplication": {
+      "passed": 2059,
+      "skipped": 94
+    },
+    "freshMyEveRoot": {
+      "passed": 209,
+      "skipped": 2
+    },
+    "freshFactory": {
+      "passed": 447,
+      "skipped": 20
+    },
+    "freshRelay": {
+      "passed": 450,
+      "skipped": 6
+    },
+    "ProductBrowser": {
+      "passed": 50,
+      "desktopAnd390px": true,
+      "visualBaselinesChanged": false
+    },
+    "ownerIsolation": {
+      "passed": 24,
+      "privateDisclosures": 0,
+      "credentialTransfers": 0,
+      "implicitPromotions": 0
+    },
+    "FactoryTLSPostgres": {
+      "passed": 21,
+      "migration": "006"
+    },
+    "isolatedInstalledHarness": {
+      "passed": 18,
+      "realProviderCalls": 0
+    },
+    "composedMyEveFactoryJourney": {
+      "passed": 26,
+      "executions": 8,
+      "concurrentWriters": 0,
+      "duplicateDispatches": 0,
+      "falseReady": 0,
+      "unauthenticatedAdmissions": 0,
+      "liveProviderCalls": 0,
+      "productionPublicationEffects": 0
+    }
+  },
+  "qualificationSourceDependency": "5cd13fa1f307a0c0f42f6317d966bb3179ad77c9 retained as Factory ancestor without tree changes"
 }

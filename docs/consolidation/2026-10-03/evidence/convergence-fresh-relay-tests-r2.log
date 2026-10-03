@@ -1,0 +1,562 @@
+
+> relay@0.1.0 test:ci /private/tmp/final-alpha-fresh-relay-20261003
+> vitest run --fileParallelism=false --exclude 'tests/e2e/**' --exclude '**/*.performance.test.ts'
+
+
+ RUN  v3.2.4 /private/tmp/final-alpha-fresh-relay-20261003
+
+ ✓ tests/federation/federation.test.ts (24 tests) 15685ms
+   ✓ federation trust boundaries > retires an outgoing peer and cancels its event in the receiving account  786ms
+   ✓ federation trust boundaries > serializes incoming Knowledge requests and publication with retirement  669ms
+   ✓ federation trust boundaries > persists a metadata-only signed denial receipt after authorization rolls back  651ms
+   ✓ federation trust boundaries > qualifies the two-owner golden path from publication through work and artifact sharing  977ms
+   ✓ federation trust boundaries > rejects caller spoofing, forged registration ownership, sibling agents, and unrelated result readers  735ms
+   ✓ federation trust boundaries > rechecks revoke before delivery  657ms
+   ✓ federation trust boundaries > rechecks version before delivery  637ms
+   ✓ federation trust boundaries > rechecks delete before delivery  632ms
+   ✓ federation trust boundaries > rechecks block before delivery  674ms
+   ✓ federation trust boundaries > rechecks rotate before delivery  654ms
+   ✓ federation trust boundaries > rejects unpublished records, hidden reasoning, and mismatched versions  728ms
+   ✓ federation trust boundaries > deduplicates concurrent admission, bounds redelivery, and separates offline delivery from acceptance  705ms
+   ✓ federation trust boundaries > returns written answers only for the exact authorized request and receiving peer  801ms
+   ✓ federation trust boundaries > keeps message authority separate and allows local refusal  703ms
+   ✓ federation trust boundaries > bounds work, rejects privilege escalation, and returns evidence  803ms
+   ✓ federation trust boundaries > uses shared approvals, denies default policy even with an approval floor, and resumes exact approved delivery  701ms
+   ✓ federation trust boundaries > shares expiring audience-bound artifacts and rejects forged work context  698ms
+   ✓ federation trust boundaries > enforces public query policy and excludes private metadata from discovery  697ms
+   ✓ federation trust boundaries > rejects expired requests and enforces durable rate limits  664ms
+   ✓ federation trust boundaries > preserves identity through credential rotation and applies owner grants without transferring Agent-specific grants  676ms
+   ✓ federation trust boundaries > keeps MCP semantics identical and completes authenticated messaging  749ms
+   ✓ federation trust boundaries > indexes only explicitly public profiles and view metadata  647ms
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > projects and executes only explicitly granted email and calendar reads
+{"level":"info","event":"capability_call","requestId":"ags_69273ae50c3d4ee7a4f3d1453fb32932","agentId":"agt_55c6aca4486440b7ba373fc904852224","capability":"email.search","status":"SUCCESS","durationMs":3}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > projects and executes only explicitly granted email and calendar reads
+{"level":"info","event":"capability_call","requestId":"ags_69273ae50c3d4ee7a4f3d1453fb32932","agentId":"agt_55c6aca4486440b7ba373fc904852224","capability":"email.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > projects and executes only explicitly granted email and calendar reads
+{"level":"info","event":"capability_call","requestId":"ags_69273ae50c3d4ee7a4f3d1453fb32932","agentId":"agt_55c6aca4486440b7ba373fc904852224","capability":"calendar.event.list","status":"SUCCESS","durationMs":2}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > projects and executes only explicitly granted email and calendar reads
+{"level":"info","event":"capability_call","requestId":"ags_69273ae50c3d4ee7a4f3d1453fb32932","agentId":"agt_55c6aca4486440b7ba373fc904852224","capability":"calendar.event.read","status":"SUCCESS","durationMs":1}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > projects and executes only explicitly granted email and calendar reads
+{"level":"info","event":"capability_call","requestId":"ags_69273ae50c3d4ee7a4f3d1453fb32932","agentId":"agt_55c6aca4486440b7ba373fc904852224","capability":"calendar.availability.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > projects and executes only explicitly granted email and calendar reads
+{"level":"info","event":"capability_call","requestId":"ags_c036c83a4863430e8fc382093c2c0a4d","agentId":"agt_33b356d1c75f4538a861827a636fa8fc","capability":"email.search","status":"DENIED","durationMs":1}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > fails cleanly after disconnect and never borrows another account's connection
+{"level":"info","event":"capability_call","requestId":"ags_ebc0d170d38240da88c7416d11f0bb2b","agentId":"agt_14abfd7e9fb6436e8aa938a38642a61d","capability":"email.search","status":"FAILED","durationMs":2}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > fails cleanly after disconnect and never borrows another account's connection
+{"level":"info","event":"capability_call","requestId":"ags_ebc0d170d38240da88c7416d11f0bb2b","agentId":"agt_14abfd7e9fb6436e8aa938a38642a61d","capability":"email.search","status":"FAILED","durationMs":1}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > recovers an ERROR connection when its existing refresh grant succeeds later
+{"level":"info","event":"capability_call","requestId":"ags_7e19216815164d5394d533999a08e034","agentId":"agt_0894ffd9973147009a586c9d89c981c7","capability":"email.search","status":"FAILED","durationMs":3}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > recovers an ERROR connection when its existing refresh grant succeeds later
+{"level":"info","event":"capability_call","requestId":"ags_7e19216815164d5394d533999a08e034","agentId":"agt_0894ffd9973147009a586c9d89c981c7","capability":"email.search","status":"SUCCESS","durationMs":3}
+
+stdout | tests/google/google-capabilities.test.ts > Google read capabilities > recovers an ERROR connection when its existing refresh grant succeeds later
+{"level":"info","event":"capability_call","requestId":"ags_7e19216815164d5394d533999a08e034","agentId":"agt_0894ffd9973147009a586c9d89c981c7","capability":"calendar.event.list","status":"SUCCESS","durationMs":1}
+
+ ✓ tests/google/google-capabilities.test.ts (4 tests) 2382ms
+   ✓ Google read capabilities > projects and executes only explicitly granted email and calendar reads  621ms
+   ✓ Google read capabilities > fails cleanly after disconnect and never borrows another account's connection  559ms
+   ✓ Google read capabilities > recovers an ERROR connection when its existing refresh grant succeeds later  616ms
+   ✓ Google read capabilities > keeps a concurrent successful refresh from being overwritten by a late failure  586ms
+ ✓ tests/v2/policy.test.ts (6 tests) 2467ms
+   ✓ Relay V2 capability registry and policy engine > persists and reproduces the exact historic decision  626ms
+   ✓ Relay V2 capability registry and policy engine > accepts an authoritative fact observed while the resolver is running  606ms
+   ✓ Relay V2 capability registry and policy engine > fails closed for missing, stale, and conflicting authoritative facts  602ms
+   ✓ Relay V2 capability registry and policy engine > requires action-bound step-up to activate account policy and rejects tenant substitution  619ms
+ ✓ tests/v2/channel-pipeline.test.ts (23 tests) 11529ms
+   ✓ durable owner channel > deduplicates ingress and resumes delivery without executing work again  674ms
+   ✓ durable owner channel > does not start work for disabled execution, Agent or grants  628ms
+   ✓ durable owner channel > denies forged, unpaired and revoked ingress  602ms
+   ✓ durable owner channel > reconciles a crashed start instead of repeating it  659ms
+   ✓ durable owner channel > retries admission only with proof and no known Run (known=false)  663ms
+   ✓ durable owner channel > retries admission only with proof and no known Run (known=true)  673ms
+   ✓ durable owner channel > persists cancellation through revocation and never converts it back to START  622ms
+   ✓ durable owner channel > keeps cancellation visibly pending when the executor cannot confirm it  626ms
+   ✓ durable owner channel > disabling execution drains cancellation without dispatching work  600ms
+   ✓ durable owner channel > retries delivery alone after a known pre-effect rate limit  639ms
+   ✓ durable owner channel > never automatically retries unknown delivery  618ms
+   ✓ durable owner channel > never automatically retries permanent delivery  698ms
+   ✓ durable owner channel > never automatically retries authentication delivery  782ms
+   ✓ durable owner channel > retains opaque approval controls and consumes one owner decision  759ms
+   ✓ durable owner channel > suppresses queued delivery after revocation  732ms
+   ✓ durable owner channel > bounds work and keeps private text out of audit and receipts  745ms
+   ✓ durable owner channel > denies signature replay and authority mutations  807ms
+ ✓ tests/v2/orchestration.test.ts (8 tests) 5862ms
+   ✓ Relay V2 durable event and task orchestration > verifies before persistence and converges duplicate and reordered deliveries  886ms
+   ✓ Relay V2 durable event and task orchestration > allows exactly one concurrent claim and rejects stale coordinator fencing after worker recovery  869ms
+   ✓ Relay V2 durable event and task orchestration > dead-letters poison input and permits a single explicit account-scoped replay  755ms
+   ✓ Relay V2 durable event and task orchestration > never automatically retries a possibly committed effect after worker death  872ms
+   ✓ Relay V2 durable event and task orchestration > keeps acknowledged events and outbox messages durable across publisher failure  859ms
+   ✓ Relay V2 durable event and task orchestration > durably cancels queued work even when Temporal delivery is unavailable  777ms
+   ✓ Relay V2 durable event and task orchestration > isolates routes, jobs, history, outbox, and dead letters by tenant  845ms
+ ✓ tests/federation/authority-inspection.test.ts (20 tests) 14205ms
+   ✓ authenticated authority inspection > supports explicit no-expiry grants while rechecking revocation at execution  1056ms
+   ✓ authenticated authority inspection > does not grant no-expiry access to private Knowledge or future grants  599ms
+   ✓ authenticated authority inspection > uses the additive command and creates no durable execution authority or signature  628ms
+   ✓ authenticated authority inspection > reports exact expired grant without admitting a request  722ms
+   ✓ authenticated authority inspection > reports exact revoked grant without admitting a request  757ms
+   ✓ authenticated authority inspection > reports exact future grant without admitting a request  754ms
+   ✓ authenticated authority inspection > reports a expired replacement rather than a historical revocation  682ms
+   ✓ authenticated authority inspection > reports a future replacement rather than a historical revocation  813ms
+   ✓ authenticated authority inspection > reports a active replacement rather than a historical revocation  743ms
+   ✓ authenticated authority inspection > keeps missing and private Knowledge indistinguishable even when a grant names it  607ms
+   ✓ authenticated authority inspection > distinguishes a safe messaging resource or capability mismatch without listing grants  724ms
+   ✓ authenticated authority inspection > derives caller identity from authentication and rejects identity overrides  709ms
+   ✓ authenticated authority inspection > does not transfer authority to a namesake peer or another account  672ms
+   ✓ authenticated authority inspection > does not disclose blocked peer or private resource existence  538ms
+   ✓ authenticated authority inspection > reports unavailable only for a caller's exact previously granted peer  583ms
+   ✓ authenticated authority inspection > rechecks execution after inspection then revoke  589ms
+   ✓ authenticated authority inspection > rechecks execution after inspection then expire  574ms
+   ✓ authenticated authority inspection > evaluates current policy and preserves its approval floor without creating approval  556ms
+   ✓ authenticated authority inspection > enforces per-agent rate limits  995ms
+   ✓ live local inspection route > returns active, expired, revoked and missing over HTTP without execution  904ms
+ ✓ tests/v2/runners.test.ts (15 tests) 9589ms
+   ✓ WO-14 customer runners and private gateway > uses one-time proof-of-possession enrollment and does not trust forged attestation  580ms
+   ✓ WO-14 customer runners and private gateway > polls outbound with a signed certificate and isolates runner assignments by tenant  614ms
+   ✓ WO-14 customer runners and private gateway > allows only named assignment-scoped private resources and socket-broker handles  593ms
+   ✓ WO-14 customer runners and private gateway > accepts ordered signed runner-reported evidence and rejects stale fences  625ms
+   ✓ WO-14 customer runners and private gateway > revokes runner, assignments, workloads, leases, and future polling  622ms
+   ✓ WO-14 customer runners and private gateway > makes Agent input and human takeover mutually exclusive under a race  595ms
+   ✓ WO-14 customer runners and private gateway > proxies short-lived viewer grants and suppresses protected credential frames  589ms
+   ✓ WO-14 customer runners and private gateway > resumes only after policy/integrity checks and rotates fences and viewers  626ms
+   ✓ WO-17 Google Drive and Linear connectors > uses one-time tenant-bound OAuth state and stores only broker handles with visible scopes  586ms
+   ✓ WO-17 Google Drive and Linear connectors > enforces selected roots and lease hashes, reconciles writes, and detects permission drift  611ms
+   ✓ WO-17 Google Drive and Linear connectors > revokes provider credentials and fails closed before future connector effects  676ms
+   ✓ WO-17 Google Drive and Linear connectors > restricts Linear writes to selected teams and the qualified issue fields  714ms
+   ✓ WO-16 Slack and Telegram communications > verifies Slack signatures, rejects replay-window abuse, wakes one task, and suppresses bot echoes  671ms
+   ✓ WO-16 Slack and Telegram communications > verifies Telegram webhook tokens, deduplicates updates, and classifies attachment metadata  666ms
+   ✓ WO-16 Slack and Telegram communications > requires approval for a new recipient, sends once, isolates tenants, and reconciles ambiguity  819ms
+ ✓ tests/v2/release-qualification.test.ts (5 tests) 804ms
+   ✓ Relay V2 release qualification gate > requires an account column on every tenant-owned database table  799ms
+ ✓ tests/v2/developer-platform.test.ts (5 tests) 2459ms
+   ✓ Relay V2 REST, MCP, and runtime interoperability > serializes concurrent idempotent submission and durably wakes exactly once  630ms
+   ✓ Relay V2 REST, MCP, and runtime interoperability > fails closed for wrong tenant, OAuth resource/audience, and changed idempotent action  594ms
+   ✓ Relay V2 REST, MCP, and runtime interoperability > supports stateless discovery, legacy negotiation, authenticated listing, and structured MCP results  609ms
+   ✓ Relay V2 REST, MCP, and runtime interoperability > exercises the TypeScript reference client as a Codex integration profile  623ms
+ ✓ tests/v2/execution-providers.test.ts (7 tests) 5537ms
+   ✓ Relay V2 execution provider SDK and scheduler > filters hard security constraints before scoring fast or cheap providers  717ms
+   ✓ Relay V2 execution provider SDK and scheduler > fails over only after an explicit pre-effect failure  785ms
+   ✓ Relay V2 execution provider SDK and scheduler > requires reconciliation and refuses failover after an ambiguous dispatch  766ms
+   ✓ Relay V2 execution provider SDK and scheduler > opens the shared circuit after repeated provider failures  840ms
+   ✓ Relay V2 execution provider SDK and scheduler > rejects a stored provider manifest whose signed content was tampered  1210ms
+   ✓ Relay V2 execution provider SDK and scheduler > isolates placement and attempt access by account and prevents concurrent dispatch  1217ms
+ ✓ tests/v2/money.test.ts (6 tests) 3517ms
+   ✓ WO-18 financial domain and controlled purchase intents > reserves exact authority, consumes a once approval, fences Agent input, and records a redacted receipt  784ms
+   ✓ WO-18 financial domain and controlled purchase intents > invalidates approval and checkout when merchant, currency, or total changes  662ms
+   ✓ WO-18 financial domain and controlled purchase intents > never retries an ambiguous effect and marks the purchase budget unknown  667ms
+   ✓ WO-18 financial domain and controlled purchase intents > serializes concurrent purchase intents against the shared hard budget  713ms
+   ✓ WO-18 financial domain and controlled purchase intents > isolates purchase, receipt, and aggregator boundaries by account  690ms
+ ✓ tests/unit/crypto.test.ts (2 tests) 1249ms
+   ✓ credential security > hashes passwords and agent credentials without storing their plaintext  675ms
+   ✓ credential security > encrypts and decrypts provider credentials  574ms
+ ✓ tests/v2/dashboard.test.ts (2 tests) 719ms
+   ✓ WO-21 operator dashboard boundary > projects only the authenticated account and omits durable credentials  716ms
+ ✓ tests/v2/budgets.test.ts (7 tests) 2875ms
+   ✓ Relay V2 budget engine > atomically prevents concurrent reservations from exceeding child and parent hard ceilings  768ms
+   ✓ Relay V2 budget engine > rejects a child above parent remainder and enforces scoped authority  424ms
+   ✓ Relay V2 budget engine > makes reservation and usage retries idempotent and reconciles exact amounts  426ms
+   ✓ Relay V2 budget engine > releases, expires, and marks unbounded reconciliation drift unknown  441ms
+   ✓ Relay V2 budget engine > fails closed for stale or unknown purchase balances  416ms
+   ✓ Relay V2 budget engine > isolates budgets, reservations, status changes, and warning events by account  398ms
+ ✓ tests/v2/telegram-pairing.test.ts (8 tests) 3769ms
+   ✓ Telegram owner-controlled pairing > binds verified user/chat to the owner-selected Agent and retains no challenge plaintext  477ms
+   ✓ Telegram owner-controlled pairing > consumes a challenge once under concurrent webhook delivery  530ms
+   ✓ Telegram owner-controlled pairing > rejects expired, wrong, and replaced challenges  515ms
+   ✓ Telegram owner-controlled pairing > rejects forged webhooks and unknown identities before task creation  477ms
+   ✓ Telegram owner-controlled pairing > rejects another account's connection, Agent, listing and revocation  429ms
+   ✓ Telegram owner-controlled pairing > disconnects canonical communications and denies subsequent work or pairing  431ms
+   ✓ Telegram owner-controlled pairing > rechecks Agent availability when consuming the challenge  441ms
+   ✓ Telegram owner-controlled pairing > rechecks Agent availability after pairing, including text that claims other authority  469ms
+ ✓ tests/v2/leases.test.ts (8 tests) 5204ms
+   ✓ Relay V2 capability leases and workload identity > uses one-time proof-of-possession workload bootstrap with tenant binding  470ms
+   ✓ Relay V2 capability leases and workload identity > requires and atomically binds an action-scoped reservation for metered capabilities  460ms
+   ✓ Relay V2 capability leases and workload identity > rejects wrong tenant, audience, workload, resource, replay, and exhaustion at the reference PEP  450ms
+   ✓ Relay V2 capability leases and workload identity > atomically consumes approval while issuing a consequential lease  440ms
+   ✓ Relay V2 capability leases and workload identity > rejects child leases after parent revocation and reserves parent call authority  444ms
+   ✓ Relay V2 capability leases and workload identity > propagates emergency revocation within the online five-second SLO  444ms
+   ✓ Relay V2 capability leases and workload identity > denies offline financial leases and detects cryptographic expiry  2016ms
+   ✓ Relay V2 capability leases and workload identity > permits only short low-risk read leases through an offline local counter  478ms
+ ✓ tests/v2/approvals.test.ts (6 tests) 3507ms
+   ✓ Relay V2 approvals > binds a signed once approval to the exact action and consumes it atomically  659ms
+   ✓ Relay V2 approvals > rejects modified actions, stale policy, wrong approvers, expiry, and cross-account access  585ms
+   ✓ Relay V2 approvals > allows a bounded repeated task scope only for an identical approved template  580ms
+   ✓ Relay V2 approvals > cannot weaken the financial once-approval floor  546ms
+   ✓ Relay V2 approvals > cannot weaken the destructive once-approval floor  557ms
+   ✓ Relay V2 approvals > persists redacted approval evidence and tenant-scoped notifications  580ms
+ ✓ tests/beta/lifecycle.test.ts (7 tests) 4069ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > revokes a pending invitation once and denies lookup, acceptance, and replay  568ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > serializes acceptance against revocation with one winner  542ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > rejects invitation administration and retirement by another owner or an agent  601ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > retires an invited account, fences authority, scrubs private memory, and keeps signed history  598ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > serializes retirement against grant creation and cancels queued outbox work  577ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > keeps sessions, credentials, invitations, and memory at zero across retirement races  592ms
+   ✓ disposable Relay beta lifecycle on PostgreSQL > blocks terminal retirement while a runtime client still has authority  591ms
+ ✓ tests/v2/delegations.test.ts (6 tests) 3856ms
+   ✓ WO-19 same-account Agent delegation > creates an acyclic child task with only declared context, bounded authority, and a child budget  657ms
+   ✓ WO-19 same-account Agent delegation > claims authority once, cannot amplify parent calls, and parent lease revoke cascades  637ms
+   ✓ WO-19 same-account Agent delegation > rejects cycles and already-promised authority or budget amplification  637ms
+   ✓ WO-19 same-account Agent delegation > uses only delegation-derived budgets for child reservations  660ms
+   ✓ WO-19 same-account Agent delegation > returns a signed complete provenance chain and isolates all delegation queries  608ms
+   ✓ WO-19 same-account Agent delegation > cascade revocation cancels child work, leases, authorities, and budgets  655ms
+ ✓ tests/v2/identity.test.ts (5 tests) 2221ms
+   ✓ Relay V2 identity and tenancy > enforces account membership and baseline roles  574ms
+   ✓ Relay V2 identity and tenancy > issues one-time service credentials without returning their hash  546ms
+   ✓ Relay V2 identity and tenancy > binds step-up authentication to account, principal, action, and one use  592ms
+   ✓ Relay V2 identity and tenancy > suspends the principal and rejects future membership checks  508ms
+ ✓ tests/v2/evidence.test.ts (6 tests) 2871ms
+   ✓ Relay V2 evidence and audit > serializes concurrent appends into a verifiable account chain  598ms
+   ✓ Relay V2 evidence and audit > redacts secrets before persistence and supports offline key rotation verification  561ms
+   ✓ Relay V2 evidence and audit > rejects tampering, deletion, reordering, tenant substitution, and wrong keys  539ms
+   ✓ Relay V2 evidence and audit > isolates audit queries and encrypted artifacts by account  582ms
+   ✓ Relay V2 evidence and audit > enforces retention and account scope when deleting artifacts  589ms
+ ✓ tests/v2/passports.test.ts (5 tests) 2825ms
+   ✓ Relay V2 Agent Passport and runtime attribution > creates a draft Agent, signs a versioned Passport, and requires it for activation  610ms
+   ✓ Relay V2 Agent Passport and runtime attribution > quarantines a valid imported Passport without creating grants  549ms
+   ✓ Relay V2 Agent Passport and runtime attribution > rejects forged imports and cross-account Passport access  554ms
+   ✓ Relay V2 Agent Passport and runtime attribution > increments the revocation epoch and invokes incompatible-work revocation on trust downgrade  572ms
+   ✓ Relay V2 Agent Passport and runtime attribution > keeps product labels self-declared until trusted verification and isolates credentials  540ms
+stdout | tests/browser/browser.test.ts > governed browser sessions > is agent-private, supports explicit sharing, and remains account-scoped
+{"level":"info","event":"capability_call","requestId":"ags_5df080eedd8841c680f5462fa884d5a2","agentId":"agt_ebf32de4fc7345a991309b7b2ab4518b","capability":"browser.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > is agent-private, supports explicit sharing, and remains account-scoped
+{"level":"info","event":"capability_call","requestId":"ags_5933ef189deb4b278965552de533b63a","agentId":"agt_b0d320a8ce734c10a732565f7133b080","capability":"browser.extract","status":"DENIED","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > is agent-private, supports explicit sharing, and remains account-scoped
+{"level":"info","event":"capability_call","requestId":"ags_5933ef189deb4b278965552de533b63a","agentId":"agt_b0d320a8ce734c10a732565f7133b080","capability":"browser.extract","status":"SUCCESS","durationMs":3}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > is agent-private, supports explicit sharing, and remains account-scoped
+{"level":"info","event":"capability_call","requestId":"ags_0a5e81ddf7e248aca94dd6547f13ac84","agentId":"agt_2b198045166646e6b3e8c9ee50438f69","capability":"browser.extract","status":"FAILED","durationMs":1}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.navigate","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.type","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.extract","status":"SUCCESS","durationMs":1}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.click","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.screenshot","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions
+{"level":"info","event":"capability_call","requestId":"ags_6ed8380539224cfab50d0f9c62cdd1a0","agentId":"agt_8cbe6ef884154e8c88655c49ca60b024","capability":"browser.close","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > rejects unsafe URL schemes and destroys expired provider sessions
+{"level":"info","event":"capability_call","requestId":"ags_e0ac39a0cb214277a5dd88767aa75ff0","agentId":"agt_aa8a90c67d4f4cba92004d4a5222a502","capability":"browser.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > rejects unsafe URL schemes and destroys expired provider sessions
+{"level":"info","event":"capability_call","requestId":"ags_e0ac39a0cb214277a5dd88767aa75ff0","agentId":"agt_aa8a90c67d4f4cba92004d4a5222a502","capability":"browser.navigate","status":"FAILED","durationMs":1}
+
+stdout | tests/browser/browser.test.ts > governed browser sessions > rejects unsafe URL schemes and destroys expired provider sessions
+{"level":"info","event":"capability_call","requestId":"ags_e0ac39a0cb214277a5dd88767aa75ff0","agentId":"agt_aa8a90c67d4f4cba92004d4a5222a502","capability":"browser.extract","status":"FAILED","durationMs":1}
+
+ ✓ tests/browser/browser.test.ts (4 tests) 2245ms
+   ✓ governed browser sessions > depends on BrowserProvider without leaking Playwright into the domain service  561ms
+   ✓ governed browser sessions > is agent-private, supports explicit sharing, and remains account-scoped  561ms
+   ✓ governed browser sessions > navigates, types, clicks, extracts, screenshots, closes, and audits actions  572ms
+   ✓ governed browser sessions > rejects unsafe URL schemes and destroys expired provider sessions  551ms
+ ✓ tests/auth/authentication.test.ts (4 tests) 2151ms
+   ✓ production dashboard authentication > creates isolated account owners and authenticates normalized email  655ms
+   ✓ production dashboard authentication > uses opaque durable sessions and revokes them on logout  545ms
+   ✓ production dashboard authentication > rejects duplicate email ownership  446ms
+   ✓ production dashboard authentication > keeps a Gmail plus alias in a separate Relay account  505ms
+stdout | tests/security/v1-boundaries.test.ts > V1 security boundaries > denies cross-account Agent, sandbox, browser, event, and inbox access
+{"level":"info","event":"capability_call","requestId":"ags_2e4f9c5f80654ee2af5038221946fa24","agentId":"agt_0e633b2cb5c1425cb45290d4888f61ef","capability":"sandbox.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/security/v1-boundaries.test.ts > V1 security boundaries > denies cross-account Agent, sandbox, browser, event, and inbox access
+{"level":"info","event":"capability_call","requestId":"ags_2e4f9c5f80654ee2af5038221946fa24","agentId":"agt_0e633b2cb5c1425cb45290d4888f61ef","capability":"browser.create","status":"SUCCESS","durationMs":1}
+
+stdout | tests/security/v1-boundaries.test.ts > V1 security boundaries > denies cross-account Agent, sandbox, browser, event, and inbox access
+{"level":"info","event":"capability_call","requestId":"ags_d7b99ddd9c2e411f843a6739ceee12c5","agentId":"agt_b674c564232149b0958060259b1ffe9e","capability":"sandbox.exec","status":"FAILED","durationMs":1}
+
+stdout | tests/security/v1-boundaries.test.ts > V1 security boundaries > denies cross-account Agent, sandbox, browser, event, and inbox access
+{"level":"info","event":"capability_call","requestId":"ags_d7b99ddd9c2e411f843a6739ceee12c5","agentId":"agt_b674c564232149b0958060259b1ffe9e","capability":"browser.extract","status":"FAILED","durationMs":1}
+
+stdout | tests/security/v1-boundaries.test.ts > V1 security boundaries > denies cross-account Agent, sandbox, browser, event, and inbox access
+{"level":"info","event":"capability_call","requestId":"ags_d7b99ddd9c2e411f843a6739ceee12c5","agentId":"agt_b674c564232149b0958060259b1ffe9e","capability":"agent.inbox.list","status":"SUCCESS","durationMs":2}
+
+stdout | tests/security/v1-boundaries.test.ts > V1 security boundaries > enforces credential and connector revocation immediately
+{"level":"info","event":"capability_call","requestId":"ags_0ad28d4ccf7a497b89ddc4e6acb0864c","agentId":"agt_ce1fdfcc1b0042cc81b784269a530015","capability":"email.search","status":"FAILED","durationMs":1}
+
+ ✓ tests/security/v1-boundaries.test.ts (4 tests) 1859ms
+   ✓ V1 security boundaries > denies cross-account Agent, sandbox, browser, event, and inbox access  465ms
+   ✓ V1 security boundaries > never logs provider tokens or email content  419ms
+   ✓ V1 security boundaries > enforces credential and connector revocation immediately  404ms
+   ✓ V1 security boundaries > rate limits one credential without affecting another  571ms
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > is private by default, supports explicit sharing, and denies cross-account access
+{"level":"info","event":"capability_call","requestId":"ags_765d6bab90014cd0b685fbeab904175a","agentId":"agt_1f5a40cceed44395bf261cc8dc65b5d1","capability":"sandbox.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > is private by default, supports explicit sharing, and denies cross-account access
+{"level":"info","event":"capability_call","requestId":"ags_44e2c1a20aca49c8bb159db6ad07948a","agentId":"agt_470a7d3c391e49b1960971a06baecf21","capability":"sandbox.exec","status":"DENIED","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > is private by default, supports explicit sharing, and denies cross-account access
+{"level":"info","event":"capability_call","requestId":"ags_44e2c1a20aca49c8bb159db6ad07948a","agentId":"agt_470a7d3c391e49b1960971a06baecf21","capability":"sandbox.exec","status":"SUCCESS","durationMs":4}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > is private by default, supports explicit sharing, and denies cross-account access
+{"level":"info","event":"capability_call","requestId":"ags_2f2e4e7495cc4634aaaa5a1602569bcd","agentId":"agt_42f24c4ed3ea4475a1695a0ddd9a5707","capability":"sandbox.exec","status":"FAILED","durationMs":1}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.file.write","status":"SUCCESS","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.file.read","status":"SUCCESS","durationMs":1}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.file.list","status":"SUCCESS","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.exec","status":"FAILED","durationMs":1}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.exec","status":"BLOCKED","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts
+{"level":"info","event":"capability_call","requestId":"ags_4ca730d4c1184814aa5dd40628372012","agentId":"agt_ca243b10626c4834a47498a5c9923e09","capability":"sandbox.destroy","status":"SUCCESS","durationMs":1}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > expires and cleans up a provider resource before allowing reuse
+{"level":"info","event":"capability_call","requestId":"ags_ac574735025f48e89a6a33b49feb83fd","agentId":"agt_25357c4a3cb341cbbc8a0fffc4f1f37a","capability":"sandbox.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/sandbox/sandbox.test.ts > governed sandboxes > expires and cleans up a provider resource before allowing reuse
+{"level":"info","event":"capability_call","requestId":"ags_ac574735025f48e89a6a33b49feb83fd","agentId":"agt_25357c4a3cb341cbbc8a0fffc4f1f37a","capability":"sandbox.exec","status":"FAILED","durationMs":1}
+
+ ✓ tests/sandbox/sandbox.test.ts (4 tests) 1777ms
+   ✓ governed sandboxes > depends on the provider contract without leaking Docker into the domain service  444ms
+   ✓ governed sandboxes > is private by default, supports explicit sharing, and denies cross-account access  455ms
+   ✓ governed sandboxes > reads, writes, lists, destroys, and records command failures and timeouts  446ms
+   ✓ governed sandboxes > expires and cleans up a provider resource before allowing reuse  431ms
+stdout | tests/events/events.test.ts > durable events and Agent inbox > exposes only the owning Agent's inbox and acknowledges durably
+{"level":"info","event":"capability_call","requestId":"ags_5a059a8764364a1e82186283190a3c3b","agentId":"agt_6a5853d97b6843efba8449f1e523403a","capability":"agent.inbox.list","status":"SUCCESS","durationMs":1}
+
+stdout | tests/events/events.test.ts > durable events and Agent inbox > exposes only the owning Agent's inbox and acknowledges durably
+{"level":"info","event":"capability_call","requestId":"ags_109f2dad7f794c8c9d8461ddc60dae04","agentId":"agt_99985dcb8cf2429084b2684ee28ed986","capability":"agent.inbox.list","status":"SUCCESS","durationMs":1}
+
+stdout | tests/events/events.test.ts > durable events and Agent inbox > exposes only the owning Agent's inbox and acknowledges durably
+{"level":"info","event":"capability_call","requestId":"ags_109f2dad7f794c8c9d8461ddc60dae04","agentId":"agt_99985dcb8cf2429084b2684ee28ed986","capability":"agent.inbox.get","status":"FAILED","durationMs":1}
+
+stdout | tests/events/events.test.ts > durable events and Agent inbox > exposes only the owning Agent's inbox and acknowledges durably
+{"level":"info","event":"capability_call","requestId":"ags_5a059a8764364a1e82186283190a3c3b","agentId":"agt_6a5853d97b6843efba8449f1e523403a","capability":"agent.inbox.ack","status":"SUCCESS","durationMs":1}
+
+stdout | tests/events/events.test.ts > durable events and Agent inbox > rejects routing to another account and exposes searchable capability metadata
+{"level":"info","event":"capability_call","requestId":"ags_d30b6a2f7d7f43a38b9fde469d0f7736","agentId":"agt_d53f95926351464e91fd6b45f0f66622","capability":"capabilities.search","status":"SUCCESS","durationMs":2}
+
+ ✓ tests/events/events.test.ts (4 tests) 1779ms
+   ✓ durable events and Agent inbox > ingests idempotently and transactionally routes inbox and wake records  502ms
+   ✓ durable events and Agent inbox > deduplicates concurrent provider retries without duplicating inbox delivery  428ms
+   ✓ durable events and Agent inbox > exposes only the owning Agent's inbox and acknowledges durably  433ms
+   ✓ durable events and Agent inbox > rejects routing to another account and exposes searchable capability metadata  415ms
+ ✓ tests/v2/bootstrap.test.ts (4 tests) 1812ms
+   ✓ private-preview owner bootstrap > creates only the owner identity in an empty database  466ms
+   ✓ private-preview owner bootstrap > is idempotent and does not reset the existing password  487ms
+   ✓ private-preview owner bootstrap > fails closed on unexpected existing tenant state  432ms
+   ✓ private-preview owner bootstrap > cannot run outside private-preview mode  426ms
+ ✓ tests/database/migrations.test.ts (3 tests) 1288ms
+   ✓ PostgreSQL migrations > creates the V1 schema and canonical capability registry  442ms
+   ✓ PostgreSQL migrations > rolls back authority-sensitive writes atomically  450ms
+   ✓ PostgreSQL migrations > creates the additive V2 principal and membership boundary  396ms
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > shares authorized memory across agents while private memory remains isolated
+{"level":"info","event":"capability_call","requestId":"ags_269a47a937b14e348dbd690fb3221f41","agentId":"agt_93635eddd3ff4f4c936e64fae05e3adf","capability":"memory.write","status":"SUCCESS","durationMs":3}
+
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > shares authorized memory across agents while private memory remains isolated
+{"level":"info","event":"capability_call","requestId":"ags_d1d8a8e3cd6e40e8b58ad68a1744ad73","agentId":"agt_dff305a5b4db4416b28d3520b7d7d698","capability":"memory.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > shares authorized memory across agents while private memory remains isolated
+{"level":"info","event":"capability_call","requestId":"ags_269a47a937b14e348dbd690fb3221f41","agentId":"agt_93635eddd3ff4f4c936e64fae05e3adf","capability":"memory.write","status":"SUCCESS","durationMs":3}
+
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > shares authorized memory across agents while private memory remains isolated
+{"level":"info","event":"capability_call","requestId":"ags_d1d8a8e3cd6e40e8b58ad68a1744ad73","agentId":"agt_dff305a5b4db4416b28d3520b7d7d698","capability":"memory.read","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > uses one GitHub connection with per-agent authorization and auditable denial
+{"level":"info","event":"capability_call","requestId":"ags_56ee57afa4a84161a81eafcb51f9a2a7","agentId":"agt_eeb659a285ac49d09d4630343be0c635","capability":"github.repo.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > uses one GitHub connection with per-agent authorization and auditable denial
+{"level":"info","event":"capability_call","requestId":"ags_1b4f5398c4704367bdbd7e6f944254bc","agentId":"agt_d1cdc372b7474a94a27940162a325245","capability":"github.repo.read","status":"DENIED","durationMs":1}
+
+stdout | tests/integration/golden-path.test.ts > Relay V0 golden path > uses one GitHub connection with per-agent authorization and auditable denial
+{"level":"info","event":"capability_call","requestId":"ags_1b4f5398c4704367bdbd7e6f944254bc","agentId":"agt_d1cdc372b7474a94a27940162a325245","capability":"github.repo.read","status":"SUCCESS","durationMs":1}
+
+ ✓ tests/integration/golden-path.test.ts (3 tests) 1546ms
+   ✓ Relay V0 golden path > shares authorized memory across agents while private memory remains isolated  453ms
+   ✓ Relay V0 golden path > uses one GitHub connection with per-agent authorization and auditable denial  524ms
+   ✓ Relay V0 golden path > revokes a credential immediately without a process restart  568ms
+ ✓ tests/federation/message-delegations.test.ts (3 tests) 1720ms
+   ✓ seven-day peer message delegations > issues a revocable opaque credential with an exact Agent and peer scope  622ms
+   ✓ seven-day peer message delegations > rejects other capabilities, identities, resources, duration, and higher message rate  565ms
+   ✓ seven-day peer message delegations > only revokes grants within the same message scope  532ms
+ ✓ tests/v2/telegram-migration.test.ts (3 tests) 1637ms
+   ✓ upgrades schema 20 to channel execution and permits repeated migration  559ms
+   ✓ upgrades schema 21 to channel execution and permits repeated migration  546ms
+   ✓ upgrades schema 22 to channel execution and permits repeated migration  532ms
+ ✓ tests/oauth/google-oauth.test.ts (2 tests) 1167ms
+   ✓ Google OAuth > binds state to the account/user, uses PKCE, and encrypts both tokens  582ms
+   ✓ Google OAuth > rejects state tampering and cross-account completion  585ms
+ ✓ tests/auth/beta-invites.test.ts (3 tests) 1679ms
+   ✓ private beta invitations > requires an allowlisted owner and consumes an email-bound invitation once  592ms
+   ✓ private beta invitations > refuses an expired invitation and an unlisted issuer  539ms
+   ✓ private beta invitations > uses the existing admin identity when an explicit inviter list is absent  548ms
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"memory.write","status":"SUCCESS","durationMs":3}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"memory.write","status":"SUCCESS","durationMs":3}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"memory.read","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"memory.read","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"github.repo.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"github.repo.read","status":"DENIED","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"github.repo.read","status":"SUCCESS","durationMs":7}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"email.search","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"email.search","status":"DENIED","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"email.search","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"calendar.event.list","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"calendar.event.list","status":"DENIED","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"sandbox.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"sandbox.exec","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"sandbox.file.write","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"sandbox.file.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"sandbox.exec","status":"DENIED","durationMs":3}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"sandbox.destroy","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"browser.create","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"browser.navigate","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"browser.extract","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"browser.screenshot","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"browser.navigate","status":"DENIED","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_9766995ffa3a4f17ab12f87c86a9194b","agentId":"agt_7afdd95b08ac44ab8030c08662edf0d6","capability":"browser.close","status":"SUCCESS","durationMs":2}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"agent.inbox.list","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"agent.inbox.ack","status":"SUCCESS","durationMs":1}
+
+stdout | tests/integration/v1-golden-path.test.ts > Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity
+{"level":"info","event":"capability_call","requestId":"ags_55077457f41440d39cce4b185e83bfc6","agentId":"agt_92bff0c7f5ba4310840a241d1ac885ed","capability":"email.search","status":"FAILED","durationMs":1}
+
+ ✓ tests/integration/v1-golden-path.test.ts (1 test) 736ms
+   ✓ Relay V1 final golden path > qualifies memory, connectors, execution, browser, events, revocation, and Activity  736ms
+ ✓ tests/oauth/github-oauth.test.ts (2 tests) 1243ms
+   ✓ GitHub OAuth > uses account-bound state and PKCE, then stores only encrypted tokens  613ms
+   ✓ GitHub OAuth > rejects an OAuth callback completed under another account  630ms
+ ✓ tests/auth/session-cookie.test.ts (1 test) 588ms
+   ✓ production dashboard session cookie > reads the same __Host- cookie name that production login writes  588ms
+ ✓ tests/federation/signing-lifecycle.test.ts (1 test) 645ms
+   ✓ exports historical receipts after rotation without access to the historical private key  644ms
+ ✓ tests/operations/health.test.ts (1 test) 625ms
+   ✓ health and readiness > reports liveness and migration-backed readiness without connector dependencies  624ms
+ ✓ tests/security/isolation.test.ts (1 test) 656ms
+   ✓ account isolation > does not permit cross-account memory access by ID  656ms
+ ✓ tests/operations/worker.test.ts (1 test) 617ms
+   ✓ maintenance worker lifecycle > starts and stops without running another maintenance cycle  617ms
+stdout | tests/sessions/agent-sessions.test.ts > durable Agent sessions > reuses a credential/runtime session and correlates capability activity
+{"level":"info","event":"capability_call","requestId":"ags_24910440cbdb4ec4a823e669ace1897c","agentId":"agt_964cd3ed21ab499389231734b499d696","capability":"memory.read","status":"SUCCESS","durationMs":2}
+
+stdout | tests/sessions/agent-sessions.test.ts > durable Agent sessions > reuses a credential/runtime session and correlates capability activity
+{"level":"info","event":"capability_call","requestId":"ags_24910440cbdb4ec4a823e669ace1897c","agentId":"agt_964cd3ed21ab499389231734b499d696","capability":"memory.read","status":"SUCCESS","durationMs":1}
+
+ ✓ tests/sessions/agent-sessions.test.ts (1 test) 621ms
+   ✓ durable Agent sessions > reuses a credential/runtime session and correlates capability activity  620ms
+ ✓ tests/mcp/projection.test.ts (1 test) 642ms
+   ✓ MCP tool projection > only projects tools backed by allowed grants  642ms
+ ✓ tests/federation/production-instrumentation.test.ts (3 tests) 121ms
+ ✓ tests/federation/signing-provider.test.ts (21 tests) 58ms
+ ✓ tests/federation/signing-envelope-v2.test.ts (29 tests) 126ms
+ ✓ tests/federation/envelope-bound.test.ts (5 tests) 74ms
+ ✓ tests/v2/qualification-signing-admission.test.ts (6 tests) 59ms
+ ✓ tests/v2/third-party-providers.test.ts (15 tests) 28ms
+ ✓ tests/federation/production-secret-crypto.test.ts (8 tests) 26ms
+ ✓ tests/federation/production-crypto.test.ts (24 tests) 18ms
+ ✓ tests/federation/production-hosted-crypto.test.ts (8 tests) 8ms
+ ✓ tests/v2/telegram-input.test.ts (17 tests) 9ms
+ ✓ tests/v2/relay-managed-provider.test.ts (5 tests) 7ms
+ ✓ tests/v2/qualification-client.test.ts (7 tests) 9ms
+ ✓ tests/v2/channel-executor-http.test.ts (6 tests) 8ms
+ ✓ tests/federation/google-wrapper.test.ts (7 tests) 7ms
+ ✓ tests/v2/channel-callback-answer.test.ts (2 tests) 5ms
+ ✓ tests/federation/google-sts.test.ts (13 tests) 5ms
+ ✓ tests/factory/owner-route.test.ts (3 tests) 4ms
+ ✓ tests/v2/contracts.test.ts (7 tests) 4ms
+stdout | tests/factory/mcp.test.ts > enforces the create grant even if a caller guesses a hidden tool
+{"level":"info","event":"capability_call","requestId":"session","agentId":"agent","capability":"factory.workorder.create","status":"DENIED","durationMs":0}
+
+stdout | tests/factory/mcp.test.ts > routes an authorized agent through the same account-bound action as the owner UI
+{"level":"info","event":"capability_call","requestId":"session","agentId":"agent","capability":"factory.workorder.create","status":"SUCCESS","durationMs":0}
+
+ ✓ tests/factory/mcp.test.ts (4 tests) 4ms
+ ✓ tests/v2/connector-providers.test.ts (2 tests) 4ms
+ ✓ tests/factory/routing.test.ts (3 tests) 3ms
+ ✓ tests/v2/communication-providers.test.ts (6 tests) 3ms
+ ✓ tests/v2/federation-trust.test.ts (2 tests) 3ms
+ ✓ tests/federation/production-maintenance-route.test.ts (2 tests) 3ms
+ ✓ tests/browser/playwright-provider.test.ts (1 test) 2ms
+ ✓ tests/v2/deployment.test.ts (4 tests) 2ms
+ ✓ tests/v2/security-architecture.test.ts (2 tests) 2ms
+ ✓ tests/unit/repository-hygiene.test.ts (2 tests) 2ms
+ ↓ tests/browser/playwright-live.test.ts (3 tests | 3 skipped)
+ ↓ tests/sandbox/docker-live.test.ts (1 test | 1 skipped)
+ ↓ tests/v2/channel-myeve.integration.test.mjs (1 test | 1 skipped)
+ ↓ tests/v2/relay-managed-provider-live.test.ts (1 test | 1 skipped)
+
+ Test Files  71 passed | 4 skipped (75)
+      Tests  450 passed | 6 skipped (456)
+   Start at  11:21:21
+   Duration  158.73s (transform 608ms, setup 0ms, collect 13.54s, tests 134.84s, environment 4ms, prepare 1.77s)

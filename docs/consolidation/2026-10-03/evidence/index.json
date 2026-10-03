@@ -1,0 +1,66 @@
+{
+  "convergence-fresh-myeve-unit.log": {
+    "rawSha256": "ad27cf1087a2095e10cee37375446ee841a3a6781c193baf5d709a4b861d350f",
+    "sha256": "dfb5a5ec5679576a2c5b1da6796d4946f1b77c2a9e102e4ec565c50e76bc8748",
+    "bytes": 16278,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-fresh-myeve-root.log": {
+    "rawSha256": "18d2954fa7fb7cf422b9847d8a562e351cda34406a32c718cda327e57aa204b5",
+    "sha256": "18d2954fa7fb7cf422b9847d8a562e351cda34406a32c718cda327e57aa204b5",
+    "bytes": 16430,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-myeve-types-final.log": {
+    "rawSha256": "004928687b0b8ba4bb531a11ab61bbdbdf7767ac8a3508f9c8ab1cf2c802bab9",
+    "sha256": "004928687b0b8ba4bb531a11ab61bbdbdf7767ac8a3508f9c8ab1cf2c802bab9",
+    "bytes": 457,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-myeve-build.log": {
+    "rawSha256": "a6acc25765fa652ae8afbf34a872753d48e4ef86fd9b16a1f97a7e7e7bde0359",
+    "sha256": "8b90d427d57cb56ccb26af1ff1b3058e7e69769983ffb05d2ac2ec2c7e227507",
+    "bytes": 5277,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-business-scopes.log": {
+    "rawSha256": "589416caa962cf63073ce9bc2dddd30d90107c5684fb64138138791fd7acf495",
+    "sha256": "589416caa962cf63073ce9bc2dddd30d90107c5684fb64138138791fd7acf495",
+    "bytes": 1545,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-playwright-r3.log": {
+    "rawSha256": "707ff3bd2f63aa3db4e1b5fd0c6db23cc39dd52329cbac0e78f9fdd9d7205bdf",
+    "sha256": "707ff3bd2f63aa3db4e1b5fd0c6db23cc39dd52329cbac0e78f9fdd9d7205bdf",
+    "bytes": 7082,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-factory-postgres.log": {
+    "rawSha256": "7990c02157044628bcd115c16526354a3d5d9e938678cb68fc73e53e08e0e3d6",
+    "sha256": "7990c02157044628bcd115c16526354a3d5d9e938678cb68fc73e53e08e0e3d6",
+    "bytes": 2380,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-factory-installed-cli.log": {
+    "rawSha256": "54463d252727a5632c8b1d34a2865f4b84add6ec0292fae27945894af9d6bee6",
+    "sha256": "54463d252727a5632c8b1d34a2865f4b84add6ec0292fae27945894af9d6bee6",
+    "bytes": 1371,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-fresh-myfactory-tests-r2.log": {
+    "rawSha256": "1ad5504aafe39f0e42da14efc0e9ffb36f8abba4a5a1d0f5639bf7d57f11f0db",
+    "sha256": "1ad5504aafe39f0e42da14efc0e9ffb36f8abba4a5a1d0f5639bf7d57f11f0db",
+    "bytes": 40819,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-fresh-relay-tests-r2.log": {
+    "rawSha256": "7f3b3c422f49faa684749cab7db4f33cb679a9ef3391538c9ec6d8a1e18de4f5",
+    "sha256": "b40fbf08bfc64dbac8f26c525dcbd05c0645aa5e43457198cfcfbdc94cf9c685",
+    "bytes": 60787,
+    "normalization": "line endings and trailing whitespace only"
+  },
+  "convergence-factory-consumer.json": {
+    "sha256": "ecc39767d6331072d24a856f16f740fc4603106cc3fe83d88efc5e42316b6018",
+    "bytes": 35993
+  }
+}

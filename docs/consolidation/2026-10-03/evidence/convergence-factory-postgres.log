@@ -1,0 +1,32 @@
+▶ CONNECTED canonical cloud dispatch admission, concurrency, cancellation and leases
+  ✔ prepare replay retains canonical IDs; conflicting input and cross-client read fail (35.061625ms)
+  ✔ two dispatchers claim once; cancelled late allocation remains recorded without replacement (71.461083ms)
+  ✔ stop before queue delivery creates a durable tombstone and prevents any resource allocation (31.884209ms)
+  ✔ delivery receipts cannot grant new authority or regress callback-before-send observation (52.323667ms)
+  ✔ private custody is immutable, survives cancel/cleanup and never revives execution (57.927083ms)
+  ✔ database lease expiry cannot be revived; restart reconciles the same ambiguous resource (28.036291ms)
+  ✔ qualification lifetime limit cannot expand with a fresh request or Work ID (7.502042ms)
+✔ CONNECTED canonical cloud dispatch admission, concurrency, cancellation and leases (372.231291ms)
+▶ CONNECTED PostgreSQL canonical ledger parity, race, recovery and fencing
+  ✔ identical V2 accounting through checkpoint, repair allowance and completion (114.608291ms)
+  ✔ two connections racing for the last productive slot admit exactly one (43.142958ms)
+  ✔ UNKNOWN persists across connection restart and generation changes (56.663875ms)
+  ✔ cancel after reservation prevents dispatch, and stale writers cannot spend (28.682792ms)
+  ✔ database time denies expired pricing and recovery keeps unsettled exposure (24.926125ms)
+✔ CONNECTED PostgreSQL canonical ledger parity, race, recovery and fencing (319.486459ms)
+▶ CONNECTED independent verifier admission, concurrency, fencing and cleanup
+  ✔ one concurrent claim, exact policy pin and immutable provider identity (61.257875ms)
+  ✔ producer presence, unpinned policy and cancellation deny verifier admission (20.372ms)
+  ✔ cancellation races late success; cleanup cannot authorize a result (32.209083ms)
+  ✔ lost allocation receipt cannot establish early absence or allocate again (26.44075ms)
+  ✔ deadline and malformed checks fence results (19.594708ms)
+  ✔ terminal Result waits for independent cleanup and retains failed protected verdict (23.355458ms)
+✔ CONNECTED independent verifier admission, concurrency, fencing and cleanup (272.009709ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 510.323458
