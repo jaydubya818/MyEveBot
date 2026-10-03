@@ -48,6 +48,7 @@ export const CORE_PRUNABLE_FILES = [
   "agent/instructions/capabilities.ts",
   "agent/instructions/channel.ts",
   "agent/instructions/computer-runtime.ts",
+  "agent/instructions/connection-reporting.md",
   "agent/instructions/delegation.ts",
   "agent/instructions/installed-skills.ts",
   "agent/instructions/persistent-agent.ts",

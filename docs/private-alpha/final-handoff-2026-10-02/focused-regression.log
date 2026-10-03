@@ -1,0 +1,29 @@
+✔ Attempt-8 escape → owner-bounded repair Work → new candidate → full fresh verification → independent review (16.464917ms)
+✔ reviews and verification ingestion are host-only; agent can propose but cannot approve (11.667458ms)
+✔ proposal/approval replay survives restart and never creates a duplicate Work (11.39875ms)
+✔ independent-review and exact-candidate records cannot be relabeled (7.644958ms)
+✔ Candidate A verdicts and unchanged tree cannot pass Candidate B (11.1895ms)
+✔ restricted findings never enter producer context; absence of public reproduction needs an owner (8.515458ms)
+✔ protected payload, malformed findings, unsupported policy and scope expansion fail closed (7.400084ms)
+✔ maxRounds is a chain limit, not a renewable allowance (11.40925ms)
+✔ maxOperations is a chain limit, not a renewable allowance (11.845625ms)
+✔ maxBudgetMicrousd is a chain limit, not a renewable allowance (11.040041ms)
+✔ a second round links B to C without rewriting A; objective and contract stay fixed (12.480292ms)
+✔ expired chain and UNKNOWN evidence cannot trigger another repair (10.767417ms)
+✔ canonical preparation enforces exact objective, base, scope, operations, budget, duration and one binding (10.816417ms)
+✔ failed-review publication is denied; publication approval never follows review PASS automatically (7.548875ms)
+✔ private review PASS does not replace published CI or post-CI review (8.647084ms)
+✔ restricted-only finding cannot authorize a repair prompt (7.084541ms)
+✔ ancestor verdicts cannot be recycled into later repair rounds (20.6025ms)
+✔ failed preparation is Needs You and cannot create an unmetered retry (11.905167ms)
+✔ captured Attempt-8 implementation fails four public safe-range checks (891.735083ms)
+✔ deterministic control passes all 17 public checks without producing a live candidate (874.465875ms)
+✔ independent review regression rejects rounding/null and accepts the safe-range control (283.962916ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2117.981167

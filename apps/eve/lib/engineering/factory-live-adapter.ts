@@ -9,14 +9,23 @@ import type {FactoryBinding} from './factory-receipt-store.ts';
 const states=['PREPARING','PREPARED','DISPATCHING','RUNNING','UNKNOWN','STOPPING','COMPLETED','FAILED','CANCELLED','NOT_DISPATCHED'] as const;
 const readbackSchema=z.object({requestId:z.string().uuid(),workOrderId:z.string().uuid(),runId:z.string().uuid().nullable(),snapshot:z.record(z.string(),z.unknown()).nullable(),identity:z.record(z.string(),z.unknown()).nullable(),state:z.enum(states),quiescent:z.boolean(),evidenceRef:z.string().nullable(),spend:factorySpendSchema,blocker:z.string().nullable()}).strict();
 const hash=z.string().regex(/^[a-f0-9]{64}$/);
-export const factoryConnectionSchema=z.object({spendPlan:factorySpendPlanSchema.optional(),spendContract:factorySpendContractSchema.optional(),origin:z.string().url(),token:z.string().regex(/^[a-f0-9]{64}$/),factoryId:z.string().min(1),
+export const factoryConnectionSchema=z.object({
+ repairBinding:z.object({workId:z.uuid(),workVersion:z.number().int().positive(),workGeneration:z.number().int().positive(),workOrderId:z.uuid()}).strict().optional(),
+ spendPlan:factorySpendPlanSchema.optional(),spendContract:factorySpendContractSchema.optional(),origin:z.string().url(),token:z.string().regex(/^[a-f0-9]{64}$/),factoryId:z.string().min(1),
  sourceDigest:hash,configurationDigest:hash,factoryVersion:hash,repositoryPath:z.string().startsWith('/'),
  keys:z.array(z.object({factoryId:z.string(),keyId:z.string(),publicKey:z.string(),activeFrom:z.string(),notAfter:z.string(),retiredAt:z.string().optional(),revokedAt:z.string().optional()}).strict()).min(1),
  qualification:z.object({scopeId:z.string(),profileHash:hash,evidenceRef:z.string().min(1),qualifiedAt:z.string().datetime(),expiresAt:z.string().datetime(),
  mode:z.enum(['LOCAL_FIXTURE','LOCAL_SPEND_FIXTURE','LIVE']),spendEnforced:z.boolean(),spendReview:factorySpendReviewSchema.optional()}).strict()}).strict();
 export type FactoryConnection=z.infer<typeof factoryConnectionSchema>;
-export interface FactoryPrepareRequest {spendContract?:FactorySpendPlan;requestId:string;workId:string;workGeneration:number;repository:string;deadline:string;maxSpendUsd:number;input:{title:string;description:string;kind:'feature';repositoryPath:string;baseRef:string;acceptanceCriteria:string[];reproductionCommand:null;expectedFailureText:null;checkCommands:string[];allowedPaths:string[];workerProfile:'mac'}}
+export interface FactoryPrepareRequest {repairWorkOrderId?:string;spendContract?:FactorySpendPlan;requestId:string;workId:string;workGeneration:number;repository:string;deadline:string;maxSpendUsd:number;input:{title:string;description:string;kind:'feature';repositoryPath:string;baseRef:string;acceptanceCriteria:string[];reproductionCommand:null;expectedFailureText:null;checkCommands:string[];allowedPaths:string[];workerProfile:'mac'}}
 export interface FactoryReadback {requestId:string;workOrderId:string;runId:string|null;snapshot:ExecutionSnapshot|null;identity:FactoryExecutionIdentity|null;state:string;quiescent:boolean;evidenceRef:string|null;spend:FactorySpend;accounting:FactorySpendSummary;blocker:string|null}
+/** Host configuration only: findings and client requests cannot select a repair Work. */
+export function repairWorkOrderFor(config:FactoryConnection,work:{id:string;version:number;generation:number}) {
+ const binding=config.repairBinding;if(!binding)return undefined;
+ if(binding.workId!==work.id||binding.workVersion!==work.version||binding.workGeneration!==work.generation)
+  throw Error('Repair binding differs from the exact current Work revision/generation');
+ return binding.workOrderId;
+}
 /** Extends the existing authenticated loopback producer channel. Configuration
  * pins come from reviewed server configuration, never a result or model reply. */
 export class LiveFactoryAdapter implements FactoryExecutionTransport {
@@ -44,9 +53,14 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
    if(!response.ok)return false;const data=await boundedJson(response,32000) as {controls?:string[];execution?:{mode:string;spendEnforced:boolean}};return data.execution?.mode===this.config.qualification.mode&&data.execution.spendEnforced===true&& ['factory.prepare','factory.dispatch','factory.observe','factory.stop'].every(action=>data.controls?.includes(action));
   }catch{return false;}
  }
- async prepare(request:FactoryPrepareRequest){const data=await this.request('',request);return this.validatePreparation(request,data);}
- async prepared(request:FactoryPrepareRequest){const data=await this.request('/'+encodeURIComponent(request.requestId));return this.validatePreparation(request,data);}
+ private repairRequest(request:FactoryPrepareRequest){
+  const binding=this.config.repairBinding;
+  if(request.repairWorkOrderId!==binding?.workOrderId||(binding&&(request.workId!==binding.workId||request.workGeneration!==binding.workGeneration)))throw Error('Repair preparation differs from reviewed host binding');
+ }
+ async prepare(request:FactoryPrepareRequest){this.repairRequest(request);const data=await this.request('',request);return this.validatePreparation(request,data);}
+ async prepared(request:FactoryPrepareRequest){this.repairRequest(request);const data=await this.request('/'+encodeURIComponent(request.requestId));return this.validatePreparation(request,data);}
  private validatePreparation(request:FactoryPrepareRequest,data:FactoryReadback){
+  if(request.repairWorkOrderId&&data.workOrderId!==request.repairWorkOrderId)throw Error('Factory returned a different repair WorkOrder');
   if(data.requestId!==request.requestId)throw Error('Factory preparation request mismatch');
   if(canonical(request.spendContract??null)!==canonical(this.config.spendPlan??null))throw Error('Factory preparation plan differs from reviewed configuration');
   validateSpendBinding(data.spend,{...request,workOrderId:data.workOrderId,factoryVersion:this.config.factoryVersion,remoteRunId:data.runId??undefined},request.maxSpendUsd,request.spendContract);

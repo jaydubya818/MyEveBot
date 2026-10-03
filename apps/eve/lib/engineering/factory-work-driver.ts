@@ -6,7 +6,7 @@ import {decideExecutionRoute} from '../digital-worker/routing.ts';
 import {RoutingStore} from './routing-store.ts';
 import {RouteAdmissionService} from './route-admission.ts';
 import {FactoryRouteAuthority,type FactoryRuntime} from './factory-routing.ts';
-import {LiveFactoryAdapter,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
+import {LiveFactoryAdapter,repairWorkOrderFor,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
 import {FactoryWriterStore} from './factory-writer.ts';
 import {FactoryReceiptStore} from './factory-receipt-store.ts';
 import {prepareAuthenticatedFactoryInput} from './factory-authenticated-result.ts';
@@ -38,6 +38,7 @@ export class FactoryWorkDriver {
   await this.store.database.query('UPDATE engineering_routing_decisions SET factory_observation=$5::jsonb WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4',[...this.scope(id),decisionId,JSON.stringify({observedAt:new Date().toISOString(),value})]);}
  async start(id:string,expectedVersion:number,expectedGeneration:number){
   const work=await this.store.get(id),config=await this.authority.readConfig();
+  const repairWorkOrderId=repairWorkOrderFor(config.connection,work);
   if(work.version!==expectedVersion||work.generation!==expectedGeneration)throw new WorkError('factory_work_changed','Select the current Work revision.');
   let decision=await this.decision(id);
   if(decision?.work_version===work.version&&decision.factory_preparation)return this.step(id);
@@ -65,7 +66,7 @@ export class FactoryWorkDriver {
    if(!budget || Date.parse(String(budget.deadline))<=Date.now())throw new WorkError('factory_conversation_budget','Current canonical Sofie allowance and deadline are required.');
    deadline=new Date(budget.deadline as string).toISOString();
   }
-  const prepare:FactoryPrepareRequest={...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
+  const prepare:FactoryPrepareRequest={...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
    input:{title:work.title,description:work.objective,kind:'feature',repositoryPath:config.connection.repositoryPath,baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'mac'}};
   const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
    WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:digest(config)})]);
