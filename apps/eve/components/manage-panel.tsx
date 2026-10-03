@@ -48,6 +48,7 @@ import { IMessagePanel } from "@/components/imessage-panel";
 import { PhonePanel } from "@/components/phone-panel";
 import { OwnerDataPanel } from "@/components/owner-data-panel";
 import { SkillsManager } from "@/components/skills-manager";
+import { FactoryInstallationPanel } from "@/components/factory-installation-panel";
 import { SystemHealthPanel } from "@/components/system-health-panel";
 import { TaskRunsPanel } from "@/components/task-runs-panel";
 import { ReviewDeliverySettings } from "@/components/review-delivery-settings";
@@ -863,7 +864,7 @@ export function ManagePanel({
   } else if (activeSection === "getting-started") {
     sectionContent = <ActivationPanel capabilities={capabilities ?? []} onNavigate={selectSection} onStartPrompt={onStartPrompt} />;
   } else if (activeSection === "system") {
-    sectionContent = <SystemHealthPanel />;
+    sectionContent = <><FactoryInstallationPanel /><SystemHealthPanel /></>;
   } else if (activeSection === "review-delivery") {
     sectionContent = <ReviewDeliverySettings />;
   } else if (activeSection === "slack") {
