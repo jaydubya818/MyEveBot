@@ -41,9 +41,10 @@ export const productDestinations = [
   { href: "/capsules", label: "Capsules", description: "Portable personal memory with reviewed scope" },
   {
     href: "/team",
-    label: "Team",
+    label: "Agents",
     description: "Specialists and their capabilities",
   },
+  { href: "/rooms", label: "Rooms", description: "Shared objectives and governed handoffs" },
   { href: "/apps", label: "Apps", description: "Connections and access" },
   {
     href: "/computer",

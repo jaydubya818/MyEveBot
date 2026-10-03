@@ -58,7 +58,9 @@ export interface AgentView {
   archivedAt: string | null;
 }
 
+export type AgentLook = { style: "initials" | "robot"; tone: "sage" | "clay" | "slate" };
 export interface AgentWriteInput {
+  avatarConfig?: AgentLook;
   name: string;
   role: string;
   description?: string;
@@ -114,6 +116,7 @@ export function validateAgentInput(input: AgentWriteInput): string | null {
   if (!Number.isInteger(limits.maxRuntimeSeconds) || limits.maxRuntimeSeconds < 10 || limits.maxRuntimeSeconds > 86_400) return "Max runtime must be between 10 and 86,400 seconds.";
   if (!Number.isFinite(limits.maxEstimatedCostUsd) || limits.maxEstimatedCostUsd <= 0) return "Max estimated cost must be greater than zero.";
   if (!Number.isInteger(limits.maxRetries) || limits.maxRetries < 0 || limits.maxRetries > 10) return "Max retries must be between 0 and 10.";
+  if (input.avatarConfig && (!["initials","robot"].includes(input.avatarConfig.style) || !["sage","clay","slate"].includes(input.avatarConfig.tone) || Object.keys(input.avatarConfig).some(k=>!["style","tone"].includes(k)))) return "Choose a supported agent look.";
   const ids = [...new Set(input.capabilityIds ?? [])];
   if (ids.length !== (input.capabilityIds ?? []).length) return "Capability ids must be unique.";
   for (const id of ids) {
@@ -218,8 +221,8 @@ export async function createAgent(ownerId: string, input: AgentWriteInput, actor
   const limits = { ...DEFAULT_LIMITS, ...input.limits };
   const capabilityIds = input.capabilityIds ?? [];
   await db().transaction((tx) => [
-    tx`INSERT INTO agents (id,owner_id,name,slug,role,description,instructions,preferred_model,reasoning_preference,risk_ceiling,notification_policy,max_steps,max_runtime_seconds,max_estimated_cost_usd,max_retries,created_by_type,created_by_id)
-       VALUES (${id},${ownerId},${input.name.trim()},${slug},${input.role.trim()},${input.description?.trim() ?? ""},${input.instructions.trim()},${input.preferredModel || null},${input.reasoningPreference ?? "default"},${input.riskCeiling ?? "low"},${input.notificationPolicy ?? "activity"},${limits.maxSteps},${limits.maxRuntimeSeconds},${limits.maxEstimatedCostUsd},${limits.maxRetries},${actor.type},${actor.id ?? null})`,
+    tx`INSERT INTO agents (id,owner_id,name,slug,role,description,instructions,preferred_model,reasoning_preference,risk_ceiling,notification_policy,max_steps,max_runtime_seconds,max_estimated_cost_usd,max_retries,created_by_type,created_by_id,avatar_config)
+       VALUES (${id},${ownerId},${input.name.trim()},${slug},${input.role.trim()},${input.description?.trim() ?? ""},${input.instructions.trim()},${input.preferredModel || null},${input.reasoningPreference ?? "default"},${input.riskCeiling ?? "low"},${input.notificationPolicy ?? "activity"},${limits.maxSteps},${limits.maxRuntimeSeconds},${limits.maxEstimatedCostUsd},${limits.maxRetries},${actor.type},${actor.id ?? null},${JSON.stringify(input.avatarConfig??{})}::jsonb)`,
     ...capabilityIds.map((capabilityId) => tx`INSERT INTO agent_capabilities (owner_id, agent_id, capability_id, assigned_by_type, assigned_by_id) VALUES (${ownerId},${id},${capabilityId},${actor.type},${actor.id ?? null})`),
     tx`INSERT INTO agent_audit_events (id,owner_id,agent_id,event_type,actor_type,actor_id,summary,changes)
        VALUES (${`agent_event_${randomUUID()}`},${ownerId},${id},'created',${actor.type},${actor.id ?? null},${`${input.name.trim()} Agent created.`},${JSON.stringify({ capabilityIds })}::jsonb)`,
@@ -236,7 +239,7 @@ export async function updateAgent(ownerId: string, agentId: string, input: Agent
   const afterCapabilities = [...(input.capabilityIds ?? [])].sort();
   const capabilitiesChanged = JSON.stringify(beforeCapabilities) !== JSON.stringify(afterCapabilities);
   await db().transaction((tx) => [
-    tx`UPDATE agents SET name=${input.name.trim()},slug=${slug},role=${input.role.trim()},description=${input.description?.trim() ?? ""},instructions=${input.instructions.trim()},preferred_model=${input.preferredModel || null},reasoning_preference=${input.reasoningPreference ?? "default"},risk_ceiling=${input.riskCeiling ?? "low"},notification_policy=${input.notificationPolicy ?? "activity"},max_steps=${limits.maxSteps},max_runtime_seconds=${limits.maxRuntimeSeconds},max_estimated_cost_usd=${limits.maxEstimatedCostUsd},max_retries=${limits.maxRetries},updated_at=now() WHERE owner_id=${ownerId} AND id=${agentId}`,
+    tx`UPDATE agents SET name=${input.name.trim()},slug=${slug},role=${input.role.trim()},description=${input.description?.trim() ?? ""},instructions=${input.instructions.trim()},preferred_model=${input.preferredModel || null},reasoning_preference=${input.reasoningPreference ?? "default"},risk_ceiling=${input.riskCeiling ?? "low"},notification_policy=${input.notificationPolicy ?? "activity"},max_steps=${limits.maxSteps},max_runtime_seconds=${limits.maxRuntimeSeconds},max_estimated_cost_usd=${limits.maxEstimatedCostUsd},max_retries=${limits.maxRetries},avatar_config=${JSON.stringify(input.avatarConfig??current.avatarConfig)}::jsonb,updated_at=now() WHERE owner_id=${ownerId} AND id=${agentId}`,
     tx`DELETE FROM agent_capabilities WHERE owner_id=${ownerId} AND agent_id=${agentId}`,
     ...afterCapabilities.map((capabilityId) => tx`INSERT INTO agent_capabilities (owner_id, agent_id, capability_id, assigned_by_type, assigned_by_id) VALUES (${ownerId},${agentId},${capabilityId},${actor.type},${actor.id ?? null})`),
     tx`INSERT INTO agent_audit_events (id,owner_id,agent_id,event_type,actor_type,actor_id,summary,changes)
@@ -245,6 +248,23 @@ export async function updateAgent(ownerId: string, agentId: string, input: Agent
        VALUES (${`agent_event_${randomUUID()}`},${ownerId},${agentId},'capabilities_changed',${actor.type},${actor.id ?? null},${`${input.name.trim()} Agent capabilities changed.`},${JSON.stringify({ before: beforeCapabilities, after: afterCapabilities })}::jsonb)`] : []),
   ]);
   return (await getAgent(ownerId, agentId))!;
+}
+
+/** Profile-only edits never rewrite capability grants or execution ceilings.
+ * Keeping these columns out of the UPDATE also preserves concurrent revocations. */
+export async function updateAgentProfile(ownerId: string, agentId: string, input: Pick<AgentWriteInput,"name"|"role"|"description"|"instructions"|"preferredModel"|"reasoningPreference"|"notificationPolicy">, actor: AgentActor): Promise<AgentView> {
+  const error=validateAgentInput(input);if(error)throw new Error(error);
+  const current=await getAgent(ownerId,agentId);if(!current)throw new Error("Agent not found.");
+  const slug=input.name.trim()===current.name?current.slug:await uniqueSlug(ownerId,input.name,agentId);
+  const rows=await db().query(`WITH updated AS (
+    UPDATE agents SET name=$3,slug=$4,role=$5,description=$6,instructions=$7,preferred_model=$8,reasoning_preference=$9,notification_policy=$10,updated_at=now()
+    WHERE owner_id=$1 AND id=$2 AND status<>'archived' RETURNING id
+  ), audit AS (
+    INSERT INTO agent_audit_events(id,owner_id,agent_id,event_type,actor_type,actor_id,summary,changes)
+    SELECT $11,$1,id,'updated',$12,$13,'Agent profile updated without changing permissions or limits.','{}'::jsonb FROM updated RETURNING id
+  ) SELECT id FROM updated`,[ownerId,agentId,input.name.trim(),slug,input.role.trim(),input.description?.trim()??"",input.instructions.trim(),input.preferredModel??current.preferredModel,input.reasoningPreference??current.reasoningPreference,input.notificationPolicy??current.notificationPolicy,`agent_event_${randomUUID()}`,actor.type,actor.id??null]);
+  if(!rows[0])throw new Error("Agent not found or archived.");
+  return (await getAgent(ownerId,agentId))!;
 }
 
 export async function transitionAgent(ownerId: string, agentId: string, status: Exclude<AgentStatus,"disabled"> | "disabled", actor: AgentActor): Promise<AgentView> {
@@ -259,9 +279,10 @@ export async function transitionAgent(ownerId: string, agentId: string, status: 
   return (await getAgent(ownerId, agentId))!;
 }
 
+/** A configuration copy has a fresh identity and no inherited capability grants. */
 export async function duplicateAgent(ownerId: string, agentId: string, name: string | undefined, actor: AgentActor): Promise<AgentView> {
   const source = await getAgent(ownerId, agentId); if (!source) throw new Error("Agent not found.");
-  const copy = await createAgent(ownerId, { name: name?.trim() || `${source.name} Copy`, role: source.role, description: source.description, instructions: source.instructions, preferredModel: source.preferredModel, reasoningPreference: source.reasoningPreference, riskCeiling: source.riskCeiling, notificationPolicy: source.notificationPolicy, limits: source.limits, capabilityIds: source.capabilities.filter((cap) => cap.enabled).map((cap) => cap.id) }, actor);
+  const copy = await createAgent(ownerId, { name: name?.trim() || `${source.name} Copy`, role: source.role, description: source.description, instructions: source.instructions, preferredModel: source.preferredModel, reasoningPreference: source.reasoningPreference, riskCeiling: source.riskCeiling, notificationPolicy: source.notificationPolicy, limits: source.limits, capabilityIds: [] }, actor);
   await recordAudit(ownerId, copy.id, "duplicated", actor, `${copy.name} duplicated from ${source.name}.`, { sourceAgentId: source.id });
   return copy;
 }

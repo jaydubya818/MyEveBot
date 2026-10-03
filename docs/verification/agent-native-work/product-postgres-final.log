@@ -1,0 +1,5 @@
+{"category":"DETERMINISTIC","checks":8,"canonicalProjection":true,"crossOwnerDisclosures":0,"forkedAuthorityAssociations":0,"duplicateCards":0,"liveExecution":"NOT_RUN"}
+{"category":"DETERMINISTIC","checks":12,"freshIdentity":true,"inheritedCapabilityGrants":0,"inheritedWork":0,"crossOwnerDisclosures":0,"liveAgentExecution":"NOT_RUN"}
+{"category":"DETERMINISTIC","assertions":27,"live":"NOT_RUN","differentTriggerCoalescing":"NOT_QUALIFIED"}
+{"category":"DETERMINISTIC","assertions":14,"crossOwnerRead":0,"crossOwnerWrite":0,"naturalPromptCreation":"NOT_RUN"}
+{"category":"DETERMINISTIC","assertions":14,"groupExecution":"NOT_QUALIFIED","liveRelay":"NOT_RUN","privatePayloadSelected":false}

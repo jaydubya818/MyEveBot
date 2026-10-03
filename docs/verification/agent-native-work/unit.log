@@ -1,0 +1,18 @@
+
+> eve-agent@0.0.0 test
+> vitest run lib/engineering/publication-contract.test.ts lib/chat-session.test.ts lib/thread-sync.test.ts agent/lib/engineering-work-binding.test.ts
+
+
+ RUN  v3.2.7 /Users/jaywest/.codex/worktrees/private-alpha-product-expansion/Myeve/apps/eve
+
+ ✓ agent/lib/engineering-work-binding.test.ts (3 tests) 2ms
+ ✓ lib/chat-session.test.ts (5 tests) 8ms
+ ✓ lib/thread-sync.test.ts (19 tests) 4019ms
+   ✓ sessionHasEventAt > reports the tail when only a flush newline arrives before the deadline  2006ms
+   ✓ sessionHasEventAt > reports the tail when the route stays silent until the deadline  2003ms
+
+ Test Files  3 passed (3)
+      Tests  27 passed (27)
+   Start at  00:22:58
+   Duration  4.38s (transform 61ms, setup 0ms, collect 166ms, tests 4.03s, environment 0ms, prepare 127ms)
+

@@ -77,6 +77,9 @@ function RoutineReview({
   const [channel, setChannel] = useState<
     RoutineConfiguration["deliveryChannel"]
   >(routine.configuration?.deliveryChannel ?? "in_app");
+  const [condition, setCondition] = useState(routine.configuration?.responsibility?.condition ?? "");
+  const [notify, setNotify] = useState<"condition_met" | "every_run">(routine.configuration?.responsibility?.notify ?? "condition_met");
+  const [stopWhenMet, setStopWhenMet] = useState(routine.configuration?.responsibility?.stopWhenMet ?? false);
   const [confirmed, setConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,6 +99,10 @@ function RoutineReview({
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (!confirmed || !agent) return;
+    if (condition.trim() && !capabilities.includes("tool.record_observation")) {
+      setError("Select the observation capability to retain each condition check.");
+      return;
+    }
     setBusy(true);
     setError(null);
     const riskOrder = ["low", "medium", "high", "critical"] as const;
@@ -131,6 +138,7 @@ function RoutineReview({
       retry: { maxAttempts: 3, backoffSeconds: [60, 300, 900] },
       missedPolicy: "run_latest",
       deliveryChannel: channel,
+      ...(condition.trim() ? {responsibility:{condition:condition.trim(), notify, stopWhenMet}} : {}),
     };
     try {
       const response = await fetch("/api/routines", {
@@ -264,6 +272,22 @@ function RoutineReview({
           />
         </label>
       </div>
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium">What should this Routine watch for?</legend>
+        <label className="block text-sm">Condition (optional)
+          <textarea className={field} maxLength={1000} value={condition} onChange={e=>setCondition(e.target.value)} placeholder="For example: the item is available below my budget" />
+        </label>
+        {condition.trim() && <>
+          <label className="block text-sm">When to notify me
+            <select className={field} value={notify} onChange={e=>setNotify(e.target.value as typeof notify)}>
+              <option value="condition_met">Condition met or uncertain</option>
+              <option value="every_run">After every check</option>
+            </select>
+          </label>
+          <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={stopWhenMet} onChange={e=>setStopWhenMet(e.target.checked)} />Stop after the condition is met</label>
+          <p className="text-xs text-kumo-subtle">Every completed check stays in Run history, including checks that do not notify you. This condition does not authorize purchases, sends or publication.</p>
+        </>}
+      </fieldset>
       <label className="block text-sm">
         Result notification
         <select

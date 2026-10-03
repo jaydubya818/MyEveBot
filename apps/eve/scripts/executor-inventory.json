@@ -4,7 +4,7 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained.",
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes.",
       "sha256": "9c3f909508b8386390da32cf253bca98fe593cd3d9f7ba034d956d363a10759e"
     },
     "agent/channels/agentphone-voice.ts": {
@@ -417,13 +417,13 @@
     },
     "agent/lib/reminders-db.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "44007513dc78ff4e02470898b8d941e522c9bd79de39c27fbb74fe8b7591dacb"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Consolidated boundary: Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed owner-scoped stop cancels active/paused schedule using existing invalidation trigger; no execution release, grants or new engine. Controlled lifecycle/recovery test covers owner isolation.",
+      "sha256": "9dfa8406cc3781e5aa17dca5499912e1b84899c794fecb0eea664099dc03bc3b"
     },
     "agent/lib/routine-runner.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "df4fd3088a71dea320c104fb1d3ea90058037df84dbcbf7a6a26f75722431d7e"
+      "sha256": "e2a765d51fe8ac84a90fb0810dfafae85f70f7a8352f5d00ded3d2db4af1ec4c"
     },
     "agent/lib/run-assigned-qa-suite-tool.ts": {
       "classification": "BLOCKED",
@@ -1123,7 +1123,7 @@
     "agent/tools/list_routines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "bad1ac2c11b7e145b7de8f3eb98f745a9cd0ec06cdac3426e2fba7ff30b6ef2e"
+      "sha256": "c68babbc15b03083053937a9d1fe6a78e47c84ece056975b0543079fd7f6635e"
     },
     "agent/tools/list_solution_packs.ts": {
       "classification": "READ_ONLY",
@@ -1148,12 +1148,12 @@
     "agent/tools/make_routine.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b84ce860835e37677c35d68f89ad2b541387926e3e22a803fdb1f532080f8ae2"
+      "sha256": "d86c01112fa3d5b8e272448e273c01b6eca75ad55ca57220678e61b21c1194ff"
     },
     "agent/tools/manage_agent.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant.",
-      "sha256": "f0a812a316bff5388b3c6fca1eb748bef4008f49a3bfebe23c8c97d4d26d8e50",
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Consolidated boundary: Direct authenticated root owner plus framework always-approval; reuses canonical profile services. Creation/copy grants zero capabilities; updates preserve existing risk/limits/grants; service/delegated/execution identities denied. Permission expansion requires existing owner settings; no execution dispatch.",
+      "sha256": "3a8ad4b6ba5ae41d8003bbbabc6e8bd3666cd036aab687e75e7564c78d003044",
       "disposition": "blocked"
     },
     "agent/tools/manage_computer_session.ts": {
@@ -1173,8 +1173,8 @@
     },
     "agent/tools/manage_routine.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "17dfa81a14ddfa90f4dbce6fa4dc1eee6567c576afe8edccd7120b2f93151001"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Consolidated boundary: Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed owner-scoped stop cancels active/paused schedule using existing invalidation trigger; no execution release, grants or new engine. Controlled lifecycle/recovery test covers owner isolation.",
+      "sha256": "9f2ba76fbf1747ddae15ffe4dead66c0fc72bbef75f52ef7f5ed25c68ff6bc74"
     },
     "agent/tools/persistent-agent-policy.ts": {
       "classification": "INTERNAL",
@@ -1226,7 +1226,7 @@
     "agent/tools/record_observation.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "34ca43679c120610de439658a65066a12ff91888d3ae70937d6b7904f4219974"
+      "sha256": "a29ac345f4c7c4a9b50940e0c0cb13ea02f01bdb2ae29b2d3a0013c50e186a35"
     },
     "agent/tools/record_outcome.ts": {
       "classification": "INTERNAL",
@@ -1928,8 +1928,8 @@
     },
     "lib/agent-api.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "cc5b89f7267280b530a5db89c973caa23af29b2fa3235b926aa460af994ee174"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Consolidated boundary: Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
+      "sha256": "8fff37e289c88909bd092bd53ca1611fd10102518b1b6d6782f7a40fdb8edd3a"
     },
     "lib/agentcard-http.ts": {
       "classification": "INTERNAL",
@@ -1938,8 +1938,8 @@
     },
     "lib/agents.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "29f5cf3c0c92de6d54357164324cabaede15493616c3efa56e189bb791cf8201"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Consolidated boundary: Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Configuration duplication now copies no capability grants, Work or Memory; fresh identity and isolation qualified in agent-home.integration.mjs. Profile-only update explicitly omits grant/risk/limit columns and uses atomic audit, preserving concurrent revocations. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
+      "sha256": "47d7db6637d81ef856ce515ebc77afa21deacb4c2e74dd67d5b6e3e4b6a0eb9e"
     },
     "lib/api-errors.ts": {
       "classification": "INTERNAL",
@@ -2234,12 +2234,12 @@
     "lib/execution-store.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f54b6818043e9a3b3618c4500b1a3a52c78a4a4b466d85598e34f717f5f147d1"
+      "sha256": "a636bdd7aebc0fb74ee59f32030a0b6e3be435fd9bb7f73c859ff6587532268d"
     },
     "lib/execution-types.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Types, schemas and pure validation helpers; no provider operation.",
-      "sha256": "7fd610ca60ec02445dfe56d417f281b091e93c86e673109ad4b6bd3691625156"
+      "sha256": "7a26a7d3b9308770fc0076158536b99cb40fcb0244f177f97b312bbfa3f384f8"
     },
     "lib/execution-worker.ts": {
       "classification": "INTERNAL",
@@ -2534,7 +2534,7 @@
     "lib/routine-admission.ts": {
       "classification": "INTERNAL",
       "reason": "Deterministic admission from immutable manifest, current Agent and metadata dependencies. No provider execution. Gateway remains authoritative.",
-      "sha256": "7d7bfe353d2c17821e393cf9d6075974a0995bbdbcf885b56fd04ea71a6d11db"
+      "sha256": "55410140c4510f11dcc3303881531befc7831e52c8e36a20f39d92422c3faa1a"
     },
     "lib/routine-availability.ts": {
       "classification": "READ_ONLY",
@@ -2564,7 +2564,7 @@
     "lib/routine-review.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "8034e6fec098d1573a1d30ed85b96e800487c64e65aae817528638639e6ddff3"
+      "sha256": "7582fdc79d0bbba7c40d33768d8270b190c53d8be7ce1efac6631fa2c7278174"
     },
     "lib/routine-run-now.ts": {
       "classification": "INTERNAL",
@@ -3165,7 +3165,7 @@
     },
     "lib/engineering/contract.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Consolidated boundary: Explicit factory-cloud profile identifies cloud execution without claiming a local harness. Existing profile/criterion limits and immutable hashes retained.",
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Consolidated boundary: Explicit factory-cloud profile identifies cloud execution without claiming a local harness. Existing profile/criterion limits and immutable hashes retained. Consolidated boundary: Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
       "sha256": "41fe9dd50fc511f7918ef56a14b81bddbd349aacf66a83a246acc2d90d280e29"
     },
     "lib/engineering/types.ts": {
@@ -3205,7 +3205,7 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged.",
+      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
       "sha256": "1acc963e74c1a2603fbdff84e80b38f04a7153429222058bf852961999cb76d5"
     },
     "app/api/beta/inbox/route.ts": {
@@ -3315,7 +3315,7 @@
     },
     "lib/engineering/docker-executor.ts": {
       "classification": "ENFORCED",
-      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows. Consolidated boundary: Cloud profiles rejected before any local Docker producer/verifier resource effect. Existing local behavior retained.",
+      "reason": "Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows. Consolidated boundary: Cloud profiles rejected before any local Docker producer/verifier resource effect. Existing local behavior retained. Consolidated boundary: Local isolated executor/verifier boundary: pinned image and task-owned resources. A fixed deny-network initializer runs as UID 0 only to populate the root-owned named volume; executor and protected candidate checks run as UID 1000 with all capabilities dropped. Protected checks have a read-only candidate mount and no network. Exact owned container exit evidence is required; exact missing-volume diagnostics support both observed Docker forms while daemon errors and wrong names fail closed. Real local Docker FAIL-to-PASS and cleanup qualification is recorded in docs/verification/2026-09-26-deepagents-spike; no model/publisher qualification follows.",
       "sha256": "65bdefce41c057f6fc7d7924f301cfa83975bb9ca30c3eaf2aaa726cd1bc717b"
     },
     "lib/engineering/execution-api.ts": {
@@ -3345,7 +3345,7 @@
     },
     "lib/engineering/factory-producer-protocol.ts": {
       "classification": "INTERNAL",
-      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects. Consolidated boundary: Strict signed Result validation; legacy V1 unchanged. Optional cloud-only verification binds candidate, policy, distinct resources and cleanup; attestation alone cannot grant owner/publication authority.",
+      "reason": "Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects. Consolidated boundary: Strict signed Result validation; legacy V1 unchanged. Optional cloud-only verification binds candidate, policy, distinct resources and cleanup; attestation alone cannot grant owner/publication authority. Consolidated boundary: Qualified MyFactory fcd8afd result protocol, copied with only its signing-helper import changed. Pure canonical manifest, byte integrity and key-window validation; no provider, database or authority effects.",
       "sha256": "97aae7704f9ce78ea912f8f4dc7aa3d5d62f8302adbfc6c3fd702244d898d2d1"
     },
     "lib/engineering/factory-producer-signature.ts": {
@@ -3360,7 +3360,7 @@
     },
     "lib/engineering/factory-result-channel.ts": {
       "classification": "READ_ONLY",
-      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Consolidated boundary: Existing signed Result channel uses per-request cloud OIDC and application bearer; bounded bytes and redirect denial preserved. Readback cannot dispatch Work.",
+      "reason": "Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect. Consolidated boundary: Existing signed Result channel uses per-request cloud OIDC and application bearer; bounded bytes and redirect denial preserved. Readback cannot dispatch Work. Consolidated boundary: Reads the qualified exact-attempt local producer result endpoint using a server-configured bearer token and loopback origin. Bounded streaming, no redirects or result-supplied URLs; no submission, cancellation, writer or publication effect.",
       "sha256": "0d2e18fd4ec411806f28027c296acb084d45bf1aebd5b745291e97ea4a0cb462"
     },
     "lib/engineering/factory-result-consumer.ts": {
@@ -3435,7 +3435,7 @@
     },
     "lib/engineering/native-results.ts": {
       "classification": "ENFORCED",
-      "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority. Consolidated boundary: Existing Result/Proof labels cloud verification accurately; no new readiness or publication authority.",
+      "reason": "Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority. Consolidated boundary: Existing Result/Proof labels cloud verification accurately; no new readiness or publication authority. Consolidated boundary: Existing immutable proof requires completed protected verification at exact candidate/profile/criteria/revision. Factory provenance stays Factory; successful local evidence remains PARTIAL without publication or Ready authority.",
       "sha256": "c5ca54e911b45c2310e3709da141191556175858184fd13095928b0fb54bed61"
     },
     "lib/engineering/native-routing.ts": {
@@ -3465,12 +3465,12 @@
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged.",
+      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
       "sha256": "88e056aa7b35c00e381ca67483989c0b8cc18c1a6409aa9d25d9ed2b19f50235"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority.",
+      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Consolidated boundary: Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
       "sha256": "317510ab1feae445040ae9b596fd56b0cc48f4bdd77be23e082b9df7039d7d46"
     },
     "lib/engineering/worker.ts": {
@@ -3505,7 +3505,7 @@
     },
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority.",
+      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
       "sha256": "3d4ec2c144f3cce97be2e95379af6e3d857ba8f37c9cbd87ee3caaebf1d8732d"
     },
     "agent/tools/engineering_factory.ts": {
@@ -3576,12 +3576,12 @@
     },
     "lib/engineering/factory-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner.",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
       "sha256": "a4cdb6f051f49222a5b35e13a6f16e7d095e11ce6aaf3b85881d0c5ff8ece542"
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback.",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
       "sha256": "d3e5de0cdd7e27e710a55c9d4517cc29e20ffe009d90356249973a19c0d25bb2"
     },
     "lib/engineering/factory-return.ts": {
@@ -3596,12 +3596,12 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved.",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs.",
       "sha256": "7911e24aa6cd0d84e16a268aa5c5fac1e66f2a95ded667d5b47bc10930dd5140"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks.",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
       "sha256": "25b4ec69a2f2c5eeaa8899ac139d284f33e7c946e5f1553e0c441d99844aeab4"
     },
     "lib/engineering/factory-observation.ts": {
@@ -3616,7 +3616,7 @@
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback.",
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
       "sha256": "f0f8dbb4f44f369ada7c67b23787df9db5ca73e964dd37406deace0ce0ffeb8f"
     },
     "app/api/capsules/route.ts": {
@@ -3696,7 +3696,7 @@
     },
     "lib/engineering/deployment-mode.ts": {
       "classification": "INTERNAL",
-      "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission. Consolidated boundary: Exact hosted preview guard enables command queue only for dedicated staging Factory and explicit synthetic owner.",
+      "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission. Consolidated boundary: Exact hosted preview guard enables command queue only for dedicated staging Factory and explicit synthetic owner. Consolidated boundary: Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission.",
       "sha256": "3dd215e90f7433195187048a9703867f4178e61550d0c71ed3e3a987fe5f9d24"
     },
     "lib/engineering/factory-worker-approval.ts": {
@@ -3767,12 +3767,12 @@
     },
     "lib/engineering/owner-publication.ts": {
       "classification": "INTERNAL",
-      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls.",
+      "reason": "Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Consolidated boundary: Revalidates owner/Work revision/generation, signed admitted Factory custody, immutable Result hash, protected verification and repository profile. Separate append-only owner decisions; rejects stale confirmation under Work-row lock. No model or GitHub calls. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
       "sha256": "4981477fff4b2e5294cf19c9d9f0336e8e35e1946db14079ab90cc690386e4a1"
     },
     "lib/engineering/publication-contract.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority.",
+      "reason": "Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority. Consolidated boundary: Pure strict bounded decision contract and recomputed Git candidate/tree/custody/scope identity. Model content cannot grant publication authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial.",
       "sha256": "f8be7f7d9656b97e1cfeb9e37e62c3c922c78fad87e16a9e7ae22592c5600f14"
     },
     "lib/engineering/candidate-publication.ts": {
@@ -3859,6 +3859,81 @@
       "classification": "ENFORCED",
       "reason": "Queue SDK authenticated callback plus exact hosted runtime gate. Wakeup cannot supply Work authority; canonical controller retains checks.",
       "sha256": "07ba93972de56e48d6827367fadbf421e30f11490a14efa620dad9c5205c4c8c"
+    },
+    "lib/product/work-thread.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
+      "sha256": "e0c4e291b2367685cee1d65afb07dc386696d39578cefa6c119c5c984e0e7fe7"
+    },
+    "app/api/work-thread/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
+      "sha256": "c74b07465dcaa017d2dadfee6e286b6cff1004a17542424b82ba558e07b48422"
+    },
+    "lib/product/agent-home.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging. Reviewed Product IA: bounded cosmetic appearance in existing avatar storage; agent home reuses canonical effectiveCapability and registry approval policy for read-only display. No execution, migration or authority expansion.",
+      "sha256": "074385c427dbbd4859e0a3e2795c33e9a0f76b565607fd29a5512aadc62919d6"
+    },
+    "app/api/agents/[id]/home/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
+      "sha256": "7457a12079d7be7b445ef7090464ef349ab676d77008d77d363bc1c5080b6556"
+    },
+    "lib/routine-check.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped Routine state; no external effect. Conditional checks retain bounded evidence under current claim fencing; release gate remains closed.",
+      "sha256": "47f221ebaf1ee71044e73c2b93d55fccecd7b2058e963360dd4cb76fa02e207b"
+    },
+    "agent/lib/routine-owner.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-scoped Routine state; no external effect. Conditional checks retain bounded evidence under current claim fencing; release gate remains closed.",
+      "sha256": "e3309ab09e2341503f0d27ba19254ac23f1ccb0dbb49f852fec14b1a0384c5cd"
+    },
+    "lib/product/responsibilities.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
+      "sha256": "7e8270c7adf912f41c5cda656e3ca9dcc78b44940631c3885a37396363ddc268"
+    },
+    "app/api/responsibilities/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
+      "sha256": "c8c3e7de1a174f43f8ccdca8298c1ff96599d18a49f94578ddcf84c4e9cc4671"
+    },
+    "lib/product/collaboration.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated read of existing Relay transport metadata; no credential/payload decryption, private Memory, Group authority or messages. Partner service-connection restriction preserved.",
+      "sha256": "1cd2055a14d29d1a0c2e9ac1e859c735b2a03dd26dda917a953c76bc584d9e16"
+    },
+    "app/api/collaboration/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-authenticated read of existing Relay transport metadata; no credential/payload decryption, private Memory, Group authority or messages. Partner service-connection restriction preserved.",
+      "sha256": "a844106593cc15f8f1d1c45ab235b3d0cc1a2d4579fd285bfb795f567810fa8e"
+    },
+    "lib/product/work-state.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "7015b3f5d30afd863cd73e376c29fda491a26bfc5de875daef6d681048f6fb95"
+    },
+    "lib/product/work-inbox.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "e0df0071e0125ba4d1826223cc3d695242e8f20aa40f869e4adc74b14dd23a74"
+    },
+    "app/api/work-inbox/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
+      "sha256": "8b46356e04b79e58bc3b3d33b65ed3edcdd927243e61e6ce5b1c95a5e2c718ba"
+    },
+    "lib/product/groups.ts": {
+      "classification": "INTERNAL",
+      "reason": "Group metadata only; exact owner/member/revision checks and source reauthorization. Existing Relay proposal/receipt and canonical Inbox reference only; no sending, execution or new authority. Not wired until shared schema and per-agent identities are accepted.",
+      "sha256": "7ce35879e5f8ea926527d6374d9b8d5b83d665b5b96dd70edf6223803ec39843"
+    },
+    "lib/product/group-repository.ts": {
+      "classification": "INTERNAL",
+      "reason": "Proposed bounded Group metadata persistence with owner-scoped CAS and atomic audit; no production route or allocated migration. Qualified only against isolated proposed schema.",
+      "sha256": "cd529adf3466f58f38056b07ea2330458b18f7e3cbcefb4c62739f738db9127e"
     }
   }
 }

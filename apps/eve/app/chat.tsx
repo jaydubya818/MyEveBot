@@ -1,4 +1,5 @@
 "use client";
+import { WorkThread } from "@/components/owner/work-thread";
 
 import { toolPresentation } from "@/lib/tool-presentation";
 import { ownerLocalStorage, ownerSessionStorage } from "@/lib/owner-browser-storage";
@@ -2454,6 +2455,7 @@ function ChatThread({
                     />
                   </MessageScrollerItem>
                 ))}
+                {!ownerConflict && <WorkThread key={threadId} threadId={threadId} />}
                 {!ownerConflict && <TaskRunCard threadId={threadId} />}
                 {!ownerConflict && showThinking && (
                   <MessageScrollerItem messageId="thinking">

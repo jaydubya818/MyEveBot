@@ -109,6 +109,9 @@ export function snapshotRoutineConfiguration(
   input: RoutineConfiguration,
 ): RoutineConfiguration {
   const config = routineConfigurationSchema.parse(input);
+  if (config.responsibility && (!config.authority.allowedCapabilities.includes("tool.record_observation") || (config.manifest && !config.manifest.tools.includes("record_observation")))) {
+    throw new Error("Conditional Routines require the observation capability in their reviewed manifest.");
+  }
   if (config.manifest) return config;
   return {
     ...config,

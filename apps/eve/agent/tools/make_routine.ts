@@ -1,3 +1,4 @@
+import { routineOwner } from "../lib/routine-owner.ts";
 import { defineTool } from "eve/tools";
 import { always } from "eve/tools/approval";
 import { z } from "zod";
@@ -12,8 +13,9 @@ export default defineTool({
     sourceOutcomeId: z.string().startsWith("outcome_").optional(),
   }),
   approval: always(),
-  async execute(input) {
+  async execute(input, ctx) {
+    const ownerId=routineOwner(ctx);
     const nextFireAt = nextCronOccurrence(input.cron, input.timezone);
-    return createReminder({ prompt: input.prompt, cron: input.cron, timezone: input.timezone, nextFireAt, chatId: null, routineName: input.name, approvalBoundary: input.approvalBoundary, sourceOutcomeId: input.sourceOutcomeId });
+    return createReminder({ ownerId, prompt: input.prompt, cron: input.cron, timezone: input.timezone, nextFireAt, chatId: null, routineName: input.name, approvalBoundary: input.approvalBoundary, sourceOutcomeId: input.sourceOutcomeId });
   },
 });

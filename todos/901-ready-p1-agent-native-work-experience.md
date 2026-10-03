@@ -1,0 +1,65 @@
+---
+status: ready
+priority: p1
+issue_id: "901"
+tags: [product, agents, routines, relay]
+dependencies: []
+---
+# Agent-native Work experience
+
+## Problem Statement
+Existing durable capabilities do not yet form one coherent owner conversation and responsibility model.
+
+## Findings
+Canonical baselines pinned in docs/verification/agent-native-work/baseline.json. Protected Environment Fabric work active; cloud not qualified. Existing routine release disabled.
+
+## Proposed Solutions
+Reuse canonical data/services and compose product surfaces (chosen). Replacing execution, scheduler or authority systems is rejected.
+
+## Recommended Action
+Execute the supplied mission in priority order, commit/push/verify each accepted checkpoint; preserve concurrent work and evidence distinctions.
+
+## Acceptance Criteria
+- [x] Inventory, Pluto crosswalk, responsive IA and reuse plan
+- [ ] A: Unified Work Thread — deterministic composition qualified; natural-request productive journey still NOT_RUN
+- [ ] B: Persistent specialist profile/status/history and safe fork
+- [ ] C: Natural Routine lifecycle, responsible agent, conditional Results/notifications
+- [ ] D: Duplicate/restart/browser-off recovery, cloud boundary
+- [ ] E: Today/Inbox canonical aggregation
+- [ ] F: Persistent Groups and actual Relay coordination
+- [ ] Federation qualification where actual peers available
+- [ ] Production-like desktop/390px/accessibility evidence
+- [ ] Final canonical reconciliation, safety review and durable report
+
+## Work Log
+### 2026-10-02 — Inventory
+Fetched all three canonical remote main branches. Reused clean isolated checkout on codex/agent-native-work-experience. Existing source branch 52141ba retained. No protected checkout changed. Initial coordination was rejected pending explicit permission. Jay subsequently approved it; see the coordination checkpoint below.
+
+### Checkpoint A
+Implemented read-only conversation association and canonical inline Result/Proof/decision. 8 PostgreSQL checks, 27 unit regressions, 25 publication integration checks, 12 production-build browser scenarios; 8 scoped accessibility scans pass. Full mission acceptance remains open.
+
+### Checkpoint B
+Operational agent home and safe configuration copy deterministically qualified: 12 PostgreSQL assertions; 4 browser scenarios; 2 accessibility scans. Natural specialist creation/execution is not yet qualified.
+
+### Checkpoint C
+Conditional Run results/notification/stop and scoped Routine authoring implemented. 19 condition and 12 owner assertions, 62 unit regressions, full existing execution-reliability suite and 4 fixture browser scenarios pass. Natural creation, distinct-trigger coalescing and cloud execution remain open.
+
+### Checkpoint D
+Recorded canonical deterministic restart/lease/recovery and delivery regressions. Browser-disconnected real execution and Mac-off CLOUD remain NOT_RUN; release stays disabled. Read-only Environment Fabric report remains PARTIAL; no candidate merged. Continue E/F.
+
+### Checkpoint E
+Canonical owner-scoped responsibility reads added to Today/Inbox, with quiet-result separation and timezone-aware schedule display. Desktop rail/mobile Menu reduce navigation complexity. 27 PostgreSQL assertions and 6 browser scenarios pass; 4 accessibility scans clear. Full all-channel and live background qualification remains open.
+
+### Checkpoint F
+Added owner-scoped Relay handoff metadata view and explicit Group schema/identity proposal. 14 PostgreSQL assertions and 4 browser scenarios pass; 2 accessibility scans clear. Persistent Groups and real agent coordination remain NOT_QUALIFIED. No transport or execution implementation forked.
+
+### Canonical reconciliation and qualification
+Reconciled landed MyEve main d75091e with a presentation-only conflict resolution. Preserved canonical failed independent review and exposed it inline. Final evidence: 1,991 unit passes/94 gated skips, 75 product PostgreSQL checks, 29 publication contract checks, 32 product browser cases and 12 canonical publication browser cases. Remaining full-mission gates remain unchecked; see qualification-summary.md and integration crosswalk. Routine stale-edit race now returns an explicit conflict and preserves the concurrent edit.
+
+### Environment Fabric coordination
+Delivered the authorized nine-P0 handoff to both Fabric and cloud execution owners. Received Fabric’s pinned source contract and incorporated its exact exports and missing admission/registry/origin boundaries. Cloud branch progress is recorded separately from the older Fabric image blocker. No runtime schema/router/provider copied, protected worktree modified or capability enabled. Continue deterministic product readback qualification; cloud/Routine E2E remains PARTIAL / NOT_READY.
+
+### Product continuation after accepted coordination checkpoint
+Revalidated all canonical mains; blanket Q37 wait is stale. Implemented Work Inbox settlement independent of archival, shared agent/Today status, direct-owner profile tools without permission expansion, Routine stop and controlled natural authoring/scheduler/recovery qualification. Group domain and proposed PostgreSQL aggregate are deterministically tested with canonical Relay contracts and canonical Inbox attention references. No shared migration allocated or protected execution source changed. Remaining gates are detailed in docs/product/current-product-dependencies.md; incomplete browser-natural/productive and real-peer/cloud gates remain unchecked.
+
+- 2026-10-02 visual addendum: canonical Live Agent Cards; state-oriented Today/navigation; bounded persistent Look and simplified specialist editor; Room terminology and explicit interaction preview; landing proposal. 50 full-suite browser cases, 32 light/dark baselines, 37 PostgreSQL checks, 1,997 unit tests passed. Protected integration gates remain open; see visual-ia-qualification.md.

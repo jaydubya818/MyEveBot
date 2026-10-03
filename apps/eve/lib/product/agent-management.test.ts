@@ -1,0 +1,15 @@
+import {describe,it,expect,vi,beforeEach} from 'vitest';
+const f=vi.hoisted(()=>({createAgent:vi.fn(),getAgent:vi.fn(),updateAgentProfile:vi.fn(),transitionAgent:vi.fn(),duplicateAgent:vi.fn()}));
+vi.mock('../agents.ts',()=>f);
+import manage from '../../agent/tools/manage_agent.ts';
+const context=(patch:Record<string,unknown>={})=>({session:{auth:{current:{principalId:'owner',principalType:'user',attributes:{owner:'true'},...patch}}}}) as never;
+const profile={name:'Designer',role:'Designer',description:'',instructions:'Design accessible interfaces.',riskCeiling:'low' as const,capabilityIds:[],reasoningPreference:'default' as const,notificationPolicy:'activity' as const};
+beforeEach(()=>{vi.clearAllMocks();f.getAgent.mockResolvedValue({id:'designer',riskCeiling:'low',limits:{maxSteps:5},capabilities:[{id:'web.read',enabled:true}]});});
+describe('direct owner agent management',()=>{
+ it('creates a distinct profile with no grants through the existing service',async()=>{await manage.execute({action:'create',configuration:profile},context());expect(f.createAgent).toHaveBeenCalledWith('owner',expect.objectContaining({capabilityIds:[]}),{type:'owner',id:'owner'});});
+ it('keeps existing permissions and limits on profile edits',async()=>{await manage.execute({action:'update',agentId:'designer',configuration:profile},context());expect(f.updateAgentProfile).toHaveBeenCalledWith('owner','designer',profile,expect.anything());});
+ it('denies guests, service identities, delegated roles and subagents',async()=>{for(const c of [context({principalType:'service'}),context({attributes:{owner:'true',role:'guest'}}),context({attributes:{owner:'true',myeveRoleId:'worker'}}),{session:{...(context() as any).session,parent:{id:'parent'}}}])await expect(manage.execute({action:'create',configuration:profile},c as never)).rejects.toThrow('direct authenticated owner');expect(f.createAgent).not.toHaveBeenCalled();});
+ it('does not turn profile creation into permission or limit expansion',async()=>{for(const configuration of [{...profile,capabilityIds:['files.write']},{...profile,riskCeiling:'high' as const},{...profile,limits:{maxSteps:100,maxRuntimeSeconds:100,maxEstimatedCostUsd:100,maxRetries:10}}])await expect(manage.execute({action:'create',configuration},context())).rejects.toThrow();expect(f.createAgent).not.toHaveBeenCalled();});
+ it('denies unknown and foreign agent IDs before mutation',async()=>{f.getAgent.mockResolvedValue(null);await expect(manage.execute({action:'archive',agentId:'foreign'},context())).rejects.toThrow('not found');expect(f.transitionAgent).not.toHaveBeenCalled();});
+ it('copies and changes status only through canonical owner-scoped services',async()=>{await manage.execute({action:'duplicate',agentId:'designer'},context());expect(f.duplicateAgent).toHaveBeenCalledWith('owner','designer',undefined,{type:'owner',id:'owner'});await manage.execute({action:'pause',agentId:'designer'},context());expect(f.transitionAgent).toHaveBeenCalledWith('owner','designer','paused',{type:'owner',id:'owner'});});
+});
