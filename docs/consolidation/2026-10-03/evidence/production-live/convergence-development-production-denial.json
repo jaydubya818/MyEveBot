@@ -1,0 +1,13 @@
+{
+  "sourceProject": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+  "sourceEnvironment": "development",
+  "destinationProject": "prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK",
+  "destinationEnvironment": "production",
+  "httpStatus": 403,
+  "protectionHtml": false,
+  "denialLayer": "UNCLASSIFIED",
+  "providerErrorCode": "TRUSTED_SOURCES_ENVIRONMENT_MISMATCH",
+  "status": "PASS",
+  "credentialsPersisted": 0,
+  "applicationCredentialSent": false
+}
