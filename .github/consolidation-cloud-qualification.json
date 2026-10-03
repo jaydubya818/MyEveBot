@@ -10,5 +10,12 @@
   "maxNewWork": 1,
   "runAttempt": "1",
   "authorization": "Remaining mission sections7\u201312: one bounded assembled deterministic hosted release qualification; production and generated-code effects disabled.",
-  "myeveDeploymentId": "dpl_Ev3aa9WN7nmawvZ69eYhcMYTo1C5"
+  "myeveDeploymentId": "dpl_Ev3aa9WN7nmawvZ69eYhcMYTo1C5",
+  "runnerPreflightFailures": [
+    {
+      "runId": 37152278612,
+      "reason": "Qualification environment branch allowlist rejected consolidation before any job step",
+      "workCreated": false
+    }
+  ]
 }
