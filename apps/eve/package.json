@@ -86,6 +86,7 @@
     "@types/react-dom": "^19.2.3",
     "@types/web-push": "^3.6.4",
     "@types/ws": "^8.18.1",
+    "axe-core": "4.11.0",
     "just-bash": "^3.1.0",
     "microsandbox": "^0.5.10",
     "postcss": "^8.5.21",

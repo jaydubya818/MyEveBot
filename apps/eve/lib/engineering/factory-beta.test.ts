@@ -57,7 +57,7 @@ describe('review-repair exact consumer binding',()=>{
   expect(fetcher).not.toHaveBeenCalled();
  });
  it('passes the approved id through the normal endpoint and rejects a substituted WorkOrder',async()=>{
-  const request={requestId:randomUUID(),workId:work.id,workGeneration:2,repairWorkOrderId:binding.workOrderId};
+  const request={requestId:randomUUID(),workId:work.id,workGeneration:2,repairWorkOrderId:binding.workOrderId,input:{repositoryPath:'/fixture',workerProfile:'mac'}};
   const fetcher=vi.fn(async(_url:unknown,_init?:RequestInit)=>Response.json({requestId:request.requestId,workOrderId:randomUUID(),runId:null,snapshot:null,identity:null,state:'PREPARING',quiescent:false,evidenceRef:null,spend:{status:'KNOWN',ceilingUsd:1},blocker:null}));
   const adapter=new LiveFactoryAdapter({...config,repairBinding:binding},fetcher as typeof fetch);
   await expect(adapter.prepare(request as never)).rejects.toThrow(/different repair WorkOrder/);

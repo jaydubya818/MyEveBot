@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect} from '@playwright/test';
 import {pool,reset,workId,service} from './harness.mjs';
 test.beforeEach(async({context})=>{
@@ -21,7 +23,7 @@ for(const [label,expected,pushes,prs] of [['Open a pull request','PR_OPEN',1,1],
   await page.reload();await expect(page.getByRole('heading',{name:'Sofie finished the work'})).toBeVisible();
   await expect.poll(async()=> (await pool.query('SELECT pushes,prs FROM publication_boundary_fixture')).rows[0]).toEqual({pushes,prs});
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+  await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
   const violations=await page.evaluate(async()=> (await (window as any).axe.run({runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);
   expect(violations.map((v:any)=>({id:v.id,nodes:v.nodes.map((n:any)=>n.target)}))).toEqual([]);
   await page.screenshot({path:`../../output/playwright/publication/${info.project.name}-${pushes}-${prs}-${label.replaceAll(' ','-')}.png`,fullPage:true});

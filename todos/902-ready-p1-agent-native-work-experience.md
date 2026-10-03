@@ -1,7 +1,7 @@
 ---
 status: ready
 priority: p1
-issue_id: "901"
+issue_id: "902"
 tags: [product, agents, routines, relay]
 dependencies: []
 ---
@@ -63,3 +63,7 @@ Delivered the authorized nine-P0 handoff to both Fabric and cloud execution owne
 Revalidated all canonical mains; blanket Q37 wait is stale. Implemented Work Inbox settlement independent of archival, shared agent/Today status, direct-owner profile tools without permission expansion, Routine stop and controlled natural authoring/scheduler/recovery qualification. Group domain and proposed PostgreSQL aggregate are deterministically tested with canonical Relay contracts and canonical Inbox attention references. No shared migration allocated or protected execution source changed. Remaining gates are detailed in docs/product/current-product-dependencies.md; incomplete browser-natural/productive and real-peer/cloud gates remain unchecked.
 
 - 2026-10-02 visual addendum: canonical Live Agent Cards; state-oriented Today/navigation; bounded persistent Look and simplified specialist editor; Room terminology and explicit interaction preview; landing proposal. 50 full-suite browser cases, 32 light/dark baselines, 37 PostgreSQL checks, 1,997 unit tests passed. Protected integration gates remain open; see visual-ia-qualification.md.
+
+### 2026-10-03 — Consolidation identifier reconciliation
+
+Renumbered Product work order 901 to 902 because canonical main already owns 901 for Computer/Factory federation qualification. Preserved scope, status and history; root work-order uniqueness regression passes.

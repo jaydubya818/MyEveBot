@@ -14,6 +14,14 @@ const config:FactoryConnection={transport:'CLOUD',protocol:'MYFACTORY_EXECUTION_
 const request=():FactoryPrepareRequest=>({requestId:randomUUID(),workId:randomUUID(),workGeneration:1,repository:source.repository,deadline:new Date(Date.now()+60000).toISOString(),maxSpendUsd:1,input:{title:'Quantity',description:'Implement positive integer validation.',kind:'feature',baseRef:source.commit,acceptanceCriteria:['Tests pass'],reproductionCommand:null,expectedFailureText:null,checkCommands:['node --test'],allowedPaths:['quantity.mjs'],workerProfile:'container'}});
 describe('dedicated staging Factory transport',()=>{
  it.each(['http://127.0.0.1:8000','http://myfactory-cloud-staging-abc-jaydubya818.vercel.app','https://evil.invalid','https://sofie-personal-agent-abc-jaydubya818.vercel.app','https://myfactory-cloud-staging-abc-jaydubya818.vercel.app/other','https://myfactory-cloud-staging-abc-jaydubya818.vercel.app:8443'])('rejects credential destination %s',origin=>{expect(()=>new LiveFactoryAdapter({...config,origin})).toThrow();});
+ it('does not promote a local repair binding into Cloud authority',async()=>{
+  const input=request(),repairBinding={workId:input.workId,workVersion:1,workGeneration:1,workOrderId:randomUUID()};
+  const fetcher=vi.fn();
+  expect(()=>new LiveFactoryAdapter({...config,repairBinding} as never,fetcher)).toThrow();
+  const adapter=new LiveFactoryAdapter(config,fetcher);
+  for(const operation of ['prepare','prepared'] as const)await expect(adapter[operation]({...input,repairWorkOrderId:repairBinding.workOrderId})).rejects.toThrow(/reviewed host binding/);
+  expect(fetcher).not.toHaveBeenCalled();
+ });
  it('serializes immutable source without local paths and uses the versioned authenticated route',async()=>{
   const fetcher=vi.fn(async(_url:URL|RequestInfo,_options?:RequestInit)=>new Response('',{status:503}));
   const adapter=new LiveFactoryAdapter(config,fetcher as typeof fetch),input=request();

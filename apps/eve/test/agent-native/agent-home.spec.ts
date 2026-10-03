@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect} from '@playwright/test';
 const id='agent_e0954312-6a71-4727-a915-f1484a0b8736';
 const agent={id,ownerId:'owner',name:'Sofie',slug:'qualification-sofie',role:'Primary Digital Worker',description:'Coordinates your goals and brings back useful Results.',instructions:'Controlled canonical fixture.',status:'active',isPrimary:true,preferredModel:null,reasoningPreference:'default',avatarConfig:{},riskCeiling:'low',notificationPolicy:'activity',limits:{maxSteps:20,maxRuntimeSeconds:600,maxEstimatedCostUsd:1,maxRetries:1},capabilities:[],createdAt:'2026-10-02T00:00:00Z',updatedAt:'2026-10-02T00:00:00Z',archivedAt:null};
@@ -19,7 +21,7 @@ test('persistent agent home shows canonical Work and history with Advanced colla
  const details=page.getByText('Advanced — instructions and model policy',{exact:true});await details.focus();await page.keyboard.press('Enter');
  await expect(page.getByText('Controlled canonical fixture.',{exact:true})).toBeVisible();await details.click();
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await home.scrollIntoViewIfNeeded();await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+ await home.scrollIntoViewIfNeeded();await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  const violations=await home.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);
  expect(violations.map((v:any)=>v.id)).toEqual([]);
  await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-agent-home.png`,fullPage:true});

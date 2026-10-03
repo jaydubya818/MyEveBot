@@ -3,7 +3,8 @@ import {pool,reset,service,workId,integration,decide} from '../publication/harne
 import {readWorkInbox} from '../../lib/product/work-inbox.ts';
 import {workState} from '../../lib/product/work-state.ts';
 import {CanonicalBetaWork} from '../../lib/beta-integration/canonical-work.ts';
-if(process.env.MYEVE_PUBLICATION_TEST_DATABASE!=='postgresql://postgres@127.0.0.1:55509/myeve_beta_publication')throw Error('Task-owned database required');
+if(process.env.MYEVE_PRODUCT_TEST_PORT && !/^[0-9]{1,5}$/.test(process.env.MYEVE_PRODUCT_TEST_PORT))throw Error('Numeric disposable loopback port required');
+if(process.env.MYEVE_PUBLICATION_TEST_DATABASE!==`postgresql://postgres@127.0.0.1:${process.env.MYEVE_PRODUCT_TEST_PORT??'55509'}/myeve_beta_publication`)throw Error('Task-owned database required');
 let checks=0;const eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
 try{
  await reset();

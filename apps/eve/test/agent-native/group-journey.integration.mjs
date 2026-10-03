@@ -3,8 +3,9 @@ import {readFile} from 'node:fs/promises';
 import {Pool} from 'pg';
 import {Groups} from '../../lib/product/groups.ts';
 import {PostgresGroups} from '../../lib/product/group-repository.ts';
+if(process.env.MYEVE_PRODUCT_TEST_PORT && !/^[0-9]{1,5}$/.test(process.env.MYEVE_PRODUCT_TEST_PORT))throw Error('Numeric disposable loopback port required');
 const url=process.env.MYEVE_PRODUCT_TEST_DATABASE;
-if(url!=='postgresql://postgres@127.0.0.1:55509/myeve_beta_publication')throw Error('Task-owned database required');
+if(url!==`postgresql://postgres@127.0.0.1:${process.env.MYEVE_PRODUCT_TEST_PORT??'55509'}/myeve_beta_publication`)throw Error('Task-owned database required');
 const pool=new Pool({connectionString:url}),c=await pool.connect(),schema='group_journey_'+Date.now();
 let checks=0;const eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
 try{

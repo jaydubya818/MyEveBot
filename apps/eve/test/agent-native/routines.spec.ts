@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect} from '@playwright/test';
 const routine={id:77,routine_name:'Availability watch',prompt:'Check the public listing and report availability.',cron:'0 9 * * *',timezone:'America/Los_Angeles',status:'active',configuration_version:1,reviewed_version:null,next_fire_at:'2026-10-03T16:00:00Z',execution_status:null,consecutive_failures:0,last_failure:null};
 const data={executionReady:false,routines:[routine],agents:[{id:'fixture-watcher',name:'Personal Shopper',status:'active',limits:{maxSteps:20,maxRuntimeSeconds:300,maxEstimatedCostUsd:1}}],capabilities:[{id:'tool.record_observation',name:'Record observation',risk:'medium'}]};
@@ -16,7 +18,7 @@ test('owner reviews condition and notification with execution gate visible',asyn
  await form.getByRole('button',{name:'Save owner review'}).click();await expect(form.getByRole('alert')).toHaveText('Select the observation capability to retain each condition check.');
  await form.getByLabel('Record observation',{exact:true}).check();
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+ await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  const violations=await section.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);expect(violations.map((v:any)=>v.id)).toEqual([]);
  await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-routine-condition.png`,fullPage:true});
  await form.getByRole('button',{name:'Save owner review'}).click();await expect(section.getByRole('status')).toHaveText('Owner review saved. Execution remains blocked until final qualification is complete.');

@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect} from '@playwright/test';
 test.beforeEach(async({context,page})=>{
  await context.request.post('/api/auth/login',{data:{password:'owner-publication-fixture-only'}});const state=await context.storageState();await context.addCookies(state.cookies.map(c=>({...c,secure:false})));
@@ -14,7 +16,7 @@ for(const destination of ['today','inbox'])test(`${destination} shows canonical 
  if(destination==='today'){await expect(panel.getByText('Waiting',{exact:true})).toBeVisible();await expect(panel.getByText('Scheduled next:',{exact:false})).toBeVisible();}
  else await expect(panel.getByRole('link',{name:'Open responsible agent'})).toHaveAttribute('href','/agents?agent=agent-native-watch-e');
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+ await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  const violations=await panel.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);expect(violations.map((v:any)=>v.id)).toEqual([]);
  if(info.project.name==='390px'){
   const menu=page.getByRole('button',{name:'Menu',exact:true});await expect(menu).toHaveAttribute('aria-expanded','false');await menu.click();await expect(page.getByRole('navigation',{name:'Primary'}).getByRole('link',{name:'Ask Sofie'})).toBeVisible();await page.keyboard.press('Escape');await expect(menu).toBeFocused();

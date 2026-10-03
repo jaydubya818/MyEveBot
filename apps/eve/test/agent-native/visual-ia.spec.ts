@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect,type Page,type Locator} from '@playwright/test';
 import {getCapabilities} from '../../lib/capability-registry.ts';
 import {reset} from '../publication/harness.mjs';
@@ -5,7 +7,7 @@ const id='agent_e0954312-6a71-4727-a915-f1484a0b8736',thread='agent-native-contr
 const agent={id,ownerId:'owner',name:'Sofie',slug:'qualification-sofie',role:'Primary Digital Worker',description:'Coordinates your goals and brings back useful Results.',instructions:'Controlled canonical fixture.',status:'active',isPrimary:true,preferredModel:null,reasoningPreference:'default',avatarConfig:{style:'initials',tone:'sage'},riskCeiling:'low',notificationPolicy:'activity',limits:{maxSteps:20,maxRuntimeSeconds:600,maxEstimatedCostUsd:1,maxRetries:1},capabilities:[],createdAt:'2026-10-02T00:00:00Z',updatedAt:'2026-10-02T00:00:00Z',archivedAt:null};
 async function visual(page:Page,target:Locator,name:string){
  await expect(target).toBeVisible();await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- if(!await page.evaluate(()=>Boolean((window as any).axe)))await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+ if(!await page.evaluate(()=>Boolean((window as any).axe)))await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  const violations=await target.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);
  expect(violations.map((v:any)=>({id:v.id,nodes:v.nodes.map((n:any)=>n.target)}))).toEqual([]);
  await expect(target).toHaveScreenshot(name+'.png',{animations:'disabled',maxDiffPixelRatio:0.005});

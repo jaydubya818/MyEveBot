@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect} from '@playwright/test';
 const data={connection:{agentId:'sofie-fixture',agentName:'Sofie',status:'active'},groupExecutionQualified:false,bounds:{requests:50,conversations:10},conversations:[{id:'conversation:qualification-handoff',correlated:true,updatedAt:'2026-10-02T12:00:00Z',requests:[{id:'request-fixture-reply',direction:'incoming',capability:'message.send',sender:'relay://fixture-owner/fixture-researcher',state:'completed'}]}]};
 test.beforeEach(async({context,page})=>{
@@ -9,7 +11,7 @@ test('handoff evidence stays collapsed and Group status stays honest',async({pag
  await expect(page.getByRole('heading',{name:'Rooms are not enabled yet'})).toBeVisible();await expect(panel.getByText('relay://fixture-owner/fixture-researcher',{exact:true})).not.toBeVisible();
  const proof=panel.getByText('Proof of handoff',{exact:true});await proof.focus();await page.keyboard.press('Enter');await expect(panel.getByText('relay://fixture-owner/fixture-researcher',{exact:true})).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});const violations=await panel.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);expect(violations.map((v:any)=>v.id)).toEqual([]);
+ await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});const violations=await panel.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);expect(violations.map((v:any)=>v.id)).toEqual([]);
  await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-collaboration.png`,fullPage:true});
 });
 test('collaboration authentication and failed refresh are explicit',async({page})=>{

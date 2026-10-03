@@ -1,0 +1,24 @@
+{
+  "status": "ASSEMBLED_QUALIFICATION_IN_PROGRESS",
+  "canonicalBase": "d75091eb333a531fa91ed9d39e273948aa9d0eaf",
+  "inputs": {
+    "privateAlpha": "db13cfad7d97ff6caffa657eede58bead41a8929",
+    "cloud": "00a82b783224db355b0172446554e0af2de7e35b",
+    "fabric": "d156f07fc62f5519beb2c481679b8a0902bbf79c",
+    "product": "9decd3169ab122bb60b612fc75fe079c10ddeaf6"
+  },
+  "relayCanonical": "a61f0ef697b02cf22da72ff2904c584d7faa026a",
+  "myfactoryInputs": {
+    "privateAlpha": "5d435c3bcf6e1dc500e51bf34053a595fcf2f9b9",
+    "cloud": "0fef220b723d53f8f891956be880b48f7490d96c",
+    "fabric": "65d1e976ea0f45aedbb3b1444c5537a7e29c99d0",
+    "evidenceProvider": "721adc93af318ba341286074780330512b0be9d4"
+  },
+  "effects": {
+    "paidModelCalls": 0,
+    "productionEffects": 0,
+    "productionResourcesProvisioned": 0
+  },
+  "cloudEvidenceBoundary": "Frozen Cloud checkpoint proved zero local runtime dependencies. Physical Mac power state was not independently observed. Evidence does not automatically qualify the assembled runtime.",
+  "deploymentAuthorization": "Full mission sections 1\u201319 were referenced but not supplied; clarification pending. Frozen promotion manifest is PREPARED_NOT_APPROVED_FOR_PRODUCTION."
+}

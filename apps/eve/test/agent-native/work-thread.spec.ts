@@ -1,3 +1,5 @@
+import {createRequire} from "node:module";
+const require=createRequire(import.meta.url);
 import {test,expect} from '@playwright/test';
 import {pool,reset,service,workId} from '../publication/harness.mjs';
 const thread='agent-native-controlled-thread';
@@ -31,7 +33,7 @@ for(const [choice,expected,pushes,prs] of [['Open a pull request','PR_OPEN',1,1]
   await page.reload();await expect(canvas.getByText(new RegExp(expected.replace('.','\\.'))).first()).toBeVisible();
   expect(new URL(page.url()).pathname).toBe('/chat');
   await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+  await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
   const violations=await canvas.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations);
   expect(violations.map((v:any)=>({id:v.id,nodes:v.nodes.map((n:any)=>n.target)}))).toEqual([]);
   await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-${choice.replaceAll(' ','-')}.png`,fullPage:true});
@@ -108,7 +110,7 @@ test('Work settles into Completed without archiving its conversation',async({pag
  await expect(inbox.locator(`[data-work-id="${workId}"]`)).toHaveAttribute('data-work-state','Completed');
  await expect(inbox.getByText('Verified Result kept private. Conversation remains open.')).toBeVisible();
  await expect.poll(()=>page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.addScriptTag({path:'/private/tmp/myeve-alpha-accessibility/node_modules/axe-core/axe.min.js'});
+ await page.addScriptTag({path:require.resolve('axe-core/axe.min.js')});
  expect(await inbox.evaluate(async node=>(await (window as any).axe.run(node,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}})).violations)).toEqual([]);
  await page.screenshot({path:`../../output/playwright/agent-native/${info.project.name}-work-inbox-settled.png`,fullPage:true});
  await inbox.getByRole('link',{name:'Continue conversation'}).click();

@@ -4,8 +4,9 @@ import {RoutineReviewStore} from '../../lib/routine-review.ts';
 import {routineConfigurationSchema} from '../../lib/execution-types.ts';
 import {retainRoutineCheck} from '../../lib/routine-check.ts';
 import {admissionFixture} from '../admission-fixtures.mjs';
+if(process.env.MYEVE_PRODUCT_TEST_PORT && !/^[0-9]{1,5}$/.test(process.env.MYEVE_PRODUCT_TEST_PORT))throw Error('Numeric disposable loopback port required');
 const url=process.env.MYEVE_PRODUCT_TEST_DATABASE;
-if(url!=='postgresql://postgres@127.0.0.1:55509/myeve_beta_publication')throw Error('Task-owned disposable database required');
+if(url!==`postgresql://postgres@127.0.0.1:${process.env.MYEVE_PRODUCT_TEST_PORT??'55509'}/myeve_beta_publication`)throw Error('Task-owned disposable database required');
 const pool=new Pool({connectionString:url});const db={query:async(q,p)=>(await pool.query(q,p)).rows};
 try{
  await db.query(`INSERT INTO agents(id,owner_id,slug,name,role,instructions,risk_ceiling) VALUES('agent-native-watch-e','owner','agent-native-watch-e','Personal Shopper','Availability researcher','Review public availability.','medium') ON CONFLICT(id) DO NOTHING`);
