@@ -1,3 +1,5 @@
+import {productionCloudEnabled,productionCloudConfiguration} from './production-runtime-guard.ts';
+import {productionInstallation} from './production-installation.ts';
 import {cloudEnvironmentRouting} from './cloud-environment-routing.ts';
 import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import {factorySpendAdmission} from './factory-spend.ts';
@@ -15,6 +17,13 @@ const betaPolicySchema=z.object({intent:betaIntentSchema,boundedOperationQualifi
 export const factoryRuntimeSchema=z.object({routing:betaPolicySchema.default({intent:'UNSUPPORTED',boundedOperationQualified:false}),connection:factoryConnectionSchema,commands:z.array(z.string().min(1).max(500)).min(1).max(20)}).strict();
 export async function factoryConfig(){
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
+ if(productionCloudEnabled()){
+  const production=productionCloudConfiguration(),raw=production.factory,installed=productionInstallation(),validation=production.mode==='OPERATOR_DETERMINISTIC_VALIDATION';
+  const connection={...(raw.connection as Record<string,unknown>),...installed.connection,...(validation?{releaseValidation:true}:{productionCanary:true}),evidence:{ownerScope:engineering.ownerId,token:process.env.FACTORY_PROOF_TOKEN,expiresAt:process.env.FACTORY_PROOF_EXPIRES_AT}};
+  const factory=factoryRuntimeSchema.parse({...raw,connection});
+  if(!('source' in factory.connection)||factory.connection.factoryId!=='myfactory-cloud-production'||factory.connection.sourceDigest!==installed.config.sourceDigest||factory.connection.qualification.mode!==(validation?'CLOUD_PRODUCTION_VALIDATION':'LIVE')||factory.connection.qualification.scopeId!==engineering.ownerId||factory.connection.qualification.profileHash!==digest(engineering.profile))throw Error('PRODUCTION_VALIDATION_FACTORY_BINDING');
+  return {engineering,...factory};
+ }
  if(cloudRuntimeEnabled()){
   const raw=cloudRuntimeConfiguration().factory as Record<string,unknown>;
   const connection={...(raw?.connection as Record<string,unknown>),evidence:{ownerScope:engineering.ownerId,token:process.env.FACTORY_PROOF_TOKEN,expiresAt:process.env.FACTORY_PROOF_EXPIRES_AT},token:process.env.FACTORY_SOFIE_STAGING_TOKEN,origin:process.env.FACTORY_STAGING_ORIGIN};
@@ -37,6 +46,10 @@ export class FactoryRouteAuthority {
  }
  async assess(work:Work,requestId?:string,prepared?:FactoryPrepareRequest){
   const config=await this.readConfig(),connection=config.connection,q=connection.qualification;
+  if('source' in connection&&connection.projectId==='prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'){
+   const pin=productionCloudConfiguration().work;
+   if(work.id!==pin.id||work.generation!==pin.generation||work.scopeId!==config.engineering.ownerId)throw new WorkError('production_validation_scope','Only the exact operator release-validation Work is authorized.',403);
+  }
   const native=await new NativeRouteAuthority(this.store,async()=>config.engineering).read(work);
   const policy=betaPolicySchema.parse(config.routing??{intent:'UNSUPPORTED'});
   // Non-Factory proposals do not depend on Factory transport or paid execution readiness.

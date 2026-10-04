@@ -29,6 +29,22 @@
           "topic": "sofie-cloud-work-v1"
         }
       ]
+    },
+    "app/api/production-validation/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-production-validation-v1"
+        }
+      ]
+    },
+    "app/api/production-canary/controller/route.ts": {
+      "experimentalTriggers": [
+        {
+          "type": "queue/v2beta",
+          "topic": "sofie-production-canary-v1"
+        }
+      ]
     }
   }
 }

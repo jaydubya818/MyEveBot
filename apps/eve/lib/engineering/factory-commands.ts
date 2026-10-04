@@ -30,9 +30,11 @@ export async function enqueueFactoryCommand(store:WorkStore,id:string,value:unkn
 }
 /** Requires the owner's exclusive session advisory lock. Canonical driver still
  * checks all admission, writer, budget, custody and verification authority. */
-export async function consumeFactoryCommands(store:WorkStore,execute:(id:string,input:FactoryCommand)=>Promise<unknown>) {
+export async function consumeFactoryCommands(store:WorkStore,execute:(id:string,input:FactoryCommand)=>Promise<unknown>,work?:{id:string;generation:number}) {
  const p=store.principal;
- const rows=await store.database.query(`SELECT * FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind=$2 AND status IN ('pending','running') ORDER BY CASE WHEN operation IN ('stop','takeover') THEN 0 ELSE 1 END,created_at LIMIT 20`,[p.scopeId,p.scopeKind]);
+ const rows=await store.database.query(`SELECT * FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind=$2 AND status IN ('pending','running')
+  AND ($3::uuid IS NULL OR (work_id=$3 AND work_generation=$4))
+  ORDER BY CASE WHEN operation IN ('stop','takeover') THEN 0 ELSE 1 END,created_at LIMIT 20`,[p.scopeId,p.scopeKind,work?.id??null,work?.generation??null]);
  for(const row of rows) {
   try {
    const work=await store.get(row.work_id);

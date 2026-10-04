@@ -1,3 +1,4 @@
+import {productionCloudEnabled,productionCloudConfiguration} from './production-runtime-guard.ts';
 import {createRequire} from 'node:module';
 import {cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import {consumeFactoryCommands} from './factory-commands.ts';
@@ -9,7 +10,8 @@ import type {ControllerMessage} from './cloud-controller-delivery.ts';
  * verifier credentials never enter this controller. A session lock is held on
  * an unpooled TLS connection for every command and reconciliation step. */
 export async function runCloudController(message:ControllerMessage){
- cloudRuntimeConfiguration();
+ const production=productionCloudEnabled()?productionCloudConfiguration():null;
+ if(!production)cloudRuntimeConfiguration();
  const owner=process.env.MYEVE_OWNER_ID;
  const url=new URL(process.env.DATABASE_URL_UNPOOLED??'invalid:');
  if(!owner||!['postgres:','postgresql:'].includes(url.protocol)||!url.hostname.endsWith('.neon.tech')||url.hostname.includes('-pooler.'))throw Error('CLOUD_CONTROLLER_DATABASE');
@@ -20,18 +22,20 @@ export async function runCloudController(message:ControllerMessage){
  try{
   await client.connect();
   const store=new WorkStore({scopeKind:'personal',scopeId:owner,actorId:owner},{query:async(q,p)=>(await client.query(q,p)).rows});
-  const [command]=await store.database.query("SELECT id,created_at FROM engineering_factory_commands WHERE id=$1 AND scope_id=$2 AND scope_kind='personal'",[message.commandId,owner]);
-  if(!command||new Date(command.created_at).getTime()+600_000!==message.expiresAt)throw Error('CLOUD_CONTROLLER_COMMAND');
+  const [command]=await store.database.query("SELECT id,created_at,work_id FROM engineering_factory_commands WHERE id=$1 AND scope_id=$2 AND scope_kind='personal'",[message.commandId,owner]);
+  if(!command||(production&&command.work_id!==production.work.id)||new Date(command.created_at).getTime()+600_000!==message.expiresAt)throw Error('CLOUD_CONTROLLER_COMMAND');
   const [lock]=await store.database.query("SELECT pg_try_advisory_lock(hashtextextended('myeve:factory-worker:' || $1,0)) AS acquired",[owner]);
   if(!lock?.acquired)return;
-  await consumeFactoryCommands(store,(id,input)=>executeFactoryCommand(store,id,input));
+  await consumeFactoryCommands(store,(id,input)=>executeFactoryCommand(store,id,input),production?.work);
   const rows=await store.database.query(`SELECT d.work_id,w.version,w.generation FROM engineering_routing_decisions d
    JOIN engineering_work w ON w.id=d.work_id AND w.scope_id=d.scope_id AND w.scope_kind=d.scope_kind
    WHERE d.scope_id=$1 AND d.scope_kind='personal' AND d.work_version=w.version AND d.factory_preparation IS NOT NULL
+   AND ($2::uuid IS NULL OR (w.id=$2 AND w.generation=$3))
    AND coalesce(d.factory_observation#>>'{value,verification}','') NOT IN ('PARTIAL','FAILED')
    AND coalesce(d.factory_observation#>>'{value,state}','') NOT IN ('CANCELLED','FAILED')
-   ORDER BY d.created_at LIMIT 8`,[owner]);
+   ORDER BY d.created_at LIMIT 8`,[owner,production?.work.id??null,production?.work.generation??null]);
   for(const row of rows){
+   if(production&&row.work_id!==production.work.id)continue;
    const driver=await factoryRuntime(store);
    const stops=await store.database.query("SELECT operation FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND work_version=$3 AND work_generation=$4 AND operation IN ('stop','takeover') ORDER BY created_at DESC LIMIT 1",[owner,row.work_id,row.version,row.generation]);
    try{if(stops.length)await driver.stop(row.work_id,stops[0].operation==='takeover'?'takeover':'cancel');await driver.step(row.work_id);}

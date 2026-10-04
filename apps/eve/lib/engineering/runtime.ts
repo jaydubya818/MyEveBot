@@ -1,3 +1,4 @@
+import {productionCloudEnabled,productionCloudConfiguration} from './production-runtime-guard.ts';
 import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import { hostedFactoryQueue } from "./deployment-mode.ts";
 import { alphaConversationQualificationSchema } from "./alpha-conversation-policy.ts";
@@ -17,10 +18,10 @@ import { getAgent } from "../agents.ts";
 import { approvedBaseSchema, preflightApprovedBase } from "./base-preflight.ts";
 
 export const runtimeSchema=z.object({
-  mode:z.literal("isolated-dogfood"), ownerId:z.string().min(1),agentId:z.string().min(1),
+  mode:z.enum(["isolated-dogfood","production-cloud"]), ownerId:z.string().min(1),agentId:z.string().min(1),
   objective:z.string().min(1).max(4000),criteria:criteriaSchema,profile:profileSchema,
   approvedBase:approvedBaseSchema,
-  brokerPort:z.number().int().min(1024).max(65535),model:z.string().regex(/^claude-[\w.-]+$/),
+  brokerPort:z.number().int().min(1024).max(65535).optional(),model:z.string().regex(/^(?:claude-[\w.-]+|openai\/gpt-5\.4-mini|none)$/),
   nativeQualification:nativeQualificationSchema.optional(),
   conversationQualification:alphaConversationQualificationSchema.optional(),
   nativeCompletion:nativeCompletionPolicySchema.default(() => nativeCompletionPolicySchema.parse({})),
@@ -28,10 +29,17 @@ export const runtimeSchema=z.object({
   githubApp:z.object({appId:z.number().int().positive(),installationId:z.number().int().positive(),
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
 }).strict().superRefine((config,ctx)=>{
+  if(config.mode==='isolated-dogfood'&&(!config.brokerPort||!config.model.startsWith('claude-')))ctx.addIssue({code:'custom',message:'Dogfood broker/model required'});
+  if(config.mode==='production-cloud'&&(config.brokerPort||config.nativeQualification||config.conversationQualification||config.githubApp||config.profile.executor!=='factory-cloud'))ctx.addIssue({code:'custom',message:'Production Cloud cannot configure local executors, qualification conversations or publication'});
   const binding=config.profile.publicOutputContract;
   if(binding&&!config.approvedBase.files.some(f=>f.path===binding.path&&f.sha256===binding.sha256))ctx.addIssue({code:'custom',message:'Public output contract must be pinned in the approved base manifest'});
 });
 export async function engineeringConfig() {
+  if(productionCloudEnabled()){
+    const parsed=runtimeSchema.parse(productionCloudConfiguration().engineering);
+    if(parsed.mode!=='production-cloud'||parsed.model!==(productionCloudConfiguration().mode==='OPERATOR_DETERMINISTIC_VALIDATION'?'none':'openai/gpt-5.4-mini')||parsed.ownerId!==process.env.MYEVE_OWNER_ID||parsed.profile.repository!=='jaydubya818/MyFactory')throw Error('PRODUCTION_VALIDATION_PROFILE');
+    return parsed;
+  }
   if(cloudRuntimeEnabled()) {
     const parsed=runtimeSchema.parse(cloudRuntimeConfiguration().engineering);
     if(parsed.ownerId!==process.env.MYEVE_OWNER_ID||parsed.profile.executor!=="factory-cloud"||parsed.nativeQualification||parsed.githubApp||parsed.conversationQualification||parsed.profile.repository!==process.env.MYEVE_ALPHA_REPOSITORY)
@@ -46,7 +54,7 @@ export async function engineeringConfig() {
   return parsed.data;
 }
 export async function engineeringRuntime(principal:WorkPrincipal,store=new WorkStore(principal)) {
-  if(cloudRuntimeEnabled())throw new WorkError("local_executor_forbidden","Local execution and publication are disabled in cloud qualification.",403);
+  if(cloudRuntimeEnabled()||productionCloudEnabled())throw new WorkError("local_executor_forbidden","Local execution and publication are disabled in cloud qualification.",403);
   const config=await engineeringConfig();
   if(principal.scopeKind!=="personal"||principal.scopeId!==config.ownerId||principal.actorId!==config.ownerId)throw new WorkError("engineering_scope","This qualification profile belongs to another owner.",403);
   const authorityCurrent=async()=>{const agent=await getAgent(principal.scopeId,config.agentId,store.database);return !!agent&&agent.isPrimary&&agent.status==="active";};
@@ -59,7 +67,7 @@ export async function engineeringRuntime(principal:WorkPrincipal,store=new WorkS
   // The provider fails closed before any GitHub request when a credential is absent.
   const github=new GitHubAdapter(config.profile.repository,githubCredential);
   const execution=new ExecutionStore(store);
-  const worker=new EngineeringWorker(execution,github,new DockerClaudeExecutor({brokerPort:config.brokerPort,brokerSecret:process.env.MYEVE_ENGINEERING_BROKER_SECRET??"",model:config.model}),new DockerProtectedVerifier(),()=>digest(config.profile),authorityCurrent);
+  const worker=new EngineeringWorker(execution,github,new DockerClaudeExecutor({brokerPort:config.brokerPort!,brokerSecret:process.env.MYEVE_ENGINEERING_BROKER_SECRET??"",model:config.model}),new DockerProtectedVerifier(),()=>digest(config.profile),authorityCurrent);
   return {config,store,execution,github,worker,authorityCurrent};
 }
 export const intakeSchema=z.object({issue:z.number().int().positive(),maxCostUsd:z.number().positive().max(20),maxDurationSeconds:z.number().int().min(300).max(3600),idempotencyKey:z.string().uuid()}).strict();

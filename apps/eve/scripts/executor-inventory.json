@@ -3464,8 +3464,8 @@
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "88e056aa7b35c00e381ca67483989c0b8cc18c1a6409aa9d25d9ed2b19f50235"
+      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "3d3213b1b1b4e05c1ec96c6f4b96f814252b134411e0a8f9ce7f90d1864d24b1"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
@@ -3504,8 +3504,8 @@
     },
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store.",
-      "sha256": "3d4ec2c144f3cce97be2e95379af6e3d857ba8f37c9cbd87ee3caaebf1d8732d"
+      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "51125e54268913b7becfb6afd1297658eeb86ab6e520d04d0d07d8f53e3fc997"
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
@@ -3575,13 +3575,13 @@
     },
     "lib/engineering/factory-runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled.",
-      "sha256": "a4cdb6f051f49222a5b35e13a6f16e7d095e11ce6aaf3b85881d0c5ff8ece542"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Cloud uses exact immutable source bytes and signed independent cloud verifier; local verifier sentinel denies fallback. No Factory infrastructure credentials read by runner. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "5b45ee139bf54e0d889a3c231b76097d8bf3bb040af2d5f65220836f8e0bcbe4"
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "91f8e12f8da2e9d09da745156567aa47be1a62ec6061f5cc38ed7c78b4639d3d"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "552a79c197fbc02bdd2badf469509e66234780aa703843449bdac9eab215c17d"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3615,8 +3615,8 @@
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "e013ef3ae3c642b911046019261c8d50817123cbf9093b265d031c4f42c4ec5d"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "a3652524b2efb2ba3e84a4927b23c9142780bfb404511a0b536aada2745b82c4"
     },
     "app/api/capsules/route.ts": {
       "classification": "INTERNAL",
@@ -3690,8 +3690,8 @@
     },
     "lib/engineering/factory-commands.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped bounded durable intent transport; compare-and-insert current Work, business decision preflight, stop and stale fencing. Only canonical Factory driver grants execution; negative scope/restart tests and connected PostgreSQL/Factory/Docker qualification cover the boundary.",
-      "sha256": "396f9a5cde0cb5b189ee18abad713f7b8c73bf60604e381148734561b20108d8"
+      "reason": "Owner-scoped bounded durable intent transport; compare-and-insert current Work, business decision preflight, stop and stale fencing. Only canonical Factory driver grants execution; negative scope/restart tests and connected PostgreSQL/Factory/Docker qualification cover the boundary. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "801dc785ca605fb5113c841a3ddb1f2962c8026b518057c8ff66c2eb908afa53"
     },
     "lib/engineering/deployment-mode.ts": {
       "classification": "INTERNAL",
@@ -3786,8 +3786,8 @@
     },
     "lib/engineering/factory-transport.ts": {
       "classification": "ENFORCED",
-      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer.",
-      "sha256": "86c7e021dd7e392b214008b4c5b223486d8788bdb52654c68d2955ec33a46144"
+      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "bcfea14ec3827821f93acda75eab89108f72a520f68e5ade8ec858123928aee7"
     },
     "lib/engineering/factory-cloud-custody.ts": {
       "classification": "INTERNAL",
@@ -3816,18 +3816,18 @@
     },
     "lib/engineering/cloud-controller-delivery.ts": {
       "classification": "ENFORCED",
-      "reason": "Strict bounded deployment/topic/region wakeup; next recovery scheduled before effects, no identity/authority payload, expiry and count bounded.",
-      "sha256": "b054ce61d1f53781b051a652f9cc88c9682895fe3c76991cb3568eaefbb3f418"
+      "reason": "Strict bounded deployment/topic/region wakeup; next recovery scheduled before effects, no identity/authority payload, expiry and count bounded. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "c32fcfc71140a2682e2d01982e51375383d0293171d8a89f20ddece24b380a1a"
     },
     "lib/engineering/cloud-controller-queue.ts": {
       "classification": "ENFORCED",
-      "reason": "Backend OIDC queue sends only command correlation. Persistent command timestamp bounds recovery; current owner required and no Factory infrastructure token exists here.",
-      "sha256": "d19f0b196bf71005c42157116fb7c057f1b24a30711b0dda89c0fc087f40c79e"
+      "reason": "Backend OIDC queue sends only command correlation. Persistent command timestamp bounds recovery; current owner required and no Factory infrastructure token exists here. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "21b8419fd207083965edf2b424f3bca13c62b41bf248e345dec712b0d380edda"
     },
     "lib/engineering/cloud-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Dedicated preview only, verified TLS unpooled database session lock, existing command consumer and canonical driver. Replay reconciles retained attempt; no allocation/provider credentials.",
-      "sha256": "34fb874e370b8145768209956f017a2ab44d98d0f202f12f02bdfdebe45317d7"
+      "reason": "Authenticated bounded queue delivery and verified-TLS owner session lock reuse canonical driver. Production command/recovery queries restrict exact Work/generation before LIMIT; no local executor, model, publication or infrastructure credential.",
+      "sha256": "018d361bcf07b2539510160ce10d649e343b73d44bc4acb328b9c4ef583c0b41"
     },
     "lib/engineering/cloud-conversation-model.ts": {
       "classification": "ENFORCED",
@@ -3836,8 +3836,8 @@
     },
     "lib/engineering/cloud-environment-routing.ts": {
       "classification": "ENFORCED",
-      "reason": "Accepted Fabric derives repository CLOUD requirements; exact scope/pinned environment/image/version and reviewed bounded qualification, no local fallback or execution grant.",
-      "sha256": "84506d51c598ab1c3d1de150a758907ec3e5a58601294e46a92fec36e2131486"
+      "reason": "Accepted Fabric derives repository CLOUD requirements; exact scope/pinned environment/image/version and reviewed bounded qualification, no local fallback or execution grant. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "f36c4b73e2a9f2aae43e7a6a221a1a593da6e181e18641235e9442eaa29f165b"
     },
     "lib/engineering/cloud-runtime-guard.ts": {
       "classification": "ENFORCED",
@@ -3936,8 +3936,8 @@
     },
     "lib/engineering/factory-evidence.ts": {
       "classification": "READ_ONLY",
-      "reason": "Separate expiring Proof credential, exact configured origin/OIDC, bounded reads; scope/run/version/digest/size and admitted signed patch/check binding; transport never evaluates PASS or dispatches.",
-      "sha256": "6d9d299cb8eeddba62cfd28769a292345ef05fdd828fbc2fb6aa03abb7db4bc2"
+      "reason": "Separate expiring Proof credential, exact configured origin/OIDC, bounded reads; scope/run/version/digest/size and admitted signed patch/check binding; transport never evaluates PASS or dispatches. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
+      "sha256": "531bfc89e715f8a92de26a4faec0b67bb736a684493e9e08933fbaa877334f44"
     },
     "lib/engineering/factory-evidence-store.ts": {
       "classification": "INTERNAL",
@@ -3963,6 +3963,51 @@
       "classification": "READ_ONLY",
       "reason": "Owner-only exact production installation observation and bounded authentication denial probes. Fixed destination and deliberately invalid Work; no execution, model, publication or caller-controlled authority. Separate app/OIDC gates and response sanitization retained.",
       "sha256": "aaa128ff5983be7d20b63c01e98b70f7598fc802b71d5efc7d68e435a1175ba4"
+    },
+    "app/api/production-validation/controller/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Authenticated bounded queue delivery and verified-TLS owner session lock reuse canonical driver. Production command/recovery queries restrict exact Work/generation before LIMIT; no local executor, model, publication or infrastructure credential.",
+      "sha256": "380439c59a1217fdc4a11fd29ae357e82c78c8c737fe6b7f5843971442dbf2f9"
+    },
+    "app/api/production-validation/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions.",
+      "sha256": "3c1bf9b67fb589b87feab81b154d3f818c53a28da1569dce6a11a681c44350b4"
+    },
+    "lib/engineering/production-runtime-guard.ts": {
+      "classification": "ENFORCED",
+      "reason": "Exact production project/owner installation plus separate server-only operator validation configuration. Rejects qualification/local/paid switches; enables neither synthetic conversation nor general Work.",
+      "sha256": "0f87a148e0c7119031152f805e89247184004cb7e3b02f244b5d7bbebd2ae420"
+    },
+    "lib/engineering/production-validation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions.",
+      "sha256": "188e62c3d58a022df6a25db04f850c979a9fd0629153a1d141ecdd7bb559e074"
+    },
+    "lib/engineering/production-evidence-isolation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
+      "sha256": "c31ee8675188dac2ef0c70c45f4495966ff2906c49f7f53a55b3742b40170bf0"
+    },
+    "lib/engineering/production-validation-report.ts": {
+      "classification": "ENFORCED",
+      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
+      "sha256": "7c357e61b46dff5416a848a5ed22fb5316a0e813c3eab7b70e3e83411a252cb4"
+    },
+    "lib/engineering/production-canary.ts": {
+      "classification": "ENFORCED",
+      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
+      "sha256": "85830d1bc9e2928687903f74e79d9a71cc73c15b0435c99e82d0167c13de3de6"
+    },
+    "app/api/production-canary/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
+      "sha256": "aae88916da5f2175ff0fb0eec89c0763b9e8695a59767affd94645334f4e98a4"
+    },
+    "app/api/production-canary/controller/route.ts": {
+      "classification": "ENFORCED",
+      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
+      "sha256": "e680e2d94ef1fa0ee39708ab998697f90a1495c950bb39a8b872c11985305181"
     }
   }
 }
