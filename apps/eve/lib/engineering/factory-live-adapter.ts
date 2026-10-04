@@ -26,7 +26,15 @@ export const cloudFactoryConnectionSchema=localFactoryConnectionSchema.omit({rep
  source:z.object({repository:z.string().regex(/^[-\w.]+\/[-\w.]+$/),commit:z.string().regex(/^[a-f0-9]{40}$/),tree:z.string().regex(/^[a-f0-9]{40}$/)}).strict(),
  qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('CLOUD_DETERMINISTIC')}),
 }).strict();
-export const factoryConnectionSchema=z.union([localFactoryConnectionSchema,cloudFactoryConnectionSchema]);
+export const productionFactoryConnectionSchema=cloudFactoryConnectionSchema.extend({
+ projectId:z.literal('prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'),releaseValidation:z.literal(true),
+ qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('CLOUD_PRODUCTION_VALIDATION')}),
+}).strict();
+export const productionCanaryConnectionSchema=cloudFactoryConnectionSchema.extend({
+ projectId:z.literal('prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'),productionCanary:z.literal(true),
+ qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('LIVE')}),
+}).strict();
+export const factoryConnectionSchema=z.union([localFactoryConnectionSchema,cloudFactoryConnectionSchema,productionFactoryConnectionSchema,productionCanaryConnectionSchema]);
 export type FactoryConnection=z.infer<typeof factoryConnectionSchema>;
 export interface FactoryPrepareRequest {repairWorkOrderId?:string;spendContract?:FactorySpendPlan;requestId:string;workId:string;workGeneration:number;repository:string;deadline:string;maxSpendUsd:number;input:{title:string;description:string;kind:'feature';repositoryPath?:string;baseRef:string;acceptanceCriteria:string[];reproductionCommand:null;expectedFailureText:null;checkCommands:string[];allowedPaths:string[];workerProfile:'mac'|'container'}}
 export interface FactoryReadback {requestId:string;workOrderId:string;runId:string|null;snapshot:ExecutionSnapshot|null;identity:FactoryExecutionIdentity|null;state:string;quiescent:boolean;evidenceRef:string|null;spend:FactorySpend;accounting:FactorySpendSummary;blocker:string|null}
@@ -86,12 +94,12 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
   if(canonical(request.spendContract??null)!==canonical(this.config.spendPlan??null))throw Error('Factory preparation plan differs from reviewed configuration');
   validateSpendBinding(data.spend,{...request,workOrderId:data.workOrderId,factoryVersion:this.config.factoryVersion,remoteRunId:data.runId??undefined},request.maxSpendUsd,request.spendContract);
   const s=data.snapshot;if(!s){if(data.state!=='PREPARING')throw Error('Prepared execution snapshot missing');return data;}
-  if('source' in this.config&&(s.version!==2||s.inputTree!==this.config.source.tree||s.configuration.workerProfile!=='container'||!s.configuration.cloud||s.configuration.cloud.evidenceClass!=='DETERMINISTIC'))throw Error('Cloud snapshot source/runtime/evidence mismatch');
+  if('source' in this.config&&(s.version!==2||s.inputTree!==this.config.source.tree||s.configuration.workerProfile!=='container'||!s.configuration.cloud||s.configuration.cloud.evidenceClass!==(this.config.qualification.mode==='LIVE'?'LIVE':'DETERMINISTIC')))throw Error('Cloud snapshot source/runtime/evidence mismatch');
   if(s.factoryId!==this.config.factoryId||s.factoryVersion!==this.config.factoryVersion||s.sourceDigest!==this.config.sourceDigest||s.configurationDigest!==this.config.configurationDigest||
    s.requestId!==request.requestId||s.workOrderId!==data.workOrderId||s.runId!==data.runId||s.inputCommit!==request.input.baseRef||s.attemptNumber!==1||
    canonical(s.configuration.allowedPaths)!==canonical(request.input.allowedPaths)||canonical(s.configuration.commands)!==canonical(request.input.checkCommands)||
    digest(s.configuration)!==s.configurationDigest||
-   (this.config.qualification.spendReview&&s.configuration.model!==this.config.qualification.spendReview.pricing.model))throw Error('Prepared Factory execution differs from qualified request/version');
+   (this.config.qualification.mode!=='CLOUD_PRODUCTION_VALIDATION'&&this.config.qualification.spendReview&&s.configuration.model!==this.config.qualification.spendReview.pricing.model))throw Error('Prepared Factory execution differs from qualified request/version');
   return data;
  }
  private identity(identity:FactoryExecutionIdentity,data:FactoryReadback){

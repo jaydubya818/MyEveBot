@@ -47,7 +47,7 @@ export class FactoryEvidenceClient {
     const evidence = this.config.evidence;
     if (!evidence || evidence.token === this.config.token || evidence.ownerScope !== this.config.qualification.scopeId || Date.parse(evidence.expiresAt) <= Date.now())
       throw new WorkError("factory_evidence_credentials", "A current separately scoped Proof connection is required.");
-    const config = { ...this.config, token: evidence.token }, transport = factoryTransport(config);
+    const config = { ...this.config, token: evidence.token }, transport = factoryTransport({...config,releaseValidation:undefined});
     let response: Response;
     try { response = await this.fetcher(new URL(transport.prefix + path, transport.origin), {
       method: body === undefined ? "GET" : "POST", headers: { ...await factoryRequestHeaders(config), "content-type": "application/json" },
