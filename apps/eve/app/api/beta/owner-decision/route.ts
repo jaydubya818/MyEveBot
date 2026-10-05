@@ -1,4 +1,4 @@
-import { webPrincipal,requireSameOrigin } from "../../../../lib/web-auth.ts";
+import { authenticateWebPrincipal,requireSameOrigin } from "../../../../lib/web-auth.ts";
 import { betaIntegration } from "../../../../lib/beta-integration/runtime.ts";
 import { OwnerPublication } from "../../../../lib/engineering/owner-publication.ts";
 import { boundedJson } from "../../../../lib/relay/client.ts";
@@ -7,7 +7,7 @@ import { z } from "zod";
 async function handle(request:Request){
  const headers={"cache-control":"no-store"};
  try{
-  const owner=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+  const owner=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
   if(!owner)return Response.json({error:'Sign in to continue.'},{status:401,headers});
   if(requireSameOrigin(request))return Response.json({error:'Same-origin request required.'},{status:403,headers});
   const service=new OwnerPublication(betaIntegration());

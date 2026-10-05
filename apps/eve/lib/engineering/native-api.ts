@@ -10,7 +10,7 @@ const headers = { "cache-control": "no-store" };
 /** Owner input may select a Work revision, never a qualification, policy or authority snapshot. */
 export async function handleNativeAdmission(request: Request, id: string) {
   try {
-    const store = new WorkStore(engineeringPrincipal(request));
+    const store = new WorkStore(await engineeringPrincipal(request));
     z.string().uuid().parse(id);
     if (request.method === "GET") {
       const { decision } = await new NativeRouteAuthority(store).assess(id);

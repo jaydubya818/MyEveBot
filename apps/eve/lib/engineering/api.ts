@@ -1,13 +1,13 @@
 import { isPartnerPrincipal } from "../private-owner-boundary.ts";
 import { z } from "zod";
-import { webPrincipal } from "../web-auth.ts";
+import { authenticateWebPrincipal } from "../web-auth.ts";
 import { boundedJson } from "../relay/client.ts";
 import { WorkStore } from "./store.ts";
 import { WorkError } from "./types.ts";
 import { ExecutionStore } from "./execution-store.ts";
 import { EngineeringWorkerProjectionStore } from "./worker-projection.ts";
 
-export function engineeringPrincipal(request: Request) {
+export async function engineeringPrincipal(request: Request) {
   // Internal qualification only until business identity and execution are qualified.
   if (process.env.MYEVE_ENGINEERING_MODE !== "dogfood")
     throw new WorkError(
@@ -15,7 +15,7 @@ export function engineeringPrincipal(request: Request) {
       "Engineering is not enabled in this deployment.",
       404,
     );
-  const principal = webPrincipal(request, {
+  const principal = await authenticateWebPrincipal(request, {
     ...process.env,
     NODE_ENV: "production",
   });
@@ -45,7 +45,7 @@ export function engineeringPrincipal(request: Request) {
 const headers = { "cache-control": "no-store" };
 export async function handleWorkRequest(request: Request, id?: string) {
   try {
-    const store = new WorkStore(engineeringPrincipal(request));
+    const store = new WorkStore(await engineeringPrincipal(request));
     if (id) z.string().uuid().parse(id);
     if (request.method === "GET") {
       const executions = new ExecutionStore(store);

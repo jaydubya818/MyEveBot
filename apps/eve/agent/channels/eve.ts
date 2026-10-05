@@ -6,7 +6,7 @@ import { eveChannel } from "eve/channels/eve";
 
 import { getAgent } from "../../lib/agents.ts";
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
-import { webPrincipal } from "../../lib/web-auth.ts";
+import { authenticateWebPrincipal } from "../../lib/web-auth.ts";
 import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/execution-auth.ts";
 import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
 import { ENGINEERING_WORK_ID_HEADER,ENGINEERING_WORK_ID_PATTERN } from "../lib/engineering-work-binding.ts";
@@ -26,7 +26,7 @@ export function routineSession():AuthFn<Request> {
 
 export function ownerSession(): AuthFn<Request> {
   return async (request) => {
-    const principal = webPrincipal(request);
+    const principal = await authenticateWebPrincipal(request);
     if (principal === null) return null;
     const agentHeader = request.headers.get("x-myeve-agent-id");
     const requestedAgentId = agentHeader?.trim();

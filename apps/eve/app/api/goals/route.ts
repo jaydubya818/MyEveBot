@@ -11,8 +11,8 @@ import {
 import { createGoal, listGoals } from "@/lib/goals";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
-function guard(request: Request): Response | null {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   if (capabilityMap().goals.state === "excluded") {
     return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");
@@ -45,7 +45,7 @@ function handleError(request: Request, error: unknown): Response {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const principal = webPrincipal(request)!;
   const url = new URL(request.url);
@@ -70,7 +70,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (body === null || typeof body.title !== "string") {

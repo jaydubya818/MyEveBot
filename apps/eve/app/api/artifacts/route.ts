@@ -30,7 +30,7 @@ interface CreateBody {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const url = new URL(request.url);
   const threadId = url.searchParams.get("threadId") ?? undefined;
@@ -44,7 +44,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const body = (await request.json().catch(() => null)) as CreateBody | null;
   if (

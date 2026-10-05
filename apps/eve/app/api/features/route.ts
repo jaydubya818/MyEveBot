@@ -8,7 +8,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // the env keys a feature needs at runtime.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const capabilities = capabilityMap();

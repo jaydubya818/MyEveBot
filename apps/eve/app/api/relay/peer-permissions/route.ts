@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 const headers = { "cache-control": "no-store" };
 async function handle(request: Request) {
   try {
-    const store = new FederationStore(authenticatedOwner(request));
+    const store = new FederationStore(await authenticatedOwner(request));
     if (request.method === "POST") {
       const input = permissionCommandSchema.parse(await boundedJson(new Response(request.body), 64 * 1024));
       if (process.env.MYEVE_RELAY_ENABLED !== "true" && !input.revoke) throw new PeerPermissionError("FEDERATION_DISABLED", "Federation is disabled. Existing relationships can still be revoked.", 403);

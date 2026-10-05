@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 export function AppearancePanel() {
   const [theme, setTheme] = useState<ThemePreference>("system");
   const [saved, setSaved] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => setTheme(readThemePreference()), []);
 
@@ -26,9 +28,17 @@ export function AppearancePanel() {
   }
 
   async function signOut() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    invalidateOwnerBrowserSession();
-    window.location.assign("/login");
+    setSigningOut(true);
+    setSignOutError(null);
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) throw new Error("Sign-out not confirmed");
+      invalidateOwnerBrowserSession();
+      window.location.assign("/login");
+    } catch {
+      setSignOutError("Sign-out could not be confirmed. Try again.");
+      setSigningOut(false);
+    }
   }
 
   const options: { value: ThemePreference; label: string; detail: string }[] = [
@@ -39,6 +49,7 @@ export function AppearancePanel() {
 
   return (
     <div className="flex flex-col gap-5">
+      {signOutError && <p role="alert" className="text-sm text-kumo-danger">{signOutError}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-kumo-hairline p-4">
           <p className="text-xs font-medium tracking-wide text-kumo-subtle uppercase">Assistant</p>
@@ -104,8 +115,9 @@ export function AppearancePanel() {
           type="button"
           className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg border border-kumo-hairline px-3 text-xs font-medium transition-colors hover:bg-kumo-tint"
           onClick={() => void signOut()}
+          disabled={signingOut}
         >
-          <SignOutIcon className="size-4" aria-hidden /> Sign out
+          <SignOutIcon className="size-4" aria-hidden /> {signingOut ? "Signing out…" : "Sign out"}
         </button>
       </div>
     </div>

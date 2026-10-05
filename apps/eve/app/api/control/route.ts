@@ -4,7 +4,7 @@ import { CONTROL_VIEWS, type ControlView } from "@/lib/control-center-types";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   const params = new URL(request.url).searchParams;
   const requestedView = params.get("view");

@@ -16,7 +16,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
 
@@ -51,7 +51,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
 }
 
 export async function PATCH(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
 

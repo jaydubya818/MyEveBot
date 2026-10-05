@@ -31,7 +31,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   url.pathname='/'+names[0];pool=new pg.Pool({connectionString:url.href,max:8});
   url.pathname='/'+names[1];upgrade=new pg.Pool({connectionString:url.href,max:5});
   const migrations=await loadMigrations();await runMigrations(database(pool),migrations,()=>{});
-  await runMigrations(database(upgrade),migrations.slice(0,-1),()=>{});
+  await runMigrations(database(upgrade),migrations.filter(m => m.name <= '0081_factory_validation_lifecycle.sql'),()=>{});
  },120000);
  afterAll(async()=>{await pool?.end();await upgrade?.end();if(admin){for(const name of names)await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}},30000);
  async function fixture(options:{db?:any;legacy?:boolean;duration?:number;save?:boolean;repository?:string;factoryVersion?:string}={}){
@@ -61,7 +61,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   expect((await upgrade.query('SELECT count(*) FROM engineering_factory_validation_lifecycle')).rows[0].count).toBe('0');
   await expect(upgrade.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"') WHERE id=$1`,[f.decisionId])).rejects.toThrow('Factory preparation identity is immutable');
   expect(await f.driver.step(f.work.id)).toEqual({state:'HALTED'});expect(await f.lifecycle.read()).toBeNull();
-  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0082_factory_concrete_grant_binding.sql');
+  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0083_web_session_revocations.sql');
  });
  it('deterministically reproduces the legacy materializer state-read race twice with the exact failing predicate',async()=>{
   const evidence=[];

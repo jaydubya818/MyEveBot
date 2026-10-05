@@ -5,7 +5,7 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   const { id } = await params,
     body = await request.json().catch(() => null);

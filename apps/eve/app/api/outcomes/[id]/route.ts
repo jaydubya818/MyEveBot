@@ -8,7 +8,7 @@ export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   if (capabilityMap().goals.state === "excluded") {
     return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");
@@ -29,7 +29,7 @@ export async function PATCH(
 }
 
 export async function DELETE(request: Request, context: { params: Promise<{ id: string }> }): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   try {
     const { id } = await context.params;

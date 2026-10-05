@@ -7,13 +7,13 @@ import { BUILTIN_ROLE_CATALOG } from "@/lib/builtin-role-catalog";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-function databaseGuard(request: Request): Response | null {
-  const denied = requireWebAuth(request);
+async function databaseGuard(request: Request): Promise<Response | null> {
+  const denied = await requireWebAuth(request);
   return denied ?? requireDatabase(request);
 }
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = databaseGuard(request);
+  const denied = await databaseGuard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {
@@ -27,7 +27,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
 }
 
 export async function PUT(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = databaseGuard(request);
+  const denied = await databaseGuard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   const body = (await request.json().catch(() => null)) as {
@@ -91,7 +91,7 @@ export async function PUT(request: Request, ctx: RouteContext): Promise<Response
 }
 
 export async function DELETE(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = databaseGuard(request);
+  const denied = await databaseGuard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {

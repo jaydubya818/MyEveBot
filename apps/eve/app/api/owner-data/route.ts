@@ -13,12 +13,12 @@ import {
 import { listOwnerDataOperations, recordOwnerDataOperation } from "@/lib/owner-data-operations";
 import { requireWebAuth } from "@/lib/web-auth";
 
-function guard(request: Request): Response | null {
-  return requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  return await requireWebAuth(request) ?? requireDatabase(request);
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const ownerId = requestOwnerId(request);
   const downloading = new URL(request.url).searchParams.get("download") === "1";
@@ -68,7 +68,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const ownerId = requestOwnerId(request);
   try {

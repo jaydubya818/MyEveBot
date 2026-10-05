@@ -36,7 +36,7 @@ function hasDatabase(): boolean {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const [rules, channelId] = await Promise.all([
@@ -54,7 +54,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function PUT(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   // Checked up front so "you have no database" reads as a 503 rather than

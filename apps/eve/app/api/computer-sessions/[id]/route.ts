@@ -5,10 +5,10 @@ import { computerApiFailure } from "@/lib/computer-api-errors";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
-function guard(request: Request): Response | null { return requireWebAuth(request) ?? requireDatabase(request); }
+async function guard(request: Request): Promise<Response | null> { return await requireWebAuth(request) ?? requireDatabase(request); }
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const { id } = await ctx.params;
   try {
     const session = await getComputerSession(webPrincipal(request)!.id, id);
@@ -20,7 +20,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
 }
 
 export async function PATCH(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const body = (await request.json().catch(() => null)) as { action?: unknown; expectedVersion?:unknown } | null;
   if (!body || !["stop","pause","resume","takeOver","returnControl","heartbeat"].includes(String(body.action))) {
     return apiError(request, 400, "invalid_action", "Use takeOver, pause, returnControl, resume, heartbeat, or stop.");

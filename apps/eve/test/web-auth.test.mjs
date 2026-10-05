@@ -81,7 +81,7 @@ test("deployment owner identity prefers MyEve configuration and has a stable fal
   assert.equal(deploymentOwnerId({}), "owner");
 });
 
-test("production requests need the owner cookie and reject cross-site mutations", () => {
+test("production requests need the owner cookie and reject cross-site mutations", async () => {
   const token = createWebSessionToken(productionEnv);
   const anonymous = new Request("https://agent.example/api/threads");
   assert.equal(webPrincipal(anonymous, productionEnv), null);
@@ -94,7 +94,7 @@ test("production requests need the owner cookie and reject cross-site mutations"
   const previous = captureAuthEnv();
   Object.assign(process.env, productionEnv);
   try {
-    const denied = requireWebAuth(
+    const denied = await requireWebAuth(
       new Request("https://agent.example/api/threads", {
         method: "DELETE",
         headers: {

@@ -2,7 +2,7 @@ import { CanonicalCapsules } from "@/lib/capsules/canonical-memory";
 import { betaIntegration } from "@/lib/beta-integration/runtime";
 import { z } from "zod";
 import {
-  requireSameOrigin,
+  requireSameOrigin, authenticateWebPrincipal,
   requireWebAuth,
   webPrincipal,
 } from "@/lib/web-auth";
@@ -106,12 +106,12 @@ async function boundedBody(request: Request): Promise<unknown> {
     reader.releaseLock();
   }
 }
-const guard = (request: Request) =>
+const guard = async (request: Request) =>
   process.env.MYEVE_CAPSULE_EVE_ID
-    ? !webPrincipal(request, { ...process.env, NODE_ENV: "production" })
+    ? !(await authenticateWebPrincipal(request, { ...process.env, NODE_ENV: "production" }))
       ? json({ error: "Sign in to continue." }, 401)
       : requireSameOrigin(request)
-    : (requireWebAuth(request) ?? requireSameOrigin(request));
+    : (await requireWebAuth(request) ?? requireSameOrigin(request));
 function canonical(owner: string) {
   return process.env.MYEVE_CAPSULE_EVE_ID
     ? new CanonicalCapsules(
@@ -122,7 +122,7 @@ function canonical(owner: string) {
     : null;
 }
 export async function GET(request: Request) {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   let service: Awaited<ReturnType<typeof capsuleService>> | undefined;
   try {
@@ -149,7 +149,7 @@ export async function GET(request: Request) {
   }
 }
 export async function POST(request: Request) {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   let service: Awaited<ReturnType<typeof capsuleService>> | undefined;
   try {
@@ -228,7 +228,7 @@ export async function POST(request: Request) {
   }
 }
 export async function DELETE(request: Request) {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   let service: Awaited<ReturnType<typeof capsuleService>> | undefined;
   try {

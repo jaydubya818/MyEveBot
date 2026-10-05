@@ -35,7 +35,7 @@ function parseInput(value: unknown): OwnerInput | null {
 }
 
 export async function POST(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   const ownerInput = parseInput(body?.input);

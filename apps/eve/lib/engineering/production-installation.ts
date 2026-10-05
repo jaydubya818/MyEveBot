@@ -2,7 +2,7 @@ import {z} from 'zod';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
 import {factoryTransport} from './factory-transport.ts';
 import {boundedJson} from '../relay/client.ts';
-import {webPrincipal,requireSameOrigin} from '../web-auth.ts';
+import {authenticateWebPrincipal,requireSameOrigin} from '../web-auth.ts';
 
 const installationSchema=z.object({version:z.literal(1),ownerScope:z.string().min(1).max(200),
  projectId:z.literal('prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'),sourceDigest:z.string().regex(/^[a-f0-9]{64}$/),origin:z.string().url()}).strict();
@@ -32,7 +32,7 @@ export async function productionInstallationStatus(env:Readonly<Record<string,st
 }
 export async function handleProductionInstallation(request:Request){
  const headers={'cache-control':'private, no-store'};
- const principal=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+ const principal=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
  if(!principal)return Response.json({error:'Sign in to this workspace first.'},{status:401,headers});
  if(principal.id!==process.env.MYEVE_OWNER_ID)return Response.json({error:'This connection is private to its owner.'},{status:403,headers});
  try{return Response.json(await productionInstallationStatus(),{headers});}
@@ -63,7 +63,7 @@ export async function productionInstallationSecurityStatus(env:Readonly<Record<s
 export async function handleProductionInstallationSecurity(request:Request){
  const headers={'cache-control':'private, no-store'};
  const crossOrigin=requireSameOrigin(request);if(crossOrigin)return crossOrigin;
- const principal=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+ const principal=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
  if(!principal)return Response.json({error:'Sign in to this workspace first.'},{status:401,headers});
  if(principal.id!==process.env.MYEVE_OWNER_ID)return Response.json({error:'This connection is private to its owner.'},{status:403,headers});
  try{const report=await productionInstallationSecurityStatus();return Response.json(report,{status:report.status==='PASS'?200:503,headers});}

@@ -13,7 +13,7 @@ import { betaConfiguration } from "./configuration.ts";
 import { CanonicalBetaWork } from "./canonical-work.ts";
 import { createRequire } from "node:module";
 import { z } from "zod";
-import { webPrincipal, requireSameOrigin } from "../web-auth.ts";
+import { authenticateWebPrincipal, requireSameOrigin } from "../web-auth.ts";
 import { boundedJson } from "../relay/client.ts";
 import { WorkStore } from "../engineering/store.ts";
 import { createWorkSchema, WorkError } from "../engineering/types.ts";
@@ -422,7 +422,7 @@ export async function betaRequest(
 ): Promise<Response> {
   const headers = { "cache-control": "no-store" };
   try {
-    const principal = webPrincipal(request, {
+    const principal = await authenticateWebPrincipal(request, {
       ...process.env,
       NODE_ENV: "production",
     });

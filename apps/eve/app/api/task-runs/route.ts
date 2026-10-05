@@ -3,7 +3,7 @@ import { listTaskRuns } from "@/lib/task-runs";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   const owner = webPrincipal(request)!;
   const threadId = new URL(request.url).searchParams.get("threadId") ?? undefined;

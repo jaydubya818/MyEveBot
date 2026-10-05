@@ -4,7 +4,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 import { requestOwnerId } from "@/lib/agent-api";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const unavailable = requireDatabase(request);
   if (unavailable) return unavailable;

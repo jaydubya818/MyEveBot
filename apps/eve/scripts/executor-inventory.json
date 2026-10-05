@@ -25,7 +25,7 @@
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "78c18b25f96c3748540453d7cf1e997c719999e05bb88d096ba1c3f10fff31e4"
+      "sha256": "6153cde867499e49091fd2c6251526630015271a19217b6d444f33073c4f989a"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -1403,287 +1403,287 @@
     "app/api/actions/[id]/recover/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "bdf330e244dd94f2ca5f9a3d7e2944b26d4f76be605d0f1ce13181a4d71c9e3b"
+      "sha256": "04a573343cd4c8ecafae9931d2943ae2e1a53bf44ff8f89914cad9026a739d4c"
     },
     "app/api/actions/[id]/resolve/route.ts": {
       "classification": "INTERNAL",
       "reason": "Signed same-origin owner decision, stale-state CAS and durable attestation; never invokes a provider.",
-      "sha256": "5f8b82d28c0acbd6a9552f2db2f8c04050a4d483ea33f6c9743595aedc08bfa3"
+      "sha256": "d761987ddd6d318cd12fd322fb79e2a178967b7d8ec92e7aadc8ab86e79a1c2d"
     },
     "app/api/actions/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "9f4f95f3bb4942c49aeffee15879ae201b3c8f5e27743d95c8f491a57a84b4f2"
+      "sha256": "7a812d3511dd84e26e028ce059dcd7659f76a1c6a4c8fa5510e816f2d1b50153"
     },
     "app/api/agentcard/connect/start/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "62e8bae55ee4dcd346506ada7ac3dcba10b179ccb2ee16062ebd496f712995d7"
+      "sha256": "e6ae63ebdc2e36cc0b0eb6bceabbe294b485f6112f308daa466d1e5e5431b652"
     },
     "app/api/agentcard/connect/verify/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "f8c4d4e226ff2215b23fbde2f306c55449bd035183fea61443b7b9318447577b"
+      "sha256": "f62bc2922c7a80b8724a59e9d45547aa8298abf362017ea1c6be086be4c6752b"
     },
     "app/api/agentcard/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "bf8cc34ffad8d4380fe0fd71050d7c5978b40d1faa7429962e107c9215b74dd7"
+      "sha256": "f02167022c1f28f694f3ee845e94e4ba0e4822a1cded371f31fdef0b27d0b0db"
     },
     "app/api/agents/[id]/[action]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "3cf56afc54aa0834ea453f7a11bef61b30c43a0d23096e876358f3456057cbc2"
+      "sha256": "09b723397261085302bab80a5aecf46cfd0d31eb752ac309d3b6aaa91ac411b9"
     },
     "app/api/agents/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "c23ef2a67d3c30a0586aceacc79518c121da360cc9e3bca3fe633470a9057ec9"
+      "sha256": "30ee969ba3cae382273e1936e0f917db1970dc494886a615b4c312ff3a03f501"
     },
     "app/api/agents/activity/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "4e9ef10dc6bd3de916880b79a7de9507b0c0eb5de9d2a79809ebb8e6810ab877"
+      "sha256": "440d50644f308af4fc94717d916c00254a0744c205946e104b7e93b71a898c78"
     },
     "app/api/agents/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "e75b15805aed9c0501b53dbe72e9633ba1cb01911680b638b70c7a512b1ab9c6"
+      "sha256": "67841d20eb73e7de3b2bae61eba5a450632e5e055aae2145649784c834bcd24a"
     },
     "app/api/approvals/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "cac558e6a4cb4b230e6adabace8d40f01dc2409b8f305dd63ef2cfc6e1e972f3"
+      "sha256": "bc03a8e4eebd0c1a65d546c191543b5bb56964645bc869c34478881239843533"
     },
     "app/api/approvals/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0c772adf2ea9a4fdd5706eabfce9d9036523061a79611fbc575af3b009b5bce7"
+      "sha256": "73c089648a5f5ed05f79c2fd11aab4bf3e1937844cebf44518aeca71a152df34"
     },
     "app/api/artifacts/[id]/comments/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "3d0ec144f540db5b3364051c2f40a22d15edcb125a20dcfe13bfbe5365aae9b9"
+      "sha256": "4151f94752ee6ae2b463acaf7d08600cab64027bfde0744ac92d88fbf8b67fff"
     },
     "app/api/artifacts/[id]/content/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "61492330c68c96fd928c7e95564ef022d8216bf23ead233e136e3dc35ec8fa8d"
+      "sha256": "a90cb673aedf2737898edb4da7f7149e8ff233594e791957115bb8c798ee95b2"
     },
     "app/api/artifacts/[id]/draft/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0e280c034d1aa8f4beb552ae1d1032aeb468b17cb54aec5070b0ab03b865f044"
+      "sha256": "e953ae5de48d4b3f738b8f909b22fe50ed82d223b2d61ec1291c6b7f930c1aec"
     },
     "app/api/artifacts/[id]/restore/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "e60a6c35c086d38d2a4c6ce418cea4502bf93e652e6ed75f64edc105db5bbe40"
+      "sha256": "3e738ab0d48fe713854804836187e610e30dea8106438c2c21d138c03c0168f1"
     },
     "app/api/artifacts/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "8023c58d90412e62d01a7375a64006fa3b8f3f72a72c91e149e13ae2f85435a9"
+      "sha256": "60a7e3ef076db906f556bf0e2d56834d76e511f67eaf6e98c4e3405955f4d851"
     },
     "app/api/artifacts/[id]/shares/[shareId]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "f9d74fcbdb10ac9499bd64ba3765d3139cb24854e2c840c34c391787409dc38f"
+      "sha256": "f02d7f4617e853bc004edece28718cc7584f64882666df8c05a1c626c165a225"
     },
     "app/api/artifacts/[id]/shares/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "2642b745d18af329a50a94fa93f517155fdc1d11ba7b49fe2746f9edda4cefb1"
+      "sha256": "30c8cdfc3cda6b8b6113e38dfcd522aa97eb6211d3eeed2f87931b1a0af775c4"
     },
     "app/api/artifacts/[id]/versions/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "b17c594ce5b07ce7d10017fcf8b374817abab2472bddf91e0369c173b7194368"
+      "sha256": "e49e79817aea8416480972307d1e99dd74b7e77698dec3dd6884f306627d3643"
     },
     "app/api/artifacts/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "d87dc2bd2e26ffe22941aef4734e73ced53f7ada1d3420300ab81ff1269ade28"
+      "sha256": "313569c0793a9d1bce412328fa0ff242bc53440f084b28aa20f269c1cba15188"
     },
     "app/api/artifacts/upload/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "16614fd2f449dde79a5a17d96c1f77823f3b4498154be71732ff68dff51112c0"
+      "sha256": "dffdf0d31dc8de440f7ff223af075f27c98f8a316669e15305ff458b8d01b0a8"
     },
     "app/api/auth/login/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "9759010d1e0bf42c9c3f70b9237a27f444388fc33e432ae271d34b48756bd018"
+      "sha256": "f2ac277bd7b043522aa94cfc53d0a078f9bf1ac6b570789dbd930de45ed7933c"
     },
     "app/api/auth/logout/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "cb7a3ac5281d085223e1b6d85f71cdac6f4a55edd4bdfdca474352353ffecbfa"
+      "sha256": "4fbb07b3b5f9156f753f5cca0eb7b1286648a27fb03ed573bd27ef40eab0664a"
     },
     "app/api/auth/status/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "80b34a7fbb367a0463a47df5a0f32dde1b0e9120ae7c3d02fdd6efa71e0e93c4"
+      "sha256": "ce2a2dc12764eba86eb871e65a183d301a8cd09916ea53b627051d8e67a36378"
     },
     "app/api/automations/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "c522734f843f5310e90f00f18cf053709b32eed3b9433c8783cf23fd53eddac9"
+      "sha256": "ea114b168cc5a2f5d3a27b6c0d019f43ad2dbce1fa4563ba6eeecb2812e5d200"
     },
     "app/api/capabilities/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Authenticated capability catalog with separate owner-scoped Computer runtime readiness; authority remains unchanged.",
-      "sha256": "14a9de28a5236c85e8dc1920ce6afd16c106a5b5815df3c8d36c8a91483948ef"
+      "sha256": "3cf7d6b5616d48fd1666969517f6bcf3e5c194ef7cac5ebad332bc59796c519d"
     },
     "app/api/channels/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "af873437137eff556e918412266b0de0710eaae755ee96ba399914478533880a"
+      "sha256": "ccaae75820ebf5f4ec8198f6105dd78c09a5504c401e23490e8e9e624f287991"
     },
     "app/api/channels/search/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "65e3cc112bf8f5df27d4ae5f4eba34bb351ab35c9878e05328f27fddf1efa48f"
+      "sha256": "713fbe2e52fc088dc9b45639c69c280c9ad9a6ca0ee43b4459302acb8dc07a08"
     },
     "app/api/commands/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "b4d29b93a1491a1e94e63748ee264738a25751cc6c717b8c1a382bb5947f08d7"
+      "sha256": "995679324618b8735912c17aaa2f3c91708e6a699a70ed1984e92020122b8810"
     },
     "app/api/computer-profiles/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "a113e158b0e8a7ef9ecfae9c8c63cf6ddf4f67af6c4f8c8d063ac0c80778766f"
+      "sha256": "e930970ebe7c5f48d1bdcf937f7e4cc18dda1e20cea3c6f30a583e4beb95c52d"
     },
     "app/api/computer-runtime/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Authenticated owner-scoped runtime readiness; never starts preparation or exposes provider errors/credentials.",
-      "sha256": "7d625b931908e5ce02cd20d6efae4c4d6692b9667250cefeb4ffcacf56fca13a"
+      "sha256": "f10f9b50b734082b72a9d4c750268ed266240b9046ca9913b4aafb4ed650f083"
     },
     "app/api/computer-sessions/[id]/actions/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "27830e4cc4b5d9db4dae0e8b73d1d0c4c6084c8609bfc6d333f8904f460a5231"
+      "sha256": "21f0e7d0be936ba570608a06e9d4976c2b78a3bb15d92c6043d05c267572ef01"
     },
     "app/api/computer-sessions/[id]/artifacts/[artifactId]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "29f649dbd8bdb0f6a9d481256ed5f3b91aef256f0aacaf7743a8986863629318"
+      "sha256": "608abb57b7209a2459c6fadd45e8dd6141aadc9b5fb12c1a7eeee10b3f95ce3d"
     },
     "app/api/computer-sessions/[id]/live-view/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "62a19a8a98f03fc7b836bac7cc6548ea3dc567993cdb173ac944fdb236d5812d"
+      "sha256": "87266f502337d124d70bc24c222f894ec9675ed6d5c0acd23ed0cbaaab3065e3"
     },
     "app/api/computer-sessions/[id]/owner-input/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "ce405d52314d7a2ea01628dba51df1160a7f9b6dfa442724495684932541140c"
+      "sha256": "747e48eef1469c0641b79f4852925dd52257c30378afd912eff0885f28afcc74"
     },
     "app/api/computer-sessions/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0ba3f9b246d10f6eb32f6a3188e5bd8fb534829dc33a0c86557a0bf173d9214f"
+      "sha256": "1a251f6da2d83a12a3c57c788fbf3395382cbbaa51e715c8f01486421bfc24a3"
     },
     "app/api/computer-sessions/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "92b9f3adc2397155bf4a9adfa5e6c6f9b8ea6a7a47e2e6daf80043238ca86975"
+      "sha256": "1c36310f040f7f362378728c052326d0092f0638e96e318656c39fb688c2a89e"
     },
     "app/api/computer/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "e675f3abd8c89f66e7d5352f8440de19a09d3ed6c33476d5ab5a6c6f0ee00899"
+      "sha256": "0e4381299c2672a010642355851b93939569c2d1021178d7a9db3177cb4f9ec2"
     },
     "app/api/computer/ws/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "346abb77f2b43fead6959c6293f75287d929ef7b224a22acb74f6fc3eab5e14d"
+      "sha256": "5efc3e753b4dc3371385850689779e2f368fa7fd6e9b823cbc1e71c3cf04cd05"
     },
     "app/api/connections/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "ba28afd3c9271f092d0f6ce6c07e96248e1a9b206595b579a01dcb6371640a12"
+      "sha256": "a3278d1c732b10d857e94bec406d3882a7d2f837b3be060153494863af2ca9b2"
     },
     "app/api/control/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "559d27f69fc1cb73ee765fbc33d5efa31e89714402bdb90dc1c76b8466ffead7"
+      "sha256": "db262f9b4f2860122600506a3a6ccca78c4c569028ff4b4795ed25908f345d0b"
     },
     "app/api/decision-intelligence/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Synthetic Decision Intelligence evaluation only: no canonical writes, live owner data, approvals, capability grants or consequential execution. Read API authenticates the deployment owner; artifacts accept versioned synthetic fixture IDs only.",
-      "sha256": "40405ab62f7c4a2fba04f913df4ca21feba3d5ac2a01921634d457d4b29837a9"
+      "sha256": "0b252ad7ade6d8f57c4834a54edfa9e49aa82441bb2091e3978b593ebaaeddec"
     },
     "app/api/email/attachments/[messageId]/[attachmentId]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "17e02c2c05abae890f4bf01a48d245ee2425c67265b91b51a629f1673f2dc05b"
+      "sha256": "4e8f217b89f5eea91d75ee4d99f52afd1764d60ca52fd60f1a036657ac32bf84"
     },
     "app/api/email/domain/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "1ee87d87c76542353eb50cd84fe6f78c9026e6588d91a7af7d543d2332e5e7e2"
+      "sha256": "ab8a6f2b5fb44ec5557c95a3a5bb27f48aca5ed072d84751e0d8d9aef77b1a3e"
     },
     "app/api/email/key/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "eecbfaef57db020bbebf55a67bf42a9b37145f3daa2f689be0f6fb4465aabb66"
+      "sha256": "33641af221eb7832274a24d8c2ed04c3351bdb5cfd04236d451abc4a746143fc"
     },
     "app/api/email/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "d911a38685165f78212024efdf6530a85e44bd51a0845511893914b23148e2a8"
+      "sha256": "70be03e419607b9eb96f10c4d96e0255d6e0912b73973d86b2c65c479abc8af9"
     },
     "app/api/email/send/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "edc10c1a795e083cfde9da9992d261f8177ca28e6afea1654f08c313a162fb6d"
+      "sha256": "03e144a523efafb71cd1c94b36f1fd8e23ad6bdcabc61c87be80ca8039befab1"
     },
     "app/api/email/threads/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "1f69132856b498afbb9d21d877c5ed16f64600853a4c0ec50b8b7dd0736b0002"
+      "sha256": "982095c4ee438be7f802f23b848dfab204b50c6baba60c688d6adabd3fd109ac"
     },
     "app/api/features/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "1934f86aa6e4d4373b69c458ea76b464722203c37a426aff59481bed5282dfe9"
+      "sha256": "a8f5701c974524a4777c7ff4f2f2049d5d4d4e842bd11c0fab39a5a9d64a186e"
     },
     "app/api/files/[id]/content/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "182fa187d0501204823a107a14eb9cbc178b6422f3b141045f3219f45d54057a"
+      "sha256": "6dd5d9f31bf6f66b75e5918357c82b884530a12492b87f89d56be83ab31321fc"
     },
     "app/api/files/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "88aacc9e774ef1110ca62baf88fe1bc12486fd39633cf92e71125e97c64e84b7"
+      "sha256": "01484dfe6efab38de04c5699d1998c2134fddc89a516ba995066672d413eac5c"
     },
     "app/api/files/upload/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "14a5d829bc9ba5c87bb4bc6085b5b3e809e97f02c48d8191cddecf345d2202a9"
+      "sha256": "bdbf67f05f0b03be09efcddf2ef77a6c4f3e388a4dba43486d0fe231a2522bee"
     },
     "app/api/finance/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "23efd23c7395d8347858a1f4a16fc6cb0eff223d0b4e84ddce3b42a3269409e5"
+      "sha256": "3cd33c44900370838c30518d9c2a0f71e28f2c3201eff1c11211f61cbfa39630"
     },
     "app/api/goals/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "3187dec10843bca51fe4f8a71a7039d0987f5f2f98d198e2227b8098c3c82780"
+      "sha256": "380bbd3ae21f70a058eddda56574f649a9d94f97be9dbc452ec5259ac3927e7c"
     },
     "app/api/goals/focus/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "ad153b26353cc8f778f41bfbc639f314e5724cb86b06cac0e27a009add11591f"
+      "sha256": "5feade02e4bccd518e1687036551d82f6d5b9888c899ede943b3350cf40ee8e4"
     },
     "app/api/goals/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0050310d4088010407f11d278f1124f7b24485a59119d7ed1660ac3828066e6a"
+      "sha256": "f493a10536e6563ef475502739a17a11c3623f9cd4ea6dd72405063d65c9b681"
     },
     "app/api/imessage/attachment/route.ts": {
       "classification": "INTERNAL",
@@ -1703,7 +1703,7 @@
     "app/api/imessage/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "20c1287ae1b3af2b6639ab557fac32149022c29547f978971e37be37e3aedcc2"
+      "sha256": "130cf7aeee8df42764794d4df4ee01b36803f89aad13a4df4ed97a67357dc0e5"
     },
     "app/api/imessage/send/route.ts": {
       "classification": "INTERNAL",
@@ -1718,7 +1718,7 @@
     "app/api/imessage/transcript/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "95420fd1b67ec3255b83070bc672da41bbd2e936433a6495b7c2e17ee653ecce"
+      "sha256": "ed0ec0da778117d7387aac24e54d0a9cf75292bfa08405ebda623085d6246cc9"
     },
     "app/api/imessage/typing/route.ts": {
       "classification": "INTERNAL",
@@ -1733,72 +1733,72 @@
     "app/api/knowledge/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "676122d1842a466ed4678589d4b274cb216c957a0bc1845ca5eab8673b792837"
+      "sha256": "e78b1e554a900f4a0185f8ba8202493bb06575d84ccd83653bf0028bc078c63c"
     },
     "app/api/knowledge/relationships/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "68f6e9f6c23fea38285253bfca0a4d4ef23d2164dbd3dece4410bfa1f9d63d5d"
+      "sha256": "41a0359309cc6a768603c443d7e404b607f80aaf9518787f3b85a759a1352e74"
     },
     "app/api/knowledge/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "16bcb6785a8bd72e30420866bd0182ca69346e7abd3bc9bf0e5afe04339c9183"
+      "sha256": "553e321f69a8d54c2bbaa0dbd88c02e5104eefb6963f818bdb809de67d19fb1a"
     },
     "app/api/knowledge/sources/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "ea4c278ec7b53436f8783a6c6860925b1c9120111e62ee4c66d681fc6244bf26"
+      "sha256": "e018d6481311fff11473c4065ad204edcd7f1055bcfef037e8190b42cdfb3773"
     },
     "app/api/memories/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "112f1b68b59472e19003a93fe83ab3c866c74a07b20327d7b90f61f6c3085c23"
+      "sha256": "a5559e3f161c330c46f1947d8fec237a728a28e7613ee44347ade7f474e94662"
     },
     "app/api/models/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "8e458aaaf0667e4282f09550c61feb6771d184f62b33d74f8289258f143ef33e"
+      "sha256": "767d81ed57e7413212bc1f67452bf8123494ec9d360a9980d071e8fad4eb14b1"
     },
     "app/api/operations/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "df5da07c0a0f464bf30a350ebf9853d16b3687180edb31beb3336278df9d3d56"
+      "sha256": "02932b3ba345eb71a70f26efe114b520c915084a31d91a46376cac91924e5cc0"
     },
     "app/api/outcomes/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "776d71f2cfc8fe425974d9dcd6f200bb05627ef417a8251215aca7ffde6274d9"
+      "sha256": "9e98caf5c0ccfdd2085f3110690d44c7a1846a0bf6a97b085c9a41ad7ea6a7a5"
     },
     "app/api/outcomes/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "a03ff4595aab68fec47a8fdb0544f2a009d4a901b68b2131caa12e4dbfb1ece9"
+      "sha256": "65cd1d46932cee6c79451481e9764fac46907878daef39e4f5fb3b99ff1b16ea"
     },
     "app/api/owner-data/route.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner export and archive verification only. Invalid input fails closed with fixed safe client/log messages; no successful verification audit or restore on failure.",
-      "sha256": "d698a3ac22b12e4be65a4afca6a147efff1ec76d08a9857ea50d2bcc1cabeb05"
+      "sha256": "0f32cda765d764a0a0c0d5e5da5b0ce6a62d6f0f2e12633b9db892923516c996"
     },
     "app/api/owner-knowledge/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "f9da99130785010f32122236a471aefcb22eafa6ca77664a2d17e3c447ba3a79"
+      "sha256": "c613232f2c4285ef60f7c46e2c3b1efe422de4072924cc8354af264b00055c82"
     },
     "app/api/phone/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "993d0cc271cba2d91fe144af14aff51c54df80582c1fde6ee9c251990b038de9"
+      "sha256": "6d57a42e487129b3ad911e9cd116c4336de86a487927b8fe0938c6c8b65facf0"
     },
     "app/api/push/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "0eb661fb2d619f68cae42e990459f10747639dd18e3bc9f7fb76572699f7bc32"
+      "sha256": "03096f5a51a29c3b9bbc1de8b8e9bdc1ef8118eaf9beac8f196162a6e7b5c869"
     },
     "app/api/readiness/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "9fd936c6ca810bb86270208c05c1d579f006926bf0e8df059303fae62f55f81f"
+      "sha256": "a964266916c9d074a96d50edc77b7f94dd609c7a0b6916e4fc83272ffde5a512"
     },
     "app/api/relay/artifacts/[id]/route.ts": {
       "classification": "ENFORCED",
@@ -1818,27 +1818,27 @@
     "app/api/review-schedule/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "ed387df4b88e77e7150c26ad29d08f0297fd599f35384b6a900dc771a6646490"
+      "sha256": "9dc3fd736d8f61f91a836b48a2eb41a346b9774d1fc02ac0a83a63fa192b4f60"
     },
     "app/api/reviews/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "3e7452d12e1e6aab968709a5e5de69312aef1942ecbc6f8997a4d3509f59bd64"
+      "sha256": "05a8e50cb603cfe0dc47c555ec28066c224e49bcfecc65583397ceb48f4d1dd6"
     },
     "app/api/routines/[id]/readiness/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Authenticated owner readiness read; no cross-owner identity or execution access.",
-      "sha256": "9390ad2d8d6e17a87de6c5a736b0bde0f11806d8326ba144e12709af592dcd68"
+      "sha256": "ca45d2e720baf0c2d5939495a67d559c2cbc522f64383c4b3a7d798ff14806f1"
     },
     "app/api/routines/[id]/run/route.ts": {
       "classification": "INTERNAL",
       "reason": "Signed same-origin owner mutation creates admitted occurrence only; never directly executes providers.",
-      "sha256": "750de443723237309413eff2606daba87fc6c3444cdce14e617ffe8feaab33c0"
+      "sha256": "0a8755a78f3b43bccf9f1c5a97abfb6a6a578849bbbbbb6dec34a022266ad890"
     },
     "app/api/routines/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "efb0f425f4291468b8d87488b54d3aefc4ad9e09bbe30b7d36ffec74442c7460"
+      "sha256": "acc2be558473ad90d9c471a21bf1cb0bde2358d1777df49d6bc095824a663366"
     },
     "app/api/shared/[token]/content/route.ts": {
       "classification": "INTERNAL",
@@ -1848,57 +1848,57 @@
     "app/api/skills/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "99207267dab8148fef01010870d58556b6be4b6762d186cf15b3962a4fd91bbe"
+      "sha256": "db02cffbbb5d224f5803eeaf24f280a5db47161ea810d173f3c5e21ccc24bf62"
     },
     "app/api/slack/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "19d831c4c9f5e33239eac3b96122133a5015267d85fa6a1cfd35e0e1af842e22"
+      "sha256": "c6b9675a31ff9272458192c68b39ef41344592e8a4f9bda6ad6151689d3754f3"
     },
     "app/api/task-runs/[id]/artifacts/[artifactId]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "f1ded4bdc5a7b124ed2b5a52aa8c27d21fd13cb78f418decab2eed746aa0088f"
+      "sha256": "318ec191871900a696c3b212a4b2b0f21285bbe9514badd156412ba69a763e68"
     },
     "app/api/task-runs/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "491307e770d71684679fd21e4a97bf4768bb3d87c4f1a465c454261578372a0d"
+      "sha256": "97491890971e2926d2b0c4d54a5bd734a15a74bb77273d2b103d46224a2f4a3a"
     },
     "app/api/task-runs/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "dd82a452df3b729ae7f6f6b29eeb69826fc9994bc9deb2ce4af20ade80455880"
+      "sha256": "75143b5b5736db502456c1b823914b2e6dec323b99b1c706b40ea274672a37c0"
     },
     "app/api/threads/[id]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "975c1f0d0a10318ff1e67c6e03cf756ab96a6bb50ad68fd7d4aa9d58ac4eb57e"
+      "sha256": "3696671198fd6775511360f54fddb0d6236ba1652392e55854e5ccd0f06d9fe4"
     },
     "app/api/threads/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "b78ce0ccec682b0446a368bdfc96b7322bb6f4c18a4f0b12cbe2447b8c2c680a"
+      "sha256": "f689984f17984ac6747d65a0d1edd4cbf0e802fdd31f9ed9199e193299b3cbd2"
     },
     "app/api/threads/search/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "254f3edf3b2d40dff69445bcc5bb599f228b34e59c7af75877dac0e126c7618e"
+      "sha256": "7e9cf3ae6c978a7605ee86ff9ee2e79cb07e4de69b38762896634a828b83a4e1"
     },
     "app/api/update-check/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "c0c95a5224241bbbe405957ce885893b7948622e93c24dd716408c6661f3e50b"
+      "sha256": "b2887ac70056a6e13f1699f8b8beba869b7f0a7aae8b0d0f0d86f4ded5ab5978"
     },
     "app/api/videos/[file]/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "991362d28d09a6253f3919cacb3fa17a899237e6ff6d163a35303428b37c13dd"
+      "sha256": "06f53cff1601e030fa608936fdeac239b7fb57a6730284864bbcc7fe93cc6239"
     },
     "app/api/voice/token/route.ts": {
       "classification": "INTERNAL",
       "reason": "Owner API: authenticated CRUD/read or signed inbound transport; external writes hit inventoried ENFORCED/BLOCKED helpers. Login/logout establish or revoke owner credentials.",
-      "sha256": "19ee91a253e6a6df5752843cb6a75bd375a732b7cd34b523553a39f187461391"
+      "sha256": "b1f6bde05c010e1ab4e7d072609cdc009c5f268186b28ec104e4bb71d04e4928"
     },
     "lib/action-adapters.ts": {
       "classification": "ENFORCED",
@@ -2128,7 +2128,7 @@
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
       "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
-      "sha256": "a6224fa5e56544717f21f2047024a1002863ff3ffad4fcb983ef6ea6c11a3c0d"
+      "sha256": "7bf0988e65265eb43eac6065e3528be070cdc0e00044a9b5e9eb4e578a5a057d"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2403,7 +2403,7 @@
     "lib/readiness.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f8d8481b104426097a95077f86d57b89b6b9aa8ba5a80116dc6dc2665d82862b"
+      "sha256": "4d5b59ccfa45720e4b78125f8aa47090c11e6881dec4cd6c3fb9b5d3a3603300"
     },
     "lib/relay/artifacts.ts": {
       "classification": "ENFORCED",
@@ -2433,7 +2433,7 @@
     "lib/relay/owner-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed local owner session and exact-origin POST required; owner ID never taken from body; only explicit adapter operations. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "8452de8915d4efb07597dacea64be9932891754e58b09f42ab12410100d98190"
+      "sha256": "b0a548fdbf5513b5ef1f761827585d75e23785d76ef2c53b4d9326693d02d32d"
     },
     "lib/relay/owner.ts": {
       "classification": "ENFORCED",
@@ -2653,7 +2653,7 @@
     "lib/web-auth.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "696c5cd22b4e944467ab789fdbfd05e2c3800b9045eed9e8ebd93178bc673787"
+      "sha256": "c5e197895b4f586531ce000ed395641a296755e46848b2ef4424d5e775cf8a02"
     },
     "agent/tools/federation_request.ts": {
       "classification": "ENFORCED",
@@ -2684,7 +2684,7 @@
     "app/api/relay/peer-permissions/route.ts": {
       "classification": "ENFORCED",
       "reason": "Authenticated owner and exact same-origin mutation, strict bounded body, owner derived from session, revision CAS. Inspection exposes no credentials; disabled Federation permits only revocation.",
-      "sha256": "7ab43883083e7b437fa1a91659eca453601c04a77e8e794cc1243b81fb7522fb"
+      "sha256": "b2afeeb9219b63e4f68d6a76dbe71227345c3355fcb2c280562ae288826a7be8"
     },
     "agent/lib/jev-chat.ts": {
       "classification": "ENFORCED",
@@ -2985,7 +2985,7 @@
     "lib/goal-work/api.ts": {
       "classification": "INTERNAL",
       "reason": "Unmounted authenticated handler factory; signed production sessions, same-origin writes, strict bounded input, owner-scoped services and revision checks. Decisions go to canonical Inbox, not execution.",
-      "sha256": "92ab29e0c0a74cd996c6a17f3b28fa56218668c6d3445c2120c36ef6137a6c6e"
+      "sha256": "76d98ec76bb3cb1c53dae018b632ede09c86ffa0730038b2d74ba7b285f68023"
     },
     "lib/goal-work/product-adapter.ts": {
       "classification": "INTERNAL",
@@ -3045,7 +3045,7 @@
     "lib/total-recall/api.ts": {
       "classification": "INTERNAL",
       "reason": "Reuses authenticated same-origin Engineering owner principal; strict bounded bodies; server-run evaluation only; exact hash/revision owner decisions. Disabled except explicit local qualification and denied on hosted production. No model-callable promotion path.",
-      "sha256": "8d65fdb1237d20d0a1e0d8c34cda8492b1086b519250e5f96a155baf20718f93"
+      "sha256": "604a048a86e58f556ca0ab2d7f478ba9c1a8332cfa66955b0bab9157d7fde2b7"
     },
     "lib/total-recall/runtime.ts": {
       "classification": "INTERNAL",
@@ -3200,12 +3200,12 @@
     "lib/engineering/api.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work CRUD and read projections with scoped SQL; no provider dispatch or publication. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "e59fd6be16794b148cf22c92d04dde0953236b6deaf5f2c121c4e24d6b1f33a1"
+      "sha256": "fbf3c9955f6bae03713589de31398a53cbb69843f75f10ab04bef6c175aaf3eb"
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
       "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "33ab50c8b060cd964b41d015718679eb90daeef0b3d3f2c35ba0d7c0f4529782"
+      "sha256": "152979e1078c6185e60cd032fd37f4eea6b689575900a0f81b93ad7411f1b03a"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3320,7 +3320,7 @@
     "lib/engineering/execution-api.ts": {
       "classification": "INTERNAL",
       "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority.",
-      "sha256": "791e70e298c638a3f8017aaf7fe9ea304c0dc772302d2fe024d00acdafbfafaa"
+      "sha256": "a4c267981e387501a02c714b970f9499080ccd2bd92cadd5e8c9e984f26b017d"
     },
     "lib/engineering/execution-store.ts": {
       "classification": "INTERNAL",
@@ -3390,7 +3390,7 @@
     "lib/engineering/native-api.ts": {
       "classification": "ENFORCED",
       "reason": "Owner-scoped same-origin native admission requires both version and generation; no caller qualification or authority snapshots accepted. Deterministic service rechecks current persisted Work.",
-      "sha256": "65039bbe193f75a38630f88de6695c450731d1090f7cba3cc4b9d8787e8fdb2e"
+      "sha256": "149db28cb096711bd35f4c5b3c3d61da3477e746c47b3e13ffd9702505442651"
     },
     "lib/engineering/native-behavior.ts": {
       "classification": "INTERNAL",
@@ -3601,7 +3601,7 @@
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
       "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "25b4ec69a2f2c5eeaa8899ac139d284f33e7c946e5f1553e0c441d99844aeab4"
+      "sha256": "ec3cd249e5fc120bd834ade1730caee50cc494c165609d4ac0d47a9641fd0321"
     },
     "lib/engineering/factory-observation.ts": {
       "classification": "READ_ONLY",
@@ -3621,7 +3621,7 @@
     "app/api/capsules/route.ts": {
       "classification": "INTERNAL",
       "reason": "Signed owner and same-origin canonical Capsule commands, bounded strict input, no-store response; exact owner/destination scope passed to canonical transaction adapter. Legacy fixture/staging retains prior guards.",
-      "sha256": "be6f3c0c61d4fa761be37cf745f8e18e50d60b2c4c99d324ce7b14f731d665a0"
+      "sha256": "11b9358c626f3ac7c8cc1fc8ba97f60ce44cc2174c3923079dbe7595e0e0ba5a"
     },
     "app/api/beta/factory/route.ts": {
       "classification": "INTERNAL",
@@ -3636,7 +3636,7 @@
     "lib/business-api.ts": {
       "classification": "ENFORCED",
       "reason": "Signed owner session and same-origin commands. Server derives partnership identities; strict bounded input; service repeats owner and grant checks. No deployment-implied membership.",
-      "sha256": "330e0d05e89a18bb4deaa6082a0eebd079c2d53319200381fb4ce56b7f0e46f6"
+      "sha256": "cadc8368628f64fa6f3c03a48e07776d29eb999874886f0d549aca9d5c59d7e8"
     },
     "lib/business-scopes.ts": {
       "classification": "ENFORCED",
@@ -3656,12 +3656,12 @@
     "app/api/business/ask/route.ts": {
       "classification": "ENFORCED",
       "reason": "Authenticated same-origin user-requested, stateless read-only model question: strict bounded input, mutual membership, 800 output tokens, one call/no retries, 30-second timeout, no tools or connections, post-call scope recheck. Provider credential stays service-side; local qualification uses injected fake provider only.",
-      "sha256": "5d3ea7839e1897fd33832f8e4c3b59915aa6a1e917ad363df69db3dc592eeabb"
+      "sha256": "ec4425ff5f7b55adb208519f5e154a92d0d59234a27f9111f22d01b1d11edec8"
     },
     "app/api/business/files/[id]/route.ts": {
       "classification": "ENFORCED",
       "reason": "File grant checked before storage read and before response against exact revision. Uses canonical private storage, attachment response and no-store; no blob credentials exposed.",
-      "sha256": "dfe64f187a27a879d1cc53d5cc45e2c1066bf54fcc085746b1e3f2c7080a8163"
+      "sha256": "66c55be2a0f74a31d1ce0edd32f77052ec8ca083d44d1d00539f00e22cbf757d"
     },
     "lib/business-runtime.ts": {
       "classification": "INTERNAL",
@@ -3762,7 +3762,7 @@
     "app/api/beta/owner-decision/route.ts": {
       "classification": "INTERNAL",
       "reason": "Signed owner session, same-origin check, bounded body. GET reads retained canonical Result; POST records only an exact candidate-bound decision. No GitHub credentials or external effects in web process. Qualified by publication contract and real-route Playwright tests.",
-      "sha256": "86210950661af1390a27bdae7dafb9586b6a3f4ff7800ed91066a22ac4c19032"
+      "sha256": "7c52b1af87b07a77f30b04e99728ecd1971494c7a457592a4d7e92e781b72139"
     },
     "lib/engineering/owner-publication.ts": {
       "classification": "INTERNAL",
@@ -3867,7 +3867,7 @@
     "app/api/work-thread/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Authenticated owner/thread read model. Associations require retained context, agent-run identity and same-owner canonical Work. No chat payload or fork grants authority; no execution/approval writes. Covered by work-thread integration isolation tests.",
-      "sha256": "c74b07465dcaa017d2dadfee6e286b6cff1004a17542424b82ba558e07b48422"
+      "sha256": "4a0339e228b57e5250b9a531a07a4da35d451ec5feb02df3cc6f00bc81f9cd10"
     },
     "lib/product/agent-home.ts": {
       "classification": "READ_ONLY",
@@ -3877,7 +3877,7 @@
     "app/api/agents/[id]/home/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-authenticated agent home from same-owner canonical identity, context, Work, conversations, tasks and routines; bounded read queries. Publication eligibility uses existing service. No dispatch or grants. Agent-home PostgreSQL isolation qualification.",
-      "sha256": "7457a12079d7be7b445ef7090464ef349ab676d77008d77d363bc1c5080b6556"
+      "sha256": "39b328fce1b3fed879c2b68f78d516c45b1299f824c2659995334af85784aebf"
     },
     "lib/routine-check.ts": {
       "classification": "INTERNAL",
@@ -3897,7 +3897,7 @@
     "app/api/responsibilities/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only projection of existing same-owner Routine, Run and delivery records; no schedule, message, authority or external effect is created.",
-      "sha256": "c8c3e7de1a174f43f8ccdca8298c1ff96599d18a49f94578ddcf84c4e9cc4671"
+      "sha256": "3ecf7b0cbd534723c7c969883bada6504031b4a8be6b1c58ef1f28243ed5dcc7"
     },
     "lib/product/collaboration.ts": {
       "classification": "READ_ONLY",
@@ -3907,7 +3907,7 @@
     "app/api/collaboration/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-authenticated read of existing Relay transport metadata; no credential/payload decryption, private Memory, Group authority or messages. Partner service-connection restriction preserved.",
-      "sha256": "a844106593cc15f8f1d1c45ab235b3d0cc1a2d4579fd285bfb795f567810fa8e"
+      "sha256": "3af1fced6614e3c8b2fe593d6b0528ad1dd6febecbd7a145b4c6e6aa63d44267"
     },
     "lib/product/work-state.ts": {
       "classification": "READ_ONLY",
@@ -3922,7 +3922,7 @@
     "app/api/work-inbox/route.ts": {
       "classification": "READ_ONLY",
       "reason": "Reviewed owner-scoped canonical Work/readback projection; status settlement is presentation only. No Work lifecycle, archive, dispatch, publication or grants mutated. Authenticated no-store API with bounded paging.",
-      "sha256": "8b46356e04b79e58bc3b3d33b65ed3edcdd927243e61e6ce5b1c95a5e2c718ba"
+      "sha256": "3b0405546533f09093df236152e3ff346eed6b10e584f93ca9a82f1ae9c6431a"
     },
     "lib/product/groups.ts": {
       "classification": "INTERNAL",
@@ -3957,7 +3957,7 @@
     "lib/engineering/production-installation.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-only exact production installation observation and bounded authentication denial probes. Fixed destination and deliberately invalid Work; no execution, model, publication or caller-controlled authority. Separate app/OIDC gates and response sanitization retained.",
-      "sha256": "e9dfb0336f6479724796d42c1c86523ba60651757476378638b906907305232e"
+      "sha256": "db8d765bbfcf9f38d72bda6509a0af78377db1ccd00d09aeabbb69c4f9131a07"
     },
     "app/api/beta/factory-installation/route.ts": {
       "classification": "READ_ONLY",
@@ -3982,7 +3982,7 @@
     "lib/engineering/production-validation.ts": {
       "classification": "ENFORCED",
       "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Independently reviewed source-upgrade compatibility: GET after COMPLETED retains historical source/FactoryVersion with current read transport; POST execution pins unchanged; owner/Work/receipt/evidence isolation regressions pass.",
-      "sha256": "7616bc8abb3886b7c7e41f67630156bc05b7af43609afbded08ef0043822ebb6"
+      "sha256": "65bcc72d7303c8faa9f47d6339e3118f7cd52cbdc56f729cc546506a4d494d26"
     },
     "lib/engineering/production-evidence-isolation.ts": {
       "classification": "ENFORCED",
@@ -3997,7 +3997,7 @@
     "lib/engineering/production-canary.ts": {
       "classification": "ENFORCED",
       "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
-      "sha256": "4abfca06e6c05be8e7b28fc2db7c86d4d397e85f67127fe9a7eb357cfca77904"
+      "sha256": "ad8427618abbf58058c7349811d8c11f6efb14ed86f820fc3c2ce97f95b77a53"
     },
     "app/api/production-canary/route.ts": {
       "classification": "ENFORCED",
@@ -4018,6 +4018,11 @@
       "classification": "INTERNAL",
       "reason": "Pure exact approved-envelope identity validation; no execution, storage or network authority. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
       "sha256": "4375a17b5cf3ec5bd415f2bedda7ec7c4e5ed7d7020280d69ba88301f3c7e621"
+    },
+    "lib/web-session-store.ts": {
+      "classification": "INTERNAL",
+      "reason": "Owner-bound session revocation only: writes irreversible token digests at logout and reads them before authentication; no Work, model, publication or external-service execution authority. Independently reviewed with API/channel replay and real PostgreSQL regressions.",
+      "sha256": "00f6f9f3817d0a5d75cb24b242e13bd7f726ecd3cd925d0e1efa24924fb1e0e2"
     }
   }
 }

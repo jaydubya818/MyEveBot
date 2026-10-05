@@ -32,8 +32,8 @@ import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-function guard(request: Request): Response | null {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   if (capabilityMap().goals.state === "excluded") {
     return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");
@@ -71,7 +71,7 @@ function handled(request: Request, error: unknown): Response {
 }
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   try {
@@ -86,7 +86,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
 }
 
 export async function PATCH(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
@@ -144,7 +144,7 @@ export async function PATCH(request: Request, ctx: RouteContext): Promise<Respon
 }
 
 export async function POST(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
@@ -184,7 +184,7 @@ export async function POST(request: Request, ctx: RouteContext): Promise<Respons
 }
 
 export async function DELETE(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const { id } = await ctx.params;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;

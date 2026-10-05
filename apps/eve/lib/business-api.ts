@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BusinessScopes, ScopeDenied, resourceKind } from "./business-scopes.ts";
-import { configuredOwnerIds, requireSameOrigin, webPrincipal } from "./web-auth.ts";
+import { configuredOwnerIds, requireSameOrigin, authenticateWebPrincipal } from "./web-auth.ts";
 import { boundedJson } from "./relay/client.ts";
 const contextSchema=z.discriminatedUnion('scope',[
  z.object({scope:z.literal('BUSINESS_SHARED')}).strict(),
@@ -11,7 +11,7 @@ export function businessApi(deps:{ scopes:(actor:string)=>BusinessScopes; env?:N
   const headers={'cache-control':'no-store'};
   const send=(body:unknown,status=200)=>Response.json(body,{status,headers});
   const env=deps.env??process.env;
-  const principal=webPrincipal(request,{...env,NODE_ENV:'production'});
+  const principal=await authenticateWebPrincipal(request,{...env,NODE_ENV:'production'});
   if(!principal)return send({error:'Sign in to continue.'},401);
   if(requireSameOrigin(request))return send({error:'Same-origin request required.'},403);
   const service=deps.scopes(principal.id);

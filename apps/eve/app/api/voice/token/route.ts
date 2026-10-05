@@ -22,7 +22,7 @@ const MESSAGE: Record<VoiceError["reason"], string> = {
 };
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const exit = await runtime.runPromiseExit(mintVoiceClientSecret());
   if (Exit.isSuccess(exit)) return Response.json(exit.value);

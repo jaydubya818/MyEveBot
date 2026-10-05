@@ -9,7 +9,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 type RouteContext = { params: Promise<{ messageId: string; attachmentId: string }> };
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
 

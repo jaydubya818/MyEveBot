@@ -5,7 +5,7 @@ import { apiError,requireDatabase } from "@/lib/api-errors";
 import { safeActionParameters } from "@/lib/approvals";
 
 export async function GET(request:Request):Promise<Response> {
-  const denied=requireWebAuth(request)??requireDatabase(request);if(denied)return denied;
+  const denied=await requireWebAuth(request)??requireDatabase(request);if(denied)return denied;
   const ownerId=webPrincipal(request)!.id;
   const runId=new URL(request.url).searchParams.get("runId");
   try {

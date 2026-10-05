@@ -6,7 +6,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 type Context = { params: Promise<{ id: string; action: string }> };
 
 export async function POST(request: Request, context: Context): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request); if (denied) return denied;
+  const denied = await requireWebAuth(request) ?? requireDatabase(request); if (denied) return denied;
   const { id, action } = await context.params;
   const ownerId = requestOwnerId(request);
   const actor = { type: "owner" as const, id: ownerId };

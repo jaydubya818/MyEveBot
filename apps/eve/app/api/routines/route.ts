@@ -10,7 +10,7 @@ import { routineConfigurationSchema } from "@/lib/execution-types";
 const reviewSchema=z.object({reminderId:z.number().int().positive(),expectedVersion:z.number().int().positive(),expectedRoutineVersion:z.number().int().positive().optional(),agentId:z.string().min(1),configuration:routineConfigurationSchema,confirm:z.literal(true)}).strict();
 
 export async function GET(request:Request):Promise<Response> {
-  const denied=requireWebAuth(request)??requireDatabase(request); if(denied) return denied;
+  const denied=await requireWebAuth(request)??requireDatabase(request); if(denied) return denied;
   try {
     const ownerId=webPrincipal(request)!.id;
     const [routines,agents]=await Promise.all([new RoutineReviewStore().list(ownerId),listAgents(ownerId)]);
@@ -21,7 +21,7 @@ export async function GET(request:Request):Promise<Response> {
 }
 
 export async function POST(request:Request):Promise<Response> {
-  const denied=requireWebAuth(request)??requireDatabase(request); if(denied) return denied;
+  const denied=await requireWebAuth(request)??requireDatabase(request); if(denied) return denied;
   const parsed=reviewSchema.safeParse(await request.json().catch(()=>null));
   if(!parsed.success) return apiError(request,400,"invalid_routine_review","Review the instructions, Agent, capabilities and limits, then confirm activation.");
   const ownerId=webPrincipal(request)!.id;

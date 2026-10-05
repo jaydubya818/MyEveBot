@@ -4,7 +4,7 @@ import { getFocus } from "@/lib/goals";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   if (capabilityMap().goals.state === "excluded") {
     return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");

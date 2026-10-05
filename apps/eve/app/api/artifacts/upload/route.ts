@@ -10,7 +10,7 @@ interface UploadPayload {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if ((process.env.DATABASE_URL ?? "").trim().length === 0) {
     return Response.json(

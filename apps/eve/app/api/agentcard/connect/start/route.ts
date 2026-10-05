@@ -14,7 +14,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // returned to the browser.
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireCardAdmin(request);
+  const denied = await requireWebAuth(request) ?? requireCardAdmin(request);
   if (denied) return denied;
 
   let body: unknown = null;

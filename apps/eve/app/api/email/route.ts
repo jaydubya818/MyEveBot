@@ -23,7 +23,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // which timestamps a thread has.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   // No credential is a normal state, not an error: the page explains how to

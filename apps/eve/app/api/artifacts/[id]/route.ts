@@ -10,7 +10,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, context: Context): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const { id } = await context.params;
   try {
@@ -21,7 +21,7 @@ export async function GET(request: Request, context: Context): Promise<Response>
 }
 
 export async function PATCH(request: Request, context: Context): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const { id } = await context.params;
   const body = (await request.json().catch(() => null)) as { title?: unknown } | null;
@@ -36,7 +36,7 @@ export async function PATCH(request: Request, context: Context): Promise<Respons
 }
 
 export async function DELETE(request: Request, context: Context): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const { id } = await context.params;
   try {

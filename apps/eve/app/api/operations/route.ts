@@ -3,7 +3,7 @@ import { getOperationsReport } from "@/lib/operations";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   try {
     return Response.json(await getOperationsReport(webPrincipal(request)!.id), {

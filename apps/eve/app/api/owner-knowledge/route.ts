@@ -16,8 +16,8 @@ const REPOSITORIES = ["memory", "knowledge"] as const;
 const REVIEWS = ["needs_review", "contradictions", "stale", "recent", "corrected"] as const;
 const ID_PATTERN = /^(?:memory|knowledge|agent|goal|task|gtask|project)_[A-Za-z0-9_-]{1,240}$/;
 
-function guard(request: Request): Response | null {
-  return requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  return await requireWebAuth(request) ?? requireDatabase(request);
 }
 
 function repository(value: unknown): OwnerKnowledgeRepository | null {
@@ -33,7 +33,7 @@ function message(error: unknown): string {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const ownerId = webPrincipal(request)!.id;
   const url = new URL(request.url);
@@ -85,7 +85,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function PATCH(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   const repo = repository(body?.repository);
@@ -103,7 +103,7 @@ export async function PATCH(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   const repo = repository(body?.repository);

@@ -64,7 +64,7 @@ async function pushStatus(ownerId: string): Promise<ChannelStatusView> {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const ownerId = webPrincipal(request)!.id;
   const [email, slack, imessage, push, deliveries] = await Promise.all([

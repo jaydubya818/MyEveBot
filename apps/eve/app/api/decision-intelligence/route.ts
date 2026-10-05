@@ -20,7 +20,7 @@ import {
 } from "@/lib/decision-intelligence/jev-provider";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const url = new URL(request.url);
   // Artifacts are deployment-scoped synthetic benchmarks. Owner/subject selectors are never accepted.

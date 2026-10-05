@@ -11,8 +11,8 @@ import {
 import { createOutcome, listOutcomes } from "@/lib/outcomes";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
-function guard(request: Request) {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request) {
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   if (capabilityMap().goals.state === "excluded") {
     return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");
@@ -33,7 +33,7 @@ function optionalNullableString(value: unknown): string | null | undefined {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   try {
     const limit = Number(new URL(request.url).searchParams.get("limit") ?? "100");
@@ -48,7 +48,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (!body || !isOneOf(body.status, OUTCOME_STATUSES) || typeof body.summary !== "string") {

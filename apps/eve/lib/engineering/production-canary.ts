@@ -1,5 +1,5 @@
 import {assertProductionApproval} from './production-approval.ts';
-import {webPrincipal,requireSameOrigin} from '../web-auth.ts';
+import {authenticateWebPrincipal,requireSameOrigin} from '../web-auth.ts';
 import {productionCanaryEnabled,productionCloudConfiguration} from './production-runtime-guard.ts';
 import {WorkStore} from './store.ts';
 import {factoryConfig} from './factory-routing.ts';
@@ -8,7 +8,7 @@ import {wakeCloudController} from './cloud-controller-queue.ts';
 /** Dormant until a separate owner-approved envelope is installed. This route
  * cannot mint that approval or choose Work, source, effects or model settings. */
 export async function handleProductionCanary(request:Request){
- const headers={'cache-control':'private, no-store'},principal=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+ const headers={'cache-control':'private, no-store'},principal=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
  if(!principal)return Response.json({error:'Sign in first.'},{status:401,headers});
  if(principal.id!==process.env.MYEVE_OWNER_ID)return Response.json({error:'Owner required.'},{status:403,headers});
  const denied=requireSameOrigin(request);if(denied)return denied;

@@ -71,12 +71,23 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  const token = createWebSessionToken(process.env, Date.now(), ownerId);
+  if (process.env.MYEVE_DURABLE_WEB_SESSIONS === "true") {
+    try {
+      const { sessionRevoked } = await import("@/lib/web-session-store");
+      if (await sessionRevoked(ownerId, token)) throw new Error("Session unavailable");
+    } catch {
+      return NextResponse.json({ error: "Sign-in is temporarily unavailable." }, {
+        status: 503, headers: { "Cache-Control": "no-store" },
+      });
+    }
+  }
   attempts.delete(clientKey(request));
   const response = NextResponse.json({ ok: true });
   response.headers.set("Cache-Control", "no-store");
   response.cookies.set({
     name: WEB_SESSION_COOKIE,
-    value: createWebSessionToken(process.env, Date.now(), ownerId),
+    value: token,
     httpOnly: true,
     maxAge: WEB_SESSION_MAX_AGE_SECONDS,
     path: "/",

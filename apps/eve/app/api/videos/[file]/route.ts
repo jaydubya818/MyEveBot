@@ -17,7 +17,7 @@ const FILE_PATTERN = /^[a-z0-9][a-z0-9_-]*\.mp4$/;
 type RouteContext = { params: Promise<{ file: string }> };
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const { file } = await ctx.params;

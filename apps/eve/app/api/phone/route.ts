@@ -116,7 +116,7 @@ function failure(error: unknown, status = 400): Response {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   try {
     return await currentState(request);
@@ -127,7 +127,7 @@ export async function GET(request: Request): Promise<Response> {
 
 /** Save an app-managed key. The environment key, if any, is untouched. */
 export async function PUT(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requirePhoneAdmin(request);
+  const denied = await requireWebAuth(request) ?? requirePhoneAdmin(request);
   if (denied) return denied;
 
   if (!hasDatabase()) {
@@ -156,7 +156,7 @@ export async function PUT(request: Request): Promise<Response> {
 
 /** Clear the app-managed key. A key from the environment is untouchable here. */
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requirePhoneAdmin(request);
+  const denied = await requireWebAuth(request) ?? requirePhoneAdmin(request);
   if (denied) return denied;
   try {
     await setAppAgentPhoneKey(null);
@@ -167,7 +167,7 @@ export async function DELETE(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const webDenied = requireWebAuth(request);
+  const webDenied = await requireWebAuth(request);
   if (webDenied) return webDenied;
 
   const body = (await request.json().catch(() => null)) as {

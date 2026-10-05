@@ -4,8 +4,8 @@ import { createKnowledge, listKnowledge } from "@/lib/knowledge";
 import { KNOWLEDGE_KINDS, type KnowledgeKind } from "@/lib/knowledge-types";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
-function guard(request: Request): Response | null {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   return capabilityMap().knowledge.state === "excluded"
     ? apiError(request, 404, "knowledge_not_included", "Knowledge is not included in this deployment.")
@@ -20,7 +20,7 @@ function handled(request: Request, error: unknown): Response {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const url = new URL(request.url);
   const kind = url.searchParams.get("type");
   if (kind !== null && !KNOWLEDGE_KINDS.includes(kind as KnowledgeKind)) return apiError(request, 400, "invalid_knowledge_type", "Unknown knowledge type.");
@@ -37,7 +37,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;
   if (!body || typeof body.kind !== "string" || !KNOWLEDGE_KINDS.includes(body.kind as KnowledgeKind) || typeof body.statement !== "string") return apiError(request, 400, "invalid_knowledge", "A valid knowledge type and statement are required.");
   try {

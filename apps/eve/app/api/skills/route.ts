@@ -48,7 +48,7 @@ function defaultAssignments(names: readonly string[]): Record<SkillAgentId, stri
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const installed = installedSkills.map(
@@ -160,7 +160,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!process.env.DATABASE_URL?.trim()) {
     return apiError(request, 503, "database_not_configured", "Skill evals need database setup.");
@@ -229,7 +229,7 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function PATCH(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!process.env.DATABASE_URL?.trim()) {
     return apiError(request, 503, "database_not_configured", "Agent assignments need database setup.");
@@ -274,7 +274,7 @@ export async function PATCH(request: Request): Promise<Response> {
 }
 
 export async function PUT(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (capabilityMap().skills.state !== "ready") {
     return apiError(request, 503, "skills_not_configured", "Saved skills need file storage setup.");
@@ -326,7 +326,7 @@ export async function PUT(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (capabilityMap().skills.state !== "ready") {
     return apiError(request, 503, "skills_not_configured", "Saved skills need file storage setup.");

@@ -32,7 +32,7 @@ export async function executeFactoryCommand(store:WorkStore,id:string,value:unkn
 export async function handleFactoryRequest(request:Request,id:string){
  const headers={'cache-control':'no-store'};
  try{
-  z.string().uuid().parse(id);const store=new WorkStore(engineeringPrincipal(request));
+  z.string().uuid().parse(id);const store=new WorkStore(await engineeringPrincipal(request));
   if(request.method==='GET'){await store.get(id);return Response.json({decision:await (await factoryRuntime(store)).decision(id)},{headers});}
   const result=await factoryAction(store,id,await boundedJson(new Response(request.body),2000));return Response.json({result},{headers});
  }catch(error){

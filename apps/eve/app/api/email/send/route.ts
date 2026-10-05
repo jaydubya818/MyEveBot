@@ -17,7 +17,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // returns the original result instead of mailing a second copy.
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
 

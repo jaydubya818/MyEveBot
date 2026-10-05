@@ -4,7 +4,7 @@ import { qualificationEnabled, qualifyIngress } from "./lib/qualification/client
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import { webAuthConfigStatus, webAuthRequired, webPrincipal } from "@/lib/web-auth";
+import { webAuthConfigStatus, webAuthRequired, authenticateWebPrincipal } from "@/lib/web-auth";
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
   // The dedicated preview exposes only the deterministic, authenticated journey.
@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   }
   if (/^\/(?:api|eve\/v1|login|_next\/static|_next\/image|favicon\.ico)/.test(request.nextUrl.pathname) || request.nextUrl.pathname.includes(".")) return NextResponse.next();
   if (!webAuthRequired()) return NextResponse.next();
-  if (webPrincipal(request) !== null) return NextResponse.next();
+  if ((await authenticateWebPrincipal(request)) !== null) return NextResponse.next();
 
   const login = new URL("/login", request.url);
   const returnTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
