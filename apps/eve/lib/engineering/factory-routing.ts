@@ -19,7 +19,7 @@ export async function factoryConfig(){
  const engineering=await engineeringConfig(),file=process.env.MYEVE_FACTORY_CONFIG;
  if(productionCloudEnabled()){
   const production=productionCloudConfiguration(),raw=production.factory,installed=productionInstallation(),validation=production.mode==='OPERATOR_DETERMINISTIC_VALIDATION';
-  const connection={...(raw.connection as Record<string,unknown>),...installed.connection,...(validation?{releaseValidation:true}:{productionCanary:true}),evidence:{ownerScope:engineering.ownerId,token:process.env.FACTORY_PROOF_TOKEN,expiresAt:process.env.FACTORY_PROOF_EXPIRES_AT}};
+  const connection={...(raw.connection as Record<string,unknown>),...installed.connection,...(validation?{releaseValidation:true}:{productionCanary:true,authorizationEnvelopeSha256:production.mode==='CLOUD_PRODUCTION_CANARY'?production.authorizationSha256:undefined}),evidence:{ownerScope:engineering.ownerId,token:process.env.FACTORY_PROOF_TOKEN,expiresAt:process.env.FACTORY_PROOF_EXPIRES_AT}};
   const factory=factoryRuntimeSchema.parse({...raw,connection});
   if(!('source' in factory.connection)||factory.connection.factoryId!=='myfactory-cloud-production'||factory.connection.sourceDigest!==installed.config.sourceDigest||factory.connection.qualification.mode!==(validation?'CLOUD_PRODUCTION_VALIDATION':'LIVE')||factory.connection.qualification.scopeId!==engineering.ownerId||factory.connection.qualification.profileHash!==digest(engineering.profile))throw Error('PRODUCTION_VALIDATION_FACTORY_BINDING');
   return {engineering,...factory};

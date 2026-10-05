@@ -31,7 +31,7 @@ export const productionFactoryConnectionSchema=cloudFactoryConnectionSchema.exte
  qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('CLOUD_PRODUCTION_VALIDATION')}),
 }).strict();
 export const productionCanaryConnectionSchema=cloudFactoryConnectionSchema.extend({
- projectId:z.literal('prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'),productionCanary:z.literal(true),
+ projectId:z.literal('prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK'),productionCanary:z.literal(true),authorizationEnvelopeSha256:z.string().regex(/^[a-f0-9]{64}$/),
  qualification:localFactoryConnectionSchema.shape.qualification.extend({mode:z.literal('LIVE')}),
 }).strict();
 export const factoryConnectionSchema=z.union([localFactoryConnectionSchema,cloudFactoryConnectionSchema,productionFactoryConnectionSchema,productionCanaryConnectionSchema]);

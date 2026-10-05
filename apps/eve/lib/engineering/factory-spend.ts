@@ -46,7 +46,7 @@ export function factorySpendAdmission(profile:FactorySpendProfile,now=Date.now()
 const operationSchema=z.object({operationId:text,workId:text,workGeneration:z.number().int().positive(),dispatchIdentity:text,
  requestId:text,workOrderId:text,factoryVersion:hash,runId:text,model:text,pricingRevision:text,reservedMicrousd:amount.positive(),
  actualMicrousd:amount.nullable(),providerRequestId:text.nullable(),usage:z.record(z.string(),amount).nullable(),
- state:z.enum(['reserved','dispatched','unknown','settled'])}).strict();
+ state:z.enum(['reserved','dispatched','unknown','settled','released'])}).strict();
 const ledgerShape=z.object({status:z.enum(['KNOWN','UNKNOWN']),currency:z.literal('USD'),unit:z.literal('microUSD'),
  workId:z.string().uuid(),workGeneration:z.number().int().positive(),requestId:z.string().uuid(),workOrderId:z.string().uuid(),deadline:z.string().datetime(),
  ceilingMicrousd:amount.positive(),settledMicrousd:amount,retainedMicrousd:amount,availableMicrousd:amount,cancelled:z.boolean(),
@@ -64,7 +64,7 @@ function accounting(s:z.infer<typeof ledgerShape>,ctx:z.RefinementCtx){
    settled+=op.actualMicrousd??0;
   }else{
    if(op.actualMicrousd!==null||op.providerRequestId!==null||op.usage!==null)bad('Unresolved reservation has settlement fields');
-   retained+=op.reservedMicrousd;
+   if(op.state!=='released')retained+=op.reservedMicrousd;
   }
  }
  if(!Number.isSafeInteger(settled+retained)||settled!==s.settledMicrousd||retained!==s.retainedMicrousd||settled+retained+s.availableMicrousd!==s.ceilingMicrousd)bad('Incomplete or inconsistent Work accounting');
@@ -82,7 +82,7 @@ export const workSpendV2Schema=ledgerShape.extend({
 }).strict().superRefine((s,ctx)=>{
  accounting(s,ctx);const bad=(message:string)=>ctx.addIssue({code:'custom',message});
  const completion=s.operations.filter(op=>op.phase==='completion');
- const exposure=(ops:typeof s.operations)=>ops.reduce((sum,op)=>sum+(op.state==='settled'?op.actualMicrousd??0:op.reservedMicrousd),0);
+ const exposure=(ops:typeof s.operations)=>ops.reduce((sum,op)=>sum+(op.state==='released'?0:op.state==='settled'?op.actualMicrousd??0:op.reservedMicrousd),0);
  const completionExposure=exposure(completion),remaining=s.completionReserveMicrousd-completionExposure;
  if(s.maxPaidOperations!==s.plannedProductiveOperations+s.plannedCompletionOperations||
   s.paidOperationsUsed!==s.operations.length||s.paidOperationsUsed>s.maxPaidOperations||
@@ -95,7 +95,7 @@ export const workSpendV2Schema=ledgerShape.extend({
  if(remaining<0||remaining!==s.completionReserveRemainingMicrousd||
   s.productiveAllowanceRemainingMicrousd!==s.availableMicrousd-remaining)bad('Protected completion reserve mismatch or theft');
  if(s.unknownExposureMicrousd!==s.operations.filter(op=>op.state==='unknown').reduce((n,op)=>n+op.reservedMicrousd,0))bad('UNKNOWN exposure mismatch');
- if(s.accountingComplete!==s.operations.every(op=>op.state==='settled'))bad('Accounting completeness mismatch');
+ if(s.accountingComplete!==s.operations.every(op=>['settled','released'].includes(op.state)))bad('Accounting completeness mismatch');
  if(s.phase==='productive'&&completion.some(op=>op.workGeneration===s.workGeneration))bad('Completion phase regressed');
  for(const op of s.operations)if(op.pricingRevision!==s.pricingRevision||op.reservedMicrousd!==s.perOperationReserveMicrousd)bad('Operation differs from qualified plan');
 });
@@ -111,7 +111,7 @@ export const migratedLegacyWorkSpendSchema=ledgerShape.extend({
  accounting(s,ctx);
  if(s.paidOperationsUsed!==s.operations.length||s.productiveAllowanceRemainingMicrousd!==s.availableMicrousd||
   s.unknownExposureMicrousd!==s.operations.filter(op=>op.state==='unknown').reduce((n,op)=>n+op.reservedMicrousd,0)||
-  s.accountingComplete!==s.operations.every(op=>op.state==='settled'))ctx.addIssue({code:'custom',message:'Migrated V1 accounting mismatch'});
+  s.accountingComplete!==s.operations.every(op=>['settled','released'].includes(op.state)))ctx.addIssue({code:'custom',message:'Migrated V1 accounting mismatch'});
 });
 export const workSpendSchema=z.union([workSpendV2Schema,migratedLegacyWorkSpendSchema,legacyWorkSpendSchema]);
 export type WorkSpend=z.infer<typeof workSpendSchema>;
@@ -189,7 +189,8 @@ export function assertSpendContinuation(previous:WorkSpend,next:WorkSpend){
    if(old[key]!==current[key])throw Error('Historical spend binding changed');
   if('phase' in old&&(!('phase' in current)||old.phase!==current.phase))throw Error('Historical operation phase changed');
   if(old.state==='settled'&&digest(old)!==digest(current))throw Error('Settled spend changed');
-  const order={reserved:0,dispatched:1,unknown:2,settled:3};if(order[current.state]<order[old.state])throw Error('Uncertain spend reservation regressed');
+  if(current.state==='released'&&!['reserved','released'].includes(old.state)||old.state==='released'&&current.state!=='released')throw Error('Exposed reservation cannot be released');
+  const order={reserved:0,dispatched:1,unknown:2,settled:3,released:3};if(order[current.state]<order[old.state])throw Error('Uncertain spend reservation regressed');
  }
 }
 export function assertFactorySpendCanStart(spend:FactorySpend){

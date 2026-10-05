@@ -12,6 +12,7 @@ import {evidenceReference,evidenceSha} from './factory-evidence.ts';
 import {WorkStore} from './store.ts';
 import {FactoryWorkDriver,factoryExecutionConfigurationHash} from './factory-work-driver.ts';
 import {FactoryValidationLifecycle,saveValidationPreparation,readValidationGate} from './factory-validation-lifecycle.ts';
+import * as productionRuntime from './production-runtime-guard.ts';
 import * as routing from '../digital-worker/routing.ts';
 import {manifestForSnapshot} from './base-preflight.ts';
 import {materializeValidationGrant} from '../../scripts/production-validation-materializer.ts';
@@ -60,7 +61,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   expect((await upgrade.query('SELECT count(*) FROM engineering_factory_validation_lifecycle')).rows[0].count).toBe('0');
   await expect(upgrade.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"') WHERE id=$1`,[f.decisionId])).rejects.toThrow('Factory preparation identity is immutable');
   expect(await f.driver.step(f.work.id)).toEqual({state:'HALTED'});expect(await f.lifecycle.read()).toBeNull();
-  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0081_factory_validation_lifecycle.sql');
+  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0082_factory_concrete_grant_binding.sql');
  });
  it('deterministically reproduces the legacy materializer state-read race twice with the exact failing predicate',async()=>{
   const evidence=[];
@@ -91,6 +92,14 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   await expect(saveValidationPreparation(f.store,f.work.id,f.decisionId,JSON.stringify(bad))).rejects.toThrow();
   expect(await f.bytes()).toBeNull();expect(await f.lifecycle.read()).toBeNull();
   await saveValidationPreparation(f.store,f.work.id,f.decisionId,JSON.stringify(f.preparation));expect((await f.lifecycle.read()).state).toBe('IDLE');
+ });
+ it('a lifecycle cannot be born with a concrete grant binding',async()=>{
+  const f=await fixture({save:false});
+  const p={...f.preparation,authorizationEnvelopeSha256:'a'.repeat(64)};
+  await pool.query('UPDATE engineering_routing_decisions SET factory_preparation=$2 WHERE id=$1',[f.decisionId,p]);
+  await expect(pool.query(`INSERT INTO engineering_factory_validation_lifecycle(decision_id,scope_id,scope_kind,work_id,work_version,work_generation,request_id,configuration_hash,factory_version,environment_binding,deadline,grant_sha256)
+   VALUES($1,$2,'personal',$3,$4,$5,$6,$7,$8,$9,$10,$11)`,[f.decisionId,f.store.principal.scopeId,f.work.id,f.work.version,f.work.generation,p.request.requestId,p.configurationHash,p.environment.binding.factoryVersion,p.environment.binding,p.request.deadline,'b'.repeat(64)])).rejects.toThrow('initial state');
+  expect(await f.lifecycle.read()).toBeNull();
  });
  it('production regression: old claim fails; new actual driver reaches Factory prepare and waits without changing bytes',async()=>{
   const f=await fixture();
@@ -347,6 +356,74 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    expect((await readValidationGate(f.store,f.work)).state).toBe(completed?'COMPLETED':'BLOCKED');
    expect((await f.p.query('SELECT count(*) FROM engineering_native_results WHERE work_id=$1',[f.work.id])).rows[0].count).toBe('1');expect(await f.bytes()).toBe(f.original);
   }
+ });
+ describe.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('paid approval materialization: real PostgreSQL',()=>{
+  async function paidFixture(){
+   const root=process.env.MYFACTORY_SOURCE_ROOT!,load=(path:string)=>import(/* @vite-ignore */ pathToFileURL(join(root,path)).href);
+   const plan=await load('apps/cloud-control/src/production-execution-plan.mjs');
+   const sourceDigest='a'.repeat(64),configurationDigest=digest(plan.productionConfiguration),factoryVersion=digest({sourceDigest,configurationDigest});
+   const f=await fixture({save:false,repository:plan.productionSourceGrant.source.repository,factoryVersion});
+   const {version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd}=plan.productionSpendPlan;
+   const spendPlan={version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd};
+   const source={sha:plan.productionSourceGrant.source.commit,files:{'fixture.txt':'offline qualification'}};
+   const config={connection:{productionCanary:true,factoryVersion,source:plan.productionSourceGrant.source,spendPlan,authorizationEnvelopeSha256:''},engineering:{profile:{repository:f.work.repository,allowedPaths:plan.productionSourceGrant.allowedPaths},approvedBase:manifestForSnapshot(source)},commands:plan.productionSourceGrant.commands};
+   const request={protocol:'MYFACTORY_EXECUTION_V2',requestId:null,deadline:null,workId:f.work.id,workGeneration:f.work.generation,repository:f.work.repository,source:plan.productionSourceGrant.source,maxSpendUsd:1,input:{title:f.work.title,description:f.work.objective,kind:'feature',acceptanceCriteria:f.work.criteria.map(c=>c.statement),checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths}};
+   const pins=await load('apps/cloud-control/src/production-installation.mjs');
+   const installation={projectId:pins.productionProjectId,databaseResourceId:pins.productionDatabaseResourceId,custodyStoreId:pins.productionCustodyStoreId};
+   const manifestTemplate={version:1,clientId:'sofie-production',ownerScope:f.store.principal.scopeId,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.productionExecutionContractSha256,candidateSha256:null,environment:'CLOUD_PRODUCTION',publication:false,request};
+   const approval={canonicalSpendPlan:spendPlan,workVersion:f.work.version,configurationHash:factoryExecutionConfigurationHash(config as never),environmentBinding:f.preparation.environment.binding,criteria:f.work.criteria,manifestTemplate,installation,historicalGrants:[]};
+   const envelope={version:1,expiresAt:new Date(Date.now()+300000).toISOString(),approval},sha256=digest(envelope);
+   config.connection.authorizationEnvelopeSha256=sha256;
+   const authority={readConfig:async()=>config,assess:async()=>({selection:{route:'MYFACTORY'},contract:{deadline:f.preparation.request.deadline,budgetUsd:1},environment:f.preparation.environment})};
+   const driver=new FactoryWorkDriver(f.store,authority as never,{} as never,{} as never,async()=>source);
+   const guard=vi.spyOn(productionRuntime,'productionCloudConfiguration').mockReturnValue({mode:'CLOUD_PRODUCTION_CANARY',authorizationEnvelope:envelope,authorizationSha256:sha256} as never);
+   const route=vi.spyOn(routing,'decideExecutionRoute').mockReturnValue({admitted:true} as never);
+   try{await Promise.all([driver.start(f.work.id,f.work.version,f.work.generation),driver.start(f.work.id,f.work.version,f.work.generation)]);}finally{guard.mockRestore();route.mockRestore();}
+   const preparation=(await pool.query('SELECT factory_preparation FROM engineering_routing_decisions WHERE id=$1',[f.decisionId])).rows[0].factory_preparation;
+   const schema='paid_operator_'+randomUUID().replaceAll('-',''),rewrite=(sql:string)=>sql.replace(/\bfactory\b/g,schema);
+   const query=(sql:string,args?:unknown[])=>pool.query(rewrite(sql),args);
+   for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','007-production-installation-boundary','008-production-work-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
+   await query("UPDATE factory.environment SET environment='production',project_id=$1,database_resource_id=$2,custody_store_id=$3,owner_scope=$4",[installation.projectId,installation.databaseResourceId,installation.custodyStoreId,f.store.principal.scopeId]);
+   const clients:any[]=[];
+   const client=async(factory=false)=>{const c=await pool.connect();clients.push(c);return {query:(sql:string,args?:unknown[])=>c.query(factory?rewrite(sql):sql,args),release:()=>{clients.splice(clients.indexOf(c),1);c.release();}};};
+   const run=async(approved=envelope,expected=sha256)=>{
+    const owner=await client(),factory=await client(true);
+    try{return await materializeValidationGrant(owner,factory,approval,async()=>{},{maxAttempts:2,maxWaitMs:100,waitMs:1},{envelope:approved,sha256:expected});}
+    finally{owner.release();factory.release();}
+   };
+   return {...f,plan,sourceDigest,configurationDigest,factoryVersion,installation,preparation,envelope,sha256,approval,query,run,load,close:()=>clients.forEach(c=>c.release())};
+  }
+  it('concurrent activation and installation produce one request/grant; immutable approval differs from concrete digest',async()=>{
+   const f=await paidFixture();try{
+    const results=await Promise.allSettled([f.run(),f.run()]);expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);
+    const grants=(await f.query('SELECT * FROM factory.production_work_authority')).rows;expect(grants).toHaveLength(1);
+    const g=grants[0];expect(g.manifest_sha256).toBe(digest(g.manifest));expect(g.manifest_sha256).not.toBe(f.sha256);
+    await expect(pool.query("UPDATE engineering_factory_validation_lifecycle SET grant_sha256=$2 WHERE decision_id=$1",[f.decisionId,'e'.repeat(64)])).rejects.toThrow();
+    expect(g.request_id).toBe(f.preparation.request.requestId);expect((await f.lifecycle.read()).grant_sha256).toBe(g.manifest_sha256);
+    expect((await pool.query('SELECT count(*) FROM engineering_factory_validation_lifecycle WHERE work_id=$1',[f.work.id])).rows[0].count).toBe('1');
+    const {assertConcreteProductionGrant}=await f.load('apps/cloud-control/src/production-approval.mjs');
+    expect(assertConcreteProductionGrant(g.manifest,f.sha256)).toEqual(f.approval);
+    const {productionAuthority}=await f.load('apps/cloud-control/src/production-authority.mjs');
+    const authorize=productionAuthority({installation:{ownerScope:f.store.principal.scopeId},sourceDigest:f.sourceDigest,configuration:f.plan.productionConfiguration,contractSha256:f.plan.productionExecutionContractSha256,clientId:'sofie-production',authorizationSha256:f.sha256});
+    await authorize({query:f.query},g.manifest.request,Date.now(),'prepare');
+    await expect(authorize({query:f.query},{...g.manifest.request,deadline:new Date(Date.now()+10000).toISOString()},Date.now(),'prepare')).rejects.toThrow();
+    await expect(f.run()).rejects.toThrow(); // restart cannot mint or release authority again
+    await f.query("UPDATE factory.production_work_authority SET state='REVOKED'");
+    await expect(f.run()).rejects.toThrow();
+    await expect(authorize({query:f.query},g.manifest.request,Date.now(),'prepare')).rejects.toThrow();
+    expect((await f.query('SELECT manifest_sha256 FROM factory.production_work_authority')).rows[0].manifest_sha256).toBe(g.manifest_sha256);
+   }finally{f.close();}
+  });
+  it('altered or expired approvals, stale lifecycle and mutated request/deadline fail before authority',async()=>{
+   const f=await paidFixture();try{
+    await expect(f.run({...f.envelope,expiresAt:new Date(0).toISOString()})).rejects.toThrow();
+    const expired={...f.envelope,expiresAt:new Date(0).toISOString()};await expect(f.run(expired,digest(expired))).rejects.toThrow();
+    await expect(pool.query("UPDATE engineering_factory_validation_lifecycle SET deadline=deadline+interval '1 second' WHERE decision_id=$1",[f.decisionId])).rejects.toThrow('immutable');
+    await expect(pool.query("UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{request,requestId}',to_jsonb($2::text)) WHERE id=$1",[f.decisionId,randomUUID()])).rejects.toThrow('immutable');
+    await f.lifecycle.halt('DISPOSABLE_STALE_LIFECYCLE');await expect(f.run()).rejects.toThrow();
+    expect((await f.query('SELECT count(*) FROM factory.production_work_authority')).rows[0].count).toBe('0');
+   }finally{f.close();}
+  });
  });
 
 });

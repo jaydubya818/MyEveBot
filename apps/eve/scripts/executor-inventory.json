@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "9f71274e417f8ee3cb4ee4689b8bf085808fe9e3571058185f34bfac40613660"
+      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "a6224fa5e56544717f21f2047024a1002863ff3ffad4fcb983ef6ea6c11a3c0d"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3504,8 +3504,8 @@
     },
     "lib/engineering/factory-spend.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
-      "sha256": "51125e54268913b7becfb6afd1297658eeb86ab6e520d04d0d07d8f53e3fc997"
+      "reason": "Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Dedicated staging HTTPS uses explicit V2 configuration and source identities; local transport stays loopback-only. Cloud spending requires separately labeled evidence. Cloud runtime remains blocked until source/verifier wiring is qualified; no publication authority. Consolidated boundary: Q37 consumer-only producer spend protocol validation and reviewed evidence gating; no provider call, reservation, refund, writer grant or independent budget store. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "20e734460e29a950108639120e80e98ada568c8200919dd81c7eb7b411e10538"
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
@@ -3580,8 +3580,8 @@
     },
     "lib/engineering/factory-live-adapter.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution.",
-      "sha256": "ec78cccd5284009487151f477336cc9d148a2a7e32cb7442bc80ccaf9ee3ad65"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Canonical Work identity, exact source/FactoryVersion and spend checks preserved. CLOUD uses per-request preview-only OIDC transport plus independent app authentication, no static bypass or local fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Assembly retains exact host repair binding on local prepare/readback. Cloud rejects repairBinding because that workflow is unqualified; no silent omission or fallback. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "3f5a6951c5087f0e50e3bff224d7abba59b29ca54341b624e98a29c1031b56ff"
     },
     "lib/engineering/factory-return.ts": {
       "classification": "INTERNAL",
@@ -3595,8 +3595,8 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "46a638a2c678cbd922fa9b306546ed42e722edd1b82bd7357a9ad3e7607d8238"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "5b16e6b788b88f5fb903f471cd525f1b0471a397003a34f7ea5a72722ec7110c"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3615,8 +3615,8 @@
     },
     "lib/engineering/factory-routing.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
-      "sha256": "a3652524b2efb2ba3e84a4927b23c9142780bfb404511a0b536aada2745b82c4"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Consolidated boundary: Pinned server-only cloud profile and authenticated Factory health feed existing admission plus accepted EnvironmentRouter; no model-selected environment/fallback. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "a68ddbd42c1262bd401ea1b58b2f54b382de2eb03c8613f61069092aa4bdef1a"
     },
     "app/api/capsules/route.ts": {
       "classification": "INTERNAL",
@@ -3746,8 +3746,8 @@
     },
     "lib/engineering/journey-accounting.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner/Work-scoped ledger reads; deduplicated settled charges and retained UNKNOWN exposure. Does not reserve, reconcile, dispatch or grant authority.",
-      "sha256": "0a2607a26f471a9086080a8dc07f7aefce3455bbc90bf3e673284b32c3017d1a"
+      "reason": "Owner/Work-scoped ledger reads; deduplicated settled charges and retained UNKNOWN exposure. Does not reserve, reconcile, dispatch or grant authority. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "cf241b330fa513556d21a7ee3bb05fe7d81adf1a9739e3cfbdf585860d991903"
     },
     "lib/engineering/public-output-contract.ts": {
       "classification": "INTERNAL",
@@ -3976,8 +3976,8 @@
     },
     "lib/engineering/production-runtime-guard.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact production project/owner installation plus separate server-only operator validation configuration. Rejects qualification/local/paid switches; enables neither synthetic conversation nor general Work.",
-      "sha256": "0f87a148e0c7119031152f805e89247184004cb7e3b02f244b5d7bbebd2ae420"
+      "reason": "Exact production project/owner installation plus separate server-only operator validation configuration. Rejects qualification/local/paid switches; enables neither synthetic conversation nor general Work. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "cf1f4d381e39feb5803a66b1621f0ceca7d71dbfe75d700f66060e72e8d23787"
     },
     "lib/engineering/production-validation.ts": {
       "classification": "ENFORCED",
@@ -3996,8 +3996,8 @@
     },
     "lib/engineering/production-canary.ts": {
       "classification": "ENFORCED",
-      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
-      "sha256": "85830d1bc9e2928687903f74e79d9a71cc73c15b0435c99e82d0167c13de3de6"
+      "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "4abfca06e6c05be8e7b28fc2db7c86d4d397e85f67127fe9a7eb357cfca77904"
     },
     "app/api/production-canary/route.ts": {
       "classification": "ENFORCED",
@@ -4011,8 +4011,13 @@
     },
     "lib/engineering/factory-validation-lifecycle.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical validation lifecycle, not execution or grant authority. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "142d0063262df9c4a2d0060340740300dac29c92781007cea8a7d1071cc74942"
+      "reason": "Canonical validation lifecycle, not execution or grant authority. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "83ee215aec25038036ec43868310ad333287fd75c8f905644c1176a25ec10dfb"
+    },
+    "lib/engineering/production-approval.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure exact approved-envelope identity validation; no execution, storage or network authority. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
+      "sha256": "4375a17b5cf3ec5bd415f2bedda7ec7c4e5ed7d7020280d69ba88301f3c7e621"
     }
   }
 }

@@ -1,3 +1,5 @@
+import {assertProductionApproval} from './production-approval.ts';
+import {digest} from './contract.ts';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 const mocks=vi.hoisted(()=>({principal:{id:'owner'} as {id:string}|null,config:vi.fn(),store:vi.fn(),enqueue:vi.fn(),wake:vi.fn()}));
 vi.mock('../web-auth.ts',async()=>({...await vi.importActual('../web-auth.ts'),webPrincipal:()=>mocks.principal}));
@@ -36,12 +38,22 @@ describe('production release probe does not grant general Work or model authorit
  });
 });
 describe('paid canary stays dormant without the separate exact owner authorization',()=>{
- const canary=(hash='d'.repeat(64))=>({...env,MYEVE_PRODUCTION_VALIDATION_CONFIG:undefined,MYEVE_PRODUCTION_CANARY_AUTHORIZATION_SHA256:hash,MYEVE_PRODUCTION_CANARY_CONFIG:JSON.stringify({...JSON.parse(env.MYEVE_PRODUCTION_VALIDATION_CONFIG),mode:'CLOUD_PRODUCTION_CANARY',authorizationSha256:'d'.repeat(64)})});
+ const original=JSON.parse(env.MYEVE_PRODUCTION_VALIDATION_CONFIG);
+ const template={version:1,clientId:'sofie-production',publication:false,environment:'CLOUD_PRODUCTION',sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64),factoryVersion:digest({sourceDigest:'a'.repeat(64),configurationDigest:'b'.repeat(64)}),request:{requestId:null,deadline:null,protocol:'MYFACTORY_EXECUTION_V2',workId:original.work.id,workGeneration:original.work.generation}};
+ const envelope={version:1,expiresAt:new Date(Date.now()+600000).toISOString(),approval:{workVersion:2,configurationHash:'c'.repeat(64),manifestTemplate:template}};
+ const approvedDigest=digest(envelope);
+ const canary=(hash=approvedDigest)=>({...env,MYEVE_PRODUCTION_VALIDATION_CONFIG:undefined,MYEVE_PRODUCTION_CANARY_AUTHORIZATION_SHA256:hash,MYEVE_PRODUCTION_CANARY_CONFIG:JSON.stringify({...original,mode:'CLOUD_PRODUCTION_CANARY',authorizationSha256:approvedDigest,authorizationEnvelope:envelope})});
  it('binds both config and approval hash and keeps ordinary Work disabled',()=>{
   expect(productionCloudConfiguration(canary()).mode).toBe('CLOUD_PRODUCTION_CANARY');
   expect(engineeringWorkEnabled(canary())).toBe(false);
   for(const hash of ['', 'invalid','e'.repeat(64)])expect(()=>productionCloudConfiguration(canary(hash))).toThrow();
   expect(()=>productionCloudConfiguration({...canary(),MYEVE_PRODUCTION_VALIDATION_CONFIG:env.MYEVE_PRODUCTION_VALIDATION_CONFIG})).toThrow('PRODUCTION_AUTHORITY_CONFLICT');
+ });
+ it('expired approval preserves exact cleanup configuration while denying productive admission',()=>{
+  const expired={...envelope,expiresAt:new Date(0).toISOString()},hash=digest(expired);
+  const environment={...canary(hash),MYEVE_PRODUCTION_CANARY_CONFIG:JSON.stringify({...original,mode:'CLOUD_PRODUCTION_CANARY',authorizationSha256:hash,authorizationEnvelope:expired})};
+  expect(productionCloudConfiguration(environment).work).toEqual(original.work);
+  expect(()=>assertProductionApproval(expired,hash)).toThrow('PRODUCTION_APPROVAL_INVALID');
  });
  it('returns absent when only validation is authorized',async()=>{
   const response=await handleProductionCanary(new Request('https://sofie-personal-agent.vercel.app/api/production-canary',{method:'POST',headers:{origin:'https://sofie-personal-agent.vercel.app'}}));

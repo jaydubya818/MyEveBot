@@ -1,3 +1,4 @@
+import {assertProductionApproval} from '../lib/engineering/production-approval.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {FactoryValidationLifecycle, type ValidationClaim} from '../lib/engineering/factory-validation-lifecycle.ts';
 import {WorkStore} from '../lib/engineering/store.ts';
@@ -15,7 +16,7 @@ export interface GrantApproval {
   canonicalSpendPlan:Record<string,unknown>;
   manifestTemplate:Record<string,any>;
   installation:{projectId:string;databaseResourceId:string;custodyStoreId:string};
-  historicalGrants:{requestId:string;workId:string;manifestSha256:string}[];
+  historicalGrants:{requestId:string;workId:string;manifestSha256:string;consumedAt?:string|null}[];
 }
 export type GrantAudit = (event:Record<string,unknown>)=>Promise<void>;
 class BoundaryFailure extends Error {}
@@ -39,15 +40,20 @@ function snapshot(row:Record<string,any>|undefined){
 export async function materializeValidationGrant(
   owner:OperatorClient, factory:OperatorClient, approved:GrantApproval, audit:GrantAudit,
   bounds:{maxAttempts?:number;maxWaitMs?:number;waitMs?:number}={},
+  productionApproval?:{envelope:unknown;sha256:string},
 ){
   const a=structuredClone(approved),t=a.manifestTemplate,r=t.request;
-  if(t.version!==1||t.clientId!=='sofie-production-validation'||t.environment!=='CLOUD_PRODUCTION'||t.publication!==false||
+  if(productionApproval){
+   const exact=assertProductionApproval(productionApproval.envelope,productionApproval.sha256);
+   if(!same(exact,a))fail('APPROVAL_MISMATCH');
+  }
+  if(!productionApproval&&(t.version!==1||t.clientId!=='sofie-production-validation'||t.environment!=='CLOUD_PRODUCTION'||t.publication!==false||
     t.contractSha256!=='cbbcdfb560bf24c41ed1be83a5a06e5ba42610cbce9b8caccd272392337e27d3'||
     t.configurationDigest!=='d7486299b1470e1c70b35a838f1e11b458ca70d37426d3a15adca2e96f7357b3'||
     t.candidateSha256!=='30d9b2af5a611565dffebcc3d35510c3975067284ac2ff52db81fc4201ab99a6'||
     r.requestId!==null||r.deadline!==null||r.protocol!=='MYFACTORY_EXECUTION_V2'||
     !Number.isInteger(a.workVersion)||a.workVersion<1||!Number.isInteger(r.workGeneration)||r.workGeneration<1||
-    t.factoryVersion!==digest({sourceDigest:t.sourceDigest,configurationDigest:t.configurationDigest}))fail('APPROVAL_INVALID');
+    t.factoryVersion!==digest({sourceDigest:t.sourceDigest,configurationDigest:t.configurationDigest})))fail('APPROVAL_INVALID');
   const maxAttempts=bounds.maxAttempts??60,maxWaitMs=bounds.maxWaitMs??30000,waitMs=bounds.waitMs??250;
   if(!Number.isFinite(maxWaitMs)||!Number.isFinite(waitMs)||!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>120||maxWaitMs<0||maxWaitMs>30000||waitMs<1||waitMs>500)fail('WAIT_BOUND_INVALID');
   const started=performance.now(),key='myeve:factory-worker:'+t.ownerScope;
@@ -93,6 +99,10 @@ export async function materializeValidationGrant(
         if(failed.some(name=>!allowedWait.has(name)))fail(failed.find(name=>!allowedWait.has(name))!);
         if(current&&['HALTED','COMPLETED'].includes(current.state))fail('TERMINAL_ATTEMPT');
         if(current&&current.state==='WAITING_GRANT'){
+          if(productionApproval){
+           assertProductionApproval(productionApproval.envelope,productionApproval.sha256,new Date(current.observed_at).getTime());
+           if(new Date(current.deadline).getTime()>Date.parse((productionApproval.envelope as any).expiresAt)||p.authorizationEnvelopeSha256!==productionApproval.sha256||current.grant_sha256)fail('APPROVAL_OR_REPLAY_BINDING');
+          }
           const canonical=await store.get(r.workId);
           if(!same(canonical.criteria,a.criteria)||work.repository!==r.repository||work.title!==r.input.title||work.objective!==r.input.description)fail('WORK_BINDING');
           const expectedRequest={spendContract:a.canonicalSpendPlan,requestId:p.request.requestId,workId:r.workId,workGeneration:r.workGeneration,repository:r.repository,deadline:iso(current.deadline),maxSpendUsd:r.maxSpendUsd,
@@ -102,6 +112,7 @@ export async function materializeValidationGrant(
           const remaining=new Date(current.deadline).getTime()-new Date(current.observed_at).getTime();
           if(remaining>180000)fail('DEADLINE_EXCEEDS_APPROVAL');
           manifest={...t,request:{...r,requestId:current.request_id,deadline:iso(current.deadline)}};
+          if(productionApproval)manifest={...manifest,version:2,authorizationEnvelope:productionApproval.envelope,authorizationEnvelopeSha256:productionApproval.sha256};
           lifecycle=new FactoryValidationLifecycle(store,current.decision_id);
           const claimed=await lifecycle.claim();if(claimed.state!=='CLAIMED')fail('CLAIM_NOT_ACQUIRED');
           claim=claimed.claim;phase='CLAIM_COMMIT_PENDING';
@@ -125,16 +136,16 @@ export async function materializeValidationGrant(
     const env=(await factory.query('SELECT * FROM factory.environment WHERE singleton')).rows[0];
     if(!env||env.environment!=='production'||env.owner_scope!==t.ownerScope||env.project_id!==a.installation.projectId||env.database_resource_id!==a.installation.databaseResourceId||env.custody_store_id!==a.installation.custodyStoreId)fail('PRODUCTION_DATABASE_BOUNDARY');
     const rows=(await factory.query('SELECT * FROM factory.production_work_authority ORDER BY request_id FOR UPDATE')).rows;
-    for(const h of a.historicalGrants){if(!rows.some(row=>row.request_id===h.requestId&&row.work_id===h.workId&&row.consumed_at===null&&row.state==='REVOKED'&&row.manifest_sha256===h.manifestSha256&&digest(row.manifest)===h.manifestSha256))fail('HISTORICAL_AUTHORITY_CHANGED');}
+    for(const h of a.historicalGrants){if(!rows.some(row=>row.request_id===h.requestId&&row.work_id===h.workId&&row.state==='REVOKED'&&iso(row.consumed_at)===(h.consumedAt??null)&&row.manifest_sha256===h.manifestSha256&&digest(row.manifest)===h.manifestSha256))fail('HISTORICAL_AUTHORITY_CHANGED');}
     const existing=rows.find(row=>row.request_id===manifest!.request.requestId);
-    if(rows.some(row=>row!==existing&&!a.historicalGrants.some(h=>row.request_id===h.requestId&&row.work_id===h.workId&&row.consumed_at===null&&row.state==='REVOKED'&&row.manifest_sha256===h.manifestSha256&&digest(row.manifest)===h.manifestSha256)))fail('UNEXPECTED_AUTHORITY');
+    if(rows.some(row=>row!==existing&&!a.historicalGrants.some(h=>row.request_id===h.requestId&&row.work_id===h.workId&&row.state==='REVOKED'&&iso(row.consumed_at)===(h.consumedAt??null)&&row.manifest_sha256===h.manifestSha256&&digest(row.manifest)===h.manifestSha256)))fail('UNEXPECTED_AUTHORITY');
     if(existing&&(existing.state!=='AUTHORIZED'||existing.consumed_at!==null||existing.manifest_sha256!==digest(manifest)||!same(existing.manifest,manifest)))fail('EXISTING_AUTHORITY_NOT_REUSABLE');
     if((await factory.query('SELECT 1 FROM factory.work_spend_operations LIMIT 1')).rows.length||
       (await factory.query('SELECT 1 FROM factory.intake_receipts WHERE request_id=$1 LIMIT 1',[manifest.request.requestId])).rows.length)fail('UNEXPECTED_EXECUTION');
     await owner.query('BEGIN');ownerTransaction=true;
     await owner.query(`SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 FOR UPDATE`,[t.ownerScope,r.workId]);
     await lifecycle.assertActive(claim,true);
-    const clock=async()=>{const [row]=(await factory.query('SELECT clock_timestamp()<$1::timestamptz AS live',[manifest!.request.deadline])).rows;if(!row.live)fail('DEADLINE_EXPIRED');};
+    const clock=async()=>{if(productionApproval)assertProductionApproval(productionApproval.envelope,productionApproval.sha256);const [row]=(await factory.query('SELECT clock_timestamp()<$1::timestamptz AS live',[manifest!.request.deadline])).rows;if(!row.live)fail('DEADLINE_EXPIRED');};
     await clock();
     if(!existing)await factory.query(`INSERT INTO factory.production_work_authority(request_id,work_id,client_id,manifest,manifest_sha256,state) VALUES($1,$2,$3,$4,$5,'AUTHORIZED')`,[manifest.request.requestId,r.workId,t.clientId,manifest,digest(manifest)]);
     await lifecycle.assertActive(claim);await clock();
@@ -146,7 +157,7 @@ export async function materializeValidationGrant(
     await lifecycle.assertActive(claim);await clock();
     await emit({event:'ACTIVATION_COMMIT_DECISION',authorityDigest:digest(manifest)});
     await lifecycle.assertActive(claim);await clock();
-    await lifecycle.finish(claim,'WAITING_GRANT');
+    await lifecycle.finish(claim,'WAITING_GRANT',productionApproval?digest(manifest):undefined);
     phase='ACTIVATION_COMMIT_PENDING';await owner.query('COMMIT');ownerTransaction=false;phase='ACTIVATED';
     await emit({event:'INSTALLED',authorityDigest:digest(manifest),alreadyPresent:!!existing});
     return {state:'INSTALLED' as const,requestId:manifest.request.requestId,deadline:manifest.request.deadline,manifestSha256:digest(manifest),alreadyPresent:!!existing};
