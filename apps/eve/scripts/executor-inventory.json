@@ -3981,8 +3981,8 @@
     },
     "lib/engineering/production-validation.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
-      "sha256": "d43529b4edcde06dd808010eb1cd008771d18f63560f18e6cdb05f5efaabde89"
+      "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Independently reviewed source-upgrade compatibility: GET after COMPLETED retains historical source/FactoryVersion with current read transport; POST execution pins unchanged; owner/Work/receipt/evidence isolation regressions pass.",
+      "sha256": "7616bc8abb3886b7c7e41f67630156bc05b7af43609afbded08ef0043822ebb6"
     },
     "lib/engineering/production-evidence-isolation.ts": {
       "classification": "ENFORCED",
