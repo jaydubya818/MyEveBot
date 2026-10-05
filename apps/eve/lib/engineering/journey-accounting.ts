@@ -32,8 +32,9 @@ export function summarizeJourneyAccounting(workId:string, calls:Call[], observat
     for(const op of spend.operations){
       const previous=operations.get(op.operationId),hash=digest(op);
       const {state,actualMicrousd,providerRequestId,usage,...binding}=op,identity=digest(binding);
-      const rank={reserved:0,dispatched:1,unknown:2,settled:3};
+      const rank={reserved:0,dispatched:1,unknown:2,settled:3,released:3};
       if(previous){
+        if((state==='released'&&!['reserved','released'].includes(previous.state))||(previous.state==='released'&&!['reserved','released'].includes(state)))throw Error('Exposed operation cannot be released');
         if(previous.identity!==identity || (previous.state===state&&previous.hash!==hash))throw Error('Conflicting Factory ledger operation');
         if(rank[previous.state as keyof typeof rank]>=rank[state])continue;
       }
@@ -41,7 +42,7 @@ export function summarizeJourneyAccounting(workId:string, calls:Call[], observat
     }
   }
   for(const op of operations.values()){
-    if(op.state==='settled')factory+=number(op.actual);else {reserved+=op.reserve;if(op.state==='unknown')unknown+=op.reserve;}
+    if(op.state==='settled')factory+=number(op.actual);else if(op.state!=='released'){reserved+=op.reserve;if(op.state==='unknown')unknown+=op.reserve;}
   }
   return journeyAccountingSchema.parse({currency:'USD',unit:'microUSD',observedAt:new Date().toISOString(),sofieMicrousd:sofie,
     factoryMicrousd:factory,nativeMicrousd:native,settledMicrousd:sofie+native+factory,reservedMicrousd:reserved,

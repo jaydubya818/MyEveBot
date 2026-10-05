@@ -43,10 +43,10 @@ export class FactoryValidationLifecycle {
   })};
   return new WorkStore(this.store.principal,database);
  }
- async finish(claim:ValidationClaim,state:'IDLE'|'WAITING_GRANT'|'COMPLETED'){
+ async finish(claim:ValidationClaim,state:'IDLE'|'WAITING_GRANT'|'COMPLETED',grantSha256?:string){
   await this.assertActive(claim);
-  const [row]=await this.store.database.query(`UPDATE engineering_factory_validation_lifecycle SET state=$6,claim_token=NULL,lease_until=NULL
-   WHERE scope_id=$1 AND scope_kind=$2 AND decision_id=$3 AND state='IN_FLIGHT' AND claim_token=$4 AND claim_epoch=$5 AND lease_until>clock_timestamp() AND deadline>clock_timestamp() RETURNING decision_id`,[...this.scope(),claim.token,claim.epoch,state]);
+  const [row]=await this.store.database.query(`UPDATE engineering_factory_validation_lifecycle SET state=$6,claim_token=NULL,lease_until=NULL,grant_sha256=coalesce($7,grant_sha256)
+   WHERE scope_id=$1 AND scope_kind=$2 AND decision_id=$3 AND state='IN_FLIGHT' AND claim_token=$4 AND claim_epoch=$5 AND lease_until>clock_timestamp() AND deadline>clock_timestamp() RETURNING decision_id`,[...this.scope(),claim.token,claim.epoch,state,grantSha256??null]);
   if(!row)throw Error('VALIDATION_CLAIM_FENCED');
  }
  async halt(reason:string,claim?:ValidationClaim){

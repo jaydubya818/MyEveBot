@@ -1,3 +1,5 @@
+import {productionCloudConfiguration} from './production-runtime-guard.ts';
+import {assertProductionApproval} from './production-approval.ts';
 import {FactoryValidationLifecycle,saveValidationPreparation} from './factory-validation-lifecycle.ts';
 import { FactoryEvidenceStore } from "./factory-evidence-store.ts";
 import { FactoryEvidenceClient, EvidenceWaiting } from "./factory-evidence.ts";
@@ -24,7 +26,8 @@ import {WorkError} from './types.ts';
 
 // Read-only credential renewal cannot change frozen execution authority.
 export function factoryExecutionConfigurationHash(config: FactoryRuntime) {
- const {evidence,...connection}=config.connection;
+ const {evidence,...rawConnection}=config.connection;
+ const {authorizationEnvelopeSha256:_,...connection}=rawConnection as typeof rawConnection & {authorizationEnvelopeSha256?:string};
  return digest({...config,connection:{...connection,...(evidence?{evidence:{ownerScope:evidence.ownerScope}}:{})}});
 }
 
@@ -78,8 +81,15 @@ export class FactoryWorkDriver {
   }
   const prepare:FactoryPrepareRequest= {...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
    input:{title:work.title,description:work.objective,kind:'feature',...('source' in config.connection?{}:{repositoryPath:config.connection.repositoryPath}),baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'source' in config.connection?'container':'mac'}};
-  const validation='releaseValidation' in config.connection;
-  const preparation=JSON.stringify({request:prepare,configurationHash:factoryExecutionConfigurationHash(config),...(validation?{validationProtocol:2}:{}),...(snapshot.environment?{environment:snapshot.environment}:{})});
+  const validation='releaseValidation' in config.connection||'productionCanary' in config.connection;
+  if('productionCanary' in config.connection){
+   const pin=productionCloudConfiguration();
+   if(pin.mode!=='CLOUD_PRODUCTION_CANARY')throw Error('PRODUCTION_APPROVAL_REQUIRED');
+   const approval=assertProductionApproval(pin.authorizationEnvelope,pin.authorizationSha256);
+   if(approval.workVersion!==work.version||approval.manifestTemplate.request.workId!==id||approval.manifestTemplate.request.workGeneration!==work.generation||approval.configurationHash!==factoryExecutionConfigurationHash(config))throw Error('PRODUCTION_APPROVAL_BINDING');
+   if(Date.parse(prepare.deadline)>Date.parse(String(pin.authorizationEnvelope.expiresAt)))throw Error('PRODUCTION_APPROVAL_EXPIRES');
+  }
+  const preparation=JSON.stringify({request:prepare,...('productionCanary' in config.connection?{authorizationEnvelopeSha256:config.connection.authorizationEnvelopeSha256}:{}),configurationHash:factoryExecutionConfigurationHash(config),...(validation?{validationProtocol:2}:{}),...(snapshot.environment?{environment:snapshot.environment}:{})});
   const save=`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
    WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING *`;
   const saved=validation?await saveValidationPreparation(this.store,id,decision.id,preparation):(await this.store.database.query(save,[...this.scope(id),decision.id,preparation]))[0];
@@ -89,7 +99,7 @@ export class FactoryWorkDriver {
  async step(id:string){
   const decision=await this.decision(id),preparation=decision?.factory_preparation;
   const config=await this.authority.readConfig();
-  const validation='releaseValidation' in config.connection||preparation?.validationProtocol!==undefined||preparation?.validationState!==undefined;
+  const validation='releaseValidation' in config.connection||'productionCanary' in config.connection||preparation?.validationProtocol!==undefined||preparation?.validationState!==undefined;
   if(!validation)return this.stepAttempt(id);
   // Historical failed attempts remain untouched; never enroll them in a new lifecycle.
   if(preparation?.validationProtocol!==2||preparation?.validationState!==undefined)return {state:'HALTED'};
@@ -99,6 +109,9 @@ export class FactoryWorkDriver {
   const halt=async(reason:string)=>{const fenced=await lifecycle.halt(reason,claimed.claim);if(fenced){try{await this.stop(id);}catch{}}return {state:'HALTED'};};
   try{
    await assertActive();
+   if('productionCanary' in config.connection&&!(await lifecycle.read())?.grant_sha256){
+    await lifecycle.finish(claimed.claim,'WAITING_GRANT');return {state:'WAITING_FOR_AUTHORITY'};
+   }
    const result=await this.stepAttempt(id,assertActive,lifecycle.fencedStore(claimed.claim));
    await assertActive();
    if('result' in result&&result.state==='PARTIAL'){await lifecycle.finish(claimed.claim,'COMPLETED');return result;}

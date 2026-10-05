@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "observedAt": "2026-10-05T07:24:03.299Z",
+  "workId": "fc90e84f-d5b0-4240-aa9e-7d3c59024ed9",
+  "preparationSha256": "f582342fca8120e959e51802a4a4b53062dfdac570eed5a66ff7a200f5beba09",
+  "lifecycle": {
+    "state": "HALTED",
+    "claim_epoch": "20",
+    "request_id": "a1e4a6e6-d8b4-4513-a664-685d95f32636",
+    "deadline": "2026-10-05T06:16:51.062Z",
+    "updated_at": "2026-10-05T06:16:55.869Z"
+  }
+}

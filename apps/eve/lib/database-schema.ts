@@ -1,1 +1,1 @@
-export const CURRENT_DATABASE_MIGRATION = "0081_factory_validation_lifecycle.sql";
+export const CURRENT_DATABASE_MIGRATION = "0082_factory_concrete_grant_binding.sql";

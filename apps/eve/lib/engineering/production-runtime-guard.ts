@@ -1,3 +1,4 @@
+import {assertProductionApproval} from './production-approval.ts';
 import {z} from 'zod';
 import {productionInstallation} from './production-installation.ts';
 
@@ -20,7 +21,7 @@ export function productionValidationConfiguration(env:NodeJS.ProcessEnv=process.
 export function productionCanaryEnabled(env:NodeJS.ProcessEnv=process.env){
  return env.VERCEL==='1'&&env.VERCEL_ENV==='production'&&env.VERCEL_PROJECT_ID==='prj_L6faw25wnFGUZtrLKBIccg8gIDLR'&&!!env.MYEVE_PRODUCTION_CANARY_CONFIG&&/^[a-f0-9]{64}$/.test(env.MYEVE_PRODUCTION_CANARY_AUTHORIZATION_SHA256??'');
 }
-const canarySchema=configSchema.extend({mode:z.literal('CLOUD_PRODUCTION_CANARY'),authorizationSha256:z.string().regex(/^[a-f0-9]{64}$/)}).strict();
+const canarySchema=configSchema.extend({mode:z.literal('CLOUD_PRODUCTION_CANARY'),authorizationSha256:z.string().regex(/^[a-f0-9]{64}$/),authorizationEnvelope:z.record(z.string(),z.unknown())}).strict();
 export function productionCloudEnabled(env:NodeJS.ProcessEnv=process.env){return productionValidationEnabled(env)||productionCanaryEnabled(env);}
 export function productionCloudConfiguration(env:NodeJS.ProcessEnv=process.env){
  if(productionValidationEnabled(env)){
@@ -32,5 +33,7 @@ export function productionCloudConfiguration(env:NodeJS.ProcessEnv=process.env){
  const raw=env.MYEVE_PRODUCTION_CANARY_CONFIG!;if(Buffer.byteLength(raw)>100000)throw Error('PRODUCTION_CANARY_CONFIG_BOUND');
  const config=canarySchema.parse(JSON.parse(raw));
  if(config.authorizationSha256!==env.MYEVE_PRODUCTION_CANARY_AUTHORIZATION_SHA256)throw Error('PRODUCTION_CANARY_AUTHORITY_MISMATCH');
+ const approval=assertProductionApproval(config.authorizationEnvelope,config.authorizationSha256,Date.now(),false);
+ if(approval.manifestTemplate.request.workId!==config.work.id||approval.manifestTemplate.request.workGeneration!==config.work.generation)throw Error('PRODUCTION_APPROVAL_WORK');
  return config;
 }
