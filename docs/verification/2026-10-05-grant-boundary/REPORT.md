@@ -61,6 +61,8 @@ The audit path must not already exist. The CLI prints only non-secret outcome/di
 
 All repair qualification gates passed before creating new canonical Work `a6f0b486-918d-4be2-8ba8-6a4d762707a7`, version/generation **2/2**. Only its requested Work metadata was written. Its production configuration remains a local draft. The existing production controller remains pinned to failed Attempt 2. Readback confirms zero commands, routing decisions or lifecycles for the new Work, with request ID and deadline unset and no Factory grant. Work metadata being active/agent is not execution authority.
 
-`AUTHORIZATION-ENVELOPE.json` has canonical JSON digest **acc286760f4c689a30b5063dee0d9ceb4199e2ad419f56ced2506d8f2b9bc701**. It pins operator source `c6a09f43c76ba2db11cb9aa1054f3a85f0a86c62`, the unchanged deployed application SHAs, exact model-free source/candidate/FactoryVersion/environment bindings, and one attempt of at most180 seconds. Both historical attempts remain preserved.
+`AUTHORIZATION-ENVELOPE.json` has canonical JSON digest **37d870bb877bd9fc4adf1febe5761148098b5cc72885864d90aec1009036b1aa**. It pins operator source `c6a09f43c76ba2db11cb9aa1054f3a85f0a86c62`, the unchanged deployed application SHAs, exact model-free source/candidate/FactoryVersion/environment bindings, and one attempt of at most180 seconds. Both historical attempts remain preserved.
 
 This envelope needs explicit owner approval before any configuration installation, start command, request UUID, deadline, grant or write window. No paid canary was prepared. Production is not declared READY on the strength of local qualification.
+
+The final envelope explicitly requires a same-SHA MyEve configuration redeployment after approval. Project environment edits alone do not replace the running deployment’s configuration. Its deployment ID, unchanged source SHA and exact new configuration must be read back before any start/request/deadline/grant. No such redeployment has been performed.

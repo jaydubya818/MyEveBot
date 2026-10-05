@@ -1,6 +1,6 @@
 {
   "status": "DRAFT_NOT_INSTALLABLE_UNTIL_APPROVED_ACTIVATION",
-  "envelopeSha256": "acc286760f4c689a30b5063dee0d9ceb4199e2ad419f56ced2506d8f2b9bc701",
+  "envelopeSha256": "37d870bb877bd9fc4adf1febe5761148098b5cc72885864d90aec1009036b1aa",
   "manifestTemplate": {
     "version": 1,
     "clientId": "sofie-production-validation",

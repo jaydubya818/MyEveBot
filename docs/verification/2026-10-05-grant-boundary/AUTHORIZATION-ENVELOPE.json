@@ -26,7 +26,20 @@
     "factoryDatabaseResourceId": "dry-morning-22844424",
     "factoryDatabaseStoreId": "store_vUOtU0sIkDLU6TY4",
     "factoryCustodyStoreId": "store_qBuivS8MmRxnBNnU",
-    "environment": "CLOUD_PRODUCTION"
+    "environment": "CLOUD_PRODUCTION",
+    "configurationRedeployment": {
+      "requiredAfterApproval": true,
+      "projectId": "prj_L6faw25wnFGUZtrLKBIccg8gIDLR",
+      "sourceSha": "a3a92e749227abf20b223433104b4fba88c36d97",
+      "configurationSha256": "e879f3a63d02295ad917078e5f40bcde13c82d6f65f82acdc1c683b6fb85023d",
+      "purpose": "Install exact new Work configuration into production runtime; not a generated application deployment",
+      "mustCompleteBefore": [
+        "startCommand",
+        "requestId",
+        "deadline",
+        "grant"
+      ]
+    }
   },
   "migration": {
     "name": "0081_factory_validation_lifecycle.sql",
@@ -133,9 +146,9 @@
   },
   "activationRules": [
     "Separate owner approval of this exact envelope is required. No request UUID, deadline, grant or start command currently exists for this Work.",
-    "Production application pins remain MyEve a3a92e7 and MyFactory a591127a. No application deployment or migration is required for this operator-only correction; verify current pins, migration 0081 checksums, exact owner/resources, preparation guard, zero reusable grants/paid/publication and General Work disabled before activation.",
+    "The operator correction requires no production application code change or migration. After exact owner approval, install the new Work configuration and perform one operator installation redeployment of canonical MyEve a3a92e749227abf20b223433104b4fba88c36d97 so the production runtime receives it. MyFactory remains a591127a26f3d134289f9a3a4a4a8bd2a8628f41. Before any start/request/deadline/grant, read back the new production deployment ID, unchanged canonical source SHA, exact new configuration digest, migration0081 checksums, owner/resources, preparation guard, zero reusable grants/paid/publication and General Work disabled.",
     "Prepare and qualify dedicated unpooled TLS MyEve and Factory operator connections plus independent cleanup/readback access before any start. Verify hosts against the qualified installation, keep credentials mode0600/server-side, and do not open a write window until separately approved.",
-    "Install only the new exact Work/generation model-free configuration after approval; read back its digest. Runtime tokens must match the separately provisioned identities used by the reviewed configuration digest; any credential drift requires preflight failure and reconciliation before activation.",
+    "Install only this new exact Work/generation model-free configuration after approval. A Vercel project environment edit alone is insufficient: the same-SHA production configuration redeployment and readback must complete before starting Work. Runtime tokens must match separately provisioned identities used by the reviewed configuration digest; drift or mismatch fails preflight before activation.",
     "After preflight, permit exactly one canonical start command. The canonical controller alone generates the single request UUID and original deadline, at most180 seconds. Never substitute, regenerate, extend or revive either historical attempt.",
     "Use only the pinned canonical operator CLI and exact approved manifest template. Require the fresh finite preflight receipt and a new exclusive audit file. Each preliminary/locked decision records bounded non-secret predicates and transaction/fencing identity.",
     "Wait only before an operator claim, within the original deadline and at most60 iterations/30 seconds. Claim only an exact live WAITING_GRANT lifecycle using its existing durable token/epoch/lease; never renew or reclaim that lease.",
@@ -185,11 +198,12 @@
     },
     "invocation": "apps/eve/scripts/production-validation-grant.ts",
     "installation": "NOT_RUN",
-    "runtimeDeploymentRequired": false,
     "leaseSecondsMaximum": 45,
     "waitMillisecondsMaximum": 30000,
     "waitAttempts": 60,
-    "waitOccursBeforeClaimOnly": true
+    "waitOccursBeforeClaimOnly": true,
+    "applicationCodeChangeRequired": false,
+    "sameShaConfigurationDeploymentRequired": true
   },
   "materializer": {
     "workVersion": 2,
