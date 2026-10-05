@@ -27,7 +27,7 @@ export async function runCloudController(message:ControllerMessage){
   const [lock]=await store.database.query("SELECT pg_try_advisory_lock(hashtextextended('myeve:factory-worker:' || $1,0)) AS acquired",[owner]);
   if(!lock?.acquired)return;
   await consumeFactoryCommands(store,(id,input)=>executeFactoryCommand(store,id,input),production?.work);
-  const rows=await store.database.query(`SELECT d.work_id,w.version,w.generation FROM engineering_routing_decisions d
+  const rows=await store.database.query(`SELECT d.work_id,w.version,w.generation,d.factory_preparation->>'validationState' AS validation_state FROM engineering_routing_decisions d
    JOIN engineering_work w ON w.id=d.work_id AND w.scope_id=d.scope_id AND w.scope_kind=d.scope_kind
    WHERE d.scope_id=$1 AND d.scope_kind='personal' AND d.work_version=w.version AND d.factory_preparation IS NOT NULL
    AND ($2::uuid IS NULL OR (w.id=$2 AND w.generation=$3))
@@ -37,6 +37,8 @@ export async function runCloudController(message:ControllerMessage){
   for(const row of rows){
    if(production&&row.work_id!==production.work.id)continue;
    const driver=await factoryRuntime(store);
+   if(row.validation_state==='COMPLETED')continue;
+   if(row.validation_state==='HALTED'){try{await driver.stop(row.work_id,'cancel');}catch{}continue;}
    const stops=await store.database.query("SELECT operation FROM engineering_factory_commands WHERE scope_id=$1 AND scope_kind='personal' AND work_id=$2 AND work_version=$3 AND work_generation=$4 AND operation IN ('stop','takeover') ORDER BY created_at DESC LIMIT 1",[owner,row.work_id,row.version,row.generation]);
    try{if(stops.length)await driver.stop(row.work_id,stops[0].operation==='takeover'?'takeover':'cancel');await driver.step(row.work_id);}
    catch{/* Canonical driver retains blocked state. Next delivery only reconciles the same attempt. */}

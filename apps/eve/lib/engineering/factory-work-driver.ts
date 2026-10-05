@@ -9,7 +9,7 @@ import {decideExecutionRoute} from '../digital-worker/routing.ts';
 import {RoutingStore} from './routing-store.ts';
 import {RouteAdmissionService} from './route-admission.ts';
 import {FactoryRouteAuthority,type FactoryRuntime} from './factory-routing.ts';
-import {LiveFactoryAdapter,repairWorkOrderFor,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
+import {LiveFactoryAdapter,FactoryValidationGrantPending,repairWorkOrderFor,type FactoryPrepareRequest,type FactoryConnection} from './factory-live-adapter.ts';
 import {FactoryWriterStore} from './factory-writer.ts';
 import {FactoryReceiptStore} from './factory-receipt-store.ts';
 import {prepareAuthenticatedFactoryInput} from './factory-authenticated-result.ts';
@@ -78,11 +78,42 @@ export class FactoryWorkDriver {
   const prepare:FactoryPrepareRequest= {...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
    input:{title:work.title,description:work.objective,kind:'feature',...('source' in config.connection?{}:{repositoryPath:config.connection.repositoryPath}),baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'source' in config.connection?'container':'mac'}};
   const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
-   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:factoryExecutionConfigurationHash(config),...(snapshot.environment?{environment:snapshot.environment}:{})})]);
+   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:factoryExecutionConfigurationHash(config),...('releaseValidation' in config.connection?{validationState:'IDLE'}:{}),...(snapshot.environment?{environment:snapshot.environment}:{})})]);
   if(!saved&&!((await this.decision(id))?.factory_preparation))throw new WorkError('factory_prepare_changed','Preparation changed before it was persisted.');
   return this.step(id);
  }
  async step(id:string){
+  const decision=await this.decision(id),preparation=decision?.factory_preparation;
+  if(!preparation?.validationState)return this.stepAttempt(id);
+  if(preparation.validationState==='COMPLETED')return {state:'COMPLETED'};
+  const halt=async(reason:string)=>{
+   await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=factory_preparation||$5::jsonb
+    WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4`,[...this.scope(id),decision.id,JSON.stringify({validationState:'HALTED',validationFailure:reason})]);
+   // Stop is cleanup only. A failed stop never clears the durable execution halt.
+   try{await this.stop(id);}catch{}
+   return {state:'HALTED'};
+  };
+  if(preparation.validationState==='HALTED')return halt(preparation.validationFailure??'VALIDATION_HALTED');
+  if(preparation.validationState==='IN_FLIGHT')return halt('VALIDATION_INTERRUPTED');
+  if(!Number.isFinite(Date.parse(preparation.request.deadline))||Date.parse(preparation.request.deadline)<=Date.now())return halt('VALIDATION_DEADLINE_EXPIRED');
+  const [claimed]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"')
+   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND factory_preparation->>'validationState' IN ('IDLE','WAITING_GRANT') RETURNING id`,[...this.scope(id),decision.id]);
+  if(!claimed)return {state:'HALTED'};
+  const finish=async(state:string)=>this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}',$5::jsonb)
+   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND factory_preparation->>'validationState'='IN_FLIGHT'`,[...this.scope(id),decision.id,JSON.stringify(state)]);
+  try{
+   const result=await this.stepAttempt(id);
+   if('result' in result&&result.state==='PARTIAL'){await finish('COMPLETED');return result;}
+   if(result.state!=='DISPATCHED')return halt('VALIDATION_UNPROVEN_RESULT');
+   await finish('IDLE');return result;
+  }catch(error){
+   if(error instanceof FactoryValidationGrantPending&&decision.status==='PROPOSED'&&Date.parse(preparation.request.deadline)>Date.now()){
+    await finish('WAITING_GRANT');return {state:'WAITING_FOR_AUTHORITY'};
+   }
+   await halt(error instanceof Error?error.message:'VALIDATION_FAILURE');throw error;
+  }
+ }
+ private async stepAttempt(id:string){
   let decision=await this.decision(id);
   if(!decision?.factory_preparation)return {state:'NOT_PREPARED'};
   const work=await this.store.get(id),config=await this.authority.readConfig(),adapter=this.adapterFor(config.connection);
@@ -92,7 +123,7 @@ export class FactoryWorkDriver {
    if(preparation.configurationHash!==factoryExecutionConfigurationHash(config))throw new WorkError('factory_configuration_changed','Retained Factory configuration changed; reconcile without redispatch.');
    if(decision.status==='PROPOSED'){
     const response=await adapter.prepare(preparation.request);await this.observation(id,decision.id,response);
-    if(!response.snapshot)return {state:response.state};
+    if(!response.snapshot){if(decision.factory_preparation.validationState)throw Error('VALIDATION_SNAPSHOT_MISSING');return {state:response.state};}
     assertFactorySpendCanStart(response.spend);
     const s=response.snapshot;
     const binding=prepareAuthenticatedFactoryInput({workId:id,workVersion:work.version,workGeneration:work.generation,criteriaVersion:work.criteriaVersion,agentId:config.engineering.agentId,
@@ -122,6 +153,7 @@ export class FactoryWorkDriver {
    const prepared=await adapter.prepared(preparation.request);
    if(!prepared.identity&&prepared.state==='PREPARED'&&['UNKNOWN','STOPPING'].includes(run.dispatch_state))await this.writers.stop(run,adapter,'cancel');
    const remote=await adapter.read(identity);await this.observation(id,decision.id,remote);
+   if(decision.factory_preparation.validationState&&(remote.state==='UNKNOWN'||run.dispatch_state==='UNKNOWN'))throw Error('VALIDATION_EXECUTION_UNKNOWN');
    if(['UNKNOWN','STOPPING'].includes(run.dispatch_state)||Date.parse(identity.deadline)<=Date.now()){
     if(Date.parse(identity.deadline)<=Date.now()&&run.dispatch_state!=='TERMINAL')await this.writers.stop(run,adapter,'timeout');
    }
@@ -153,6 +185,7 @@ export class FactoryWorkDriver {
    const candidate=ws.candidates.at(-1)!;
    const job=await verification.inspectJob(id,candidate.sha);
    if(job?.status==='RECOVERY_REQUIRED'){
+    if(decision.factory_preparation.validationState)throw Error('VALIDATION_VERIFICATION_INTERRUPTED');
     // CLOUD only reprojects an already destroyed verifier's signed receipt. No
     // provider execution is repeated and no local Docker fallback is permitted.
     const inspector='source' in config.connection?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
@@ -165,7 +198,7 @@ export class FactoryWorkDriver {
    await this.observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
    return {state:result.proof.outcome,result};
   }catch(error){
-   if(error instanceof EvidenceWaiting){
+   if(error instanceof EvidenceWaiting&&!decision.factory_preparation.validationState){
     await this.observation(id,decision.id,{...(await this.decision(id))?.factory_observation?.value,state:'WAITING_FOR_EVIDENCE',reason:error.message});
     return {state:'WAITING_FOR_EVIDENCE'};
    }

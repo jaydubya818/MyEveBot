@@ -47,6 +47,7 @@ export function repairWorkOrderFor(config:FactoryConnection,work:{id:string;vers
 }
 /** Extends the existing authenticated loopback producer channel. Configuration
  * pins come from reviewed server configuration, never a result or model reply. */
+export class FactoryValidationGrantPending extends Error {}
 export class LiveFactoryAdapter implements FactoryExecutionTransport {
  readonly config:FactoryConnection;
  private readonly fetcher:typeof fetch;
@@ -60,7 +61,13 @@ export class LiveFactoryAdapter implements FactoryExecutionTransport {
  private async request(path:string,body?:unknown):Promise<FactoryReadback>{
   const response=await this.fetcher(new URL(this.transport.prefix+'/dispatches'+path,this.transport.origin),{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(15000),
    headers:{...await factoryRequestHeaders(this.config),'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
-  if(!response.ok)throw Error('Factory control unavailable ('+response.status+'); reconcile the same request');
+  if(!response.ok){
+   if('releaseValidation' in this.config&&this.config.releaseValidation&&path===''&&body&&response.status===403){
+    const denial=await boundedJson(response,1024) as Record<string,unknown>;
+    if(Object.keys(denial).sort().join(',')==='admission,error'&&denial.error==='PRODUCTION_VALIDATION_GRANT_PENDING'&&denial.admission==='DISABLED')throw new FactoryValidationGrantPending('Waiting for the exact operator validation grant');
+   }
+   throw Error('Factory control unavailable ('+response.status+'); reconcile the same request');
+  }
   const data=readbackSchema.parse(await boundedJson(response,128000)) as unknown as FactoryReadback;
   if(isWorkSpend(data.spend)){
    if(this.config.spendContract?.version!==(isWorkSpendV2(data.spend)?'WORK_LEDGER_V2':'WORK_LEDGER_V1')||this.config.spendContract.sourceDigest!==this.config.sourceDigest)throw Error('Unreviewed Factory spend contract');
