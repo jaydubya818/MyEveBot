@@ -27,7 +27,7 @@ The databases do not share a transaction. Losing the Factory commit acknowledgem
 - Real PostgreSQL A–H, preparation immutability, mutable lifecycle, actual Factory intake authority, fresh full migration install and prior-lineage upgrade: PASS.
 - 42 real PostgreSQL cases + missing-grant classification + 19 operator preflight cases: **62/62 PASS**; independently rerun by the read-only reviewer.
 - Added tests include actual `FactoryWorkDriver.start()` serialization, two materializers, deadline crossing, halt/cancel, Factory lock contention, revoked history, restart, actual MyEve backend termination, lost Factory commit acknowledgement and lost activation acknowledgement.
-- Full ordinary Vitest corpus before adding 19 preflight cases: **2,123 PASS**, integration cases skipped without their dedicated environment.
+- Fresh clone of committed operator revision `c6a09f43c76ba2db11cb9aa1054f3a85f0a86c62`: **62 targeted PASS**, **2,142 ordinary Vitest PASS**, TypeScript PASS. 120 integration cases skip without their dedicated environments; the 42 PostgreSQL cases run separately with the explicit local database configuration. Executor governance: 791 classified sources, UNKNOWN=0.
 - Existing composed EvidenceProvider → Proof: **19 checks PASS**, real local HTTP/SQLite/Git/PostgreSQL and independent Docker verifier; provider calls 0. TestEvidence/DiffEvidence, durable owner custody, cross-owner/cross-Work denial and immutable candidate checked. This fixture also exercises 37 synthetic local publication mutations; it performs no live publication.
 - TypeScript: PASS.
 - Independent implementation/CLI review: **PASS**, no remaining concrete findings. This is not live production validation or paid-canary authorization.
@@ -56,3 +56,11 @@ node --import tsx scripts/production-validation-grant.ts --install \
 ```
 
 The audit path must not already exist. The CLI prints only non-secret outcome/digest metadata and never retries. Any failure after the durable claim requires exact independent lifecycle/grant readback, bounded halt/revocation/teardown, and Read-Only restoration. A fresh Work, deadline, lease or grant is not an error-recovery action. General Work and paid models remain disabled.
+
+## New approval envelope — not executed
+
+All repair qualification gates passed before creating new canonical Work `a6f0b486-918d-4be2-8ba8-6a4d762707a7`, version/generation **2/2**. Only its requested Work metadata was written. Its production configuration remains a local draft. The existing production controller remains pinned to failed Attempt 2. Readback confirms zero commands, routing decisions or lifecycles for the new Work, with request ID and deadline unset and no Factory grant. Work metadata being active/agent is not execution authority.
+
+`AUTHORIZATION-ENVELOPE.json` has canonical JSON digest **acc286760f4c689a30b5063dee0d9ceb4199e2ad419f56ced2506d8f2b9bc701**. It pins operator source `c6a09f43c76ba2db11cb9aa1054f3a85f0a86c62`, the unchanged deployed application SHAs, exact model-free source/candidate/FactoryVersion/environment bindings, and one attempt of at most180 seconds. Both historical attempts remain preserved.
+
+This envelope needs explicit owner approval before any configuration installation, start command, request UUID, deadline, grant or write window. No paid canary was prepared. Production is not declared READY on the strength of local qualification.

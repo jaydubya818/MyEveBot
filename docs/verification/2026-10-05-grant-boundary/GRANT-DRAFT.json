@@ -1,0 +1,48 @@
+{
+  "status": "DRAFT_NOT_INSTALLABLE_UNTIL_APPROVED_ACTIVATION",
+  "envelopeSha256": "acc286760f4c689a30b5063dee0d9ceb4199e2ad419f56ced2506d8f2b9bc701",
+  "manifestTemplate": {
+    "version": 1,
+    "clientId": "sofie-production-validation",
+    "ownerScope": "owner",
+    "sourceDigest": "dadb3b7d27677427918adaa0d6f96f605e337623808602e7d5dc81244ff6a940",
+    "configurationDigest": "d7486299b1470e1c70b35a838f1e11b458ca70d37426d3a15adca2e96f7357b3",
+    "factoryVersion": "cb0a31aabb471688a87198e901edc733f7aecd0a134c76727b25689e30ae5b22",
+    "contractSha256": "cbbcdfb560bf24c41ed1be83a5a06e5ba42610cbce9b8caccd272392337e27d3",
+    "candidateSha256": "30d9b2af5a611565dffebcc3d35510c3975067284ac2ff52db81fc4201ab99a6",
+    "environment": "CLOUD_PRODUCTION",
+    "publication": false,
+    "request": {
+      "protocol": "MYFACTORY_EXECUTION_V2",
+      "requestId": null,
+      "workId": "a6f0b486-918d-4be2-8ba8-6a4d762707a7",
+      "workGeneration": 2,
+      "repository": "jaydubya818/MyFactory",
+      "deadline": null,
+      "maxSpendUsd": 1,
+      "source": {
+        "repository": "jaydubya818/MyFactory",
+        "commit": "8f1d9527d480a0cb500d188874b35398b0ebcbf1",
+        "tree": "32483deb1b36516d58dee7be7ae90b927f5e8b78"
+      },
+      "input": {
+        "title": "Production evidence validation: atomic grant boundary",
+        "description": "Validate production TestEvidence and DiffEvidence custody using one operator-authored line-ending candidate, independent protected checks, signed Result and durable owner Proof. No model operation or publication.",
+        "kind": "feature",
+        "acceptanceCriteria": [
+          "The exact operator-authored candidate passes all protected line-ending checks and both evidence kinds are retained in the owner-bound Proof."
+        ],
+        "checkCommands": [
+          "node --test fixtures/production-canary/line-endings/normalize.test.mjs"
+        ],
+        "allowedPaths": [
+          "fixtures/production-canary/line-endings/normalize.mjs"
+        ]
+      }
+    }
+  },
+  "unresolvedFields": {
+    "requestId": "Created once by canonical controller only after exact owner approval",
+    "deadline": "Original controller deadline at most180 seconds; no extension"
+  }
+}

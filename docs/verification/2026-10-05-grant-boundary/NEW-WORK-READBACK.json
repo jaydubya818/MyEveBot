@@ -1,0 +1,20 @@
+{
+  "observedAt": "2026-10-05T07:26:34.793Z",
+  "work": {
+    "id": "a6f0b486-918d-4be2-8ba8-6a4d762707a7",
+    "version": 2,
+    "generation": 2,
+    "title": "Production evidence validation: atomic grant boundary",
+    "lifecycle": "active",
+    "control": "agent"
+  },
+  "commands": 0,
+  "routingDecisions": 0,
+  "lifecycles": 0,
+  "requestId": null,
+  "deadline": null,
+  "grantInstalled": false,
+  "configurationInstalled": false,
+  "modelCalls": 0,
+  "envelopeSha256": "acc286760f4c689a30b5063dee0d9ceb4199e2ad419f56ced2506d8f2b9bc701"
+}
