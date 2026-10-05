@@ -13,6 +13,8 @@ import {
 } from "./types.ts";
 
 export interface WorkDatabase {
+  /** One pinned connection and transaction; required by production validation fencing. */
+  atomic?<T>(action:(database:WorkDatabase)=>Promise<T>):Promise<T>;
   query(sql: string, params?: unknown[]): Promise<Record<string, any>[]>;
 }
 const projection = `w.*,c.items AS criteria FROM engineering_work w JOIN engineering_work_criteria c

@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "2a103b438be36440a1a43fe433ba748ed31f762aec8d61aed25c470e83e02d38"
+      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+      "sha256": "9f71274e417f8ee3cb4ee4689b8bf085808fe9e3571058185f34bfac40613660"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -3174,8 +3174,8 @@
     },
     "lib/engineering/store.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "d8e3a7c8e2963a931929328105ab3b9a5d6cf049a0a8d498fd16de90393bf389"
+      "reason": "Authenticated personal dogfood Work service; scoped SQL and current-generation checks; no model-supplied publication authority. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+      "sha256": "70de382f5d3c2913731b40b0db3a5b85d0ce996bf50bb4f288b44bce1e12e14c"
     },
     "lib/digital-worker/packs.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3595,8 +3595,8 @@
     },
     "lib/engineering/factory-work-driver.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution.",
-      "sha256": "c849b2341f3c21d29bea21254150b02cb27c29da08a5d8c8c6e6acc710978bf7"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Review-repair binding: only reviewed server configuration may select an approved repair WorkOrder for an exact current Work ID/revision/generation. Reject unconfigured/substituted binding before HTTP, retain canonical route/writer/spend admission, and bind readback to the exact repair WorkOrder. Bypass regressions: factory-beta.test.ts; connected zero-model qualification. Consolidated boundary: Persists accepted Fabric routing with existing canonical preparation; prior writer/spend/custody/verification authority preserved. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Terminal reconciliation retains signed Gate C receipts even if the first remote observation was RUNNING; no redispatch or candidate authority for failed runs. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+      "sha256": "46a638a2c678cbd922fa9b306546ed42e722edd1b82bd7357a9ad3e7607d8238"
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
@@ -3826,8 +3826,8 @@
     },
     "lib/engineering/cloud-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated bounded queue delivery and verified-TLS owner session lock reuse canonical driver. Production command/recovery queries restrict exact Work/generation before LIMIT; no local executor, model, publication or infrastructure credential. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution.",
-      "sha256": "5390631c45cb3e394c4032a6a06b2cd48b3818813e5066aea88691ee1c6d08e9"
+      "reason": "Authenticated bounded queue delivery and verified-TLS owner session lock reuse canonical driver. Production command/recovery queries restrict exact Work/generation before LIMIT; no local executor, model, publication or infrastructure credential. Validation-only durable halt independently reviewed 2026-10-04; only exact missing-grant denial may wait, and cleanup cannot reopen execution. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+      "sha256": "47fa5c6c5b03d79ec8cdcb54a36b87a9e31a21f1d2f90dca0a6bf2496ad4ca3c"
     },
     "lib/engineering/cloud-conversation-model.ts": {
       "classification": "ENFORCED",
@@ -3981,8 +3981,8 @@
     },
     "lib/engineering/production-validation.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions.",
-      "sha256": "188e62c3d58a022df6a25db04f850c979a9fd0629153a1d141ecdd7bb559e074"
+      "reason": "Owner session and same-origin checked before effects; only pinned production validation Work/generation may enqueue. Readback reauthenticates current signed receipt, exact FactoryVersion/source/operator provenance and durable Test/Diff Proof. No model or publication authority. Independently reviewed with negative regressions. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+      "sha256": "d43529b4edcde06dd808010eb1cd008771d18f63560f18e6cdb05f5efaabde89"
     },
     "lib/engineering/production-evidence-isolation.ts": {
       "classification": "ENFORCED",
@@ -4008,6 +4008,11 @@
       "classification": "ENFORCED",
       "reason": "Independent release review PASS: exact owner/Work/generation/source binding, server-only production configuration, distinct validation and separately approved paid-canary routes; current signed Proof and live isolation denials required. General Work remains disabled.",
       "sha256": "e680e2d94ef1fa0ee39708ab998697f90a1495c950bb39a8b872c11985305181"
+    },
+    "lib/engineering/factory-validation-lifecycle.ts": {
+      "classification": "INTERNAL",
+      "reason": "Canonical validation lifecycle, not execution or grant authority. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS.",
+      "sha256": "142d0063262df9c4a2d0060340740300dac29c92781007cea8a7d1071cc74942"
     }
   }
 }

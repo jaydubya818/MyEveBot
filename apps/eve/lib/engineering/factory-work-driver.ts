@@ -1,3 +1,4 @@
+import {FactoryValidationLifecycle,saveValidationPreparation} from './factory-validation-lifecycle.ts';
 import { FactoryEvidenceStore } from "./factory-evidence-store.ts";
 import { FactoryEvidenceClient, EvidenceWaiting } from "./factory-evidence.ts";
 import {FactoryCloudProtectedVerifier} from './factory-cloud-verifier.ts';
@@ -38,13 +39,13 @@ export class FactoryWorkDriver {
  }
  private scope(id:string){return [this.store.principal.scopeId,this.store.principal.scopeKind,id];}
  async decision(id:string){await this.store.get(id);const [row]=await this.store.database.query('SELECT * FROM engineering_routing_decisions WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 ORDER BY work_version DESC LIMIT 1',this.scope(id));return row??null;}
- private async observation(id:string,decisionId:string,value:unknown){
+ private async observation(id:string,decisionId:string,value:unknown,store:WorkStore=this.store){
   const spend=workSpendSchema.safeParse((value as {spend?:unknown})?.spend);
   if(spend.success){
-   const history=await this.store.database.query('SELECT factory_observation FROM engineering_routing_decisions WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3',this.scope(id));
+   const history=await store.database.query('SELECT factory_observation FROM engineering_routing_decisions WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3',this.scope(id));
    for(const row of history){const previous=workSpendSchema.safeParse(row.factory_observation?.value?.spend);if(previous.success)assertSpendContinuation(previous.data,spend.data);}
   }
-  await this.store.database.query('UPDATE engineering_routing_decisions SET factory_observation=$5::jsonb WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4',[...this.scope(id),decisionId,JSON.stringify({observedAt:new Date().toISOString(),value})]);}
+  await store.database.query('UPDATE engineering_routing_decisions SET factory_observation=$5::jsonb WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4',[...this.scope(id),decisionId,JSON.stringify({observedAt:new Date().toISOString(),value})]);}
  async start(id:string,expectedVersion:number,expectedGeneration:number){
   const work=await this.store.get(id),config=await this.authority.readConfig();
   const repairWorkOrderId=repairWorkOrderFor(config.connection,work);
@@ -77,65 +78,67 @@ export class FactoryWorkDriver {
   }
   const prepare:FactoryPrepareRequest= {...(repairWorkOrderId?{repairWorkOrderId}:{}),...(config.connection.spendPlan?{spendContract:config.connection.spendPlan}:{}),requestId:randomUUID(),workId:id,workGeneration:work.generation,repository:work.repository,deadline,maxSpendUsd:Math.min(snapshot.contract.budgetUsd,(config.engineering.conversationQualification?.factoryCeilingMicrousd??Infinity)/1_000_000),
    input:{title:work.title,description:work.objective,kind:'feature',...('source' in config.connection?{}:{repositoryPath:config.connection.repositoryPath}),baseRef:source.sha,acceptanceCriteria:work.criteria.map(c=>c.statement),reproductionCommand:null,expectedFailureText:null,checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths,workerProfile:'source' in config.connection?'container':'mac'}};
-  const [saved]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
-   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING id`,[...this.scope(id),decision.id,JSON.stringify({request:prepare,configurationHash:factoryExecutionConfigurationHash(config),...('releaseValidation' in config.connection?{validationState:'IDLE'}:{}),...(snapshot.environment?{environment:snapshot.environment}:{})})]);
+  const validation='releaseValidation' in config.connection;
+  const preparation=JSON.stringify({request:prepare,configurationHash:factoryExecutionConfigurationHash(config),...(validation?{validationProtocol:2}:{}),...(snapshot.environment?{environment:snapshot.environment}:{})});
+  const save=`UPDATE engineering_routing_decisions SET factory_preparation=$5::jsonb
+   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND status='PROPOSED' AND factory_preparation IS NULL RETURNING *`;
+  const saved=validation?await saveValidationPreparation(this.store,id,decision.id,preparation):(await this.store.database.query(save,[...this.scope(id),decision.id,preparation]))[0];
   if(!saved&&!((await this.decision(id))?.factory_preparation))throw new WorkError('factory_prepare_changed','Preparation changed before it was persisted.');
   return this.step(id);
  }
  async step(id:string){
   const decision=await this.decision(id),preparation=decision?.factory_preparation;
-  if(!preparation?.validationState)return this.stepAttempt(id);
-  if(preparation.validationState==='COMPLETED')return {state:'COMPLETED'};
-  const halt=async(reason:string)=>{
-   await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=factory_preparation||$5::jsonb
-    WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4`,[...this.scope(id),decision.id,JSON.stringify({validationState:'HALTED',validationFailure:reason})]);
-   // Stop is cleanup only. A failed stop never clears the durable execution halt.
-   try{await this.stop(id);}catch{}
-   return {state:'HALTED'};
-  };
-  if(preparation.validationState==='HALTED')return halt(preparation.validationFailure??'VALIDATION_HALTED');
-  if(preparation.validationState==='IN_FLIGHT')return halt('VALIDATION_INTERRUPTED');
-  if(!Number.isFinite(Date.parse(preparation.request.deadline))||Date.parse(preparation.request.deadline)<=Date.now())return halt('VALIDATION_DEADLINE_EXPIRED');
-  const [claimed]=await this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"')
-   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND factory_preparation->>'validationState' IN ('IDLE','WAITING_GRANT') RETURNING id`,[...this.scope(id),decision.id]);
-  if(!claimed)return {state:'HALTED'};
-  const finish=async(state:string)=>this.store.database.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}',$5::jsonb)
-   WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND id=$4 AND factory_preparation->>'validationState'='IN_FLIGHT'`,[...this.scope(id),decision.id,JSON.stringify(state)]);
+  const config=await this.authority.readConfig();
+  const validation='releaseValidation' in config.connection||preparation?.validationProtocol!==undefined||preparation?.validationState!==undefined;
+  if(!validation)return this.stepAttempt(id);
+  // Historical failed attempts remain untouched; never enroll them in a new lifecycle.
+  if(preparation?.validationProtocol!==2||preparation?.validationState!==undefined)return {state:'HALTED'};
+  const lifecycle=new FactoryValidationLifecycle(this.store,decision.id),claimed=await lifecycle.claim();
+  if(claimed.state!=='CLAIMED'){if(claimed.state==='HALTED'){try{await this.stop(id);}catch{}}return {state:claimed.state};}
+  const assertActive=()=>lifecycle.assertActive(claimed.claim);
+  const halt=async(reason:string)=>{const fenced=await lifecycle.halt(reason,claimed.claim);if(fenced){try{await this.stop(id);}catch{}}return {state:'HALTED'};};
   try{
-   const result=await this.stepAttempt(id);
-   if('result' in result&&result.state==='PARTIAL'){await finish('COMPLETED');return result;}
+   await assertActive();
+   const result=await this.stepAttempt(id,assertActive,lifecycle.fencedStore(claimed.claim));
+   await assertActive();
+   if('result' in result&&result.state==='PARTIAL'){await lifecycle.finish(claimed.claim,'COMPLETED');return result;}
    if(result.state!=='DISPATCHED')return halt('VALIDATION_UNPROVEN_RESULT');
-   await finish('IDLE');return result;
+   await lifecycle.finish(claimed.claim,'IDLE');return result;
   }catch(error){
    if(error instanceof FactoryValidationGrantPending&&decision.status==='PROPOSED'&&Date.parse(preparation.request.deadline)>Date.now()){
-    await finish('WAITING_GRANT');return {state:'WAITING_FOR_AUTHORITY'};
+    try{await lifecycle.finish(claimed.claim,'WAITING_GRANT');return {state:'WAITING_FOR_AUTHORITY'};}catch{await halt('VALIDATION_CLAIM_FENCED');throw error;}
    }
    await halt(error instanceof Error?error.message:'VALIDATION_FAILURE');throw error;
   }
  }
- private async stepAttempt(id:string){
+ private async stepAttempt(id:string,assertActive:()=>Promise<void>=async()=>{},store:WorkStore=this.store){
+  const writers=store===this.store?this.writers:new FactoryWriterStore(store);
+  const receipts=store===this.store?this.receipts:new FactoryReceiptStore(store.principal,store.database);
+  const direct=store===this.store?this.direct:new DirectDevelopmentStore(store,this.direct.config);
+  const observation=(workId:string,decisionId:string,value:unknown)=>this.observation(workId,decisionId,value,store);
   let decision=await this.decision(id);
   if(!decision?.factory_preparation)return {state:'NOT_PREPARED'};
-  const work=await this.store.get(id),config=await this.authority.readConfig(),adapter=this.adapterFor(config.connection);
+  const work=await store.get(id),config=await this.authority.readConfig(),adapter=this.adapterFor(config.connection);
   const preparation=decision.factory_preparation as {request:FactoryPrepareRequest;configurationHash:string};
   if(work.version!==decision.work_version||work.generation!==preparation.request.workGeneration)return {state:'HISTORICAL'};
   try{
    if(preparation.configurationHash!==factoryExecutionConfigurationHash(config))throw new WorkError('factory_configuration_changed','Retained Factory configuration changed; reconcile without redispatch.');
    if(decision.status==='PROPOSED'){
-    const response=await adapter.prepare(preparation.request);await this.observation(id,decision.id,response);
-    if(!response.snapshot){if(decision.factory_preparation.validationState)throw Error('VALIDATION_SNAPSHOT_MISSING');return {state:response.state};}
+    await assertActive();
+    const response=await adapter.prepare(preparation.request);await assertActive();await observation(id,decision.id,response);
+    if(!response.snapshot){if(decision.factory_preparation.validationProtocol)throw Error('VALIDATION_SNAPSHOT_MISSING');return {state:response.state};}
     assertFactorySpendCanStart(response.spend);
     const s=response.snapshot;
     const binding=prepareAuthenticatedFactoryInput({workId:id,workVersion:work.version,workGeneration:work.generation,criteriaVersion:work.criteriaVersion,agentId:config.engineering.agentId,
      factoryId:s.factoryId,factoryVersion:s.factoryVersion,requestId:s.requestId,requestDigest:s.requestDigest,sourceDigest:s.sourceDigest,configurationDigest:s.configurationDigest,workOrderId:s.workOrderId,runId:s.runId,attemptNumber:s.attemptNumber,inputCommit:s.inputCommit});
-    const registered=await this.receipts.register(binding);
-    const admission=new RouteAdmissionService(this.store,{read:w=>this.authority.read(w,registered.id,preparation.request)});
-    await admission.admit(id,{decisionId:decision.id,expectedWorkVersion:work.version,expectedWorkGeneration:work.generation,request:{route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:[`repository:${work.repository}`]}});
+    await assertActive();const registered=await receipts.register(binding);
+    const admission=new RouteAdmissionService(store,{read:w=>this.authority.read(w,registered.id,preparation.request)});
+    await assertActive();await admission.admit(id,{decisionId:decision.id,expectedWorkVersion:work.version,expectedWorkGeneration:work.generation,request:{route:'MYFACTORY',requiredOperations:['factory.submit'],resourceRefs:[`repository:${work.repository}`]}});
     decision=await this.decision(id);
    }
-   const [row]=await this.store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);
+   const [row]=await store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);
    if(!row)throw new WorkError('factory_run_missing','Admitted route has no Run.');
-   let run=await this.writers.inspect(id,row.id);
+   let run=await writers.inspect(id,row.id);
    if(run.dispatch_state==='PREPARED'){
     const current=await this.authority.read(work,run.factory_request_id,preparation.request);
     const prior=decision.admission_authority_snapshot;
@@ -144,72 +147,74 @@ export class FactoryWorkDriver {
     const eligible=decideExecutionRoute(prior.contract,current.context,decision.admission_request,{...current.facts,writerState:'NONE'});
     if(!eligible.admitted)throw new WorkError('factory_dispatch_denied',eligible.reasons.join(' '),403);
     const budgetReadback=await adapter.prepared(preparation.request);
-    await this.observation(id,decision.id,budgetReadback);assertFactorySpendCanStart(budgetReadback.spend);
-    await this.writers.dispatch(run,adapter);run=await this.writers.inspect(id,row.id);
+    await observation(id,decision.id,budgetReadback);assertFactorySpendCanStart(budgetReadback.spend);
+    await assertActive();await writers.dispatch(run,{dispatch:async identity=>{await assertActive();await adapter.dispatch(identity);await assertActive();},stop:identity=>adapter.stop(identity),observe:identity=>adapter.observe(identity)});run=await writers.inspect(id,row.id);
    }
-   const identity=await this.writers.identity(run);
+   const identity=await writers.identity(run);
    // MyEve may die after its durable UNKNOWN claim and before the HTTP call.
    // Seal that prepared attempt; never resend an uncertain dispatch.
    const prepared=await adapter.prepared(preparation.request);
-   if(!prepared.identity&&prepared.state==='PREPARED'&&['UNKNOWN','STOPPING'].includes(run.dispatch_state))await this.writers.stop(run,adapter,'cancel');
-   const remote=await adapter.read(identity);await this.observation(id,decision.id,remote);
-   if(decision.factory_preparation.validationState&&(remote.state==='UNKNOWN'||run.dispatch_state==='UNKNOWN'))throw Error('VALIDATION_EXECUTION_UNKNOWN');
+   if(!prepared.identity&&prepared.state==='PREPARED'&&['UNKNOWN','STOPPING'].includes(run.dispatch_state))await writers.stop(run,adapter,'cancel');
+   const remote=await adapter.read(identity);await assertActive();await observation(id,decision.id,remote);
+   if(decision.factory_preparation.validationProtocol&&(remote.state==='UNKNOWN'||run.dispatch_state==='UNKNOWN'))throw Error('VALIDATION_EXECUTION_UNKNOWN');
    if(['UNKNOWN','STOPPING'].includes(run.dispatch_state)||Date.parse(identity.deadline)<=Date.now()){
-    if(Date.parse(identity.deadline)<=Date.now()&&run.dispatch_state!=='TERMINAL')await this.writers.stop(run,adapter,'timeout');
+    if(Date.parse(identity.deadline)<=Date.now()&&run.dispatch_state!=='TERMINAL')await writers.stop(run,adapter,'timeout');
    }
    // Quiescence is independent of result acceptance. Cancelled or invalid results
    // cannot prevent a proven terminal writer from being fenced.
-   run=await this.writers.reconcile(run,adapter);
+   run=await writers.reconcile(run,adapter);
    const historicalTerminal=run.dispatch_state==='TERMINAL'&&(run.status!=='COMPLETED'||!!run.stop_reason);
    // A result and resource observation are separate; neither substitutes for the other.
-   const request=await this.receipts.request(run.factory_request_id);
+   const request=await receipts.request(run.factory_request_id);
    let receiptId:string|undefined,receiptStatus:string|undefined;
    // Reconciliation may observe terminal after the earlier remote read was RUNNING.
    // Retain its signed receipt in this same step before the controller stops.
    if(['COMPLETED','FAILED','CANCELLED'].includes(remote.state)||(run.dispatch_state==='TERMINAL'&&['COMPLETED','FAILED','CANCELLED'].includes(run.status))){
     const returned=await adapter.result(request.binding);
-    if(returned.result){const admitted=await admitFactoryResult(this.receipts,request.id,returned.result,{keys:()=>adapter.keys()});receiptStatus=admitted.status;if(admitted.status==='ADMITTED')receiptId=admitted.receiptId;else if(!historicalTerminal)throw new WorkError('factory_result_denied','Factory result was not admitted: '+admitted.status);}
+    if(returned.result){await assertActive();const admitted=await admitFactoryResult(receipts,request.id,returned.result,{keys:()=>adapter.keys()});receiptStatus=admitted.status;if(admitted.status==='ADMITTED')receiptId=admitted.receiptId;else if(!historicalTerminal)throw new WorkError('factory_result_denied','Factory result was not admitted: '+admitted.status);}
    }
    if(run.dispatch_state!=='TERMINAL')return {state:run.dispatch_state};
    // Failed/cancelled signed envelopes still pass through durable Gate C custody.
    // Historical or rejected receipts never authorize candidate custody or verification.
    if(historicalTerminal)return {state:'TERMINAL',outcome:run.status,receiptStatus};
-   receiptId??=(await this.receipts.admission(request.id))?.receipt_id as string|undefined;
+   receiptId??=(await receipts.admission(request.id))?.receipt_id as string|undefined;
    if(!receiptId)return {state:'AWAITING_RESULT'};
    const cloudCustody='source' in config.connection?await adapter.custody(identity):undefined;
-   await this.writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
-   const ws=(await this.direct.inspect(id)).workspace;
+   await assertActive();await writers.takeCustody(run,receiptId,await this.source(),config.engineering.profile,{keys:()=>adapter.keys()},cloudCustody?.files);
+   const ws=(await direct.inspect(id)).workspace;
    if(!ws||ws.routeRunId!==run.id)return {state:'HISTORICAL'};
-   const protectedVerifier='source' in config.connection?new FactoryCloudProtectedVerifier(this.receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):this.verifier;
-   const verification=new DirectVerificationDriver(this.direct,protectedVerifier);
+   const protectedVerifier='source' in config.connection?new FactoryCloudProtectedVerifier(receipts,request.id,()=>adapter.keys(),{profileHash:config.connection.qualification.profileHash,factoryVersion:config.connection.factoryVersion}):this.verifier;
+   const verification=new DirectVerificationDriver(direct,protectedVerifier);
    const candidate=ws.candidates.at(-1)!;
    const job=await verification.inspectJob(id,candidate.sha);
    if(job?.status==='RECOVERY_REQUIRED'){
-    if(decision.factory_preparation.validationState)throw Error('VALIDATION_VERIFICATION_INTERRUPTED');
+    if(decision.factory_preparation.validationProtocol)throw Error('VALIDATION_VERIFICATION_INTERRUPTED');
     // CLOUD only reprojects an already destroyed verifier's signed receipt. No
     // provider execution is repeated and no local Docker fallback is permitted.
     const inspector='source' in config.connection?{resourcesAbsent:async()=>{await protectedVerifier.verify({workId:id,baseSha:ws.baseSha,criteriaVersion:ws.criteriaVersion,profileHash:ws.profileHash,profile:config.engineering.profile},candidate);return true;}}:new DockerVerificationResourceInspector();
     await verification.retryAfterResourceCheck(id,candidate.sha,inspector);
    }
-   const [retainedProof] = await this.store.database.query('SELECT id FROM engineering_native_results WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND candidate_sha=$4',[...this.scope(id),candidate.sha]);
-   if(!retainedProof)await new FactoryEvidenceStore(this.store).ingest(id,request.id,receiptId,this.evidenceFor(config.connection));
-   await verification.run(id);
-   const result=await new NativeResultStore(this.direct).retain(id);
-   await this.observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
+   const [retainedProof] = await store.database.query('SELECT id FROM engineering_native_results WHERE scope_id=$1 AND scope_kind=$2 AND work_id=$3 AND candidate_sha=$4',[...this.scope(id),candidate.sha]);
+   await assertActive();if(!retainedProof)await new FactoryEvidenceStore(store).ingest(id,request.id,receiptId,this.evidenceFor(config.connection));
+   await assertActive();await verification.run(id);await assertActive();
+   const result=await new NativeResultStore(direct).retain(id);
+   await observation(id,decision.id,{...remote,verification:result.proof.outcome,resultId:result.id,coordinationDebt:0});
    return {state:result.proof.outcome,result};
   }catch(error){
-   if(error instanceof EvidenceWaiting&&!decision.factory_preparation.validationState){
-    await this.observation(id,decision.id,{...(await this.decision(id))?.factory_observation?.value,state:'WAITING_FOR_EVIDENCE',reason:error.message});
+   if(error instanceof EvidenceWaiting&&!decision.factory_preparation.validationProtocol){
+    await observation(id,decision.id,{...(await this.decision(id))?.factory_observation?.value,state:'WAITING_FOR_EVIDENCE',reason:error.message});
     return {state:'WAITING_FOR_EVIDENCE'};
    }
+   await assertActive();
    const retained=(await this.decision(id))?.factory_observation?.value;
-   await this.observation(id,decision.id,{...retained,
+   await observation(id,decision.id,{...retained,
     ...(retained?.accounting?{accounting:{...retained.accounting,accountingCompleteness:'STALE_READBACK',safeAllowanceMicrousd:null,unknownMicrousd:null,spendEnforcementQualified:false,blocker:'Latest accounting is unverified; retained exposure is not released'}}:{}),
     state:'BLOCKED',reason:error instanceof Error?error.message:'Reconciliation required'});throw error;
   }
  }
  async stop(id:string,reason:'cancel'|'takeover'='cancel'){
   const decision=await this.decision(id);if(!decision?.factory_preparation)throw new WorkError('factory_prepare_missing','No Factory preparation exists.');
+  if(decision.factory_preparation.validationProtocol===2)await new FactoryValidationLifecycle(this.store,decision.id).halt('VALIDATION_CANCELLED');
   const [row]=await this.store.database.query('SELECT id FROM engineering_route_runs WHERE decision_id=$1',[decision.id]);
   if(!row)throw new WorkError('factory_prepare_pending','Preparation has no productive writer; resume preparation to reconcile its identity.');
   const config=await this.authority.readConfig(),adapter=this.adapterFor(config.connection),run=await this.writers.inspect(id,row.id);

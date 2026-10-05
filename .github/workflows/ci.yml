@@ -29,3 +29,35 @@ jobs:
       - run: npm test
 
       - run: npm run build
+
+  postgres-validation:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/MyFactory
+          ref: a591127a26f3d134289f9a3a4a4a8bd2a8628f41
+          path: .qualification/myfactory
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --no-audit --no-fund
+      - run: npm ci --prefix .qualification/myfactory --ignore-scripts --no-audit --no-fund
+      - name: Real PostgreSQL lifecycle and exact Factory authority
+        env:
+          MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+        run: npm exec --workspace apps/eve -- vitest run lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts

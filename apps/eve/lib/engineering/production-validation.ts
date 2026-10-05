@@ -1,3 +1,4 @@
+import {readValidationGate} from './factory-validation-lifecycle.ts';
 import {webPrincipal,requireSameOrigin} from '../web-auth.ts';
 import {productionValidationEnabled,productionValidationConfiguration} from './production-runtime-guard.ts';
 import {WorkStore} from './store.ts';
@@ -37,6 +38,8 @@ export async function handleProductionValidation(request:Request){
    await wakeCloudController(store,queued.command.id);
    return Response.json({state:'QUEUED',workId:work.id,modelExecution:'DISABLED',publication:'DISABLED'},{headers});
   }
+  const gate=await readValidationGate(store,work);
+  if(gate.state!=='COMPLETED')return Response.json({state:gate.state,workId:work.id,modelExecution:'DISABLED',publication:'DISABLED'},{headers});
   const [row]=await store.database.query(`SELECT r.id,r.proof,a.request_id,a.receipt_id FROM engineering_native_results r
    JOIN engineering_factory_requests q ON q.scope_id=r.scope_id AND q.scope_kind=r.scope_kind AND q.work_id=r.work_id AND q.current AND NOT q.cancelled
    JOIN engineering_factory_admissions a ON a.request_id=q.id
@@ -48,6 +51,7 @@ export async function handleProductionValidation(request:Request){
   const proof=row.proof as {outcome:string;evidence:{state:string}[];artifactRefs:string[]};
   if(proof.outcome!=='PARTIAL'||!proof.evidence.length||proof.evidence.some(e=>e.state!=='PASS'))throw Error('VALIDATION_VERIFICATION_INCOMPLETE');
   const receipts=new FactoryReceiptStore(store.principal,store.database),bound=await receipts.request(String(row.request_id)),receipt=await receipts.get(String(row.request_id),String(row.receipt_id));
+  if(bound.binding.requestId!==gate.requestId||config.connection.factoryVersion!==gate.factoryVersion)throw Error('VALIDATION_COMPLETION_BINDING');
   if(!bound.eligible||bound.binding.workVersion!==work.version||bound.binding.workGeneration!==work.generation)throw Error('VALIDATION_CURRENT_RECEIPT_REQUIRED');
   const verified=verifyResult(JSON.parse(receipt.envelope),{...bound.binding,keys:config.connection.keys});
   attestFactoryManifest(verified.manifest,bound.binding);
