@@ -5,7 +5,7 @@ import { memoryStore } from "@/agent/lib/memory-store";
 import { db } from "@/agent/lib/receipts-db";
 import { FALLBACK_TOOLKITS, manageConnections } from "@/lib/composio-connect";
 import { capabilityMap } from "@/lib/capabilities";
-import { CURRENT_DATABASE_MIGRATION } from "@/lib/database-schema";
+import { requiredDatabaseMigration } from "@/lib/database-schema";
 import { webAuthConfigStatus, webAuthRequired } from "@/lib/web-auth";
 
 export type ReadinessState = "ready" | "setup_required" | "error" | "excluded";
@@ -136,7 +136,7 @@ export async function getReadinessReport(options?: { fresh?: boolean }): Promise
         const applied = await withTimeout(
           "Database migrations",
           db().query("SELECT 1 FROM sofie_schema_migrations WHERE name = $1", [
-            CURRENT_DATABASE_MIGRATION,
+            requiredDatabaseMigration(),
           ]),
         );
         checks.push(

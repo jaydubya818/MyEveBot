@@ -7,7 +7,7 @@ import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 type RouteContext = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   const url = new URL(request.url);
   const runId = url.searchParams.get("runId");

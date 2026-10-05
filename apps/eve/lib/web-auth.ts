@@ -1,5 +1,5 @@
 import { isPartnerPrincipal, partnerPrivateRoute } from "./private-owner-boundary.ts";
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 import { apiError } from "./api-errors.ts";
 import { deploymentOwnerId } from "./owner-identity.ts";
@@ -16,6 +16,7 @@ interface WebSessionPayload {
   iat: number;
   sub: string;
   v: 1;
+  nonce?: string;
 }
 
 export interface WebPrincipal {
@@ -97,6 +98,7 @@ export function createWebSessionToken(
     iat: issuedAt,
     sub: ownerId,
     v: 1,
+    nonce: randomUUID(),
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   return `${encodedPayload}.${signature(encodedPayload, secret)}`;
@@ -136,7 +138,7 @@ export function verifyWebSessionToken(
   }
 }
 
-function cookieValue(request: Request, name: string): string | null {
+export function cookieValue(request: Request, name: string): string | null {
   const raw = request.headers.get("cookie");
   if (raw === null) return null;
   for (const pair of raw.split(";")) {
@@ -189,7 +191,7 @@ export function requireSameOrigin(request: Request): Response | null {
  * the Eve HTTP channel. Development stays frictionless; production fails
  * closed when credentials are missing or the cookie is invalid.
  */
-export function requireWebAuth(request: Request): Response | null {
+export async function requireWebAuth(request: Request): Promise<Response | null> {
   if (!webAuthRequired()) return null;
   if (!webAuthConfigStatus().configured) {
     return apiError(
@@ -201,7 +203,7 @@ export function requireWebAuth(request: Request): Response | null {
   }
   const crossOrigin = requireSameOrigin(request);
   if (crossOrigin) return crossOrigin;
-  const principal=webPrincipal(request);
+  const principal=await authenticateWebPrincipal(request);
   if (principal === null) {
     return apiError(request, 401, "authentication_required", "Sign in to continue.");
   }
@@ -221,4 +223,35 @@ export function ownerForPassword(candidate: string, env: NodeJS.ProcessEnv = pro
   const partner = partnerPassword !== null && safeEqual(candidate, partnerPassword);
   if (primary === partner) return null;
   return primary ? deploymentOwnerId(env) : configuredValue(env, "MYEVE_PARTNER_OWNER_ID");
+}
+
+/** Cryptographic extraction alone is not authorization when durable revocation is enabled. */
+export async function authenticateWebPrincipal(
+  request: Request,
+  env: NodeJS.ProcessEnv = process.env,
+): Promise<WebPrincipal | null> {
+  const principal = webPrincipal(request, env);
+  if (!principal || env.MYEVE_DURABLE_WEB_SESSIONS !== "true") return principal;
+  const token = cookieValue(request, WEB_SESSION_COOKIE) ?? cookieValue(request, LEGACY_WEB_SESSION_COOKIE);
+  if (!token) return null;
+  try {
+    const { sessionRevoked } = await import("./web-session-store.ts");
+    return await sessionRevoked(principal.id, token) ? null : principal;
+  } catch {
+    // Missing migration, unreachable storage and ambiguous readback all deny access.
+    return null;
+  }
+}
+
+export async function revokeWebSession(request: Request): Promise<void> {
+  if (process.env.MYEVE_DURABLE_WEB_SESSIONS !== "true") return;
+  const { revokeSession } = await import("./web-session-store.ts");
+  for (const name of [WEB_SESSION_COOKIE, LEGACY_WEB_SESSION_COOKIE]) {
+    const token = cookieValue(request, name);
+    const principal = verifyWebSessionToken(token);
+    if (token && principal) {
+      const payload = JSON.parse(Buffer.from(token.split(".")[0], "base64url").toString("utf8")) as WebSessionPayload;
+      await revokeSession(principal.id, token, new Date(payload.exp * 1000));
+    }
+  }
 }

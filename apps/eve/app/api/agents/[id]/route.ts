@@ -4,10 +4,10 @@ import { apiError, requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
 
 type Context = { params: Promise<{ id: string }> };
-function guard(request: Request): Response | null { return requireWebAuth(request) ?? requireDatabase(request); }
+async function guard(request: Request): Promise<Response | null> { return await requireWebAuth(request) ?? requireDatabase(request); }
 
 export async function GET(request: Request, context: Context): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const { id } = await context.params;
   try {
     const agent = await getAgent(requestOwnerId(request), id);
@@ -19,7 +19,7 @@ export async function GET(request: Request, context: Context): Promise<Response>
 }
 
 export async function PATCH(request: Request, context: Context): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const input = parseAgentWriteInput(await request.json().catch(() => null));
   if (!input) return apiError(request, 400, "invalid_agent", "Name, role, and instructions are required.");
   const { id } = await context.params;

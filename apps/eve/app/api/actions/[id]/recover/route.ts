@@ -3,7 +3,7 @@ import { requireWebAuth,webPrincipal } from "@/lib/web-auth";
 import { apiError,requireDatabase } from "@/lib/api-errors";
 
 export async function POST(request:Request,{params}:{params:Promise<{id:string}>}):Promise<Response> {
-  const denied=requireWebAuth(request)??requireDatabase(request);if(denied)return denied;
+  const denied=await requireWebAuth(request)??requireDatabase(request);if(denied)return denied;
   const {id}=await params;
   if(!/^action_[\w-]+$/.test(id))return apiError(request,400,"invalid_action","Invalid action.");
   try {

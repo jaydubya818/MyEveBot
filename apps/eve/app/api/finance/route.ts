@@ -14,7 +14,7 @@ interface FinanceReceipt {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   if (capabilityMap().finance.state !== "ready") {

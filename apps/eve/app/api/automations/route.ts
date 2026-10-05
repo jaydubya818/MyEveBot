@@ -10,7 +10,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // list_webhooks, delete_webhook) so the panel and the agent always agree.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const unavailable = requireDatabase(request);
   if (unavailable) return unavailable;
@@ -60,7 +60,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const unavailable = requireDatabase(request);
   if (unavailable) return unavailable;

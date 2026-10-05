@@ -3,10 +3,10 @@ import { parseAgentWriteInput, requestOwnerId } from "@/lib/agent-api";
 import { apiError, requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
 
-function guard(request: Request): Response | null { return requireWebAuth(request) ?? requireDatabase(request); }
+async function guard(request: Request): Promise<Response | null> { return await requireWebAuth(request) ?? requireDatabase(request); }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   try {
     const includeArchived = new URL(request.url).searchParams.get("includeArchived") === "true";
     return Response.json({ agents: await listAgents(requestOwnerId(request), includeArchived) });
@@ -17,7 +17,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = guard(request); if (denied) return denied;
+  const denied = await guard(request); if (denied) return denied;
   const input = parseAgentWriteInput(await request.json().catch(() => null));
   if (!input) return apiError(request, 400, "invalid_agent", "Name, role, and instructions are required.");
   try {

@@ -22,6 +22,7 @@ export function buildEnv(config: AgentConfig, stamps: UpdateStamps, relay: Resol
     { key: "MYEVE_ACCESS_PASSWORD", value: config.accessPassword },
     { key: "MYEVE_SESSION_SECRET", value: randomBytes(48).toString("base64url") },
     { key: "MYEVE_OWNER_ID", value: stamps.ownerId ?? "owner" },
+    ...(stamps.ownerId ? [{ key: "MYEVE_DURABLE_WEB_SESSIONS", value: "true" }] : []),
     { key: "EVE_ENABLED_FEATURES", value: config.features.join(",") },
     { key: "NEXT_PUBLIC_VAPID_PUBLIC_KEY", value: vapid.publicKey },
     { key: "VAPID_PRIVATE_KEY", value: vapid.privateKey },

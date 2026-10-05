@@ -1,11 +1,11 @@
 import { z } from 'zod';
-import { webPrincipal } from '../../../lib/web-auth.ts';
+import { authenticateWebPrincipal } from '../../../lib/web-auth.ts';
 import { betaIntegration } from '../../../lib/beta-integration/runtime.ts';
 import { readWorkThread } from '../../../lib/product/work-thread.ts';
 import { WorkError } from '../../../lib/engineering/types.ts';
 export async function GET(request: Request) {
   const headers = { 'cache-control': 'no-store' };
-  const owner = webPrincipal(request, { ...process.env, NODE_ENV: 'production' });
+  const owner = await authenticateWebPrincipal(request, { ...process.env, NODE_ENV: 'production' });
   if (!owner) return Response.json({ error: 'Sign in to view this Work.' }, { status: 401, headers });
   try {
     const url = new URL(request.url);

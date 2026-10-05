@@ -11,7 +11,7 @@ import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 import { computerRuntimeReadiness } from "@/lib/computer-runtime";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const url = new URL(request.url);

@@ -8,7 +8,7 @@ import { requestOwnerId } from "@/lib/agent-api";
 // conversations are findable by what was said, not just their titles.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const unavailable = requireDatabase(request);
   if (unavailable) return unavailable;

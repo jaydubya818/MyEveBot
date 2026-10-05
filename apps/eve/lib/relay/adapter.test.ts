@@ -201,48 +201,48 @@ describe("local authority and owner authentication", () => {
     expect(externalWorkDecision("Analyze shared data", undefined)).toBe(
       "approval",
     ));
-  it("does not inherit development authentication bypass", () =>
-    expect(() =>
+  it("does not inherit development authentication bypass", async () =>
+    await expect(
       authenticatedOwner(new Request("https://myeve.example/api/relay")),
-    ).toThrow("Sign in"));
-  it("binds owner mutations to an authenticated same-origin request", () => {
+    ).rejects.toThrow("Sign in"));
+  it("binds owner mutations to an authenticated same-origin request", async () => {
     vi.stubEnv("MYEVE_ACCESS_PASSWORD", "qualification-password");
     vi.stubEnv("MYEVE_SESSION_SECRET", "a".repeat(32));
     vi.stubEnv("MYEVE_OWNER_ID", "jay");
     const cookie = `myeve_session=${createWebSessionToken()}`;
     expect(
-      authenticatedOwner(
+      await authenticatedOwner(
         new Request("https://myeve.example/api/relay", {
           method: "POST",
           headers: { cookie, origin: "https://myeve.example" },
         }),
       ),
     ).toBe("jay");
-    expect(() =>
+    await expect(
       authenticatedOwner(
         new Request("https://myeve.example/api/relay", {
           method: "POST",
           headers: { cookie, origin: "https://evil.example" },
         }),
       ),
-    ).toThrow();
+    ).rejects.toThrow();
     vi.unstubAllEnvs();
   });
-  it("uses only a pinned browser origin behind a trusted deployment proxy", () => {
+  it("uses only a pinned browser origin behind a trusted deployment proxy", async () => {
     vi.stubEnv("MYEVE_ACCESS_PASSWORD", "qualification-password");
     vi.stubEnv("MYEVE_SESSION_SECRET", "b".repeat(32));
     vi.stubEnv("MYEVE_OWNER_ID", "jay");
     vi.stubEnv("MYEVE_RELAY_OWNER_ORIGIN", "https://myeve.example");
     const cookie = `myeve_session=${createWebSessionToken()}`;
     expect(
-      authenticatedOwner(
+      await authenticatedOwner(
         new Request("http://internal-next:3000/api/relay", {
           method: "POST",
           headers: { cookie, origin: "https://myeve.example" },
         }),
       ),
     ).toBe("jay");
-    expect(() =>
+    await expect(
       authenticatedOwner(
         new Request("http://internal-next:3000/api/relay", {
           method: "POST",
@@ -253,7 +253,7 @@ describe("local authority and owner authentication", () => {
           },
         }),
       ),
-    ).toThrow();
+    ).rejects.toThrow();
     vi.unstubAllEnvs();
   });
   it("keeps federation disabled by default", () => {

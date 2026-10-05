@@ -1,5 +1,5 @@
 import {readValidationGate} from './factory-validation-lifecycle.ts';
-import {webPrincipal,requireSameOrigin} from '../web-auth.ts';
+import {authenticateWebPrincipal,requireSameOrigin} from '../web-auth.ts';
 import {productionValidationEnabled,productionValidationConfiguration} from './production-runtime-guard.ts';
 import {WorkStore} from './store.ts';
 import {factoryConfig} from './factory-routing.ts';
@@ -43,7 +43,7 @@ export async function retainedValidationProofConnection(pin:ReturnType<typeof pr
  * candidate, model, provider, destination or authority grant. */
 export async function handleProductionValidation(request:Request){
  const headers={'cache-control':'private, no-store'};
- const principal=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+ const principal=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
  if(!principal)return Response.json({error:'Sign in first.'},{status:401,headers});
  if(principal.id!==process.env.MYEVE_OWNER_ID)return Response.json({error:'Owner required.'},{status:403,headers});
  if(request.method==='POST'){const denied=requireSameOrigin(request);if(denied)return denied;}

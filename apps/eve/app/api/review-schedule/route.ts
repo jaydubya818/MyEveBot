@@ -5,8 +5,8 @@ import { DELIVERY_CHANNELS, type DeliveryChannel, type ReviewSchedulePatch } fro
 import { isValidLocalTime, isValidTimezone } from "@/lib/review-time";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
-function guard(request: Request): Response | null {
-  return requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  return await requireWebAuth(request) ?? requireDatabase(request);
 }
 
 function deliveryChannel(value: unknown): DeliveryChannel | null {
@@ -15,7 +15,7 @@ function deliveryChannel(value: unknown): DeliveryChannel | null {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const ownerId = webPrincipal(request)!.id;
   try {
@@ -68,7 +68,7 @@ function parsePatch(input: unknown): ReviewSchedulePatch | null {
 }
 
 export async function PATCH(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const patch = parsePatch(await request.json().catch(() => null));
   if (patch === null) return apiError(request, 400, "invalid_review_schedule", "Check the timezone, times, day, and delivery settings.");

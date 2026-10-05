@@ -16,7 +16,7 @@ const requestInput = z.discriminatedUnion("operation", [
 const headers = { "cache-control": "no-store" };
 export async function learningRequest(request: Request): Promise<Response> {
   try {
-    const principal = engineeringPrincipal(request);
+    const principal = await engineeringPrincipal(request);
     // Schema ownership is unresolved. This opt-in is for isolated qualification
     // only; it is never an implicit migration or a production enablement.
     if (process.env.MYEVE_TOTAL_RECALL_MODE !== "qualification" || process.env.VERCEL_ENV === "production")

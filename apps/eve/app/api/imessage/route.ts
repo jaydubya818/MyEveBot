@@ -46,13 +46,13 @@ function stateResponse(request: Request): Promise<Response> {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   return stateResponse(request);
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const body: unknown = await request.json().catch(() => null);

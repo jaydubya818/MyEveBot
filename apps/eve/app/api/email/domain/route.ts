@@ -14,7 +14,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // the agent always agree on what is connected.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
   try {
@@ -25,7 +25,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
 
@@ -41,7 +41,7 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await emailConfigured())) return new Response("Email is not configured", { status: 503 });
   try {

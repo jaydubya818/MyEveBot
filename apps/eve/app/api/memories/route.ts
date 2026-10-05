@@ -4,8 +4,8 @@ import { capabilityMap } from "@/lib/capabilities";
 import { requireWebAuth } from "@/lib/web-auth";
 import { requestOwnerId } from "@/lib/agent-api";
 
-function memoryGuard(request: Request): Response | null {
-  const denied = requireWebAuth(request);
+async function memoryGuard(request: Request): Promise<Response | null> {
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (capabilityMap().memory.state !== "ready") {
     return apiError(request, 503, "memory_not_configured", "Memory needs Supermemory setup.");
@@ -14,7 +14,7 @@ function memoryGuard(request: Request): Response | null {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = memoryGuard(request);
+  const denied = await memoryGuard(request);
   if (denied) return denied;
   try {
     const memories = await memoryStore.listForOwner(requestOwnerId(request));
@@ -26,7 +26,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = memoryGuard(request);
+  const denied = await memoryGuard(request);
   if (denied) return denied;
   const body = (await request.json().catch(() => null)) as { id?: unknown } | null;
   if (body === null || typeof body.id !== "string" || body.id.length === 0) {

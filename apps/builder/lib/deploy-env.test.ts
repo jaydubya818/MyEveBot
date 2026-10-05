@@ -17,6 +17,8 @@ test("managed deployment stamps its isolated owner identity while BYO keeps lega
   const byo = buildEnv(config, stamps);
   assert.equal(managed.find(({ key }) => key === "MYEVE_OWNER_ID")?.value, "managed-owner-id");
   assert.equal(byo.find(({ key }) => key === "MYEVE_OWNER_ID")?.value, "owner");
+  assert.equal(managed.find(({ key }) => key === "MYEVE_DURABLE_WEB_SESSIONS")?.value, "true");
+  assert.equal(byo.some(({ key }) => key === "MYEVE_DURABLE_WEB_SESSIONS"), false);
   assert.notEqual(managed.find(({ key }) => key === "MYEVE_SESSION_SECRET")?.value,
     byo.find(({ key }) => key === "MYEVE_SESSION_SECRET")?.value);
 });

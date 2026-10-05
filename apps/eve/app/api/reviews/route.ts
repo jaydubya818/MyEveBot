@@ -12,8 +12,8 @@ function kindFrom(value: unknown): ReviewKind | null {
     : null;
 }
 
-function guard(request: Request) {
-  const denied = requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request) {
+  const denied = await requireWebAuth(request) ?? requireDatabase(request);
   if (denied) return denied;
   if (capabilityMap().goals.state === "excluded") {
     return apiError(request, 404, "goals_not_included", "Goals are not included in this deployment.");
@@ -22,7 +22,7 @@ function guard(request: Request) {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const kind = kindFrom(new URL(request.url).searchParams.get("kind") ?? "daily");
   if (kind === null) return apiError(request, 400, "invalid_review_kind", "Review kind must be daily or weekly.");
@@ -46,7 +46,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
   if (body === null) return apiError(request, 400, "invalid_review_request", "Choose a daily or weekly review.");

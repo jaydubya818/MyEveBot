@@ -15,7 +15,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // the app without a database write. The key itself is never returned.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   try {
     const source = await apiKeySource();
@@ -30,7 +30,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   if ((process.env.DATABASE_URL ?? "").length === 0) {
@@ -60,7 +60,7 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   try {
     await removeStoredApiKey();

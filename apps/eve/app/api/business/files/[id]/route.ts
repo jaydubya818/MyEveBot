@@ -1,10 +1,10 @@
 import { businessScopes } from "@/lib/business-runtime";
-import { webPrincipal } from "@/lib/web-auth";
+import { authenticateWebPrincipal } from "@/lib/web-auth";
 import { runApp } from "@/agent/lib/effect/runtime";
 import { openChatFile } from "@/agent/lib/effect/chat-files";
 import { chatFileContentHeaders,chatFileContentSize } from "@/lib/files-api";
 export async function GET(request:Request,context:{params:Promise<{id:string}>}){
- const principal=webPrincipal(request,{...process.env,NODE_ENV:'production'});
+ const principal=await authenticateWebPrincipal(request,{...process.env,NODE_ENV:'production'});
  if(!principal)return new Response('Sign in to continue.',{status:401});
  const url=new URL(request.url),owner=url.searchParams.get('owner'),workId=url.searchParams.get('workId'),workOwner=url.searchParams.get('workOwner');
  if(!owner)return new Response('Not found',{status:404});

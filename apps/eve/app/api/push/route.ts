@@ -3,7 +3,7 @@ import { requireDatabase } from "@/lib/api-errors";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const unavailable = requireDatabase(request);
   if (unavailable) return unavailable;
@@ -16,7 +16,7 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const unavailable = requireDatabase(request);
   if (unavailable) return unavailable;

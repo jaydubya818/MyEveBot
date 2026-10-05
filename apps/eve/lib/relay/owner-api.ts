@@ -6,7 +6,7 @@ import { revokeFederationArtifact } from "../qualification/artifact-storage.ts";
 import { createPublicKey } from "node:crypto";
 import { z } from "zod";
 import { listKnowledge } from "../knowledge.ts";
-import { webPrincipal } from "../web-auth.ts";
+import { authenticateWebPrincipal } from "../web-auth.ts";
 import { FederationStore } from "./store.ts";
 import { boundedJson, RelayOperationError, relayOrigin } from "./client.ts";
 import {
@@ -29,9 +29,9 @@ import { importReceipts } from "./receipts.ts";
 import { artifactShare } from "./artifacts.ts";
 import { decryptSecret } from "./transport.ts";
 
-export function authenticatedOwner(request: Request) {
+export async function authenticatedOwner(request: Request) {
   // Federation never inherits the application's development authentication bypass.
-  const principal = webPrincipal(request, {
+  const principal = await authenticateWebPrincipal(request, {
     ...process.env,
     NODE_ENV: "production",
   });
@@ -255,7 +255,7 @@ export async function handleOwnerRequest(request: Request) {
       { headers, status: request.method === "GET" ? 200 : 404 },
     );
   try {
-    const store = new FederationStore(authenticatedOwner(request));
+    const store = new FederationStore(await authenticatedOwner(request));
     if (request.method === "GET")
       return Response.json(await relayDashboard(store), { headers });
     const input = await boundedJson(

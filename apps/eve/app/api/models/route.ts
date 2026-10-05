@@ -4,7 +4,7 @@ import { apiError } from "@/lib/api-errors";
 import { requireWebAuth } from "@/lib/web-auth";
 
 export async function GET(request: Request) {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   try {

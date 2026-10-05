@@ -45,7 +45,7 @@ function parseAuthorizedPayload(value: string | null): AuthorizedUploadPayload {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const body = (await request
     .json()

@@ -11,7 +11,7 @@ function clip(value: string | null | undefined, length = 180): string {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const query = channelSearchQuery(new URL(request.url).searchParams.get("q"));
   if (query === null) return Response.json({ error: "Search needs between 2 and 120 characters." }, { status: 400 });

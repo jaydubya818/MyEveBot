@@ -2,7 +2,7 @@ import { getReadinessReport } from "@/lib/readiness";
 import { requireWebAuth } from "@/lib/web-auth";
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const fresh = new URL(request.url).searchParams.get("fresh") === "1";

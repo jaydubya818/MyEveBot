@@ -6,7 +6,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // A saved skill with the same name wins because it represents the user's
 // explicit customization.
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const commands = new Map<string, { name: string; description: string }>(
     installedSkills

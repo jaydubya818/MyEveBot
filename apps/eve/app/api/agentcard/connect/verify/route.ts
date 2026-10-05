@@ -10,7 +10,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // rotating connection token pair. Tokens never appear in this response.
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireCardAdmin(request);
+  const denied = await requireWebAuth(request) ?? requireCardAdmin(request);
   if (denied) return denied;
 
   let code = "";

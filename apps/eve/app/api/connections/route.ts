@@ -37,7 +37,7 @@ function accountLabel(info: Record<string, unknown> | undefined): string | null 
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (capabilityMap().connections.state !== "ready") {
     return apiError(
@@ -81,7 +81,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (capabilityMap().connections.state !== "ready") {
     return apiError(
@@ -120,7 +120,7 @@ export async function POST(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (capabilityMap().connections.state !== "ready") {
     return apiError(

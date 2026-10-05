@@ -6,7 +6,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 type Context = { params: Promise<{ id: string; shareId: string }> };
 
 export async function DELETE(request: Request, context: Context): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   const { id, shareId } = await context.params;
   try {

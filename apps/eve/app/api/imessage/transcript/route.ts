@@ -11,7 +11,7 @@ function requestedLimit(request: Request): number {
 
 /** Latest provider-facing iMessage transcript entries for Manage -> iMessage. */
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireIMessageTranscriptAdmin(request);
+  const denied = await requireWebAuth(request) ?? requireIMessageTranscriptAdmin(request);
   if (denied) return denied;
   return respondWith(
     listIMessageTranscript(requestedLimit(request)),

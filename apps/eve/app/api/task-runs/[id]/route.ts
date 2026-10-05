@@ -4,12 +4,12 @@ import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-function guard(request: Request): Response | null {
-  return requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  return await requireWebAuth(request) ?? requireDatabase(request);
 }
 
 export async function GET(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const owner = webPrincipal(request)!;
   const { id } = await ctx.params;
@@ -24,7 +24,7 @@ export async function GET(request: Request, ctx: RouteContext): Promise<Response
 }
 
 export async function PATCH(request: Request, ctx: RouteContext): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const owner = webPrincipal(request)!;
   const { id } = await ctx.params;

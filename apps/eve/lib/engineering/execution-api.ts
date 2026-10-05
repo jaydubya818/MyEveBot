@@ -14,7 +14,7 @@ const commandSchema=z.discriminatedUnion("operation",[
 export async function handleExecutionRequest(request:Request,id?:string) {
   const headers={"cache-control":"no-store"};
   try {
-    const principal=engineeringPrincipal(request),value=await boundedJson(new Response(request.body),32000);
+    const principal=await engineeringPrincipal(request),value=await boundedJson(new Response(request.body),32000);
     if(!id)return Response.json(await intakeIssue(principal,value),{headers});
     z.string().uuid().parse(id);const input=commandSchema.parse(value);
     // Recording an owner's decision needs no GitHub credential; publication still revalidates at its own boundary.

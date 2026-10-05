@@ -155,7 +155,7 @@ function failure(request: Request, error: unknown, context: string): Response {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   try {
     return await currentState(request, await requestedProfile(request));
@@ -165,7 +165,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function POST(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   if (!(await orgoConfigured())) return Response.json({ enabled: false, keySource: null });
 
@@ -198,7 +198,7 @@ export async function POST(request: Request): Promise<Response> {
  * polls the boot; a provisioning failure rides along without unsaving the key.
  */
 export async function PUT(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const body = (await request.json().catch(() => null)) as { apiKey?: unknown } | null;
@@ -237,7 +237,7 @@ export async function PUT(request: Request): Promise<Response> {
 
 /** Save the default model used by computer_task when a call does not override it. */
 export async function PATCH(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const body = (await request.json().catch(() => null)) as { model?: unknown } | null;
@@ -276,7 +276,7 @@ export async function PATCH(request: Request): Promise<Response> {
 
 /** Clear the app-managed key. A key from the environment is untouchable here. */
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
   try {
     await setAppOrgoKey(null);

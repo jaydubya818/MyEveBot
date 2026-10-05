@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { requireSameOrigin, webPrincipal } from "../web-auth.ts";
+import { requireSameOrigin, authenticateWebPrincipal } from "../web-auth.ts";
 import type { GoalWorkService } from "./service.ts";
 import type { GoalWorkQueries } from "./projections.ts";
 import { goalInput, taskInput, text } from "./validation.ts";
@@ -75,7 +75,7 @@ export interface GoalApiDependencies {
 }
 export function signedGoalAuthenticator(env: NodeJS.ProcessEnv = process.env) {
   return async (request: Request) =>
-    webPrincipal(request, { ...env, NODE_ENV: "production" });
+    await authenticateWebPrincipal(request, { ...env, NODE_ENV: "production" });
 }
 const headers = {
   "cache-control": "no-store",

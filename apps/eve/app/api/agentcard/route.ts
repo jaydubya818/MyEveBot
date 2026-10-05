@@ -15,7 +15,7 @@ import { requireWebAuth } from "@/lib/web-auth";
 // up (DELETE). Connecting always happens in place with a one-time code.
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   const exit = await runtime.runPromiseExit(agentcardStatus());
@@ -30,7 +30,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function DELETE(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request) ?? requireCardAdmin(request);
+  const denied = await requireWebAuth(request) ?? requireCardAdmin(request);
   if (denied) return denied;
 
   const exit = await runtime.runPromiseExit(disconnectAgentcard());

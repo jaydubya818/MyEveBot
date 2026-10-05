@@ -12,8 +12,8 @@ import {
 } from "@/lib/browser-profiles";
 import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 
-function guard(request: Request): Response | null {
-  return requireWebAuth(request) ?? requireDatabase(request);
+async function guard(request: Request): Promise<Response | null> {
+  return await requireWebAuth(request) ?? requireDatabase(request);
 }
 
 function descriptor(profile: BrowserProfileView) {
@@ -21,7 +21,7 @@ function descriptor(profile: BrowserProfileView) {
 }
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   try {
     return Response.json({ profiles: await ensureAllBrowserProfiles(webPrincipal(request)!.id) }, { headers: { "Cache-Control": "no-store" } });
@@ -31,7 +31,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 export async function PATCH(request: Request): Promise<Response> {
-  const denied = guard(request);
+  const denied = await guard(request);
   if (denied) return denied;
   const ownerId = webPrincipal(request)!.id;
   const body = await request.json().catch(() => null) as Record<string, unknown> | null;

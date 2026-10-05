@@ -25,7 +25,7 @@ import { requireWebAuth, webPrincipal } from "@/lib/web-auth";
 export const maxDuration = 300;
 
 export async function GET(request: Request): Promise<Response> {
-  const denied = requireWebAuth(request);
+  const denied = await requireWebAuth(request);
   if (denied) return denied;
 
   // Resolve the upstream before upgrading, so a desktop with nothing to
