@@ -189,7 +189,7 @@ export async function createBlobStore(
     token,
     teamId,
     method: "POST",
-    body: { name, region: "iad1", access: "public" },
+    body: { name, region: "iad1", access: "private" },
     stage: "storage",
   });
   return body.store.id;

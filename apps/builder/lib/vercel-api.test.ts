@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { createDeployment } from "./vercel-api";
+import { createBlobStore, createDeployment } from "./vercel-api";
 
 test("a source bundle above Vercel's request cap uploads files by digest", async (context) => {
   const uploaded: string[] = [];
@@ -24,4 +24,18 @@ test("a source bundle above Vercel's request cap uploads files by digest", async
   assert.equal(result.id, "dpl_test");
   assert.ok(uploaded.length >= 1);
   assert.ok(deploymentBytes < 10_000_000);
+});
+
+// The Files/skills runtime uses authenticated private Blob reads. A public
+// store both breaks those writes and gives uploaded private data public URLs.
+test("new owner storage is private", async (context) => {
+  context.mock.method(globalThis, "fetch", async (input: string | URL | Request, init?: RequestInit) => {
+    assert.match(String(input), /\/v1\/storage\/stores\/blob/);
+    assert.equal(init?.method, "POST");
+    const body = JSON.parse(String(init?.body));
+    assert.equal(body.access, "private");
+    assert.equal(body.name, "isolated-owner-blob");
+    return Response.json({store: {id: "store_private", access: "private"}});
+  });
+  assert.equal(await createBlobStore("test-token", "team_test", "isolated-owner-blob"), "store_private");
 });
