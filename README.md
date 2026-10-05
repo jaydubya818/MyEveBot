@@ -79,6 +79,14 @@ Feature readiness is connection-specific. [Mac acceptance evidence](docs/verific
 
 The [canonical source status](docs/consolidation/CANONICAL-STATUS.md), [development policy](docs/consolidation/DEVELOPMENT-POLICY.md) and [historical checkpoints](docs/verification/readme-historical-checkpoints.md) retain source and release history.
 
+**Managed beta status:** The combined Ava/Sofie Golden Journey is **not
+qualified**. The last disposable candidate run stopped when the dedicated
+MyEve Beta team's AI Gateway required a payment method (HTTP 403
+`customer_verification_required`). No external tester is invited and global
+managed provisioning remains disabled. See the
+[operator runbook](docs/managed-beta-operator-runbook.md) for the exact gate,
+resource readback, and release controls. The BYO Vercel path remains separate.
+
 ## Finding current priorities
 
 Current product priorities and shipped foundations are tracked in the canonical [MyEve roadmap](docs/roadmap.md). Dated files under `docs/plans/` are historical implementation records, not the current backlog.
