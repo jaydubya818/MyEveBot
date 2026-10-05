@@ -1,5 +1,5 @@
 import {beforeAll,afterAll,describe,it,expect,vi} from 'vitest';
-import {readFile} from 'node:fs/promises';
+import {readFile,writeFile} from 'node:fs/promises';
 import {pathToFileURL} from 'node:url';
 import {join} from 'node:path';
 import {digest} from './contract.ts';
@@ -12,6 +12,9 @@ import {evidenceReference,evidenceSha} from './factory-evidence.ts';
 import {WorkStore} from './store.ts';
 import {FactoryWorkDriver,factoryExecutionConfigurationHash} from './factory-work-driver.ts';
 import {FactoryValidationLifecycle,saveValidationPreparation,readValidationGate} from './factory-validation-lifecycle.ts';
+import * as routing from '../digital-worker/routing.ts';
+import {manifestForSnapshot} from './base-preflight.ts';
+import {materializeValidationGrant} from '../../scripts/production-validation-materializer.ts';
 import {FactoryValidationGrantPending} from './factory-live-adapter.ts';
 
 // Never accepts the application's production DATABASE_URL. Dedicated local databases only.
@@ -58,6 +61,30 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   await expect(upgrade.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"') WHERE id=$1`,[f.decisionId])).rejects.toThrow('Factory preparation identity is immutable');
   expect(await f.driver.step(f.work.id)).toEqual({state:'HALTED'});expect(await f.lifecycle.read()).toBeNull();
   expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0081_factory_validation_lifecycle.sql');
+ });
+ it('deterministically reproduces the legacy materializer state-read race twice with the exact failing predicate',async()=>{
+  const evidence=[];
+  for(let repeat=0;repeat<2;repeat++){
+   const f=await fixture(),first=await f.lifecycle.claim();if(first.state!=='CLAIMED')throw Error('claim');
+   await f.lifecycle.finish(first.claim,'WAITING_GRANT');
+   const sample=async()=>{const [row]=(await pool.query(`SELECT l.decision_id,l.work_id,l.work_version,l.work_generation,l.request_id,l.state,l.claim_epoch,l.claim_token,l.updated_at,l.deadline,l.xmin::text AS row_version,
+    txid_current()::text AS transaction_id,pg_backend_pid() AS backend_pid,clock_timestamp() AS observed_at FROM engineering_factory_validation_lifecycle l WHERE decision_id=$1`,[f.decisionId])).rows;const {claim_token,...safe}=row;return {...safe,fencingTokenDigest:claim_token?digest(claim_token):null};};
+   // The original operator ended its poll on this unlocked state.
+   const preliminary=await sample();expect(preliminary.state).toBe('WAITING_GRANT');
+   // Controlled barrier: the actual controller claims the same request before
+   // the operator's later authoritative predicate read. No fake SQL responses.
+   const claimant=await f.lifecycle.claim();if(claimant.state!=='CLAIMED')throw Error('claim');
+   const row=(await pool.query('SELECT w.version,d.factory_preparation FROM engineering_work w JOIN engineering_routing_decisions d ON d.work_id=w.id WHERE d.id=$1',[f.decisionId])).rows[0];
+   const authoritative=await sample(),p=row.factory_preparation.request;
+   const predicates={work_version:row.version===2,protocol:row.factory_preparation.validationProtocol===2,no_mutable_preparation:!('validationState' in row.factory_preparation),lifecycle_present:!!authoritative,request_identity:authoritative.request_id===p.requestId,lifecycle_state_is_waiting:authoritative.state==='WAITING_GRANT',lifecycle_work_version:authoritative.work_version===2,lifecycle_work_generation:authoritative.work_generation===2};
+   const failed=Object.entries(predicates).filter(([,ok])=>!ok).map(([name])=>name);
+   expect(failed).toEqual(['lifecycle_state_is_waiting']);expect(authoritative.state).toBe('IN_FLIGHT');
+   expect(authoritative.transaction_id).not.toBe(preliminary.transaction_id);expect(authoritative.row_version).not.toBe(preliminary.row_version);
+   expect(await f.bytes()).toBe(f.original);
+   evidence.push({repeat,classification:'CONFIRMED_REPRODUCED_DEFECT_NOT_RETROSPECTIVE_INCIDENT_PROOF',error:'LIFECYCLE_GRANT_WAIT_REQUIRED',failedPredicates:failed,preliminary,authoritative,changedBetweenReads:true,preparationDigest:digest(f.preparation),grantMaterialized:false});
+   await f.lifecycle.finish(claimant.claim,'WAITING_GRANT');
+  }
+  if(process.env.MYEVE_GRANT_RACE_EVIDENCE_PATH)await writeFile(process.env.MYEVE_GRANT_RACE_EVIDENCE_PATH,JSON.stringify(evidence,null,2)+'\n');
  });
  it('atomically saves preparation and lifecycle; invalid binding rolls both back',async()=>{
   const f=await fixture({save:false});const bad={...f.preparation,environment:{binding:{}}};
@@ -188,6 +215,125 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    expect(await f.bytes()).toBe(f.original);expect((await f.lifecycle.read()).state).toBe('HALTED');
   }
   expect((await query('SELECT count(*) FROM factory.execution_resources')).rows[0].count).toBe('0');expect((await query('SELECT count(*) FROM factory.work_spend_operations')).rows[0].count).toBe('0');
+ });
+
+
+ describe.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('atomic operator grant boundary',()=>{
+  const operatorEvidence:any[]=[];
+  afterAll(async()=>{if(process.env.MYEVE_GRANT_OPERATOR_EVIDENCE_PATH)await writeFile(process.env.MYEVE_GRANT_OPERATOR_EVIDENCE_PATH,JSON.stringify(operatorEvidence,null,2)+'\n');});
+  async function operatorFixture(duration=180000){
+   const root=process.env.MYFACTORY_SOURCE_ROOT!,load=(path:string)=>import(/* @vite-ignore */ pathToFileURL(join(root,path)).href);
+   const plan=await load('apps/cloud-control/src/production-validation-plan.mjs');
+   const sourceDigest='a'.repeat(64),configurationDigest=digest(plan.validationConfiguration),factoryVersion=digest({sourceDigest,configurationDigest});
+   const f=await fixture({save:false,duration,repository:plan.validationSourceGrant.source.repository,factoryVersion});
+   const {productionSpendPlan}=await load('apps/cloud-control/src/production-execution-plan.mjs');
+   const {version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd}=productionSpendPlan;
+   const spendPlan={version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd};
+   const source={sha:plan.validationSourceGrant.source.commit,files:{'fixture.txt':'offline serializer qualification'}};
+   const config={connection:{releaseValidation:true,factoryVersion,source:plan.validationSourceGrant.source,spendPlan},engineering:{profile:{repository:f.work.repository,allowedPaths:plan.validationSourceGrant.allowedPaths},approvedBase:manifestForSnapshot(source)},commands:plan.validationSourceGrant.commands};
+   const authority={readConfig:async()=>config,assess:async()=>({selection:{route:'MYFACTORY'},contract:{deadline:f.preparation.request.deadline,budgetUsd:1},environment:f.preparation.environment})};
+   const driver=new FactoryWorkDriver(f.store,authority as never,{} as never,{} as never,async()=>source);
+   // Only route eligibility and the subsequent external step are stubbed. The
+   // real production start serializer, preparation save and SQL trigger execute.
+   const route=vi.spyOn(routing,'decideExecutionRoute').mockReturnValue({admitted:true} as never),step=vi.spyOn(driver,'step').mockResolvedValue({state:'OFFLINE_SERIALIZER_STOP'} as never);
+   try{await driver.start(f.work.id,f.work.version,f.work.generation);}finally{route.mockRestore();step.mockRestore();}
+   const preparation=(await pool.query('SELECT factory_preparation FROM engineering_routing_decisions WHERE id=$1',[f.decisionId])).rows[0].factory_preparation;
+   expect(preparation.request.input.reproductionCommand).toBeNull();expect(preparation.request.input.expectedFailureText).toBeNull();expect(preparation.request.spendContract).toEqual(spendPlan);
+   const {requestId,workId,workGeneration,repository,deadline,maxSpendUsd}=preparation.request;
+   const {title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}=preparation.request.input;
+   const r={requestId,workId,workGeneration,repository,deadline,maxSpendUsd,input:{title,description,kind,acceptanceCriteria,checkCommands,allowedPaths}};
+   const schema='operator_factory_'+randomUUID().replaceAll('-','');
+   const rewrite=(sql:string)=>sql.replace(/\bfactory\b/g,schema);
+   const query=(sql:string,args?:unknown[])=>pool.query(rewrite(sql),args);
+   for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','007-production-installation-boundary','008-production-work-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
+   const installation={projectId:'prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK',databaseResourceId:'dry-morning-22844424',custodyStoreId:'store_qBuivS8MmRxnBNnU'};
+   await query(`UPDATE factory.environment SET environment='production',project_id=$1,database_resource_id=$2,custody_store_id=$3,owner_scope=$4`,[installation.projectId,installation.databaseResourceId,installation.custodyStoreId,f.store.principal.scopeId]);
+   const manifestTemplate={version:1,clientId:plan.validationSourceGrant.clientId,ownerScope:f.store.principal.scopeId,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.validationContractSha256,candidateSha256:plan.validationCandidateSha256,environment:'CLOUD_PRODUCTION',publication:false,
+    request:{protocol:'MYFACTORY_EXECUTION_V2',...r,source:plan.validationSourceGrant.source,requestId:null,deadline:null}};
+   const approval={canonicalSpendPlan:spendPlan,workVersion:f.work.version,configurationHash:preparation.configurationHash,environmentBinding:preparation.environment.binding,criteria:f.work.criteria,manifestTemplate,installation,historicalGrants:[] as {requestId:string;workId:string;manifestSha256:string}[]};
+   const evidence:any[]=[],clients:any[]=[];
+   async function connection(factory=false){const c=await pool.connect();clients.push(c);return {query:(sql:string,args?:unknown[])=>c.query(factory?rewrite(sql):sql,args),raw:c};}
+   const owner=await connection(),factory=await connection(true);
+   async function wait(){const claim=await f.lifecycle.claim();if(claim.state!=='CLAIMED')throw Error('claim');await f.lifecycle.finish(claim.claim,'WAITING_GRANT');}
+   async function run(audit:(event:any)=>Promise<void>=async()=>{},bounds={maxAttempts:20,maxWaitMs:5000,waitMs:1},o:any=owner,g:any=factory){return materializeValidationGrant(o,g,approval,async event=>{evidence.push(event);operatorEvidence.push(event);await audit(event);},bounds);}
+   const original=await f.bytes();
+   const check=async(count:number)=>{expect((await query('SELECT count(*) FROM factory.production_work_authority')).rows[0].count).toBe(String(count));expect(await f.bytes()).toBe(original);expect((await query('SELECT count(*) FROM factory.work_spend_operations')).rows[0].count).toBe('0');};
+   return {...f,approval,preparation,owner,factory,query,connection,wait,run,evidence,check,close:()=>clients.forEach(c=>c.release())};
+  }
+  it('A: eligible lifecycle installs once; exact readback never duplicates authority',async()=>{
+   const f=await operatorFixture();try{await f.wait();expect((await f.run()).alreadyPresent).toBe(false);expect((await f.run()).alreadyPresent).toBe(true);await f.check(1);expect((await f.lifecycle.read()).state).toBe('WAITING_GRANT');
+    expect(f.evidence.find(e=>e.event==='LOCKED_DECISION').failedPredicates).toEqual([]);
+   }finally{f.close();}
+  });
+  it('B: early materializer waits within the original request and deadline',async()=>{
+   const f=await operatorFixture();try{let madeEligible=false;await f.run(async e=>{if(e.event==='BOUNDED_WAIT'&&!madeEligible){madeEligible=true;await f.wait();}});await f.check(1);
+    expect(f.evidence.some(e=>e.event==='BOUNDED_WAIT'&&e.predicate==='LIFECYCLE_GRANT_WAIT_REQUIRED')).toBe(true);
+   }finally{f.close();}
+  });
+  it('C: controlled change after preliminary read cannot drive a stale decision',async()=>{
+   const f=await operatorFixture();try{await f.wait();let barrier=false,controllerClaim:any;
+    const owner={query:async(sql:string,args?:unknown[])=>{const result=await f.owner.query(sql,args);if(sql.includes('l.xmin')&&!sql.includes('FOR UPDATE')&&!barrier){barrier=true;controllerClaim=await f.lifecycle.claim();expect(controllerClaim.state).toBe('CLAIMED');}return result;}};
+    await f.run(async e=>{if(e.event==='BOUNDED_WAIT'&&controllerClaim){await f.lifecycle.finish(controllerClaim.claim,'WAITING_GRANT');controllerClaim=null;}},undefined,owner);
+    const decision=f.evidence.find(e=>e.event==='LOCKED_DECISION');expect(decision.preliminary.state).toBe('WAITING_GRANT');expect(decision.authoritative.state).toBe('IN_FLIGHT');expect(decision.changedBetweenReads).toBe(true);expect(decision.failedPredicates).toEqual(['lifecycle_state_is_waiting']);await f.check(1);
+   }finally{f.close();}
+  });
+  it('D: two independent materializers install exactly one authority',async()=>{
+   const f=await operatorFixture();try{await f.wait();const o2=await f.connection(),g2=await f.connection(true);let release!:()=>void,entered!:()=>void;const gate=new Promise<void>(r=>release=r),ready=new Promise<void>(r=>entered=r);
+    const first=f.run(async e=>{if(e.event==='CLAIM_DURABLE'){entered();await gate;}});await ready;
+    const second=f.run(async e=>{if(e.event==='BOUNDED_WAIT')release();},undefined,o2,g2);const results=await Promise.all([first,second]);expect(results.map(r=>r.alreadyPresent).sort()).toEqual([false,true]);await f.check(1);
+   }finally{f.close();}
+  });
+  it('E: original deadline expiry during wait installs no authority',async()=>{
+   const f=await operatorFixture(600);try{await expect(f.run(async e=>{if(e.event==='BOUNDED_WAIT')await pool.query('SELECT pg_sleep(0.7)');})).rejects.toThrow('DEADLINE_EXPIRED');await f.check(0);}finally{f.close();}
+  });
+  it('F: lifecycle halt during wait installs no authority',async()=>{
+   const f=await operatorFixture();try{await expect(f.run(async e=>{if(e.event==='BOUNDED_WAIT')await f.lifecycle.halt('VALIDATION_CANCELLED');})).rejects.toThrow('TERMINAL_ATTEMPT');await f.check(0);}finally{f.close();}
+  });
+  it('F: a committed stop command before eligibility denies authority',async()=>{
+   const f=await operatorFixture();try{await f.wait();await pool.query(`INSERT INTO engineering_factory_commands(id,scope_id,scope_kind,work_id,work_version,work_generation,operation) VALUES($1,$2,'personal',$3,$4,$5,'stop')`,[randomUUID(),f.store.principal.scopeId,f.work.id,f.work.version,f.work.generation]);await expect(f.run()).rejects.toThrow('no_stop_command');await f.check(0);}finally{f.close();}
+  });
+  it('G: revoked historical authority is byte-preserved beside a single successor',async()=>{
+   const f=await operatorFixture();try{const old={...f.approval.manifestTemplate,request:{...f.preparation.request,workId:randomUUID(),requestId:randomUUID()}};
+    await f.query(`INSERT INTO factory.production_work_authority(request_id,work_id,client_id,manifest,manifest_sha256,state) VALUES($1,$2,'sofie-production-validation',$3,$4,'REVOKED')`,[old.request.requestId,old.request.workId,old,digest(old)]);
+    const before=(await f.query('SELECT row_to_json(a)::text AS bytes FROM factory.production_work_authority a')).rows[0].bytes;
+    f.approval.historicalGrants.push({requestId:old.request.requestId,workId:old.request.workId,manifestSha256:digest(old)});await f.wait();await f.run();await f.check(2);
+    expect((await f.query('SELECT row_to_json(a)::text AS bytes FROM factory.production_work_authority a WHERE request_id=$1',[old.request.requestId])).rows[0].bytes).toBe(before);
+   }finally{f.close();}
+  });
+  it('H: restarting a bounded pre-effect waiter cannot duplicate authority',async()=>{
+   const f=await operatorFixture();try{await expect(f.run(undefined,{maxAttempts:1,maxWaitMs:1,waitMs:1})).rejects.toThrow('WAIT_BOUND_EXHAUSTED');await f.check(0);await f.wait();await f.run();expect((await f.run()).alreadyPresent).toBe(true);await f.check(1);}finally{f.close();}
+  });
+  it('deadline crossing before Factory commit rolls the grant back and halts',async()=>{
+   const f=await operatorFixture(1000);try{await f.wait();await expect(f.run(async e=>{if(e.event==='FACTORY_COMMIT_DECISION')await pool.query('SELECT pg_sleep(1.1)');})).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');await f.check(0);expect((await f.lifecycle.read()).state).toBe('HALTED');}finally{f.close();}
+  });
+  it('halt after durable claim and before Factory installation denies the write',async()=>{
+   const f=await operatorFixture();try{await f.wait();await expect(f.run(async e=>{if(e.event==='CLAIM_DURABLE')await f.lifecycle.halt('VALIDATION_CANCELLED');})).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');await f.check(0);}finally{f.close();}
+  });
+  it('Factory operator lock contention is bounded and cannot install late authority',async()=>{
+   const f=await operatorFixture();const blocker=await pool.connect();try{await f.wait();await blocker.query('BEGIN');await blocker.query('SELECT pg_advisory_xact_lock(81427601)');await expect(f.run()).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');await f.check(0);expect((await f.lifecycle.read()).state).toBe('HALTED');}finally{await blocker.query('ROLLBACK');blocker.release();f.close();}
+  });
+  it('a revoked matching grant is never revived by restart',async()=>{
+   const f=await operatorFixture();try{await f.wait();await f.run();await f.query("UPDATE factory.production_work_authority SET state='REVOKED'");await expect(f.run()).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');await f.check(1);expect((await f.query('SELECT state FROM factory.production_work_authority')).rows[0].state).toBe('REVOKED');}finally{f.close();}
+  });
+  it('connection loss after durable claim cannot activate the controller',async()=>{
+   const f=await operatorFixture();try{
+    await f.wait();await expect(f.run(async e=>{if(e.event==='CLAIM_DURABLE'){const pid=(await f.owner.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;f.owner.raw.on('error',()=>{});await pool.query('SELECT pg_terminate_backend($1)',[pid]);}})).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');
+    expect((await f.lifecycle.claim()).state).toBe('BUSY');await f.check(0);
+    const next=await f.connection();await expect(f.run(undefined,{maxAttempts:1,maxWaitMs:1,waitMs:1},next)).rejects.toThrow('WAIT_BOUND_EXHAUSTED');await f.lifecycle.halt('DISPOSABLE_CLEANUP');await f.check(0);
+   }finally{f.close();}
+  });
+  it('ambiguous Factory commit never releases the durable claim or retries installation',async()=>{
+   const f=await operatorFixture();try{await f.wait();let commits=0;
+    const factory={query:async(sql:string,args?:unknown[])=>{const result=await f.factory.query(sql,args);if(sql==='COMMIT'){commits++;throw Error('injected lost commit acknowledgement');}return result;}};
+    await expect(f.run(undefined,undefined,undefined,factory)).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');expect(commits).toBe(1);expect((await f.lifecycle.read()).state).toBe('HALTED');expect((await f.query('SELECT state FROM factory.production_work_authority')).rows[0].state).toBe('REVOKED');await f.check(1);
+    expect(f.evidence.some(e=>e.event==='ACTIVATION_COMMIT_DECISION')).toBe(false);expect(f.evidence.at(-1).possiblyActivated).toBe(false);
+   }finally{f.close();}
+  });
+  it('lost activation acknowledgement is possibly activated; no second release or grant',async()=>{
+   const f=await operatorFixture();try{await f.wait();let commits=0;const owner={query:async(sql:string,args?:unknown[])=>{const result=await f.owner.query(sql,args);if(sql==='COMMIT'&&++commits===2)throw Error('injected lost activation acknowledgement');return result;}};
+    await expect(f.run(undefined,undefined,owner)).rejects.toThrow('GRANT_UNKNOWN_REQUIRES_READBACK');expect(commits).toBe(2);expect(f.evidence.at(-1).possiblyActivated).toBe(true);expect((await f.lifecycle.read()).state).toBe('HALTED');expect((await f.query('SELECT state FROM factory.production_work_authority')).rows[0].state).toBe('REVOKED');await f.check(1);
+   }finally{f.close();}
+  });
  });
 
  it('retained Proof cannot qualify an interrupted lifecycle; only exact COMPLETED permits further verification',async()=>{

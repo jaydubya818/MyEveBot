@@ -1,0 +1,88 @@
+[
+  {
+    "repeat": 0,
+    "classification": "CONFIRMED_REPRODUCED_DEFECT_NOT_RETROSPECTIVE_INCIDENT_PROOF",
+    "error": "LIFECYCLE_GRANT_WAIT_REQUIRED",
+    "failedPredicates": [
+      "lifecycle_state_is_waiting"
+    ],
+    "preliminary": {
+      "decision_id": "f679bed4-f1c9-4907-b389-2f3212216a52",
+      "work_id": "89c6c74b-378d-457d-b2bc-5c6e517c35d4",
+      "work_version": 2,
+      "work_generation": 2,
+      "request_id": "9b99cdcb-c2c3-4c3d-ab3d-922c3ed37569",
+      "state": "WAITING_GRANT",
+      "claim_epoch": "1",
+      "updated_at": "2026-10-05T07:16:00.197Z",
+      "deadline": "2026-10-05T07:19:00.195Z",
+      "row_version": "15506",
+      "transaction_id": "15507",
+      "backend_pid": 5115,
+      "observed_at": "2026-10-05T07:16:00.198Z",
+      "fencingTokenDigest": null
+    },
+    "authoritative": {
+      "decision_id": "f679bed4-f1c9-4907-b389-2f3212216a52",
+      "work_id": "89c6c74b-378d-457d-b2bc-5c6e517c35d4",
+      "work_version": 2,
+      "work_generation": 2,
+      "request_id": "9b99cdcb-c2c3-4c3d-ab3d-922c3ed37569",
+      "state": "IN_FLIGHT",
+      "claim_epoch": "2",
+      "updated_at": "2026-10-05T07:16:00.198Z",
+      "deadline": "2026-10-05T07:19:00.195Z",
+      "row_version": "15508",
+      "transaction_id": "15509",
+      "backend_pid": 5115,
+      "observed_at": "2026-10-05T07:16:00.199Z",
+      "fencingTokenDigest": "92a60ca44ad0c866d177607f57032ff702ed353153b8aa9bbe896a9752c3c6f1"
+    },
+    "changedBetweenReads": true,
+    "preparationDigest": "80beb3c0641cc80589d41f4d42e30052965bde20d11dabe66bdbd80c239eef7e",
+    "grantMaterialized": false
+  },
+  {
+    "repeat": 1,
+    "classification": "CONFIRMED_REPRODUCED_DEFECT_NOT_RETROSPECTIVE_INCIDENT_PROOF",
+    "error": "LIFECYCLE_GRANT_WAIT_REQUIRED",
+    "failedPredicates": [
+      "lifecycle_state_is_waiting"
+    ],
+    "preliminary": {
+      "decision_id": "5fc565da-7c70-4f40-8de6-ce8f19144981",
+      "work_id": "9fa4dfbe-c05e-486d-8e1c-d8de7bd2ea4d",
+      "work_version": 2,
+      "work_generation": 2,
+      "request_id": "cb787313-04e1-4436-8f7f-f34a2e7b9627",
+      "state": "WAITING_GRANT",
+      "claim_epoch": "1",
+      "updated_at": "2026-10-05T07:16:00.208Z",
+      "deadline": "2026-10-05T07:19:00.206Z",
+      "row_version": "15516",
+      "transaction_id": "15517",
+      "backend_pid": 5115,
+      "observed_at": "2026-10-05T07:16:00.208Z",
+      "fencingTokenDigest": null
+    },
+    "authoritative": {
+      "decision_id": "5fc565da-7c70-4f40-8de6-ce8f19144981",
+      "work_id": "9fa4dfbe-c05e-486d-8e1c-d8de7bd2ea4d",
+      "work_version": 2,
+      "work_generation": 2,
+      "request_id": "cb787313-04e1-4436-8f7f-f34a2e7b9627",
+      "state": "IN_FLIGHT",
+      "claim_epoch": "2",
+      "updated_at": "2026-10-05T07:16:00.208Z",
+      "deadline": "2026-10-05T07:19:00.206Z",
+      "row_version": "15518",
+      "transaction_id": "15519",
+      "backend_pid": 5115,
+      "observed_at": "2026-10-05T07:16:00.209Z",
+      "fencingTokenDigest": "26fd34998ddf62b069b5230c7d3805951962defa998465ece34a0cdea823d771"
+    },
+    "changedBetweenReads": true,
+    "preparationDigest": "5358d9d09389364be3c24a5954d8dd2cd581c45800bff4aca8d46e36b13795e3",
+    "grantMaterialized": false
+  }
+]
