@@ -33,3 +33,14 @@ An earlier qualification stopped at an overly restrictive waiting-state guard
 after productive execution and evidence custody succeeded. Preserve that failed
 qualification record and its earned execution evidence. Fixing the observer
 does not authorize another Factory execution.
+
+## Retained transcript replay after execution cleanup
+
+Browser replay sends the saved Work selection. Once execution configuration is
+revoked, that selection must not prevent an authenticated owner from reading the
+existing conversation. The GET stream route checks the retained owner, personal
+Work, thread, locked selection, and session together. It does not grant permission
+to send a message or control a session. Database failures and mismatched bindings
+deny replay. The execution gate remains required for mutation routes.
+The server-written model ledger establishes the owner/Work/session association;
+owner-editable saved chat JSON alone cannot authorize a replay.
