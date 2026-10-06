@@ -227,6 +227,41 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
  });
 
 
+ it.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('exact paid successor materializer preserves predecessor and installs only after canonical lifecycle checks',async()=>{
+  const root=process.env.MYFACTORY_SOURCE_ROOT!,load=(path:string)=>import(/* @vite-ignore */ pathToFileURL(join(root,path)).href);
+  const plan=await load('apps/cloud-control/src/production-execution-plan.mjs');
+  const sourceDigest='a'.repeat(64),configurationDigest=digest(plan.productionConfiguration),factoryVersion=digest({sourceDigest,configurationDigest});
+  const f=await fixture({save:false,repository:plan.productionSourceGrant.source.repository,factoryVersion,owner:'successor-owner-a'});
+  const schema='successor_operator_'+randomUUID().replaceAll('-',''),rewrite=(s:string)=>s.replaceAll("'factory.","'EVENTPREFIX.").replace(/\bfactory\./g,schema+'.').replace(/\bfactory\b/g,schema).replaceAll("'EVENTPREFIX.","'factory.");
+  const query=(s:string,a?:unknown[])=>pool.query(rewrite(s),a);
+  for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','005-cloud-custody','006-cloud-verification','007-production-installation-boundary','008-production-work-authority','009-paid-operation-release','010-three-owner-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
+  const binding={slot:'A',clientId:'sofie-alpha-a',ownerScope:f.store.principal.scopeId,sourceProjectId:'prj_fixtureA',factoryProjectId:'prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK',environment:'production',rosterSha256:'e'.repeat(64)};
+  const installation={projectId:binding.factoryProjectId,databaseResourceId:'dry-morning-22844424',custodyStoreId:'store_qBuivS8MmRxnBNnU',ownerScope:'owner'};
+  await query("UPDATE factory.environment SET environment='production',project_id=$1,database_resource_id=$2,custody_store_id=$3,owner_scope='owner'",[installation.projectId,installation.databaseResourceId,installation.custodyStoreId]);
+  const oldRequest={workId:randomUUID(),requestId:randomUUID(),workGeneration:2},oldRun=randomUUID(),oldOrder=randomUUID(),now=new Date().toISOString();
+  const oldManifest={request:oldRequest,ownerScope:binding.ownerScope,authorizationEnvelope:{approval:{ownerBinding:binding}}};
+  await query("INSERT INTO factory.work_orders(id,record,state) VALUES($1,'{}','cancelled')",[oldOrder]);await query("INSERT INTO factory.runs(id,work_order_id,record,state) VALUES($1,$2,'{}','cancelled')",[oldRun,oldOrder]);
+  await query("INSERT INTO factory.intake_receipts(client_id,request_id,work_id,work_generation,input_digest,work_order_id,run_id,request,snapshot,deadline) VALUES($1,$2,$3,2,$4,$5,$6,$7,'{}',clock_timestamp())",[binding.clientId,oldRequest.requestId,oldRequest.workId,digest(oldRequest),oldOrder,oldRun,oldRequest]);
+  await query("INSERT INTO factory.production_work_authority(request_id,work_id,client_id,manifest,manifest_sha256,state,consumed_at) VALUES($1,$2,$3,$4,$5,'REVOKED',$6)",[oldRequest.requestId,oldRequest.workId,binding.clientId,oldManifest,digest(oldManifest),now]);
+  await query("INSERT INTO factory.work_spend_budgets(work_id,work_generation,request_id,work_order_id,ceiling_microusd,deadline,cancelled_at,created_at,contract_version,authority_state) VALUES($1,2,$2,$3,1000000,$4,$4,$4,'WORK_LEDGER_V2','fenced')",[oldRequest.workId,oldRequest.requestId,oldOrder,now]);
+  await query("INSERT INTO factory.execution_resources(run_id,provider_name,state,lease_owner,lease_expires_at,deadline,cleanup_confirmed) VALUES($1,$2,'DESTROYED',$3,clock_timestamp(),clock_timestamp(),true)",[oldRun,'fixture-'+oldRun,randomUUID()]);
+  for(const type of ['factory.stop_requested','factory.terminal'])await query("INSERT INTO factory.events(work_order_id,run_id,type,payload) VALUES($1,$2,$3,$4)",[oldOrder,oldRun,type,{status:'CANCELLED'}]);
+  const before=(await query('SELECT * FROM factory.intake_receipts')).rows;
+  const {version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd}=plan.productionSpendPlan;
+  const spend={version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd};
+  const request={protocol:'MYFACTORY_EXECUTION_V2',requestId:null,deadline:null,workId:f.work.id,workGeneration:2,repository:f.work.repository,source:plan.productionSourceGrant.source,maxSpendUsd:1,input:{title:f.work.title,description:f.work.objective,kind:'feature',acceptanceCriteria:f.work.criteria.map(c=>c.statement),checkCommands:plan.productionSourceGrant.commands,allowedPaths:plan.productionSourceGrant.allowedPaths}};
+  const configurationHash='c'.repeat(64),environmentBinding={factoryVersion,environmentId:'disposable-cloud',environmentType:'CLOUD'};
+  const approval={workVersion:2,configurationHash,environmentBinding,criteria:f.work.criteria,canonicalSpendPlan:spend,ownerBinding:binding,installation,historicalGrants:[{requestId:oldRequest.requestId,workId:oldRequest.workId,manifestSha256:digest(oldManifest),consumedAt:now}],manifestTemplate:{version:1,clientId:binding.clientId,ownerScope:binding.ownerScope,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.productionExecutionContractSha256,candidateSha256:null,environment:'CLOUD_PRODUCTION',publication:false,request},successorIntake:{version:1,clientId:binding.clientId,workId:f.work.id,workGeneration:2,maxIntakes:1,predecessor:{...oldRequest,runId:oldRun,inputDigest:digest(oldRequest),manifestSha256:digest(oldManifest)}}};
+  const envelope={version:1,expiresAt:new Date(Date.now()+300000).toISOString(),approval},sha256=digest(envelope),deadline=new Date(Date.now()+170000).toISOString(),requestId=randomUUID();
+  const p={validationProtocol:2,configurationHash,authorizationEnvelopeSha256:sha256,environment:{binding:environmentBinding},request:{spendContract:spend,requestId,deadline,workId:f.work.id,workGeneration:2,repository:f.work.repository,maxSpendUsd:1,input:{...request.input,reproductionCommand:null,expectedFailureText:null,baseRef:request.source.commit,workerProfile:'container'}}};
+  await saveValidationPreparation(f.store,f.work.id,f.decisionId,JSON.stringify(p));const claim=await f.lifecycle.claim();if(claim.state!=='CLAIMED')throw Error('claim');await f.lifecycle.finish(claim.claim,'WAITING_GRANT');
+  const o=await pool.connect(),g=await pool.connect(),events:any[]=[];try{
+   const result=await materializeValidationGrant(o,{query:(s,a)=>g.query(rewrite(s),a)},approval,async e=>{events.push(e);},{maxAttempts:1,maxWaitMs:0,waitMs:1},{envelope,sha256});expect(result.state).toBe('INSTALLED');
+   expect((await query('SELECT * FROM factory.intake_receipts')).rows).toEqual(before);expect((await query("SELECT count(*) FROM factory.production_work_authority WHERE state='AUTHORIZED'")).rows[0].count).toBe('1');expect((await query('SELECT count(*) FROM factory.work_spend_operations')).rows[0].count).toBe('0');
+   expect((await f.lifecycle.read()).state).toBe('WAITING_GRANT');expect(JSON.parse(await f.bytes())).toEqual(p);expect(events.at(-1).event).toBe('INSTALLED');
+  }finally{o.release();g.release();}
+ });
+
  describe.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('atomic operator grant boundary',()=>{
   const operatorEvidence:any[]=[];
   afterAll(async()=>{if(process.env.MYEVE_GRANT_OPERATOR_EVIDENCE_PATH)await writeFile(process.env.MYEVE_GRANT_OPERATOR_EVIDENCE_PATH,JSON.stringify(operatorEvidence,null,2)+'\n');});

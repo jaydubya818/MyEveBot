@@ -1,3 +1,4 @@
+import {successorIntakePolicy,assertSuccessorPredecessor} from './production-successor-intake.ts';
 import {assertProductionApproval} from '../lib/engineering/production-approval.ts';
 import {digest} from '../lib/engineering/contract.ts';
 import {FactoryValidationLifecycle, type ValidationClaim} from '../lib/engineering/factory-validation-lifecycle.ts';
@@ -16,6 +17,7 @@ export interface GrantApproval {
   canonicalSpendPlan:Record<string,unknown>;
   manifestTemplate:Record<string,any>;
   ownerBinding?:Record<string,unknown>;
+  successorIntake?:Record<string,unknown>;
   installation:{projectId:string;databaseResourceId:string;custodyStoreId:string;ownerScope?:string};
   historicalGrants:{requestId:string;workId:string;manifestSha256:string;consumedAt?:string|null}[];
 }
@@ -56,6 +58,8 @@ export async function materializeValidationGrant(
     !Number.isInteger(a.workVersion)||a.workVersion<1||!Number.isInteger(r.workGeneration)||r.workGeneration<1||
     t.factoryVersion!==digest({sourceDigest:t.sourceDigest,configurationDigest:t.configurationDigest})))fail('APPROVAL_INVALID');
   if(a.ownerBinding&&(!productionApproval||typeof a.installation.ownerScope!=='string'||!a.installation.ownerScope||a.installation.ownerScope===t.ownerScope))fail('ALPHA_HOST_INSTALLATION_BOUNDARY');
+  const successor=successorIntakePolicy(a);
+  if(successor&&!productionApproval)fail('SUCCESSOR_APPROVAL_REQUIRED');
   const maxAttempts=bounds.maxAttempts??60,maxWaitMs=bounds.maxWaitMs??30000,waitMs=bounds.waitMs??250;
   if(!Number.isFinite(maxWaitMs)||!Number.isFinite(waitMs)||!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>120||maxWaitMs<0||maxWaitMs>30000||waitMs<1||waitMs>500)fail('WAIT_BOUND_INVALID');
   const started=performance.now(),key='myeve:factory-worker:'+t.ownerScope;
@@ -134,6 +138,7 @@ export async function materializeValidationGrant(
     // intake this request until the final successful release below.
     await factory.query('BEGIN');factoryTransaction=true;phase='FACTORY_TRANSACTION';
     await factory.query('SELECT pg_advisory_xact_lock(81427601)');
+    await factory.query('SELECT pg_advisory_xact_lock(81427603)');
     await factory.query('LOCK TABLE factory.production_work_authority IN SHARE ROW EXCLUSIVE MODE');
     const env=(await factory.query('SELECT * FROM factory.environment WHERE singleton')).rows[0];
     if(!env||env.environment!=='production'||env.owner_scope!==(a.ownerBinding?a.installation.ownerScope:t.ownerScope)||env.project_id!==a.installation.projectId||env.database_resource_id!==a.installation.databaseResourceId||env.custody_store_id!==a.installation.custodyStoreId)fail('PRODUCTION_DATABASE_BOUNDARY');
@@ -144,11 +149,16 @@ export async function materializeValidationGrant(
     if(existing&&(existing.state!=='AUTHORIZED'||existing.consumed_at!==null||existing.manifest_sha256!==digest(manifest)||!same(existing.manifest,manifest)))fail('EXISTING_AUTHORITY_NOT_REUSABLE');
     // A new alpha slot may coexist with preserved settled history. It may not
     // reuse its own slot, or overlap another unresolved paid operation.
+    if(successor){
+      await assertSuccessorPredecessor(factory,a);
+      const receipts=(await factory.query('SELECT request_id FROM factory.intake_receipts WHERE client_id=$1',[t.clientId])).rows;
+      if(receipts.length!==1||receipts[0].request_id!==successor.predecessor.requestId)fail('SUCCESSOR_INTAKE_HISTORY');
+    }
     const priorExecution=a.ownerBinding
       ?(await factory.query(`SELECT 1 FROM factory.work_spend_operations o
           LEFT JOIN factory.intake_receipts i ON i.run_id=o.run_id
           WHERE i.client_id=$1 OR i.run_id IS NULL OR o.state IN ('reserved','dispatched','unknown') LIMIT 1`,[t.clientId])).rows.length
-        ||(await factory.query('SELECT 1 FROM factory.intake_receipts WHERE client_id=$1 LIMIT 1',[t.clientId])).rows.length
+        ||(!successor&&(await factory.query('SELECT 1 FROM factory.intake_receipts WHERE client_id=$1 LIMIT 1',[t.clientId])).rows.length)
       :(await factory.query('SELECT 1 FROM factory.work_spend_operations LIMIT 1')).rows.length;
     if(priorExecution||
       (await factory.query('SELECT 1 FROM factory.intake_receipts WHERE request_id=$1 LIMIT 1',[manifest.request.requestId])).rows.length)fail('UNEXPECTED_EXECUTION');
