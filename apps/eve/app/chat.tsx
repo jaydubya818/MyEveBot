@@ -1,4 +1,6 @@
 "use client";
+import { ChatWorkContext } from "@/components/owner/chat-work-context";
+import { chatWorkHeaders, changeChatWork, type ChatWorkSelection } from "@/lib/chat-work-selection";
 import { WorkThread } from "@/components/owner/work-thread";
 
 import { toolPresentation } from "@/lib/tool-presentation";
@@ -183,6 +185,8 @@ function chatKey(threadId: string): string {
 }
 
 interface SavedChat {
+  workSelection?: ChatWorkSelection;
+  workContextLocked?: boolean;
   events?: readonly HandleMessageStreamEvent[];
   session?: ClientSessionState;
   /** When this device wrote the copy; lets cross-device sync spot staleness. */
@@ -1844,6 +1848,23 @@ function ChatThread({
   onResumed: (chat: SavedChat) => void;
 }) {
   const [initialChat] = useState(() => reconcileChatSession(savedInitialChat));
+  const [workSelection, setWorkSelection] = useState(initialChat.workSelection);
+  const workSelectionRef = useRef(workSelection);
+  const [workContextLocked, setWorkContextLocked] = useState(
+    initialChat.workContextLocked === true || !!initialChat.session || !!initialChat.events?.length,
+  );
+  const workContextLockedRef = useRef(workContextLocked);
+  function workContext() {
+    return { workSelection: workSelectionRef.current, workContextLocked: workContextLockedRef.current };
+  }
+  function conversationHeaders() {
+    return {
+      "x-myeve-thread-id": threadId,
+      ...(agentId ? { "x-myeve-agent-id": agentId } : {}),
+      ...(roleId ? { "x-myeve-role-id": roleId } : {}),
+      ...chatWorkHeaders(workSelectionRef.current),
+    };
+  }
   const activeLabel = roleName ?? agentName;
   const [draft, setDraft] = useState(initialDraft ?? "");
   const composerRef = useRef<HTMLTextAreaElement>(null);
@@ -1893,15 +1914,11 @@ function ChatThread({
     const live = liveRef.current;
     clearTimeout(live.timer);
     live.timer = undefined;
-    onPersist(reconcileChatSession({ events: [...live.events], session: live.session }));
+    onPersist(reconcileChatSession({ events: [...live.events], session: live.session, ...workContext() }));
   }
 
   const agent = useEveAgent({
-    headers: {
-      "x-myeve-thread-id": threadId,
-      ...(agentId ? { "x-myeve-agent-id": agentId } : {}),
-      ...(roleId ? { "x-myeve-role-id": roleId } : {}),
-    },
+    headers: conversationHeaders,
     initialEvents: initialChat.events ?? [],
     initialSession: ownerConflict ? undefined : initialChat.session,
     // Ride the selected gateway model (and reasoning effort, when set) along
@@ -1911,6 +1928,10 @@ function ChatThread({
     // turn). Forked threads also carry their source transcript on the first
     // turn.
     prepareSend: (input) => {
+      chatWorkHeaders(workSelectionRef.current);
+      workContextLockedRef.current = true;
+      setWorkContextLocked(true);
+      persistLive();
       const forkedThreadTranscript = forkContextRef.current;
       forkContextRef.current = undefined;
       return {
@@ -1957,7 +1978,7 @@ function ChatThread({
     },
     onFinish(snapshot) {
       clearTimeout(liveRef.current.timer);
-      const chat = reconcileChatSession({ events: snapshot.events, session: snapshot.session });
+      const chat = reconcileChatSession({ events: snapshot.events, session: snapshot.session, ...workContext() });
       liveRef.current = { events: [...chat.events], session: chat.session, timer: undefined };
       onPersist(chat);
       onActivity();
@@ -1989,7 +2010,7 @@ function ChatThread({
     const collected: HandleMessageStreamEvent[] = [];
     let persistTimer: ReturnType<typeof setTimeout> | undefined;
     (async () => {
-      const client = new Client({ host: window.location.origin });
+      const client = new Client({ host: window.location.origin, headers: conversationHeaders });
       const session = client.sessions.attach(initialChat.session!.sessionId, { streamIndex: initialChat.session!.streamIndex });
       try {
         const collect = (event: HandleMessageStreamEvent) => {
@@ -1997,7 +2018,7 @@ function ChatThread({
           setResumedEvents([...collected]);
           clearTimeout(persistTimer);
           persistTimer = setTimeout(() => {
-            onPersist({ events: [...base, ...collected], session: session.state });
+            onPersist({ events: [...base, ...collected], session: session.state, ...workContext() });
           }, 800);
         };
         // A clean saved boundary can still be behind the durable session
@@ -2020,7 +2041,7 @@ function ChatThread({
       clearTimeout(persistTimer);
       onBusyChange(false);
       onActivity();
-      onResumed({ events: [...base, ...collected], session: session.state });
+      onResumed({ events: [...base, ...collected], session: session.state, ...workContext() });
     })();
     return () => {
       controller.abort();
@@ -2250,7 +2271,7 @@ function ChatThread({
     if (!resuming) {
       await agent.cancel().catch(() => undefined);
     } else if (sessionId) {
-      await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST" }).catch(() => undefined);
+      await fetch(`/eve/v1/session/${sessionId}/cancel`, { method: "POST", headers: conversationHeaders() }).catch(() => undefined);
     }
   }
 
@@ -2327,7 +2348,7 @@ function ChatThread({
         ? messages.slice(0, includeTurn ? messageIndex + 1 : messageIndex)
         : messages;
 
-    onFork({ events: sliced, forkContext: buildTranscript(carried) }, draftText);
+    onFork({ events: sliced, forkContext: buildTranscript(carried), ...workContext() }, draftText);
   }
 
   const hasMessages = messages.length > 0;
@@ -2399,6 +2420,15 @@ function ChatThread({
           </div>
         )}
 
+        {!ownerConflict && !agentId && !roleId && <ChatWorkContext
+          selection={workSelection} locked={workContextLocked} busy={isBusy}
+          onChange={next => {
+            const selection = changeChatWork(workSelectionRef.current, next, workContextLockedRef.current);
+            workSelectionRef.current = selection;
+            setWorkSelection(selection);
+            persistLive();
+          }}
+        />}
         <CapabilityNotice state={capabilityNotice} onReview={onReviewSystem} />
 
         {ownerConflict && (
