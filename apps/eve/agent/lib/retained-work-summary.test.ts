@@ -1,0 +1,38 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+import {digest} from '../../lib/engineering/contract.ts';
+import {readRetainedWorkSummary,retainedWorkSummaryModel} from './retained-work-summary.ts';
+const m=vi.hoisted(()=>({owner:vi.fn(),binding:vi.fn(),get:vi.fn(),query:vi.fn(),evidence:vi.fn(),accounting:vi.fn(),provider:vi.fn()}));
+vi.mock('./retained-work-session.ts',()=>({retainedSessionOwner:m.owner,retainedWorkSessionBinding:m.binding}));
+vi.mock('../../lib/engineering/store.ts',()=>({WorkStore:class {get=m.get;database={query:m.query};}}));
+vi.mock('../../lib/engineering/factory-evidence-store.ts',()=>({FactoryEvidenceStore:class {readProof=m.evidence;}}));
+vi.mock('../../lib/engineering/journey-accounting.ts',()=>({readJourneyAccounting:m.accounting}));
+vi.mock('ai',()=>({gateway:m.provider}));
+const workId='00000000-0000-4000-8000-000000000001',resultId='00000000-0000-4000-8000-000000000002',receiptId='00000000-0000-4000-8000-000000000003',candidate='a'.repeat(40);
+const selected={ownerId:'a',threadId:'thread',sessionId:'session',workId};
+let proof:any,row:any,work:any;
+beforeEach(()=>{
+ vi.resetAllMocks();m.provider.mockImplementation(()=>{throw Error('NO_PROVIDER_PERMITTED')});
+ m.owner.mockResolvedValue(true);m.binding.mockResolvedValue(true);
+ work={id:workId,control:'paused',version:3,generation:3,title:'Normalize text',objective:'Normalize line endings'};m.get.mockImplementation(async()=>work);
+ proof={contractVersion:2,workId,workVersion:2,criteriaVersion:1,outcome:'PARTIAL',resultRevision:candidate,createdAt:'2026-10-06T00:00:00Z',evidence:[],limitations:['Publication and acceptance are not established.'],artifactRefs:['factory-evidence:sha256:'+'a'.repeat(64),'factory-evidence:sha256:'+'b'.repeat(64),'factory-receipt:'+receiptId,'changed-source:fixture.mjs']};
+ row={id:resultId,proof,content_hash:digest(proof),candidate_sha:candidate,work_version:2,work_generation:2};
+ m.query.mockImplementation(async sql=>sql.includes('FROM engineering_native_results')?[row]:[{verification:{kind:'INDEPENDENT_CLOUD_VERIFICATION',workId,workGeneration:2,candidateCommit:candidate,checks:Array.from({length:11},(_,i)=>({id:'check-'+i,result:'PASS'})),cleanupConfirmed:true}}]);
+ m.evidence.mockImplementation(async(_w,_r,ref)=>({ref:{kind:ref.endsWith('a'.repeat(64))?'TestEvidence':'DiffEvidence'}}));
+ m.accounting.mockResolvedValue({settledMicrousd:13181,unknownExposureMicrousd:0,coverage:'COMPLETE'});
+});
+it('explains retained execution2/2 while preserving paused3/3, PARTIAL and ledger cost without a provider',async()=>{
+ const {binding,text}=await readRetainedWorkSummary(selected);
+ expect(text).toContain('11/11');expect(text).toContain('PARTIAL');expect(text).toContain('version 3, generation 3');expect(text).toContain('execution version 2, generation 2');expect(text).toContain('$0.013181');
+ const model=retainedWorkSummaryModel(binding),result=await model.doGenerate({prompt:[],tools:[{type:'function',name:'engineering_factory',inputSchema:{}}]} as never);
+ expect(result.content).toEqual([{type:'text',text}]);expect(result.usage.inputTokens.total).toBe(0);expect(result.usage.outputTokens.total).toBe(0);
+ const stream=(await model.doStream({prompt:[]} as never)).stream;const chunks=[];for await(const part of stream as any)chunks.push(part);
+ expect(chunks.map((c:any)=>c.type)).toEqual(['stream-start','text-start','text-delta','text-end','finish']);
+ expect(m.provider).not.toHaveBeenCalled();expect(m.query.mock.calls.every(([sql])=>sql.trim().startsWith('SELECT'))).toBe(true);expect(work.control).toBe('paused');
+});
+it.each(['b','c'])('rejects foreign owner %s before reading Proof',async ownerId=>{m.owner.mockResolvedValue(false);await expect(readRetainedWorkSummary({...selected,ownerId})).rejects.toThrow('BINDING');expect(m.get).not.toHaveBeenCalled();});
+it('rejects forged thread/Work binding and absent runtime ownership',async()=>{m.binding.mockResolvedValue(false);await expect(readRetainedWorkSummary(selected)).rejects.toThrow('BINDING');m.owner.mockResolvedValue(null);await expect(readRetainedWorkSummary(selected)).rejects.toThrow('BINDING');});
+it('rejects tampered Proof bytes',async()=>{proof.outcome='COMPLETED';await expect(readRetainedWorkSummary(selected)).rejects.toThrow('INTEGRITY');expect(m.evidence).not.toHaveBeenCalled();});
+it('rejects cross-Work or cross-candidate Proof even with a matching digest',async()=>{row.candidate_sha='b'.repeat(40);await expect(readRetainedWorkSummary(selected)).rejects.toThrow('PROOF_BINDING');});
+it('rechecks paused version and exact Proof after HTTP authorization',async()=>{const {binding}=await readRetainedWorkSummary(selected);work.version=4;await expect(retainedWorkSummaryModel(binding).doGenerate({prompt:[]} as never)).rejects.toThrow('CHANGED');work.control='agent';await expect(readRetainedWorkSummary(selected)).rejects.toThrow('PAUSED');});
+it('fails closed on evidence byte or receipt verification failure',async()=>{m.evidence.mockRejectedValue(Error('EVIDENCE_INTEGRITY'));await expect(readRetainedWorkSummary(selected)).rejects.toThrow('EVIDENCE_INTEGRITY');expect(m.provider).not.toHaveBeenCalled();});
+it('rejects another execution generation in verifier provenance',async()=>{m.query.mockImplementation(async sql=>sql.includes('FROM engineering_native_results')?[row]:[{verification:{kind:'INDEPENDENT_CLOUD_VERIFICATION',workId,workGeneration:1,candidateCommit:candidate,checks:[{id:'one',result:'PASS'}],cleanupConfirmed:true}}]);await expect(readRetainedWorkSummary(selected)).rejects.toThrow();});

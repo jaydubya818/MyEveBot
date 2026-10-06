@@ -7,6 +7,7 @@ import { ensurePrimaryAgent } from "../../lib/agents.ts";
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { assembleContext, recentConversationContext } from "../lib/context-assembly.ts";
 import { selectedEngineeringWorkId } from "../lib/engineering-work-binding.ts";
+import { retainedSummaryBinding } from '../lib/retained-work-summary.ts';
 import { bindExecutorRun, reconcileStaleAgentRuns, resolveSessionAgent } from "../lib/session-settings.ts";
 
 function durableTurnId(event: unknown): string {
@@ -32,7 +33,7 @@ export default defineDynamic({
         ? principal.principalId
         : process.env.MYEVE_OWNER_ID?.trim() || process.env.SOFIE_OWNER_ID?.trim();
       if (!ownerId) return null;
-      await reconcileStaleAgentRuns(ownerId, ctx.session.id);
+      if(principal?.attributes.myeveRetainedSummary===undefined)await reconcileStaleAgentRuns(ownerId, ctx.session.id);
       const selected = await resolveSessionAgent({ ownerId, sessionId: ctx.session.id, auth: ctx.session.auth, primaryFallback: principal?.attributes.owner === "true" });
       const agent = selected ?? await ensurePrimaryAgent(ownerId);
       const authenticatedThreadId = ctx.session.auth.initiator?.attributes.webThreadId ?? principal?.attributes.webThreadId;
@@ -46,6 +47,12 @@ export default defineDynamic({
         : undefined;
       if (authenticatedRoleId && role?.executionMode !== "on-demand") throw new Error("This Role is not available for on-demand use.");
       if (authenticatedRoleId && (principal?.attributes.myeveAgentId || ctx.session.auth.initiator?.attributes.myeveAgentId)) throw new Error("Choose either a persistent Agent or an on-demand Role.");
+      if(principal?.attributes.myeveRetainedSummary!==undefined){
+        const binding=retainedSummaryBinding(principal.attributes.myeveRetainedSummary);
+        if(binding.ownerId!==ownerId||binding.sessionId!==ctx.session.id||binding.threadId!==threadId||!agent.isPrimary||authenticatedRoleId)throw Error('RETAINED_SUMMARY_AGENT');
+        await bindExecutorRun(ctx.session.id,durableTurnId(event),ownerId,agent,threadId);
+        return defineInstructions({markdown:'Return only the canonical retained evidence summary. No tools, providers, private recall, execution or new authority.'});
+      }
       const engineeringWorkId = selectedEngineeringWorkId({
         ownerId, threadId, agent, roleId: authenticatedRoleId, channelKind: ctx.channel.kind,
         mode: ctx.conversation?.mode, auth: ctx.session.auth,

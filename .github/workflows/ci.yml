@@ -22,6 +22,8 @@ jobs:
 
       - run: npm run test --workspace=eve-agent -- lib/relay
 
+      - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts
+
       - run: npm run typecheck
 
       - run: npm run db:migrations:check

@@ -18,6 +18,7 @@ export default defineHook({
       if (elapsedSeconds >= Number(row.max_runtime_seconds)) throw new Error(`${row.name} reached its configured runtime limit.`);
     },
     async "step.completed"(event, ctx) {
+      if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)return; // Canonical evidence text is not a model operation.
       await db().query(
         `UPDATE agent_runs SET model_steps=model_steps+1, estimated_cost_usd=estimated_cost_usd+$2, updated_at=now() WHERE session_id=$1 AND status='running'`,
         [ctx.session.id, event.data.usage?.costUsd ?? 0],

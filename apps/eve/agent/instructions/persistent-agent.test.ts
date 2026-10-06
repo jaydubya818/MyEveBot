@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  assembleContext: vi.fn(), bindExecutorRun: vi.fn(), resolveSessionAgent: vi.fn(),
+  assembleContext: vi.fn(), bindExecutorRun: vi.fn(), resolveSessionAgent: vi.fn(), reconcileStaleAgentRuns: vi.fn(),
 }));
 vi.mock("../../lib/relay/owner/runtime.ts", () => ({ ownerRuntimeFromAuth: () => null, bindOwnerRuntime: vi.fn() }));
 vi.mock("../../lib/agents.ts", () => ({ ensurePrimaryAgent: vi.fn() }));
@@ -10,7 +10,7 @@ vi.mock("../lib/context-assembly.ts", () => ({
 }));
 vi.mock("../lib/session-settings.ts", () => ({
   bindExecutorRun: mocks.bindExecutorRun, resolveSessionAgent: mocks.resolveSessionAgent,
-  reconcileStaleAgentRuns: vi.fn(async () => 0),
+  reconcileStaleAgentRuns: mocks.reconcileStaleAgentRuns,
 }));
 
 import instructions from "./persistent-agent.ts";
@@ -54,3 +54,12 @@ it("rejects a child channel selection before binding a run or assembling context
   expect(mocks.bindExecutorRun).not.toHaveBeenCalled();
   expect(mocks.assembleContext).not.toHaveBeenCalled();
 });
+
+ it("binds a normal retained-summary turn without stale-run recovery or private context assembly", async () => {
+  const ctx=context(undefined,workId);
+  Object.assign(ctx.session.auth.current.attributes,{myeveRetainedSummary:JSON.stringify({ownerId,threadId,sessionId:'session-1',workId,resultId:'22222222-2222-4222-8222-222222222222',proofHash:'a'.repeat(64),version:3,generation:3})});
+  await startTurn(ctx);
+  expect(mocks.bindExecutorRun).toHaveBeenCalledOnce();
+  expect(mocks.reconcileStaleAgentRuns).not.toHaveBeenCalled();
+  expect(mocks.assembleContext).not.toHaveBeenCalled();
+ });

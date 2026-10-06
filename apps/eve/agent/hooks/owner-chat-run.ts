@@ -6,6 +6,7 @@ import { resolveSessionAgent } from "../lib/session-settings.ts";
 export default defineHook({events:{
   async "message.received"(event,ctx) {
     const caller=ctx.session.auth.current;
+    if(caller?.attributes.myeveRetainedSummary!==undefined)return; // Observation must not renew an expired execution run or budget.
     if(!caller || caller.principalType!=="user" || caller.attributes.owner!=="true"
       || ctx.session.parent || executionIdentityFromAuth(ctx.session.auth) || caller.attributes.myeveRoleId)return;
     const message=event.data.message;

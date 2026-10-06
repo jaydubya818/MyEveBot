@@ -11,6 +11,8 @@ import { authenticateWebPrincipal } from "../../lib/web-auth.ts";
 import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/execution-auth.ts";
 import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
 import { ENGINEERING_WORK_ID_HEADER,ENGINEERING_WORK_ID_PATTERN } from "../lib/engineering-work-binding.ts";
+import { replaySessionId, retainedSessionOwner, retainedWorkSessionRead } from "../lib/retained-work-session.ts";
+import { assertRetainedSummaryMessage, readRetainedWorkSummary, type RetainedSummaryBinding } from "../lib/retained-work-summary.ts";
 
 export function routineSession():AuthFn<Request> {
   return async request=>{
@@ -34,18 +36,49 @@ export function ownerSession(): AuthFn<Request> {
     const roleHeader = request.headers.get("x-myeve-role-id");
     const requestedRoleId = roleHeader?.trim();
     const requestedThreadId = request.headers.get("x-myeve-thread-id")?.trim();
+    const replayId = replaySessionId(request);
+    if (replayId) {
+      const owned = await retainedSessionOwner(replayId, principal.id, requestedThreadId);
+      // Eve retries stream transport 5xx with its bounded reconnect policy.
+      // Never authorize a pending session or turn this create/bind race into 403.
+      if (owned === null) throw new Error('Session ownership binding is not available yet.');
+      if (!owned) throw new ForbiddenError({ code: "invalid_session_owner", message: "This conversation is not available in this workspace." });
+    }
     const workHeader = request.headers.get(ENGINEERING_WORK_ID_HEADER);
     const requestedWorkId = workHeader?.trim();
     if(process.env.MYEVE_PARTNER_OWNER_ID && requestedWorkId && await new BusinessScopes(principal.id).hasSharedWork(principal.id,requestedWorkId))
       throw new ForbiddenError({code:"shared_work_context_required",message:"Open Our business to ask Sofie with explicitly shared Work context. A private conversation cannot inherit this shared Work."});
     const workIntent = request.headers.get("x-myeve-engineering-intent");
+    let retainedSummary: RetainedSummaryBinding | undefined;
     if (workIntent !== null && (!requestedWorkId || !["observe", "continue"].includes(workIntent)))
       throw new ForbiddenError({code:"invalid_engineering_intent",message:"Select Work and a valid access mode."});
     if (workHeader !== null && (
-      !selectedEngineeringWorkEnabled(requestedWorkId,engineeringWorkEnabled()) || !requestedWorkId ||
+      !requestedWorkId ||
       !ENGINEERING_WORK_ID_PATTERN.test(requestedWorkId) ||
       !requestedThreadId || requestedThreadId.length > 100 || requestedRoleId
     )) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "Engineering Work requires a valid selection in a direct web chat." });
+    if (workHeader !== null) {
+      let allowed = false;
+      try {
+        // Exact retained owner/Work/thread/session binding permits only GET replay.
+        // POST and every control route still require the existing execution gate.
+        allowed = !!replayId && await retainedWorkSessionRead(request, principal.id, requestedThreadId!, requestedWorkId!);
+        // During a first turn the server-owned session can precede the model
+        // ledger. Existing live selection authority remains valid in that case.
+        if (!allowed) allowed = selectedEngineeringWorkEnabled(requestedWorkId, engineeringWorkEnabled());
+      } catch { /* Missing authority or unavailable storage fails closed. */ }
+      if (!allowed && request.method === 'POST' && workIntent === 'observe') {
+        const session = /^\/eve\/v1\/session\/([^/]+)$/.exec(new URL(request.url).pathname)?.[1];
+        if (session) {
+          try {
+            await assertRetainedSummaryMessage(request,requestedThreadId!);
+            retainedSummary = (await readRetainedWorkSummary({ownerId:principal.id,threadId:requestedThreadId!,sessionId:session,workId:requestedWorkId!})).binding;
+            allowed = true;
+          } catch { /* Observation never falls back to a provider or execution. */ }
+        }
+      }
+      if (!allowed) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "This Work conversation is not available for the requested operation." });
+    }
     if (agentHeader !== null && (!requestedAgentId || requestedAgentId.length > 100)) {
       throw new ForbiddenError({ code: "invalid_agent_binding", message: "Agent binding is invalid." });
     }
@@ -73,7 +106,7 @@ export function ownerSession(): AuthFn<Request> {
         ...(requestedAgentId ? { myeveAgentId: requestedAgentId } : {}),
         ...(requestedRoleId ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),
-        ...(requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId, myeveEngineeringIntent: workIntent ?? "observe" } : {}),
+        ...(retainedSummary ? { myeveRetainedSummary: JSON.stringify(retainedSummary) } : requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId, myeveEngineeringIntent: workIntent ?? "observe" } : {}),
       },
       authenticator: "myeve-web-session",
       issuer: "myeve",
