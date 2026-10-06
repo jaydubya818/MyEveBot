@@ -2,7 +2,7 @@ import {assertProductionApproval} from './production-approval.ts';
 import {digest} from './contract.ts';
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest';
 const mocks=vi.hoisted(()=>({principal:{id:'owner'} as {id:string}|null,config:vi.fn(),store:vi.fn(),enqueue:vi.fn(),wake:vi.fn()}));
-vi.mock('../web-auth.ts',async()=>({...await vi.importActual('../web-auth.ts'),webPrincipal:()=>mocks.principal}));
+vi.mock('../web-auth.ts',async()=>({...await vi.importActual('../web-auth.ts'),authenticateWebPrincipal:async()=>mocks.principal}));
 vi.mock('./factory-routing.ts',()=>({factoryConfig:mocks.config}));
 vi.mock('./store.ts',()=>({WorkStore:class {constructor(){mocks.store();}}}));
 vi.mock('./factory-commands.ts',()=>({enqueueFactoryCommand:mocks.enqueue}));

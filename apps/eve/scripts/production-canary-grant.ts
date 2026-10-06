@@ -3,6 +3,7 @@ import {readFile,open,stat} from 'node:fs/promises';
 import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
+import {digest} from '../lib/engineering/contract.ts';
 import {assertProductionApproval} from '../lib/engineering/production-approval.ts';
 import {materializeValidationGrant} from './production-validation-materializer.ts';
 
@@ -15,6 +16,7 @@ export function validatePaidOperatorPreflight(envelope:any,approvedDigest:string
   !Number.isFinite(Date.parse(p.observedAt))||now-Date.parse(p.observedAt)<0||now-Date.parse(p.observedAt)>120000||
   p.generalWork!=='DISABLED'||p.readOnlyBefore!=='ENABLED'||p.reusableGrants!==0||p.paidOperations!==0||p.publicationEffects!==0||
   p.operatorWriteWindowApproved!==true)throw Error('CURRENT_PAID_OPERATOR_PREFLIGHT_REQUIRED');
+ if(a.ownerBinding&&(p.paidOperationScope!=='EXACT_OWNER_CLIENT'||digest(p.ownerBinding)!==digest(a.ownerBinding)||p.hostOwnerScope!==a.installation?.ownerScope||p.myeveAlphaMigration!=='0084_three_owner_cloud_accounting.sql'||p.myeveAlphaMigrationSha256!==release.myeveMigrationSha256||p.factoryAlphaMigration!=='010-three-owner-authority'||p.factoryAlphaMigrationSha256!==release.factoryMigrationSha256))throw Error('ALPHA_OPERATOR_PREFLIGHT_REQUIRED');
  return a;
 }
 async function main(){

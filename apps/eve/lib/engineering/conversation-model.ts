@@ -1,3 +1,5 @@
+import {selectedAlphaWork} from './alpha-selected-work.ts';
+import {assertAlphaConversationAuthority} from './alpha-conversation-authority.ts';
 import {FACTORY_START_PROPOSAL_CONTRACT,ALPHA_FACTORY_ADMISSION_INSTRUCTIONS} from "./factory-proposal-contract.ts";
 import { engineeringConversationConfig } from "./runtime.ts";
 import { assertAlphaConversationQualification } from "./alpha-conversation-policy.ts";
@@ -93,11 +95,14 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
   const authority=dependencies.authority??new NativeRouteAuthority(input.store,engineeringConversationConfig);
   const budget=dependencies.budget??new EngineeringConversationBudget(input.store,authority);
   async function generate(options:Options) {
+    const selected=process.env.MYEVE_ALPHA_OWNER_BINDING?selectedAlphaWork(input.workId):null;
+    if(selected){const work=await input.store.get(input.workId);if(work.scopeId!==selected.binding.ownerScope||work.generation!==selected.config.work.generation||input.modelId!=='openai/gpt-5.4-mini')throw Error('ALPHA_CONVERSATION_BINDING');}
     const config=await authority.readConfig();
+    await assertAlphaConversationAuthority(input.store,input.workId,config);
     const alpha=config.conversationQualification ? assertAlphaConversationQualification(config.conversationQualification,input.modelId) : null;
     if(alpha) {
       const work=await input.store.get(input.workId);
-      assertFactoryWorkerApproval(factoryWorkerApproval("LIVE"),work.id,{operation:"start",expectedWorkVersion:work.version,expectedWorkGeneration:work.generation});
+      assertFactoryWorkerApproval(selected?{workId:selected.config.work.id,version:selected.approval.workVersion,generation:selected.config.work.generation}:factoryWorkerApproval("LIVE"),work.id,{operation:"start",expectedWorkVersion:work.version,expectedWorkGeneration:work.generation});
     }
     if(!alpha && (input.modelId!==`anthropic/${config.model}` || !config.nativeQualification ||
        config.nativeQualification.modelId!==input.modelId || Date.parse(config.nativeQualification.expiresAt)<=Date.now()))
@@ -175,12 +180,16 @@ export function engineeringConversationModel(input:{store:WorkStore;workId:strin
       // This read is a conservative preflight, never a grant. The common ledger
       // reserves the call, and admission atomically rechecks the full contract.
     }
-    const reservation={...input,microUsd,pricing,bounds:{inputBytes:inputBound,maxOutputTokens,...(alpha?{alphaFactory:{stage:alphaStage??(phase==="admission"?"admission":"explanation")}}:{}),...(completion?{completion}:{})},maxCalls:alpha?.maxCalls??config.profile.maxModelRequests,requestHash:digest({phase,modelId:input.modelId,prompt:scoped.prompt,tools:scoped.tools,maxOutputTokens:scoped.maxOutputTokens})};
+    const reservation={...input,microUsd,pricing,bounds:{inputBytes:inputBound,maxOutputTokens,...(alpha?{alphaFactory:{mode:alpha.mode,stage:alphaStage??(phase==="admission"?"admission":"explanation")}}:{}),...(completion?{completion}:{})},maxCalls:alpha?.maxCalls??config.profile.maxModelRequests,requestHash:digest({phase,modelId:input.modelId,prompt:scoped.prompt,tools:scoped.tools,maxOutputTokens:scoped.maxOutputTokens})};
     const prior=await budget.reserve(reservation);
     if(prior)return prior.result as Awaited<ReturnType<Model["doGenerate"]>>;
     try {
-      const timeoutMs=alpha?Math.min(120000,await budget.remainingMilliseconds(reservation)):120000;
+      const observedAt=Date.now();
+      const dispatchDeadline=observedAt+(alpha?Math.min(120000,await budget.remainingMilliseconds(reservation)):120000);
       await budget.assertDispatch(reservation);
+      const dispatchApproval=await assertAlphaConversationAuthority(input.store,input.workId,config);
+      const timeoutMs=Math.min(dispatchDeadline,dispatchApproval?Date.parse(String(dispatchApproval.config.authorizationEnvelope.expiresAt)):Infinity)-Date.now();
+      if(timeoutMs<=0)throw new Error('Work deadline expired before model dispatch.');
       const model=dependencies.model?.(phase)??(phase==="execution"?nativeBudgetedModel(input):gateway(input.modelId));
       const response=await model.doGenerate({...scoped,providerOptions:{gateway:{only:[alpha?"openai":"anthropic"]}},
         abortSignal:AbortSignal.any([...(options.abortSignal?[options.abortSignal]:[]),AbortSignal.timeout(timeoutMs)])});

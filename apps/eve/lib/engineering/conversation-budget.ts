@@ -1,3 +1,4 @@
+import { assertAlphaConversationAuthority } from './alpha-conversation-authority.ts';
 import { assertAlphaConversationQualification } from "./alpha-conversation-policy.ts";
 import { engineeringConversationConfig } from "./runtime.ts";
 import { randomUUID } from "node:crypto";
@@ -24,6 +25,7 @@ export class EngineeringConversationBudget {
         !input.pricing || !input.bounds) throw new WorkError("work_model_bound", "Exact pricing, request and output bounds are required.");
     const work=await this.store.get(input.workId), current=await this.authority.read(work), config=await this.authority.readConfig();
     const alpha=config.conversationQualification ? assertAlphaConversationQualification(config.conversationQualification,input.modelId) : null;
+    const selected=await assertAlphaConversationAuthority(this.store,input.workId,config);
     if(!alpha && (input.modelId!==`anthropic/${config.model}` || current.facts.qualifications.DEEP_AGENT?.status!=="QUALIFIED"))
       throw new WorkError("work_model_provider","Current qualified provider required.",403);
     const purpose=input.purpose??"CONVERSATION_REASONING";
@@ -34,7 +36,7 @@ export class EngineeringConversationBudget {
     const p={id,token,scope:this.store.principal.scopeId,actor:this.store.principal.actorId,work:input.workId,
       version:work.version,generation:work.generation,agent:current.binding.agentId,agentRevision:current.binding.agentRevision,
       policyHash:digest(config),policyVersion:config.profile.policyVersion,budgetVersion:1,
-      ceiling:Math.min(Math.floor(current.contract.budgetUsd*1_000_000),alpha?.ceilingMicrousd??Infinity),deadline:new Date(Math.min(Date.parse(current.contract.deadline),Date.parse(alpha?.expiresAt??config.nativeQualification!.expiresAt))).toISOString(),maxCalls:input.maxCalls,
+      ceiling:Math.min(Math.floor(current.contract.budgetUsd*1_000_000),alpha?.ceilingMicrousd??Infinity),deadline:new Date(Math.min(Date.parse(current.contract.deadline),Date.parse(alpha?.expiresAt??config.nativeQualification!.expiresAt),selected?Date.parse(String(selected.config.authorizationEnvelope.expiresAt)):Infinity)).toISOString(),maxCalls:input.maxCalls,
       session:input.sessionId,step:input.stepKey,request:input.requestHash,purpose,run:productive?.runId,
       provider:alpha?"vercel-gateway/openai":"vercel-gateway/anthropic",model:input.modelId,exposure:input.microUsd,pricing:input.pricing,bounds:input.bounds};
     const [row]=await this.store.database.query("SELECT engineering_model_reserve($1::jsonb) AS receipt",[JSON.stringify(p)]);
@@ -69,6 +71,7 @@ export class EngineeringConversationBudget {
   }
   async assertDispatch(input: NativeModelReservation) {
     const config=await this.authority.readConfig();
+    await assertAlphaConversationAuthority(this.store,input.workId,config);
     const c=this.claims.get(this.key(input));
     if(c?.recoveryOnly)throw new WorkError("recovery_read_only","Recovery cannot redispatch an old request.");
     if(config.conversationQualification) assertAlphaConversationQualification(config.conversationQualification,input.modelId);

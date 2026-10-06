@@ -1,3 +1,4 @@
+import {selectedAlphaWork} from './alpha-selected-work.ts';
 import {cloudRuntimeEnabled} from './cloud-runtime-guard.ts';
 import {wakeCloudController} from './cloud-controller-queue.ts';
 import { hostedFactoryQueue } from "./deployment-mode.ts";
@@ -12,6 +13,13 @@ import {WorkStore} from './store.ts';
 import {WorkError} from './types.ts';
 export const factoryActionSchema=z.object({operation:z.enum(['start','reconcile','stop','takeover']),expectedWorkVersion:z.number().int().positive(),expectedWorkGeneration:z.number().int().positive()}).strict();
 export async function factoryAction(store:WorkStore,id:string,value:unknown){
+ const input=factoryActionSchema.parse(value);
+ const alpha=selectedAlphaWork(id,process.env,input.operation==='start');
+ if(alpha){
+  if(store.principal.scopeId!==alpha.binding.ownerScope)throw new WorkError('alpha_owner','Owner scope denied.',403);
+  const queued=await enqueueFactoryCommand(store,id,value,{ownerId:alpha.binding.ownerScope,repository:'jaydubya818/MyFactory',maxCostUsd:1.3,maxDurationSeconds:180});
+  await wakeCloudController(store,queued.command.id);return queued;
+ }
  if(hostedFactoryQueue()){
   const queued=await enqueueFactoryCommand(store,id,value,{ownerId:process.env.MYEVE_OWNER_ID!,...betaConfiguration().policy});
   if(cloudRuntimeEnabled())await wakeCloudController(store,queued.command.id);

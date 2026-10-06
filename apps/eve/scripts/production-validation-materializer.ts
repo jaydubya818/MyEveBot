@@ -15,7 +15,8 @@ export interface GrantApproval {
   criteria:unknown[];
   canonicalSpendPlan:Record<string,unknown>;
   manifestTemplate:Record<string,any>;
-  installation:{projectId:string;databaseResourceId:string;custodyStoreId:string};
+  ownerBinding?:Record<string,unknown>;
+  installation:{projectId:string;databaseResourceId:string;custodyStoreId:string;ownerScope?:string};
   historicalGrants:{requestId:string;workId:string;manifestSha256:string;consumedAt?:string|null}[];
 }
 export type GrantAudit = (event:Record<string,unknown>)=>Promise<void>;
@@ -54,6 +55,7 @@ export async function materializeValidationGrant(
     r.requestId!==null||r.deadline!==null||r.protocol!=='MYFACTORY_EXECUTION_V2'||
     !Number.isInteger(a.workVersion)||a.workVersion<1||!Number.isInteger(r.workGeneration)||r.workGeneration<1||
     t.factoryVersion!==digest({sourceDigest:t.sourceDigest,configurationDigest:t.configurationDigest})))fail('APPROVAL_INVALID');
+  if(a.ownerBinding&&(!productionApproval||typeof a.installation.ownerScope!=='string'||!a.installation.ownerScope||a.installation.ownerScope===t.ownerScope))fail('ALPHA_HOST_INSTALLATION_BOUNDARY');
   const maxAttempts=bounds.maxAttempts??60,maxWaitMs=bounds.maxWaitMs??30000,waitMs=bounds.waitMs??250;
   if(!Number.isFinite(maxWaitMs)||!Number.isFinite(waitMs)||!Number.isInteger(maxAttempts)||maxAttempts<1||maxAttempts>120||maxWaitMs<0||maxWaitMs>30000||waitMs<1||waitMs>500)fail('WAIT_BOUND_INVALID');
   const started=performance.now(),key='myeve:factory-worker:'+t.ownerScope;
@@ -134,13 +136,21 @@ export async function materializeValidationGrant(
     await factory.query('SELECT pg_advisory_xact_lock(81427601)');
     await factory.query('LOCK TABLE factory.production_work_authority IN SHARE ROW EXCLUSIVE MODE');
     const env=(await factory.query('SELECT * FROM factory.environment WHERE singleton')).rows[0];
-    if(!env||env.environment!=='production'||env.owner_scope!==t.ownerScope||env.project_id!==a.installation.projectId||env.database_resource_id!==a.installation.databaseResourceId||env.custody_store_id!==a.installation.custodyStoreId)fail('PRODUCTION_DATABASE_BOUNDARY');
+    if(!env||env.environment!=='production'||env.owner_scope!==(a.ownerBinding?a.installation.ownerScope:t.ownerScope)||env.project_id!==a.installation.projectId||env.database_resource_id!==a.installation.databaseResourceId||env.custody_store_id!==a.installation.custodyStoreId)fail('PRODUCTION_DATABASE_BOUNDARY');
     const rows=(await factory.query('SELECT * FROM factory.production_work_authority ORDER BY request_id FOR UPDATE')).rows;
     for(const h of a.historicalGrants){if(!rows.some(row=>row.request_id===h.requestId&&row.work_id===h.workId&&row.state==='REVOKED'&&iso(row.consumed_at)===(h.consumedAt??null)&&row.manifest_sha256===h.manifestSha256&&digest(row.manifest)===h.manifestSha256))fail('HISTORICAL_AUTHORITY_CHANGED');}
     const existing=rows.find(row=>row.request_id===manifest!.request.requestId);
     if(rows.some(row=>row!==existing&&!a.historicalGrants.some(h=>row.request_id===h.requestId&&row.work_id===h.workId&&row.state==='REVOKED'&&iso(row.consumed_at)===(h.consumedAt??null)&&row.manifest_sha256===h.manifestSha256&&digest(row.manifest)===h.manifestSha256)))fail('UNEXPECTED_AUTHORITY');
     if(existing&&(existing.state!=='AUTHORIZED'||existing.consumed_at!==null||existing.manifest_sha256!==digest(manifest)||!same(existing.manifest,manifest)))fail('EXISTING_AUTHORITY_NOT_REUSABLE');
-    if((await factory.query('SELECT 1 FROM factory.work_spend_operations LIMIT 1')).rows.length||
+    // A new alpha slot may coexist with preserved settled history. It may not
+    // reuse its own slot, or overlap another unresolved paid operation.
+    const priorExecution=a.ownerBinding
+      ?(await factory.query(`SELECT 1 FROM factory.work_spend_operations o
+          LEFT JOIN factory.intake_receipts i ON i.run_id=o.run_id
+          WHERE i.client_id=$1 OR i.run_id IS NULL OR o.state IN ('reserved','dispatched','unknown') LIMIT 1`,[t.clientId])).rows.length
+        ||(await factory.query('SELECT 1 FROM factory.intake_receipts WHERE client_id=$1 LIMIT 1',[t.clientId])).rows.length
+      :(await factory.query('SELECT 1 FROM factory.work_spend_operations LIMIT 1')).rows.length;
+    if(priorExecution||
       (await factory.query('SELECT 1 FROM factory.intake_receipts WHERE request_id=$1 LIMIT 1',[manifest.request.requestId])).rows.length)fail('UNEXPECTED_EXECUTION');
     await owner.query('BEGIN');ownerTransaction=true;
     await owner.query(`SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND id=$2 FOR UPDATE`,[t.ownerScope,r.workId]);
