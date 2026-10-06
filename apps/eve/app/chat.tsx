@@ -2408,8 +2408,8 @@ function ChatThread({
 
         {agentId && !ownerConflict && (
           <div className="mx-10 mt-3 flex items-center justify-between rounded-xl border border-kumo-brand/25 bg-kumo-brand/5 px-3 py-2 text-sm">
-            <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-subtle">Direct Agent conversation</span></span>
-            <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-brand hover:underline">View Agent</a>
+            <span><span className="font-semibold">{agentName}</span><span className="ms-2 text-xs text-kumo-default">Direct Agent conversation</span></span>
+            <a href={`/agents?agent=${encodeURIComponent(agentId)}`} className="text-xs font-medium text-kumo-default underline hover:no-underline">View Agent</a>
           </div>
         )}
 
