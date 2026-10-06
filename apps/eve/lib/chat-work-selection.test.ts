@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { chatWorkHeaders, changeChatWork, chatWorkOptions, chatWorkOptionLabel, type ChatWorkOption, type ChatWorkSelection } from "./chat-work-selection";
+import { chatWorkHeaders, changeChatWork, showChatWorkContext, chatWorkOptions, chatWorkOptionLabel, type ChatWorkOption, type ChatWorkSelection } from "./chat-work-selection";
 import { reconcileChatSession } from "./chat-session";
 
 const selected: ChatWorkSelection = {
@@ -56,4 +56,13 @@ describe("canonical owner Work list", () => {
 it("labels canonical paused Work as Paused rather than active", () => {
   const work: ChatWorkOption = { id: selected.workId, title: "Line endings", lifecycle: "active", control: "paused" };
   expect(chatWorkOptionLabel(work)).toBe("Line endings · Paused");
+});
+
+it("restored direct-Agent metadata retains only the existing locked Work review control", () => {
+  const restored={ownerConflict:false,agentId:'retained-primary-agent',locked:true,selection:selected};
+  expect(showChatWorkContext(restored)).toBe(true);
+  expect(changeChatWork({...selected,intent:'continue'},selected,true)?.intent).toBe('observe');
+  expect(()=>changeChatWork(selected,other,true)).toThrow('new conversation');
+  for(const override of [{locked:false},{selection:undefined},{ownerConflict:true},{roleId:'role'}])
+    expect(showChatWorkContext({...restored,...override})).toBe(false);
 });

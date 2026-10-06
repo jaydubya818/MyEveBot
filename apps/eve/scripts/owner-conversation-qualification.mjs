@@ -90,7 +90,7 @@ export async function waitForOwnerSession({ page, ownerId, workId, threadId, ses
   throw Error(settled ? 'ORIGINAL_SESSION_NOT_REATTACHED_NO_SEND' : 'ORIGINAL_SESSION_NOT_PERSISTED_NO_DISCONNECT');
 }
 
-/** Caller must separately establish live paid authority before invoking this UI action. */
+/** Caller must establish message authority: reviewed zero-provider observation or live paid authority. */
 export async function continueOwnerConversation({ page, message, deadline, ...expected }) {
   await waitForOwnerSession({ page, ...expected, settled: true, deadline });
   const remaining = () => Math.min(20000, Date.parse(deadline) - Date.now());

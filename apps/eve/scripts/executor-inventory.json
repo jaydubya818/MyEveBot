@@ -3469,8 +3469,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "b0d98425b93fa6bc8a0604a8bcdf20a0f5618ec535445180e46eccaade0b21f5"
+      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Independently reviewed retained-Work UI repair: restored locked selection exposes observe controls without rebinding; historical Result fallback wording does not imply current authority or readiness. Covered by chat-work-selection and worker-projection regressions.",
+      "sha256": "5a2345856ddd89fb14b3d28bd935e1bdcf9c920d89f918a1ef771a05f6fd8981"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -4041,8 +4041,8 @@
     },
     "lib/chat-work-selection.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure browser context validation and presentation. Does not grant authority or dispatch; server owner/Work/grant checks remain required.",
-      "sha256": "589ea4a6107c34013a49fff64d29d7b939b04da65b32b740eb81a8c3bc1d52e5"
+      "reason": "Pure browser context validation and presentation. Does not grant authority or dispatch; server owner/Work/grant checks remain required. Independently reviewed retained-Work UI repair: restored locked selection exposes observe controls without rebinding; historical Result fallback wording does not imply current authority or readiness. Covered by chat-work-selection and worker-projection regressions.",
+      "sha256": "8104105990308c43801bae3b8f50e86db80bc712211a6f7eeffe8d7aec5b31e0"
     },
     "app/api/chat-work/route.ts": {
       "classification": "READ_ONLY",
