@@ -25,6 +25,7 @@ import { ENGINEERING_WORK_ID_PATTERN } from "../lib/engineering-work-binding.ts"
 export default defineDynamic({
   events: {
     "step.started": async (_event, ctx) => {
+      if(ctx.session.auth.current?.attributes.myeveRetainedSummary!==undefined)return null;
       if (
         checkCapabilityAvailability("tool.engineering_factory")?.status !==
         "available" && !selectedAlphaWork(ctx.session.auth.current?.attributes.myeveEngineeringWorkId)

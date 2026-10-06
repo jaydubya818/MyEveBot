@@ -44,3 +44,20 @@ to send a message or control a session. Database failures and mismatched binding
 deny replay. The execution gate remains required for mutation routes.
 The server-written model ledger establishes the owner/Work/session association;
 owner-editable saved chat JSON alone cannot authorize a replay.
+
+## Explain retained evidence without execution authority
+
+For an explicit observation message in the same existing conversation, a paused
+Work with verified retained Factory Proof can return a deterministic evidence
+summary. The server binds the response to its owner, thread, session, Work,
+Result, Proof hash and current paused version. It verifies both evidence artifacts,
+archived verification and accounting again before producing ordinary durable
+conversation text. It describes historical execution separately from current
+paused state and preserves PARTIAL and unperformed publication/acceptance.
+
+This path has no provider, model catalog, tools, spending reservation or Factory
+call. It cannot create a conversation, resume Work, answer a pending tool approval,
+set callbacks, renew an expired action run, compact through a model, or delegate.
+Normal authenticated conversation records are retained, but execution budgets,
+grants and model-operation counters are unchanged. A paid-model explanation would
+still require separately qualified authority.

@@ -1,10 +1,11 @@
 import { beforeEach, afterEach, expect, it, vi } from 'vitest';
 import { ownerSession } from '../channels/eve.ts';
 
-const mocks = vi.hoisted(() => ({ query: vi.fn(), principal: vi.fn(), execution: vi.fn() }));
+const mocks = vi.hoisted(() => ({ query: vi.fn(), principal: vi.fn(), execution: vi.fn(), summary:vi.fn() }));
 vi.mock('./receipts-db.ts', () => ({ db: () => ({ query: mocks.query }) }));
 vi.mock('../../lib/web-auth.ts', () => ({ authenticateWebPrincipal: mocks.principal }));
 vi.mock('../../lib/engineering/alpha-selected-work.ts', () => ({ selectedEngineeringWorkEnabled: mocks.execution }));
+vi.mock('./retained-work-summary.ts',async()=>({...await vi.importActual('./retained-work-summary.ts'),readRetainedWorkSummary:mocks.summary}));
 const work = '00000000-0000-4000-8000-000000000001';
 const request = (method = 'GET', session = 'existing-session', owner = 'a') => new Request(`https://${owner}.example/eve/v1/session/${session}/stream`, {
   method, headers: { 'x-myeve-thread-id': 'existing-thread', 'x-myeve-engineering-work-id': work, 'x-myeve-engineering-intent': 'continue' },
@@ -17,6 +18,7 @@ beforeEach(() => {
     owner === 'a' && thread === 'existing-thread' && id === work && session === 'existing-session'
       ? [{ chat: { session: { sessionId: 'existing-session' }, workSelection: { workId: work }, workContextLocked: true } }] : []);
   mocks.execution.mockReset().mockImplementation(() => { throw Error('EXPIRED_OR_REVOKED'); });
+  mocks.summary.mockReset().mockRejectedValue(Error('NO_RETAINED_SUMMARY'));
 });
 afterEach(() => vi.unstubAllEnvs());
 
@@ -96,4 +98,24 @@ it('first-session replay fails retryably before runtime binding, then attaches w
   expect(await ownerSession()(request())).toMatchObject({principalId:'a'});
   mocks.principal.mockResolvedValue({id:'b'});
   await expect(ownerSession()(request())).rejects.toMatchObject({name:'ForbiddenError'});
+});
+it('only explicit observation of an existing verified session can select a zero-provider summary',async()=>{
+  const binding={ownerId:'a',threadId:'existing-thread',sessionId:'existing-session',workId:work,resultId:'00000000-0000-4000-8000-000000000003',proofHash:'a'.repeat(64),version:3,generation:3};
+  mocks.summary.mockResolvedValue({binding,text:'Retained summary'});
+  const observe=new Request('https://a.example/eve/v1/session/existing-session',{method:'POST',headers:request().headers,body:JSON.stringify({message:'Please summarize the retained result.'})});observe.headers.set('x-myeve-engineering-intent','observe');
+  const principal=await ownerSession()(observe);
+  expect(principal).toMatchObject({attributes:{myeveRetainedSummary:JSON.stringify(binding)}});
+  expect((principal as any).attributes.myeveEngineeringWorkId).toBeUndefined();
+  expect(mocks.summary).toHaveBeenCalledWith({ownerId:'a',threadId:'existing-thread',sessionId:'existing-session',workId:work});
+  mocks.summary.mockClear();
+  for(const path of ['session','session/existing-session/cancel','session/existing-session/reset'])await expect(ownerSession()(new Request('https://a.example/eve/v1/'+path,observe))).rejects.toThrow();
+  const productive=new Request(observe);productive.headers.set('x-myeve-engineering-intent','continue');await expect(ownerSession()(productive)).rejects.toThrow();
+  expect(mocks.summary).not.toHaveBeenCalled();
+});
+
+it.each(['inputResponses','callback','activityObserver','taskDeliveryPolicy','turnPolicy','outputSchema','continuationToken'])('summary exception rejects alternate framework field %s before issuing the marker',async field=>{
+ mocks.summary.mockResolvedValue({binding:{},text:'not allowed'});
+ const headers=request().headers;headers.set('x-myeve-engineering-intent','observe');
+ const r=new Request('https://a.example/eve/v1/session/existing-session',{method:'POST',headers,body:JSON.stringify({message:'Summary', [field]:{value:'untrusted'}})});
+ await expect(ownerSession()(r)).rejects.toThrow();expect(mocks.summary).not.toHaveBeenCalled();
 });

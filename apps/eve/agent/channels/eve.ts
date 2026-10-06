@@ -12,6 +12,7 @@ import { EXECUTION_HEADER,verifyExecution,resolveExecution } from "../../lib/exe
 import { ROUTINE_EXECUTION_READY } from "../../lib/routine-review.ts";
 import { ENGINEERING_WORK_ID_HEADER,ENGINEERING_WORK_ID_PATTERN } from "../lib/engineering-work-binding.ts";
 import { replaySessionId, retainedSessionOwner, retainedWorkSessionRead } from "../lib/retained-work-session.ts";
+import { assertRetainedSummaryMessage, readRetainedWorkSummary, type RetainedSummaryBinding } from "../lib/retained-work-summary.ts";
 
 export function routineSession():AuthFn<Request> {
   return async request=>{
@@ -48,6 +49,7 @@ export function ownerSession(): AuthFn<Request> {
     if(process.env.MYEVE_PARTNER_OWNER_ID && requestedWorkId && await new BusinessScopes(principal.id).hasSharedWork(principal.id,requestedWorkId))
       throw new ForbiddenError({code:"shared_work_context_required",message:"Open Our business to ask Sofie with explicitly shared Work context. A private conversation cannot inherit this shared Work."});
     const workIntent = request.headers.get("x-myeve-engineering-intent");
+    let retainedSummary: RetainedSummaryBinding | undefined;
     if (workIntent !== null && (!requestedWorkId || !["observe", "continue"].includes(workIntent)))
       throw new ForbiddenError({code:"invalid_engineering_intent",message:"Select Work and a valid access mode."});
     if (workHeader !== null && (
@@ -65,6 +67,16 @@ export function ownerSession(): AuthFn<Request> {
         // ledger. Existing live selection authority remains valid in that case.
         if (!allowed) allowed = selectedEngineeringWorkEnabled(requestedWorkId, engineeringWorkEnabled());
       } catch { /* Missing authority or unavailable storage fails closed. */ }
+      if (!allowed && request.method === 'POST' && workIntent === 'observe') {
+        const session = /^\/eve\/v1\/session\/([^/]+)$/.exec(new URL(request.url).pathname)?.[1];
+        if (session) {
+          try {
+            await assertRetainedSummaryMessage(request,requestedThreadId!);
+            retainedSummary = (await readRetainedWorkSummary({ownerId:principal.id,threadId:requestedThreadId!,sessionId:session,workId:requestedWorkId!})).binding;
+            allowed = true;
+          } catch { /* Observation never falls back to a provider or execution. */ }
+        }
+      }
       if (!allowed) throw new ForbiddenError({ code: "invalid_engineering_work_binding", message: "This Work conversation is not available for the requested operation." });
     }
     if (agentHeader !== null && (!requestedAgentId || requestedAgentId.length > 100)) {
@@ -94,7 +106,7 @@ export function ownerSession(): AuthFn<Request> {
         ...(requestedAgentId ? { myeveAgentId: requestedAgentId } : {}),
         ...(requestedRoleId ? { myeveRoleId: requestedRoleId } : {}),
         ...(requestedThreadId && requestedThreadId.length <= 100 ? { webThreadId: requestedThreadId } : {}),
-        ...(requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId, myeveEngineeringIntent: workIntent ?? "observe" } : {}),
+        ...(retainedSummary ? { myeveRetainedSummary: JSON.stringify(retainedSummary) } : requestedWorkId ? { myeveEngineeringWorkId: requestedWorkId, myeveEngineeringIntent: workIntent ?? "observe" } : {}),
       },
       authenticator: "myeve-web-session",
       issuer: "myeve",

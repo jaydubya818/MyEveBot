@@ -15,6 +15,10 @@ export async function retainedSessionOwner(sessionId: string, ownerId: string, t
 export async function retainedWorkSessionRead(request: Request, ownerId: string, threadId: string, workId: string): Promise<boolean> {
   const sessionId = replaySessionId(request);
   if (!sessionId) return false;
+  return retainedWorkSessionBinding(sessionId, ownerId, threadId, workId);
+}
+
+export async function retainedWorkSessionBinding(sessionId: string, ownerId: string, threadId: string, workId: string): Promise<boolean> {
   // The chat JSON is owner-editable. The server-written model ledger, not
   // that JSON, establishes the session's owner and Work association.
   const rows = await db().query(`SELECT t.chat FROM web_chat_threads t

@@ -1,4 +1,5 @@
 import {selectedAlphaWork} from "../lib/engineering/alpha-selected-work.ts";
+import {retainedSummaryBinding,retainedWorkSummaryModel} from './lib/retained-work-summary.ts';
 import {cloudConversationModel} from '../lib/engineering/cloud-conversation-model.ts';
 import { cloudQualificationProject } from "../lib/engineering/cloud-access-qualification.ts";
 import { hostedFactoryQueue } from "../lib/engineering/deployment-mode.ts";
@@ -57,6 +58,14 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": (_event, ctx) => {
         const select = async () => {
+        const retained=ctx.session.auth.current?.attributes.myeveRetainedSummary;
+        if(retained!==undefined){
+          const binding=retainedSummaryBinding(retained),current=ctx.session.auth.current,initiator=ctx.session.auth.initiator;
+          if(ctx.session.id!==binding.sessionId||current?.authenticator!=='myeve-web-session'||initiator?.authenticator!=='myeve-web-session'||current.principalType!=='user'||initiator.principalType!=='user'||current.principalId!==binding.ownerId||initiator.principalId!==binding.ownerId||current.attributes.owner!=='true'||initiator.attributes.owner!=='true'||current.attributes.webThreadId!==binding.threadId||initiator.attributes.webThreadId!==binding.threadId||current.attributes.myeveEngineeringWorkId||current.attributes.myeveRoleId||('parent' in ctx.session&&ctx.session.parent))throw Error('RETAINED_SUMMARY_AUTHENTICATION');
+          const agent=await resolveSessionAgent({ownerId:binding.ownerId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true});
+          if(!agent?.isPrimary)throw Error('RETAINED_SUMMARY_PRIMARY_AGENT');
+          return {model:retainedWorkSummaryModel(binding),modelContextWindowTokens:200_000};
+        }
         if(process.env.MYEVE_ALPHA_OWNER_BINDING){
           const current=ctx.session.auth.current,selected=selectedAlphaWork(current?.attributes.myeveEngineeringWorkId);
           if(!selected||current?.authenticator!=='myeve-web-session'||current.principalType!=='user'||current.principalId!==selected.binding.ownerScope||current.attributes.owner!=='true'||current.attributes.role==='guest'||current.attributes.myeveRoleId||('parent' in ctx.session&&ctx.session.parent))throw Error('ALPHA_SELECTED_WORK_REQUIRED');
