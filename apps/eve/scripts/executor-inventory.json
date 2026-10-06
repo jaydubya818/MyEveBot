@@ -4038,6 +4038,16 @@
       "classification": "INTERNAL",
       "reason": "Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
       "sha256": "48e354e67cd16722d52183c76162146a9a307487869814b09f272abcf706aba8"
+    },
+    "lib/chat-work-selection.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure browser context validation and presentation. Does not grant authority or dispatch; server owner/Work/grant checks remain required.",
+      "sha256": "589ea4a6107c34013a49fff64d29d7b939b04da65b32b740eb81a8c3bc1d52e5"
+    },
+    "app/api/chat-work/route.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Authenticated owner-private Work selection availability. Delegates enabled readback to the canonical beta Work route; no create, resume or execution action.",
+      "sha256": "00a1fa1e98dc549f75e194f0f1d4267fb6034c0f6ebd5466009a0885346c0b71"
     }
   }
 }
