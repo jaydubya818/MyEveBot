@@ -1,3 +1,4 @@
+import {selectedEngineeringWorkEnabled} from "../../lib/engineering/alpha-selected-work.ts";
 import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import { BusinessScopes } from "../../lib/business-scopes.ts";
 import { currentTruthLines } from "../../lib/engineering/current-truth-lines.ts";
@@ -225,7 +226,7 @@ async function runContextItems(ownerId: string, agentId: string, runId: string |
 
 async function engineeringWorkItem(input: AssembleContextInput, agent: AgentView): Promise<{ item: ContextItem; sourceRefs: string[] } | null> {
   if (!input.engineeringWorkId) return null;
-  if (!engineeringWorkEnabled()) throw new Error("Engineering Work context is not enabled in this deployment.");
+  if (!selectedEngineeringWorkEnabled(input.engineeringWorkId,engineeringWorkEnabled())) throw new Error("Engineering Work context is not enabled in this deployment.");
   if (!agent.isPrimary || agent.ownerId !== input.ownerId) throw new Error("Engineering Work context requires this owner's primary Agent.");
   if (input.projectId) throw new Error("Engineering Work has no qualified Project binding for context assembly.");
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(input.engineeringWorkId))

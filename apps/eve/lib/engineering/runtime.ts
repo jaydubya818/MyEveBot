@@ -1,3 +1,4 @@
+import {alphaOwnerBinding} from './alpha-owner-binding.ts';
 import {productionCloudEnabled,productionCloudConfiguration} from './production-runtime-guard.ts';
 import {cloudRuntimeEnabled,cloudRuntimeConfiguration} from './cloud-runtime-guard.ts';
 import { hostedFactoryQueue } from "./deployment-mode.ts";
@@ -30,7 +31,7 @@ export const runtimeSchema=z.object({
     keychainService:z.string().min(1),keychainAccount:z.string().min(1)}).strict().optional(),
 }).strict().superRefine((config,ctx)=>{
   if(config.mode==='isolated-dogfood'&&(!config.brokerPort||!config.model.startsWith('claude-')))ctx.addIssue({code:'custom',message:'Dogfood broker/model required'});
-  if(config.mode==='production-cloud'&&(config.brokerPort||config.nativeQualification||config.conversationQualification||config.githubApp||config.profile.executor!=='factory-cloud'))ctx.addIssue({code:'custom',message:'Production Cloud cannot configure local executors, qualification conversations or publication'});
+  if(config.mode==='production-cloud'&&(config.brokerPort||config.nativeQualification||(config.conversationQualification&&config.conversationQualification.mode!=='THREE_OWNER_CONVERSATION_V1')||config.githubApp||config.profile.executor!=='factory-cloud'))ctx.addIssue({code:'custom',message:'Production Cloud cannot configure local executors, qualification conversations or publication'});
   const binding=config.profile.publicOutputContract;
   if(binding&&!config.approvedBase.files.some(f=>f.path===binding.path&&f.sha256===binding.sha256))ctx.addIssue({code:'custom',message:'Public output contract must be pinned in the approved base manifest'});
 });
@@ -38,6 +39,8 @@ export async function engineeringConfig() {
   if(productionCloudEnabled()){
     const parsed=runtimeSchema.parse(productionCloudConfiguration().engineering);
     if(parsed.mode!=='production-cloud'||parsed.model!==(productionCloudConfiguration().mode==='OPERATOR_DETERMINISTIC_VALIDATION'?'none':'openai/gpt-5.4-mini')||parsed.ownerId!==process.env.MYEVE_OWNER_ID||parsed.profile.repository!=='jaydubya818/MyFactory')throw Error('PRODUCTION_VALIDATION_PROFILE');
+    if(alphaOwnerBinding()){if(parsed.conversationQualification?.mode!=='THREE_OWNER_CONVERSATION_V1')throw Error('ALPHA_CONVERSATION_ACCOUNTING_REQUIRED');}
+    else if(parsed.conversationQualification)throw Error('ALPHA_CONVERSATION_BINDING_REQUIRED');
     return parsed;
   }
   if(cloudRuntimeEnabled()) {

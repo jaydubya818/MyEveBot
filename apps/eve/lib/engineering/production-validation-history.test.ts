@@ -1,7 +1,7 @@
 import {beforeEach,afterEach,it,expect,vi} from 'vitest';
 import {digest} from './contract.ts';
 const mocks=vi.hoisted(()=>({engineering:vi.fn(),execution:vi.fn(),get:vi.fn(),query:vi.fn(),gate:vi.fn(),enqueue:vi.fn(),wake:vi.fn(),principal:{id:'owner'} as {id:string}|null}));
-vi.mock('../web-auth.ts',async()=>({...await vi.importActual('../web-auth.ts'),webPrincipal:()=>mocks.principal}));
+vi.mock('../web-auth.ts',async()=>({...await vi.importActual('../web-auth.ts'),authenticateWebPrincipal:()=>mocks.principal}));
 vi.mock('./runtime.ts',()=>({engineeringConfig:mocks.engineering}));
 vi.mock('./factory-routing.ts',()=>({factoryConfig:mocks.execution}));
 vi.mock('./store.ts',()=>({WorkStore:class{get=mocks.get;database={query:mocks.query};}}));

@@ -1,3 +1,4 @@
+import {alphaOwnerBinding} from './alpha-owner-binding.ts';
 import {z} from 'zod';
 import {factoryRequestHeaders} from './factory-request-headers.ts';
 import {factoryTransport} from './factory-transport.ts';
@@ -9,13 +10,15 @@ const installationSchema=z.object({version:z.literal(1),ownerScope:z.string().mi
 /** Production platform configuration is separate from an execution connection.
  * It has no source grant, model, writer or qualification that could admit Work. */
 export function productionInstallation(env:Readonly<Record<string,string|undefined>>=process.env){
- if(env.VERCEL!=='1'||env.VERCEL_ENV!=='production'||env.VERCEL_PROJECT_ID!=='prj_L6faw25wnFGUZtrLKBIccg8gIDLR'||(env.VERCEL_TARGET_ENV&&env.VERCEL_TARGET_ENV!=='production'))throw Error('PRODUCTION_INSTALLATION_SCOPE');
+ const alpha=alphaOwnerBinding(env);
+ if(env.VERCEL!=='1'||env.VERCEL_ENV!=='production'||env.VERCEL_PROJECT_ID!==(alpha?.sourceProjectId??'prj_L6faw25wnFGUZtrLKBIccg8gIDLR')||(env.VERCEL_TARGET_ENV&&env.VERCEL_TARGET_ENV!=='production'))throw Error('PRODUCTION_INSTALLATION_SCOPE');
  if(env.MYEVE_CLOUD_DETERMINISTIC_ENABLED||env.MYEVE_CLOUD_QUALIFICATION_CONFIG||env.FACTORY_STAGING_PROTECTION_BYPASS)throw Error('QUALIFICATION_CONFIGURATION_FORBIDDEN');
  const raw=env.MYEVE_CLOUD_PRODUCTION_INSTALLATION??'';
  if(raw.length>4000)throw Error('PRODUCTION_INSTALLATION_BOUND');
  const config=installationSchema.parse(JSON.parse(raw));
  if(config.ownerScope!==env.MYEVE_OWNER_ID||/qualification|synthetic|staging/i.test(config.ownerScope))throw Error('PRODUCTION_OWNER_SCOPE');
- const token=env.MYEVE_FACTORY_PRODUCTION_APPLICATION_TOKEN;
+ const token=alpha?env.MYEVE_FACTORY_ALPHA_APPLICATION_TOKEN:env.MYEVE_FACTORY_PRODUCTION_APPLICATION_TOKEN;
+ if(alpha&&(env.MYEVE_FACTORY_PRODUCTION_APPLICATION_TOKEN||env.FACTORY_PROOF_TOKEN===token))throw Error('ALPHA_CREDENTIAL_SEPARATION');
  if(!/^[a-f0-9]{64}$/.test(token??''))throw Error('PRODUCTION_APPLICATION_AUTHENTICATION');
  const connection={origin:config.origin,token:token!,projectId:config.projectId,transport:'CLOUD' as const,protocol:'MYFACTORY_EXECUTION_V2' as const};
  factoryTransport(connection);return {config,connection};

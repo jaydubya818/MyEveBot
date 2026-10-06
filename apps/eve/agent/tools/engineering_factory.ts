@@ -1,3 +1,4 @@
+import {selectedAlphaWork,selectedEngineeringWorkEnabled} from "../../lib/engineering/alpha-selected-work.ts";
 import {FACTORY_TOOL_DESCRIPTION} from "../../lib/engineering/factory-proposal-contract.ts";
 import { engineeringWorkEnabled, hostedFactoryQueue } from "../../lib/engineering/deployment-mode.ts";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
@@ -26,7 +27,7 @@ export default defineDynamic({
     "step.started": async (_event, ctx) => {
       if (
         checkCapabilityAvailability("tool.engineering_factory")?.status !==
-        "available"
+        "available" && !selectedAlphaWork(ctx.session.auth.current?.attributes.myeveEngineeringWorkId)
       )
         return null;
       const initial = ctx.session.auth.current,
@@ -38,8 +39,8 @@ export default defineDynamic({
         initial.attributes.role === "guest" ||
         initial.attributes.myeveRoleId ||
         ("parent" in ctx.session && ctx.session.parent) ||
-        !engineeringWorkEnabled() ||
-        (!hostedFactoryQueue() && !process.env.MYEVE_FACTORY_CONFIG) ||
+        !selectedEngineeringWorkEnabled(selected,engineeringWorkEnabled()) ||
+        (!hostedFactoryQueue() && !selectedAlphaWork(selected) && !process.env.MYEVE_FACTORY_CONFIG) ||
         typeof selected !== "string" ||
         !ENGINEERING_WORK_ID_PATTERN.test(selected)
       )
@@ -51,7 +52,7 @@ export default defineDynamic({
         async execute(input, toolCtx) {
           if (
             checkCapabilityAvailability("tool.engineering_factory")?.status !==
-            "available"
+            "available" && !selectedAlphaWork(selected)
           )
             throw new WorkError(
               "factory_disabled",
@@ -94,7 +95,7 @@ export default defineDynamic({
               403,
             );
           if (
-            config && !["LOCAL_FIXTURE", "LOCAL_SPEND_FIXTURE"].includes(
+            config && !selectedAlphaWork(selected) && !["LOCAL_FIXTURE", "LOCAL_SPEND_FIXTURE"].includes(
               config.connection.qualification.mode,
             )
           )
@@ -119,7 +120,7 @@ export default defineDynamic({
                 provider: config?.connection.factoryId ?? process.env.MYEVE_FACTORY_ID!,
                 account: principal.principalId,
                 resource: "engineering-work:" + selected,
-                environment: hosted ? "private-alpha" : "isolated-dogfood",
+                environment: selectedAlphaWork(selected) ? "CLOUD_PRODUCTION" : hosted ? "private-alpha" : "isolated-dogfood",
               };
             },
             async execute(parameters, handle) {

@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes.",
-      "sha256": "9c3f909508b8386390da32cf253bca98fe593cd3d9f7ba034d956d363a10759e"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "cb7c6704d33df30321811676b17b45c6605c79e4f28a8fb9a97711f143f6be97"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -24,8 +24,8 @@
     },
     "agent/channels/eve.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "6153cde867499e49091fd2c6251526630015271a19217b6d444f33073c4f989a"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "7b9cd38fface7d2df9fb19778f5f67151d87f4049ada1d0df7d66a38b9d4c9ea"
     },
     "agent/channels/hooks.ts": {
       "classification": "INTERNAL",
@@ -237,8 +237,8 @@
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "3255250ecad5e0c3ab03c6c47ccdcaaadba68ef4493fd6409862d9e4e8a11e8f"
+      "reason": "Owner-scoped context assembly uses shared Work Current Truth lines; existing context receipt persistence only, no execution grants. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "ede8d96bf5bc40f63f6cec3c8357c2227ba147717acebd13ab498e0356562a24"
     },
     "agent/lib/create-skill-telemetry-hook.ts": {
       "classification": "INTERNAL",
@@ -1907,8 +1907,8 @@
     },
     "lib/action-gateway.ts": {
       "classification": "ENFORCED",
-      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption.",
-      "sha256": "00ccc457cda1caeaee249e88954fffa5132b6218bb308bcd13ad514034882e24"
+      "reason": "One-use bound action/provider handles; only Computer provisioning has a 150-second cold-start window, with unchanged durable revocation, budget, deadline and control checks. Integrated exact approval identity, attempt/generation, class, capability, decision and current authority checks at admission and one-use consumption. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "e03fdfbc63cb627ea6d1914aa0ad756fedabc95d61d061efb002575b815bc8e2"
     },
     "lib/action-recovery.ts": {
       "classification": "INTERNAL",
@@ -3254,13 +3254,13 @@
     },
     "agent/lib/engineering-knowledge-binding.ts": {
       "classification": "READ_ONLY",
-      "reason": "Authenticated current/initiating principals and same-turn primary-Agent Work assembly receipt; SELECT only.",
-      "sha256": "4079185a3afcb04a654634c66dab91f74515d3d5853d5a7c7d61c85aa79e459d"
+      "reason": "Authenticated current/initiating principals and same-turn primary-Agent Work assembly receipt; SELECT only. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "1a52f45da3d7d6dcfc53026b87b0f75e46095c5ea1fef88d837653fa417e49b6"
     },
     "agent/lib/engineering-work-binding.ts": {
       "classification": "INTERNAL",
-      "reason": "Validates authenticated owner, thread and primary-Agent Work binding before context assembly; no provider effect.",
-      "sha256": "65f81fd0075e9d0d81da3b16998b57b33a8b7bc38dd5442fb1682a1c5bc6b86c"
+      "reason": "Validates authenticated owner, thread and primary-Agent Work binding before context assembly; no provider effect. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "de1ab82fe0554c378aec4a16a88f400a5bb6e1822dd14dbd00def75f38c4cbfe"
     },
     "agent/tools/engineering_direct.ts": {
       "classification": "ENFORCED",
@@ -3289,13 +3289,13 @@
     },
     "lib/engineering/conversation-budget.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical Work cost-ledger service: bounded reservation, exclusive dispatch claim, retained result and exact-call reconciliation. Native spending consumes this same ledger; read authority grants no writer. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture.",
-      "sha256": "2b55cb488512e2d0e1a25d340445029c0015cb9a7150b8838d6f618bf2633aff"
+      "reason": "Canonical Work cost-ledger service: bounded reservation, exclusive dispatch claim, retained result and exact-call reconciliation. Native spending consumes this same ledger; read authority grants no writer. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "d1ec7c5155871fe88728c226b7c1698d28508ccc3e733cb486c003450de0e455"
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
-      "sha256": "92b6825a52e61470c1b495e3fb1d8ebd405f38268a7053fd41bdde0f58eae58f"
+      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "d3a7b4d12ad7f9d2d6507c22f15c01a987c1035077ffffc7594a4dd42a02f0de"
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
@@ -3464,8 +3464,8 @@
     },
     "lib/engineering/runtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding.",
-      "sha256": "3d3213b1b1b4e05c1ec96c6f4b96f814252b134411e0a8f9ce7f90d1864d24b1"
+      "reason": "Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Consolidated boundary: Exact deterministic staging profile denies local execution/publication and paid native qualification. Existing local configuration unchanged. Consolidated boundary: Isolated dogfood server configuration adds behavior-only normal/potato selection. Existing qualification and provider leaf guards remain unchanged. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Production release-validation extension independently reviewed; separate zero-model mode retains canonical receipt, Work and evidence binding. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "c6bd79beea2c066b90c05c9e8a74a4c1aa54d03451c813bafac4d52f04431fac"
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
@@ -3509,8 +3509,8 @@
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
-      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
-      "sha256": "6910201f02fcc5a4659c14127ccc64b8d93a11819efaa6b1eaab1a091b84e44a",
+      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "d6a325ac4a733b8d17ffb34eefcfac089bb5dcbdaec7d44d44d90d378389289e",
       "disposition": "gateway"
     },
     "lib/capsules/schema.ts": {
@@ -3600,8 +3600,8 @@
     },
     "lib/engineering/factory-api.ts": {
       "classification": "INTERNAL",
-      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries.",
-      "sha256": "ec3cd249e5fc120bd834ade1730caee50cc494c165609d4ac0d47a9641fd0321"
+      "reason": "Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Consolidated boundary: Authenticated canonical command is persisted before cloud wake; extracted executor retains current Work version/generation and business/admission checks. Consolidated boundary: Q37 owned Factory boundary: authenticated owner and current Work admission; durable exact attempt fencing, bounded local transport, no publication or Ready authority. Paid Factory dispatch remains disabled. Two-owner scope delta reviewed: separate signed identities, explicit additional scope/decision checks; test/business-scopes.integration.mjs covers negative isolation and approval boundaries. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "01149d4a175414131617a34d0feffe20f65d5a2960ddaa36c8fc52323cdc93f3"
     },
     "lib/engineering/factory-observation.ts": {
       "classification": "READ_ONLY",
@@ -3705,8 +3705,8 @@
     },
     "lib/engineering/alpha-conversation-policy.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict nonsecret private-alpha conversation qualification and fixed portions of one Work ceiling; no provider dispatch or execution authority.",
-      "sha256": "6820844a9e7ce01e90228a7546f06f900d3b9ddb60738172f99574034228957a"
+      "reason": "Strict nonsecret private-alpha conversation qualification and fixed portions of one Work ceiling; no provider dispatch or execution authority. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "d0539a5b9308f8339d4d5752462e185d15d79282e0001e2a7c58ade936eff478"
     },
     "agent/lib/local-computer-tool.ts": {
       "classification": "ENFORCED",
@@ -3811,8 +3811,8 @@
     },
     "lib/engineering/factory-request-headers.ts": {
       "classification": "ENFORCED",
-      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer.",
-      "sha256": "944e0c57f92c96b08c1e9854356f61359815419dbc3d354ca1da5cd59e333132"
+      "reason": "Outbound transport validates the exact configured destination and request-fresh source workload identity. Separate application and Work authentication remain required. Staging and production identities cannot cross; this helper creates no grant or writer. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "53c5be20162944bf33d63a43bfb20e0500163b9c788a86fa02a58673dfd4fd8c"
     },
     "lib/engineering/cloud-controller-delivery.ts": {
       "classification": "ENFORCED",
@@ -3956,8 +3956,8 @@
     },
     "lib/engineering/production-installation.ts": {
       "classification": "READ_ONLY",
-      "reason": "Owner-only exact production installation observation and bounded authentication denial probes. Fixed destination and deliberately invalid Work; no execution, model, publication or caller-controlled authority. Separate app/OIDC gates and response sanitization retained.",
-      "sha256": "db8d765bbfcf9f38d72bda6509a0af78377db1ccd00d09aeabbb69c4f9131a07"
+      "reason": "Owner-only exact production installation observation and bounded authentication denial probes. Fixed destination and deliberately invalid Work; no execution, model, publication or caller-controlled authority. Separate app/OIDC gates and response sanitization retained. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "d154fab961e0a7979997de863277453381db7a520e338e7443c4c642956522de"
     },
     "app/api/beta/factory-installation/route.ts": {
       "classification": "READ_ONLY",
@@ -3976,8 +3976,8 @@
     },
     "lib/engineering/production-runtime-guard.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact production project/owner installation plus separate server-only operator validation configuration. Rejects qualification/local/paid switches; enables neither synthetic conversation nor general Work. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
-      "sha256": "cf1f4d381e39feb5803a66b1621f0ceca7d71dbfe75d700f66060e72e8d23787"
+      "reason": "Exact production project/owner installation plus separate server-only operator validation configuration. Rejects qualification/local/paid switches; enables neither synthetic conversation nor general Work. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "079698be8c88834c7fe7837c05d118ea07eb8ed59c95904122380a11f1c50f14"
     },
     "lib/engineering/production-validation.ts": {
       "classification": "ENFORCED",
@@ -4016,13 +4016,28 @@
     },
     "lib/engineering/production-approval.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure exact approved-envelope identity validation; no execution, storage or network authority. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement.",
-      "sha256": "4375a17b5cf3ec5bd415f2bedda7ec7c4e5ed7d7020280d69ba88301f3c7e621"
+      "reason": "Pure exact approved-envelope identity validation; no execution, storage or network authority. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "ea8d906bd991ee2239608a55d34896a737ba6f6a568445b3b9501b4da3b609b8"
     },
     "lib/web-session-store.ts": {
       "classification": "INTERNAL",
       "reason": "Owner-bound session revocation only: writes irreversible token digests at logout and reads them before authentication; no Work, model, publication or external-service execution authority. Independently reviewed with API/channel replay and real PostgreSQL regressions.",
       "sha256": "00f6f9f3817d0a5d75cb24b242e13bd7f726ecd3cd925d0e1efa24924fb1e0e2"
+    },
+    "lib/engineering/alpha-conversation-authority.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "a2ac8e4498da9e933d5a7f0eb8e0bf353bf19726063e484eb219df3416e4114f"
+    },
+    "lib/engineering/alpha-owner-binding.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "ec37be77882c61fc84d0e90c74eba737eeeb51bd653a6ff5c36072d09be268ef"
+    },
+    "lib/engineering/alpha-selected-work.ts": {
+      "classification": "INTERNAL",
+      "reason": "Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
+      "sha256": "48e354e67cd16722d52183c76162146a9a307487869814b09f272abcf706aba8"
     }
   }
 }

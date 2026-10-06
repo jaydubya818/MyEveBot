@@ -1,3 +1,4 @@
+import {selectedAlphaWork} from "../lib/engineering/alpha-selected-work.ts";
 import {cloudConversationModel} from '../lib/engineering/cloud-conversation-model.ts';
 import { cloudQualificationProject } from "../lib/engineering/cloud-access-qualification.ts";
 import { hostedFactoryQueue } from "../lib/engineering/deployment-mode.ts";
@@ -56,6 +57,10 @@ export default defineAgent({
       // and returns the selected model with its normal prompt-cache behavior.
       "step.started": (_event, ctx) => {
         const select = async () => {
+        if(process.env.MYEVE_ALPHA_OWNER_BINDING){
+          const current=ctx.session.auth.current,selected=selectedAlphaWork(current?.attributes.myeveEngineeringWorkId);
+          if(!selected||current?.authenticator!=='myeve-web-session'||current.principalType!=='user'||current.principalId!==selected.binding.ownerScope||current.attributes.owner!=='true'||current.attributes.role==='guest'||current.attributes.myeveRoleId||('parent' in ctx.session&&ctx.session.parent))throw Error('ALPHA_SELECTED_WORK_REQUIRED');
+        }
         if(cloudQualificationProject()){
           const current=ctx.session.auth.current;
           if(!current||current.authenticator!=="myeve-web-session"||current.principalType!=="user"||current.attributes.owner!=="true"||current.attributes.role==="guest"||current.attributes.myeveRoleId||("parent" in ctx.session&&ctx.session.parent))throw Error("CLOUD_CONVERSATION_AUTHENTICATION");
@@ -81,7 +86,7 @@ export default defineAgent({
           if(await new BusinessScopes(agent.ownerId).hasSharedWork(agent.ownerId,workId))throw new Error("Shared Work requires the scoped Our business conversation.");
           const store=new WorkStore({scopeId:agent.ownerId,scopeKind:"personal",actorId:agent.ownerId});
           return {
-            model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:hostedFactoryQueue()?"openai/gpt-5.4-mini":model??DEFAULT_MODEL}),
+            model:engineeringConversationModel({store,workId,productive:ctx.session.auth.current?.attributes.myeveEngineeringIntent==="continue",sessionId:ctx.session.id,stepKey:`${ctx.session.id}:${ownerModelStepKey(_event)}`,modelId:(selectedAlphaWork(workId)||hostedFactoryQueue())?"openai/gpt-5.4-mini":model??DEFAULT_MODEL}),
             modelContextWindowTokens:200_000,
           };
         }

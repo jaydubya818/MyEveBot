@@ -34,13 +34,13 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   await runMigrations(database(upgrade),migrations.filter(m => m.name <= '0081_factory_validation_lifecycle.sql'),()=>{});
  },120000);
  afterAll(async()=>{await pool?.end();await upgrade?.end();if(admin){for(const name of names)await admin.query('DROP DATABASE IF EXISTS '+name+' WITH (FORCE)');await admin.end();}},30000);
- async function fixture(options:{db?:any;legacy?:boolean;duration?:number;save?:boolean;repository?:string;factoryVersion?:string}={}){
-  const p=options.db??pool,store=new WorkStore({scopeId:'disposable-validation-owner',scopeKind:'personal',actorId:'disposable-validation-owner'},database(p));
-  const created=await store.create({title:'Immutable preparation regression',objective:'Offline model-free PostgreSQL qualification',repository:options.repository??'fixture/normalizer',criteria:[{id:randomUUID(),statement:'Preserve preparation',method:'test'}],maxCostUsd:1,maxDurationSeconds:180,idempotencyKey:randomUUID()});
+ async function fixture(options:{db?:any;legacy?:boolean;duration?:number;save?:boolean;repository?:string;factoryVersion?:string;owner?:string;maxCost?:number;noDecision?:boolean}={}){
+  const p=options.db??pool,owner=options.owner??'disposable-validation-owner',store=new WorkStore({scopeId:owner,scopeKind:'personal',actorId:owner},database(p));
+  const created=await store.create({title:'Immutable preparation regression',objective:'Offline model-free PostgreSQL qualification',repository:options.repository??'fixture/normalizer',criteria:[{id:randomUUID(),statement:'Preserve preparation',method:'test'}],maxCostUsd:options.maxCost??1,maxDurationSeconds:180,idempotencyKey:randomUUID()});
   await store.change(created.work.id,{operation:'resume',expectedVersion:created.work.version});
   const work=await store.get(created.work.id);
   const decisionId=randomUUID(),config={connection:{releaseValidation:true,factoryVersion:options.factoryVersion??'f'.repeat(64)},engineering:{}};
-  await p.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,eligible_routes,rejected_routes,constraints,actor_id)
+  if(!options.noDecision)await p.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,eligible_routes,rejected_routes,constraints,actor_id)
    VALUES($1,$2,'personal',$3,$4,'MYFACTORY','PostgreSQL regression','POLICY','{}','["MYFACTORY"]','[]','[]',$2)`,[decisionId,store.principal.scopeId,work.id,work.version]);
   const preparation={...(options.legacy?{validationState:'IDLE'}:{validationProtocol:2}),configurationHash:factoryExecutionConfigurationHash(config as never),environment:{binding:{factoryVersion:config.connection.factoryVersion,environmentId:'disposable-cloud',environmentType:'CLOUD'}},request:{requestId:randomUUID(),workId:work.id,workGeneration:work.generation,repository:work.repository,deadline:new Date(Date.now()+(options.duration??180000)).toISOString()}};
   if(options.save!==false){
@@ -50,7 +50,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   const driver=new FactoryWorkDriver(store,{readConfig:async()=>config} as never,{} as never,{} as never,async()=>({} as never));
   const lifecycle=new FactoryValidationLifecycle(store,decisionId);
   const cleanup=vi.spyOn(driver,'stop').mockResolvedValue({} as never);
-  const bytes=async()=>(await p.query('SELECT factory_preparation::text AS bytes FROM engineering_routing_decisions WHERE id=$1',[decisionId])).rows[0].bytes;
+  const bytes=async()=>(await p.query('SELECT factory_preparation::text AS bytes FROM engineering_routing_decisions WHERE id=$1',[decisionId])).rows[0]?.bytes;
   return {p,store,work,preparation,decisionId,driver,lifecycle,cleanup,bytes,original:await bytes()};
  }
  const attempt=(f:Awaited<ReturnType<typeof fixture>>)=>vi.spyOn(f.driver as unknown as {stepAttempt:(id:string,guard:()=>Promise<void>)=>Promise<any>},'stepAttempt');
@@ -61,7 +61,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   expect((await upgrade.query('SELECT count(*) FROM engineering_factory_validation_lifecycle')).rows[0].count).toBe('0');
   await expect(upgrade.query(`UPDATE engineering_routing_decisions SET factory_preparation=jsonb_set(factory_preparation,'{validationState}','"IN_FLIGHT"') WHERE id=$1`,[f.decisionId])).rejects.toThrow('Factory preparation identity is immutable');
   expect(await f.driver.step(f.work.id)).toEqual({state:'HALTED'});expect(await f.lifecycle.read()).toBeNull();
-  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0083_web_session_revocations.sql');
+  expect((await pool.query('SELECT name FROM sofie_schema_migrations ORDER BY name DESC LIMIT 1')).rows[0].name).toBe('0084_three_owner_cloud_accounting.sql');
  });
  it('deterministically reproduces the legacy materializer state-read race twice with the exact failing predicate',async()=>{
   const evidence=[];
@@ -254,7 +254,7 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    const schema='operator_factory_'+randomUUID().replaceAll('-','');
    const rewrite=(sql:string)=>sql.replace(/\bfactory\b/g,schema);
    const query=(sql:string,args?:unknown[])=>pool.query(rewrite(sql),args);
-   for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','007-production-installation-boundary','008-production-work-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
+   for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','007-production-installation-boundary','008-production-work-authority','009-paid-operation-release','010-three-owner-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
    const installation={projectId:'prj_4hfceCN8l6wN1gUyYOzZLQ7aJapK',databaseResourceId:'dry-morning-22844424',custodyStoreId:'store_qBuivS8MmRxnBNnU'};
    await query(`UPDATE factory.environment SET environment='production',project_id=$1,database_resource_id=$2,custody_store_id=$3,owner_scope=$4`,[installation.projectId,installation.databaseResourceId,installation.custodyStoreId,f.store.principal.scopeId]);
    const manifestTemplate={version:1,clientId:plan.validationSourceGrant.clientId,ownerScope:f.store.principal.scopeId,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.validationContractSha256,candidateSha256:plan.validationCandidateSha256,environment:'CLOUD_PRODUCTION',publication:false,
@@ -358,20 +358,38 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
   }
  });
  describe.skipIf(!process.env.MYFACTORY_SOURCE_ROOT)('paid approval materialization: real PostgreSQL',()=>{
-  async function paidFixture(){
+  async function paidFixture(options:{slot?:string;schema?:string;historicalGrants?:any[]}={}){
    const root=process.env.MYFACTORY_SOURCE_ROOT!,load=(path:string)=>import(/* @vite-ignore */ pathToFileURL(join(root,path)).href);
    const plan=await load('apps/cloud-control/src/production-execution-plan.mjs');
    const sourceDigest='a'.repeat(64),configurationDigest=digest(plan.productionConfiguration),factoryVersion=digest({sourceDigest,configurationDigest});
-   const f=await fixture({save:false,repository:plan.productionSourceGrant.source.repository,factoryVersion});
+   const alpha=!!options.slot,owner=alpha?'disposable-alpha-'+options.slot:'disposable-validation-owner';
+   const f=await fixture({save:false,repository:plan.productionSourceGrant.source.repository,factoryVersion,owner,maxCost:alpha?1.3:1,noDecision:alpha});
    const {version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd}=plan.productionSpendPlan;
    const spendPlan={version,pricingRevision,plannedProductiveOperations,plannedCompletionOperations,maxPaidOperations,completionReserveMicrousd};
    const source={sha:plan.productionSourceGrant.source.commit,files:{'fixture.txt':'offline qualification'}};
    const config={connection:{productionCanary:true,factoryVersion,source:plan.productionSourceGrant.source,spendPlan,authorizationEnvelopeSha256:''},engineering:{profile:{repository:f.work.repository,allowedPaths:plan.productionSourceGrant.allowedPaths},approvedBase:manifestForSnapshot(source)},commands:plan.productionSourceGrant.commands};
    const request={protocol:'MYFACTORY_EXECUTION_V2',requestId:null,deadline:null,workId:f.work.id,workGeneration:f.work.generation,repository:f.work.repository,source:plan.productionSourceGrant.source,maxSpendUsd:1,input:{title:f.work.title,description:f.work.objective,kind:'feature',acceptanceCriteria:f.work.criteria.map(c=>c.statement),checkCommands:config.commands,allowedPaths:config.engineering.profile.allowedPaths}};
    const pins=await load('apps/cloud-control/src/production-installation.mjs');
-   const installation={projectId:pins.productionProjectId,databaseResourceId:pins.productionDatabaseResourceId,custodyStoreId:pins.productionCustodyStoreId};
-   const manifestTemplate={version:1,clientId:'sofie-production',ownerScope:f.store.principal.scopeId,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.productionExecutionContractSha256,candidateSha256:null,environment:'CLOUD_PRODUCTION',publication:false,request};
-   const approval={canonicalSpendPlan:spendPlan,workVersion:f.work.version,configurationHash:factoryExecutionConfigurationHash(config as never),environmentBinding:f.preparation.environment.binding,criteria:f.work.criteria,manifestTemplate,installation,historicalGrants:[]};
+   const installation={projectId:pins.productionProjectId,databaseResourceId:pins.productionDatabaseResourceId,custodyStoreId:pins.productionCustodyStoreId,...(alpha?{ownerScope:'disposable-personal-host'}:{})};
+   const ownerBinding=alpha?{slot:options.slot,clientId:'sofie-alpha-'+options.slot!.toLowerCase(),ownerScope:owner,sourceProjectId:'prj_disposable'+options.slot,rosterSha256:'d'.repeat(64),environment:'production',factoryProjectId:pins.productionProjectId}:undefined;
+   const manifestTemplate={version:1,clientId:ownerBinding?.clientId??'sofie-production',ownerScope:f.store.principal.scopeId,sourceDigest,configurationDigest,factoryVersion,contractSha256:plan.productionExecutionContractSha256,candidateSha256:null,environment:'CLOUD_PRODUCTION',publication:false,request};
+   if(alpha){
+    const agentId='disposable-sofie-'+options.slot;
+    await pool.query(`INSERT INTO agents(id,owner_id,name,slug,role,instructions,is_primary,status,max_estimated_cost_usd,max_runtime_seconds,max_steps)
+      VALUES($1,$2,'Sofie','sofie','engineer','Disposable SQL qualification',true,'active',1.3,180,5) ON CONFLICT(id) DO NOTHING`,[agentId,owner]);
+    const agent=(await pool.query('SELECT updated_at::text AS revision FROM agents WHERE id=$1',[agentId])).rows[0];
+    Object.assign(config.engineering,{conversationQualification:{mode:'THREE_OWNER_CONVERSATION_V1',factoryCeilingMicrousd:1000000}});
+    const reservation={id:randomUUID(),token:randomUUID(),scope:owner,actor:owner,work:f.work.id,version:f.work.version,generation:f.work.generation,agent:agentId,agentRevision:agent.revision,policyHash:digest(config),policyVersion:1,budgetVersion:1,ceiling:300000,deadline:f.preparation.request.deadline,maxCalls:2,session:'disposable',step:'disposable:0',request:'a'.repeat(64),purpose:'CONVERSATION_REASONING',provider:'vercel-gateway/openai',model:'openai/gpt-5.4-mini',exposure:150000,pricing:{input:'0.00000075',output:'0.0000045'},bounds:{inputBytes:100,maxOutputTokens:1024,alphaFactory:{mode:'THREE_OWNER_CONVERSATION_V1',stage:'admission'}}};
+    // Canonical reservation/custody/accounting SQL with no provider dispatch.
+    await pool.query('SELECT engineering_model_reserve($1::jsonb)',[reservation]);
+    for(const patch of [{operation:'dispatch',policyHash:reservation.policyHash},{operation:'retain',result:{disposable:true},resultHash:'b'.repeat(64),receipt:{microUsd:2000},semantics:'INCREMENTAL'},{operation:'reconcile',actual:2000}])await pool.query('SELECT engineering_model_transition($1::jsonb)',[{...reservation,...patch}]);
+    const allocation=(await pool.query('SELECT * FROM engineering_alpha_work_budget WHERE work_id=$1',[f.work.id])).rows[0];
+    expect(allocation.authority_class).toBe('THREE_OWNER_CONVERSATION_V1');expect(Number(allocation.factory_microusd)).toBe(1000000);
+    await expect(pool.query('UPDATE engineering_alpha_work_budget SET factory_microusd=1050000 WHERE work_id=$1',[f.work.id])).rejects.toThrow();
+    await pool.query(`INSERT INTO engineering_routing_decisions(id,scope_id,scope_kind,work_id,work_version,selected_route,reason,source,profile,eligible_routes,rejected_routes,constraints,actor_id)
+      VALUES($1,$2,'personal',$3,$4,'MYFACTORY','Disposable SQL qualification','POLICY','{}','["MYFACTORY"]','[]','[]',$2)`,[f.decisionId,owner,f.work.id,f.work.version]);
+   }
+   const approval={canonicalSpendPlan:spendPlan,workVersion:f.work.version,configurationHash:factoryExecutionConfigurationHash(config as never),environmentBinding:f.preparation.environment.binding,criteria:f.work.criteria,manifestTemplate,installation,historicalGrants:options.historicalGrants??[],...(ownerBinding?{ownerBinding}:{})};
    const envelope={version:1,expiresAt:new Date(Date.now()+300000).toISOString(),approval},sha256=digest(envelope);
    config.connection.authorizationEnvelopeSha256=sha256;
    const authority={readConfig:async()=>config,assess:async()=>({selection:{route:'MYFACTORY'},contract:{deadline:f.preparation.request.deadline,budgetUsd:1},environment:f.preparation.environment})};
@@ -380,10 +398,10 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
    const route=vi.spyOn(routing,'decideExecutionRoute').mockReturnValue({admitted:true} as never);
    try{await Promise.all([driver.start(f.work.id,f.work.version,f.work.generation),driver.start(f.work.id,f.work.version,f.work.generation)]);}finally{guard.mockRestore();route.mockRestore();}
    const preparation=(await pool.query('SELECT factory_preparation FROM engineering_routing_decisions WHERE id=$1',[f.decisionId])).rows[0].factory_preparation;
-   const schema='paid_operator_'+randomUUID().replaceAll('-',''),rewrite=(sql:string)=>sql.replace(/\bfactory\b/g,schema);
+   const schema=options.schema??'paid_operator_'+randomUUID().replaceAll('-',''),rewrite=(sql:string)=>sql.replace(/\bfactory\b/g,schema);
    const query=(sql:string,args?:unknown[])=>pool.query(rewrite(sql),args);
-   for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','007-production-installation-boundary','008-production-work-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
-   await query("UPDATE factory.environment SET environment='production',project_id=$1,database_resource_id=$2,custody_store_id=$3,owner_scope=$4",[installation.projectId,installation.databaseResourceId,installation.custodyStoreId,f.store.principal.scopeId]);
+   if(!options.schema)for(const file of ['001-staging-boundary','002-canonical-execution-ledger','004-canonical-dispatch','007-production-installation-boundary','008-production-work-authority','009-paid-operation-release','010-three-owner-authority'])await query(await readFile(join(root,'apps/cloud-control/migrations/'+file+'.sql'),'utf8'));
+   if(!options.schema)await query("UPDATE factory.environment SET environment='production',project_id=$1,database_resource_id=$2,custody_store_id=$3,owner_scope=$4",[installation.projectId,installation.databaseResourceId,installation.custodyStoreId,installation.ownerScope??f.store.principal.scopeId]);
    const clients:any[]=[];
    const client=async(factory=false)=>{const c=await pool.connect();clients.push(c);return {query:(sql:string,args?:unknown[])=>c.query(factory?rewrite(sql):sql,args),release:()=>{clients.splice(clients.indexOf(c),1);c.release();}};};
    const run=async(approved=envelope,expected=sha256)=>{
@@ -391,8 +409,42 @@ describe.skipIf(!connection)('real PostgreSQL validation lifecycle, full canonic
     try{return await materializeValidationGrant(owner,factory,approval,async()=>{},{maxAttempts:2,maxWaitMs:100,waitMs:1},{envelope:approved,sha256:expected});}
     finally{owner.release();factory.release();}
    };
-   return {...f,plan,sourceDigest,configurationDigest,factoryVersion,installation,preparation,envelope,sha256,approval,query,run,load,close:()=>clients.forEach(c=>c.release())};
+   return {...f,schema,plan,sourceDigest,configurationDigest,factoryVersion,installation,preparation,envelope,sha256,approval,query,run,load,close:()=>clients.forEach(c=>c.release())};
   }
+  it('three alpha owners preserve settled personal and prior-owner history through real accounting and preparation',async()=>{
+   const fixtures:Awaited<ReturnType<typeof paidFixture>>[]=[],history:any[]=[];let schema:string|undefined;
+   async function settled(query:(sql:string,args?:unknown[])=>Promise<any>,clientId:string){
+    const work=randomUUID(),order=randomUUID(),run=randomUUID(),request=randomUUID(),now=new Date().toISOString();
+    await query("INSERT INTO factory.work_orders(id,record,state) VALUES($1,'{}','ready_for_review')",[order]);
+    await query("INSERT INTO factory.runs(id,work_order_id,record,state) VALUES($1,$2,'{}','ready_for_review')",[run,order]);
+    await query("INSERT INTO factory.intake_receipts(client_id,request_id,work_id,work_generation,input_digest,work_order_id,run_id,request,snapshot,deadline) VALUES($1,$2,$3,1,$4,$5,$6,'{}','{}',$7)",[clientId,request,work,'a'.repeat(64),order,run,now]);
+    await query("INSERT INTO factory.work_spend_budgets(work_id,work_generation,request_id,work_order_id,ceiling_microusd,deadline,created_at,contract_version) VALUES($1,1,$2,$3,1000000,$4,$4,'WORK_LEDGER_V2')",[work,request,order,now]);
+    await query("INSERT INTO factory.work_spend_operations(operation_id,work_id,work_generation,dispatch_identity,request_id,work_order_id,factory_version,run_id,model,pricing_revision,reserved_microusd,actual_microusd,state,created_at,updated_at,phase) VALUES($1,$2,1,$3,$4,$5,$6,$7,'disposable','disposable',100,1,'settled',$8,$8,'productive')",[randomUUID(),work,randomUUID(),request,order,'f'.repeat(64),run,now]);
+   }
+   try{
+    let retained='';
+    for(const slot of ['A','B','C']){
+     const f=await paidFixture({slot,schema,historicalGrants:structuredClone(history)});fixtures.push(f);schema=f.schema;
+     if(slot==='A')await settled(f.query,'sofie-production');
+     if(retained)expect(digest((await f.query('SELECT * FROM factory.work_spend_operations ORDER BY operation_id')).rows)).toBe(retained);
+     expect((await f.run()).state).toBe('INSTALLED');await expect(f.run()).rejects.toThrow();
+     const g=(await f.query('SELECT * FROM factory.production_work_authority WHERE work_id=$1',[f.work.id])).rows[0];
+     expect(g.manifest.ownerScope).toBe(f.store.principal.scopeId);
+     await f.query("UPDATE factory.production_work_authority SET state='REVOKED' WHERE request_id=$1",[g.request_id]);
+     history.push({requestId:g.request_id,workId:g.work_id,manifestSha256:g.manifest_sha256,consumedAt:null});
+     await settled(f.query,f.approval.manifestTemplate.clientId);
+     retained=digest((await f.query('SELECT * FROM factory.work_spend_operations ORDER BY operation_id')).rows);
+     expect((await f.query('SELECT owner_scope FROM factory.environment')).rows[0].owner_scope).toBe('disposable-personal-host');
+     await expect(pool.query("UPDATE engineering_routing_decisions SET factory_preparation='{}' WHERE id=$1",[f.decisionId])).rejects.toThrow('immutable');
+    }
+    const final=fixtures.at(-1)!;
+    expect((await final.query("SELECT count(*) FROM factory.production_work_authority WHERE state='AUTHORIZED'")).rows[0].count).toBe('0');
+    expect((await final.query('SELECT count(*) FROM factory.work_spend_operations')).rows[0].count).toBe('4');
+    for(const a of fixtures)for(const b of fixtures.filter(f=>f!==a))await expect(a.store.get(b.work.id)).rejects.toThrow();
+    const repeat=await paidFixture({slot:'A',schema,historicalGrants:history});fixtures.push(repeat);await expect(repeat.run()).rejects.toThrow();
+    expect((await repeat.query("SELECT count(*) FROM factory.production_work_authority WHERE state='AUTHORIZED'")).rows[0].count).toBe('0');
+   }finally{fixtures.forEach(f=>f.close())}
+  });
   it('concurrent activation and installation produce one request/grant; immutable approval differs from concrete digest',async()=>{
    const f=await paidFixture();try{
     const results=await Promise.allSettled([f.run(),f.run()]);expect(results.filter(r=>r.status==='fulfilled')).toHaveLength(1);

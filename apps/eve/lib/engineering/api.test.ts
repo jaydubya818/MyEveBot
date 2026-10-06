@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({ principal: vi.fn(), list: vi.fn() }));
-vi.mock("../web-auth.ts", () => ({ webPrincipal: mocks.principal }));
+vi.mock("../web-auth.ts", () => ({ authenticateWebPrincipal: mocks.principal }));
 vi.mock("./store.ts", () => ({
   WorkStore: class {
     list = mocks.list;

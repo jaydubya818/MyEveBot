@@ -1,3 +1,4 @@
+import {selectedAlphaWork} from './engineering/alpha-selected-work.ts';
 import { ownerChannelConfiguration } from "./relay/owner/config.ts";
 import { PendingActionContinuation } from "./pending-action-continuation.ts";
 import { ROUTINE_RELEASE } from "./routine-release.ts";
@@ -121,9 +122,12 @@ export const localAuthorityProvider: AuthorityProvider = {
       return {decision:"ALLOW",reason:"Owner-approved result delivery; database claim is checked before transmission.",source:"routine-delivery-v1"};
     }
     if (!agent || agent.status !== "active" || !effectiveCapability(agent,action.capabilityId).allowed) return deny("Executor capability is unavailable.");
+    const selected=action.capabilityId==='tool.engineering_factory'&&process.env.MYEVE_ALPHA_OWNER_BINDING?selectedAlphaWork(action.parameters.workId):null;
+    const exactAlpha=!!selected&&action.ownerId===selected.binding.ownerScope&&agent.isPrimary&&action.executor.kind==='primary-agent'&&action.trigger.kind==='owner_chat'&&!authority&&target.provider==='myfactory-cloud-production'&&target.account===action.ownerId&&target.resource==='engineering-work:'+selected.config.work.id&&target.environment==='CLOUD_PRODUCTION';
+    if(selected&&!exactAlpha)return deny('Selected alpha Work binding is unavailable.');
     const capability = getCapability(action.capabilityId);
     if (!capability) return deny("Unknown capability.");
-    if (capability.availability.status !== "available" || capability.dependencies.some(id => getCapability(id)?.availability.status !== "available")) {
+    if ((!exactAlpha&&capability.availability.status !== "available") || capability.dependencies.some(id => getCapability(id)?.availability.status !== "available")) {
       return deny("Capability or dependency is unavailable.");
     }
     if (authority) {
@@ -135,6 +139,13 @@ export const localAuthorityProvider: AuthorityProvider = {
       }
     } else if (["scheduled_occurrence","webhook","proactive_review","delegation","reminder","routine","relay_request"].includes(action.trigger.kind)) {
       return deny("Unattended and delegated execution requires bounded authority.");
+    }
+    if(exactAlpha){
+      const p=action.parameters;
+      if(action.actionClass!=='write'||capability.approvalPolicy.mode!=='none'||capability.risk.level==='critical'||Object.keys(p).sort().join(',')!=='expectedWorkGeneration,expectedWorkVersion,operation,workId'||p.operation!=='start'||p.expectedWorkVersion!==selected!.approval.workVersion||p.expectedWorkGeneration!==selected!.config.work.generation)return deny('Exact alpha start proposal required.');
+      // Discovery stays disabled. Only the reviewed immutable selected-Work
+      // approval can reach the existing durable gateway and Factory queue.
+      return {decision:'ALLOW',reason:'Exact selected alpha Work proposal; execution still requires its independent Factory grant.',source:'selected-alpha-work'};
     }
     const policy = resolveApprovalPolicy(action);
     return { decision: policy.decision === "ALLOW" && authority?.requiresApprovalFor.includes(action.capabilityId) ? "REQUIRE_APPROVAL" : policy.decision,
