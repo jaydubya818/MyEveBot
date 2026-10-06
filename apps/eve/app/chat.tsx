@@ -1,6 +1,6 @@
 "use client";
 import { ChatWorkContext } from "@/components/owner/chat-work-context";
-import { chatWorkHeaders, changeChatWork, type ChatWorkSelection } from "@/lib/chat-work-selection";
+import { chatWorkHeaders, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
 import { WorkThread } from "@/components/owner/work-thread";
 
 import { toolPresentation } from "@/lib/tool-presentation";
@@ -2420,7 +2420,7 @@ function ChatThread({
           </div>
         )}
 
-        {!ownerConflict && !agentId && !roleId && <ChatWorkContext
+        {showChatWorkContext({ ownerConflict, agentId, roleId, locked: workContextLocked, selection: workSelection }) && <ChatWorkContext
           selection={workSelection} locked={workContextLocked} busy={isBusy}
           onChange={next => {
             const selection = changeChatWork(workSelectionRef.current, next, workContextLockedRef.current);

@@ -48,3 +48,13 @@ export function chatWorkOptions(value: unknown): ChatWorkOption[] {
 export function chatWorkOptionLabel(work: ChatWorkOption): string {
   return `${work.title} · ${work.control === "paused" ? "Paused" : work.lifecycle}`;
 }
+
+/** Restored primary-Agent metadata must not hide an already locked Work context.
+ * Visibility never substitutes for the server's owner/primary-Agent checks. */
+export function showChatWorkContext(input: {
+  ownerConflict: boolean; agentId?: string; roleId?: string;
+  locked: boolean; selection?: ChatWorkSelection;
+}): boolean {
+  return !input.ownerConflict && !input.roleId &&
+    (!input.agentId || (input.locked && !!input.selection));
+}

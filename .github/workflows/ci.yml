@@ -22,7 +22,7 @@ jobs:
 
       - run: npm run test --workspace=eve-agent -- lib/relay
 
-      - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts
+      - run: npm run test --workspace=eve-agent -- agent/lib/retained-work-session.test.ts agent/lib/retained-work-summary.test.ts agent/hooks/retained-summary-effects.test.ts agent/instructions/persistent-agent.test.ts lib/web-session-revocation.test.ts lib/chat-work-selection.test.ts components/owner/chat-work-context.test.tsx lib/engineering/worker-projection.test.ts
 
       - run: npm run typecheck
 

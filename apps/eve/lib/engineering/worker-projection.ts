@@ -116,7 +116,8 @@ function noExecutionStatus(work: Work) {
   return "Waiting for admission";
 }
 
-function noExecutionNextStep(work: Work) {
+function noExecutionNextStep(work: Work, hasRetainedResult = false) {
+  if (hasRetainedResult) return "Review the retained Result and Proof. No new execution authority is implied.";
   if (work.lifecycle !== "active") return "Review the retained Work history.";
   if (work.control === "human") return "Finish your changes, then hand Work back for a fresh admission decision.";
   if (work.control === "stopping") return "Wait for control to stop before changing Work.";
@@ -499,13 +500,13 @@ export class EngineeringWorkerProjectionStore {
       },
       qualificationMode: execution?.qualificationMode ?? null,
       status: factoryActivity?.status ?? (factoryPreparation?.blocker?"Needs reconciliation":null) ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
-      activity: factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? "Work intent is saved; no execution has been admitted.",
+      activity: factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? ((nativeResult || result) ? "A Result from prior execution is retained. No execution is currently admitted." : "Work intent is saved; no execution has been admitted."),
       nextStep: publicationReadback ? (publicationReadback.review.status==='FAIL'?'Inspect the independent review finding. Any correction requires a separately authorized candidate lifecycle; do not modify the published candidate.':'Review the observed publication and CI evidence; owner acceptance is a separate decision.') : factoryAccounting?.blocker && factoryWriter?.state==='TERMINAL' ? `Factory execution is fenced. ${factoryAccounting.blocker}. Accounting reconciliation grants no new execution authority.` : factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
         ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
         : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."
         : `Native execution is blocked. ${executionController.known.plan?.blockers.join("; ") || (executionController.progress.recovery==="STOP" ? "Bounded no-progress recovery is exhausted." : "Recheck current authority and completion capacity.")} No productive operation is recommended.`
-        : routeActivity?.nextStep) ?? noExecutionNextStep(work),
+        : routeActivity?.nextStep) ?? noExecutionNextStep(work, !!(nativeResult || result)),
       readiness: truth?.readiness ?? { ready: false, reasons: publicationReadback ? [`Publication: PASS. GitHub CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. ${publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result remains PARTIAL.`] : nativeResult
         ? [`${nativeRow?.producer==="MYFACTORY"?"Factory candidate / MyEve":"Native"} protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },

@@ -61,3 +61,9 @@ set callbacks, renew an expired action run, compact through a model, or delegate
 Normal authenticated conversation records are retained, but execution budgets,
 grants and model-operation counters are unchanged. A paid-model explanation would
 still require separately qualified authority.
+
+A restored primary-Agent conversation can carry both an Agent ID and an existing
+locked Work selection. The existing Work review control remains visible in that
+case, without allowing Work rebinding or granting a specialist execution authority.
+A paused later generation with retained Result/Proof is described as historical
+execution, not as Work that has never executed. Readiness and authority stay false.
