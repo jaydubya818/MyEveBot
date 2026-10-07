@@ -14,7 +14,7 @@ import type { WorkAuthorityRecord } from "./work-authority.ts";
 /** Test support only. Every value is synthetic; no key, tester or provider is real. */
 export const fixtureFiles = ["src/app.ts", "src/tasks.ts", "test/tasks.test.ts"];
 export const fixtureCommands = ["npm test"];
-export const fixtureFactoryId = "myfactory-cloud-fixture";
+export const fixtureFactoryId = "myfactory-external-alpha";
 export const fixtureSourceDigest = "3".repeat(64);
 const immutable = "registry.example/fixture@sha256:" + "5".repeat(64);
 export const fixtureVerifierPolicySha256 = "6".repeat(64);
@@ -59,7 +59,7 @@ export function fixtureResultKeys() {
   const pair = generateKeyPairSync("ed25519");
   const key = {
     factoryId: fixtureFactoryId,
-    keyId: "result-key-1",
+    keyId: "external-alpha-result-v1",
     publicKey: pair.publicKey.export({ type: "spki", format: "pem" }) as string,
     activeFrom: new Date(Date.now() - 86_400_000).toISOString(),
     notAfter: new Date(Date.now() + 86_400_000).toISOString(),
@@ -78,6 +78,7 @@ export interface BuildOptions {
   patchFiles?: string[];
   patchExtra?: string;
   runId?: string;
+  requestDigest?: string;
   status?: "COMPLETED" | "FAILED";
   mutate?: (m: ResultManifest) => void;
   /** Overrides applied to the verifier attestation. */
@@ -131,7 +132,7 @@ export function buildSignedResult(input: {
     configurationDigest,
     configuration,
     requestId: authority.requestId,
-    requestDigest: digest({ requestId: authority.requestId, synthetic: true }),
+    requestDigest: o.requestDigest ?? digest({ requestId: authority.requestId, synthetic: true }),
     workOrderId: input.workOrderId,
     runId,
     attemptNumber: 1,

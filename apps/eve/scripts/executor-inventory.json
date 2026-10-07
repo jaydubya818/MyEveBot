@@ -527,8 +527,8 @@
     },
     "agent/schedules/operations-monitor.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing operations monitor calls bounded owner-scoped retained due-dependency Goal adapter only in loopback qualification mode. No timer, provider, Work control, admission or writer grant. Repeated wakes deduplicate paused Work under canonical Goal service.",
-      "sha256": "54a3bba81413945bcdc9a85ed14cdc929d11000861d07e601c30640218094d8f"
+      "reason": "Existing operations monitor now also resumes retained external-alpha readback and expiry fencing under installed owner/policy/configuration pins. No authority issuance, paid retry, dispatch, activation or model call. Existing beta schedule and monitoring paths remain intact.",
+      "sha256": "7834703136c04330ede0dced397abb720483d4ff44eaf479ea484e30a2a726f0"
     },
     "agent/schedules/reminders.ts": {
       "classification": "INTERNAL",
@@ -2262,13 +2262,13 @@
     },
     "lib/external-alpha/work-config.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict parse of reviewed non-secret external-alpha Work configuration and the enablement predicate (policy, configuration and signing key all present). Fails closed; never true for the canary or any other deployment. Adds reviewed Result-verification pins and the operator Factory pin equality check; Work is offered only when all bind.",
-      "sha256": "d7df441776c9b44c3f963ac6222cb7a0f2c525b74771b9a94668461f30375f0e"
+      "reason": "Strict reviewed non-secret configuration and Factory pin equality fail closed for absent/malformed/wrong installation. Requires distinct external-alpha Result family and separate Ed25519 signer bytes from receipt/readback key. Does not activate policy, authorize canary, invoke provider or mutate credentials.",
+      "sha256": "27eff4774e2855c9a5c54957a86158cbf3bd29a22d0f5c4fb8e7246296343002"
     },
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "External-owner Work dispatch: claims the single-use authority in the database before one send, sends only to the pinned Factory origin with this deployment OIDC identity, verifies the signed receipt, records Factory usage exact-once, and fences UNKNOWN. Never re-sends or falls back; separate from the canary transport. Reconcile ingests the signed Result before closing the authority (owner-only, idempotent) and settles accounting once.",
-      "sha256": "e9c02541ddb1820cd81d669d96473b16dd32f4fd62841e39bcbc397f692e3e30"
+      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed.",
+      "sha256": "6e8957b437fee5ed1ccdc80fa034a06f3be717b8b010fc0ac17b629d85bcf5b8"
     },
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4131,13 +4131,23 @@
     },
     "lib/external-alpha/result-ingestion.ts": {
       "classification": "ENFORCED",
-      "reason": "Verifies the Factory signed Result with the existing authenticated-result primitives, binds it to the single consumed authority and owner, retains an immutable PARTIAL-capped Proof atomically and settles accounting once. No dispatch, publication or grant.",
-      "sha256": "6b5a06f5c2d290852874d82f8d638a4b01c1b62847396b29f26a937679f513d5"
+      "reason": "Authenticates distinct external-alpha signed Result family against durable first prepare digest, signed readback run, one attempt, consumed authority, owner and reviewed pins. Atomically refreshes current Work revision and agent control before immutable Result/Proof retention. Failed/cancelled useful candidates remain FAIL/PARTIAL; never final completion. Settlement occurs once and UNKNOWN remains charged. No dispatch, publication or grant.",
+      "sha256": "7d4eb33b77c2b84ca7f89bc82d2d9561d49191547efdcc650df62eff6c8c375d"
     },
     "lib/external-alpha/result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Test support: synthetic signed Result builder. Never imported by runtime code.",
-      "sha256": "5b3f595ea0f08c07cb7bdcd0508ef33780eb14c5bc4365ffc87f3500390c7a39"
+      "reason": "Synthetic signed external-alpha Result fixtures with generated keys and explicit admitted prepare/run binding. Never imported by runtime code.",
+      "sha256": "b58ff455832bab450dfea7538c902b7221dde57f2f3728442bdb83cd02186e29"
+    },
+    "lib/external-alpha/dispatch-readback.ts": {
+      "classification": "ENFORCED",
+      "reason": "Immutable first prepare is bound under owner/policy/authority and current Work locks before transport. Authenticates READBACK_V1 Ed25519 domain, fresh per-request challenge, bounded freshness and exact authority/request/receipt/prepare/deadline/spend digest; performs no external call, dispatch or paid action. Qualified by PostgreSQL controller replay/tamper/correlation cases.",
+      "sha256": "c4cdeee64948b0bae2a24761096637310b61a69d8a5d3c7cdbb3546d836db66d"
+    },
+    "lib/external-alpha/reconciliation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Bounded durable sweep uses only retained owner/policy authority identities. Reads exact Factory requests, retains/settles Result once, stops stale/cancelled/taken-over exact requests, and sweeps expiry to UNKNOWN. No issue, claim, mint, redispatch, model invocation or activation path. Concurrent and restart PostgreSQL qualification passed.",
+      "sha256": "de52b96f2a456dc4c20e12a1557030ae9bda506d95f5750fa23482b080c5b2be"
     }
   }
 }

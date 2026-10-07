@@ -19,6 +19,7 @@ import type { ExecutionDatabase } from "../execution-types.ts";
 import type { ExternalAlphaPolicy } from "./policy.ts";
 import type { ExternalAlphaWorkConfig } from "./work-config.ts";
 import type { FactoryOperationReport, WorkAuthorityRecord } from "./work-authority.ts";
+import { dispatchBinding } from "./dispatch-readback.ts";
 import { alphaTasksCriteria, deterministicUuid } from "./work-tuple.ts";
 
 /** Ingestion of the Factory's terminal signed Result for ONE consumed external
@@ -67,6 +68,9 @@ export interface IngestionContext {
   envelope: unknown;
   /** Unsigned verdict hint from the Factory readback; it can only lower trust. */
   verdictHint?: unknown;
+  /** Durable digest of the first admitted prepare, never an envelope selector. */
+  expectedRequestDigest: string;
+  expectedRunId: string;
   now?: number;
 }
 
@@ -124,11 +128,8 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
   let manifest: ResultManifest;
   let artifacts: SignedResult["artifacts"];
   try {
-    // Untrusted selectors only (run/attempt/request digest) feed the correlation
-    // binding; EVERY other binding field comes from the consumed authority, the
-    // signed Factory receipt or the reviewed pins, and attestation compares all.
-    const env = ctx.envelope as SignedResult;
-    const untrusted = JSON.parse(Buffer.from(String(env?.encoded), "base64url").toString("utf8"));
+    // Every correlation field comes from durable admission, signed readback,
+    // the consumed authority or reviewed pins. The envelope selects no identity.
     const binding = prepareAuthenticatedFactoryInput({
       workId: work.id,
       workVersion: authority.workVersion,
@@ -138,12 +139,12 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
       factoryId: rv.factoryId,
       factoryVersion: policy.factoryVersion,
       requestId: authority.requestId,
-      requestDigest: untrusted?.execution?.requestDigest,
+      requestDigest: ctx.expectedRequestDigest,
       sourceDigest: rv.sourceDigest,
       configurationDigest: rv.configurationDigest,
       workOrderId: receipt!.workOrderId,
-      runId: untrusted?.execution?.runId,
-      attemptNumber: untrusted?.execution?.attemptNumber,
+      runId: ctx.expectedRunId,
+      attemptNumber: 1,
       inputCommit: doc.source.baseSha,
     });
     const keys = rv.resultKeys as ResultKey[];
@@ -174,7 +175,7 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
     canonical([...e.configuration.allowedPaths].sort()) !== canonical([...doc.source.allowedFiles].sort())
   )
     reject("EXTERNAL_ALPHA_RESULT_BINDING");
-  if (manifest.status !== "COMPLETED" || !manifest.candidate) reject("EXTERNAL_ALPHA_RESULT_NOT_COMPLETED", manifest.status);
+  if (!manifest.candidate) reject("EXTERNAL_ALPHA_RESULT_NOT_COMPLETED", manifest.status);
   const candidate = manifest.candidate!;
   if (candidate.base !== doc.source.baseSha) reject("EXTERNAL_ALPHA_RESULT_BINDING");
 
@@ -203,7 +204,7 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
   const patchBytes = artifacts.find((a) => a.id === candidate.patchArtifactId);
   const scope = patchScope(patchBytes ? Buffer.from(patchBytes.base64, "base64").toString("utf8") : "", doc.source.allowedFiles);
   if (scope.violations.length) reasons.push("The candidate changes files outside the authorized set.");
-  const verdict = worstVerdict(signedVerdict, ctx.verdictHint, scope.violations.length ? "FAIL" : undefined);
+  const verdict = worstVerdict(signedVerdict, ctx.verdictHint, manifest.status === "FAILED" ? "FAIL" : manifest.status === "CANCELLED" ? "PARTIAL" : undefined, scope.violations.length ? "FAIL" : undefined, cleanupConfirmed ? undefined : "PARTIAL");
   if (ctx.verdictHint !== undefined && worstVerdict(ctx.verdictHint) !== "PASS" && verdict !== signedVerdict)
     reasons.push("The Factory readback reported " + worstVerdict(ctx.verdictHint) + ".");
 
@@ -307,6 +308,8 @@ const rowResult = (row: Record<string, any>): RetainedExternalAlphaResult => ({
 /** Idempotent. The same bytes return the original; different bytes conflict. */
 export async function ingestExternalAlphaResult(ctx: IngestionContext): Promise<RetainedExternalAlphaResult> {
   assertOwnerBinding(ctx);
+  const dispatch = await dispatchBinding(ctx.database, ctx.authority);
+  if (dispatch.requestDigest !== ctx.expectedRequestDigest) reject("EXTERNAL_ALPHA_RESULT_BINDING");
   const envelopeSha = sha256(canonical(ctx.envelope ?? null));
   const ingestSha = digest({ authority: ctx.authority.documentSha256, envelope: envelopeSha });
   const [prior] = await ctx.database.query(
@@ -328,6 +331,7 @@ export async function ingestExternalAlphaResult(ctx: IngestionContext): Promise<
         authorityId: ctx.authority.id,
         documentSha256: ctx.authority.documentSha256,
         requestId: ctx.authority.requestId,
+        requestDigest: dispatch.requestDigest,
         workId: ctx.work.id,
         workVersion: ctx.authority.workVersion,
         workGeneration: ctx.authority.workGeneration,

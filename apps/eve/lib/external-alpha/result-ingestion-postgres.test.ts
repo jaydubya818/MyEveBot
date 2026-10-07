@@ -12,6 +12,8 @@ import {
   type IngestionContext,
 } from "./result-ingestion.ts";
 import { buildSignedResult, fixtureResultKeys, type BuildOptions } from "./result-test-fixture.ts";
+import { bindDispatch } from "./dispatch-readback.ts";
+import { prepareRequest } from "./work-controller.ts";
 import { connection, Env, files } from "./work-test-fixture.ts";
 import type { FactoryOperationReport } from "./work-authority.ts";
 
@@ -29,14 +31,15 @@ async function setup() {
   const work = await e.seedWork();
   const issued = await e.svc.issue(work, files);
   await e.svc.claim(issued);
+  const config = e.workConfig([receiptKey()]);
+  const binding = await bindDispatch(e.db, issued, prepareRequest(issued, work, config));
   const workOrderId = randomUUID();
   const authority = await e.svc.finish(issued.id, "CONSUMED", {
     receipt: { authorityId: issued.id, authoritySha256: issued.documentSha256, requestId: issued.requestId, workOrderId, consumedAt: new Date().toISOString() },
   });
-  const config = e.workConfig([receiptKey()]);
-  const result = (opts?: BuildOptions) => buildSignedResult({ authority, work, workOrderId, keys: e.resultKeys, opts });
+  const result = (opts?: BuildOptions) => buildSignedResult({ authority, work, workOrderId, keys: e.resultKeys, opts: { ...opts, requestDigest: binding.requestDigest } });
   const ctx = (envelope: unknown, over: Partial<IngestionContext> = {}): IngestionContext => ({
-    database: e.db, policy: e.policy, config, authority, work, envelope, ...over,
+    database: e.db, policy: e.policy, config, authority, work, envelope, expectedRequestDigest: binding.requestDigest, expectedRunId: "00000000-0000-4000-8000-0000000000a1", ...over,
   });
   const rows = async (table: string, where?: string) => e.count(table, where);
   /** The same join the owner readback surface uses. */

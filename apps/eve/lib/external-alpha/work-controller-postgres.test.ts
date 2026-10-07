@@ -24,6 +24,8 @@ import { proofOfWorkSchema } from "../digital-worker/contracts.ts";
 import { publicKeyId } from "./work-authority.ts";
 import { externalAlphaFactoryAction } from "./work-action.ts";
 import { externalAlphaFactoryPinSha256, externalAlphaWorkEnabled } from "./work-config.ts";
+import { bindDispatch, READBACK_DOMAIN } from "./dispatch-readback.ts";
+import { reconcileExternalAlphaAuthorities } from "./reconciliation.ts";
 import { engineeringWorkEnabled } from "../engineering/deployment-mode.ts";
 
 type Op = { id: string; phase: "productive" | "completion"; state: "settled" | "unknown" | "reserved"; actual?: number };
@@ -39,7 +41,7 @@ function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[
     requestId,
     workOrderId,
     factoryVersion: fixtureFactoryVersion,
-    runId: "run-1",
+    runId: "00000000-0000-4000-8000-0000000000a1",
     model: "openai/gpt-5.4-mini",
     pricingRevision: "rev-1",
     reservedMicrousd: per,
@@ -93,24 +95,32 @@ function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[
 /** Reference Factory: validates independently against ITS OWN pins and consumes at most once. */
 class FakeFactory implements ExternalAlphaFactoryClient {
   receiptKey = generateKeyPairSync("ed25519");
-  consumed = new Map<string, { sha: string; requestId: string; workOrderId: string; workId: string }>();
+  consumed = new Map<string, { sha: string; requestId: string; workOrderId: string; workId: string; prepare: Record<string, any>; consumedAt: string }>();
   byWork = new Set<string>();
   posts = 0;
   stops: string[] = [];
   ops: Op[] = [];
   state = "RUNNING";
+  verdict: string | null = null;
   quiescent = false;
   failWith: Error | null = null;
   corruptReceipt = false;
   resultPayload: unknown | null = null;
-  async result(_requestId: string) {
-    return this.resultPayload;
+  readbackMutate: ((value: any) => void) | null = null;
+  replayReadback: unknown | null = null;
+  async result(requestId: string, challenge: string) {
+    const readback = await this.read(requestId, challenge);
+    if (this.resultPayload === null) return { ...(readback as object), pending: true };
+    const payload = this.resultPayload as any;
+    return { ...(readback as object), result: payload?.result ?? payload };
   }
+  requestDigest(requestId: string) { return digest([...this.consumed.values()].find(c => c.requestId === requestId)!.prepare); }
+
   constructor(
     private pins: { myeveKeys: ReadonlyMap<string, KeyObject>; policy: any; allowedFiles: string[]; now: () => number },
   ) {}
-  private receipt(authorityId: string, sha: string, requestId: string, workOrderId: string) {
-    const authorityReceipt = { authorityId, authoritySha256: sha, requestId, workOrderId, consumedAt: new Date().toISOString() };
+  private receipt(authorityId: string, sha: string, requestId: string, workOrderId: string, consumedAt: string) {
+    const authorityReceipt = { authorityId, authoritySha256: sha, requestId, workOrderId, consumedAt };
     const sig = sign(
       null,
       Buffer.concat([Buffer.from(RECEIPT_DOMAIN), Buffer.from([0]), Buffer.from(digest(authorityReceipt), "ascii")]),
@@ -118,19 +128,31 @@ class FakeFactory implements ExternalAlphaFactoryClient {
     ).toString("base64url");
     return { authorityReceipt, authorityReceiptSignature: sig };
   }
-  private readback(c: { sha: string; requestId: string; workOrderId: string; workId: string }, authorityId: string) {
-    return {
+  private readback(c: { sha: string; requestId: string; workOrderId: string; workId: string; prepare: Record<string, any>; consumedAt: string }, authorityId: string, challenge: string) {
+    const receipt = this.receipt(authorityId, c.sha, c.requestId, c.workOrderId, c.consumedAt);
+    const spend = { ...ledger(c.requestId, c.workOrderId, c.workId, this.ops), deadline: c.prepare.deadline };
+    const at = Date.now();
+    const readbackAttestation = {
+      schema: READBACK_DOMAIN, requestId: c.requestId, workOrderId: c.workOrderId, runId: "00000000-0000-4000-8000-0000000000a1", attemptNumber: 1,
+      requestDigest: digest(c.prepare), admittedDeadline: c.prepare.deadline, authorityId, authoritySha256: c.sha,
+      receiptDigest: digest(receipt.authorityReceipt), state: this.state, quiescent: this.quiescent, evidenceRef: null, blocker: null,
+      spend, spendDigest: digest(spend), verdict: this.verdict ?? (this.state === "COMPLETED" ? "PASS" : this.state === "CANCELLED" ? "NONE" : this.state === "FAILED" ? "FAIL" : "PENDING"), challenge,
+      issuedAt: new Date(at).toISOString(), expiresAt: new Date(at + 120000).toISOString(),
+    };
+    const readbackSignature = sign(null, Buffer.concat([Buffer.from(READBACK_DOMAIN), Buffer.from([0]), Buffer.from(digest(readbackAttestation), "ascii")]), this.receiptKey.privateKey).toString("base64url");
+    const value = {
       requestId: c.requestId,
       workOrderId: c.workOrderId,
       state: this.state,
       quiescent: this.quiescent,
       evidenceRef: null,
       blocker: null,
-      spend: ledger(c.requestId, c.workOrderId, c.workId, this.ops),
-      ...this.receipt(authorityId, c.sha, c.requestId, c.workOrderId),
+      spend, ...receipt, readbackAttestation, readbackSignature,
     };
+    this.readbackMutate?.(value);
+    return value;
   }
-  async consume(envelope: WorkAuthorityEnvelope, prepare: Record<string, any>) {
+  async consume(envelope: WorkAuthorityEnvelope, prepare: Record<string, any>, challenge = "a".repeat(32)) {
     this.posts++;
     if (this.failWith) throw this.failWith;
     // Section 5 of the contract, in order.
@@ -158,23 +180,24 @@ class FakeFactory implements ExternalAlphaFactoryClient {
     const prior = this.consumed.get(d.authorityId);
     if (prior) {
       if (prior.sha !== envelope.authoritySha256 || prior.requestId !== prepare.requestId) deny("AUTHORITY_CONSUMED");
-      return this.readback(prior, d.authorityId); // idempotent replay: no second writer
+      return this.readback(prior, d.authorityId, challenge); // idempotent replay: no second writer
     }
     if (this.byWork.has(d.work.id + ":" + d.work.generation)) deny("AUTHORITY_CONSUMED");
-    const c = { sha: envelope.authoritySha256, requestId: prepare.requestId, workOrderId: randomUUID(), workId: d.work.id };
+    const c = { sha: envelope.authoritySha256, requestId: prepare.requestId, workOrderId: randomUUID(), workId: d.work.id, prepare, consumedAt: new Date().toISOString() };
     this.consumed.set(d.authorityId, c);
     this.byWork.add(d.work.id + ":" + d.work.generation);
-    return this.readback(c, d.authorityId);
+    return this.readback(c, d.authorityId, challenge);
   }
-  async read(requestId: string) {
+  async read(requestId: string, challenge = "a".repeat(32)) {
+    if (this.replayReadback) return this.replayReadback;
     const entry = [...this.consumed.entries()].find(([, c]) => c.requestId === requestId);
-    return entry ? this.readback(entry[1], entry[0]) : null;
+    return entry ? this.readback(entry[1], entry[0], challenge) : null;
   }
-  async stop(requestId: string) {
+  async stop(requestId: string, challenge: string) {
     this.stops.push(requestId);
     this.state = "CANCELLED";
     this.quiescent = true;
-    return (await this.read(requestId))!;
+    return (await this.read(requestId, challenge))!;
   }
 }
 
@@ -313,7 +336,9 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     ];
     factory.state = "COMPLETED";
     factory.quiescent = true;
-    const [r1, r2] = await Promise.all([controller.reconcile(work.id), controller.reconcile(work.id)]);
+    const saved = (await e.svc.forWork(work.id))!;
+    factory.resultPayload = buildSignedResult({ authority: saved, work, workOrderId: (saved.receipt as any).workOrderId, keys: e.resultKeys, opts: { requestDigest: factory.requestDigest(saved.requestId) } }).signed;
+    const [r1, r2] = await Promise.all([controller.reconcile(work.id, { work }), controller.reconcile(work.id, { work })]);
     await controller.reconcile(work.id);
     expect([r1.state, r2.state].every((s) => ["COMPLETED", "CONSUMED"].includes(s as string))).toBe(true);
     const rows = (await e.pool.query("SELECT source,spent_microusd,state FROM external_alpha_operation ORDER BY step_key")).rows;
@@ -341,7 +366,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await e.svc.forWork(work.id))?.state).toBe("CONSUMED");
     expect(await e.count("engineering_native_results")).toBe(0);
     // A tampered Result is rejected, retained nowhere, and the authority stays open.
-    const good = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { verification: "UNKNOWN" } }).signed;
+    const good = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { verification: "UNKNOWN", requestDigest: factory.requestDigest(started.authority.requestId) } }).signed;
     const bad = structuredClone(good);
     bad.signature = "A".repeat(86);
     factory.resultPayload = bad;
@@ -373,7 +398,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     a.factory.ops = [{ id: "op-1", phase: "productive", state: "unknown" }];
     a.factory.state = "COMPLETED";
     a.factory.quiescent = true;
-    a.factory.resultPayload = buildSignedResult({ authority: startedA.authority, work: workA, workOrderId: startedA.readback.workOrderId, keys: a.e.resultKeys }).signed;
+    a.factory.resultPayload = buildSignedResult({ authority: startedA.authority, work: workA, workOrderId: startedA.readback.workOrderId, keys: a.e.resultKeys, opts: { requestDigest: a.factory.requestDigest(startedA.authority.requestId) } }).signed;
     const outA: any = await a.controller.reconcile(workA.id, { work: workA });
     expect(outA.state).toBe("UNKNOWN");
     expect(outA.result.retained.verdict).toBe("PASS");
@@ -512,4 +537,130 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await externalAlphaFactoryAction(e.store, work.id, { ...input, operation: "reconcile" }, effect, deps)).state).toBe("CONSUMED");
     expect((await externalAlphaFactoryAction(e.store, work.id, { ...input, operation: "stop" }, effect, deps)).state).toBe("CANCELLED");
   });
+  it("retains the first dispatch bytes immutably and rejects a different deadline for the same request", async () => {
+    const { e, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    const row = (await e.pool.query("SELECT * FROM external_alpha_work_dispatch")).rows[0];
+    expect(row.request_digest).toBe(digest(row.prepare));
+    await expect(bindDispatch(e.db, started.authority, { ...row.prepare, deadline: new Date(Date.now() + 1000).toISOString() })).rejects.toThrow(/DISPATCH_CONFLICT/);
+    await expect(e.pool.query("UPDATE external_alpha_work_dispatch SET request_digest=$1", ["f".repeat(64)])).rejects.toThrow(/immutable/);
+    await expect(e.pool.query("DELETE FROM external_alpha_work_dispatch")).rejects.toThrow(/immutable/);
+  });
+
+  it("unsigned compatibility fields cannot close an authority or settle spend", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.readbackMutate = r => { r.state = "COMPLETED"; r.quiescent = true; r.spend = {}; };
+    expect((await controller.reconcile(work.id, { work })).state).toBe("CONSUMED");
+    expect(await e.count("external_alpha_operation")).toBe(0);
+    expect(await e.count("engineering_native_results")).toBe(0);
+  });
+
+  it("a replayed readback challenge fences without recording its forged terminal accounting", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.replayReadback = await factory.read(started.authority.requestId, "a".repeat(48));
+    const out = await controller.reconcile(work.id, { work });
+    expect(out.state).toBe("UNKNOWN");
+    expect(await e.count("external_alpha_operation")).toBe(0);
+    expect(await controller.start(work).then(r => r.sent)).toBe(false);
+    expect(factory.posts).toBe(1);
+  });
+
+  it("receipt-only and tampered signed spend readbacks never qualify", async () => {
+    for (const mutate of [
+      (r: any) => { delete r.readbackAttestation; delete r.readbackSignature; },
+      (r: any) => { r.readbackAttestation.spendDigest = "f".repeat(64); },
+    ]) {
+      const { e, factory, controller } = await make();
+      factory.readbackMutate = mutate;
+      await expect(controller.start(await e.seedWork())).rejects.toThrow(/DISPATCH_UNKNOWN/);
+      expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
+    }
+  });
+
+  it("a restarted durable caller retains a later Result once under duplicate sweep delivery without redispatch", async () => {
+    const { e, factory, controller, config, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = "COMPLETED"; factory.quiescent = true;
+    const restarted = new ExternalAlphaWorkController(e.svc, factory, config, rk);
+    await reconcileExternalAlphaAuthorities(restarted, e.store);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CONSUMED");
+    factory.resultPayload = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { requestDigest: factory.requestDigest(started.authority.requestId) } }).signed;
+    await Promise.all(Array.from({ length: 8 }, () => reconcileExternalAlphaAuthorities(restarted, e.store)));
+    expect(await e.count("engineering_native_results")).toBe(1);
+    expect(await e.count("external_alpha_work_result", "settlement_state='SETTLED'")).toBe(1);
+    expect(factory.posts).toBe(1);
+    expect((await e.svc.forWork(work.id))?.state).toBe("COMPLETED");
+  });
+
+  it.each(["cancel", "takeover"] as const)("durable reconciliation stops the exact consumed request after owner %s and never projects stale evidence", async operation => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    await e.store.change(work.id, { operation, expectedVersion: work.version });
+    await reconcileExternalAlphaAuthorities(controller, e.store);
+    expect(factory.stops).toEqual([started.authority.requestId]);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    expect(await e.count("engineering_native_results")).toBe(0);
+    expect(factory.posts).toBe(1);
+  });
+
+  it.each(["ISSUED", "DISPATCHING", "CONSUMED"] as const)("durable expiry sweep fences or expires %s without restarting or reclaiming the writer", async state => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const saved = state === "CONSUMED" ? (await controller.start(work)).authority : await e.svc.issue(work, files);
+    if (state === "DISPATCHING") await e.svc.claim(saved);
+    // Disposable PostgreSQL fixture time travel, with production guard restored.
+    await e.pool.query("ALTER TABLE external_alpha_work_authority DISABLE TRIGGER external_alpha_work_authority_guard");
+    await e.pool.query("UPDATE external_alpha_work_authority SET issued_at=issued_at-interval '400 seconds',expires_at=expires_at-interval '400 seconds' WHERE id=$1", [saved.id]);
+    await e.pool.query("ALTER TABLE external_alpha_work_authority ENABLE TRIGGER external_alpha_work_authority_guard");
+    const swept = await e.svc.sweep();
+    expect(state === "ISSUED" ? swept.expired : swept.unknown).toBe(1);
+    expect((await e.svc.forWork(work.id))?.state).toBe(state === "ISSUED" ? "EXPIRED" : "UNKNOWN");
+    const before = factory.posts;
+    await controller.start(work);
+    await controller.reconcile(work.id, { work });
+    expect(factory.posts).toBe(before);
+    expect(await e.count("external_alpha_work_authority")).toBe(1);
+  });
+
+  it("terminal reserved exposure is retained at its full amount and fences rather than appearing settled", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.state = "FAILED"; factory.quiescent = true;
+    factory.ops = [{ id: "reserved-at-death", phase: "productive", state: "reserved" }];
+    expect((await controller.reconcile(work.id, { work })).state).toBe("UNKNOWN");
+    const row = (await e.pool.query("SELECT * FROM external_alpha_operation")).rows[0];
+    expect(row.state).toBe("UNKNOWN");
+    expect(Number(row.reserved_microusd)).toBe(200000);
+    expect(row.spent_microusd).toBeNull();
+  });
+
+  it.each(["FAILED", "CANCELLED"] as const)("retains a signed useful candidate for terminal %s with an honest failed/partial Proof", async terminal => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = terminal; factory.quiescent = true;
+    factory.verdict = terminal === "FAILED" ? "FAIL" : "PARTIAL";
+    factory.resultPayload = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys,
+      opts: { verification: terminal === "FAILED" ? "FAIL" : "UNKNOWN", requestDigest: factory.requestDigest(started.authority.requestId), mutate: m => { m.status = terminal; } } }).signed;
+    const out: any = await controller.reconcile(work.id, { work });
+    expect(out.result.retained.verdict).toBe(factory.verdict);
+    expect(await e.count("engineering_native_results")).toBe(1);
+    const proof = (await e.pool.query("SELECT proof FROM engineering_native_results")).rows[0].proof;
+    expect(proof.outcome).toBe(terminal === "FAILED" ? "FAILED" : "PARTIAL");
+    expect(proof.evidence.some((x: any) => x.state === "PASS")).toBe(false);
+  });
+
 });

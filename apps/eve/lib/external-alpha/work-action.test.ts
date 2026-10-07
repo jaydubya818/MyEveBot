@@ -27,10 +27,13 @@ const policy = externalAlphaPolicySchema.parse({
   model: "openai/gpt-5.4-mini", provider: "vercel-ai-gateway/openai", sourceDigest: fixtureSourceDigest, factoryVersion: fixtureFactoryVersion,
   limits: { ...externalAlphaLimits }, publication: false, automaticRepair: false, fallback: false,
 });
+const receiptPair = generateKeyPairSync("ed25519");
+const receiptPublicKey = receiptPair.publicKey.export({ type: "spki", format: "pem" }) as string;
+const receiptKeyId = require("node:crypto").createHash("sha256").update(receiptPair.publicKey.export({ type: "spki", format: "der" })).digest("hex");
 const workConfig = {
   allowedFiles: ["src/a.ts"], checkCommands: ["npm test"],
   factory: {
-    origin: "https://myfactory-cloud-production.vercel.app", trustedTeamId: "team_x", receiptKeys: [{ keyId: "a".repeat(64), publicKey: "k" }],
+    origin: "https://myfactory-cloud-production.vercel.app", trustedTeamId: "team_x", receiptKeys: [{ keyId: receiptKeyId, publicKey: receiptPublicKey }],
     resultVerification: {
       factoryId: fixtureFactoryId, sourceDigest: fixtureSourceDigest, configurationDigest: fixtureConfigurationDigest,
       verifierPolicySha256: fixtureVerifierPolicySha256, resultKeys: [fixtureResultKeys().key],
@@ -171,4 +174,13 @@ describe("the Factory pin binds every field the Factory will recompute", () => {
     expect(externalAlphaWorkEnabled(installed({ EVE_PROJECT_NAME: "myeve-alpha-tester-2" }))).toBe(false);
     expect(externalAlphaWorkEnabled(installed({ MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: "" }))).toBe(false);
   });
+  it("rejects old Result families and reuse of the receipt signer for Result custody", () => {
+    const old = structuredClone(workConfig);
+    (old.factory.resultVerification as any).factoryId = "myfactory-cloud-production";
+    expect(externalAlphaWorkEnabled(installed({ MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(old) }))).toBe(false);
+    const same = structuredClone(workConfig);
+    same.factory.resultVerification.resultKeys[0].publicKey = receiptPublicKey;
+    expect(externalAlphaWorkEnabled(installed({ MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(same) }))).toBe(false);
+  });
+
 });
