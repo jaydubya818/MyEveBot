@@ -1,0 +1,33 @@
+# External-alpha shared accounting — inactive installation requirement
+
+This is engineering source, not an activation or spending authorization. Tester authority remains inactive. Only two owner slots are supported. The historical canary and synthetic accounting paths are unchanged.
+
+## Installation prerequisites
+
+Each isolated application database requires canonical migration `0088_external_alpha_shared_accounting.sql` (and any later qualified migration). The two application installations must use **one separate PostgreSQL accounting database** containing the exact reviewed `apps/eve/lib/external-alpha/shared-accounting.sql` schema. Installing either schema creates no active cohort, policy, member, invitation or executable grant.
+
+The reviewed installation envelope must separately specify the accounting database identity, schema digest, one immutable cohort, slots `1` and `2`, exact owner/policy hashes, unique per-slot random 256-bit tokens, restricted connection roles, activation time, revocation control and backup/recovery custody. Actual identities and token values belong only in private installation records and server secret storage.
+
+Each app requires server-only `MYEVE_EXTERNAL_ALPHA_ACCOUNTING_DATABASE_URL` and `MYEVE_EXTERNAL_ALPHA_ACCOUNTING_TOKEN`. Never use a browser/public environment variable. Use TLS and a distinct restricted database login for each slot. Runtime roles receive only database connection/schema usage and `EXECUTE` on `external_alpha_cohort_call(jsonb)`. They receive no table privileges, DDL, role creation, superuser privileges or ownership of the security-definer functions. The schema/function owner is a separate operator role. Revoke public schema creation rights in this dedicated database before granting function execution. Credential hashes alone are retained in the member registry. Runtime never enrolls or activates a member. Missing configuration, inactive/revoked cohort, wrong slot, wrong policy, wrong token and unreachable accounting all fail closed.
+
+These prerequisites must be reviewed and qualified with the other release gates before any installation or activation. This checkpoint does not authorize applying them.
+
+Installation preflight must verify the retained inactive/no-paid-tester state and reject any unresolved exposure. In particular, pre-0088 Factory UNKNOWN operation rows that sum to less than the full remaining Factory envelope are not qualified by this forward function replacement. If any exist, stop installation and qualify an explicit conservative widening/backfill migration against retained history before activation. Historical canary/synthetic accounting belongs to its separate authority boundary and must not be rewritten.
+
+## Durable protocol
+
+CHAT ($0.10) and exact Work ($1.30) reserve their entire non-transferable allowance in the shared database **before** local admission. Under the shared cohort row lock, the same transaction checks the owner's UTC day and five-day limits ($2.30/$11.50), daily admission counts, and the combined UTC day/trial limits ($4.60/$23.00), then inserts one immutable admission. Both app databases use that same transaction authority. Singleton cohort and two immutable slots prevent a third allocation.
+
+Owner plus binding hash is unique. Replays retain the original charge. Changed request/kind/policy and attempts to bind another local allowance are denied. The central admission is bound to one local allowance before the immutable local receipt mirror is installed. A failure between databases leaves the full central reservation charged; a retry repairs that exact binding without minting a replacement. Local execution requires both the mirror and a current matching central record. A local-only historical allowance cannot execute through the runtime.
+
+Before paid dispatch, an exact operation obtains a shared durable dispatch lease. Unresolved dispatches fence new cohort admissions and other allowances' dispatch; operations within the same exact Work retain the existing five-operation/$1.30 local bounds. This deliberately favors conservative safety over parallel independent paid executions. Local known usage/settlement releases only the dispatch fence. It never refunds the allowance charge. Cancellation and expiry never recycle allowance, and expiry never proves a dispatch unused.
+
+An UNKNOWN Factory measurement reserves at least the **entire remaining $1.00 Factory envelope**, even when a partial estimate is smaller. Subsequent ambiguous reports reference that reservation with an immutable same-allowance coverage link so the same remaining envelope is not charged twice. UNKNOWN cannot become SETTLED on replay. A shared UNKNOWN receipt fences both owners. If recording the remote UNKNOWN fails, the preceding shared DISPATCHED lease still fences new cohort admissions. Local UNKNOWN is preserved regardless of the lost acknowledgment.
+
+`SharedAlphaAccounting.reconcile()` records locally durable UNKNOWN, known settled Sofie operations, cleanup-confirmed settled Work Results, and definitive pre-consumption Factory denial into the central lease ledger. When Gate 1 migration `0090` is present, an immutable authenticated no-candidate terminal settlement fact also permits clearing the exact Work lease: matching owner/policy, authority/request/Work revision, confirmed cleanup, verdict NONE, and known accounting are required. `ExternalAlphaWorkAuthority.sweep()` invokes reconciliation after the local authority sweep. It performs no provider call, redispatch, replacement grant or refund. Remote settlement acknowledgment loss is repaired from the same durable local result. Cancelled consumed Work without authoritative cleanup/accounting remains conservatively fenced; a terminal label alone cannot release its dispatch.
+
+## Qualification boundaries
+
+The affected suites run with `MYEVE_EXTERNAL_ALPHA_TEST_DATABASE` pointing only to a fresh localhost PostgreSQL 17 cluster. The shared-accounting suite uses two disposable app databases and a third accounting database, deterministic provider boundaries, random fixture identities and no paid calls. It covers concurrent chat/Work admissions, shared daily/trial ceilings, exact duplicate recovery, lost central/local acknowledgments, UNKNOWN during accounting outage, restart settlement repair, UTC rollover, cancelled/expired allowance retention and cross-owner/third-slot denial.
+
+Whole reservations are intentionally never recycled, including ones left unused by an interrupted local admission. Authoritative reconciliation can clear a proven known dispatch fence, but cannot increase the cohort spending allocation. A future refund protocol requires separate reviewed design and qualification.

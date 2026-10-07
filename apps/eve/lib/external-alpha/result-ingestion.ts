@@ -17,6 +17,7 @@ import { digitalWorkContractSchema, proofOfWorkSchema } from "../digital-worker/
 import type { Work } from "../engineering/types.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
 import type { ExternalAlphaPolicy } from "./policy.ts";
+import { sharedAlphaAccounting, type AlphaAccountingDatabase } from "./shared-accounting.ts";
 import type { ExternalAlphaWorkConfig } from "./work-config.ts";
 import type { FactoryOperationReport, WorkAuthorityRecord } from "./work-authority.ts";
 import { dispatchBinding } from "./dispatch-readback.ts";
@@ -386,7 +387,7 @@ export interface SettlementOutcome {
 /** Exactly-once accounting and cleanup settlement. `settled` is true for exactly
  * one caller; concurrent and later callers observe replay=true. */
 export async function settleExternalAlphaResult(
-  database: ExecutionDatabase,
+  database: AlphaAccountingDatabase,
   policy: ExternalAlphaPolicy,
   authority: WorkAuthorityRecord,
   input: { quiescent: boolean; operations: readonly FactoryOperationReport[] },
@@ -401,7 +402,12 @@ export async function settleExternalAlphaResult(
         operations: settlementOperations(authority, input.operations),
       }),
     ]);
-    return row.r as SettlementOutcome;
+    const outcome = row.r as SettlementOutcome;
+    if (outcome.settled || outcome.replay) {
+      if (outcome.exposureUnknown) await sharedAlphaAccounting(database).fence(database, policy, authority.allowanceId);
+      else await sharedAlphaAccounting(database).settle(database, policy, authority.allowanceId, "work:" + authority.id);
+    }
+    return outcome;
   } catch (error) {
     const code = /EXTERNAL_ALPHA_RESULT_[A-Z_]+/.exec(error instanceof Error ? error.message : "")?.[0];
     if (code) reject(code);

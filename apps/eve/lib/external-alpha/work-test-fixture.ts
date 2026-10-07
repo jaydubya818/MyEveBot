@@ -18,6 +18,8 @@ import {
   fixtureVerifierPolicySha256,
 } from "./result-test-fixture.ts";
 import { externalAlphaWorkConfigSchema, type ExternalAlphaWorkConfig } from "./work-config.ts";
+import { SharedAlphaAccounting, type AlphaAccountingDatabase } from "./shared-accounting.ts";
+import { readFile } from "node:fs/promises";
 
 /** Test support only (disposable localhost PostgreSQL). Never imported by runtime code. */
 export const connection = process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE;
@@ -32,11 +34,11 @@ export class Env {
   name = "ea_work_" + randomUUID().replaceAll("-", "");
   owner = randomUUID();
   policy!: ExternalAlphaPolicy;
-  db!: ExecutionDatabase;
+  db!: AlphaAccountingDatabase;
   svc!: ExternalAlphaWorkAuthority;
   signer!: WorkAuthoritySigner;
   store!: WorkStore;
-  static async create(activate = true) {
+  static async create(activate = true, policyOverrides: Partial<ExternalAlphaPolicy> = {}, installAccountingFixture = true) {
     if (!connection) throw Error("Dedicated local test database required");
     const e = new Env();
     const u = new URL(connection);
@@ -89,13 +91,21 @@ export class Env {
       publication: false,
       automaticRepair: false,
       fallback: false,
+      ...policyOverrides,
     });
     await e.pool.query(
       "INSERT INTO external_alpha_policy(owner_id,policy_sha256,policy)VALUES($1,$2,$3)",
       [e.owner, digest(e.policy), e.policy],
     );
+    const token = "e".repeat(64);
+    if (installAccountingFixture) {
+      await e.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+      await e.pool.query("INSERT INTO external_alpha_cohort(id)VALUES($1)", [e.policy.cohortId]);
+      await e.pool.query("INSERT INTO external_alpha_cohort_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256)VALUES($1,$2,$3,$4,encode(sha256(convert_to($5,'UTF8')),'hex'))", [e.policy.cohortId, e.policy.slot, e.owner, digest(e.policy), token]);
+    }
     if (activate) await e.activate();
     e.db = { query: async (q, p) => (await e.pool.query(q, p)).rows };
+    if (installAccountingFixture) e.db.externalAlphaAccounting = new SharedAlphaAccounting(e.db, token);
     e.signer = new WorkAuthoritySigner(
       generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
     );
@@ -123,7 +133,7 @@ export class Env {
     });
   }
   activate() {
-    return this.pool.query("UPDATE external_alpha_policy SET activated_at=clock_timestamp()");
+    return this.pool.query("UPDATE external_alpha_policy SET activated_at=clock_timestamp()").then(() => this.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp()"));
   }
   async seedWork(over: Record<string, unknown> = {}, scope = this.owner): Promise<Work> {
     const w = canonicalAlphaTasksWork(this.policy.repository, scope);
@@ -192,4 +202,3 @@ export const mutate = (doc: WorkAuthorityDocument, f: (d: any) => void) => {
   f(c);
   return c;
 };
-

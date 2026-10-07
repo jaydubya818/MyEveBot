@@ -305,7 +305,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(factory.posts).toBe(1);
     const rec = await e.svc.forWork(work.id);
     expect(rec?.state).toBe("UNKNOWN");
-    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences/);
+    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
   });
 
   it("an unverifiable Factory receipt fences as UNKNOWN", async () => {
@@ -323,7 +323,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
     expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(0);
     factory.failWith = null;
-    await expect(controller.start(await e.seedWork())).rejects.toThrow(/exhausted/);
+    await expect(controller.start(await e.seedWork())).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
   it("records Factory productive and completion operations in the same ledger exactly once and completes at quiescence", async () => {
@@ -428,7 +428,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const out = await controller.reconcile(work.id);
     expect(out.state).toBe("UNKNOWN");
     const rows = (await e.pool.query("SELECT state,reserved_microusd,spent_microusd FROM external_alpha_operation ORDER BY step_key")).rows;
-    expect(rows.find((r: any) => r.state === "UNKNOWN")).toMatchObject({ reserved_microusd: "200000", spent_microusd: null });
+    expect(rows.find((r: any) => r.state === "UNKNOWN")).toMatchObject({ reserved_microusd: "900000", spent_microusd: null });
     // Later "settled" or "released" reports can not release or reuse it.
     factory.ops = [
       { id: "op-1", phase: "productive", state: "settled", actual: 100000 },
@@ -436,9 +436,9 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     ];
     await controller.reconcile(work.id).catch(() => {});
     const after = (await e.pool.query("SELECT state,reserved_microusd,spent_microusd FROM external_alpha_operation WHERE step_key=$1", ["factory:op-2:0"])).rows[0];
-    expect(after).toMatchObject({ state: "UNKNOWN", reserved_microusd: "200000", spent_microusd: null });
+    expect(after).toMatchObject({ state: "UNKNOWN", reserved_microusd: "900000", spent_microusd: null });
     expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
-    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:2", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences/);
+    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:2", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
   });
 
   it("fences when the Factory reports more operations than its authority permits", async () => {
@@ -453,6 +453,23 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(fourth.result).toEqual({ overBound: true });
     expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
     void factory;
+  });
+
+  it("charges the remaining Factory UNKNOWN envelope once across multiple ambiguous operation reports", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.ops = [
+      { id: "known", phase: "productive", state: "settled", actual: 100000 },
+      { id: "ambiguous-one", phase: "productive", state: "unknown" },
+      { id: "ambiguous-two", phase: "completion", state: "unknown" },
+    ];
+    expect((await controller.reconcile(work.id)).state).toBe("UNKNOWN");
+    const rows = (await e.pool.query("SELECT id,state,reserved_microusd,spent_microusd,covered_by_operation_id FROM external_alpha_operation ORDER BY reserved_microusd DESC")).rows;
+    expect(rows.map((r: any) => r.reserved_microusd)).toEqual(["900000", "100000", "0"]);
+    expect(rows[2]).toMatchObject({ state: "UNKNOWN", spent_microusd: null, covered_by_operation_id: rows[0].id });
+    expect((await e.pool.query("SELECT sum(COALESCE(spent_microusd,reserved_microusd))::bigint amount FROM external_alpha_operation")).rows[0].amount).toBe("1000000");
+    await expect(e.pool.query("UPDATE external_alpha_operation SET covered_by_operation_id=NULL WHERE id=$1", [rows[2].id])).rejects.toThrow(/coverage is immutable/);
   });
 
   it("caps combined Sofie and Factory model operations at five and $1.30 per Work, with exact-once settlement", async () => {

@@ -36,17 +36,17 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     for (let i = 0; i < 10; i++) await chat(budget, i);
     const a = await e.svc.issue(await e.seedWork(), files);
     expect(a.state).toBe("ISSUED");
-    await expect(chat(budget, 11)).rejects.toThrow(/exhausted/);
+    await expect(chat(budget, 11)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
     expect((await e.pool.query("SELECT sum(ceiling_microusd)::bigint s FROM external_alpha_allowance")).rows[0].s).toBe("2300000");
     // A second Work the same day is refused even with an untouched, otherwise free Work row.
-    await expect(e.svc.issue(await e.seedWork(), files)).rejects.toThrow(/exhausted|One active Work/);
+    await expect(e.svc.issue(await e.seedWork(), files)).rejects.toThrow(/exhausted|One active Work|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
   it("Work first, then ten chats: same ceiling", async () => {
     const { e, budget } = await make();
     await e.svc.issue(await e.seedWork(), files);
     for (let i = 0; i < 10; i++) await chat(budget, i);
-    await expect(chat(budget, 99)).rejects.toThrow(/exhausted/);
+    await expect(chat(budget, 99)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
   it("bounds each chat turn at two operations and $0.10 of reserved exposure", async () => {
@@ -89,9 +89,9 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     const unknownOp = await budget.reserve({ allowanceId: b.id, stepKey: "s:1", requestSha256: h("y"), microusd: 70000 });
     await budget.unknown(unknownOp);
     await expect(budget.settle(unknownOp, 0, {})).rejects.toThrow(/incremental settlement/);
-    await expect(budget.reserve({ allowanceId: b.id, stepKey: "s:2", requestSha256: h("z"), microusd: 10 })).rejects.toThrow(/fenced/);
-    await expect(chat(budget, 3)).rejects.toThrow(/fences/);
-    await expect(budget.reserve({ allowanceId: b.id, stepKey: "s:1", requestSha256: h("y"), microusd: 70000 })).rejects.toThrow(/No replay of ambiguous/);
+    await expect(budget.reserve({ allowanceId: b.id, stepKey: "s:2", requestSha256: h("z"), microusd: 10 })).rejects.toThrow(/fenced|EXTERNAL_ALPHA_SHARED_FENCED/);
+    await expect(chat(budget, 3)).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
+    await expect(budget.reserve({ allowanceId: b.id, stepKey: "s:1", requestSha256: h("y"), microusd: 70000 })).rejects.toThrow(/No replay of ambiguous|EXTERNAL_ALPHA_SHARED_FENCED/);
     const kept = (await e.pool.query("SELECT state,reserved_microusd,spent_microusd FROM external_alpha_operation WHERE id=$1", [unknownOp.id])).rows[0];
     expect(kept).toMatchObject({ state: "UNKNOWN", reserved_microusd: "70000", spent_microusd: null });
   });
@@ -101,8 +101,8 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     const d = today();
     await history(e, [d - 5, d - 4, d - 3, d - 2, d - 1], ["CHAT", "WORK"]);
     expect((await e.pool.query("SELECT sum(ceiling_microusd)::bigint s FROM external_alpha_allowance")).rows[0].s).toBe("11500000");
-    await expect(chat(budget, 1)).rejects.toThrow(/exhausted/);
-    await expect(e.svc.issue(await e.seedWork(), files)).rejects.toThrow(/exhausted/);
+    await expect(chat(budget, 1)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
+    await expect(e.svc.issue(await e.seedWork(), files)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
   it("allows today's full $2.30 after four spent days and then exactly reaches $11.50", async () => {
@@ -112,18 +112,21 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     for (let i = 0; i < 10; i++) await chat(budget, i);
     await e.svc.issue(await e.seedWork(), files);
     expect((await e.pool.query("SELECT sum(ceiling_microusd)::bigint s FROM external_alpha_allowance")).rows[0].s).toBe("11500000");
-    await expect(chat(budget, 50)).rejects.toThrow(/exhausted/);
+    await expect(chat(budget, 50)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
   it("counts days at UTC midnight boundaries, not local time", async () => {
     const { e, budget } = await make();
     for (let i = 0; i < 10; i++) await chat(budget, i);
-    await expect(chat(budget, 20)).rejects.toThrow(/exhausted/);
+    await expect(chat(budget, 20)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
     const idx = (await e.pool.query("SELECT DISTINCT day_index FROM external_alpha_allowance")).rows;
     expect(idx).toHaveLength(1);
     expect(Math.abs(idx[0].day_index - today())).toBeLessThanOrEqual(1); // equals today unless the run straddles midnight
     // The next UTC day: yesterday's rows stop counting toward the daily limit but still count toward the lifetime cap.
     await e.pool.query("UPDATE external_alpha_allowance SET day_index=day_index-1");
+    await e.pool.query("ALTER TABLE external_alpha_cohort_admission DISABLE TRIGGER external_alpha_cohort_admission_guard");
+    await e.pool.query("UPDATE external_alpha_cohort_admission SET day_index=day_index-1");
+    await e.pool.query("ALTER TABLE external_alpha_cohort_admission ENABLE TRIGGER external_alpha_cohort_admission_guard");
     await chat(budget, 21);
   });
 
@@ -131,11 +134,11 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     const a = await make(), b = await make();
     for (let i = 0; i < 10; i++) await chat(a.budget, i);
     await a.e.svc.issue(await a.e.seedWork(), files);
-    await expect(chat(a.budget, 30)).rejects.toThrow(/exhausted/);
+    await expect(chat(a.budget, 30)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
     // B is untouched by A's exhaustion and cannot borrow from it either.
     for (let i = 0; i < 10; i++) await chat(b.budget, i);
     await b.e.svc.issue(await b.e.seedWork(), files);
-    await expect(chat(b.budget, 30)).rejects.toThrow(/exhausted/);
+    await expect(chat(b.budget, 30)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
     const total = async (e: Env) => Number((await e.pool.query("SELECT sum(ceiling_microusd)::bigint s FROM external_alpha_allowance")).rows[0].s);
     expect((await total(a.e)) + (await total(b.e))).toBe(4_600_000);
   });
