@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "1498a764ce959bc2f94badb42fc3549320e7ff37c409897b7da9d68579669ca2"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: configured tester deployments use only the owner-bound allowance model; absent/invalid policy fails closed, with no default model fallback.",
+      "sha256": "d35afb18cef0acb8b59501d90847511f7660153439b01f92adfc5882bd054644"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -951,8 +951,8 @@
     },
     "agent/tools/create_goal.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b8095d3b50e23c77bac019ec6a13e7cb76bd653735f318cdde64e8815907d2bd"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "e2ad4d5bb72b46d00cb087ccc32a450947a2377b9edec8d466d118950ee39a85"
     },
     "agent/tools/create_reminder.ts": {
       "classification": "INTERNAL",
@@ -1015,8 +1015,8 @@
     },
     "agent/tools/get_agent.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "1666c5291edc82755c2387a410b1bce6dc8f40df108858aa6ab8f3d0d0b9ea83"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "7f74e4374dfaac30dc3964c1098d79ef553a606100c8f7268d13aa3fd0eda155"
     },
     "agent/tools/get_computer_session.ts": {
       "classification": "READ_ONLY",
@@ -1025,8 +1025,8 @@
     },
     "agent/tools/get_goal.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "d6415ee9d1f65d77ea97e4e179182cd82544110240f6be49af28a3eeb65fe036"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "4123fc8a8bac3fdd7a07d783d44e96d90eff45757ac6b4772e453915612df933"
     },
     "agent/tools/get_review_schedule.ts": {
       "classification": "READ_ONLY",
@@ -1056,8 +1056,8 @@
     },
     "agent/tools/inspect_owner_knowledge.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "2ec8e76e123aafeaf7f272c3a8e83d40e89a4616d7b53590d928dd5837ac9994"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "b36a60b404369b280bee5c2a67c2cf67c28e807ceb2c68fe21c4a9f364677015"
     },
     "agent/tools/inspect_skills.ts": {
       "classification": "READ_ONLY",
@@ -1066,8 +1066,8 @@
     },
     "agent/tools/inspect_tasks.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "89ab79d80529adf38618c09adbff46c5c89ff3517dded6b069f78bb060e526a5"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "f36a8c15bab8e52bc47eb83f7ca0cfec6670b51009ed5222014532aba83e1789"
     },
     "agent/tools/label_email.ts": {
       "classification": "BLOCKED",
@@ -1077,8 +1077,8 @@
     },
     "agent/tools/list_agents.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "816c588d9914829521b4081b87a96581c0eec1fbcb296f0372f302969d5a9a0c"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "3decbc59d0c95763d70f608a5b041da609bc44d5276531efdf10dee412b2ba30"
     },
     "agent/tools/list_commitments.ts": {
       "classification": "READ_ONLY",
@@ -1087,8 +1087,8 @@
     },
     "agent/tools/list_decisions.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "ed099525c7df09d3558c7074d3068aa18e338a411c36e2ccb34940e7874604c6"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "a41094b786dfde1ec051da022f70ffb40e389f420cf3aec9dc750afd7225b570"
     },
     "agent/tools/list_emails.ts": {
       "classification": "READ_ONLY",
@@ -1097,13 +1097,13 @@
     },
     "agent/tools/list_goals.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "a3e36cc87b5eaa7449a5d491c3419c0b26c3459d845df6a25edb2c4d3431914f"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "3c85c196822addbfc46cad4ebb534b54a6924ef0442e6e47b9b94285b8040c43"
     },
     "agent/tools/list_memories.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts.",
-      "sha256": "56df5955dcc7913bf141879a54f2b491e02b0843964e291342b9a1df9da27c07"
+      "reason": "Read-only query or bounded diagnostic; no provider mutation. Account discovery never provisions accounts. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "a3a6e0ea1c677e96063bc3f689c4c2c3caff682d8be237275def33fa7a6e7481"
     },
     "agent/tools/list_outcomes.ts": {
       "classification": "READ_ONLY",
@@ -1152,8 +1152,8 @@
     },
     "agent/tools/manage_agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Direct authenticated root owner plus framework always-approval; reuses canonical profile services. Creation/copy grants zero capabilities; updates preserve existing risk/limits/grants; service/delegated/execution identities denied. Permission expansion requires existing owner settings; no execution dispatch.",
-      "sha256": "3a8ad4b6ba5ae41d8003bbbabc6e8bd3666cd036aab687e75e7564c78d003044"
+      "reason": "Direct authenticated root owner plus framework always-approval; reuses canonical profile services. Creation/copy grants zero capabilities; updates preserve existing risk/limits/grants; service/delegated/execution identities denied. Permission expansion requires existing owner settings; no execution dispatch. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "a7e89c542804c05ef4d53422ddc8b00042b57743324fada2b924f4e54c9dd44f"
     },
     "agent/tools/manage_computer_session.ts": {
       "classification": "INTERNAL",
@@ -1167,8 +1167,8 @@
     },
     "agent/tools/manage_goal_task.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "764a77f40302e3ac3266fec1a5aa78b9547c49593cdf3722d193ec4b11e39e85"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "c410358541d972c38129e2a1c2807a9dab7af37d6954547118cfa756e4ec2925"
     },
     "agent/tools/manage_routine.ts": {
       "classification": "INTERNAL",
@@ -1214,18 +1214,18 @@
     },
     "agent/tools/record_decision.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "b15ee182753bafa4266e810518c6ccf20f8b5aeca6690e42da72b6cc0e98bb1a"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "8be7ac858d5e2b9d39be1cd5ce8ac07ad3c437f4e8a90c00042e3f00ee31c7d1"
     },
     "agent/tools/record_fact.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "ed51d97ad2092a579ae88dc03aa0860b369708b3e6594437d0ea8785159b637c"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "bde514d7912a650e3e20f599caf15ad921b7c5a9c28d3ff042f7e548080c070c"
     },
     "agent/tools/record_observation.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "a29ac345f4c7c4a9b50940e0c0cb13ea02f01bdb2ae29b2d3a0013c50e186a35"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "d59b4368b168c1a5a7033c3f36e97c719d5b4938892867b684a522b3f1847e58"
     },
     "agent/tools/record_outcome.ts": {
       "classification": "INTERNAL",
@@ -1359,8 +1359,8 @@
     },
     "agent/tools/update_goal.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "f7a6f987501660e28739e652757ad2224f4caf315e61809b1599f88cf1c2b510"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "568579f92b71eb410662d6457d958ec8d5545232e8492d40e29d5795c6788729"
     },
     "agent/tools/update_outcome_feedback.ts": {
       "classification": "INTERNAL",
@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Three-owner rollout: latest migration 0084; configured alpha requires 0084, existing durable-session installations retain 0083 until explicit installation.",
-      "sha256": "2f2c1a92d211ef3592348361b626f3524a9230415898ccc28f5a3cb5ad06e525"
+      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Three-owner rollout: latest migration 0084; configured alpha requires 0084, existing durable-session installations retain 0083 until explicit installation. External-alpha rollout: inert migration 0085 is required only for configured tester deployments; existing installation schema requirements are preserved.",
+      "sha256": "a0a27ff7b601dba4f9c800bd0ca5587ac73615d62e5d7dd5e81c0d9b6467acb5"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2703,13 +2703,13 @@
     },
     "agent/tools/record_preference.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
-      "sha256": "8ec34c45dad7391d7351063c943ff0023f4930874a38ae7f5b80c2b191433e3a"
+      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "fc96d9504594a7be91078ac818718089b44cb4c8496b7150a92378c44088a9c8"
     },
     "agent/tools/get_knowledge.ts": {
       "classification": "INTERNAL",
-      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects.",
-      "sha256": "b5a2278e814bbe53e3c5a00d60b95e35fc14c97cfae068bd624c20e996a56d69"
+      "reason": "Owner-scoped structured Knowledge with authenticated actor/capability checks for writes and owner-filtered reads; no external provider effects. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "4661879843b9cf1c445fa85d4578f77ebaf886f3298f07d73dcd6bf679e90db4"
     },
     "agent/tools/update_knowledge_status.ts": {
       "classification": "INTERNAL",
@@ -3269,8 +3269,8 @@
     },
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority.",
-      "sha256": "c96074098da2bdeb051fde290f2e177e279ad7a7df47e76928b6dd44218667b8"
+      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "083fa8a4c78c8e00a4d0ea5c328caf2ed4075fa5ad70fe62bd158061b00368f8"
     },
     "lib/digital-worker/learning.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3509,8 +3509,8 @@
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
-      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "429e9906df68d951cfd34f520f8c9e964940668cd706660ddf8af805eb97d407",
+      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
+      "sha256": "9bf0029dc948920fe689ad18104e654548fa5df1ec918ab48632869816ff51b6",
       "disposition": "gateway"
     },
     "lib/capsules/schema.ts": {
@@ -4058,6 +4058,26 @@
       "classification": "READ_ONLY",
       "reason": "Owner-scoped canonical retained data reads. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
       "sha256": "c542acbb56c2781a1886d653445071e59a32091a3c93e0902e0ed86a03d2b780"
+    },
+    "lib/external-alpha/policy.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict inert two-owner policy parsing and exact installation identity validation. Fixed daily/lifetime allocation; no activation, dispatch or grants.",
+      "sha256": "2e4274bb9fbb62b29b34e0b4511f9d0e8419cbe0138a2d906a8d46258c334277"
+    },
+    "lib/external-alpha/allowance.ts": {
+      "classification": "ENFORCED",
+      "reason": "Owner-bound durable allowance and model/tool-effect ledger. Database policy locks serialize admission and revocation; uncertain effects and provider outcomes fence additional dispatch. No policy activation or Factory grants.",
+      "sha256": "85bf2a6074bac5e5f6c6564c044129b3901359ccc31b1f70dbf096cce748b843"
+    },
+    "lib/external-alpha/model.ts": {
+      "classification": "ENFORCED",
+      "reason": "Exact authenticated owner/session/active Agent; durable reservation before provider dispatch, fresh authority readback, bounded Gateway-only model and tools, conservative accounting, no retry/fallback after ambiguity. Settled replay performs no new dispatch.",
+      "sha256": "69445550980cf8903b63069a73447db55fe03a4bccd18bfd16e74bb480bc1415"
+    },
+    "lib/external-alpha/tool-authority.ts": {
+      "classification": "ENFORCED",
+      "reason": "Original settled proposal and owner/session/Agent/turn binding required at tool execution. Mutations claim once under policy lock; revocation before acceptance denies effects, accepted local effect may finish without new paid or Factory authority. Ambiguous claims are not retried.",
+      "sha256": "371db9fd12f17c8dd57767545cbf4c7675ab1e51d40b4b08a441a80dcaaeb07d"
     }
   }
 }

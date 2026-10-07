@@ -61,5 +61,6 @@ jobs:
       - name: Real PostgreSQL lifecycle and exact Factory authority
         env:
           MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
-        run: npm exec --workspace apps/eve -- vitest run lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts
+        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts
