@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { SharedAlphaAccounting } from "./shared-accounting.ts";
 import { afterEach, describe, expect, it } from "vitest";
 import { generateKeyPairSync, randomUUID, sign, type KeyObject } from "node:crypto";
 import { digest } from "../engineering/contract.ts";
@@ -99,6 +101,7 @@ class FakeFactory implements ExternalAlphaFactoryClient {
   consumed = new Map<string, { sha: string; requestId: string; workOrderId: string; workId: string; prepare: Record<string, any>; consumedAt: string }>();
   byWork = new Set<string>();
   posts = 0;
+  reads = 0;
   stops: string[] = [];
   ops: Op[] = [];
   state = "RUNNING";
@@ -190,6 +193,7 @@ class FakeFactory implements ExternalAlphaFactoryClient {
     return this.readback(c, d.authorityId, challenge);
   }
   async read(requestId: string, challenge = "a".repeat(32)) {
+    this.reads++;
     if (this.replayReadback) return this.replayReadback;
     const entry = [...this.consumed.entries()].find(([, c]) => c.requestId === requestId);
     return entry ? this.readback(entry[1], entry[0], challenge) : null;
@@ -202,8 +206,8 @@ class FakeFactory implements ExternalAlphaFactoryClient {
   }
 }
 
-async function setup(activate = true) {
-  const e = await Env.create(activate);
+async function setup(activate = true, existing?: Env) {
+  const e = existing ?? await Env.create(activate);
   const keys = new Map([[e.signer.keyId, e.signer.publicKey]]);
   const factory = new FakeFactory({ myeveKeys: keys, policy: e.policy, allowedFiles: files, now: () => Date.now() });
   const config: ExternalAlphaWorkConfig = e.workConfig([
@@ -660,7 +664,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await controller.reconcile(work.id, { work })).state).toBe("UNKNOWN");
     const row = (await e.pool.query("SELECT * FROM external_alpha_operation")).rows[0];
     expect(row.state).toBe("UNKNOWN");
-    expect(Number(row.reserved_microusd)).toBe(200000);
+    expect(Number(row.reserved_microusd)).toBe(1000000);
     expect(row.spent_microusd).toBeNull();
   });
 
@@ -769,6 +773,122 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(await e.count("engineering_native_results")).toBe(0);
     expect(factory.posts).toBe(1);
     void cancelled;
+  });
+
+  it.each(["FAILED", "CANCELLED", "NOT_DISPATCHED"] as const)("closed readback repeats exact %s terminal truth without a Factory read or mutation", async terminal => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.state = terminal; factory.quiescent = true; factory.verdict = "NONE";
+    const first: any = await controller.reconcile(work.id, { work });
+    expect(first.terminalSettlement.factoryState).toBe(terminal);
+    const [before] = (await e.pool.query("SELECT to_jsonb(t) AS fact FROM external_alpha_work_terminal_settlement t")).rows;
+    const reads = factory.reads;
+    const posts = factory.posts;
+    for (let i = 0; i < 3; i++) {
+      const refresh: any = await controller.reconcile(work.id, { work });
+      expect(refresh.terminalSettlement).toEqual({ replay: true, authorityState: first.state, factoryState: terminal });
+      expect(refresh.readback).toBeUndefined();
+    }
+    expect(factory.reads).toBe(reads); expect(factory.posts).toBe(posts);
+    const [after] = (await e.pool.query("SELECT to_jsonb(t) AS fact FROM external_alpha_work_terminal_settlement t")).rows;
+    expect(after).toEqual(before);
+  });
+
+  async function sharedPair() {
+    const central = await Env.create(false, {}, false); envs.push(central);
+    await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+    const cohortId = randomUUID();
+    const a = await Env.create(true, { cohortId }); envs.push(a);
+    const b = await Env.create(true, { cohortId, slot: "2", repository: a.policy.repository.slice(0, -1) + "2" }); envs.push(b);
+    await central.pool.query("INSERT INTO external_alpha_cohort(id)VALUES($1)", [cohortId]);
+    for (const [e, token] of [[a, "1".repeat(64)], [b, "2".repeat(64)]] as const) {
+      await central.pool.query(`INSERT INTO external_alpha_cohort_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256)
+        VALUES($1,$2,$3,$4,encode(sha256(convert_to($5,'UTF8')),'hex'))`, [cohortId, e.policy.slot, e.owner, digest(e.policy), token]);
+      e.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, token);
+    }
+    await central.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp() WHERE id=$1", [cohortId]);
+    const app = await setup(true, a);
+    const chat = (id: string) => new ExternalAlphaAllowance(b.db, b.policy).admit({ kind: "CHAT", bindingId: id, requestSha256: digest(id) });
+    return { central, a, b, app, chat };
+  }
+
+  it("the actual shared lease stays fenced for a bare consumed cancellation but clears from the exact authenticated terminal fact", async () => {
+    const unproved = await sharedPair();
+    const work = await unproved.a.seedWork();
+    const started = await unproved.app.controller.start(work);
+    if (!started.sent) throw Error("sent");
+    await expect(unproved.chat("before-proof")).rejects.toThrow(/SHARED_FENCED/);
+    await unproved.a.svc.finish(started.authority.id, "CANCELLED", { reason: "OWNER_STOP_UNPROVED" });
+    await unproved.a.svc.sweep();
+    await expect(unproved.chat("after-label")).rejects.toThrow(/SHARED_FENCED/);
+    expect(await unproved.a.count("external_alpha_work_terminal_settlement")).toBe(0);
+    const centralState = (await unproved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state;
+    expect(centralState).toBe("DISPATCHED");
+    // Isolated second scenario: one singleton central database per fixture.
+    const proved = await sharedPair();
+    const w = await proved.a.seedWork();
+    await proved.app.controller.start(w);
+    await expect(proved.chat("before-known-proof")).rejects.toThrow(/SHARED_FENCED/);
+    proved.app.factory.state = "FAILED"; proved.app.factory.quiescent = true; proved.app.factory.verdict = "NONE";
+    await proved.app.controller.reconcile(w.id, { work: w });
+    expect(await proved.a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await proved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    await expect(proved.chat("after-known-proof")).resolves.toMatchObject({ kind: "CHAT" });
+    expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
+  });
+
+  it("central settlement outage is repaired after restart from the exact terminal fact without another paid dispatch", async () => {
+    const { central, a, app, chat } = await sharedPair();
+    const work = await a.seedWork();
+    await app.controller.start(work);
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
+      if (JSON.parse(p![0] as string).mode === "settle") throw Error("simulated central outage before acknowledgment");
+      return central.db.query(q, p);
+    } }, "1".repeat(64));
+    app.factory.state = "CANCELLED"; app.factory.quiescent = true; app.factory.verdict = "NONE";
+    await expect(app.controller.reconcile(work.id, { work })).rejects.toThrow(/SHARED_UNAVAILABLE/);
+    expect(await a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await a.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    await expect(chat("still-fenced")).rejects.toThrow(/SHARED_FENCED/);
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, "1".repeat(64));
+    const restarted = new ExternalAlphaWorkController(a.svc, app.factory, app.config, app.rk);
+    await reconcileExternalAlphaAuthorities(restarted, a.store);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    await expect(chat("after-restart-proof")).resolves.toMatchObject({ kind: "CHAT" });
+    expect(app.factory.posts).toBe(1);
+    expect(await a.count("engineering_native_results")).toBe(0);
+  });
+
+  it("a lost acknowledgment after central settlement commits replays the same immutable fact and retains the full admission charge", async () => {
+    const { central, a, app, chat } = await sharedPair();
+    const work = await a.seedWork();
+    await app.controller.start(work);
+    let loseAcknowledgment = true;
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
+      const rows = await central.db.query(q, p);
+      if (loseAcknowledgment && JSON.parse(p![0] as string).mode === "settle") {
+        loseAcknowledgment = false;
+        throw Error("simulated acknowledgment loss after central commit");
+      }
+      return rows;
+    } }, "1".repeat(64));
+    app.factory.state = "CANCELLED"; app.factory.quiescent = true; app.factory.verdict = "NONE";
+    await expect(app.controller.reconcile(work.id, { work })).rejects.toThrow(/SHARED_UNAVAILABLE/);
+    expect(await a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1300000);
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, "1".repeat(64));
+    const restarted = new ExternalAlphaWorkController(a.svc, app.factory, app.config, app.rk);
+    await reconcileExternalAlphaAuthorities(restarted, a.store);
+    await reconcileExternalAlphaAuthorities(restarted, a.store);
+    expect(await a.count("external_alpha_work_authority")).toBe(1);
+    expect(await a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await central.pool.query("SELECT count(*)::integer n FROM external_alpha_cohort_dispatch")).rows[0].n).toBe(1);
+    await expect(chat("after-committed-settlement")).resolves.toMatchObject({ kind: "CHAT" });
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
+    expect(app.factory.posts).toBe(1);
+    expect(await a.count("engineering_native_results")).toBe(0);
   });
 
 });

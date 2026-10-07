@@ -209,6 +209,29 @@ export function verifyReadback(
   return { ...attestation, authorityReceipt: r.authorityReceipt, authorityReceiptSignature: r.authorityReceiptSignature };
 }
 
+export type TerminalFactoryState = "FAILED" | "CANCELLED" | "NOT_DISPATCHED";
+export interface TerminalSettlementTruth {
+  replay: boolean;
+  authorityState: AuthorityState;
+  factoryState: TerminalFactoryState;
+}
+
+async function retainedTerminalTruth(authority: ExternalAlphaWorkAuthority, record: WorkAuthorityRecord): Promise<TerminalSettlementTruth | null> {
+  const [row] = await authority.database.query(`SELECT t.readback,t.readback_sha256 FROM external_alpha_work_terminal_settlement t
+    JOIN external_alpha_work_dispatch d ON d.authority_id=t.authority_id
+    WHERE t.authority_id=$1 AND t.owner_id=$2 AND t.policy_sha256=$3 AND t.request_id=$4 AND t.authority_sha256=$5
+      AND t.work_id=$6 AND t.work_version=$7 AND t.work_generation=$8
+      AND t.request_digest=d.request_digest AND t.cleanup_confirmed=true AND t.result_verdict='NONE'
+      AND t.settlement_state='SETTLED' AND t.exposure_unknown=false`,
+    [record.id, authority.policy.ownerId, digest(authority.policy), record.requestId, record.documentSha256, record.workId, record.workVersion, record.workGeneration]);
+  if (!row) return null;
+  // Historical accepted custody does not renew execution authority or claim
+  // fresh liveness. Return only its limited terminal truth, never raw custody.
+  if (digest(row.readback) !== row.readback_sha256) throw Error("EXTERNAL_ALPHA_TERMINAL_CUSTODY");
+  const factoryState = z.enum(["FAILED", "CANCELLED", "NOT_DISPATCHED"]).parse((row.readback as { readbackAttestation: { state: unknown } }).readbackAttestation.state);
+  return { replay: true, authorityState: record.state, factoryState };
+}
+
 /** Retains an authenticated no-candidate cleanup/accounting fact. Replays keep
  * the original immutable custody record; it is neither candidate Proof nor a
  * terminal-label shortcut. Current owner Work is locked inside SQL settlement. */
@@ -229,10 +252,11 @@ export async function settleTerminalReadback(authority: ExternalAlphaWorkAuthori
     operations: settlementOperations(record, operationReports(spend, true)),
   })]);
   const fact = row.r as { replay: boolean; authorityState: AuthorityState };
+  const factoryState = z.enum(["FAILED", "CANCELLED", "NOT_DISPATCHED"]).parse(readback.state);
   // Shared accounting consumes the retained exact fact through its reconcile
   // hook on sweep. A lost remote acknowledgment is repaired by later sweeps.
   await authority.sweep();
-  return fact;
+  return { replay: fact.replay, authorityState: fact.authorityState, factoryState } satisfies TerminalSettlementTruth;
 }
 
 export function prepareRequest(
@@ -347,7 +371,10 @@ export class ExternalAlphaWorkController {
   async reconcile(workId: string, ctx?: { work: Work }) {
     const record = await this.authority.forWork(workId);
     if (!record) return { state: "NONE" as const };
-    if (!["DISPATCHING", "CONSUMED"].includes(record.state)) return { state: record.state };
+    if (!["DISPATCHING", "CONSUMED"].includes(record.state)) {
+      const terminalSettlement = ["COMPLETED", "CANCELLED"].includes(record.state) ? await retainedTerminalTruth(this.authority, record) : null;
+      return terminalSettlement ? { state: record.state, terminalSettlement } : { state: record.state };
+    }
     const binding = await dispatchBinding(this.authority.database, record);
     const challenge = readbackChallenge();
     const raw = await this.factory.read(record.requestId, challenge);
@@ -426,7 +453,7 @@ export class ExternalAlphaWorkController {
           // completed work still requires a retained candidate Result.
           if (!unknown && error.code === "EXTERNAL_ALPHA_RESULT_NOT_COMPLETED" && resultVerdict === "NONE" && readback.state !== "COMPLETED") {
             const fact = await settleTerminalReadback(this.authority, current, raw, this.keys, binding, challenge, this.clock());
-            return { state: fact.authorityState, readback, result: { rejected: error.code } };
+            return { state: fact.authorityState, readback, terminalSettlement: fact, result: { rejected: error.code } };
           }
           if (unknown) await this.authority.finish(record.id, "UNKNOWN", { reason: "UNKNOWN_FACTORY_EXPOSURE" });
           return { state: unknown ? ("UNKNOWN" as const) : current.state, readback, result: { rejected: error.code } };

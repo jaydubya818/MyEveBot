@@ -117,11 +117,17 @@ export async function externalAlphaFactoryAction(
           : result?.pending
             ? "The Factory has not published the Result yet."
             : null;
+    const terminal = "terminalSettlement" in out
+      ? out.terminalSettlement as { factoryState?: string } | undefined
+      : undefined;
+    const terminalTruth = terminal && ["FAILED", "CANCELLED", "NOT_DISPATCHED"].includes(terminal.factoryState ?? "")
+      ? `Factory outcome: ${terminal.factoryState}. No candidate Result or Proof was produced. Authenticated cleanup and known accounting are settled.`
+      : null;
     return {
       state: out.state,
-      currentTruth: [`Work authority state: ${out.state}.`, ...(outcome ? [outcome] : [])],
+      currentTruth: [`Work authority state: ${out.state}.`, ...(terminalTruth ? [terminalTruth] : outcome ? [outcome] : [])],
     };
   }
-  const out = await controller.stop(workId);
+  const out = await controller.stop(workId, { work });
   return { state: out.state, currentTruth: [`Stop requested; Work authority state: ${out.state}.`] };
 }

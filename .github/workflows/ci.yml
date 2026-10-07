@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: 53b97f0223afc1c00db4dc3c1a442da628d9b7ec
+          ref: 9a3da181acdcb4829ad88da7f8aca5a1c58622c9
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
@@ -63,4 +63,4 @@ jobs:
           MYEVE_VALIDATION_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
           MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgres://postgres@127.0.0.1:5432/postgres
           MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
-        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts
+        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts
