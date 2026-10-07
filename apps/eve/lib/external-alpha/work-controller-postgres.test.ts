@@ -19,9 +19,11 @@ import {
 } from "./work-controller.ts";
 import { alphaTasksCriteria, alphaTasksCriteriaSha256, sha256Hex } from "./work-tuple.ts";
 import { connection, Env, files } from "./work-test-fixture.ts";
+import { buildSignedResult, fixtureFactoryVersion } from "./result-test-fixture.ts";
+import { proofOfWorkSchema } from "../digital-worker/contracts.ts";
 import { publicKeyId } from "./work-authority.ts";
 import { externalAlphaFactoryAction } from "./work-action.ts";
-import { externalAlphaWorkEnabled } from "./work-config.ts";
+import { externalAlphaFactoryPinSha256, externalAlphaWorkEnabled } from "./work-config.ts";
 import { engineeringWorkEnabled } from "../engineering/deployment-mode.ts";
 
 type Op = { id: string; phase: "productive" | "completion"; state: "settled" | "unknown" | "reserved"; actual?: number };
@@ -36,7 +38,7 @@ function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[
     dispatchIdentity: "d-" + o.id,
     requestId,
     workOrderId,
-    factoryVersion: "4".repeat(64),
+    factoryVersion: fixtureFactoryVersion,
     runId: "run-1",
     model: "openai/gpt-5.4-mini",
     pricingRevision: "rev-1",
@@ -100,6 +102,10 @@ class FakeFactory implements ExternalAlphaFactoryClient {
   quiescent = false;
   failWith: Error | null = null;
   corruptReceipt = false;
+  resultPayload: unknown | null = null;
+  async result(_requestId: string) {
+    return this.resultPayload;
+  }
   constructor(
     private pins: { myeveKeys: ReadonlyMap<string, KeyObject>; policy: any; allowedFiles: string[]; now: () => number },
   ) {}
@@ -176,15 +182,9 @@ async function setup(activate = true) {
   const e = await Env.create(activate);
   const keys = new Map([[e.signer.keyId, e.signer.publicKey]]);
   const factory = new FakeFactory({ myeveKeys: keys, policy: e.policy, allowedFiles: files, now: () => Date.now() });
-  const config: ExternalAlphaWorkConfig = externalAlphaWorkConfigSchema.parse({
-    allowedFiles: files,
-    checkCommands: ["npm test"],
-    factory: {
-      origin: "https://myfactory-cloud-production.vercel.app",
-      trustedTeamId: "team_fixture",
-      receiptKeys: [{ keyId: publicKeyId(factory.receiptKey.publicKey), publicKey: factory.receiptKey.publicKey.export({ type: "spki", format: "pem" }) as string }],
-    },
-  });
+  const config: ExternalAlphaWorkConfig = e.workConfig([
+    { keyId: publicKeyId(factory.receiptKey.publicKey), publicKey: factory.receiptKey.publicKey.export({ type: "spki", format: "pem" }) as string },
+  ]);
   const rk = new Map([[publicKeyId(factory.receiptKey.publicKey), factory.receiptKey.publicKey]]);
   const controller = new ExternalAlphaWorkController(e.svc, factory, config, rk);
   return { e, factory, controller, config, rk };
@@ -324,6 +324,73 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await e.pool.query("SELECT state FROM external_alpha_allowance WHERE kind='WORK'")).rows[0].state).toBe("COMPLETED");
   });
 
+  it("ingests the signed Result before closing: pending until published, retained once, PARTIAL shown as PARTIAL, replay and tamper safe", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("expected sent");
+    factory.ops = [
+      { id: "op-1", phase: "productive", state: "settled", actual: 120000 },
+      { id: "op-3", phase: "completion", state: "settled", actual: 50000 },
+    ];
+    factory.state = "COMPLETED";
+    factory.quiescent = true;
+    // The Factory has not published the Result: nothing closes, the owner sees nothing yet.
+    const pending: any = await controller.reconcile(work.id, { work });
+    expect(pending.result).toEqual({ pending: true });
+    expect((await e.svc.forWork(work.id))?.state).toBe("CONSUMED");
+    expect(await e.count("engineering_native_results")).toBe(0);
+    // A tampered Result is rejected, retained nowhere, and the authority stays open.
+    const good = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { verification: "UNKNOWN" } }).signed;
+    const bad = structuredClone(good);
+    bad.signature = "A".repeat(86);
+    factory.resultPayload = bad;
+    expect(((await controller.reconcile(work.id, { work })) as any).result.rejected).toBe("EXTERNAL_ALPHA_RESULT_UNVERIFIED");
+    expect(await e.count("engineering_native_results")).toBe(0);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CONSUMED");
+    // The genuine Result (verifier outcome UNKNOWN) is retained as PARTIAL and the authority settles once.
+    factory.resultPayload = { result: good, verdict: "PASS" };
+    const done: any = await controller.reconcile(work.id, { work });
+    expect(done.state).toBe("COMPLETED");
+    expect(done.result.retained.verdict).toBe("PARTIAL");
+    expect(done.result.settlement).toMatchObject({ settled: true, authorityState: "COMPLETED" });
+    const proof = proofOfWorkSchema.parse((await e.pool.query("SELECT proof FROM engineering_native_results")).rows[0].proof);
+    expect(proof.outcome).toBe("PARTIAL");
+    expect(proof.evidence.some((x) => x.state === "PASS")).toBe(false);
+    // Replay (retry after a lost response) changes nothing and never settles twice.
+    const again: any = await controller.reconcile(work.id, { work });
+    expect(again.state).toBe("COMPLETED");
+    expect(await e.count("engineering_native_results")).toBe(1);
+    expect(await e.count("external_alpha_work_result")).toBe(1);
+    expect(await e.count("external_alpha_operation", "source LIKE 'FACTORY%'")).toBe(2);
+  });
+
+  it("still retains a published Result when Factory exposure is UNKNOWN, and settles it as a fence; unpublished + UNKNOWN fences at once", async () => {
+    const a = await make();
+    const workA = await a.e.seedWork();
+    const startedA = await a.controller.start(workA);
+    if (!startedA.sent) throw Error("expected sent");
+    a.factory.ops = [{ id: "op-1", phase: "productive", state: "unknown" }];
+    a.factory.state = "COMPLETED";
+    a.factory.quiescent = true;
+    a.factory.resultPayload = buildSignedResult({ authority: startedA.authority, work: workA, workOrderId: startedA.readback.workOrderId, keys: a.e.resultKeys }).signed;
+    const outA: any = await a.controller.reconcile(workA.id, { work: workA });
+    expect(outA.state).toBe("UNKNOWN");
+    expect(outA.result.retained.verdict).toBe("PASS");
+    expect(outA.result.settlement).toMatchObject({ settled: true, exposureUnknown: true, authorityState: "UNKNOWN" });
+    expect(await a.e.count("engineering_native_results")).toBe(1);
+    const b = await make();
+    const workB = await b.e.seedWork();
+    await b.controller.start(workB);
+    b.factory.ops = [{ id: "op-1", phase: "productive", state: "unknown" }];
+    b.factory.state = "COMPLETED";
+    b.factory.quiescent = true;
+    const outB: any = await b.controller.reconcile(workB.id, { work: workB });
+    expect(outB.state).toBe("UNKNOWN");
+    expect(outB.result).toBeUndefined();
+    expect(await b.e.count("engineering_native_results")).toBe(0);
+  });
+
   it("keeps UNKNOWN Factory exposure charged at its full reservation and fences the owner/cohort", async () => {
     const { e, factory, controller } = await make();
     const work = await e.seedWork();
@@ -420,7 +487,8 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const env = {
       VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId, MYEVE_OWNER_ID: e.owner,
       MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
-      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(e.policy, config),
     } as unknown as NodeJS.ProcessEnv;
     const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
     const effect = { sessionId: "sess", callId: "call-1" };
@@ -428,10 +496,10 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(externalAlphaWorkEnabled(env)).toBe(false);
     await expect(externalAlphaFactoryAction(e.store, work.id, input, effect, { database: e.db, factory, env })).rejects.toThrow(/SIGNING_KEY_REQUIRED/);
     expect(await e.count("external_alpha_work_authority")).toBe(0);
-    const withKey = { ...env, MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: "present" } as NodeJS.ProcessEnv;
+    const withKey = { ...env, MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string } as NodeJS.ProcessEnv;
     expect(externalAlphaWorkEnabled(withKey)).toBe(true);
     expect(engineeringWorkEnabled(withKey)).toBe(true);
-    const deps = { database: e.db, factory, env, signer: e.signer };
+    const deps = { database: e.db, factory, env: withKey, signer: e.signer };
     await expect(externalAlphaFactoryAction(e.store, work.id, { ...input, expectedWorkVersion: 9 }, effect, deps)).rejects.toThrow(/Reload the current Work/);
     const foreign = new (e.store.constructor as any)({ scopeId: randomUUID(), actorId: randomUUID(), scopeKind: "personal" }, e.db);
     await expect(externalAlphaFactoryAction(foreign, work.id, input, effect, deps)).rejects.toThrow(/Owner scope denied/);

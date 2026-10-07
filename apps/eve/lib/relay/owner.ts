@@ -4,6 +4,7 @@ import { randomUUID, createPublicKey } from "node:crypto";
 import { z } from "zod";
 import { getAgent } from "../agents.ts";
 import { getKnowledge } from "../knowledge.ts";
+import { assertExternalAlphaRotationConfirmed } from "../external-alpha/relay-link.ts";
 import {
   capabilitySchema,
   grantSchema,
@@ -41,6 +42,7 @@ export async function connectOwner(store: FederationStore, value: unknown) {
       password: z.string().min(1).max(1000),
       localAgentId: z.string(),
       relayAgentId: z.string().optional(),
+      confirmCredentialRotation: z.string().max(300).optional(),
     })
     .strict()
     .parse(value);
@@ -61,6 +63,13 @@ export async function connectOwner(store: FederationStore, value: unknown) {
     );
   if (existing && existing.local_agent_id !== local.id)
     throw new Error("Reconnect the same local Agent.");
+  // Linking an existing Relay Agent rotates its credential. Under an external-alpha
+  // installation that requires the owner's explicit, disclosed confirmation
+  // before any network call is made.
+  assertExternalAlphaRotationConfirmed(
+    existing?.relay_agent_id ?? input.relayAgentId,
+    input.confirmCredentialRotation,
+  );
   const publicKey = process.env.MYEVE_RELAY_PUBLIC_KEY;
   const keyId = process.env.MYEVE_RELAY_KEY_ID;
   if (
@@ -419,8 +428,9 @@ async function messageDelegation(store: FederationStore, connection: Awaited<Ret
   );
   return issued.credential;
 }
-export async function rotateOrRevoke(store: FederationStore, revoke = false) {
+export async function rotateOrRevoke(store: FederationStore, revoke = false, confirmation?: unknown) {
   const connection = await store.connection();
+  if (!revoke) assertExternalAlphaRotationConfirmed(connection.agentId, confirmation);
   const client = new RelayClient(
     connection.credential,
     connection.ownerSession,

@@ -19,6 +19,7 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
     await admin.query("CREATE DATABASE " + name);
     u.pathname = "/" + name;
     pool = new pg.Pool({ connectionString: u.href, max: 20 });
+    pool.on("error", () => {}); // teardown force-drops the database
     await runMigrations(
       {
         query: async (q, p) => (await pool.query(q, p)).rows,
@@ -231,6 +232,7 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
     const u = new URL(connection!);
     u.pathname = "/" + otherName;
     const other = new pg.Pool({ connectionString: u.href });
+    other.on("error", () => {}); // teardown force-drops the database
     try {
       await runMigrations(
         {
@@ -309,6 +311,7 @@ describe.skipIf(!connection)("external alpha durable allowances", () => {
     const u = new URL(connection!);
     u.pathname = "/" + isolated;
     const isolatedPool = new pg.Pool({ connectionString: u.href, max: 12 });
+    isolatedPool.on("error", () => {}); // teardown force-drops the database
     const query = (q: string, p?: unknown[]) => isolatedPool.query(q, p);
     const invoke = async (fn: string, p: unknown) =>
       (

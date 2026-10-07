@@ -68,6 +68,7 @@ import { GoalsPanel } from "@/components/goals-panel";
 import { KnowledgePanel } from "@/components/knowledge-panel";
 import { ReviewPanel } from "@/components/review-panel";
 import { OwnerNavigation } from "@/components/owner/navigation";
+import { useDestinationAllowed, useExternalLinksAllowed } from "@/components/owner/destination-gate";
 import { ResultsPanel } from "@/components/results-panel";
 import { Markdown } from "@/components/markdown";
 import { TaskRunCard } from "@/components/task-run-card";
@@ -731,6 +732,8 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
   const [capabilityNotice, setCapabilityNotice] = useState<CapabilityNoticeState>({
     kind: "loading",
   });
+  const destinationAllowed = useDestinationAllowed();
+  const externalLinksAllowed = useExternalLinksAllowed();
   const [goalsIncluded, setGoalsIncluded] = useState(true);
   const [knowledgeIncluded, setKnowledgeIncluded] = useState(true);
 
@@ -1333,7 +1336,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "results" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => window.location.assign("/results")}
             />
-            <Button
+            {destinationAllowed("/computer") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1343,7 +1346,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               title="Agent computer sessions"
               className={cn(view === "computer" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "computer" ? "chat" : "computer")}
-            />
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1355,7 +1358,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "agents" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "agents" ? "chat" : "agents")}
             />
-            {goalsIncluded && <Button
+            {goalsIncluded && destinationAllowed("/review") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1366,7 +1369,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "review" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "review" ? "chat" : "review")}
             />}
-            <Button
+            {destinationAllowed("/channels") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1376,7 +1379,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               title="Email, Slack, iMessage, and push"
               className={cn(view === "channels" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "channels" ? "chat" : "channels")}
-            />
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1388,7 +1391,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               className={cn(view === "files" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "files" ? "chat" : "files")}
             />
-            <Button
+            {destinationAllowed("/manage") && <Button
               variant="ghost"
               size="sm"
               shape="square"
@@ -1398,7 +1401,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
               title="Manage: reminders, triggers, memory, connections, skills"
               className={cn(view === "manage" && "bg-kumo-tint text-kumo-strong")}
               onClick={() => showView(view === "manage" ? "chat" : "manage")}
-            />
+            />}
             <Button
               variant="ghost"
               size="sm"
@@ -1413,7 +1416,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
         </div>
         <OwnerNavigation compact />
         <Button variant="secondary" className="mx-3 mb-3 min-h-11" icon={PlusIcon} onClick={newThread}>New conversation</Button>
-        {process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
+        {externalLinksAllowed && process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL?.startsWith("https://linear.app/") && (
           <a href={process.env.NEXT_PUBLIC_LINEAR_WORKSPACE_URL} target="_blank" rel="noopener noreferrer"
             className="mx-3 mb-2 flex min-h-11 items-center justify-between rounded-md border border-kumo-hairline px-3 text-sm hover:bg-kumo-tint"
             aria-label="Open Linear workspace (opens in a new tab)">

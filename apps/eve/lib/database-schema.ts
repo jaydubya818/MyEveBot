@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_MIGRATION = "0086_external_alpha_work_authority.sql";
+export const CURRENT_DATABASE_MIGRATION = "0087_external_alpha_work_result.sql";
 
 // Existing installations keep their qualified schema requirement until the
 // operator installs the corresponding schema and explicitly enables its rollout.

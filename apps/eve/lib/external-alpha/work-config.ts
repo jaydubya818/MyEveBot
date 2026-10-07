@@ -1,9 +1,43 @@
 import { z } from "zod";
-import { pathSchema } from "../engineering/contract.ts";
-import { externalAlphaInstallation, externalAlphaPolicy } from "./policy.ts";
+import { digest, pathSchema } from "../engineering/contract.ts";
+import {
+  assertExternalAlphaSigningKey,
+  externalAlphaInstallation,
+  externalAlphaPolicy,
+  type ExternalAlphaPolicy,
+} from "./policy.ts";
 
 const hex64 = z.string().regex(/^[a-f0-9]{64}$/);
 const productionHost = /^myfactory-cloud-production(-[a-z0-9]+-jaydubya818)?\.vercel\.app$/;
+
+/** Reviewed pins for authenticating the Factory's signed Result. Non-secret.
+ * FactoryVersion is the digest of the two pinned digests, exactly as for the
+ * qualified producer protocol, so a Result cannot name a different build. */
+const resultVerificationSchema = z
+  .object({
+    factoryId: z.string().min(1).max(200),
+    sourceDigest: hex64,
+    configurationDigest: hex64,
+    /** Policy digest of the independent cloud verifier the Factory must have used. */
+    verifierPolicySha256: hex64,
+    resultKeys: z
+      .array(
+        z
+          .object({
+            factoryId: z.string().min(1).max(200),
+            keyId: z.string().min(1).max(200),
+            publicKey: z.string().min(1).max(2000),
+            activeFrom: z.string().datetime(),
+            notAfter: z.string().datetime(),
+            retiredAt: z.string().datetime().optional(),
+            revokedAt: z.string().datetime().optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(4),
+  })
+  .strict();
 
 /** Reviewed, non-secret server configuration. The Factory token is a separate
  * secret (MYEVE_EXTERNAL_ALPHA_FACTORY_TOKEN) and never part of this document. */
@@ -19,6 +53,7 @@ export const externalAlphaWorkConfigSchema = z
           .array(z.object({ keyId: hex64, publicKey: z.string().min(1).max(2000) }).strict())
           .min(1)
           .max(4),
+        resultVerification: resultVerificationSchema,
       })
       .strict(),
   })
@@ -51,18 +86,61 @@ export function externalAlphaWorkConfig(
   }
 }
 
+/** The projection the Factory installation pins (without its keys). The Factory
+ * recomputes every field of the presented authority against its own copy, so
+ * MyEve refuses to offer Work unless an operator-supplied pin digest matches
+ * what MyEve would put in every authority document. */
+export function externalAlphaFactoryPin(policy: ExternalAlphaPolicy, config: ExternalAlphaWorkConfig) {
+  const allowedFiles = [...config.allowedFiles].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  return {
+    cohortId: policy.cohortId,
+    slot: policy.slot,
+    ownerId: policy.ownerId,
+    policySha256: digest(policy),
+    application: { clientId: policy.clientId, projectId: policy.projectId },
+    source: {
+      repository: policy.repository,
+      baseSha: policy.baseSha,
+      treeSha: policy.treeSha,
+      sourceDigest: policy.sourceDigest,
+      allowedFiles,
+    },
+    factoryVersion: policy.factoryVersion,
+  };
+}
+export const externalAlphaFactoryPinSha256 = (policy: ExternalAlphaPolicy, config: ExternalAlphaWorkConfig) =>
+  digest(externalAlphaFactoryPin(policy, config));
+
+/** Cross-checks the policy against the reviewed Work configuration and the
+ * operator's Factory pin. Throws a fixed code; nothing secret is included. */
+export function assertExternalAlphaWorkBinding(
+  policy: ExternalAlphaPolicy,
+  config: ExternalAlphaWorkConfig,
+  env: NodeJS.ProcessEnv = process.env,
+): void {
+  const r = config.factory.resultVerification;
+  if (digest({ sourceDigest: r.sourceDigest, configurationDigest: r.configurationDigest }) !== policy.factoryVersion)
+    throw Error("EXTERNAL_ALPHA_FACTORY_VERSION_BINDING");
+  const sorted = [...config.allowedFiles].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
+  if (new Set(sorted).size !== sorted.length) throw Error("EXTERNAL_ALPHA_FILES_DUPLICATE");
+  const pin = env.MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256;
+  if (!pin || !/^[a-f0-9]{64}$/.test(pin) || pin !== externalAlphaFactoryPinSha256(policy, config))
+    throw Error("EXTERNAL_ALPHA_FACTORY_PIN_MISMATCH");
+}
 
 /** Work authority is offered only to a fully provisioned external-alpha
- * installation: exact policy, reviewed Work configuration and a signing key.
+ * installation: exact policy, reviewed Work configuration, a Factory pin that
+ * equals what the Factory will pin, and a signing key.
  * Everything else (including the canary and every other deployment) is false. */
 export function externalAlphaWorkEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   if (!externalAlphaInstallation(env)) return false;
   try {
-    return (
-      externalAlphaPolicy(env) !== null &&
-      externalAlphaWorkConfig(env) !== null &&
-      !!env.MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY?.trim()
-    );
+    const policy = externalAlphaPolicy(env);
+    const config = externalAlphaWorkConfig(env);
+    if (!policy || !config) return false;
+    assertExternalAlphaSigningKey(env);
+    assertExternalAlphaWorkBinding(policy, config, env);
+    return true;
   } catch {
     return false;
   }

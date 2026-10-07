@@ -2,6 +2,8 @@ import {FACTORY_START_PROPOSAL_CONTRACT} from "./engineering/factory-proposal-co
 import { configuredLocalCapabilities, type LocalComputerCapability } from "./local-computer-contract.ts";
 import { engineeringWorkEnabled, hostedFactoryQueue } from "./engineering/deployment-mode.ts";
 import { getCapabilityStatuses } from "./capabilities.ts";
+import { externalAlphaCapabilityAllowed, externalAlphaEnabledFeatures, externalAlphaMemoryApproved } from "./external-alpha/features.ts";
+import { externalAlphaInstallation } from "./external-alpha/policy.ts";
 
 export const BROWSER_TOOL_CAPABILITIES: Record<string, string> = {
   click: "browser.click", close: "browser.click", drag: "browser.click", hover: "browser.click",
@@ -552,6 +554,8 @@ export const CAPABILITY_DEFINITIONS: readonly CapabilityDefinition[] = [
 ] as const;
 
 function enabledFeatures(env: NodeJS.ProcessEnv): Set<string> {
+  // External-alpha installations fail closed: an unset list never means "all".
+  if (externalAlphaInstallation(env)) return externalAlphaEnabledFeatures(env);
   const raw = env.EVE_ENABLED_FEATURES;
   if (raw === undefined || raw.trim().length === 0) {
     return new Set(["memory", "proactive", "receipts", "skills", "file-sharing", "integrations", "browser", "utilities", "goals", "knowledge"]);
@@ -574,6 +578,16 @@ function availabilityFor(
   definition: CapabilityDefinition,
   env: NodeJS.ProcessEnv,
 ): ResolvedCapability["availability"] {
+  // External alpha: an explicit allowlist, enforced here for discovery and by the
+  // execution hook and action gateway (both require "available"). Anything new is
+  // unavailable until a reviewer adds it to features.ts.
+  if (externalAlphaInstallation(env)) {
+    if (!externalAlphaCapabilityAllowed(definition.id, env))
+      return { status: "disabled", configured: false, reason: "Not part of the external alpha." };
+    // Approved Memory is the local PostgreSQL backend; it needs no third-party key.
+    if (externalAlphaMemoryApproved(env) && ["memory.supermemory", "tool.remember", "tool.search_memory", "tool.list_memories", "tool.forget"].includes(definition.id))
+      return { status: "available", configured: true };
+  }
   // Discovery is gated; execution retains the canonical owner, Work and provider fences.
   if (["tool.engineering_work", "tool.engineering_direct", "tool.engineering_factory"].includes(definition.id) &&
       (!engineeringWorkEnabled(env) || (definition.id === "tool.engineering_direct" && hostedFactoryQueue(env)))) {

@@ -107,8 +107,20 @@ export async function externalAlphaFactoryAction(
     };
   }
   if (input.operation === "reconcile") {
-    const out = await controller.reconcile(workId);
-    return { state: out.state, currentTruth: [`Work authority state: ${out.state}.`] };
+    const out = await controller.reconcile(workId, { work });
+    const result = "result" in out ? out.result : undefined;
+    const outcome =
+      result?.retained
+        ? `Result retained (${result.retained.verdict}${result.retained.replay ? ", replay" : ""}); read it under Result and Proof.`
+        : result?.rejected
+          ? `The Factory Result was rejected (${result.rejected}) and was not retained.`
+          : result?.pending
+            ? "The Factory has not published the Result yet."
+            : null;
+    return {
+      state: out.state,
+      currentTruth: [`Work authority state: ${out.state}.`, ...(outcome ? [outcome] : [])],
+    };
   }
   const out = await controller.stop(workId);
   return { state: out.state, currentTruth: [`Stop requested; Work authority state: ${out.state}.`] };

@@ -8,11 +8,19 @@ import type { Work } from "../engineering/types.ts";
 import {
   ExternalAlphaWorkAuthority,
   publicKeyId,
+  type AuthorityState,
   type FactoryOperationReport,
   type WorkAuthorityEnvelope,
   type WorkAuthorityRecord,
 } from "./work-authority.ts";
 import { alphaTasksCriteria } from "./work-tuple.ts";
+import {
+  ExternalAlphaResultRejected,
+  ingestExternalAlphaResult,
+  settleExternalAlphaResult,
+  worstVerdict,
+  type RetainedExternalAlphaResult,
+} from "./result-ingestion.ts";
 
 export const RECEIPT_DOMAIN = "MYFACTORY_EXTERNAL_ALPHA_RECEIPT_V1";
 const hex64 = z.string().regex(/^[a-f0-9]{64}$/);
@@ -62,6 +70,10 @@ export interface ExternalAlphaFactoryClient {
   consume(envelope: WorkAuthorityEnvelope, prepare: Record<string, unknown>): Promise<unknown>;
   read(requestId: string): Promise<unknown | null>;
   stop(requestId: string): Promise<unknown>;
+  /** The Factory's signed MYFACTORY_RESULT_V1 for an exact consumed request, or
+   * null when it is not published yet. Optional so that a client without a
+   * Result channel keeps the accounting-only reconcile. */
+  result?(requestId: string): Promise<unknown | null>;
 }
 
 /** Deliberately separate from the canary transport: its own OIDC identity (this
@@ -104,7 +116,7 @@ export class HttpExternalAlphaFactoryClient implements ExternalAlphaFactoryClien
       "content-type": "application/json",
     };
   }
-  private async call(method: "GET" | "POST", path: string, body?: unknown, allow404 = false) {
+  private async call(method: "GET" | "POST", path: string, body?: unknown, allow404 = false, limit = 256000) {
     const f = this.deps.fetcher ?? fetch;
     const response = await f(new URL("/api/connect/v2/external-alpha" + path, this.config.factory.origin), {
       method,
@@ -115,7 +127,7 @@ export class HttpExternalAlphaFactoryClient implements ExternalAlphaFactoryClien
     });
     if (allow404 && response.status === 404) return null;
     const text = await response.text();
-    if (text.length > 256000) throw Error("EXTERNAL_ALPHA_FACTORY_RESPONSE_BOUND");
+    if (text.length > limit) throw Error("EXTERNAL_ALPHA_FACTORY_RESPONSE_BOUND");
     if (!response.ok) {
       let code = "";
       try {
@@ -139,6 +151,9 @@ export class HttpExternalAlphaFactoryClient implements ExternalAlphaFactoryClien
   }
   stop(requestId: string) {
     return this.call("POST", `/dispatches/${encodeURIComponent(requestId)}/stop`, {});
+  }
+  result(requestId: string) {
+    return this.call("GET", `/dispatches/${encodeURIComponent(requestId)}/result`, undefined, true, 13_000_000);
   }
 }
 
@@ -276,7 +291,7 @@ export class ExternalAlphaWorkController {
 
   /** Read-only against the Factory; records usage exact-once and closes the
    * authority only at confirmed quiescence. */
-  async reconcile(workId: string) {
+  async reconcile(workId: string, ctx?: { work: Work }) {
     const record = await this.authority.forWork(workId);
     if (!record) return { state: "NONE" as const };
     if (!["DISPATCHING", "CONSUMED"].includes(record.state)) return { state: record.state };
@@ -298,11 +313,53 @@ export class ExternalAlphaWorkController {
       const row = await this.authority.recordFactoryOperation(current, op);
       if (row.state === "UNKNOWN") unknown = true;
     }
-    if (unknown) {
+    const terminal =
+      readback.quiescent && ["COMPLETED", "FAILED", "CANCELLED", "NOT_DISPATCHED"].includes(readback.state);
+    const ingesting = terminal && readback.state === "COMPLETED" && !!ctx?.work && !!this.factory.result;
+    // The owner must be able to read the durable Result/Proof before the
+    // authority closes, even when Factory exposure is UNKNOWN (settlement then
+    // fences it). Only an unpublished Result with UNKNOWN exposure fences at once.
+    const fetched = ingesting ? await this.factory.result!(record.requestId) : null;
+    if (unknown && fetched === null) {
       await this.authority.finish(record.id, "UNKNOWN", { reason: "UNKNOWN_FACTORY_EXPOSURE" });
       return { state: "UNKNOWN" as const, readback };
     }
-    if (readback.quiescent && ["COMPLETED", "FAILED", "CANCELLED", "NOT_DISPATCHED"].includes(readback.state)) {
+    if (ingesting && ctx?.work) {
+      if (fetched === null) return { state: current.state, readback, result: { pending: true as const } };
+      const wrapped =
+        typeof fetched === "object" && "result" in (fetched as object)
+          ? (fetched as { result: unknown; verdict?: unknown })
+          : { result: fetched };
+      let retained: RetainedExternalAlphaResult;
+      try {
+        retained = await ingestExternalAlphaResult({
+          database: this.authority.database,
+          policy: this.authority.policy,
+          config: this.config,
+          authority: current,
+          work: ctx.work,
+          envelope: wrapped.result,
+          verdictHint: worstVerdict(wrapped.verdict, (readback as Record<string, unknown>).verifierVerdict),
+          now: this.clock(),
+        });
+      } catch (error) {
+        if (error instanceof ExternalAlphaResultRejected) {
+          if (unknown) await this.authority.finish(record.id, "UNKNOWN", { reason: "UNKNOWN_FACTORY_EXPOSURE" });
+          return { state: unknown ? ("UNKNOWN" as const) : current.state, readback, result: { rejected: error.code } };
+        }
+        throw error;
+      }
+      const settlement = await settleExternalAlphaResult(this.authority.database, this.authority.policy, current, {
+        quiescent: true,
+        operations: reports,
+      });
+      return {
+        state: settlement.authorityState as AuthorityState,
+        readback,
+        result: { retained, settlement },
+      };
+    }
+    if (terminal) {
       const closed = await this.authority.finish(
         record.id,
         readback.state === "CANCELLED" || readback.state === "NOT_DISPATCHED" ? "CANCELLED" : "COMPLETED",

@@ -8,6 +8,16 @@ import type { ExecutionDatabase } from "../execution-types.ts";
 import { externalAlphaLimits, externalAlphaPolicySchema, type ExternalAlphaPolicy } from "./policy.ts";
 import { canonicalJson, ExternalAlphaWorkAuthority, WorkAuthoritySigner, type WorkAuthorityDocument } from "./work-authority.ts";
 import { canonicalAlphaTasksWork, sha256Hex } from "./work-tuple.ts";
+import {
+  fixtureCommands,
+  fixtureConfigurationDigest,
+  fixtureFactoryId,
+  fixtureFactoryVersion,
+  fixtureResultKeys,
+  fixtureSourceDigest,
+  fixtureVerifierPolicySha256,
+} from "./result-test-fixture.ts";
+import { externalAlphaWorkConfigSchema, type ExternalAlphaWorkConfig } from "./work-config.ts";
 
 /** Test support only (disposable localhost PostgreSQL). Never imported by runtime code. */
 export const connection = process.env.MYEVE_EXTERNAL_ALPHA_TEST_DATABASE;
@@ -18,6 +28,7 @@ export const files = ["src/app.ts", "src/tasks.ts", "test/tasks.test.ts"];
 export class Env {
   admin: any;
   pool: any;
+  resultKeys = fixtureResultKeys();
   name = "ea_work_" + randomUUID().replaceAll("-", "");
   owner = randomUUID();
   policy!: ExternalAlphaPolicy;
@@ -34,6 +45,9 @@ export class Env {
     await e.admin.query("CREATE DATABASE " + e.name);
     u.pathname = "/" + e.name;
     e.pool = new pg.Pool({ connectionString: u.href, max: 12 });
+    // Teardown force-drops the database; a late idle-client termination is expected, not a failure.
+    e.pool.on("error", () => {});
+    e.admin.on("error", () => {});
     await runMigrations(
       {
         query: async (q: string, p: unknown[]) => (await e.pool.query(q, p)).rows,
@@ -69,8 +83,8 @@ export class Env {
       dayBoundary: "UTC_MIDNIGHT",
       model: "openai/gpt-5.4-mini",
       provider: "vercel-ai-gateway/openai",
-      sourceDigest: "3".repeat(64),
-      factoryVersion: "4".repeat(64),
+      sourceDigest: fixtureSourceDigest,
+      factoryVersion: fixtureFactoryVersion,
       limits: { ...externalAlphaLimits },
       publication: false,
       automaticRepair: false,
@@ -88,6 +102,25 @@ export class Env {
     e.svc = new ExternalAlphaWorkAuthority(e.db, e.policy, e.signer);
     e.store = new WorkStore({ scopeId: e.owner, actorId: e.owner, scopeKind: "personal" }, e.db as any);
     return e;
+  }
+  /** Reviewed Work configuration whose pins match this fixture policy and keys. */
+  workConfig(receiptKeys: Array<{ keyId: string; publicKey: string }>): ExternalAlphaWorkConfig {
+    return externalAlphaWorkConfigSchema.parse({
+      allowedFiles: files,
+      checkCommands: fixtureCommands,
+      factory: {
+        origin: "https://myfactory-cloud-production.vercel.app",
+        trustedTeamId: "team_fixture",
+        receiptKeys,
+        resultVerification: {
+          factoryId: fixtureFactoryId,
+          sourceDigest: fixtureSourceDigest,
+          configurationDigest: fixtureConfigurationDigest,
+          verifierPolicySha256: fixtureVerifierPolicySha256,
+          resultKeys: [this.resultKeys.key],
+        },
+      },
+    });
   }
   activate() {
     return this.pool.query("UPDATE external_alpha_policy SET activated_at=clock_timestamp()");
