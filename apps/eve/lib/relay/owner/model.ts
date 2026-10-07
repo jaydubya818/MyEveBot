@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../../external-alpha/paid-paths.ts";
 import { gateway } from "ai";
 // Derive provider types from the same installed Gateway as the executing model.
 type LanguageModelV4 = ReturnType<typeof gateway>;
@@ -37,6 +38,7 @@ export function scopedOwnerPrompt(options: LanguageModelV4CallOptions, message: 
  */
 export function ownerBudgetedModel(claim:OwnerRuntimeClaim,stepKey:string):LanguageModelV4 {
   async function generate(options:LanguageModelV4CallOptions):Promise<LanguageModelV4GenerateResult>{
+    denyExternalAlphaPaidPath("owner-channel-model");
     if(claim.purpose!=="execute")throw new Error("Execution-purpose authority required.");
     const budget=new OwnerModelBudget();
     if(!/^.+:\d+$/.test(stepKey))throw new Error("Durable model step identity unavailable.");

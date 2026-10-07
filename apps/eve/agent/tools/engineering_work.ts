@@ -1,4 +1,7 @@
 import { runExternalAlphaTool } from "../../lib/external-alpha/tool-authority.ts";
+import { externalAlphaWorkEnabled } from "../../lib/external-alpha/work-config.ts";
+import { externalAlphaCanonicalCreate } from "../../lib/external-alpha/work-action.ts";
+import { externalAlphaInstallation } from "../../lib/external-alpha/policy.ts";
 import { engineeringWorkEnabled } from "../../lib/engineering/deployment-mode.ts";
 import { checkCapabilityAvailability } from "../../lib/capability-registry.ts";
 import { defineDynamic, defineTool } from "eve/tools";
@@ -16,7 +19,8 @@ export default defineDynamic({
     "step.started": async (_event, ctx) => {
       if (
         checkCapabilityAvailability("tool.engineering_work")?.status !==
-        "available"
+          "available" &&
+        !externalAlphaWorkEnabled()
       )
         return null;
       const caller = ctx.session.auth.current;
@@ -90,8 +94,9 @@ export default defineDynamic({
             async () => {
               const current = toolCtx.session.auth.current;
               if (
-                checkCapabilityAvailability("tool.engineering_work")?.status !==
-                  "available" ||
+                (checkCapabilityAvailability("tool.engineering_work")?.status !==
+                  "available" &&
+                  !externalAlphaWorkEnabled()) ||
                 !engineeringWorkEnabled() ||
                 !current ||
                 current.principalId !== caller.principalId ||
@@ -161,7 +166,11 @@ export default defineDynamic({
                 };
               }
               if (input.operation === "create")
-                return store.create(input.create);
+                return store.create(
+                  externalAlphaInstallation()
+                    ? externalAlphaCanonicalCreate(input.create, current.principalId)
+                    : input.create,
+                );
               return {
                 work: await store.change(input.workId!, {
                   operation: input.operation,

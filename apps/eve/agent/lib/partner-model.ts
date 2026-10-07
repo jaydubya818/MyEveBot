@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import { gateway } from "ai";
 import { assembleContext } from "./context-assembly.ts";
 import { resolveSessionAgent, type SessionAgentResolutionInput } from "./session-settings.ts";
@@ -23,6 +24,7 @@ export function partnerPrompt(options:Options,context:string):Options {
 }
 export function partnerPrivateModel(input:SessionAgentResolutionInput):Model {
  async function generate(options:Options):Promise<Result>{
+  denyExternalAlphaPaidPath("partner-private-model");
   if(!input.ownerId || input.auth.current?.principalId!==input.ownerId || input.auth.initiator?.principalId!==input.ownerId)throw new Error('Exact private session ownership required.');
   if(input.auth.current.attributes?.myeveEngineeringWorkId || input.auth.initiator.attributes?.myeveEngineeringWorkId)throw new Error('Use Our business for scoped Work context.');
   const agent=await resolveSessionAgent(input);

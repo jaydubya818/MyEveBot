@@ -512,6 +512,13 @@ export class ExternalAlphaWorkAuthority {
       await this.call<Record<string, any>>("work_finish", { authorityId, state, ...extra }),
     );
   }
+  async forWork(workId: string): Promise<WorkAuthorityRecord | null> {
+    const [row] = await this.database.query(
+      "SELECT * FROM external_alpha_work_authority WHERE owner_id=$1 AND work_id=$2 AND policy_sha256=$3",
+      [this.policy.ownerId, workId, digest(this.policy)],
+    );
+    return row ? record(row) : null;
+  }
   sweep() {
     return this.call<{ expired: number; revoked: number; unknown: number }>("work_sweep", {});
   }

@@ -4,8 +4,8 @@
   "executors": {
     "agent/agent.ts": {
       "classification": "INTERNAL",
-      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: configured tester deployments use only the owner-bound allowance model; absent/invalid policy fails closed, with no default model fallback.",
-      "sha256": "d35afb18cef0acb8b59501d90847511f7660153439b01f92adfc5882bd054644"
+      "reason": "Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Consolidated boundary: Dedicated preview routes model methods only to authenticated deterministic corpus; every other model path remains unreachable in that project. Existing owner/session scopes retained. Consolidated boundary: Selected authenticated primary-Agent Work always uses the conversation budget model; ordinary fallback is unavailable. Explicit owner intent narrows read/admission/execution; native execution model retains existing guards. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Ordinary primary owner chat honors its visible model picker after all budgeted/scoped routes resolve. Session-scoped durable picker selection survives approval continuation; does not alter protected model routes. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: configured tester deployments use only the owner-bound allowance model; absent/invalid policy fails closed, with no default model fallback. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "c53e8c38f97950c114a2c216b643f72f07d089130515f9fd75974d782dbf4917"
     },
     "agent/channels/agentphone-voice.ts": {
       "classification": "BLOCKED",
@@ -232,8 +232,8 @@
     },
     "agent/lib/computer-use-loop.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "249ca184d7d6422bafdb14120a140854a0c91252ab9afd86a4a3bb7c2f6fcafd"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "0e69b1f67fb61bc4bbeb38bf1e294c9425a183863435e1e9dba2659d4e79e5fe"
     },
     "agent/lib/context-assembly.ts": {
       "classification": "INTERNAL",
@@ -322,8 +322,8 @@
     },
     "agent/lib/effect/voice.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "d8414fb34c4cc25917dcee141b8b48d83fa185d0f5dac4e5c44096748a466604"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "0a521a01751a3739dc1df59f674bed29fabc19509e71fbb36d378ac943472963"
     },
     "agent/lib/email-db.ts": {
       "classification": "INTERNAL",
@@ -2177,8 +2177,8 @@
     },
     "lib/decision-intelligence/jev-provider.ts": {
       "classification": "INTERNAL",
-      "reason": "Optional synthetic-only advisory evaluator through the existing Vercel AI Gateway; disabled without explicit enablement, bounded timeout, no retries, normalized diagnostics; no Action executor, policy, canonical write, or runtime Agent registration.",
-      "sha256": "63108ab54d7c6d4026cff27c5c9eb3555ed7d707655fc5b4c07d895c8ce73738"
+      "reason": "Optional synthetic-only advisory evaluator through the existing Vercel AI Gateway; disabled without explicit enablement, bounded timeout, no retries, normalized diagnostics; no Action executor, policy, canonical write, or runtime Agent registration. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "ad7fa2336bc4028b72f8edc8a89845e53feeeed48804dcf7ec70ebc745e8f2df"
     },
     "lib/decision-intelligence/metrics.ts": {
       "classification": "INTERNAL",
@@ -2244,6 +2244,36 @@
       "classification": "INTERNAL",
       "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
       "sha256": "69b210a05919306382f7866e76f215c81ad609a9c99dd61017255197bc69d057"
+    },
+    "lib/external-alpha/paid-paths.ts": {
+      "classification": "INTERNAL",
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call.",
+      "sha256": "04271e51109818041ae4e84a15385617917e53e3ce951281133b4593bfb49349"
+    },
+    "lib/external-alpha/preactivation.ts": {
+      "classification": "INTERNAL",
+      "reason": "Pure pre-activation checks (pricing fail-closed preflight, activation readiness aggregate). No network, no model call, no dispatch.",
+      "sha256": "3c5cccad191813708dbba00cecbbb1537eea89694dc9b6c9769a7b97388cacdf"
+    },
+    "lib/external-alpha/work-action.ts": {
+      "classification": "ENFORCED",
+      "reason": "Only Sofie entry to the external-owner Work path: owner, revision and canonical-tuple validation, then the controller. Limited to external-alpha installations; policy, configuration or signing key absent fails closed.",
+      "sha256": "957c499b60278fd7c1cb5f4273d56154af434d31523bc5cce2c759a9aaece7bf"
+    },
+    "lib/external-alpha/work-config.ts": {
+      "classification": "INTERNAL",
+      "reason": "Strict parse of reviewed non-secret external-alpha Work configuration and the enablement predicate (policy, configuration and signing key all present). Fails closed; never true for the canary or any other deployment.",
+      "sha256": "d4a709efc76b8d889c59293c2810090842c923ce0c3aef3168c2f7c909358f3e"
+    },
+    "lib/external-alpha/work-controller.ts": {
+      "classification": "ENFORCED",
+      "reason": "External-owner Work dispatch: claims the single-use authority in the database before one send, sends only to the pinned Factory origin with this deployment OIDC identity, verifies the signed receipt, records Factory usage exact-once, and fences UNKNOWN. Never re-sends or falls back; separate from the canary transport.",
+      "sha256": "125e43dffc9bdfd7533eab4b785214573d5e3059221bf87e44cc846b39d7d7a6"
+    },
+    "lib/external-alpha/work-test-fixture.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Test support for disposable localhost PostgreSQL scenarios; never imported by runtime code.",
+      "sha256": "26c9a9ca41d12f27076a1fda2edaf098867ae145cf7fcfae4b1f9ee95cb32c84"
     },
     "lib/external-write-policy.ts": {
       "classification": "INTERNAL",
@@ -2397,8 +2427,8 @@
     },
     "lib/qualification/client.ts": {
       "classification": "INTERNAL",
-      "reason": "Qualification-only transport and byte/model admission helpers. Exact HTTPS controller, owner binding, bounded bodies, no provider fallback or worker model/storage credentials. Covered by client.test.ts; hosted custody is explicitly unresolved and disabled.",
-      "sha256": "4e942e2567ec5baacba88596b5279a9aeffa3c8bbca489089bc1e3eeb5d25b83"
+      "reason": "Qualification-only transport and byte/model admission helpers. Exact HTTPS controller, owner binding, bounded bodies, no provider fallback or worker model/storage credentials. Covered by client.test.ts; hosted custody is explicitly unresolved and disabled. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "0a461e4cbb39a3ab5b563a95b7f995141ccb01ea153ccdb311bb08ade9cc82cb"
     },
     "lib/readiness.ts": {
       "classification": "INTERNAL",
@@ -2462,8 +2492,8 @@
     },
     "lib/relay/work.ts": {
       "classification": "ENFORCED",
-      "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output.",
-      "sha256": "3a7b4806d376a68341bcca20f55ddeaf049c711d3bf4a77a65f54513367c144c"
+      "reason": "Bounded owner-authorized published context only; canonical ActionGateway and consumed one-use authority revalidate local Agent, Run, approval and budgets before model invocation; no tools; encrypted source-owned output. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "1ce4598c222c6442b13396549a979f101067c49a016073c1a8799a9b111204c7"
     },
     "lib/reminder-execution.ts": {
       "classification": "INTERNAL",
@@ -2642,8 +2672,8 @@
     },
     "lib/voice/realtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards.",
-      "sha256": "3850b9129619a6ac606612e69dcc9318f917bc468c73f26761fd0d4f13edd886"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "258da89caf3ccd9c7065fbd658deeccab94820338a3cbaebd769e172510ecc58"
     },
     "lib/voice/thread.ts": {
       "classification": "INTERNAL",
@@ -2738,8 +2768,8 @@
     },
     "lib/relay/message-reply.ts": {
       "classification": "INTERNAL",
-      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation. Free-only mode pins a zero-priced model and provider, verifies catalog rates and actual gateway cost, and denies paid fallback.",
-      "sha256": "ebc0b77b5f3eb1bed880a695ec9bcaa821ae92a924064e752ff9df787d72f574"
+      "reason": "Only invoked within canonical incoming Action after authority consumption. One bounded no-tools model call using owner-approved public profile and incoming body; checks pricing, budget, expiry, and authority before and after generation. Free-only mode pins a zero-priced model and provider, verifies catalog rates and actual gateway cost, and denies paid fallback. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "f13f50e3aca3b0e49a7f7ea27de54578161b723aa1b818c04cf4cce80386f918"
     },
     "lib/chat-session.ts": {
       "classification": "INTERNAL",
@@ -2896,8 +2926,8 @@
     },
     "lib/relay/owner/model.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-only provider boundary: exact local authority, scoped prompt/tools, conservative durable reservation, one provider invocation and accounting before output. Release gate remains false; actual runtime qualification pending.",
-      "sha256": "6f7af8e32e1e8b721f8e96f4d82f3c311039e61d1534e343862c01c8c112aa72"
+      "reason": "Owner-only provider boundary: exact local authority, scoped prompt/tools, conservative durable reservation, one provider invocation and accounting before output. Release gate remains false; actual runtime qualification pending. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "fc66e9a1ffeb42a29516fc1a2bda4dec5b54e8cf5c96a9ed0431d31af1d467b7"
     },
     "agent/tools/web_fetch.ts": {
       "classification": "READ_ONLY",
@@ -3269,8 +3299,8 @@
     },
     "agent/tools/engineering_work.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
-      "sha256": "083fa8a4c78c8e00a4d0ea5c328caf2ed4075fa5ad70fe62bd158061b00368f8"
+      "reason": "Canonical owner-scoped Work tool with configured dogfood availability checked at discovery and execution; delegated/guest/child and switched-owner calls denied. Work changes grant no writer or provider authority. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required. External-alpha owner path: enabled only when externalAlphaWorkEnabled(); create is normalised to the one canonical first-project Work or refused. No change for other deployments.",
+      "sha256": "238845bcbff220a7e3f5091c660241e22f31140dce65aca895b921f3781a76c7"
     },
     "lib/digital-worker/learning.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3294,8 +3324,8 @@
     },
     "lib/engineering/conversation-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement.",
-      "sha256": "d3a7b4d12ad7f9d2d6507c22f15c01a987c1035077ffffc7594a4dd42a02f0de"
+      "reason": "Fresh read-only final explanation includes the shared controller capsule; existing exact common-ledger accounting, no-tool boundary and explanation allowance unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. Reviewed private-alpha selected-Work repair: exact Work approval, canonical common-ledger fixed allocation, narrow Factory start proposal, no native fallback; qualified by alpha-conversation tests and connected PostgreSQL/Factory fixture. Captured-live JSON-text normalization accepts only one strict start object matching observed Work revision/generation and productive context; installed SDK invokes the unchanged guarded tool. Original provider content is retained with normalized output; stale/malformed/authority/duplicate regressions are in alpha-conversation.test.ts. No writer/admission authority is granted by normalization. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "17e43d74e455e4c07f4bfeb41f8c301f573faf90f39e56a0e8dff2bde2b419c0"
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
@@ -3419,8 +3449,8 @@
     },
     "lib/engineering/native-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority.",
-      "sha256": "8c154a747d6abff9b39077f32b977babaf35169eb124bc2be6decafef4036ecb"
+      "reason": "Current authority and common ledger still gate every provider call. Canonical phase capsule narrows tool schemas and stops bounded no-progress before spend; context limits and provider selection unchanged. Beta adaptation appends bounded data-only Recall before canonical input/budget checks; controlled canonical-journey and provider-boundary tests qualify unchanged authority. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "2cfa356d50a7608322e92d797e6f78c15a8645ad0aa79adb4b76d758eae4a539"
     },
     "lib/engineering/native-qualification.ts": {
       "classification": "INTERNAL",
@@ -3509,8 +3539,8 @@
     },
     "agent/tools/engineering_factory.ts": {
       "classification": "ENFORCED",
-      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required.",
-      "sha256": "9bf0029dc948920fe689ad18104e654548fa5df1ec918ab48632869816ff51b6",
+      "reason": "Registered capability availability and current owner primary-Agent selected-Work checks, no delegated/guest access, ActionGateway target/effect/provider authority, local Factory fixture only; canonical admission/spend/writer fence owns dispatch. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. Reviewed fixed three-owner CLOUD boundary: exact owner/project/selected Work and immutable approval; independent Factory authority, deadline/accounting and private evidence isolation. Qualified by alpha-action, alpha-model-authority, alpha-owner-binding and full-lineage PostgreSQL tests; no general Work enablement. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. External-alpha review: original owner/session/Agent and settled model proposal are revalidated at execution; mutations use durable single-acceptance effect claims. Existing leaf execution guards remain required. External-alpha owner path: for an external-alpha installation start/reconcile/stop go to lib/external-alpha/work-action.ts (single-use authority, independent Factory validation) instead of the canary queue; ActionGateway wrapper retained. Canary and other deployments take the existing branches.",
+      "sha256": "3645108c42849ff5c846bbb8f81408497d7dcf56d53ea68e43a40090e5300539",
       "disposition": "gateway"
     },
     "lib/capsules/schema.ts": {
@@ -3655,8 +3685,8 @@
     },
     "app/api/business/ask/route.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticated same-origin user-requested, stateless read-only model question: strict bounded input, mutual membership, 800 output tokens, one call/no retries, 30-second timeout, no tools or connections, post-call scope recheck. Provider credential stays service-side; local qualification uses injected fake provider only.",
-      "sha256": "ec4425ff5f7b55adb208519f5e154a92d0d59234a27f9111f22d01b1d11edec8"
+      "reason": "Authenticated same-origin user-requested, stateless read-only model question: strict bounded input, mutual membership, 800 output tokens, one call/no retries, 30-second timeout, no tools or connections, post-call scope recheck. Provider credential stays service-side; local qualification uses injected fake provider only. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "c61c4273e7cecd1f9ed4a28958ef1e9da811247473c661375979a7360b48e48b"
     },
     "app/api/business/files/[id]/route.ts": {
       "classification": "ENFORCED",
@@ -3680,8 +3710,8 @@
     },
     "agent/lib/partner-model.ts": {
       "classification": "ENFORCED",
-      "reason": "Provider boundary reconstructs canonical partner-only context, removes deployment prompt/history/provider tools, and permits only owner-bound Memory/Knowledge tools. Negative prompt/tool tests.",
-      "sha256": "1182e5eb53f10f24910ec6a574f38c809369cc8e53e8443b3d82b672faec0358"
+      "reason": "Provider boundary reconstructs canonical partner-only context, removes deployment prompt/history/provider tools, and permits only owner-bound Memory/Knowledge tools. Negative prompt/tool tests. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
+      "sha256": "360556e5a4497ad7fbc28c6929528275979084601d03fbc71d274a46846aa58a"
     },
     "lib/beta-integration/configuration.ts": {
       "classification": "INTERNAL",
@@ -3695,8 +3725,8 @@
     },
     "lib/engineering/deployment-mode.ts": {
       "classification": "INTERNAL",
-      "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission. Consolidated boundary: Exact hosted preview guard enables command queue only for dedicated staging Factory and explicit synthetic owner. Consolidated boundary: Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission.",
-      "sha256": "3dd215e90f7433195187048a9703867f4178e61550d0c71ed3e3a987fe5f9d24"
+      "reason": "Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission. Consolidated boundary: Exact hosted preview guard enables command queue only for dedicated staging Factory and explicit synthetic owner. Consolidated boundary: Explicit deployment discovery only; hosted requests enter the owner-bound queue and unchanged local canonical admission. Additive: engineeringWorkEnabled also true for a fully provisioned external-alpha installation (policy, Work configuration, signing key); otherwise identical (proved in work-action.test.ts).",
+      "sha256": "c4656fda3eda9b0a59f3cda7aa5f39222c4ae4d6e0f8cce531a660a12c255300"
     },
     "lib/engineering/factory-worker-approval.ts": {
       "classification": "INTERNAL",
@@ -4087,7 +4117,7 @@
     "lib/external-alpha/work-authority.ts": {
       "classification": "ENFORCED",
       "reason": "Single-use exact Work authority for external-alpha owners: deterministic document, Ed25519 signature, and database-only lifecycle (admit, claim, finish, sweep, Factory usage record) under the policy row lock. Inactive until a policy is installed and activated by an operator; no Factory call, no model call, no canary or synthetic-owner credential.",
-      "sha256": "ea5430538ecd1ed77eef1ada91a346c03fa3ab1dbeb73ae469b61248de696d98"
+      "sha256": "1f40b15daf245ab975dbbf5a0f44c3459b0ffe79b4fd1c9c9e5a7800187219b7"
     }
   }
 }

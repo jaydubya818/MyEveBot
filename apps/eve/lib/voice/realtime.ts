@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 // Thin wrapper around a WebRTC session to OpenAI Realtime (GA API). Owns the
 // peer connection, mic track, remote-audio element, and "oai-events" data
 // channel; surfaces typed callbacks and takes typed commands. No app logic
@@ -85,6 +86,7 @@ export class RealtimeVoiceSession {
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
+    denyExternalAlphaPaidPath("voice-realtime-call");
     const response = await fetch(CALLS_URL, {
       method: "POST",
       body: offer.sdp,

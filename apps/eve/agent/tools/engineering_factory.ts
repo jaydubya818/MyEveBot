@@ -1,4 +1,7 @@
 import { runExternalAlphaTool } from "../../lib/external-alpha/tool-authority.ts";
+import { externalAlphaWorkEnabled } from "../../lib/external-alpha/work-config.ts";
+import { externalAlphaFactoryAction } from "../../lib/external-alpha/work-action.ts";
+import { externalAlphaInstallation } from "../../lib/external-alpha/policy.ts";
 import {
   selectedAlphaWork,
   selectedEngineeringWorkEnabled,
@@ -41,7 +44,8 @@ export default defineDynamic({
           "available" &&
         !selectedAlphaWork(
           ctx.session.auth.current?.attributes.myeveEngineeringWorkId,
-        )
+        ) &&
+        !externalAlphaWorkEnabled()
       )
         return null;
       const initial = ctx.session.auth.current,
@@ -56,6 +60,7 @@ export default defineDynamic({
         !selectedEngineeringWorkEnabled(selected, engineeringWorkEnabled()) ||
         (!hostedFactoryQueue() &&
           !selectedAlphaWork(selected) &&
+          !externalAlphaWorkEnabled() &&
           !process.env.MYEVE_FACTORY_CONFIG) ||
         typeof selected !== "string" ||
         !ENGINEERING_WORK_ID_PATTERN.test(selected)
@@ -74,7 +79,8 @@ export default defineDynamic({
               if (
                 checkCapabilityAvailability("tool.engineering_factory")
                   ?.status !== "available" &&
-                !selectedAlphaWork(selected)
+                !selectedAlphaWork(selected) &&
+                !externalAlphaWorkEnabled()
               )
                 throw new WorkError(
                   "factory_disabled",
@@ -103,7 +109,8 @@ export default defineDynamic({
                 selected,
               );
               const hosted = hostedFactoryQueue(),
-                config = hosted ? null : await factoryConfig(),
+                external = externalAlphaInstallation(),
+                config = hosted || external ? null : await factoryConfig(),
                 agent = await resolveSessionAgent({
                   ownerId: principal.principalId,
                   sessionId: toolCtx.session.id,
@@ -144,12 +151,13 @@ export default defineDynamic({
               return new ActionGateway().execute(action, {
                 async resolveTarget() {
                   return {
-                    provider:
-                      config?.connection.factoryId ??
-                      process.env.MYEVE_FACTORY_ID!,
+                    provider: external
+                      ? "myfactory-cloud-production"
+                      : (config?.connection.factoryId ??
+                        process.env.MYEVE_FACTORY_ID!),
                     account: principal.principalId,
                     resource: "engineering-work:" + selected,
-                    environment: selectedAlphaWork(selected)
+                    environment: external || selectedAlphaWork(selected)
                       ? "CLOUD_PRODUCTION"
                       : hosted
                         ? "private-alpha"
@@ -167,6 +175,11 @@ export default defineDynamic({
                     parameters,
                     action.capabilityId,
                   );
+                  if (external)
+                    return externalAlphaFactoryAction(store, selected, input, {
+                      sessionId: toolCtx.session.id,
+                      callId: toolCtx.callId,
+                    });
                   await factoryAction(store, selected, input);
                   return {
                     currentTruth: currentTruthLines(

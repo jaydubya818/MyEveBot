@@ -115,7 +115,10 @@ export default defineAgent({
           middleware: reasoningMiddleware(reasoning),
         }), modelContextWindowTokens: 200_000 };
         };
-        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected; return typeof value==='string'?gateway(value):value; };
+        const resolve = async () => { const selected=await select(); const value='model' in selected?selected.model:selected;
+          // agent-model-selection: an external-alpha installation can only dispatch through its budgeted model (or the deterministic evidence summary).
+          if(externalAlphaInstallation()&&(typeof value==='string'||!['myeve-external-alpha','myeve-retained-evidence'].includes(value.provider)))throw Error('EXTERNAL_ALPHA_PAID_PATH_DENIED:agent-model-selection');
+          return typeof value==='string'?gateway(value):value; };
         return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
           doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),
           doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},modelContextWindowTokens:200_000};

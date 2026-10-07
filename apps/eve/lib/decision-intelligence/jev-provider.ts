@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 import { experimental_evaluate as evaluate, gateway } from "ai";
 import {
   DecisionFailure,
@@ -72,6 +73,7 @@ export class JevDecisionProvider implements DecisionProvider {
     request: DecisionRequest<T>,
     signal: AbortSignal,
   ): Promise<DecisionResult<T>> {
+    denyExternalAlphaPaidPath("decision-intelligence-jev");
     if (!this.configured()) throw new DecisionFailure("PROVIDER_UNAVAILABLE");
     const started = performance.now();
     const boundedSignal = AbortSignal.any([signal, AbortSignal.timeout(3000)]);

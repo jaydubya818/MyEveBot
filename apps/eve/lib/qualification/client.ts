@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../external-alpha/paid-paths.ts";
 import { randomUUID, createHash } from 'node:crypto';
 
 export function qualificationEnabled(): boolean {
@@ -51,6 +52,7 @@ export async function qualifyIngress(request: Request, allowedPath: RegExp): Pro
   await qualificationRpc('claim',{operation:request.headers.get('x-fq-operation'),permit:request.headers.get('x-fq-permit'),method:request.method,url:url.href,bodyBase64:body.toString('base64')});
 }
 export async function qualificationModel(ownerId: string, requestId: string, input: string, signal: AbortSignal) {
+  denyExternalAlphaPaidPath("qualification-model");
   if(ownerId!==process.env.FQ_OWNER_ID)throw new Error('Qualification owner denied.');
   // Stable operation across restart: an uncertain prior invocation is never retried implicitly.
   const result=await qualificationRpc('model',{operation:requestId,input},signal);
