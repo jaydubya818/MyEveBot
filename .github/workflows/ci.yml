@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: 9a3da181acdcb4829ad88da7f8aca5a1c58622c9
+          ref: 1c02008199a2d4e02eac369cf06cdfa391753718
           path: .qualification/myfactory
       - uses: actions/setup-node@v4
         with:
