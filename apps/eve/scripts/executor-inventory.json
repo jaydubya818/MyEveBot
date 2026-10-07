@@ -2267,8 +2267,8 @@
     },
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed.",
-      "sha256": "6e8957b437fee5ed1ccdc80fa034a06f3be717b8b010fc0ac17b629d85bcf5b8"
+      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed. No-candidate terminal closure requires an immutable authenticated exact cleanup and known-accounting settlement fact under current Work locks; remote shared lease acknowledgement is recovered by durable sweep, never by the terminal label.",
+      "sha256": "62356203d164ceee9ad0b540c9c5213f86d6f05fb626f38a36d29b39f16598d6"
     },
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",

@@ -7,6 +7,7 @@ import { validateSpendBinding, workSpendV2Schema } from "../engineering/factory-
 import type { Work } from "../engineering/types.ts";
 import {
   ExternalAlphaWorkAuthority,
+  canonicalJson,
   publicKeyId,
   type AuthorityState,
   type FactoryOperationReport,
@@ -19,6 +20,7 @@ import {
   ExternalAlphaResultRejected,
   ingestExternalAlphaResult,
   settleExternalAlphaResult,
+  settlementOperations,
   worstVerdict,
   type RetainedExternalAlphaResult,
 } from "./result-ingestion.ts";
@@ -205,6 +207,32 @@ export function verifyReadback(
   if (spend.operations.some(op => op.workGeneration !== authority.workGeneration || op.model !== authority.envelope.document.model.id))
     throw Error("EXTERNAL_ALPHA_READBACK_SPEND_BINDING");
   return { ...attestation, authorityReceipt: r.authorityReceipt, authorityReceiptSignature: r.authorityReceiptSignature };
+}
+
+/** Retains an authenticated no-candidate cleanup/accounting fact. Replays keep
+ * the original immutable custody record; it is neither candidate Proof nor a
+ * terminal-label shortcut. Current owner Work is locked inside SQL settlement. */
+export async function settleTerminalReadback(authority: ExternalAlphaWorkAuthority, record: WorkAuthorityRecord,
+  raw: unknown, keys: ReadonlyMap<string, KeyObject>, binding: DispatchBinding, challenge: string, now = Date.now()) {
+  const readback = verifyReadback(raw, record, keys, binding, challenge, now);
+  const spend = workSpendV2Schema.parse(readback.spend);
+  if (!readback.quiescent || !["FAILED", "CANCELLED", "NOT_DISPATCHED"].includes(readback.state) || readback.verdict !== "NONE"
+    || spend.status !== "KNOWN" || !spend.accountingComplete || spend.retainedMicrousd !== 0 || spend.unknownExposureMicrousd !== 0)
+    throw Error("EXTERNAL_ALPHA_TERMINAL_UNPROVED");
+  const signed = raw as { readbackAttestation: unknown; readbackSignature: unknown };
+  const envelope = { readbackAttestation: signed.readbackAttestation, readbackSignature: signed.readbackSignature,
+    authorityReceipt: readback.authorityReceipt, authorityReceiptSignature: readback.authorityReceiptSignature };
+  const [row] = await authority.database.query("SELECT external_alpha_terminal_settle($1::jsonb) AS r", [JSON.stringify({
+    ownerId: authority.policy.ownerId, policySha256: digest(authority.policy), authorityId: record.id,
+    readback: envelope, canonical: canonicalJson(envelope), readbackSha256: digest(envelope),
+    receiptCanonical: canonicalJson(readback.authorityReceipt), spendCanonical: canonicalJson(spend),
+    operations: settlementOperations(record, operationReports(spend, true)),
+  })]);
+  const fact = row.r as { replay: boolean; authorityState: AuthorityState };
+  // Shared accounting consumes the retained exact fact through its reconcile
+  // hook on sweep. A lost remote acknowledgment is repaired by later sweeps.
+  await authority.sweep();
+  return fact;
 }
 
 export function prepareRequest(
@@ -397,8 +425,8 @@ export class ExternalAlphaWorkController {
           // Proof to retain. NONE must come from authenticated readback, and
           // completed work still requires a retained candidate Result.
           if (!unknown && error.code === "EXTERNAL_ALPHA_RESULT_NOT_COMPLETED" && resultVerdict === "NONE" && readback.state !== "COMPLETED") {
-            const closed = await this.authority.finish(record.id, readback.state === "FAILED" ? "COMPLETED" : "CANCELLED", { reason: "FACTORY_" + readback.state + "_NO_CANDIDATE" });
-            return { state: closed.state, readback, result: { rejected: error.code } };
+            const fact = await settleTerminalReadback(this.authority, current, raw, this.keys, binding, challenge, this.clock());
+            return { state: fact.authorityState, readback, result: { rejected: error.code } };
           }
           if (unknown) await this.authority.finish(record.id, "UNKNOWN", { reason: "UNKNOWN_FACTORY_EXPOSURE" });
           return { state: unknown ? ("UNKNOWN" as const) : current.state, readback, result: { rejected: error.code } };
@@ -418,12 +446,9 @@ export class ExternalAlphaWorkController {
     if (terminal && readback.state === "COMPLETED")
       return { state: current.state, readback, result: { pending: true as const } };
     if (terminal) {
-      const closed = await this.authority.finish(
-        record.id,
-        readback.state === "CANCELLED" || readback.state === "NOT_DISPATCHED" ? "CANCELLED" : "COMPLETED",
-        { reason: "FACTORY_" + readback.state },
-      );
-      return { state: closed.state, readback };
+      if (readback.verdict !== "NONE") return { state: current.state, readback, result: { pending: true as const } };
+      const fact = await settleTerminalReadback(this.authority, current, raw, this.keys, binding, challenge, this.clock());
+      return { state: fact.authorityState, readback, terminalSettlement: fact };
     }
     return { state: current.state, readback };
   }

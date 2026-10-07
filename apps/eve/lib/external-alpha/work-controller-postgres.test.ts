@@ -13,6 +13,7 @@ import {
   ExternalAlphaWorkController,
   FactoryDenied,
   RECEIPT_DOMAIN,
+  settleTerminalReadback,
   externalAlphaWorkConfigSchema,
   type ExternalAlphaFactoryClient,
   type ExternalAlphaWorkConfig,
@@ -24,7 +25,7 @@ import { proofOfWorkSchema } from "../digital-worker/contracts.ts";
 import { publicKeyId } from "./work-authority.ts";
 import { externalAlphaFactoryAction } from "./work-action.ts";
 import { externalAlphaFactoryPinSha256, externalAlphaWorkEnabled } from "./work-config.ts";
-import { bindDispatch, READBACK_DOMAIN } from "./dispatch-readback.ts";
+import { bindDispatch, dispatchBinding, READBACK_DOMAIN } from "./dispatch-readback.ts";
 import { reconcileExternalAlphaAuthorities } from "./reconciliation.ts";
 import { engineeringWorkEnabled } from "../engineering/deployment-mode.ts";
 
@@ -661,6 +662,96 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const proof = (await e.pool.query("SELECT proof FROM engineering_native_results")).rows[0].proof;
     expect(proof.outcome).toBe(terminal === "FAILED" ? "FAILED" : "PARTIAL");
     expect(proof.evidence.some((x: any) => x.state === "PASS")).toBe(false);
+  });
+
+  it.each(["FAILED", "CANCELLED", "NOT_DISPATCHED"] as const)("retains immutable authenticated no-candidate terminal %s cleanup/accounting facts", async terminal => {
+    const { e, factory, controller, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = terminal; factory.quiescent = true; factory.verdict = "NONE";
+    factory.ops = [{ id: "paid-before-terminal", phase: "productive", state: "settled", actual: 100000 }];
+    const out: any = await controller.reconcile(work.id, { work });
+    expect(out.state).toBe(terminal === "FAILED" ? "COMPLETED" : "CANCELLED");
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect(await e.count("engineering_native_results")).toBe(0);
+    const row = (await e.pool.query("SELECT * FROM external_alpha_work_terminal_settlement")).rows[0];
+    expect(row).toMatchObject({ authority_id: started.authority.id, owner_id: e.owner, request_id: started.authority.requestId,
+      work_id: work.id, work_version: work.version, work_generation: work.generation, cleanup_confirmed: true,
+      result_verdict: "NONE", settlement_state: "SETTLED", exposure_unknown: false });
+    expect(row.request_digest).toBe(factory.requestDigest(started.authority.requestId));
+    expect(row.readback_sha256).toBe(digest(row.readback));
+    expect((await e.pool.query("SELECT sum(spent_microusd)::integer n FROM external_alpha_operation")).rows[0].n).toBe(100000);
+    const challenge = "c".repeat(48);
+    const raw = await factory.read(started.authority.requestId, challenge);
+    const replay = await settleTerminalReadback(e.svc, started.authority, raw, rk, await dispatchBinding(e.db, started.authority), challenge);
+    expect(replay.replay).toBe(true);
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    await expect(e.pool.query("UPDATE external_alpha_work_terminal_settlement SET cleanup_confirmed=false")).rejects.toThrow(/immutable/);
+    await expect(e.pool.query("DELETE FROM external_alpha_work_terminal_settlement")).rejects.toThrow(/immutable/);
+  });
+
+  it("a lost post-commit reconciliation acknowledgement restarts from the immutable terminal fact without another dispatch", async () => {
+    const { e, factory, controller, config, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = "CANCELLED"; factory.quiescent = true; factory.verdict = "NONE";
+    const sweep = e.svc.sweep.bind(e.svc);
+    e.svc.sweep = async () => { throw Error("lost shared reconciliation acknowledgment"); };
+    await expect(controller.reconcile(work.id, { work })).rejects.toThrow(/acknowledgment/);
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    e.svc.sweep = sweep;
+    const restarted = new ExternalAlphaWorkController(e.svc, factory, config, rk);
+    await reconcileExternalAlphaAuthorities(restarted, e.store);
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect(factory.posts).toBe(1);
+    expect(await e.count("engineering_native_results")).toBe(0);
+  });
+
+  it("rejects foreign owner, forged receipt/spend/run and terminal labels without authenticated cleanup facts", async () => {
+    const { e, factory, controller, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = "CANCELLED"; factory.quiescent = true; factory.verdict = "NONE";
+    const challenge = "d".repeat(48);
+    const binding = await dispatchBinding(e.db, started.authority);
+    const raw = await factory.read(started.authority.requestId, challenge);
+    for (const mutate of [
+      (r: any) => { r.readbackAttestation.authoritySha256 = "f".repeat(64); },
+      (r: any) => { r.readbackAttestation.spendDigest = "f".repeat(64); },
+      (r: any) => { r.readbackAttestation.runId = randomUUID(); },
+      (r: any) => { r.authorityReceipt.ownerId = randomUUID(); },
+      (r: any) => { r.readbackAttestation.quiescent = false; },
+    ]) {
+      const bad = structuredClone(raw); mutate(bad);
+      await expect(settleTerminalReadback(e.svc, started.authority, bad, rk, binding, challenge)).rejects.toThrow(/UNVERIFIED|INVALID/);
+    }
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(0);
+    await expect(e.pool.query("SELECT external_alpha_terminal_settle($1::jsonb)", [JSON.stringify({ ownerId: randomUUID(), policySha256: digest(e.policy), authorityId: started.authority.id })])).rejects.toThrow(/TERMINAL_OWNER/);
+    await e.svc.finish(started.authority.id, "CANCELLED", { reason: "OWNER_STOP_UNPROVED" });
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(0);
+  });
+
+  it("records original consumed and observed cancelled Work revisions separately and never projects a new candidate", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    const cancelled = await e.store.change(work.id, { operation: "cancel", expectedVersion: work.version });
+    await reconcileExternalAlphaAuthorities(controller, e.store);
+    const fact = (await e.pool.query("SELECT * FROM external_alpha_work_terminal_settlement")).rows[0];
+    expect(fact.work_version).toBe(work.version);
+    expect(fact.work_generation).toBe(work.generation);
+    const current = await e.store.get(work.id);
+    expect(fact.observed_work_version).toBe(current.version);
+    expect(fact.observed_work_generation).toBe(current.generation);
+    expect(current.lifecycle).toBe("cancelled");
+    expect(await e.count("engineering_native_results")).toBe(0);
+    expect(factory.posts).toBe(1);
+    void cancelled;
   });
 
 });
