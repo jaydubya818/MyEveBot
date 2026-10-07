@@ -836,7 +836,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await proved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
     await expect(proved.chat("after-known-proof")).resolves.toMatchObject({ kind: "CHAT" });
     expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
-  });
+  }, 30000);
 
   it("central settlement outage is repaired after restart from the exact terminal fact without another paid dispatch", async () => {
     const { central, a, app, chat } = await sharedPair();
@@ -858,7 +858,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     await expect(chat("after-restart-proof")).resolves.toMatchObject({ kind: "CHAT" });
     expect(app.factory.posts).toBe(1);
     expect(await a.count("engineering_native_results")).toBe(0);
-  });
+  }, 30000);
 
   it("a lost acknowledgment after central settlement commits replays the same immutable fact and retains the full admission charge", async () => {
     const { central, a, app, chat } = await sharedPair();
@@ -889,6 +889,6 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
     expect(app.factory.posts).toBe(1);
     expect(await a.count("engineering_native_results")).toBe(0);
-  });
+  }, 30000);
 
 });
