@@ -1,3 +1,5 @@
+import {externalAlphaInstallation} from '../lib/external-alpha/policy.ts';
+import {externalAlphaModel} from '../lib/external-alpha/model.ts';
 import {selectedAlphaWork} from "../lib/engineering/alpha-selected-work.ts";
 import {retainedSummaryBinding,retainedWorkSummaryModel} from './lib/retained-work-summary.ts';
 import {cloudConversationModel} from '../lib/engineering/cloud-conversation-model.ts';
@@ -65,6 +67,10 @@ export default defineAgent({
           const agent=await resolveSessionAgent({ownerId:binding.ownerId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true});
           if(!agent?.isPrimary)throw Error('RETAINED_SUMMARY_PRIMARY_AGENT');
           return {model:retainedWorkSummaryModel(binding),modelContextWindowTokens:200_000};
+        }
+        if(externalAlphaInstallation()){
+          if('parent' in ctx.session&&ctx.session.parent)throw Error('EXTERNAL_ALPHA_DELEGATION_DISABLED');
+          return {model:externalAlphaModel({ownerId:ctx.session.auth.current?.principalId,sessionId:ctx.session.id,auth:ctx.session.auth,primaryFallback:true,stepKey:ownerModelStepKey(_event)}),modelContextWindowTokens:32000};
         }
         if(process.env.MYEVE_ALPHA_OWNER_BINDING){
           const current=ctx.session.auth.current,selected=selectedAlphaWork(current?.attributes.myeveEngineeringWorkId);
