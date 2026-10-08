@@ -17,10 +17,10 @@ export const ALLOWED_FAMILIES = [
   "OWNER_CLOUD_WORK", // bounded owner CLOUD Work (start/stop is a Sofie tool, never a web route)
   "RESULT_PROOF",
   "FILES",
-  "MEMORY", // only with an approved third-party-free backend
   "RELAY_LINK", // owner-facing view/link only
 ] as const;
 export const DENIED_FAMILIES = [
+  "MEMORY", // release remains OFF; configuration cannot enable it
   "PUBLICATION", // publication, generated PRs, owner publication decisions
   "MERGE_DEPLOY",
   "AUTO_REPAIR",
@@ -42,12 +42,12 @@ export type DeniedFamily = (typeof DENIED_FAMILIES)[number];
 export type Family = AllowedFamily | DeniedFamily;
 const allowedSet: ReadonlySet<string> = new Set(ALLOWED_FAMILIES);
 
-/** Memory persists owner data. Supermemory is a third party, so Memory stays OFF
- * unless the operator explicitly approves the local PostgreSQL backend. */
+/** Memory remains OFF for this release, including the local backend. Legacy
+ * configuration is not authorization to widen the qualified feature scope. */
 export const EXTERNAL_ALPHA_MEMORY_BACKEND_ENV = "MYEVE_EXTERNAL_ALPHA_MEMORY_BACKEND";
 export const EXTERNAL_ALPHA_MEMORY_APPROVED_VALUE = "local-postgres";
-export function externalAlphaMemoryApproved(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env[EXTERNAL_ALPHA_MEMORY_BACKEND_ENV] === EXTERNAL_ALPHA_MEMORY_APPROVED_VALUE;
+export function externalAlphaMemoryApproved(_env: NodeJS.ProcessEnv = process.env): boolean {
+  return false;
 }
 export function externalAlphaFamilyAllowed(family: Family, env: NodeJS.ProcessEnv = process.env): boolean {
   if (!allowedSet.has(family)) return false;
@@ -160,7 +160,7 @@ const staticPatterns: readonly RegExp[] = [
  * and schedule under /eve/v1 is denied. */
 const eveAgentPatterns: readonly { re: RegExp; methods: readonly string[] }[] = [
   { re: /^\/eve\/v1\/(?:health|info)$/, methods: ["GET", "HEAD"] },
-  { re: /^\/eve\/v1\/session(?:\/[^/]+)?(?:\/(?:stream|cancel|compact|clear|reset))?$/, methods: ["GET", "HEAD", "POST"] },
+  { re: /^\/eve\/v1\/session(?:\/[^/]+)?(?:\/(?:stream|cancel|clear|reset))?$/, methods: ["GET", "HEAD", "POST"] },
 ];
 
 export interface ExternalAlphaRouteRule {

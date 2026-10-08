@@ -2,7 +2,7 @@ import { externalAlphaInstallation } from "./policy.ts";
 
 /** Every model-backed (paid) path in MyEve and its disposition under an
  * external-alpha installation. A path is either INTEGRATED into the bounded
- * shared ledger (migration 0085/0086), DENIED (fail closed), or NOT_PAID
+ * shared ledger (migration 0088 and shared-accounting.sql), DENIED (fail closed), or NOT_PAID
  * (provably no provider inference). paid-paths.test.ts scans the source tree
  * and fails when a dispatch site is not listed here. */
 export type PaidPathDisposition = "INTEGRATED" | "DENIED" | "NOT_PAID";
@@ -27,11 +27,14 @@ export const externalAlphaPaidPaths: readonly PaidPath[] = Object.freeze([
   { id: "voice-realtime-call", files: ["lib/voice/realtime.ts"], disposition: "DENIED", note: "OpenAI Realtime call." },
   { id: "voice-client-secret", files: ["agent/lib/effect/voice.ts"], disposition: "DENIED", note: "OpenAI Realtime client secret minting." },
   { id: "computer-use-loop", files: ["agent/lib/computer-use-loop.ts"], disposition: "DENIED", note: "Computer-use tool loop agent." },
+  { id: "orgo-hosted-model", files: ["agent/lib/orgo.ts"], disposition: "DENIED", note: "Hosted computer inference, including VM acquisition and Gateway fallback, denied before computer/provider contact." },
+  { id: "context-compaction", files: ["agent/hooks/task-ledger.ts"], disposition: "DENIED", note: "Automatic and manual framework compaction are auxiliary model calls; hook rejects before inference, and manual ingress is denied." },
+  { id: "semantic-memory-provider", files: ["agent/lib/memory-store.ts"], disposition: "DENIED", note: "Remote semantic Memory may incur inference or embeddings; provider API is denied and release Memory surfaces remain OFF." },
   { id: "qualification-model", files: ["lib/qualification/client.ts"], disposition: "DENIED", note: "Permit-gated qualification model hook." },
   { id: "retained-summary", files: ["agent/lib/retained-work-summary.ts"], disposition: "NOT_PAID", note: "Deterministic canonical-evidence text, zero tokens, no provider." },
   { id: "cloud-conversation-model", files: ["lib/engineering/cloud-conversation-model.ts"], disposition: "NOT_PAID", note: "Deterministic cloud qualification model (paidModelOperations: 0); type-only gateway import." },
   { id: "model-catalog", files: ["app/api/models/route.ts", "lib/readiness.ts", "agent/lib/gateway-models.ts"], disposition: "NOT_PAID", note: "Read-only model catalog/readiness requests; no inference." },
-  { id: "embeddings", files: [], disposition: "NOT_PAID", note: "MyEve has no embedding calls; Knowledge and Memory use PostgreSQL full-text search." },
+  { id: "embeddings", files: [], disposition: "NOT_PAID", note: "No direct embedding SDK calls; local search uses PostgreSQL full-text search. Remote semantic Memory is separately DENIED." },
 ] satisfies PaidPath[]);
 
 export class ExternalAlphaPaidPathDenied extends Error {

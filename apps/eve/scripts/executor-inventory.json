@@ -97,8 +97,8 @@
     },
     "agent/hooks/task-ledger.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "870be5d957f8c518280d2a47188a77ef92d7b0828f9ebc510efbeaa1823d54b1"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Gate 4 review: External-alpha auxiliary compaction is denied by the compaction.requested hook before framework inference, including ordinary owner sessions; manual ingress is denied.",
+      "sha256": "6f35532d737b4eaecab77e90987ab2bab92eff51baa62dfabd4cad9ce998fe9b"
     },
     "agent/instructions/agentcard.ts": {
       "classification": "INTERNAL",
@@ -372,8 +372,8 @@
     },
     "agent/lib/memory-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical owner/scope-filtered Memory storage; exact duplicate identities, local archive/replace correction and bounded reads. Remote deletion remains verified. No new authority consumers; existing remember Action Gateway caller unchanged. PostgreSQL concurrency, replay and isolation qualification in test/total-recall.integration.mjs. External-alpha installation: Supermemory is never used (key ignored); Memory stays on the local PostgreSQL store, so no owner data reaches a third party.",
-      "sha256": "57d627072d2cd11536d115db6f9e6e87b7c09d1484411bf4d0eff1219e98ea53"
+      "reason": "Canonical owner/scope-filtered Memory storage; exact duplicate identities, local archive/replace correction and bounded reads. Remote deletion remains verified. No new authority consumers; existing remember Action Gateway caller unchanged. PostgreSQL concurrency, replay and isolation qualification in test/total-recall.integration.mjs. External-alpha installation: Supermemory is never used (key ignored); Memory stays on the local PostgreSQL store, so no owner data reaches a third party. Gate 4 review: Remote semantic Memory API explicitly denies external-alpha inference/embeddings before network contact; internal local persistence remains credential-free.",
+      "sha256": "756b379b335ae88b937f8ec605b9ea27cda361b0b18920bd2f25670b5f6ece58"
     },
     "agent/lib/memory-tool-context.ts": {
       "classification": "INTERNAL",
@@ -387,8 +387,8 @@
     },
     "agent/lib/orgo.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "10b7e68471a5500c28db93adcb5e20d6ffb8b9908370d124d70792f95e3ebd3c"
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Gate 4 review: External-alpha hosted/Gateway computer tasks deny before VM acquisition, credentials or model selection; boundary tripwires confirm zero contact.",
+      "sha256": "8486183271e1f29fff0dd4d10b9e73bb4a49ab5c36a9abea149be46260dfe3b5"
     },
     "agent/lib/owner-gate.ts": {
       "classification": "INTERNAL",
@@ -2247,8 +2247,8 @@
     },
     "lib/external-alpha/paid-paths.ts": {
       "classification": "INTERNAL",
-      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call.",
-      "sha256": "04271e51109818041ae4e84a15385617917e53e3ce951281133b4593bfb49349"
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone.",
+      "sha256": "9cc4d669507080bcf92c14b05806eeb151d62d6676432e0ff9534aef9241fcc3"
     },
     "lib/external-alpha/preactivation.ts": {
       "classification": "INTERNAL",
@@ -2672,8 +2672,8 @@
     },
     "lib/voice/realtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
-      "sha256": "258da89caf3ccd9c7065fbd658deeccab94820338a3cbaebd769e172510ecc58"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged. Gate 4 review: External-alpha denial runs before peer connection, microphone or provider request; secret minting and route ingress remain separately denied.",
+      "sha256": "c4232d96a5dd9f6032934fac158d55d1611baf406e8b462dcd4a37a929b8b357"
     },
     "lib/voice/thread.ts": {
       "classification": "INTERNAL",
@@ -4101,8 +4101,8 @@
     },
     "lib/external-alpha/model.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact authenticated owner/session/active Agent; durable reservation before provider dispatch, fresh authority readback, bounded Gateway-only model and tools, conservative accounting, no retry/fallback after ambiguity. Settled replay performs no new dispatch.",
-      "sha256": "69445550980cf8903b63069a73447db55fe03a4bccd18bfd16e74bb480bc1415"
+      "reason": "Exact authenticated owner/session/active Agent; durable reservation before provider dispatch, fresh authority readback, bounded Gateway-only model and tools, conservative accounting, no retry/fallback after ambiguity. Settled replay performs no new dispatch. Gate 4 review: Release model tools exclude Memory and Knowledge operations; fixed owner-bound provider allowance and settlement remain enforced.",
+      "sha256": "a4080915a9235ca0f053664625202668577a7d7dc562b8bfeff134ff349c30c0"
     },
     "lib/external-alpha/tool-authority.ts": {
       "classification": "ENFORCED",
@@ -4121,8 +4121,8 @@
     },
     "lib/external-alpha/features.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry.",
-      "sha256": "ef20a59d3b9d5be67117c5123b0392e23f7cbdbf94dc6e448c5edbb0fe994073"
+      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied.",
+      "sha256": "8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",

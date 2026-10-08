@@ -11,7 +11,7 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
   afterEach(async () => {
     await Promise.all(envs.splice(0).map((e) => e.close()));
   }, 60000);
-  async function make() {
+  async function make(activate = true) {
     const central = await Env.create(false, {}, false); envs.push(central);
     await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
     const cohortId = randomUUID();
@@ -23,13 +23,71 @@ describe.skipIf(!connection)("authoritative accounting across two isolated app d
         VALUES($1,$2,$3,$4,encode(sha256(convert_to($5,'UTF8')),'hex'))`, [cohortId, e.policy.slot, e.owner, digest(e.policy), token]);
       e.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, token);
     }
-    await central.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp() WHERE id=$1", [cohortId]);
+    if (activate) await central.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp() WHERE id=$1", [cohortId]);
     expect(new Set([central.name, a.name, b.name]).size).toBe(3);
     const budget = (e: Env) => new ExternalAlphaAllowance(e.db, e.policy);
     const chat = (e: Env, id: string) => budget(e).admit({ kind: "CHAT", bindingId: id, requestSha256: digest(id) });
     const amount = async () => Number((await central.pool.query("SELECT COALESCE(sum(ceiling_microusd),0)::bigint s FROM external_alpha_cohort_admission WHERE cohort_id=$1", [cohortId])).rows[0].s);
     return { central, cohortId, a, b, budget, chat, amount };
   }
+  it("installing the shared schema creates no enrolled or activated spending authority", async () => {
+    const central = await Env.create(false, {}, false); envs.push(central);
+    await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+    for (const table of ["external_alpha_cohort", "external_alpha_cohort_member", "external_alpha_cohort_admission", "external_alpha_cohort_dispatch"])
+      expect(await central.count(table)).toBe(0);
+  });
+  it("enrolled credentials cannot create allowance while the shared cohort is inactive", async () => {
+    const { central, a, b, chat, amount } = await make(false);
+    for (const e of [a, b]) await expect(chat(e, "inactive")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
+    expect(await amount()).toBe(0);
+    expect(await a.count("external_alpha_allowance")).toBe(0);
+    expect(await b.count("external_alpha_allowance")).toBe(0);
+    expect((await central.pool.query("SELECT activated_at FROM external_alpha_cohort")).rows[0].activated_at).toBeNull();
+  });
+  it("a revoked cohort denies both owners and cannot recycle retained admissions", async () => {
+    const { central, cohortId, a, b, chat, budget, amount } = await make();
+    const allowance = await chat(a, "before-revocation");
+    const operation = await budget(a).reserve({ allowanceId: allowance.id, stepKey: "revoked:0", requestSha256: digest("operation"), microusd: 80000 });
+    await central.pool.query("UPDATE external_alpha_cohort SET revoked_at=clock_timestamp() WHERE id=$1", [cohortId]);
+    for (const e of [a, b]) await expect(chat(e, "after-revocation")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
+    await expect(budget(a).assertActive(allowance.id)).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
+    // Known usage can be recorded after revocation; it releases no allocation.
+    await budget(a).settle(operation, 10000, { text: "retained" });
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    expect(await amount()).toBe(100000);
+    await expect(chat(b, "still-revoked")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
+    await expect(central.pool.query("UPDATE external_alpha_cohort SET revoked_at=NULL WHERE id=$1", [cohortId])).rejects.toThrow(/immutable/);
+  });
+  it("a lost dispatch acknowledgment never permits provider redispatch or a second owner admission", async () => {
+    const { central, a, b, chat, budget, amount } = await make();
+    const allowance = await chat(a, "dispatch-ack-loss");
+    let lose = true;
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
+      const rows = await central.db.query(q, p);
+      if (lose && JSON.parse(p![0] as string).mode === "dispatch") { lose = false; throw Error("lost commit acknowledgment"); }
+      return rows;
+    } }, "1".repeat(64));
+    const input = { allowanceId: allowance.id, stepKey: "ambiguous:0", requestSha256: digest("operation"), microusd: 80000 };
+    await expect(budget(a).reserve(input)).rejects.toThrow("EXTERNAL_ALPHA_SHARED_UNAVAILABLE");
+    await expect(budget(a).reserve(input)).rejects.toThrow(/No replay of ambiguous|EXTERNAL_ALPHA_NO_REDISPATCH/);
+    await a.db.externalAlphaAccounting.reconcile(a.db, a.policy);
+    await expect(chat(b, "blocked-by-dispatch")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
+    expect(await a.count("external_alpha_operation")).toBe(1);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "DISPATCHED" }]);
+    expect(await amount()).toBe(100000);
+  });
+  it("UNKNOWN is irrevocable even with an authenticated late settlement and retained known response", async () => {
+    const { central, a, b, budget, chat, amount } = await make();
+    const allowance = await chat(a, "irreversible-unknown");
+    const operation = await budget(a).reserve({ allowanceId: allowance.id, stepKey: "unknown:0", requestSha256: digest("operation"), microusd: 80000 });
+    await budget(a).unknown(operation);
+    await expect(a.db.externalAlphaAccounting!.settle(a.db, a.policy, allowance.id, "sofie:unknown:0")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_DENIED");
+    await expect(budget(a).settle(operation, 10000, { text: "late" })).rejects.toThrow();
+    await a.db.externalAlphaAccounting!.reconcile(a.db, a.policy);
+    await expect(chat(b, "after-late-settle")).rejects.toThrow("EXTERNAL_ALPHA_SHARED_FENCED");
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows).toEqual([{ state: "UNKNOWN" }]);
+    expect(await amount()).toBe(100000);
+  });
   it("fails closed without a separate accounting configuration and never leaks credentials in errors", async () => {
     expect(() => sharedAlphaAccounting({ query: async () => [] }, { NODE_ENV: "test" })).toThrow("EXTERNAL_ALPHA_SHARED_CONFIGURATION_REQUIRED");
     const { a } = await make();

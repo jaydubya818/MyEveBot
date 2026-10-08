@@ -59,6 +59,7 @@ export class RealtimeVoiceSession {
   constructor(private readonly callbacks: RealtimeCallbacks) {}
 
   async connect(secret: string): Promise<void> {
+    denyExternalAlphaPaidPath("voice-realtime-call");
     const pc = new RTCPeerConnection();
     this.pc = pc;
 
@@ -86,7 +87,6 @@ export class RealtimeVoiceSession {
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-    denyExternalAlphaPaidPath("voice-realtime-call");
     const response = await fetch(CALLS_URL, {
       method: "POST",
       body: offer.sdp,

@@ -58,7 +58,7 @@ const options = () => ({
     },
   ],
   tools: [
-    { type: "function" as const, name: "list_memories", inputSchema: {} },
+    { type: "function" as const, name: "list_agents", inputSchema: {} },
     { type: "function" as const, name: "bash", inputSchema: {} },
   ],
   providerOptions: { gateway: { models: ["unapproved"], byok: { bad: true } } },
@@ -123,7 +123,7 @@ it("strips unsupported tools and fallback options and reserves before the sole p
     mocks.reserve.mock.invocationCallOrder[0],
   );
   const sent = mocks.generate.mock.calls[0][0];
-  expect(sent.tools.map((t: any) => t.name)).toEqual(["list_memories"]);
+  expect(sent.tools.map((t: any) => t.name)).toEqual(["list_agents"]);
   expect(sent.providerOptions).toEqual({ gateway: { only: ["openai"] } });
   expect(sent.maxOutputTokens).toBe(1024);
   expect(mocks.settle).toHaveBeenCalledWith(
@@ -245,4 +245,10 @@ it("does not dispatch if the Agent pauses while reservation is pending", async (
     externalAlphaModel(identity()).doGenerate(options()),
   ).rejects.toThrow("AGENT_REVOKED");
   expect(mocks.generate).not.toHaveBeenCalled();
+});
+
+it("never exposes Memory or Knowledge tools to the released model", () => {
+  const names = ["list_memories", "inspect_owner_knowledge", "get_knowledge", "record_fact", "record_preference", "record_observation", "remember", "search_memory"];
+  const scoped = externalAlphaPrompt({ ...options(), tools: names.map(name => ({ type: "function" as const, name, inputSchema: {} })) });
+  expect(scoped.tools).toEqual([]);
 });

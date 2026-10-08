@@ -130,7 +130,7 @@ describe.skipIf(!connection)("external alpha shared accounting limits (real Post
     await chat(budget, 21);
   });
 
-  it("keeps two isolated owners isolated: the cohort bound follows from fixed per-owner allocations", async () => {
+  it("keeps isolated local owner allocations non-transferable; shared cohort ceilings are qualified separately", async () => {
     const a = await make(), b = await make();
     for (let i = 0; i < 10; i++) await chat(a.budget, i);
     await a.e.svc.issue(await a.e.seedWork(), files);
