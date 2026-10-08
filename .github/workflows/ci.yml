@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: jaydubya818/MyFactory
-          ref: 26db44e75ca27a2167459af92d5c08df06a623e1
+          ref: 388232c3053cdd3f55e9e309b72a9d9d95ded55f
           path: .qualification/myfactory
       - uses: actions/checkout@v4
         with:
@@ -73,4 +73,4 @@ jobs:
           MYRELAY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/relay
           MYEVE_EXTERNAL_ALPHA_PRODUCTIVE_FIXTURE: "1"
           FACTORY_VERIFIER_DOCKER_IMAGE: node:24-bookworm
-        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/relay/installation-validation.test.ts
+        run: npm exec --workspace apps/eve -- vitest run --fileParallelism=false lib/engineering/production-validation-postgres.test.ts lib/engineering/production-validation-halt.test.ts lib/web-session-postgres.test.ts lib/external-alpha/allowance-postgres.test.ts lib/external-alpha/accounting-postgres.test.ts lib/external-alpha/shared-accounting-postgres.test.ts lib/external-alpha/work-authority-postgres.test.ts lib/external-alpha/work-controller-postgres.test.ts lib/external-alpha/result-ingestion-postgres.test.ts lib/external-alpha/productive-journey-postgres.test.ts lib/relay/installation-validation.test.ts lib/external-alpha/work-config.test.ts lib/external-alpha/work-action.test.ts

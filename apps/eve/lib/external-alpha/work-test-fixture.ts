@@ -119,7 +119,7 @@ export class Env {
       allowedFiles: files,
       checkCommands: fixtureCommands,
       factory: {
-        origin: "https://myfactory-cloud-production.vercel.app",
+        origin: "https://fixture-alpha-factory.vercel.app",
         trustedTeamId: "team_fixture",
         receiptKeys,
         resultVerification: {

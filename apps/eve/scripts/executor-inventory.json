@@ -2262,13 +2262,13 @@
     },
     "lib/external-alpha/work-config.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict reviewed non-secret configuration and Factory pin equality fail closed for absent/malformed/wrong installation. Requires distinct external-alpha Result family and separate Ed25519 signer bytes from receipt/readback key. Does not activate policy, authorize canary, invoke provider or mutate credentials.",
-      "sha256": "27eff4774e2855c9a5c54957a86158cbf3bd29a22d0f5c4fb8e7246296343002"
+      "reason": "Strict reviewed non-secret configuration and Factory pin equality fail closed for absent/malformed/wrong installation. Requires distinct external-alpha Result family and separate Ed25519 signer bytes from receipt/readback key. Does not activate policy, authorize canary, invoke provider or mutate credentials. Dedicated Factory destination requires an independent exact server-only canonical HTTPS Vercel origin pin; historical production/canary and staging hosts are denied without defaults or wildcard matching.",
+      "sha256": "415e9292dfe47987f39dc63d6e552a37eae725246ecab80856c0347629e82da6"
     },
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed. No-candidate terminal closure requires an immutable authenticated exact cleanup and known-accounting settlement fact under current Work locks; remote shared lease acknowledgement is recovered by durable sweep, never by the terminal label. Closed candidate readback replays the exact authority/policy/owner-bound immutable accepted Result and Proof; no Factory read, accounting mutation or dispatch occurs.",
-      "sha256": "dcaac95faa34f0edf5acd200ec52c87c40ab51cb873fb94fb3b9c50995d41576"
+      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed. No-candidate terminal closure requires an immutable authenticated exact cleanup and known-accounting settlement fact under current Work locks; remote shared lease acknowledgement is recovered by durable sweep, never by the terminal label. Closed candidate readback replays the exact authority/policy/owner-bound immutable accepted Result and Proof; no Factory read, accounting mutation or dispatch occurs. Direct HTTP client destination is checked against the independent installation origin pin before token retrieval, OIDC acquisition or fetch; existing application/project/team/environment identity checks remain exact.",
+      "sha256": "50b3bdbb4d9310369363dbc0612bb72c4775d444529b2dd1079e4311440be7eb"
     },
     "lib/external-alpha/work-readback.ts": {
       "classification": "READ_ONLY",
@@ -2278,7 +2278,7 @@
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
       "reason": "Test support for disposable localhost PostgreSQL scenarios; never imported by runtime code. Injects disposable shared-accounting dependencies; no production identities or credentials.",
-      "sha256": "b8a526f0fa9a334d2f371563c04cb3f50ac6dfab8e34c98781f17cbef57de217"
+      "sha256": "255efc68c73afa6675049e4a25891829fd7947f197d5d337489dff9e20bb4e1d"
     },
     "lib/external-write-policy.ts": {
       "classification": "INTERNAL",

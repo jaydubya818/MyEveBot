@@ -9,7 +9,8 @@ import {
 } from "./policy.ts";
 
 const hex64 = z.string().regex(/^[a-f0-9]{64}$/);
-const productionHost = /^myfactory-cloud-production(-[a-z0-9]+-jaydubya818)?\.vercel\.app$/;
+const vercelHost = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.vercel\.app$/;
+const historicalFactoryHost = /^myfactory-cloud-(?:production|staging)(?:-[a-z0-9-]+)?\.vercel\.app$/;
 
 /** Reviewed pins for authenticating the Factory's signed Result. Non-secret.
  * FactoryVersion is the digest of the two pinned digests, exactly as for the
@@ -79,6 +80,19 @@ export function assertExternalAlphaFactoryKeys(config: ExternalAlphaWorkConfig) 
     throw Error("EXTERNAL_ALPHA_FACTORY_KEY_SEPARATION");
 }
 
+/** Dedicated credential destination is independently pinned by the installation,
+ * not inferred from project names or a mutable default. Historical production
+ * (including canary) and staging hosts cannot become external-alpha targets. */
+export function assertExternalAlphaFactoryOrigin(config: ExternalAlphaWorkConfig, env: NodeJS.ProcessEnv = process.env): void {
+  try {
+    const origin = config.factory.origin, pin = env.MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN;
+    const url = new URL(origin);
+    if (typeof window !== "undefined" || !pin || origin !== pin || url.origin !== origin || url.protocol !== "https:"
+      || url.username || url.password || url.port || url.pathname !== "/" || url.search || url.hash
+      || !vercelHost.test(url.hostname) || historicalFactoryHost.test(url.hostname)) throw Error();
+  } catch { throw Error("EXTERNAL_ALPHA_FACTORY_ORIGIN_BINDING"); }
+}
+
 /** Absent or invalid configuration means Work authority is unavailable (fail closed). */
 export function externalAlphaWorkConfig(
   env: NodeJS.ProcessEnv = process.env,
@@ -88,18 +102,7 @@ export function externalAlphaWorkConfig(
   try {
     const config = externalAlphaWorkConfigSchema.parse(JSON.parse(raw));
     assertExternalAlphaFactoryKeys(config);
-    const url = new URL(config.factory.origin);
-    if (
-      url.protocol !== "https:" ||
-      url.username ||
-      url.password ||
-      url.port ||
-      url.pathname !== "/" ||
-      url.search ||
-      url.hash ||
-      !productionHost.test(url.hostname)
-    )
-      return null;
+    assertExternalAlphaFactoryOrigin(config, env);
     return config;
   } catch {
     return null;
@@ -139,6 +142,7 @@ export function assertExternalAlphaWorkBinding(
   env: NodeJS.ProcessEnv = process.env,
 ): void {
   assertExternalAlphaFactoryKeys(config);
+  assertExternalAlphaFactoryOrigin(config, env);
   const r = config.factory.resultVerification;
   if (digest({ sourceDigest: r.sourceDigest, configurationDigest: r.configurationDigest }) !== policy.factoryVersion)
     throw Error("EXTERNAL_ALPHA_FACTORY_VERSION_BINDING");

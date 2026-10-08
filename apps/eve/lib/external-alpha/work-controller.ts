@@ -2,7 +2,7 @@ import { createPublicKey, verify as verifySignature, type KeyObject } from "node
 import { retainedExternalAlphaResult } from "./work-readback.ts";
 import { z } from "zod";
 import { digest } from "../engineering/contract.ts";
-import { externalAlphaWorkConfig, externalAlphaWorkConfigSchema, type ExternalAlphaWorkConfig } from "./work-config.ts";
+import { assertExternalAlphaFactoryOrigin, externalAlphaWorkConfig, externalAlphaWorkConfigSchema, type ExternalAlphaWorkConfig } from "./work-config.ts";
 export { externalAlphaWorkConfig, externalAlphaWorkConfigSchema, type ExternalAlphaWorkConfig };
 import { validateSpendBinding, workSpendV2Schema } from "../engineering/factory-spend.ts";
 import type { Work } from "../engineering/types.ts";
@@ -96,6 +96,7 @@ export class HttpExternalAlphaFactoryClient implements ExternalAlphaFactoryClien
   ) {}
   private async headers() {
     const env = this.deps.env ?? process.env;
+    assertExternalAlphaFactoryOrigin(this.config, env);
     const token = (this.deps.token ?? (() => env.MYEVE_EXTERNAL_ALPHA_FACTORY_TOKEN))();
     if (!token?.trim()) throw Error("EXTERNAL_ALPHA_FACTORY_TOKEN_REQUIRED");
     if (

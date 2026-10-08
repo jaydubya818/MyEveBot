@@ -542,7 +542,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const env = {
       VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId, MYEVE_OWNER_ID: e.owner,
       MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
-      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
       MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(e.policy, config),
     } as unknown as NodeJS.ProcessEnv;
     const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
@@ -912,7 +912,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const { central, a, b, app } = await sharedPair();
     const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string, VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: a.policy.projectId, MYEVE_OWNER_ID: a.owner,
       MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(a.policy),
-      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(app.config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(app.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: app.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
       MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(a.policy, app.config) } as NodeJS.ProcessEnv;
     const canonical = externalAlphaCanonicalCreate({ title: "Alpha Tasks: add a Priority field",
       objective: "In the Alpha Tasks project, add a Priority field (exactly Low|Medium|High) shown on the task list.", repository: a.policy.repository,
@@ -991,7 +991,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
       VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId, MYEVE_OWNER_ID: e.owner,
       MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
-      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
       MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(e.policy, config) } as NodeJS.ProcessEnv;
     const deps = { database: e.db, factory, signer: e.signer, env };
     const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
