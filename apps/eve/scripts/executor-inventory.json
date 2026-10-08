@@ -2268,12 +2268,12 @@
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
       "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed. No-candidate terminal closure requires an immutable authenticated exact cleanup and known-accounting settlement fact under current Work locks; remote shared lease acknowledgement is recovered by durable sweep, never by the terminal label. Closed candidate readback replays the exact authority/policy/owner-bound immutable accepted Result and Proof; no Factory read, accounting mutation or dispatch occurs.",
-      "sha256": "d61ceb187adbbc39db830a13adce998ab4b3565fbf2e14a8a428af564b267483"
+      "sha256": "dcaac95faa34f0edf5acd200ec52c87c40ab51cb873fb94fb3b9c50995d41576"
     },
     "lib/external-alpha/work-readback.ts": {
       "classification": "READ_ONLY",
       "reason": "Owner-scoped accepted external-alpha Result/Proof and terminal-fact observation only. Exact authority/owner/policy/Work/version/generation/request and immutable authority/envelope/manifest/Proof/artifact digests checked. Exports only exact Proof-linked DiffEvidence and producer/verifier TestEvidence; foreign owner/actor/reference denied. No provider, reservation, dispatch, credential, publication or writer mutation. Canonical separate-PostgreSQL reconnect/restart and custody tests passed.",
-      "sha256": "bd7e398577a3eecb8f61bfda6f378c59b1c5f90506776f7c60b8bcff9cae2321"
+      "sha256": "97d67bc2aa1c430960f8a85e52bfa4eb8eb0d12a41eeb1c5b6f267dc9ec32abc"
     },
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -3335,7 +3335,7 @@
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. External-alpha truth separately reports historical consumed authority, producer outcome, verifier verdict, retained Result and fixed local ledger exposure. It never projects native admission or Ready from external-alpha custody.",
-      "sha256": "d8b3464b19dc9444abafe484a29889135706a97b179e47b8da4b8d3fdd875121"
+      "sha256": "7a8c1405ff18ef9fa15b3f570ae28ac94e4e908738c4dcdf55d46b612ec367f5"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3505,7 +3505,7 @@
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
       "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Independently reviewed retained-Work UI repair: restored locked selection exposes observe controls without rebinding; historical Result fallback wording does not imply current authority or readiness. Covered by chat-work-selection and worker-projection regressions. External-alpha Work projection reads exact owner-bound accepted Result/Proof and terminal settlement independently of native workspaces, retains historical revision truth, and never grants native writer or readiness authority.",
-      "sha256": "a42357b1c32a916b0ec018062ff0aab57168ba40e8b3731898e31ae11eacfe6a"
+      "sha256": "fd043d9db1044a14e115f81ba85063861c61144d0cf8843bb0bc0dd2a3978a1d"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -4136,8 +4136,8 @@
     },
     "lib/external-alpha/result-ingestion.ts": {
       "classification": "ENFORCED",
-      "reason": "Authenticates distinct external-alpha signed Result family against durable first prepare digest, signed readback run, one attempt, consumed authority, owner and reviewed pins. Atomically refreshes current Work revision and agent control before immutable Result/Proof retention. Failed/cancelled useful candidates remain FAIL/PARTIAL; never final completion. Settlement occurs once and UNKNOWN remains charged. No dispatch, publication or grant. Verifies the Factory signed Result with the existing authenticated-result primitives, binds it to the single consumed authority and owner, retains an immutable PARTIAL-capped Proof atomically and settles accounting once. No dispatch, publication or grant. Cleanup-confirmed local settlement synchronizes the exact shared Work dispatch lease; ambiguous exposure fences the shared cohort. Remote failure leaves local settlement durable for reconciliation and never refunds allowance. Accepted Result Proof additionally binds exact candidate DiffEvidence and separately preserved signed producer/verifier TestEvidence digest references.",
-      "sha256": "f9b113191b286d1d2ac507ad8dfc5df6c6752cfe743fff76e333daa2085b1a6c"
+      "reason": "Authenticates distinct external-alpha signed Result family against durable first prepare digest, signed readback run, one attempt, consumed authority, owner and reviewed pins. Atomically refreshes current Work revision and agent control before immutable Result/Proof retention. Failed/cancelled useful candidates remain FAIL/PARTIAL; never final completion. Settlement occurs once and UNKNOWN remains charged. No dispatch, publication or grant. Verifies the Factory signed Result with the existing authenticated-result primitives, binds it to the single consumed authority and owner, retains an immutable PARTIAL-capped Proof atomically and settles accounting once. No dispatch, publication or grant. Cleanup-confirmed local settlement synchronizes the exact shared Work dispatch lease; ambiguous exposure fences the shared cohort. Remote failure leaves local settlement durable for reconciliation and never refunds allowance. Accepted Result Proof additionally binds exact candidate DiffEvidence and separately preserved signed producer/verifier TestEvidence digest references. Independent UNKNOWN stays PARTIAL even when Factory execution status is FAILED; execution labels cannot invent a verifier FAIL.",
+      "sha256": "2e5a0a97870675fbda06729502493bf33e7c60b3d150d4d049802a70144cff0f"
     },
     "lib/external-alpha/result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
@@ -4158,6 +4158,11 @@
       "classification": "ENFORCED",
       "reason": "Server-only authoritative two-slot PostgreSQL cohort accounting, authenticated owner/slot/policy and token binding, transactional owner/global day/trial whole-allowance reservations, exact local allowance mirror and dispatch leases. Fails closed on missing configuration or ambiguity, sanitizes credential-bearing errors, retains all charges, and reconciles durable known/UNKNOWN facts without any provider call, refund, replacement authority or activation. Qualified across two isolated app DBs plus shared DB, restricted roles, concurrency, outage/acknowledgment-loss and restart tests. Gate1 no-candidate settlement is accepted only from the optional immutable exact-Work known-accounting/cleanup fact; terminal labels alone remain fenced.",
       "sha256": "df56de2e0204a105c5511b48b6a847850b4c7354e6ffeb7aebb232a21fa4c74d"
+    },
+    "lib/external-alpha/productive-sandbox-test-fixture.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Test-only local SDK transport for explicit offline composed qualification. Imported only by productive-journey-postgres.test.ts; runs public generic fixture source, deterministic model response, real materialization/checkpoint/custody, and has no provider/network fallback or production entry point. This transport does not qualify Codex installation or confinement; independent Linux verifier qualification is separate.",
+      "sha256": "2c3eee714c971f166d6e8bae4076bd322c1330a699ccabb4f8f6d4a8e5a02a89"
     }
   }
 }

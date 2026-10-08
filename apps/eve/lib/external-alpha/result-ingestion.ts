@@ -206,7 +206,7 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
   const patchBytes = artifacts.find((a) => a.id === candidate.patchArtifactId);
   const scope = patchScope(patchBytes ? Buffer.from(patchBytes.base64, "base64").toString("utf8") : "", doc.source.allowedFiles);
   if (scope.violations.length) reasons.push("The candidate changes files outside the authorized set.");
-  const verdict = worstVerdict(signedVerdict, ctx.verdictHint, manifest.status === "FAILED" ? "FAIL" : manifest.status === "CANCELLED" ? "PARTIAL" : undefined, scope.violations.length ? "FAIL" : undefined, cleanupConfirmed ? undefined : "PARTIAL");
+  const verdict = worstVerdict(signedVerdict, ctx.verdictHint, ["FAILED", "CANCELLED"].includes(manifest.status) ? "PARTIAL" : undefined, scope.violations.length ? "FAIL" : undefined, cleanupConfirmed ? undefined : "PARTIAL");
   if (ctx.verdictHint !== undefined && worstVerdict(ctx.verdictHint) !== "PASS" && verdict !== signedVerdict)
     reasons.push("The Factory readback reported " + worstVerdict(ctx.verdictHint) + ".");
 

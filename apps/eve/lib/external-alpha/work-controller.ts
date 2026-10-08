@@ -364,7 +364,12 @@ export class ExternalAlphaWorkController {
       throw Error("EXTERNAL_ALPHA_DISPATCH_UNKNOWN");
     }
     const consumed = await this.authority.finish(record.id, "CONSUMED", { receipt: readback.authorityReceipt });
-    return { sent: true, authority: consumed, readback };
+    // A verified receipt establishes consumption; an authenticated UNKNOWN
+    // establishes an unresolved remote effect immediately, before refresh.
+    const observed = readback.state === "UNKNOWN"
+      ? await this.authority.finish(record.id, "UNKNOWN", { reason: "AUTHENTICATED_FACTORY_UNKNOWN" })
+      : consumed;
+    return { sent: true, authority: observed, readback };
   }
 
   /** Read-only against the Factory; records usage exact-once and closes the

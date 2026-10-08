@@ -476,7 +476,7 @@ export class EngineeringWorkerProjectionStore {
     const externalActivity = externalAlpha ? {
       status: externalAlpha.state === "UNKNOWN" ? "Needs reconciliation" : externalAlpha.result ? "Result retained"
         : externalAlpha.factoryOutcome ? "Stopped" : ["ISSUED", "DISPATCHING", "CONSUMED"].includes(externalAlpha.state) ? "Awaiting Factory readback" : "Stopped",
-      activity: externalAlpha.result ? `${externalAlpha.result.current ? "Factory candidate" : "Historical Factory candidate"} retained; producer outcome ${externalAlpha.result.producerOutcome}; independent verifier: ${externalAlpha.result.verdict}. Result remains ${externalAlpha.result.proof.outcome}.`
+      activity: externalAlpha.result ? `${externalAlpha.result.current ? "Factory candidate" : "Historical Factory candidate"} retained; Factory outcome ${externalAlpha.result.producerOutcome}; producer checks ${externalAlpha.result.producerChecks}; independent verifier: ${externalAlpha.result.verdict}. Result remains ${externalAlpha.result.proof.outcome}.`
         : externalAlpha.factoryOutcome ? `Factory outcome: ${externalAlpha.factoryOutcome}. No candidate Result or Proof was produced; authenticated cleanup and accounting settled.`
         : `External-alpha authority: ${externalAlpha.state}. Retained state does not establish fresh Factory liveness.`,
       nextStep: externalAlpha.state === "UNKNOWN" ? "Reconcile the existing request and retained exposure. No paid retry or new writer is allowed."

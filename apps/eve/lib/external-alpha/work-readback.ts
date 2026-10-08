@@ -88,7 +88,7 @@ export interface ExternalAlphaWorkReadback {
   current: boolean;
   factoryOutcome: "FAILED" | "CANCELLED" | "NOT_DISPATCHED" | null;
   accounting: { ceilingMicrousd: number; settledMicrousd: number; reservedMicrousd: number; unknownMicrousd: number };
-  result: (RetainedExternalAlphaResult & { proof: ProofOfWork; contentHash: string; current: boolean; producerOutcome: "COMPLETED" | "FAILED" | "CANCELLED" }) | null;
+  result: (RetainedExternalAlphaResult & { proof: ProofOfWork; contentHash: string; current: boolean; producerOutcome: "COMPLETED" | "FAILED" | "CANCELLED"; producerChecks: "PASS" | "FAIL" | "NOT_RUN" }) | null;
 }
 
 /** Observation only. Authority state is retained history, never fresh Factory
@@ -119,9 +119,12 @@ export async function readExternalAlphaWork(store: WorkStore, work: Work): Promi
     COALESCE(sum(o.reserved_microusd) FILTER(WHERE o.state='UNKNOWN'),0) AS unknown
     FROM external_alpha_allowance a LEFT JOIN external_alpha_operation o ON o.allowance_id=a.id
     WHERE a.owner_id=$1 AND a.work_id=$2 GROUP BY a.id`, [p.scopeId, work.id]);
+  const evidence = custody?.manifest.evidence ?? [];
+  const producerChecks: "PASS" | "FAIL" | "NOT_RUN" = evidence.some(e => e.status === "failed" || (e.exitCode !== null && e.exitCode !== 0))
+    ? "FAIL" : evidence.length > 0 && evidence.every(e => e.status === "passed" && e.exitCode === 0) ? "PASS" : "NOT_RUN";
   return { authorityId: String(row.id), requestId: String(row.request_id), state: row.state as AuthorityState,
     current: Number(row.work_version) === work.version && Number(row.work_generation) === work.generation,
-    factoryOutcome, accounting: { ceilingMicrousd: Number(ledger?.ceiling_microusd ?? 0), settledMicrousd: Number(ledger?.settled ?? 0), reservedMicrousd: Number(ledger?.reserved ?? 0), unknownMicrousd: Number(ledger?.unknown ?? 0) }, result: custody ? { ...custody.retained, proof: custody.proof, contentHash: custody.contentHash, current: custody.current, producerOutcome: custody.manifest.status } : null };
+    factoryOutcome, accounting: { ceilingMicrousd: Number(ledger?.ceiling_microusd ?? 0), settledMicrousd: Number(ledger?.settled ?? 0), reservedMicrousd: Number(ledger?.reserved ?? 0), unknownMicrousd: Number(ledger?.unknown ?? 0) }, result: custody ? { ...custody.retained, proof: custody.proof, contentHash: custody.contentHash, current: custody.current, producerOutcome: custody.manifest.status, producerChecks } : null };
 }
 
 export async function readExternalAlphaProofEvidence(store: WorkStore, workId: string, resultId: string, reference: string) {

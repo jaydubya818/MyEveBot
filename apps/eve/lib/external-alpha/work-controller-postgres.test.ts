@@ -900,6 +900,14 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
   }, 30000);
 
 
+  it("records authenticated Factory UNKNOWN immediately after retaining its consumption receipt", async () => {
+    const e = await Env.create(); envs.push(e); const app = await setup(true, e), work = await e.seedWork();
+    app.factory.state = "UNKNOWN";
+    const outcome = await app.controller.start(work);
+    expect(outcome.authority.state).toBe("UNKNOWN"); expect(outcome.authority.receipt).not.toBeNull();
+    await app.controller.start(work); expect(app.factory.posts).toBe(1);
+  });
+
   it.each(["PASS", "FAIL", "UNKNOWN"] as const)("canonical Sofie journey replays durable %s Result and exact evidence after reconnect/restart without another dispatch", async verification => {
     const { central, a, b, app } = await sharedPair();
     const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string, VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: a.policy.projectId, MYEVE_OWNER_ID: a.owner,
@@ -947,6 +955,8 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(app.factory.reads).toBe(reads);
     const projected = await new EngineeringWorkerProjectionStore(a.store).get(work.id);
     expect(projected.projection.externalAlpha?.result?.verdict).toBe(expected);
+    expect(projected.projection.externalAlpha?.result?.producerChecks).toBe("PASS");
+    expect(currentTruthLines(projected.projection).join("\n")).toContain("producer checks PASS; independent verifier " + expected);
     expect(projected.projection.nativeResult?.proof.outcome).toBe(verification === "FAIL" ? "FAILED" : "PARTIAL");
     expect(projected.projection.latestResult?.id).toBe(action.result?.resultId);
     expect(projected.projection.readiness.ready).toBe(false);
