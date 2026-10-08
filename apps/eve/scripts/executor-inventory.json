@@ -4163,6 +4163,11 @@
       "classification": "NOT_APPLICABLE",
       "reason": "Test-only local SDK transport for explicit offline composed qualification. Imported only by productive-journey-postgres.test.ts; runs public generic fixture source, deterministic model response, real materialization/checkpoint/custody, and has no provider/network fallback or production entry point. This transport does not qualify Codex installation or confinement; independent Linux verifier qualification is separate.",
       "sha256": "2c3eee714c971f166d6e8bae4076bd322c1330a699ccabb4f8f6d4a8e5a02a89"
+    },
+    "lib/relay/installation-validation.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Explicit server-only installation audit validates an independently pinned private reuse plan and source-owner AES-GCM custody. Enforces read-only transactions on legacy MyEve, canonical Relay and reserved target resources; validates exact live account, Agent credential, operator membership and scope digests. Returns only bounded identity/provenance/auth-status metadata. No HTTP/auth helper, credential reseal/import/update, target mutation, recovery, route/model entry or activation. Real PostgreSQL tests use all 29 migrations from exact deployed Relay source and synthetic credentials; expired grants remain unauthoritative.",
+      "sha256": "f712b1f9cb5315b035707de9cfc329e20becc63c4f3a6c54a1c8216a4a5420ea"
     }
   }
 }
