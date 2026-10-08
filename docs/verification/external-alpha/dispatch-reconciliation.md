@@ -28,3 +28,12 @@ The composed external-alpha suite passed 269 tests in 16 files. A subsequent foc
 
 
 Fresh-clone qualification of the composed MyEve source passed all 270 affected tests in 16 files. Cross-repository conformance runs the real MyEve issuer/readback verifier and the real Factory signed-readback helper with synthetic keys and complete ledger bindings; unit, live and PostgreSQL admission cases passed. The hosted PostgreSQL job pins the exact reviewed Factory checkpoint rather than floating with its development branch. Hosted CI remains a required check on the final pushed commit.
+
+
+### Owner Work and Result readback composition
+
+Owner Work Resume records control intent and returns SOFIE_REQUIRED before legacy native admission or the canary queue. The only external-alpha start remains the guarded Sofie action. Canonical Sofie create/start/reconcile uses the same durable owner Work, exact revision tokens, single consumed authority and full shared allowance. `engineering_work` and owner Work projections now read the accepted external-alpha Result directly, independently of native-route workspace records. A closed authority replays its exact retained candidate/verdict without another Factory read. Readback is historical evidence; it establishes no new writer or fresh Factory liveness, and never marks Work Ready or COMPLETED.
+
+The immutable accepted Result envelope remains the evidence source. DiffEvidence exports the exact authenticated candidate patch. TestEvidence preserves the signed producer checks and independent verifier separately. The owner evidence route requires the exact Work/Result/Proof reference and checks stored Proof, authority, envelope, manifest and artifact digests before returning bytes. External-alpha installations deny a foreign evidence owner. This reuses the existing read-only Result/Proof surface and does not enable publication or sharing.
+
+Disposable three-database canonical journeys cover idempotent Work creation, explicit owner resume, duplicate Sofie start deliveries, stale metadata denial, durable controller restart, reconnect readback, PASS/FAIL/UNKNOWN truth, evidence downloads, wrong actor/owner/reference/integrity denial and historical takeover. These use deterministic Factory fixtures and make zero paid model/provider calls. They do not establish live execution or deployment qualification. Sofie takeover transfers control only after authenticated known cleanup; UNKNOWN and a bare consumed-cancellation label remain fenced.

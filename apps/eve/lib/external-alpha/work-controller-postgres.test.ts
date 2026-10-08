@@ -1,3 +1,9 @@
+import { readExternalAlphaProofEvidence, readExternalAlphaWork } from "./work-readback.ts";
+import { BetaIntegration } from "../beta-integration/runtime.ts";
+import { CanonicalBetaWork } from "../beta-integration/canonical-work.ts";
+import { WorkStore } from "../engineering/store.ts";
+import { EngineeringWorkerProjectionStore } from "../engineering/worker-projection.ts";
+import { currentTruthLines } from "../engineering/current-truth-lines.ts";
 import { readFile } from "node:fs/promises";
 import { SharedAlphaAccounting } from "./shared-accounting.ts";
 import { afterEach, describe, expect, it } from "vitest";
@@ -25,7 +31,7 @@ import { connection, Env, files } from "./work-test-fixture.ts";
 import { buildSignedResult, fixtureFactoryVersion } from "./result-test-fixture.ts";
 import { proofOfWorkSchema } from "../digital-worker/contracts.ts";
 import { publicKeyId } from "./work-authority.ts";
-import { externalAlphaFactoryAction } from "./work-action.ts";
+import { externalAlphaCanonicalCreate, externalAlphaFactoryAction } from "./work-action.ts";
 import { externalAlphaFactoryPinSha256, externalAlphaWorkEnabled } from "./work-config.ts";
 import { bindDispatch, dispatchBinding, READBACK_DOMAIN } from "./dispatch-readback.ts";
 import { reconcileExternalAlphaAuthorities } from "./reconciliation.ts";
@@ -33,13 +39,13 @@ import { engineeringWorkEnabled } from "../engineering/deployment-mode.ts";
 
 type Op = { id: string; phase: "productive" | "completion"; state: "settled" | "unknown" | "reserved"; actual?: number };
 /** Valid WORK_LEDGER_V2 readback (the shape MyEve already consumes). */
-function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[]) {
+function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[], workGeneration = 1) {
   const per = 200000,
     completionReserve = 300000;
   const operations = ops.map((o) => ({
     operationId: o.id,
     workId,
-    workGeneration: 1,
+    workGeneration,
     dispatchIdentity: "d-" + o.id,
     requestId,
     workOrderId,
@@ -65,7 +71,7 @@ function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[
     currency: "USD",
     unit: "microUSD",
     workId,
-    workGeneration: 1,
+    workGeneration,
     requestId,
     workOrderId,
     deadline: new Date(Date.now() + 180000).toISOString(),
@@ -134,7 +140,7 @@ class FakeFactory implements ExternalAlphaFactoryClient {
   }
   private readback(c: { sha: string; requestId: string; workOrderId: string; workId: string; prepare: Record<string, any>; consumedAt: string }, authorityId: string, challenge: string) {
     const receipt = this.receipt(authorityId, c.sha, c.requestId, c.workOrderId, c.consumedAt);
-    const spend = { ...ledger(c.requestId, c.workOrderId, c.workId, this.ops), deadline: c.prepare.deadline };
+    const spend = { ...ledger(c.requestId, c.workOrderId, c.workId, this.ops, c.prepare.workGeneration), deadline: c.prepare.deadline };
     const at = Date.now();
     const readbackAttestation = {
       schema: READBACK_DOMAIN, requestId: c.requestId, workOrderId: c.workOrderId, runId: "00000000-0000-4000-8000-0000000000a1", attemptNumber: 1,
@@ -309,6 +315,8 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(factory.posts).toBe(1);
     const rec = await e.svc.forWork(work.id);
     expect(rec?.state).toBe("UNKNOWN");
+    const unknownProjection = await new EngineeringWorkerProjectionStore(e.store).get(work.id);
+    expect(currentTruthLines(unknownProjection.projection).join("\n")).toMatch(/UNKNOWN exposure unresolved request/);
     await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
   });
 
@@ -890,5 +898,103 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(app.factory.posts).toBe(1);
     expect(await a.count("engineering_native_results")).toBe(0);
   }, 30000);
+
+
+  it.each(["PASS", "FAIL", "UNKNOWN"] as const)("canonical Sofie journey replays durable %s Result and exact evidence after reconnect/restart without another dispatch", async verification => {
+    const { central, a, b, app } = await sharedPair();
+    const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string, VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: a.policy.projectId, MYEVE_OWNER_ID: a.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(a.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(app.config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(a.policy, app.config) } as NodeJS.ProcessEnv;
+    const canonical = externalAlphaCanonicalCreate({ title: "Alpha Tasks: add a Priority field",
+      objective: "In the Alpha Tasks project, add a Priority field (exactly Low|Medium|High) shown on the task list.", repository: a.policy.repository,
+      maxCostUsd: 1.3, maxDurationSeconds: 180, criteria: alphaTasksCriteria.map(statement => ({ statement, method: "test" })) }, a.owner, env);
+    const created = await Promise.all(Array.from({ length: 6 }, () => a.store.create(canonical)));
+    expect(new Set(created.map(c => c.work.id)).size).toBe(1);
+    expect(created.filter(c => c.created)).toHaveLength(1);
+    const paused = created[0].work;
+    const oldProject = process.env.EVE_PROJECT_NAME;
+    process.env.EVE_PROJECT_NAME = "myeve-alpha-tester-1";
+    let work: Awaited<ReturnType<typeof a.store.get>>;
+    try {
+      const beta = new BetaIntegration(a.pool, { repository: a.policy.repository, maxCostUsd: 1.3, maxDurationSeconds: 180 });
+      const ownerFlow = new CanonicalBetaWork(beta, () => { throw Error("LEGACY_NATIVE_ADMISSION_UNREACHABLE"); });
+      const resumed = await ownerFlow.control(a.owner, paused.id, paused.version, paused.generation, "resume");
+      expect(resumed.admission).toMatchObject({ status: "SOFIE_REQUIRED", receipt: null });
+      work = resumed.work;
+    } finally { if (oldProject === undefined) delete process.env.EVE_PROJECT_NAME; else process.env.EVE_PROJECT_NAME = oldProject; }
+    const deps = { database: a.db, factory: app.factory, signer: a.signer, env };
+    const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
+    await Promise.all(Array.from({ length: 8 }, (_, i) => externalAlphaFactoryAction(a.store, work.id, input, { sessionId: "fixture-session", callId: "duplicate-" + i }, deps)));
+    expect(app.factory.posts).toBe(1);
+    const authority = (await a.svc.forWork(work.id))!;
+    expect(await a.count("external_alpha_work_authority")).toBe(1);
+    await expect(externalAlphaFactoryAction(a.store, work.id, { ...input, expectedWorkVersion: paused.version }, { sessionId: "reconnect", callId: "stale" }, deps)).rejects.toThrow(/Reload/);
+    const running = await new EngineeringWorkerProjectionStore(a.store).get(work.id);
+    expect(running.projection.externalAlpha?.state).toBe("CONSUMED");
+    expect(running.projection.readiness.ready).toBe(false);
+    expect(currentTruthLines(running.projection).join("\n")).toMatch(/not fresh Factory liveness/);
+    app.factory.state = "COMPLETED"; app.factory.quiescent = true;
+    app.factory.ops = [{ id: "productive-1", phase: "productive", state: "settled", actual: 120000 }];
+    app.factory.resultPayload = buildSignedResult({ authority, work, workOrderId: (authority.receipt as any).workOrderId, keys: a.resultKeys,
+      opts: { verification, requestDigest: app.factory.requestDigest(authority.requestId) } }).signed;
+    await reconcileExternalAlphaAuthorities(new ExternalAlphaWorkController(a.svc, app.factory, app.config, app.rk), a.store);
+    const reads = app.factory.reads;
+    const action = await externalAlphaFactoryAction(a.store, work.id, { ...input, operation: "reconcile" }, { sessionId: "new-browser-session", callId: "refresh" }, deps);
+    const expected = verification === "UNKNOWN" ? "PARTIAL" : verification;
+    expect(action.result?.verdict).toBe(expected);
+    expect(action.result?.replay).toBe(true);
+    expect(app.factory.reads).toBe(reads);
+    const projected = await new EngineeringWorkerProjectionStore(a.store).get(work.id);
+    expect(projected.projection.externalAlpha?.result?.verdict).toBe(expected);
+    expect(projected.projection.nativeResult?.proof.outcome).toBe(verification === "FAIL" ? "FAILED" : "PARTIAL");
+    expect(projected.projection.latestResult?.id).toBe(action.result?.resultId);
+    expect(projected.projection.readiness.ready).toBe(false);
+    const refs = projected.projection.nativeResult!.proof.artifactRefs.filter(r => r.startsWith("factory-evidence:"));
+    expect(refs).toHaveLength(2);
+    const evidence = await Promise.all(refs.map(ref => readExternalAlphaProofEvidence(a.store, work.id, action.result!.resultId, ref)));
+    expect(evidence.map(e => e!.ref.kind).sort()).toEqual(["DiffEvidence", "TestEvidence"]);
+    const corrupt = new WorkStore(a.store.principal, { query: async (sql, params) => {
+      const rows = await a.db.query(sql, params);
+      return sql.includes("SELECT r.*,n.proof") ? rows.map(row => ({ ...row, content_hash: "0".repeat(64) })) : rows;
+    } });
+    await expect(readExternalAlphaProofEvidence(corrupt, work.id, action.result!.resultId, refs[0])).rejects.toThrow(/integrity/);
+    const wrongActor = new WorkStore({ ...a.store.principal, actorId: b.owner }, a.db);
+    await expect(readExternalAlphaProofEvidence(wrongActor, work.id, action.result!.resultId, refs[0])).rejects.toThrow(/Owner scope/);
+    for (const e of evidence) expect(e!.ref.sha256).toBe(sha256Hex(e!.bytes.toString("utf8")));
+    await expect(readExternalAlphaProofEvidence(a.store, work.id, action.result!.resultId, "factory-evidence:sha256:" + "0".repeat(64))).rejects.toThrow(/not available/);
+    await expect(readExternalAlphaProofEvidence(b.store, work.id, action.result!.resultId, refs[0])).rejects.toThrow();
+    expect(await a.count("engineering_native_results")).toBe(1);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1300000);
+    const next = await a.store.change(work.id, { operation: "takeover", expectedVersion: work.version });
+    const historical = await readExternalAlphaWork(a.store, next);
+    expect(historical?.result?.current).toBe(false);
+    expect(historical?.result?.verdict).toBe(expected);
+    expect(app.factory.posts).toBe(1);
+  });
+
+
+  it.each(["known", "unknown", "bare-label"] as const)("Sofie takeover transfers control only after exact confirmed cleanup (%s)", async mode => {
+    const { e, factory, config } = await make();
+    const work = await e.seedWork();
+    const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId, MYEVE_OWNER_ID: e.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(e.policy, config) } as NodeJS.ProcessEnv;
+    const deps = { database: e.db, factory, signer: e.signer, env };
+    const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
+    const effect = { sessionId: "fixture-takeover", callId: "start" };
+    await externalAlphaFactoryAction(e.store, work.id, input, effect, deps);
+    if (mode === "unknown") factory.ops = [{ id: "unknown-at-stop", phase: "productive", state: "unknown" }];
+    if (mode === "bare-label") await e.svc.finish((await e.svc.forWork(work.id))!.id, "CANCELLED", { reason: "UNPROVED_STOP" });
+    const out = await externalAlphaFactoryAction(e.store, work.id, { ...input, operation: "takeover" }, { ...effect, callId: "takeover" }, deps);
+    const current = await e.store.get(work.id);
+    expect(current.control).toBe(mode === "known" ? "human" : "agent");
+    expect(current.version).toBe(mode === "known" ? work.version + 1 : work.version);
+    expect(factory.posts).toBe(1);
+    expect(out.currentTruth.join(" ")).toMatch(mode === "known" ? /in your hands/ : /waits for authenticated cleanup/);
+  });
 
 });

@@ -1,3 +1,4 @@
+import { readExternalAlphaWork } from "./work-readback.ts";
 import { z } from "zod";
 import { assertBusinessEffect } from "../business-effects.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
@@ -111,7 +112,7 @@ export async function externalAlphaFactoryAction(
     const result = "result" in out ? out.result : undefined;
     const outcome =
       result?.retained
-        ? `Result retained (${result.retained.verdict}${result.retained.replay ? ", replay" : ""}); read it under Result and Proof.`
+        ? `Result retained: ${result.retained.resultId}; candidate ${result.retained.candidateSha}; independent verifier ${result.retained.verdict}${result.retained.replay ? " (retained replay)" : ""}. Read it under Result and Proof; publication and acceptance are not established.`
         : result?.rejected
           ? `The Factory Result was rejected (${result.rejected}) and was not retained.`
           : result?.pending
@@ -125,9 +126,22 @@ export async function externalAlphaFactoryAction(
       : null;
     return {
       state: out.state,
+      result: result?.retained ?? null,
       currentTruth: [`Work authority state: ${out.state}.`, ...(terminalTruth ? [terminalTruth] : outcome ? [outcome] : [])],
     };
   }
   const out = await controller.stop(workId, { work });
+  if (input.operation === "takeover") {
+    const saved = await controller.authority.forWork(workId);
+    const readback = await readExternalAlphaWork(store, work);
+    const safelyStopped = out.state === "NONE" || (["CANCELLED", "COMPLETED"].includes(out.state) &&
+      (!saved?.receipt || !!readback?.factoryOutcome || (!!readback?.result && readback.result.settlementState === "SETTLED" &&
+        readback.result.cleanupConfirmed && readback.accounting.unknownMicrousd === 0)));
+    if (!safelyStopped) return { state: out.state, control: work.control,
+      currentTruth: [`Takeover waits for authenticated cleanup; Work authority state: ${out.state}. Reconcile the existing request before transferring control.`] };
+    const taken = await store.change(workId, { operation: "takeover", expectedVersion: work.version });
+    return { state: out.state, control: taken.control, workVersion: taken.version, workGeneration: taken.generation,
+      currentTruth: [`The exact Factory request is stopped; Work is now in your hands at version ${taken.version}, generation ${taken.generation}. Retained Result and Proof remain historical evidence.`] };
+  }
   return { state: out.state, currentTruth: [`Stop requested; Work authority state: ${out.state}.`] };
 }

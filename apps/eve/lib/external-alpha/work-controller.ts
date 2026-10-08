@@ -1,4 +1,5 @@
 import { createPublicKey, verify as verifySignature, type KeyObject } from "node:crypto";
+import { retainedExternalAlphaResult } from "./work-readback.ts";
 import { z } from "zod";
 import { digest } from "../engineering/contract.ts";
 import { externalAlphaWorkConfig, externalAlphaWorkConfigSchema, type ExternalAlphaWorkConfig } from "./work-config.ts";
@@ -373,7 +374,8 @@ export class ExternalAlphaWorkController {
     if (!record) return { state: "NONE" as const };
     if (!["DISPATCHING", "CONSUMED"].includes(record.state)) {
       const terminalSettlement = ["COMPLETED", "CANCELLED"].includes(record.state) ? await retainedTerminalTruth(this.authority, record) : null;
-      return terminalSettlement ? { state: record.state, terminalSettlement } : { state: record.state };
+      const retained = ctx?.work ? await retainedExternalAlphaResult(this.authority.database, this.authority.policy, record, ctx.work) : null;
+      return retained ? { state: record.state, result: { retained } } : terminalSettlement ? { state: record.state, terminalSettlement } : { state: record.state };
     }
     const binding = await dispatchBinding(this.authority.database, record);
     const challenge = readbackChallenge();

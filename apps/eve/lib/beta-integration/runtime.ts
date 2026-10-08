@@ -1,3 +1,5 @@
+import { externalAlphaInstallation } from "../external-alpha/policy.ts";
+import { readExternalAlphaProofEvidence } from "../external-alpha/work-readback.ts";
 import { FactoryEvidenceStore } from "../engineering/factory-evidence-store.ts";
 import { currentPublicationReadback } from '../engineering/publication-contract.ts';
 import {cloudRuntimeEnabled} from '../engineering/cloud-runtime-guard.ts';
@@ -445,10 +447,13 @@ export async function betaRequest(
       const reference = z.string().regex(/^factory-evidence:sha256:[a-f0-9]{64}$/).parse(params.get("reference"));
       const evidenceOwner = params.get("owner") ?? owner;
       if (evidenceOwner !== owner) {
+        if (externalAlphaInstallation()) throw new WorkError("EXTERNAL_ALPHA_EVIDENCE_OWNER", "Owner scope required.", 403);
         // Only this exact explicitly shared Result is authorized, never arbitrary owner APIs.
         await new BusinessScopes(owner, beta).read({ scope: "BUSINESS_SHARED" }, { kind: "RESULT", id: resultId, owner: evidenceOwner });
       }
-      const evidence = await new FactoryEvidenceStore(beta.store(evidenceOwner)).readProof(workId, resultId, reference);
+      const evidenceStore = beta.store(evidenceOwner);
+      const evidence = await readExternalAlphaProofEvidence(evidenceStore, workId, resultId, reference)
+        ?? await new FactoryEvidenceStore(evidenceStore).readProof(workId, resultId, reference);
       return new Response(new Uint8Array(evidence.bytes), { headers: { ...headers,
         "content-type": "application/octet-stream", "x-content-type-options": "nosniff",
         "content-disposition": `attachment; filename="${evidence.ref.kind}-${evidence.ref.sha256.slice(0,12)}.${evidence.ref.kind === "TestEvidence" ? "json" : "diff"}"`,

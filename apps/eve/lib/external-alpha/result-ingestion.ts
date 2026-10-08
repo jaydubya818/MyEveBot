@@ -1,3 +1,4 @@
+import { externalAlphaEvidence } from "./work-readback.ts";
 import { randomUUID } from "node:crypto";
 import { digest } from "../engineering/contract.ts";
 import {
@@ -233,6 +234,7 @@ export function verifyExternalAlphaResult(ctx: IngestionContext) {
       observedAt,
     })),
     artifactRefs: [
+      ...externalAlphaEvidence(manifest, artifacts).map(e => e.proofReference),
       `factory-candidate:${authority.requestId}:commit:${candidate.commit}`,
       `factory-manifest:sha256:${digest(manifest)}`,
       `factory-receipt:${authority.id}`,
