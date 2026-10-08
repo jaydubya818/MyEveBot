@@ -28,6 +28,22 @@ const privateCustodyAvailable = !!process.env.FACTORY_VERIFIER_CUSTODY_DIR;
 const environments: Env[] = [], transports: ProductiveSandboxFixture[] = [], dockerApis: any[] = [];
 afterEach(async () => { await Promise.all(dockerApis.splice(0).map(api => api.cleanup())); await Promise.all(transports.splice(0).map(t => t.close())); await Promise.all(environments.splice(0).map(e => e.close())); });
 const imported = (path: string): Promise<any> => import(/* @vite-ignore */ pathToFileURL(join(root!, path)).href);
+// Diagnosis reports only controlled status, stages and counts, never envelope,
+// source, identity, Result/Proof, private custody or provider exception content.
+const journeyDiagnostic = (row: any, transport: ProductiveSandboxFixture, out?: any) => {
+  const select = (value: unknown, allowed: string[]) => typeof value === "string" && allowed.includes(value) ? value : null;
+  return JSON.stringify({
+    state: select(out?.state, ["CONSUMED", "COMPLETED", "CANCELLED", "UNKNOWN"]),
+    failure: select(row.resource?.evidence?.failure, ["PROVIDER_OR_STORAGE_ERROR", "HARNESS_PROCESS_FAILED", "HARNESS_PHASE_FAILED", "RELAY_REQUEST_BINDING", "RELAY_DEADLINE", "IMPLEMENTATION_CHECKPOINT_FAILED", "LEASE_FENCED"]),
+    failureStage: select(row.resource?.evidence?.failureStage, ["RECOVERY_SCHEDULING", "PRIVATE_SOURCE_CUSTODY", "ALLOCATION", "SANDBOX_READINESS", "HARNESS_INSTALLATION", "SOURCE_MATERIALIZATION", "SOURCE_READY", "EXECUTION", "MODEL_TRANSPORT_INITIALIZATION", "HARNESS_STARTUP", "MODEL_GATEWAY"]),
+    producerCleanup: row.resource?.cleanup_confirmed === true, candidate: !!row.custody,
+    verification: select(row.verification?.outcome, ["PASS", "FAIL", "UNKNOWN"]),
+    verificationFailure: select(row.verification?.failure, ["VERIFIER_PARTIAL", "VERIFIER_EXECUTION_UNKNOWN", "VERIFIER_CUSTODY_BINDING"]),
+    verifierCleanup: row.verification?.cleanup_confirmed === true,
+    terminal: row.events.some((event: any) => event.type === "factory.terminal"),
+    allocations: transport.allocations, modelCalls: transport.modelCalls, deleted: transport.deleted,
+  });
+};
 async function modules() {
   const paths = { runtime: "external-alpha-runtime", control: "external-alpha-control", delivery: "external-alpha-delivery", authority: "external-alpha-authority", readback: "external-alpha-readback", provider: "cloud-work-provider", source: "private-source", custody: "candidate-custody", verifier: "external-alpha-verifier", install: "cloud-harness-install", plan: "cloud-harness-plan", checkpoint: "cloud-harness-checkpoint", workPlan: "cloud-work-plan", price: "production-model-provider" };
   return Object.fromEntries(await Promise.all([...Object.entries(paths).map(async ([key, path]) => [key, await imported("apps/cloud-control/src/" + path + ".mjs")]),
@@ -163,8 +179,15 @@ describe.skipIf(!enabled)("actual canonical Sofie/Factory productive journey (of
   }, 60000);
   it.skipIf(!privateCustodyAvailable)("a terminal candidate cannot close a changed Work revision or become its current Proof", async () => {
     const f = await fixture(); await f.start(); await f.deliver();
+    const authority = (await f.a.svc.forWork(f.work.id))!, row = await f.runtime().store.read(f.a.policy.clientId, authority.requestId);
+    const diagnostic = journeyDiagnostic(row, f.transport);
+    expect(!!row.custody, diagnostic).toBe(true);
+    expect(row.verification?.outcome, diagnostic).toBe("PASS");
+    expect(row.verification?.cleanup_confirmed, diagnostic).toBe(true);
+    expect(row.events.some((event: any) => event.type === "factory.terminal"), diagnostic).toBe(true);
     const changed = await f.a.store.change(f.work.id, {operation: "pause", expectedVersion: f.work.version});
     const out = await f.controller().reconcile(f.work.id, {work: f.work});
+    expect(out.result, journeyDiagnostic(row, f.transport, out)).toBeDefined();
     expect((out.result as any).rejected).toMatch(/WORK_CHANGED/);
     expect(await f.a.count("engineering_native_results")).toBe(0); expect((await f.a.svc.forWork(f.work.id))?.state).toBe("CONSUMED");
     expect((await new EngineeringWorkerProjectionStore(f.a.store).get(changed.id)).projection.latestResult).toBeNull();

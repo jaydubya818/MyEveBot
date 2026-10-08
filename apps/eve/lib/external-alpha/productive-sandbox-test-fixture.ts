@@ -5,6 +5,12 @@ import { dirname, join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { Readable } from "node:stream";
 
+/** Match the real worker mailbox: readers can see only the complete packet. */
+export async function publishFixtureMailboxRequest(path: string, request: { id: number; body: string }, write: typeof writeFile = writeFile) {
+  await write(path + ".tmp", JSON.stringify(request), { flag: "wx", mode: 0o600 });
+  await rename(path + ".tmp", path);
+}
+
 /** Test-only SDK transport. It runs trusted generic fixture code locally. It does
  * not qualify Codex installation, container identity or production confinement.
  * Real Factory materialization, harness relay, spend, Git checkpoint and custody
@@ -36,7 +42,7 @@ export class ProductiveSandboxFixture {
           await mkdir(join(phaseRoot, "mailbox"), { recursive: true });
           const work = (async () => {
             const packet = { model: this.modules.plan.cloudHarnessIdentity.model, stream: false, tools: config.phase === "productive" ? [{ type: "custom", name: "apply_patch" }] : [], input: [{ role: "user", content: [{ type: "input_text", text: config.prompt }] }] };
-            await writeFile(join(phaseRoot, "mailbox/request-1.json"), JSON.stringify({ id: 1, body: JSON.stringify(packet) }));
+            await publishFixtureMailboxRequest(join(phaseRoot, "mailbox/request-1.json"), { id: 1, body: JSON.stringify(packet) });
             const reply = await this.waitJson(join(phaseRoot, "mailbox/response-1.json"), config.deadline);
             if (reply.kind !== "response" || reply.status !== 200) throw Error("FIXTURE_MODEL_RESPONSE");
             const response = JSON.parse(Buffer.from(reply.bodyBase64, "base64").toString("utf8"));
@@ -53,7 +59,7 @@ export class ProductiveSandboxFixture {
                 const destination = map("/home/factoryproducer/workspace/" + path);
                 await mkdir(dirname(destination), { recursive: true }); await writeFile(destination, this.candidate[path]);
               }
-              await writeFile(join(phaseRoot, "mailbox/request-2.json"), JSON.stringify({ id: 2, body: JSON.stringify(packet) }));
+              await publishFixtureMailboxRequest(join(phaseRoot, "mailbox/request-2.json"), { id: 2, body: JSON.stringify(packet) });
               const yieldReply = await this.waitJson(join(phaseRoot, "mailbox/response-2.json"), config.deadline);
               if (yieldReply.kind !== "yield") throw Error("FIXTURE_CHECKPOINT_BOUNDARY");
             }

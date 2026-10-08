@@ -4161,8 +4161,8 @@
     },
     "lib/external-alpha/productive-sandbox-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Test-only local SDK transport for explicit offline composed qualification. Imported only by productive-journey-postgres.test.ts; runs public generic fixture source, deterministic model response, real materialization/checkpoint/custody, and has no provider/network fallback or production entry point. This transport does not qualify Codex installation or confinement; independent Linux verifier qualification is separate.",
-      "sha256": "2c3eee714c971f166d6e8bae4076bd322c1330a699ccabb4f8f6d4a8e5a02a89"
+      "reason": "Test-only local SDK transport for explicit offline composed qualification. Imported only by productive journey and fixture tests; runs public generic fixture source, deterministic model response, real materialization/checkpoint/custody, and has no provider/network fallback or production entry point. Mailbox requests match canonical exclusive temporary-file writes and atomic rename; deterministic partial-publication and exclusive-file regressions qualify the transport. This transport does not qualify Codex installation or confinement; independent Linux verifier qualification is separate.",
+      "sha256": "ba3d6e684a67c5bf8e622bdfeef27cd20e73b01b8c4f92ec9bb7566047834501"
     },
     "lib/relay/installation-validation.ts": {
       "classification": "READ_ONLY",
