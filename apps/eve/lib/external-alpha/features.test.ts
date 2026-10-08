@@ -62,7 +62,6 @@ describe("external-alpha route allowlist (default-deny)", () => {
 
   it("allows the allowed families with their declared methods only", () => {
     for (const family of ALLOWED_FAMILIES) {
-      if (family === "MEMORY") continue;
       for (const rule of rulesByFamily(family)) {
         const path = concrete(rule.pattern);
         const permitted = rule.methods ?? (path.startsWith("/api/") ? ["GET", "POST", "PUT", "PATCH", "DELETE"] : ["GET", "HEAD"]);
@@ -75,7 +74,7 @@ describe("external-alpha route allowlist (default-deny)", () => {
 
   it("names each required allowed family and each required denied family", () => {
     expect([...ALLOWED_FAMILIES].sort()).toEqual(
-      ["CHAT", "CORE", "FILES", "LIVE_AGENT_CARDS", "MEMORY", "OWNER_CLOUD_WORK", "PERSISTENT_AGENTS", "RELAY_LINK", "RESULT_PROOF", "TODAY_WORK"].sort(),
+      ["CHAT", "CORE", "FILES", "LIVE_AGENT_CARDS", "OWNER_CLOUD_WORK", "PERSISTENT_AGENTS", "RELAY_LINK", "RESULT_PROOF", "TODAY_WORK"].sort(),
     );
     for (const required of ["PUBLICATION", "MERGE_DEPLOY", "AUTO_REPAIR", "OWNER_COMPUTER", "EMAIL_CONNECTED_APPS", "ROOMS", "ROUTINES", "MESSAGING", "COMPUTER", "FEDERATION"])
       expect(DENIED_FAMILIES).toContain(required);
@@ -110,6 +109,7 @@ describe("external-alpha route allowlist (default-deny)", () => {
     ["agent channel webhook", "/eve/v1/channels/slack", "POST"],
     ["agent hook", "/eve/v1/hooks/anything", "POST"],
     ["agent schedule", "/eve/v1/schedules/anything", "POST"],
+    ["manual auxiliary compaction", "/eve/v1/session/example/compact", "POST"],
   ])("denies %s", (_name, path, method) => {
     expect(classifyExternalAlphaRoute(path, method, memoryOn).allowed).toBe(false);
     expect(externalAlphaIngress(path, method, memoryOn)?.allowed).toBe(false);
@@ -144,7 +144,7 @@ describe("external-alpha route allowlist (default-deny)", () => {
   });
 });
 
-describe("Memory is OFF unless an owner-approved third-party-free backend is configured", () => {
+describe("Memory stays OFF for the qualified release", () => {
   const memoryRoutes = ["/api/memories", "/api/beta/memory", "/api/owner-knowledge", "/memory"];
   it("denies Memory routes by default, whatever EVE_ENABLED_FEATURES says", () => {
     for (const env of [installation(), installation({ EVE_ENABLED_FEATURES: "memory" }), installation({ SUPERMEMORY_API_KEY: "x", EVE_ENABLED_FEATURES: "memory" }), installation({ MYEVE_EXTERNAL_ALPHA_MEMORY_BACKEND: "supermemory" })]) {
@@ -152,19 +152,19 @@ describe("Memory is OFF unless an owner-approved third-party-free backend is con
       for (const path of memoryRoutes) expect(classifyExternalAlphaRoute(path, "GET", env).allowed, path).toBe(false);
     }
   });
-  it("allows Memory routes only with the explicit local-postgres flag", () => {
-    expect(externalAlphaMemoryApproved(memoryOn)).toBe(true);
-    for (const path of memoryRoutes) expect(classifyExternalAlphaRoute(path, "GET", memoryOn).allowed, path).toBe(true);
+  it("a legacy local-postgres flag cannot enable Memory", () => {
+    expect(externalAlphaMemoryApproved(memoryOn)).toBe(false);
+    for (const path of memoryRoutes) expect(classifyExternalAlphaRoute(path, "GET", memoryOn).allowed, path).toBe(false);
   });
-  it("gates the Memory tools and the third-party client by the same flag", () => {
+  it("denies Memory tools and provider capabilities with and without the legacy flag", () => {
     const off = getAvailableCapabilities({}, installation({ SUPERMEMORY_API_KEY: "x" })).map((c) => c.id);
     const on = getAvailableCapabilities({}, memoryOn).map((c) => c.id);
     for (const id of externalAlphaMemoryCapabilities) {
       expect(off).not.toContain(id);
-      expect(on).toContain(id);
+      expect(on).not.toContain(id);
     }
     expect(getCapabilityStatuses(installation()).find((c) => c.id === "memory")?.state).toBe("excluded");
-    expect(getCapabilityStatuses(memoryOn).find((c) => c.id === "memory")?.state).not.toBe("excluded");
+    expect(getCapabilityStatuses(memoryOn).find((c) => c.id === "memory")?.state).toBe("excluded");
   });
 });
 
@@ -180,7 +180,7 @@ describe("EVE_ENABLED_FEATURES fails closed for installations", () => {
   it("a declared list can narrow but never widen", () => {
     const wide = installation({ EVE_ENABLED_FEATURES: "memory,proactive,receipts,skills,file-sharing,integrations,browser,utilities,goals,knowledge" });
     expect([...externalAlphaEnabledFeatures(wide)]).toEqual([]);
-    expect([...externalAlphaEnabledFeatures(installation({ MYEVE_EXTERNAL_ALPHA_MEMORY_BACKEND: "local-postgres", EVE_ENABLED_FEATURES: "memory,browser" }))]).toEqual(["memory"]);
+    expect([...externalAlphaEnabledFeatures(installation({ MYEVE_EXTERNAL_ALPHA_MEMORY_BACKEND: "local-postgres", EVE_ENABLED_FEATURES: "memory,browser" }))]).toEqual([]);
     expect([...externalAlphaEnabledFeatures(installation({ MYEVE_EXTERNAL_ALPHA_MEMORY_BACKEND: "local-postgres", EVE_ENABLED_FEATURES: "browser" }))]).toEqual([]);
   });
   it("leaves every non-installation deployment as it was (unset = all)", () => {
@@ -219,13 +219,13 @@ describe("tools and integrations are an explicit allowlist", () => {
 });
 
 describe("navigation never links a denied surface", () => {
-  it("links only allowlisted destinations, and Memory only when approved", () => {
+  it("links only allowlisted destinations, even with legacy Memory approval", () => {
     const hrefs = allowedDestinationHrefs(productDestinations, installation())!;
     for (const forbidden of ["/business", "/knowledge", "/capsules", "/rooms", "/apps", "/computer", "/brief", "/weekly", "/manage", "/memory"])
       expect(hrefs, forbidden).not.toContain(forbidden);
     for (const required of ["/today", "/chat", "/work", "/inbox", "/needs-you", "/workspace", "/results", "/team", "/privacy", "/search"])
       expect(hrefs, required).toContain(required);
-    expect(allowedDestinationHrefs(productDestinations, memoryOn)).toContain("/memory");
+    expect(allowedDestinationHrefs(productDestinations, memoryOn)).not.toContain("/memory");
     expect(allowedDestinationHrefs(productDestinations, {} as unknown as NodeJS.ProcessEnv)).toBeNull();
   });
   it("every linked href is actually served (no dead links)", () => {

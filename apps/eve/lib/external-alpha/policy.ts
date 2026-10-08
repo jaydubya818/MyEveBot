@@ -2,8 +2,8 @@ import { createPrivateKey } from "node:crypto";
 import { z } from "zod";
 import { digest } from "../engineering/contract.ts";
 
-/** Fixed, non-transferable allocations. Two isolated owners imply the global
- * cap without a cross-database check-then-spend race or borrowing protocol. */
+/** Fixed, non-transferable allocations. The separate shared PostgreSQL cohort
+ * ledger enforces owner and global admission ceilings in one transaction. */
 export const externalAlphaLimits = Object.freeze({
   days: 5,
   chatTurnsPerDay: 10,

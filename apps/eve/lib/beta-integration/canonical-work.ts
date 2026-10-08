@@ -1,3 +1,4 @@
+import { externalAlphaInstallation } from "../external-alpha/policy.ts";
 import { hostedFactoryQueue } from "../engineering/deployment-mode.ts";
 import { factoryAction } from "../engineering/factory-api.ts";
 import { factoryConfig } from "../engineering/factory-routing.ts";
@@ -126,6 +127,10 @@ export class CanonicalBetaWork {
         "Refresh the current Work before admission.",
         409,
       );
+    // Owner Resume records control intent only. External-alpha execution has
+    // exactly one start entry: the owner-bound Sofie action, never a legacy
+    // canary queue or native admission fallback from this web surface.
+    if (externalAlphaInstallation()) return { status: "SOFIE_REQUIRED", reason: "Work is resumed. Ask Sofie to start this exact Work; current external-alpha policy, allowance and authority must still qualify.", receipt: null };
     // Queue only after the same owner response/CAS checks. A queued request is never admission.
     if (hostedFactoryQueue()) {
       const receipt = await factoryAction(store, workId, {operation: "start", expectedWorkVersion: version, expectedWorkGeneration: generation});

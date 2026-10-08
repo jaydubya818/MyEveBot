@@ -1,3 +1,11 @@
+import { readExternalAlphaProofEvidence, readExternalAlphaWork } from "./work-readback.ts";
+import { BetaIntegration } from "../beta-integration/runtime.ts";
+import { CanonicalBetaWork } from "../beta-integration/canonical-work.ts";
+import { WorkStore } from "../engineering/store.ts";
+import { EngineeringWorkerProjectionStore } from "../engineering/worker-projection.ts";
+import { currentTruthLines } from "../engineering/current-truth-lines.ts";
+import { readFile } from "node:fs/promises";
+import { SharedAlphaAccounting } from "./shared-accounting.ts";
 import { afterEach, describe, expect, it } from "vitest";
 import { generateKeyPairSync, randomUUID, sign, type KeyObject } from "node:crypto";
 import { digest } from "../engineering/contract.ts";
@@ -13,6 +21,7 @@ import {
   ExternalAlphaWorkController,
   FactoryDenied,
   RECEIPT_DOMAIN,
+  settleTerminalReadback,
   externalAlphaWorkConfigSchema,
   type ExternalAlphaFactoryClient,
   type ExternalAlphaWorkConfig,
@@ -22,24 +31,26 @@ import { connection, Env, files } from "./work-test-fixture.ts";
 import { buildSignedResult, fixtureFactoryVersion } from "./result-test-fixture.ts";
 import { proofOfWorkSchema } from "../digital-worker/contracts.ts";
 import { publicKeyId } from "./work-authority.ts";
-import { externalAlphaFactoryAction } from "./work-action.ts";
+import { externalAlphaCanonicalCreate, externalAlphaFactoryAction } from "./work-action.ts";
 import { externalAlphaFactoryPinSha256, externalAlphaWorkEnabled } from "./work-config.ts";
+import { bindDispatch, dispatchBinding, READBACK_DOMAIN } from "./dispatch-readback.ts";
+import { reconcileExternalAlphaAuthorities } from "./reconciliation.ts";
 import { engineeringWorkEnabled } from "../engineering/deployment-mode.ts";
 
 type Op = { id: string; phase: "productive" | "completion"; state: "settled" | "unknown" | "reserved"; actual?: number };
 /** Valid WORK_LEDGER_V2 readback (the shape MyEve already consumes). */
-function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[]) {
+function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[], workGeneration = 1) {
   const per = 200000,
     completionReserve = 300000;
   const operations = ops.map((o) => ({
     operationId: o.id,
     workId,
-    workGeneration: 1,
+    workGeneration,
     dispatchIdentity: "d-" + o.id,
     requestId,
     workOrderId,
     factoryVersion: fixtureFactoryVersion,
-    runId: "run-1",
+    runId: "00000000-0000-4000-8000-0000000000a1",
     model: "openai/gpt-5.4-mini",
     pricingRevision: "rev-1",
     reservedMicrousd: per,
@@ -60,7 +71,7 @@ function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[
     currency: "USD",
     unit: "microUSD",
     workId,
-    workGeneration: 1,
+    workGeneration,
     requestId,
     workOrderId,
     deadline: new Date(Date.now() + 180000).toISOString(),
@@ -93,24 +104,33 @@ function ledger(requestId: string, workOrderId: string, workId: string, ops: Op[
 /** Reference Factory: validates independently against ITS OWN pins and consumes at most once. */
 class FakeFactory implements ExternalAlphaFactoryClient {
   receiptKey = generateKeyPairSync("ed25519");
-  consumed = new Map<string, { sha: string; requestId: string; workOrderId: string; workId: string }>();
+  consumed = new Map<string, { sha: string; requestId: string; workOrderId: string; workId: string; prepare: Record<string, any>; consumedAt: string }>();
   byWork = new Set<string>();
   posts = 0;
+  reads = 0;
   stops: string[] = [];
   ops: Op[] = [];
   state = "RUNNING";
+  verdict: string | null = null;
   quiescent = false;
   failWith: Error | null = null;
   corruptReceipt = false;
   resultPayload: unknown | null = null;
-  async result(_requestId: string) {
-    return this.resultPayload;
+  readbackMutate: ((value: any) => void) | null = null;
+  replayReadback: unknown | null = null;
+  async result(requestId: string, challenge: string) {
+    const readback = await this.read(requestId, challenge);
+    if (this.resultPayload === null) return { ...(readback as object), pending: true };
+    const payload = this.resultPayload as any;
+    return { ...(readback as object), result: payload?.result ?? payload };
   }
+  requestDigest(requestId: string) { return digest([...this.consumed.values()].find(c => c.requestId === requestId)!.prepare); }
+
   constructor(
     private pins: { myeveKeys: ReadonlyMap<string, KeyObject>; policy: any; allowedFiles: string[]; now: () => number },
   ) {}
-  private receipt(authorityId: string, sha: string, requestId: string, workOrderId: string) {
-    const authorityReceipt = { authorityId, authoritySha256: sha, requestId, workOrderId, consumedAt: new Date().toISOString() };
+  private receipt(authorityId: string, sha: string, requestId: string, workOrderId: string, consumedAt: string) {
+    const authorityReceipt = { authorityId, authoritySha256: sha, requestId, workOrderId, consumedAt };
     const sig = sign(
       null,
       Buffer.concat([Buffer.from(RECEIPT_DOMAIN), Buffer.from([0]), Buffer.from(digest(authorityReceipt), "ascii")]),
@@ -118,19 +138,31 @@ class FakeFactory implements ExternalAlphaFactoryClient {
     ).toString("base64url");
     return { authorityReceipt, authorityReceiptSignature: sig };
   }
-  private readback(c: { sha: string; requestId: string; workOrderId: string; workId: string }, authorityId: string) {
-    return {
+  private readback(c: { sha: string; requestId: string; workOrderId: string; workId: string; prepare: Record<string, any>; consumedAt: string }, authorityId: string, challenge: string) {
+    const receipt = this.receipt(authorityId, c.sha, c.requestId, c.workOrderId, c.consumedAt);
+    const spend = { ...ledger(c.requestId, c.workOrderId, c.workId, this.ops, c.prepare.workGeneration), deadline: c.prepare.deadline };
+    const at = Date.now();
+    const readbackAttestation = {
+      schema: READBACK_DOMAIN, requestId: c.requestId, workOrderId: c.workOrderId, runId: "00000000-0000-4000-8000-0000000000a1", attemptNumber: 1,
+      requestDigest: digest(c.prepare), admittedDeadline: c.prepare.deadline, authorityId, authoritySha256: c.sha,
+      receiptDigest: digest(receipt.authorityReceipt), state: this.state, quiescent: this.quiescent, evidenceRef: null, blocker: null,
+      spend, spendDigest: digest(spend), verdict: this.verdict ?? (this.state === "COMPLETED" ? "PASS" : this.state === "CANCELLED" ? "NONE" : this.state === "FAILED" ? "FAIL" : "PENDING"), challenge,
+      issuedAt: new Date(at).toISOString(), expiresAt: new Date(at + 120000).toISOString(),
+    };
+    const readbackSignature = sign(null, Buffer.concat([Buffer.from(READBACK_DOMAIN), Buffer.from([0]), Buffer.from(digest(readbackAttestation), "ascii")]), this.receiptKey.privateKey).toString("base64url");
+    const value = {
       requestId: c.requestId,
       workOrderId: c.workOrderId,
       state: this.state,
       quiescent: this.quiescent,
       evidenceRef: null,
       blocker: null,
-      spend: ledger(c.requestId, c.workOrderId, c.workId, this.ops),
-      ...this.receipt(authorityId, c.sha, c.requestId, c.workOrderId),
+      spend, ...receipt, readbackAttestation, readbackSignature,
     };
+    this.readbackMutate?.(value);
+    return value;
   }
-  async consume(envelope: WorkAuthorityEnvelope, prepare: Record<string, any>) {
+  async consume(envelope: WorkAuthorityEnvelope, prepare: Record<string, any>, challenge = "a".repeat(32)) {
     this.posts++;
     if (this.failWith) throw this.failWith;
     // Section 5 of the contract, in order.
@@ -158,28 +190,30 @@ class FakeFactory implements ExternalAlphaFactoryClient {
     const prior = this.consumed.get(d.authorityId);
     if (prior) {
       if (prior.sha !== envelope.authoritySha256 || prior.requestId !== prepare.requestId) deny("AUTHORITY_CONSUMED");
-      return this.readback(prior, d.authorityId); // idempotent replay: no second writer
+      return this.readback(prior, d.authorityId, challenge); // idempotent replay: no second writer
     }
     if (this.byWork.has(d.work.id + ":" + d.work.generation)) deny("AUTHORITY_CONSUMED");
-    const c = { sha: envelope.authoritySha256, requestId: prepare.requestId, workOrderId: randomUUID(), workId: d.work.id };
+    const c = { sha: envelope.authoritySha256, requestId: prepare.requestId, workOrderId: randomUUID(), workId: d.work.id, prepare, consumedAt: new Date().toISOString() };
     this.consumed.set(d.authorityId, c);
     this.byWork.add(d.work.id + ":" + d.work.generation);
-    return this.readback(c, d.authorityId);
+    return this.readback(c, d.authorityId, challenge);
   }
-  async read(requestId: string) {
+  async read(requestId: string, challenge = "a".repeat(32)) {
+    this.reads++;
+    if (this.replayReadback) return this.replayReadback;
     const entry = [...this.consumed.entries()].find(([, c]) => c.requestId === requestId);
-    return entry ? this.readback(entry[1], entry[0]) : null;
+    return entry ? this.readback(entry[1], entry[0], challenge) : null;
   }
-  async stop(requestId: string) {
+  async stop(requestId: string, challenge: string) {
     this.stops.push(requestId);
     this.state = "CANCELLED";
     this.quiescent = true;
-    return (await this.read(requestId))!;
+    return (await this.read(requestId, challenge))!;
   }
 }
 
-async function setup(activate = true) {
-  const e = await Env.create(activate);
+async function setup(activate = true, existing?: Env) {
+  const e = existing ?? await Env.create(activate);
   const keys = new Map([[e.signer.keyId, e.signer.publicKey]]);
   const factory = new FakeFactory({ myeveKeys: keys, policy: e.policy, allowedFiles: files, now: () => Date.now() });
   const config: ExternalAlphaWorkConfig = e.workConfig([
@@ -281,7 +315,9 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(factory.posts).toBe(1);
     const rec = await e.svc.forWork(work.id);
     expect(rec?.state).toBe("UNKNOWN");
-    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences/);
+    const unknownProjection = await new EngineeringWorkerProjectionStore(e.store).get(work.id);
+    expect(currentTruthLines(unknownProjection.projection).join("\n")).toMatch(/UNKNOWN exposure unresolved request/);
+    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
   });
 
   it("an unverifiable Factory receipt fences as UNKNOWN", async () => {
@@ -299,7 +335,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
     expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(0);
     factory.failWith = null;
-    await expect(controller.start(await e.seedWork())).rejects.toThrow(/exhausted/);
+    await expect(controller.start(await e.seedWork())).rejects.toThrow(/EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
   });
 
   it("records Factory productive and completion operations in the same ledger exactly once and completes at quiescence", async () => {
@@ -313,7 +349,9 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     ];
     factory.state = "COMPLETED";
     factory.quiescent = true;
-    const [r1, r2] = await Promise.all([controller.reconcile(work.id), controller.reconcile(work.id)]);
+    const saved = (await e.svc.forWork(work.id))!;
+    factory.resultPayload = buildSignedResult({ authority: saved, work, workOrderId: (saved.receipt as any).workOrderId, keys: e.resultKeys, opts: { requestDigest: factory.requestDigest(saved.requestId) } }).signed;
+    const [r1, r2] = await Promise.all([controller.reconcile(work.id, { work }), controller.reconcile(work.id, { work })]);
     await controller.reconcile(work.id);
     expect([r1.state, r2.state].every((s) => ["COMPLETED", "CONSUMED"].includes(s as string))).toBe(true);
     const rows = (await e.pool.query("SELECT source,spent_microusd,state FROM external_alpha_operation ORDER BY step_key")).rows;
@@ -341,7 +379,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await e.svc.forWork(work.id))?.state).toBe("CONSUMED");
     expect(await e.count("engineering_native_results")).toBe(0);
     // A tampered Result is rejected, retained nowhere, and the authority stays open.
-    const good = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { verification: "UNKNOWN" } }).signed;
+    const good = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { verification: "UNKNOWN", requestDigest: factory.requestDigest(started.authority.requestId) } }).signed;
     const bad = structuredClone(good);
     bad.signature = "A".repeat(86);
     factory.resultPayload = bad;
@@ -373,7 +411,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     a.factory.ops = [{ id: "op-1", phase: "productive", state: "unknown" }];
     a.factory.state = "COMPLETED";
     a.factory.quiescent = true;
-    a.factory.resultPayload = buildSignedResult({ authority: startedA.authority, work: workA, workOrderId: startedA.readback.workOrderId, keys: a.e.resultKeys }).signed;
+    a.factory.resultPayload = buildSignedResult({ authority: startedA.authority, work: workA, workOrderId: startedA.readback.workOrderId, keys: a.e.resultKeys, opts: { requestDigest: a.factory.requestDigest(startedA.authority.requestId) } }).signed;
     const outA: any = await a.controller.reconcile(workA.id, { work: workA });
     expect(outA.state).toBe("UNKNOWN");
     expect(outA.result.retained.verdict).toBe("PASS");
@@ -402,7 +440,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const out = await controller.reconcile(work.id);
     expect(out.state).toBe("UNKNOWN");
     const rows = (await e.pool.query("SELECT state,reserved_microusd,spent_microusd FROM external_alpha_operation ORDER BY step_key")).rows;
-    expect(rows.find((r: any) => r.state === "UNKNOWN")).toMatchObject({ reserved_microusd: "200000", spent_microusd: null });
+    expect(rows.find((r: any) => r.state === "UNKNOWN")).toMatchObject({ reserved_microusd: "900000", spent_microusd: null });
     // Later "settled" or "released" reports can not release or reuse it.
     factory.ops = [
       { id: "op-1", phase: "productive", state: "settled", actual: 100000 },
@@ -410,9 +448,9 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     ];
     await controller.reconcile(work.id).catch(() => {});
     const after = (await e.pool.query("SELECT state,reserved_microusd,spent_microusd FROM external_alpha_operation WHERE step_key=$1", ["factory:op-2:0"])).rows[0];
-    expect(after).toMatchObject({ state: "UNKNOWN", reserved_microusd: "200000", spent_microusd: null });
+    expect(after).toMatchObject({ state: "UNKNOWN", reserved_microusd: "900000", spent_microusd: null });
     expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
-    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:2", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences/);
+    await expect(new ExternalAlphaAllowance(e.db, e.policy).admit({ kind: "CHAT", bindingId: "x:2", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
   });
 
   it("fences when the Factory reports more operations than its authority permits", async () => {
@@ -427,6 +465,23 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect(fourth.result).toEqual({ overBound: true });
     expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
     void factory;
+  });
+
+  it("charges the remaining Factory UNKNOWN envelope once across multiple ambiguous operation reports", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.ops = [
+      { id: "known", phase: "productive", state: "settled", actual: 100000 },
+      { id: "ambiguous-one", phase: "productive", state: "unknown" },
+      { id: "ambiguous-two", phase: "completion", state: "unknown" },
+    ];
+    expect((await controller.reconcile(work.id)).state).toBe("UNKNOWN");
+    const rows = (await e.pool.query("SELECT id,state,reserved_microusd,spent_microusd,covered_by_operation_id FROM external_alpha_operation ORDER BY reserved_microusd DESC")).rows;
+    expect(rows.map((r: any) => r.reserved_microusd)).toEqual(["900000", "100000", "0"]);
+    expect(rows[2]).toMatchObject({ state: "UNKNOWN", spent_microusd: null, covered_by_operation_id: rows[0].id });
+    expect((await e.pool.query("SELECT sum(COALESCE(spent_microusd,reserved_microusd))::bigint amount FROM external_alpha_operation")).rows[0].amount).toBe("1000000");
+    await expect(e.pool.query("UPDATE external_alpha_operation SET covered_by_operation_id=NULL WHERE id=$1", [rows[2].id])).rejects.toThrow(/coverage is immutable/);
   });
 
   it("caps combined Sofie and Factory model operations at five and $1.30 per Work, with exact-once settlement", async () => {
@@ -487,7 +542,7 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     const env = {
       VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId, MYEVE_OWNER_ID: e.owner,
       MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
-      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
       MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(e.policy, config),
     } as unknown as NodeJS.ProcessEnv;
     const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
@@ -512,4 +567,444 @@ describe.skipIf(!connection)("external alpha Work controller, Factory consumptio
     expect((await externalAlphaFactoryAction(e.store, work.id, { ...input, operation: "reconcile" }, effect, deps)).state).toBe("CONSUMED");
     expect((await externalAlphaFactoryAction(e.store, work.id, { ...input, operation: "stop" }, effect, deps)).state).toBe("CANCELLED");
   });
+  it("retains the first dispatch bytes immutably and rejects a different deadline for the same request", async () => {
+    const { e, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    const row = (await e.pool.query("SELECT * FROM external_alpha_work_dispatch")).rows[0];
+    expect(row.request_digest).toBe(digest(row.prepare));
+    await expect(bindDispatch(e.db, started.authority, { ...row.prepare, deadline: new Date(Date.now() + 1000).toISOString() })).rejects.toThrow(/DISPATCH_CONFLICT/);
+    await expect(e.pool.query("UPDATE external_alpha_work_dispatch SET request_digest=$1", ["f".repeat(64)])).rejects.toThrow(/immutable/);
+    await expect(e.pool.query("DELETE FROM external_alpha_work_dispatch")).rejects.toThrow(/immutable/);
+  });
+
+  it("unsigned compatibility fields cannot close an authority or settle spend", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.readbackMutate = r => { r.state = "COMPLETED"; r.quiescent = true; r.spend = {}; };
+    expect((await controller.reconcile(work.id, { work })).state).toBe("CONSUMED");
+    expect(await e.count("external_alpha_operation")).toBe(0);
+    expect(await e.count("engineering_native_results")).toBe(0);
+  });
+
+  it("a replayed readback challenge fences without recording its forged terminal accounting", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.replayReadback = await factory.read(started.authority.requestId, "a".repeat(48));
+    const out = await controller.reconcile(work.id, { work });
+    expect(out.state).toBe("UNKNOWN");
+    expect(await e.count("external_alpha_operation")).toBe(0);
+    expect(await controller.start(work).then(r => r.sent)).toBe(false);
+    expect(factory.posts).toBe(1);
+  });
+
+  it("receipt-only and tampered signed spend readbacks never qualify", async () => {
+    for (const mutate of [
+      (r: any) => { delete r.readbackAttestation; delete r.readbackSignature; },
+      (r: any) => { r.readbackAttestation.spendDigest = "f".repeat(64); },
+    ]) {
+      const { e, factory, controller } = await make();
+      factory.readbackMutate = mutate;
+      await expect(controller.start(await e.seedWork())).rejects.toThrow(/DISPATCH_UNKNOWN/);
+      expect(await e.count("external_alpha_allowance", "state='UNKNOWN'")).toBe(1);
+    }
+  });
+
+  it("a restarted durable caller retains a later Result once under duplicate sweep delivery without redispatch", async () => {
+    const { e, factory, controller, config, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = "COMPLETED"; factory.quiescent = true;
+    const restarted = new ExternalAlphaWorkController(e.svc, factory, config, rk);
+    await reconcileExternalAlphaAuthorities(restarted, e.store);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CONSUMED");
+    factory.resultPayload = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys, opts: { requestDigest: factory.requestDigest(started.authority.requestId) } }).signed;
+    await Promise.all(Array.from({ length: 8 }, () => reconcileExternalAlphaAuthorities(restarted, e.store)));
+    expect(await e.count("engineering_native_results")).toBe(1);
+    expect(await e.count("external_alpha_work_result", "settlement_state='SETTLED'")).toBe(1);
+    expect(factory.posts).toBe(1);
+    expect((await e.svc.forWork(work.id))?.state).toBe("COMPLETED");
+  });
+
+  it.each(["cancel", "takeover"] as const)("durable reconciliation stops the exact consumed request after owner %s and never projects stale evidence", async operation => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    await e.store.change(work.id, { operation, expectedVersion: work.version });
+    await reconcileExternalAlphaAuthorities(controller, e.store);
+    expect(factory.stops).toEqual([started.authority.requestId]);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    expect(await e.count("engineering_native_results")).toBe(0);
+    expect(factory.posts).toBe(1);
+  });
+
+  it.each(["ISSUED", "DISPATCHING", "CONSUMED"] as const)("durable expiry sweep fences or expires %s without restarting or reclaiming the writer", async state => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const saved = state === "CONSUMED" ? (await controller.start(work)).authority : await e.svc.issue(work, files);
+    if (state === "DISPATCHING") await e.svc.claim(saved);
+    // Disposable PostgreSQL fixture time travel, with production guard restored.
+    await e.pool.query("ALTER TABLE external_alpha_work_authority DISABLE TRIGGER external_alpha_work_authority_guard");
+    await e.pool.query("UPDATE external_alpha_work_authority SET issued_at=issued_at-interval '400 seconds',expires_at=expires_at-interval '400 seconds' WHERE id=$1", [saved.id]);
+    await e.pool.query("ALTER TABLE external_alpha_work_authority ENABLE TRIGGER external_alpha_work_authority_guard");
+    const swept = await e.svc.sweep();
+    expect(state === "ISSUED" ? swept.expired : swept.unknown).toBe(1);
+    expect((await e.svc.forWork(work.id))?.state).toBe(state === "ISSUED" ? "EXPIRED" : "UNKNOWN");
+    const before = factory.posts;
+    await controller.start(work);
+    await controller.reconcile(work.id, { work });
+    expect(factory.posts).toBe(before);
+    expect(await e.count("external_alpha_work_authority")).toBe(1);
+  });
+
+  it("terminal reserved exposure is retained at its full amount and fences rather than appearing settled", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.state = "FAILED"; factory.quiescent = true;
+    factory.ops = [{ id: "reserved-at-death", phase: "productive", state: "reserved" }];
+    expect((await controller.reconcile(work.id, { work })).state).toBe("UNKNOWN");
+    const row = (await e.pool.query("SELECT * FROM external_alpha_operation")).rows[0];
+    expect(row.state).toBe("UNKNOWN");
+    expect(Number(row.reserved_microusd)).toBe(1000000);
+    expect(row.spent_microusd).toBeNull();
+  });
+
+  it.each(["FAILED", "CANCELLED"] as const)("retains a signed useful candidate for terminal %s with an honest failed/partial Proof", async terminal => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = terminal; factory.quiescent = true;
+    factory.verdict = terminal === "FAILED" ? "FAIL" : "PARTIAL";
+    factory.resultPayload = buildSignedResult({ authority: started.authority, work, workOrderId: started.readback.workOrderId, keys: e.resultKeys,
+      opts: { verification: terminal === "FAILED" ? "FAIL" : "UNKNOWN", requestDigest: factory.requestDigest(started.authority.requestId), mutate: m => { m.status = terminal; } } }).signed;
+    const out: any = await controller.reconcile(work.id, { work });
+    expect(out.result.retained.verdict).toBe(factory.verdict);
+    expect(await e.count("engineering_native_results")).toBe(1);
+    const proof = (await e.pool.query("SELECT proof FROM engineering_native_results")).rows[0].proof;
+    expect(proof.outcome).toBe(terminal === "FAILED" ? "FAILED" : "PARTIAL");
+    expect(proof.evidence.some((x: any) => x.state === "PASS")).toBe(false);
+  });
+
+  it.each(["FAILED", "CANCELLED", "NOT_DISPATCHED"] as const)("retains immutable authenticated no-candidate terminal %s cleanup/accounting facts", async terminal => {
+    const { e, factory, controller, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = terminal; factory.quiescent = true; factory.verdict = "NONE";
+    factory.ops = [{ id: "paid-before-terminal", phase: "productive", state: "settled", actual: 100000 }];
+    const out: any = await controller.reconcile(work.id, { work });
+    expect(out.state).toBe(terminal === "FAILED" ? "COMPLETED" : "CANCELLED");
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect(await e.count("engineering_native_results")).toBe(0);
+    const row = (await e.pool.query("SELECT * FROM external_alpha_work_terminal_settlement")).rows[0];
+    expect(row).toMatchObject({ authority_id: started.authority.id, owner_id: e.owner, request_id: started.authority.requestId,
+      work_id: work.id, work_version: work.version, work_generation: work.generation, cleanup_confirmed: true,
+      result_verdict: "NONE", settlement_state: "SETTLED", exposure_unknown: false });
+    expect(row.request_digest).toBe(factory.requestDigest(started.authority.requestId));
+    expect(row.readback_sha256).toBe(digest(row.readback));
+    expect((await e.pool.query("SELECT sum(spent_microusd)::integer n FROM external_alpha_operation")).rows[0].n).toBe(100000);
+    const challenge = "c".repeat(48);
+    const raw = await factory.read(started.authority.requestId, challenge);
+    const replay = await settleTerminalReadback(e.svc, started.authority, raw, rk, await dispatchBinding(e.db, started.authority), challenge);
+    expect(replay.replay).toBe(true);
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    await expect(e.pool.query("UPDATE external_alpha_work_terminal_settlement SET cleanup_confirmed=false")).rejects.toThrow(/immutable/);
+    await expect(e.pool.query("DELETE FROM external_alpha_work_terminal_settlement")).rejects.toThrow(/immutable/);
+  });
+
+  it("a lost post-commit reconciliation acknowledgement restarts from the immutable terminal fact without another dispatch", async () => {
+    const { e, factory, controller, config, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = "CANCELLED"; factory.quiescent = true; factory.verdict = "NONE";
+    const sweep = e.svc.sweep.bind(e.svc);
+    e.svc.sweep = async () => { throw Error("lost shared reconciliation acknowledgment"); };
+    await expect(controller.reconcile(work.id, { work })).rejects.toThrow(/acknowledgment/);
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await e.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    e.svc.sweep = sweep;
+    const restarted = new ExternalAlphaWorkController(e.svc, factory, config, rk);
+    await reconcileExternalAlphaAuthorities(restarted, e.store);
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect(factory.posts).toBe(1);
+    expect(await e.count("engineering_native_results")).toBe(0);
+  });
+
+  it("rejects foreign owner, forged receipt/spend/run and terminal labels without authenticated cleanup facts", async () => {
+    const { e, factory, controller, rk } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    factory.state = "CANCELLED"; factory.quiescent = true; factory.verdict = "NONE";
+    const challenge = "d".repeat(48);
+    const binding = await dispatchBinding(e.db, started.authority);
+    const raw = await factory.read(started.authority.requestId, challenge);
+    for (const mutate of [
+      (r: any) => { r.readbackAttestation.authoritySha256 = "f".repeat(64); },
+      (r: any) => { r.readbackAttestation.spendDigest = "f".repeat(64); },
+      (r: any) => { r.readbackAttestation.runId = randomUUID(); },
+      (r: any) => { r.authorityReceipt.ownerId = randomUUID(); },
+      (r: any) => { r.readbackAttestation.quiescent = false; },
+    ]) {
+      const bad = structuredClone(raw); mutate(bad);
+      await expect(settleTerminalReadback(e.svc, started.authority, bad, rk, binding, challenge)).rejects.toThrow(/UNVERIFIED|INVALID/);
+    }
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(0);
+    await expect(e.pool.query("SELECT external_alpha_terminal_settle($1::jsonb)", [JSON.stringify({ ownerId: randomUUID(), policySha256: digest(e.policy), authorityId: started.authority.id })])).rejects.toThrow(/TERMINAL_OWNER/);
+    await e.svc.finish(started.authority.id, "CANCELLED", { reason: "OWNER_STOP_UNPROVED" });
+    expect(await e.count("external_alpha_work_terminal_settlement")).toBe(0);
+  });
+
+  it("records original consumed and observed cancelled Work revisions separately and never projects a new candidate", async () => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    const started = await controller.start(work);
+    if (!started.sent) throw Error("sent");
+    const cancelled = await e.store.change(work.id, { operation: "cancel", expectedVersion: work.version });
+    await reconcileExternalAlphaAuthorities(controller, e.store);
+    const fact = (await e.pool.query("SELECT * FROM external_alpha_work_terminal_settlement")).rows[0];
+    expect(fact.work_version).toBe(work.version);
+    expect(fact.work_generation).toBe(work.generation);
+    const current = await e.store.get(work.id);
+    expect(fact.observed_work_version).toBe(current.version);
+    expect(fact.observed_work_generation).toBe(current.generation);
+    expect(current.lifecycle).toBe("cancelled");
+    expect(await e.count("engineering_native_results")).toBe(0);
+    expect(factory.posts).toBe(1);
+    void cancelled;
+  });
+
+  it.each(["FAILED", "CANCELLED", "NOT_DISPATCHED"] as const)("closed readback repeats exact %s terminal truth without a Factory read or mutation", async terminal => {
+    const { e, factory, controller } = await make();
+    const work = await e.seedWork();
+    await controller.start(work);
+    factory.state = terminal; factory.quiescent = true; factory.verdict = "NONE";
+    const first: any = await controller.reconcile(work.id, { work });
+    expect(first.terminalSettlement.factoryState).toBe(terminal);
+    const [before] = (await e.pool.query("SELECT to_jsonb(t) AS fact FROM external_alpha_work_terminal_settlement t")).rows;
+    const reads = factory.reads;
+    const posts = factory.posts;
+    for (let i = 0; i < 3; i++) {
+      const refresh: any = await controller.reconcile(work.id, { work });
+      expect(refresh.terminalSettlement).toEqual({ replay: true, authorityState: first.state, factoryState: terminal });
+      expect(refresh.readback).toBeUndefined();
+    }
+    expect(factory.reads).toBe(reads); expect(factory.posts).toBe(posts);
+    const [after] = (await e.pool.query("SELECT to_jsonb(t) AS fact FROM external_alpha_work_terminal_settlement t")).rows;
+    expect(after).toEqual(before);
+  });
+
+  async function sharedPair() {
+    const central = await Env.create(false, {}, false); envs.push(central);
+    await central.pool.query(await readFile(new URL("./shared-accounting.sql", import.meta.url), "utf8"));
+    const cohortId = randomUUID();
+    const a = await Env.create(true, { cohortId }); envs.push(a);
+    const b = await Env.create(true, { cohortId, slot: "2", repository: a.policy.repository.slice(0, -1) + "2" }); envs.push(b);
+    await central.pool.query("INSERT INTO external_alpha_cohort(id)VALUES($1)", [cohortId]);
+    for (const [e, token] of [[a, "1".repeat(64)], [b, "2".repeat(64)]] as const) {
+      await central.pool.query(`INSERT INTO external_alpha_cohort_member(cohort_id,slot,owner_id,policy_sha256,credential_sha256)
+        VALUES($1,$2,$3,$4,encode(sha256(convert_to($5,'UTF8')),'hex'))`, [cohortId, e.policy.slot, e.owner, digest(e.policy), token]);
+      e.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, token);
+    }
+    await central.pool.query("UPDATE external_alpha_cohort SET activated_at=clock_timestamp() WHERE id=$1", [cohortId]);
+    const app = await setup(true, a);
+    const chat = (id: string) => new ExternalAlphaAllowance(b.db, b.policy).admit({ kind: "CHAT", bindingId: id, requestSha256: digest(id) });
+    return { central, a, b, app, chat };
+  }
+
+  it("the actual shared lease stays fenced for a bare consumed cancellation but clears from the exact authenticated terminal fact", async () => {
+    const unproved = await sharedPair();
+    const work = await unproved.a.seedWork();
+    const started = await unproved.app.controller.start(work);
+    if (!started.sent) throw Error("sent");
+    await expect(unproved.chat("before-proof")).rejects.toThrow(/SHARED_FENCED/);
+    await unproved.a.svc.finish(started.authority.id, "CANCELLED", { reason: "OWNER_STOP_UNPROVED" });
+    await unproved.a.svc.sweep();
+    await expect(unproved.chat("after-label")).rejects.toThrow(/SHARED_FENCED/);
+    expect(await unproved.a.count("external_alpha_work_terminal_settlement")).toBe(0);
+    const centralState = (await unproved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state;
+    expect(centralState).toBe("DISPATCHED");
+    // Isolated second scenario: one singleton central database per fixture.
+    const proved = await sharedPair();
+    const w = await proved.a.seedWork();
+    await proved.app.controller.start(w);
+    await expect(proved.chat("before-known-proof")).rejects.toThrow(/SHARED_FENCED/);
+    proved.app.factory.state = "FAILED"; proved.app.factory.quiescent = true; proved.app.factory.verdict = "NONE";
+    await proved.app.controller.reconcile(w.id, { work: w });
+    expect(await proved.a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await proved.central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    await expect(proved.chat("after-known-proof")).resolves.toMatchObject({ kind: "CHAT" });
+    expect(Number((await proved.central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
+  }, 30000);
+
+  it("central settlement outage is repaired after restart from the exact terminal fact without another paid dispatch", async () => {
+    const { central, a, app, chat } = await sharedPair();
+    const work = await a.seedWork();
+    await app.controller.start(work);
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
+      if (JSON.parse(p![0] as string).mode === "settle") throw Error("simulated central outage before acknowledgment");
+      return central.db.query(q, p);
+    } }, "1".repeat(64));
+    app.factory.state = "CANCELLED"; app.factory.quiescent = true; app.factory.verdict = "NONE";
+    await expect(app.controller.reconcile(work.id, { work })).rejects.toThrow(/SHARED_UNAVAILABLE/);
+    expect(await a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await a.svc.forWork(work.id))?.state).toBe("CANCELLED");
+    await expect(chat("still-fenced")).rejects.toThrow(/SHARED_FENCED/);
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, "1".repeat(64));
+    const restarted = new ExternalAlphaWorkController(a.svc, app.factory, app.config, app.rk);
+    await reconcileExternalAlphaAuthorities(restarted, a.store);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    await expect(chat("after-restart-proof")).resolves.toMatchObject({ kind: "CHAT" });
+    expect(app.factory.posts).toBe(1);
+    expect(await a.count("engineering_native_results")).toBe(0);
+  }, 30000);
+
+  it("a lost acknowledgment after central settlement commits replays the same immutable fact and retains the full admission charge", async () => {
+    const { central, a, app, chat } = await sharedPair();
+    const work = await a.seedWork();
+    await app.controller.start(work);
+    let loseAcknowledgment = true;
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting({ query: async (q, p) => {
+      const rows = await central.db.query(q, p);
+      if (loseAcknowledgment && JSON.parse(p![0] as string).mode === "settle") {
+        loseAcknowledgment = false;
+        throw Error("simulated acknowledgment loss after central commit");
+      }
+      return rows;
+    } }, "1".repeat(64));
+    app.factory.state = "CANCELLED"; app.factory.quiescent = true; app.factory.verdict = "NONE";
+    await expect(app.controller.reconcile(work.id, { work })).rejects.toThrow(/SHARED_UNAVAILABLE/);
+    expect(await a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1300000);
+    a.db.externalAlphaAccounting = new SharedAlphaAccounting(central.db, "1".repeat(64));
+    const restarted = new ExternalAlphaWorkController(a.svc, app.factory, app.config, app.rk);
+    await reconcileExternalAlphaAuthorities(restarted, a.store);
+    await reconcileExternalAlphaAuthorities(restarted, a.store);
+    expect(await a.count("external_alpha_work_authority")).toBe(1);
+    expect(await a.count("external_alpha_work_terminal_settlement")).toBe(1);
+    expect((await central.pool.query("SELECT count(*)::integer n FROM external_alpha_cohort_dispatch")).rows[0].n).toBe(1);
+    await expect(chat("after-committed-settlement")).resolves.toMatchObject({ kind: "CHAT" });
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1400000);
+    expect(app.factory.posts).toBe(1);
+    expect(await a.count("engineering_native_results")).toBe(0);
+  }, 30000);
+
+
+  it("records authenticated Factory UNKNOWN immediately after retaining its consumption receipt", async () => {
+    const e = await Env.create(); envs.push(e); const app = await setup(true, e), work = await e.seedWork();
+    app.factory.state = "UNKNOWN";
+    const outcome = await app.controller.start(work);
+    expect(outcome.authority.state).toBe("UNKNOWN"); expect(outcome.authority.receipt).not.toBeNull();
+    await app.controller.start(work); expect(app.factory.posts).toBe(1);
+  });
+
+  it.each(["PASS", "FAIL", "UNKNOWN"] as const)("canonical Sofie journey replays durable %s Result and exact evidence after reconnect/restart without another dispatch", async verification => {
+    const { central, a, b, app } = await sharedPair();
+    const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string, VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: a.policy.projectId, MYEVE_OWNER_ID: a.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(a.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(a.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(app.config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: app.config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(a.policy, app.config) } as NodeJS.ProcessEnv;
+    const canonical = externalAlphaCanonicalCreate({ title: "Alpha Tasks: add a Priority field",
+      objective: "In the Alpha Tasks project, add a Priority field (exactly Low|Medium|High) shown on the task list.", repository: a.policy.repository,
+      maxCostUsd: 1.3, maxDurationSeconds: 180, criteria: alphaTasksCriteria.map(statement => ({ statement, method: "test" })) }, a.owner, env);
+    const created = await Promise.all(Array.from({ length: 6 }, () => a.store.create(canonical)));
+    expect(new Set(created.map(c => c.work.id)).size).toBe(1);
+    expect(created.filter(c => c.created)).toHaveLength(1);
+    const paused = created[0].work;
+    const oldProject = process.env.EVE_PROJECT_NAME;
+    process.env.EVE_PROJECT_NAME = "myeve-alpha-tester-1";
+    let work: Awaited<ReturnType<typeof a.store.get>>;
+    try {
+      const beta = new BetaIntegration(a.pool, { repository: a.policy.repository, maxCostUsd: 1.3, maxDurationSeconds: 180 });
+      const ownerFlow = new CanonicalBetaWork(beta, () => { throw Error("LEGACY_NATIVE_ADMISSION_UNREACHABLE"); });
+      const resumed = await ownerFlow.control(a.owner, paused.id, paused.version, paused.generation, "resume");
+      expect(resumed.admission).toMatchObject({ status: "SOFIE_REQUIRED", receipt: null });
+      work = resumed.work;
+    } finally { if (oldProject === undefined) delete process.env.EVE_PROJECT_NAME; else process.env.EVE_PROJECT_NAME = oldProject; }
+    const deps = { database: a.db, factory: app.factory, signer: a.signer, env };
+    const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
+    await Promise.all(Array.from({ length: 8 }, (_, i) => externalAlphaFactoryAction(a.store, work.id, input, { sessionId: "fixture-session", callId: "duplicate-" + i }, deps)));
+    expect(app.factory.posts).toBe(1);
+    const authority = (await a.svc.forWork(work.id))!;
+    expect(await a.count("external_alpha_work_authority")).toBe(1);
+    await expect(externalAlphaFactoryAction(a.store, work.id, { ...input, expectedWorkVersion: paused.version }, { sessionId: "reconnect", callId: "stale" }, deps)).rejects.toThrow(/Reload/);
+    const running = await new EngineeringWorkerProjectionStore(a.store).get(work.id);
+    expect(running.projection.externalAlpha?.state).toBe("CONSUMED");
+    expect(running.projection.readiness.ready).toBe(false);
+    expect(currentTruthLines(running.projection).join("\n")).toMatch(/not fresh Factory liveness/);
+    app.factory.state = "COMPLETED"; app.factory.quiescent = true;
+    app.factory.ops = [{ id: "productive-1", phase: "productive", state: "settled", actual: 120000 }];
+    app.factory.resultPayload = buildSignedResult({ authority, work, workOrderId: (authority.receipt as any).workOrderId, keys: a.resultKeys,
+      opts: { verification, requestDigest: app.factory.requestDigest(authority.requestId) } }).signed;
+    await reconcileExternalAlphaAuthorities(new ExternalAlphaWorkController(a.svc, app.factory, app.config, app.rk), a.store);
+    const reads = app.factory.reads;
+    const action = await externalAlphaFactoryAction(a.store, work.id, { ...input, operation: "reconcile" }, { sessionId: "new-browser-session", callId: "refresh" }, deps);
+    const expected = verification === "UNKNOWN" ? "PARTIAL" : verification;
+    expect(action.result?.verdict).toBe(expected);
+    expect(action.result?.replay).toBe(true);
+    expect(app.factory.reads).toBe(reads);
+    const projected = await new EngineeringWorkerProjectionStore(a.store).get(work.id);
+    expect(projected.projection.externalAlpha?.result?.verdict).toBe(expected);
+    expect(projected.projection.externalAlpha?.result?.producerChecks).toBe("PASS");
+    expect(currentTruthLines(projected.projection).join("\n")).toContain("producer checks PASS; independent verifier " + expected);
+    expect(projected.projection.nativeResult?.proof.outcome).toBe(verification === "FAIL" ? "FAILED" : "PARTIAL");
+    expect(projected.projection.latestResult?.id).toBe(action.result?.resultId);
+    expect(projected.projection.readiness.ready).toBe(false);
+    const refs = projected.projection.nativeResult!.proof.artifactRefs.filter(r => r.startsWith("factory-evidence:"));
+    expect(refs).toHaveLength(2);
+    const evidence = await Promise.all(refs.map(ref => readExternalAlphaProofEvidence(a.store, work.id, action.result!.resultId, ref)));
+    expect(evidence.map(e => e!.ref.kind).sort()).toEqual(["DiffEvidence", "TestEvidence"]);
+    const corrupt = new WorkStore(a.store.principal, { query: async (sql, params) => {
+      const rows = await a.db.query(sql, params);
+      return sql.includes("SELECT r.*,n.proof") ? rows.map(row => ({ ...row, content_hash: "0".repeat(64) })) : rows;
+    } });
+    await expect(readExternalAlphaProofEvidence(corrupt, work.id, action.result!.resultId, refs[0])).rejects.toThrow(/integrity/);
+    const wrongActor = new WorkStore({ ...a.store.principal, actorId: b.owner }, a.db);
+    await expect(readExternalAlphaProofEvidence(wrongActor, work.id, action.result!.resultId, refs[0])).rejects.toThrow(/Owner scope/);
+    for (const e of evidence) expect(e!.ref.sha256).toBe(sha256Hex(e!.bytes.toString("utf8")));
+    await expect(readExternalAlphaProofEvidence(a.store, work.id, action.result!.resultId, "factory-evidence:sha256:" + "0".repeat(64))).rejects.toThrow(/not available/);
+    await expect(readExternalAlphaProofEvidence(b.store, work.id, action.result!.resultId, refs[0])).rejects.toThrow();
+    expect(await a.count("engineering_native_results")).toBe(1);
+    expect((await central.pool.query("SELECT state FROM external_alpha_cohort_dispatch")).rows[0].state).toBe("SETTLED");
+    expect(Number((await central.pool.query("SELECT sum(ceiling_microusd)::bigint n FROM external_alpha_cohort_admission")).rows[0].n)).toBe(1300000);
+    const next = await a.store.change(work.id, { operation: "takeover", expectedVersion: work.version });
+    const historical = await readExternalAlphaWork(a.store, next);
+    expect(historical?.result?.current).toBe(false);
+    expect(historical?.result?.verdict).toBe(expected);
+    expect(app.factory.posts).toBe(1);
+  });
+
+
+  it.each(["known", "unknown", "bare-label"] as const)("Sofie takeover transfers control only after exact confirmed cleanup (%s)", async mode => {
+    const { e, factory, config } = await make();
+    const work = await e.seedWork();
+    const env = { NODE_ENV: "test", MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: generateKeyPairSync("ed25519").privateKey.export({ type: "pkcs8", format: "pem" }) as string,
+      VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: e.policy.projectId, MYEVE_OWNER_ID: e.owner,
+      MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(e.policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(e.policy),
+      MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(config), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: config.factory.origin, EVE_PROJECT_NAME: "myeve-alpha-tester-1",
+      MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: externalAlphaFactoryPinSha256(e.policy, config) } as NodeJS.ProcessEnv;
+    const deps = { database: e.db, factory, signer: e.signer, env };
+    const input = { operation: "start", expectedWorkVersion: work.version, expectedWorkGeneration: work.generation };
+    const effect = { sessionId: "fixture-takeover", callId: "start" };
+    await externalAlphaFactoryAction(e.store, work.id, input, effect, deps);
+    if (mode === "unknown") factory.ops = [{ id: "unknown-at-stop", phase: "productive", state: "unknown" }];
+    if (mode === "bare-label") await e.svc.finish((await e.svc.forWork(work.id))!.id, "CANCELLED", { reason: "UNPROVED_STOP" });
+    const out = await externalAlphaFactoryAction(e.store, work.id, { ...input, operation: "takeover" }, { ...effect, callId: "takeover" }, deps);
+    const current = await e.store.get(work.id);
+    expect(current.control).toBe(mode === "known" ? "human" : "agent");
+    expect(current.version).toBe(mode === "known" ? work.version + 1 : work.version);
+    expect(factory.posts).toBe(1);
+    expect(out.currentTruth.join(" ")).toMatch(mode === "known" ? /in your hands/ : /waits for authenticated cleanup/);
+  });
+
 });

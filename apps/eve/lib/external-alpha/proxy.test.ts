@@ -26,11 +26,12 @@ describe("proxy: server-side default-deny for external-alpha installations", () 
     for (const [path, method] of [["/api/threads", "POST"], ["/api/work-inbox", "GET"], ["/eve/v1/session", "POST"], ["/login", "GET"], ["/_next/static/a.js", "GET"]] as const)
       expect((await call(path, method)).status, `${method} ${path}`).not.toBe(404);
   });
-  it("serves Memory only with the explicit local backend flag", async () => {
+  it("keeps Memory and manual compaction denied even with legacy configuration", async () => {
     vi.stubEnv("EVE_PROJECT_NAME", "myeve-alpha-tester-1");
     expect((await call("/api/memories")).status).toBe(404);
     vi.stubEnv("MYEVE_EXTERNAL_ALPHA_MEMORY_BACKEND", "local-postgres");
-    expect((await call("/api/memories")).status).not.toBe(404);
+    expect((await call("/api/memories")).status).toBe(404);
+    expect((await call("/eve/v1/session/fixture/compact", "POST")).status).toBe(404);
   });
   it("does not change any deployment that is not an installation", async () => {
     vi.stubEnv("EVE_PROJECT_NAME", "myeve-production");

@@ -1,3 +1,4 @@
+import { denyExternalAlphaPaidPath } from "../../lib/external-alpha/paid-paths.ts";
 import { createHash, randomUUID } from "node:crypto";
 
 import { db } from "./receipts-db.ts";
@@ -88,6 +89,7 @@ function supermemoryKey(): string | undefined {
 }
 
 async function api<T>(path: string, method: string, body?: unknown): Promise<T> {
+  denyExternalAlphaPaidPath("semantic-memory-provider");
   const apiKey = supermemoryKey();
   if (!apiKey) throw new MemoryProviderError("SUPERMEMORY_API_KEY is not set.");
   let response: Response;

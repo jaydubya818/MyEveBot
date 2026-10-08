@@ -19,7 +19,7 @@ The proposed fixed allocations are:
 | Per-owner daily / lifetime allocation | $2.30 / $11.50 |
 | Two-owner daily / lifetime allocation | $4.60 / $23.00 |
 
-Whole allowances count against admission limits permanently. Unused allowances and ambiguous exposure are not recycled. UTC calendar-day boundaries are shared even if owners activate at different times. The aggregate bound follows from two fixed, non-transferable owner allocations; there is no cross-database borrowing.
+Whole allowances count against admission limits permanently. Unused allowances and ambiguous exposure are not recycled. UTC calendar-day boundaries are shared even if owners activate at different times. A separate authoritative PostgreSQL cohort ledger enforces both owner and aggregate daily/lifetime ceilings transactionally across the two isolated app databases. Allocations remain fixed and non-transferable; there is no cross-database borrowing.
 
 A model call reserves exposure durably before dispatch. Uncertain transport or accounting fences later paid operations. A settled replay returns its retained response without a second dispatch. Model selection, provider routing, tools, context size, output size and deadline are constrained by the server. Removal of a tester's policy fails closed.
 

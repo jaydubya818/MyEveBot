@@ -97,8 +97,8 @@
     },
     "agent/hooks/task-ledger.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions.",
-      "sha256": "870be5d957f8c518280d2a47188a77ef92d7b0828f9ebc510efbeaa1823d54b1"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. Independently reviewed retained-conversation repair: server-owned session/Work binding; strict observe-only message; byte-verified retained Proof summarized without provider, tool, execution recovery or budget mutation. Ordinary conversation records only. Covered by retained-work-session, retained-work-summary, retained-summary-effects and persistent-agent regressions. Gate 4 review: External-alpha auxiliary compaction is denied by the compaction.requested hook before framework inference, including ordinary owner sessions; manual ingress is denied.",
+      "sha256": "6f35532d737b4eaecab77e90987ab2bab92eff51baa62dfabd4cad9ce998fe9b"
     },
     "agent/instructions/agentcard.ts": {
       "classification": "INTERNAL",
@@ -372,8 +372,8 @@
     },
     "agent/lib/memory-store.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical owner/scope-filtered Memory storage; exact duplicate identities, local archive/replace correction and bounded reads. Remote deletion remains verified. No new authority consumers; existing remember Action Gateway caller unchanged. PostgreSQL concurrency, replay and isolation qualification in test/total-recall.integration.mjs. External-alpha installation: Supermemory is never used (key ignored); Memory stays on the local PostgreSQL store, so no owner data reaches a third party.",
-      "sha256": "57d627072d2cd11536d115db6f9e6e87b7c09d1484411bf4d0eff1219e98ea53"
+      "reason": "Canonical owner/scope-filtered Memory storage; exact duplicate identities, local archive/replace correction and bounded reads. Remote deletion remains verified. No new authority consumers; existing remember Action Gateway caller unchanged. PostgreSQL concurrency, replay and isolation qualification in test/total-recall.integration.mjs. External-alpha installation: Supermemory is never used (key ignored); Memory stays on the local PostgreSQL store, so no owner data reaches a third party. Gate 4 review: Remote semantic Memory API explicitly denies external-alpha inference/embeddings before network contact; internal local persistence remains credential-free.",
+      "sha256": "756b379b335ae88b937f8ec605b9ea27cda361b0b18920bd2f25670b5f6ece58"
     },
     "agent/lib/memory-tool-context.ts": {
       "classification": "INTERNAL",
@@ -387,8 +387,8 @@
     },
     "agent/lib/orgo.ts": {
       "classification": "BLOCKED",
-      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs.",
-      "sha256": "10b7e68471a5500c28db93adcb5e20d6ffb8b9908370d124d70792f95e3ebd3c"
+      "reason": "Unqualified external writes deny before provider invocation. Read operations in mixed transports may remain available; no blanket mutation grant. Reviewed two-owner scope fix: signed owner binding, deployment-service denial, provider context boundary, browser namespace, or durable business authority fencing as applicable; regression evidence in private-owner-boundary.test.ts and business-scopes.integration.mjs. Gate 4 review: External-alpha hosted/Gateway computer tasks deny before VM acquisition, credentials or model selection; boundary tripwires confirm zero contact.",
+      "sha256": "8486183271e1f29fff0dd4d10b9e73bb4a49ab5c36a9abea149be46260dfe3b5"
     },
     "agent/lib/owner-gate.ts": {
       "classification": "INTERNAL",
@@ -527,8 +527,8 @@
     },
     "agent/schedules/operations-monitor.ts": {
       "classification": "INTERNAL",
-      "reason": "Existing operations monitor calls bounded owner-scoped retained due-dependency Goal adapter only in loopback qualification mode. No timer, provider, Work control, admission or writer grant. Repeated wakes deduplicate paused Work under canonical Goal service.",
-      "sha256": "54a3bba81413945bcdc9a85ed14cdc929d11000861d07e601c30640218094d8f"
+      "reason": "Existing operations monitor now also resumes retained external-alpha readback and expiry fencing under installed owner/policy/configuration pins. No authority issuance, paid retry, dispatch, activation or model call. Existing beta schedule and monitoring paths remain intact.",
+      "sha256": "7834703136c04330ede0dced397abb720483d4ff44eaf479ea484e30a2a726f0"
     },
     "agent/schedules/reminders.ts": {
       "classification": "INTERNAL",
@@ -2127,8 +2127,8 @@
     },
     "lib/database-schema.ts": {
       "classification": "INTERNAL",
-      "reason": "Canonical schema version advances to additive 0079 owner decisions/publication effect ledger. Historical Results/Proof remain unchanged; migration and restore qualification required. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Reviewed 2026-10-05: immutable preparation unchanged; scoped mutable lifecycle, atomic token/epoch/lease SQL fencing, no productive recovery, completed-lifecycle gate. Real PostgreSQL fresh/upgrade/concurrency/cancellation tests and independent source review PASS. Reviewed paid-canary readiness: separate immutable approval and concrete grant, durable lifecycle and UNKNOWN fence; no general Work enablement. Three-owner rollout: latest migration 0084; configured alpha requires 0084, existing durable-session installations retain 0083 until explicit installation. External-alpha rollout: inert migration 0085 is required only for configured tester deployments; existing installation schema requirements are preserved. Advances the required schema to additive 0087 (external-alpha Result retention and exactly-once settlement).",
-      "sha256": "057442ff24736a96bbf96d1a737428757b858342486881deedb64f17b87ad217"
+      "reason": "Configured external-alpha installations require additive 0088 (immutable shared-accounting binding and UNKNOWN coverage); existing canary/synthetic and durable-session schema requirements are preserved. Schema installation creates no policy or authority. External-alpha composition requires the additive 0090 terminal settlement migration; historical canary/synthetic schema rollout requirements are retained.",
+      "sha256": "97dfc08e3179412aa4078849efc38e3311b6cc6c35b34538a8decba623b022cd"
     },
     "lib/decision-intelligence/challenge-cohorts.ts": {
       "classification": "INTERNAL",
@@ -2247,8 +2247,8 @@
     },
     "lib/external-alpha/paid-paths.ts": {
       "classification": "INTERNAL",
-      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call.",
-      "sha256": "04271e51109818041ae4e84a15385617917e53e3ce951281133b4593bfb49349"
+      "reason": "Registry of every model-backed path with its external-alpha disposition (integrated, denied, not paid) and the fail-closed guard called first by each denied dispatch site. No dispatch, grant or model call. Gate 4 review: Inventory includes hosted computer endpoints, framework auxiliary compaction and remote semantic Memory; unintegrated provider effects deny from installation identity alone.",
+      "sha256": "9cc4d669507080bcf92c14b05806eeb151d62d6676432e0ff9534aef9241fcc3"
     },
     "lib/external-alpha/preactivation.ts": {
       "classification": "INTERNAL",
@@ -2257,23 +2257,28 @@
     },
     "lib/external-alpha/work-action.ts": {
       "classification": "ENFORCED",
-      "reason": "Only Sofie entry to the external-owner Work path: owner, revision and canonical-tuple validation, then the controller. Limited to external-alpha installations; policy, configuration or signing key absent fails closed. Reconcile now passes the Work so the signed Factory Result can be ingested for the owner.",
-      "sha256": "222d91b56a0ff7cd3486d22b62469e04a3fb9b37f6cda697430799640477b2f0"
+      "reason": "Only Sofie entry to the external-owner Work path: owner, revision and canonical-tuple validation, then the controller. Limited to external-alpha installations; policy, configuration or signing key absent fails closed. Reconcile now passes the Work so the signed Factory Result can be ingested for the owner. Checkpoint A composition: stop carries the exact current owner Work; immutable authenticated no-candidate terminal facts explain Factory failure/cancellation and cleanup/accounting without claiming candidate Proof. Closed Result reconnect returns exact retained candidate/verdict without Factory read. Takeover transfers Work to human only after authenticated known cleanup (or definitively unsent authority); UNKNOWN and bare consumed terminal labels remain fenced.",
+      "sha256": "abd1dbb16a45b2881004591ad502bb9a454696e10090fd88093b93877cefeb47"
     },
     "lib/external-alpha/work-config.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict parse of reviewed non-secret external-alpha Work configuration and the enablement predicate (policy, configuration and signing key all present). Fails closed; never true for the canary or any other deployment. Adds reviewed Result-verification pins and the operator Factory pin equality check; Work is offered only when all bind.",
-      "sha256": "d7df441776c9b44c3f963ac6222cb7a0f2c525b74771b9a94668461f30375f0e"
+      "reason": "Strict reviewed non-secret configuration and Factory pin equality fail closed for absent/malformed/wrong installation. Requires distinct external-alpha Result family and separate Ed25519 signer bytes from receipt/readback key. Does not activate policy, authorize canary, invoke provider or mutate credentials. Dedicated Factory destination requires an independent exact server-only canonical HTTPS Vercel origin pin; historical production/canary and staging hosts are denied without defaults or wildcard matching.",
+      "sha256": "415e9292dfe47987f39dc63d6e552a37eae725246ecab80856c0347629e82da6"
     },
     "lib/external-alpha/work-controller.ts": {
       "classification": "ENFORCED",
-      "reason": "External-owner Work dispatch: claims the single-use authority in the database before one send, sends only to the pinned Factory origin with this deployment OIDC identity, verifies the signed receipt, records Factory usage exact-once, and fences UNKNOWN. Never re-sends or falls back; separate from the canary transport. Reconcile ingests the signed Result before closing the authority (owner-only, idempotent) and settles accounting once.",
-      "sha256": "e9c02541ddb1820cd81d669d96473b16dd32f4fd62841e39bcbc397f692e3e30"
+      "reason": "Claims one durable exact authority before immutable first prepare binding and one pinned Factory send with deployment OIDC identity. Each read/stop/Result response verifies signed receipt plus fresh READBACK_V1 challenge and exact prepare/deadline/authority/Work/run/ledger/model correlation; unsigned compatibility fields cannot settle. Completed authority requires retained Result, failed/cancelled candidate Proof remains honest; terminal unresolved reservations and unverifiable readback fence UNKNOWN. Never redispatches or falls back; separate canary transport. PostgreSQL duplicate/restart/cancellation/takeover/expiry tests passed. No-candidate terminal closure requires an immutable authenticated exact cleanup and known-accounting settlement fact under current Work locks; remote shared lease acknowledgement is recovered by durable sweep, never by the terminal label. Closed candidate readback replays the exact authority/policy/owner-bound immutable accepted Result and Proof; no Factory read, accounting mutation or dispatch occurs. Direct HTTP client destination is checked against the independent installation origin pin before token retrieval, OIDC acquisition or fetch; existing application/project/team/environment identity checks remain exact.",
+      "sha256": "50b3bdbb4d9310369363dbc0612bb72c4775d444529b2dd1079e4311440be7eb"
+    },
+    "lib/external-alpha/work-readback.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Owner-scoped accepted external-alpha Result/Proof and terminal-fact observation only. Exact authority/owner/policy/Work/version/generation/request and immutable authority/envelope/manifest/Proof/artifact digests checked. Exports only exact Proof-linked DiffEvidence and producer/verifier TestEvidence; foreign owner/actor/reference denied. No provider, reservation, dispatch, credential, publication or writer mutation. Canonical separate-PostgreSQL reconnect/restart and custody tests passed.",
+      "sha256": "97d67bc2aa1c430960f8a85e52bfa4eb8eb0d12a41eeb1c5b6f267dc9ec32abc"
     },
     "lib/external-alpha/work-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Test support for disposable localhost PostgreSQL scenarios; never imported by runtime code.",
-      "sha256": "ccd19c6e2d6159a2f52cd1b41227486a51f3d4772d46b74dbb47a1b69475140a"
+      "reason": "Test support for disposable localhost PostgreSQL scenarios; never imported by runtime code. Injects disposable shared-accounting dependencies; no production identities or credentials.",
+      "sha256": "255efc68c73afa6675049e4a25891829fd7947f197d5d337489dff9e20bb4e1d"
     },
     "lib/external-write-policy.ts": {
       "classification": "INTERNAL",
@@ -2672,8 +2677,8 @@
     },
     "lib/voice/realtime.ts": {
       "classification": "INTERNAL",
-      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged.",
-      "sha256": "258da89caf3ccd9c7065fbd658deeccab94820338a3cbaebd769e172510ecc58"
+      "reason": "Authenticated owner data, scoped durable state, runtime plumbing or pure application logic; external effects terminate at separately inventoried leaf guards. External-alpha review: paid dispatch is denied or bounded under an external-alpha installation (lib/external-alpha/paid-paths.ts); behavior elsewhere is unchanged. Gate 4 review: External-alpha denial runs before peer connection, microphone or provider request; secret minting and route ingress remain separately denied.",
+      "sha256": "c4232d96a5dd9f6032934fac158d55d1611baf406e8b462dcd4a37a929b8b357"
     },
     "lib/voice/thread.ts": {
       "classification": "INTERNAL",
@@ -3234,8 +3239,8 @@
     },
     "lib/beta-integration/runtime.ts": {
       "classification": "ENFORCED",
-      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity.",
-      "sha256": "152979e1078c6185e60cd032fd37f4eea6b689575900a0f81b93ad7411f1b03a"
+      "reason": "Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Consolidated boundary: Existing authenticated same-origin owner Factory command gains staging-only durable queue wake; canonical Work authority unchanged. Consolidated boundary: Signed owner/same-origin beta composition. Explicit private-alpha mode uses canonical application database; qualification remains loopback-only. Factory still requires matching owner and fixture qualification; no live execution authority is added. Existing scoped persistence, admission, and writer gates remain. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. External-alpha evidence reads require exact owner Work/Result/Proof reference and verified immutable envelope/artifact digests; external-alpha foreign-owner evidence is denied. Existing canary reader remains the non-external fallback.",
+      "sha256": "4517fa79301dee0cf7e7ee1602ecda7eaabdc88eb6c03dea4b10d92bc2d5b131"
     },
     "app/api/beta/inbox/route.ts": {
       "classification": "INTERNAL",
@@ -3329,8 +3334,8 @@
     },
     "lib/engineering/current-truth-lines.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions.",
-      "sha256": "63a48397e05ffc9c6063021ed98de1c6bb4ff9aa62f554ad47b86bd7d2ad4660"
+      "reason": "Read-only shared Work/Chat formatter reports exact Factory writer generation, unresolved/terminal state and candidate provenance; observations never grant authority. Reviewed admission-proposal semantics: guidance only; existing execution gates unchanged. Captured A/B and connected SDK/queue/driver regressions. External-alpha truth separately reports historical consumed authority, producer outcome, verifier verdict, retained Result and fixed local ledger exposure. It never projects native admission or Ready from external-alpha custody.",
+      "sha256": "7a8c1405ff18ef9fa15b3f570ae28ac94e4e908738c4dcdf55d46b612ec367f5"
     },
     "lib/engineering/direct-development.ts": {
       "classification": "ENFORCED",
@@ -3499,8 +3504,8 @@
     },
     "lib/engineering/worker-projection.ts": {
       "classification": "READ_ONLY",
-      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Independently reviewed retained-Work UI repair: restored locked selection exposes observe controls without rebinding; historical Result fallback wording does not imply current authority or readiness. Covered by chat-work-selection and worker-projection regressions.",
-      "sha256": "5a2345856ddd89fb14b3d28bd935e1bdcf9c920d89f918a1ef771a05f6fd8981"
+      "reason": "Read-only shared Work projection includes Factory UNKNOWN/stopping/terminal blockers and producer-preserving candidate status; no receipt, timeout or observation grants authority. Post-publication observation is exact Work/Result/generation/candidate bound; failed review remains visible and grants no readiness or execution authority. Historical Proof is untouched. Readback retention is local-host only, row-locked and idempotent; no new web mutation capability. Qualified by publication contract regression including stale/cross-result/false-PASS denial. Evidence consumer integration: retained Proof references require immutable verified Test/Diff custody; authenticated reads grant no execution authority; renewable read credential excluded from execution identity. Independently reviewed retained-Work UI repair: restored locked selection exposes observe controls without rebinding; historical Result fallback wording does not imply current authority or readiness. Covered by chat-work-selection and worker-projection regressions. External-alpha Work projection reads exact owner-bound accepted Result/Proof and terminal settlement independently of native workspaces, retains historical revision truth, and never grants native writer or readiness authority.",
+      "sha256": "fd043d9db1044a14e115f81ba85063861c61144d0cf8843bb0bc0dd2a3978a1d"
     },
     "lib/engineering/worker.ts": {
       "classification": "ENFORCED",
@@ -3514,8 +3519,8 @@
     },
     "lib/beta-integration/canonical-work.ts": {
       "classification": "ENFORCED",
-      "reason": "Canonical owner Work CAS, Inbox continuation binding and admission preserved; Factory production profile denies automatic native fallback.",
-      "sha256": "193f04185e49766834fe49cafc65cb84500cc51c6b4bc58d845c0a3c36157c17"
+      "reason": "Canonical owner Work CAS, Inbox continuation binding and admission preserved; Factory production profile denies automatic native fallback. External-alpha owner Resume returns observe-only SOFIE_REQUIRED before canary/native admission; only guarded owner Sofie start may consume an exact external-alpha Work authority. Real PostgreSQL canonical owner-control journey proves legacy authority code unreachable.",
+      "sha256": "7a1adefcbd94a2e124abbff96371b5563340de8aac4a3968c69a166b89c00570"
     },
     "lib/engineering/work-recall-context.ts": {
       "classification": "READ_ONLY",
@@ -4091,18 +4096,18 @@
     },
     "lib/external-alpha/policy.ts": {
       "classification": "INTERNAL",
-      "reason": "Strict inert two-owner policy parsing and exact installation identity validation. Fixed daily/lifetime allocation; no activation, dispatch or grants. Adds immutable slot-from-project-name, repository and signing-key checks (fixed error codes, no secret echoed).",
-      "sha256": "6ac8322a432dd22d2c10cf1ff1d6d8935b5da585da614f05a3df509bbacaa4c5"
+      "reason": "Strict inert two-owner policy parsing and exact installation identity validation. Fixed daily/lifetime allocation; no activation, dispatch or grants. Adds immutable slot-from-project-name, repository and signing-key checks (fixed error codes, no secret echoed). Global ceilings are enforced by the separate authoritative shared PostgreSQL ledger; policy parsing activates nothing.",
+      "sha256": "a788365dfd82e2c9a4cb8d9724b1d36c8542261f661b7199d5eb74e3ed591752"
     },
     "lib/external-alpha/allowance.ts": {
       "classification": "ENFORCED",
-      "reason": "Owner-bound durable allowance and model/tool-effect ledger. Database policy locks serialize admission and revocation; uncertain effects and provider outcomes fence additional dispatch. No policy activation or Factory grants.",
-      "sha256": "85bf2a6074bac5e5f6c6564c044129b3901359ccc31b1f70dbf096cce748b843"
+      "reason": "Owned local admissions require authoritative shared cohort full-allowance reservation and exact local binding. Paid Sofie dispatch requires local reservation plus durable shared dispatch lease; known local settlement clears the lease without refund. UNKNOWN persists locally even when remote acknowledgment fails; replays never dispatch. Qualified with real PostgreSQL concurrency and cross-database acknowledgment-loss tests.",
+      "sha256": "adf8e5a01b2950310bd8068f7507c8be2c3ba21aa07b56b8fe03bdba56c7e0b7"
     },
     "lib/external-alpha/model.ts": {
       "classification": "ENFORCED",
-      "reason": "Exact authenticated owner/session/active Agent; durable reservation before provider dispatch, fresh authority readback, bounded Gateway-only model and tools, conservative accounting, no retry/fallback after ambiguity. Settled replay performs no new dispatch.",
-      "sha256": "69445550980cf8903b63069a73447db55fe03a4bccd18bfd16e74bb480bc1415"
+      "reason": "Exact authenticated owner/session/active Agent; durable reservation before provider dispatch, fresh authority readback, bounded Gateway-only model and tools, conservative accounting, no retry/fallback after ambiguity. Settled replay performs no new dispatch. Gate 4 review: Release model tools exclude Memory and Knowledge operations; fixed owner-bound provider allowance and settlement remain enforced.",
+      "sha256": "a4080915a9235ca0f053664625202668577a7d7dc562b8bfeff134ff349c30c0"
     },
     "lib/external-alpha/tool-authority.ts": {
       "classification": "ENFORCED",
@@ -4116,13 +4121,13 @@
     },
     "lib/external-alpha/work-authority.ts": {
       "classification": "ENFORCED",
-      "reason": "Single-use exact Work authority for external-alpha owners: deterministic document, Ed25519 signature, and database-only lifecycle (admit, claim, finish, sweep, Factory usage record) under the policy row lock. Inactive until a policy is installed and activated by an operator; no Factory call, no model call, no canary or synthetic-owner credential.",
-      "sha256": "1f40b15daf245ab975dbbf5a0f44c3459b0ffe79b4fd1c9c9e5a7800187219b7"
+      "reason": "Exact signed single-use Work admission requires shared cohort reservation and one immutable local binding before dispatch. Local claims plus shared durable dispatch leases prevent redispatch across lost acknowledgments. Factory usage preserves full remaining UNKNOWN envelope. Sweep synchronizes only durable known settlement or UNKNOWN; no provider call, grant replacement or refund. Real PostgreSQL single consumption, concurrency, identity and fault tests qualify the boundary.",
+      "sha256": "bf47d31b22bf81259ac1f66ecaae47ccd2ad6b821940b45e664c13aab41ded15"
     },
     "lib/external-alpha/features.ts": {
       "classification": "INTERNAL",
-      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry.",
-      "sha256": "ef20a59d3b9d5be67117c5123b0392e23f7cbdbf94dc6e448c5edbb0fe994073"
+      "reason": "Pure external-alpha route, navigation and capability allowlist (default-deny). Grants nothing; consumed by the proxy and the capability registry. Gate 4 review: Release Memory routes, navigation, features and capabilities remain OFF despite legacy local-backend flags; manual auxiliary compaction ingress is denied.",
+      "sha256": "8b67f9193882ab973bbb2c7c5285a1bea0b51d0b8c4e749037369ff064db0636"
     },
     "lib/external-alpha/relay-link.ts": {
       "classification": "INTERNAL",
@@ -4131,13 +4136,38 @@
     },
     "lib/external-alpha/result-ingestion.ts": {
       "classification": "ENFORCED",
-      "reason": "Verifies the Factory signed Result with the existing authenticated-result primitives, binds it to the single consumed authority and owner, retains an immutable PARTIAL-capped Proof atomically and settles accounting once. No dispatch, publication or grant.",
-      "sha256": "6b5a06f5c2d290852874d82f8d638a4b01c1b62847396b29f26a937679f513d5"
+      "reason": "Authenticates distinct external-alpha signed Result family against durable first prepare digest, signed readback run, one attempt, consumed authority, owner and reviewed pins. Atomically refreshes current Work revision and agent control before immutable Result/Proof retention. Failed/cancelled useful candidates remain FAIL/PARTIAL; never final completion. Settlement occurs once and UNKNOWN remains charged. No dispatch, publication or grant. Verifies the Factory signed Result with the existing authenticated-result primitives, binds it to the single consumed authority and owner, retains an immutable PARTIAL-capped Proof atomically and settles accounting once. No dispatch, publication or grant. Cleanup-confirmed local settlement synchronizes the exact shared Work dispatch lease; ambiguous exposure fences the shared cohort. Remote failure leaves local settlement durable for reconciliation and never refunds allowance. Accepted Result Proof additionally binds exact candidate DiffEvidence and separately preserved signed producer/verifier TestEvidence digest references. Independent UNKNOWN stays PARTIAL even when Factory execution status is FAILED; execution labels cannot invent a verifier FAIL.",
+      "sha256": "2e5a0a97870675fbda06729502493bf33e7c60b3d150d4d049802a70144cff0f"
     },
     "lib/external-alpha/result-test-fixture.ts": {
       "classification": "NOT_APPLICABLE",
-      "reason": "Test support: synthetic signed Result builder. Never imported by runtime code.",
-      "sha256": "5b3f595ea0f08c07cb7bdcd0508ef33780eb14c5bc4365ffc87f3500390c7a39"
+      "reason": "Synthetic signed external-alpha Result fixtures with generated keys and explicit admitted prepare/run binding. Never imported by runtime code.",
+      "sha256": "b58ff455832bab450dfea7538c902b7221dde57f2f3728442bdb83cd02186e29"
+    },
+    "lib/external-alpha/dispatch-readback.ts": {
+      "classification": "ENFORCED",
+      "reason": "Immutable first prepare is bound under owner/policy/authority and current Work locks before transport. Authenticates READBACK_V1 Ed25519 domain, fresh per-request challenge, bounded freshness and exact authority/request/receipt/prepare/deadline/spend digest; performs no external call, dispatch or paid action. Qualified by PostgreSQL controller replay/tamper/correlation cases.",
+      "sha256": "c4cdeee64948b0bae2a24761096637310b61a69d8a5d3c7cdbb3546d836db66d"
+    },
+    "lib/external-alpha/reconciliation.ts": {
+      "classification": "ENFORCED",
+      "reason": "Bounded durable sweep uses only retained owner/policy authority identities. Reads exact Factory requests, retains/settles Result once, stops stale/cancelled/taken-over exact requests, and sweeps expiry to UNKNOWN. No issue, claim, mint, redispatch, model invocation or activation path. Concurrent and restart PostgreSQL qualification passed.",
+      "sha256": "de52b96f2a456dc4c20e12a1557030ae9bda506d95f5750fa23482b080c5b2be"
+    },
+    "lib/external-alpha/shared-accounting.ts": {
+      "classification": "ENFORCED",
+      "reason": "Server-only authoritative two-slot PostgreSQL cohort accounting, authenticated owner/slot/policy and token binding, transactional owner/global day/trial whole-allowance reservations, exact local allowance mirror and dispatch leases. Fails closed on missing configuration or ambiguity, sanitizes credential-bearing errors, retains all charges, and reconciles durable known/UNKNOWN facts without any provider call, refund, replacement authority or activation. Qualified across two isolated app DBs plus shared DB, restricted roles, concurrency, outage/acknowledgment-loss and restart tests. Gate1 no-candidate settlement is accepted only from the optional immutable exact-Work known-accounting/cleanup fact; terminal labels alone remain fenced.",
+      "sha256": "df56de2e0204a105c5511b48b6a847850b4c7354e6ffeb7aebb232a21fa4c74d"
+    },
+    "lib/external-alpha/productive-sandbox-test-fixture.ts": {
+      "classification": "NOT_APPLICABLE",
+      "reason": "Test-only local SDK transport for explicit offline composed qualification. Imported only by productive journey and fixture tests; runs public generic fixture source, deterministic model response, real materialization/checkpoint/custody, and has no provider/network fallback or production entry point. Mailbox requests match canonical exclusive temporary-file writes and atomic rename; deterministic partial-publication and exclusive-file regressions qualify the transport. This transport does not qualify Codex installation or confinement; independent Linux verifier qualification is separate.",
+      "sha256": "ba3d6e684a67c5bf8e622bdfeef27cd20e73b01b8c4f92ec9bb7566047834501"
+    },
+    "lib/relay/installation-validation.ts": {
+      "classification": "READ_ONLY",
+      "reason": "Explicit server-only installation audit validates an independently pinned private reuse plan and source-owner AES-GCM custody. Enforces read-only transactions on legacy MyEve, canonical Relay and reserved target resources; validates exact live account, Agent credential, operator membership and scope digests. Returns only bounded identity/provenance/auth-status metadata. No HTTP/auth helper, credential reseal/import/update, target mutation, recovery, route/model entry or activation. Real PostgreSQL tests use all 29 migrations from exact deployed Relay source and synthetic credentials; expired grants remain unauthoritative.",
+      "sha256": "f712b1f9cb5315b035707de9cfc329e20becc63c4f3a6c54a1c8216a4a5420ea"
     }
   }
 }

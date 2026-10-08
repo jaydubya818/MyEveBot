@@ -10,8 +10,8 @@ import {
 import { z } from "zod";
 import { digest, pathSchema } from "../engineering/contract.ts";
 import type { Work } from "../engineering/types.ts";
-import type { ExecutionDatabase } from "../execution-types.ts";
 import { externalAlphaLimits, type ExternalAlphaPolicy } from "./policy.ts";
+import { sharedAlphaAccounting, type AlphaAccountingDatabase } from "./shared-accounting.ts";
 import {
   alphaTasksCriteria,
   alphaTasksCriteriaSha256,
@@ -439,7 +439,7 @@ export interface FactoryOperationReport {
  * transaction and a duplicate delivery resolves to the same record. */
 export class ExternalAlphaWorkAuthority {
   constructor(
-    readonly database: ExecutionDatabase,
+    readonly database: AlphaAccountingDatabase,
     readonly policy: ExternalAlphaPolicy,
     readonly signer: WorkAuthoritySigner,
   ) {}
@@ -471,6 +471,15 @@ export class ExternalAlphaWorkAuthority {
       now: options.now,
     });
     const envelope = this.signer.sign(document);
+    const existing = await this.forWork(work.id);
+    if (existing && existing.state !== "ISSUED" && existing.envelope.document.idempotencyKey === document.idempotencyKey) {
+      verifyWorkAuthority(existing.envelope, new Map([[this.signer.keyId, this.signer.publicKey]]), Date.parse(existing.envelope.document.issuedAt));
+      // Reading an existing terminal authority is safe even under a cohort
+      // fence. Returning it never reacquires dispatch or mints another grant.
+      return existing;
+    }
+    const shared = sharedAlphaAccounting(this.database);
+    const admission = await shared.reserve(this.policy, { kind: "WORK", bindingId: document.idempotencyKey, requestSha256: document.idempotencyKey });
     const row = await this.call<Record<string, any>>("work_admit", {
       document,
       canonical: canonicalJson(document),
@@ -489,10 +498,12 @@ export class ExternalAlphaWorkAuthority {
       stored.envelope.document.idempotencyKey !== document.idempotencyKey
     )
       throw Error("EXTERNAL_ALPHA_ADMISSION_DENIED");
+    await shared.bind(this.database, this.policy, admission, stored.allowanceId);
     return stored;
   }
   /** Exactly one caller receives claimed=true and may send. */
   async claim(authority: WorkAuthorityRecord) {
+    await sharedAlphaAccounting(this.database).assertBound(this.database, this.policy, authority.allowanceId);
     const receipt = await this.call<{ claimed: boolean; authority: Record<string, any> }>(
       "work_claim",
       {
@@ -501,6 +512,8 @@ export class ExternalAlphaWorkAuthority {
         documentSha256: authority.documentSha256,
       },
     );
+    if (receipt.claimed === true)
+      await sharedAlphaAccounting(this.database).dispatch(this.database, this.policy, authority.allowanceId, "work:" + authority.id);
     return { claimed: receipt.claimed === true, authority: record(receipt.authority) };
   }
   async finish(
@@ -508,9 +521,21 @@ export class ExternalAlphaWorkAuthority {
     state: "CONSUMED" | "UNKNOWN" | "COMPLETED" | "CANCELLED" | "EXPIRED" | "REVOKED",
     extra: { receipt?: unknown; reason?: string } = {},
   ) {
-    return record(
-      await this.call<Record<string, any>>("work_finish", { authorityId, state, ...extra }),
-    );
+    if (state === "UNKNOWN") {
+      const [row] = await this.database.query("SELECT allowance_id FROM external_alpha_work_authority WHERE id=$1 AND owner_id=$2", [authorityId, this.policy.ownerId]);
+      if (row) {
+        try {
+          await sharedAlphaAccounting(this.database).fence(this.database, this.policy, row.allowance_id as string);
+        } catch {
+          // The local transition below is still durable. No new authority is
+          // admitted locally; shared whole-allowance charges remain reserved.
+        }
+      }
+    }
+    const row = await this.call<Record<string, any>>("work_finish", { authorityId, state, ...extra });
+    if (row.state === "CANCELLED" && row.consumed_at === null && /^FACTORY_DENIED:/.test(row.terminal_reason ?? ""))
+      await sharedAlphaAccounting(this.database).settle(this.database, this.policy, row.allowance_id, "work:" + row.id);
+    return record(row);
   }
   async forWork(workId: string): Promise<WorkAuthorityRecord | null> {
     const [row] = await this.database.query(
@@ -519,13 +544,15 @@ export class ExternalAlphaWorkAuthority {
     );
     return row ? record(row) : null;
   }
-  sweep() {
-    return this.call<{ expired: number; revoked: number; unknown: number }>("work_sweep", {});
+  async sweep() {
+    const out = await this.call<{ expired: number; revoked: number; unknown: number }>("work_sweep", {});
+    await sharedAlphaAccounting(this.database).reconcile(this.database, this.policy);
+    return out;
   }
   /** Records one Factory-reported model operation into the shared allowance
    * ledger. Exact-once per (allowance, step); UNKNOWN stays charged. */
-  recordFactoryOperation(authority: WorkAuthorityRecord, op: FactoryOperationReport) {
-    return this.call<Record<string, any>>("factory_record", {
+  async recordFactoryOperation(authority: WorkAuthorityRecord, op: FactoryOperationReport) {
+    const row = await this.call<Record<string, any>>("factory_record", {
       id: randomUUID(),
       authorityId: authority.id,
       allowanceId: authority.allowanceId,
@@ -542,5 +569,7 @@ export class ExternalAlphaWorkAuthority {
       microusd: op.state === "settled" ? op.actualMicrousd : op.reservedMicrousd,
       result: { phase: op.phase, model: op.model, pricingRevision: op.pricingRevision },
     });
+    if (row.state === "UNKNOWN") await sharedAlphaAccounting(this.database).fence(this.database, this.policy, authority.allowanceId);
+    return row;
   }
 }

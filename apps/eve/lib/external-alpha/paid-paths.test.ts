@@ -39,7 +39,7 @@ function sources(dir: string, out: string[] = []) {
   return out;
 }
 const dispatch =
-  /\bgateway\((?!\))|\bgenerateText\(|\bstreamText\(|\bgenerateObject\(|\bstreamObject\(|\bembed\(|\bembedMany\(|new ToolLoopAgent|\.doGenerate\(|\.doStream\(|api\.openai\.com|api\.anthropic\.com|evaluationModel|experimental_evaluate/;
+  /\bgateway\((?!\))|\bgenerateText\(|\bstreamText\(|\bgenerateObject\(|\bstreamObject\(|\bembed\(|\bembedMany\(|new ToolLoopAgent|\.doGenerate\(|\.doStream\(|api\.openai\.com|api\.anthropic\.com|api\.supermemory\.ai|\/v1\/chat\/completions|evaluationModel|experimental_evaluate/;
 
 describe("paid-path inventory (external alpha)", () => {
   const listed = new Set(externalAlphaPaidPaths.flatMap((p) => p.files));
@@ -137,6 +137,34 @@ describe("denial under an external-alpha installation (no provider is reached)",
   it("computer-use loop", async () => {
     const { runComputerUseLoop } = await import("../../agent/lib/computer-use-loop.ts");
     await runComputerUseLoop({ instruction: "x", modelId: "m" } as any).then(() => expect.unreachable(), (e) => denied(e, "computer-use-loop"));
+  });
+  it("hosted computer inference denies before VM acquisition, key lookup or provider contact", async () => {
+    const fetchSpy = vi.fn(() => { throw Error("NETWORK_REACHED"); });
+    vi.stubGlobal("fetch", fetchSpy);
+    try {
+      const { orgo } = await import("../../agent/lib/orgo.ts");
+      for (const model of ["sonnet", "gateway:openai/fixture-model"] as const)
+        await expect(orgo.task({ instruction: "fixture task", model })).rejects.toThrow("EXTERNAL_ALPHA_PAID_PATH_DENIED:orgo-hosted-model");
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); }
+  });
+  it("Realtime denies before microphone, peer connection or provider contact", async () => {
+    const peer = vi.fn(() => { throw Error("PEER_REACHED"); });
+    const fetchSpy = vi.fn(() => { throw Error("NETWORK_REACHED"); });
+    vi.stubGlobal("RTCPeerConnection", peer);
+    vi.stubGlobal("fetch", fetchSpy);
+    try {
+      const { RealtimeVoiceSession } = await import("../voice/realtime.ts");
+      await expect(new RealtimeVoiceSession({}).connect("fixture-secret")).rejects.toThrow("EXTERNAL_ALPHA_PAID_PATH_DENIED:voice-realtime-call");
+      expect(peer).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally { vi.unstubAllGlobals(); }
+  });
+  it("automatic compaction rejects ordinary owner sessions before auxiliary model dispatch", async () => {
+    const { default: ledger } = await import("../../agent/hooks/task-ledger.ts");
+    const ctx = { session: { id: "fixture-session", auth: { current: { principalType: "user", principalId: "fixture-owner", attributes: { owner: "true" } } } } };
+    await expect((ledger.events!["compaction.requested"] as any)({ data: {} }, ctx)).rejects.toThrow("EXTERNAL_ALPHA_PAID_PATH_DENIED:context-compaction");
+    expect(calls).toEqual([]);
   });
   it("qualification model hook", async () => {
     const { qualificationModel } = await import("../qualification/client.ts");

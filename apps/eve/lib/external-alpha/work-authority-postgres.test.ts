@@ -22,7 +22,7 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
   it("denies admission when the policy is not activated and when the policy row is absent", async () => {
     const e = await fresh(false);
     const work = await e.seedWork();
-    await expect(e.svc.issue(work, files)).rejects.toThrow(/policy inactive/);
+    await expect(e.svc.issue(work, files)).rejects.toThrow(/policy inactive|EXTERNAL_ALPHA_SHARED_FENCED/);
     expect(await e.count("external_alpha_work_authority")).toBe(0);
     expect(await e.count("external_alpha_allowance")).toBe(0);
     await e.pool.query("UPDATE external_alpha_policy SET revoked_at=NULL"); // unchanged
@@ -238,7 +238,7 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
     await expect(e.pool.query("DELETE FROM external_alpha_work_authority WHERE id=$1", [a.id])).rejects.toThrow(/cannot be deleted/);
     // A later generation of the same Work is not admitted: one allowance per Work and one Work per UTC day.
     await e.pool.query("UPDATE engineering_work SET version=version+1,generation=generation+1 WHERE id=$1", [work.id]);
-    await expect(e.svc.issue(await e.store.get(work.id), files)).rejects.toThrow(/exhausted|One active Work|duplicate key/);
+    await expect(e.svc.issue(await e.store.get(work.id), files)).rejects.toThrow(/exhausted|One active Work|duplicate key|EXTERNAL_ALPHA_SHARED_FENCED/);
     await e.svc.finish(a.id, "COMPLETED");
     await expect(e.svc.finish(a.id, "CANCELLED")).rejects.toThrow(/transition denied/);
     expect((await e.pool.query("SELECT state FROM external_alpha_allowance WHERE id=$1", [a.allowanceId])).rows[0].state).toBe("COMPLETED");
@@ -252,7 +252,7 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
     await expect(e.svc.claim(a)).rejects.toThrow(/NOT_DISPATCHABLE/);
     // Cancelling does not refund: a second Work the same UTC day is refused.
     const second = await e.seedWork();
-    await expect(e.svc.issue(second, files)).rejects.toThrow(/exhausted/);
+    await expect(e.svc.issue(second, files)).rejects.toThrow(/exhausted|EXTERNAL_ALPHA_SHARED_EXHAUSTED/);
     expect((await e.pool.query("SELECT sum(ceiling_microusd)::bigint s FROM external_alpha_allowance")).rows[0].s).toBe("1300000");
   });
 
@@ -278,11 +278,11 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
     await e.svc.claim(a);
     await e.svc.finish(a.id, "UNKNOWN", { reason: "TRANSPORT" });
     const chat = new ExternalAlphaAllowance(e.db, e.policy);
-    await expect(chat.admit({ kind: "CHAT", bindingId: "s:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences/);
+    await expect(chat.admit({ kind: "CHAT", bindingId: "s:1", requestSha256: "c".repeat(64) })).rejects.toThrow(/fences|EXTERNAL_ALPHA_SHARED_FENCED/);
     await expect(e.svc.finish(a.id, "COMPLETED")).rejects.toThrow(/transition denied/);
     const other = await e.seedWork();
-    await expect(e.svc.issue(other, files)).rejects.toThrow(/fences|exhausted/);
-    await expect(e.svc.claim(a)).rejects.toThrow(/NOT_DISPATCHABLE/);
+    await expect(e.svc.issue(other, files)).rejects.toThrow(/fences|exhausted|EXTERNAL_ALPHA_SHARED_FENCED/);
+    await expect(e.svc.claim(a)).rejects.toThrow(/NOT_DISPATCHABLE|EXTERNAL_ALPHA_SHARED_FENCED/);
   });
 
   it("sweeps a DISPATCHING authority that never resolved into UNKNOWN", async () => {
@@ -344,8 +344,9 @@ describe.skipIf(!connection)("external alpha exact Work authority (real PostgreS
     const e = await fresh();
     const work = await e.seedWork();
     let drop = true;
-    const lossy: ExecutionDatabase = {
-      query: async (q, p) => {
+    const lossy = {
+      externalAlphaAccounting: e.db.externalAlphaAccounting,
+      query: async (q: string, p?: unknown[]) => {
         const rows = await e.db.query(q, p);
         if (drop && /work_admit/.test(q)) {
           drop = false;

@@ -16,6 +16,18 @@ const money=(value:number|null)=>value===null?"unavailable":`$${(value/1_000_000
 export function currentTruthLines(projection: EngineeringWorkerProjection, options: {factoryProposal?:boolean} = {}): string[] {
   const truth=projection.runTruth;
   const metadata = currentWorkMetadata(projection);
+  if (projection.externalAlpha) {
+    const alpha = projection.externalAlpha, result = alpha.result, a = alpha.accounting;
+    return [
+      `Work identity: ${JSON.stringify(metadata)}. These observed values grant no authority.`,
+      `External-alpha authority: ${alpha.state}; request ${alpha.requestId}; ${alpha.current ? "matches this Work revision" : "historical Work revision"}. Retained state is not fresh Factory liveness or permission to dispatch.`,
+      ...(alpha.factoryOutcome ? [`Factory outcome: ${alpha.factoryOutcome}. No candidate Result or Proof was produced. Authenticated cleanup and known accounting are settled.`] : []),
+      result ? `Result: ${result.resultId}; candidate ${result.candidateSha}; Factory outcome ${result.producerOutcome}; producer checks ${result.producerChecks}; independent verifier ${result.verdict}; outcome ${result.proof.outcome}; ${result.current ? "current revision" : "historical revision"}; accounting ${result.settlementState}.` : "Result: none retained.",
+      `Work allowance charged: ${money(a.ceilingMicrousd)}; settled model usage ${money(a.settledMicrousd)}; reserved ${money(a.reservedMicrousd)}; UNKNOWN exposure ${alpha.state === "UNKNOWN" ? `unresolved request, with ${money(a.unknownMicrousd)} in recorded operation reservations` : money(a.unknownMicrousd)}. Unused allowance is not refunded. Charges outside this ledger are not represented.`,
+      `Readiness: ${projection.readiness.reasons.join("; ")}`,
+      `Next step: ${projection.nextStep}`,
+    ];
+  }
   return [
     ...(options.factoryProposal ? [!projection.routing && !projection.factoryWriter
       ? "Factory proposal state: UNROUTED. Owner-selected productive Work may propose admission through engineering_factory start. No admitted route, executable Run or writer is required to request evaluation; proposal grants no execution authority."

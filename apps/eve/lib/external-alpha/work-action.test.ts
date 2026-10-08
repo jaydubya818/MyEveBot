@@ -27,10 +27,13 @@ const policy = externalAlphaPolicySchema.parse({
   model: "openai/gpt-5.4-mini", provider: "vercel-ai-gateway/openai", sourceDigest: fixtureSourceDigest, factoryVersion: fixtureFactoryVersion,
   limits: { ...externalAlphaLimits }, publication: false, automaticRepair: false, fallback: false,
 });
+const receiptPair = generateKeyPairSync("ed25519");
+const receiptPublicKey = receiptPair.publicKey.export({ type: "spki", format: "pem" }) as string;
+const receiptKeyId = require("node:crypto").createHash("sha256").update(receiptPair.publicKey.export({ type: "spki", format: "der" })).digest("hex");
 const workConfig = {
   allowedFiles: ["src/a.ts"], checkCommands: ["npm test"],
   factory: {
-    origin: "https://myfactory-cloud-production.vercel.app", trustedTeamId: "team_x", receiptKeys: [{ keyId: "a".repeat(64), publicKey: "k" }],
+    origin: "https://fixture-alpha-factory.vercel.app", trustedTeamId: "team_x", receiptKeys: [{ keyId: receiptKeyId, publicKey: receiptPublicKey }],
     resultVerification: {
       factoryId: fixtureFactoryId, sourceDigest: fixtureSourceDigest, configurationDigest: fixtureConfigurationDigest,
       verifierPolicySha256: fixtureVerifierPolicySha256, resultKeys: [fixtureResultKeys().key],
@@ -43,7 +46,7 @@ const installed = (over: Record<string, string> = {}) =>
   ({
     VERCEL: "1", VERCEL_ENV: "production", VERCEL_PROJECT_ID: policy.projectId, MYEVE_OWNER_ID: owner,
     MYEVE_EXTERNAL_ALPHA_POLICY: JSON.stringify(policy), MYEVE_EXTERNAL_ALPHA_POLICY_SHA256: digest(policy),
-    MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(workConfig), MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: signingKey,
+    MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(workConfig), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: workConfig.factory.origin, MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: signingKey,
     EVE_PROJECT_NAME: "myeve-alpha-tester-1", MYEVE_EXTERNAL_ALPHA_FACTORY_PIN_SHA256: pin, ...over,
   }) as unknown as NodeJS.ProcessEnv;
 
@@ -112,7 +115,7 @@ describe("enablement is limited to a fully provisioned external-alpha installati
     expect(externalAlphaWorkEnabled({ EVE_PROJECT_NAME: "myeve-alpha-tester-1" } as unknown as NodeJS.ProcessEnv)).toBe(false);
   });
   it("rejects non-production Factory origins and any path, port or credentials", () => {
-    for (const origin of ["http://myfactory-cloud-production.vercel.app", "https://evil.example.com", "https://myfactory-cloud-production.vercel.app:8443", "https://u:p@myfactory-cloud-production.vercel.app", "https://myfactory-cloud-production.vercel.app/x"])
+    for (const origin of ["http://myfactory-cloud-production.vercel.app", "https://evil.example.com", "https://fixture-alpha-factory.vercel.app:8443", "https://u:p@myfactory-cloud-production.vercel.app", "https://fixture-alpha-factory.vercel.app/x"])
       expect(externalAlphaWorkConfig({ MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify({ ...workConfig, factory: { ...workConfig.factory, origin } }) } as unknown as NodeJS.ProcessEnv)).toBeNull();
   });
   it("leaves every non-external-alpha deployment, including the canary, unchanged", () => {
@@ -122,7 +125,7 @@ describe("enablement is limited to a fully provisioned external-alpha installati
       {}, { MYEVE_ENGINEERING_MODE: "dogfood" }, { MYEVE_ENGINEERING_MODE: "dogfood", VERCEL_ENV: "production" },
       { MYEVE_BETA_MODE: "private-alpha", MYEVE_ENGINEERING_MODE: "private-alpha", MYEVE_FACTORY_WORKER_ENABLED: "true", MYEVE_OWNER_ID: "o", MYEVE_FACTORY_ID: "f" },
       { MYEVE_ALPHA_OWNER_BINDING: "{}", MYEVE_PRODUCTION_CANARY_CONFIG: "{}", VERCEL: "1", VERCEL_ENV: "production" },
-      { MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(workConfig), MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: signingKey },
+      { MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(workConfig), MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN: workConfig.factory.origin, MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: signingKey },
     ];
     for (const c of cases) expect(engineeringWorkEnabled(c as unknown as NodeJS.ProcessEnv), JSON.stringify(c)).toBe(legacy(c as unknown as NodeJS.ProcessEnv));
     expect(engineeringWorkEnabled(installed())).toBe(true);
@@ -171,4 +174,13 @@ describe("the Factory pin binds every field the Factory will recompute", () => {
     expect(externalAlphaWorkEnabled(installed({ EVE_PROJECT_NAME: "myeve-alpha-tester-2" }))).toBe(false);
     expect(externalAlphaWorkEnabled(installed({ MYEVE_EXTERNAL_ALPHA_AUTHORITY_SIGNING_KEY: "" }))).toBe(false);
   });
+  it("rejects old Result families and reuse of the receipt signer for Result custody", () => {
+    const old = structuredClone(workConfig);
+    (old.factory.resultVerification as any).factoryId = "myfactory-cloud-production";
+    expect(externalAlphaWorkEnabled(installed({ MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(old) }))).toBe(false);
+    const same = structuredClone(workConfig);
+    same.factory.resultVerification.resultKeys[0].publicKey = receiptPublicKey;
+    expect(externalAlphaWorkEnabled(installed({ MYEVE_EXTERNAL_ALPHA_WORK_CONFIG: JSON.stringify(same) }))).toBe(false);
+  });
+
 });

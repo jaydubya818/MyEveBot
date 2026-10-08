@@ -1,3 +1,4 @@
+import { createHash, createPublicKey } from "node:crypto";
 import { z } from "zod";
 import { digest, pathSchema } from "../engineering/contract.ts";
 import {
@@ -8,14 +9,15 @@ import {
 } from "./policy.ts";
 
 const hex64 = z.string().regex(/^[a-f0-9]{64}$/);
-const productionHost = /^myfactory-cloud-production(-[a-z0-9]+-jaydubya818)?\.vercel\.app$/;
+const vercelHost = /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.vercel\.app$/;
+const historicalFactoryHost = /^myfactory-cloud-(?:production|staging)(?:-[a-z0-9-]+)?\.vercel\.app$/;
 
 /** Reviewed pins for authenticating the Factory's signed Result. Non-secret.
  * FactoryVersion is the digest of the two pinned digests, exactly as for the
  * qualified producer protocol, so a Result cannot name a different build. */
 const resultVerificationSchema = z
   .object({
-    factoryId: z.string().min(1).max(200),
+    factoryId: z.literal("myfactory-external-alpha"),
     sourceDigest: hex64,
     configurationDigest: hex64,
     /** Policy digest of the independent cloud verifier the Factory must have used. */
@@ -24,8 +26,8 @@ const resultVerificationSchema = z
       .array(
         z
           .object({
-            factoryId: z.string().min(1).max(200),
-            keyId: z.string().min(1).max(200),
+            factoryId: z.literal("myfactory-external-alpha"),
+            keyId: z.literal("external-alpha-result-v1"),
             publicKey: z.string().min(1).max(2000),
             activeFrom: z.string().datetime(),
             notAfter: z.string().datetime(),
@@ -60,6 +62,37 @@ export const externalAlphaWorkConfigSchema = z
   .strict();
 export type ExternalAlphaWorkConfig = z.infer<typeof externalAlphaWorkConfigSchema>;
 
+/** Receipt/readback and Result custody use separate Ed25519 identities. A
+ * legacy signing family or a relabelled receipt signer cannot qualify Results. */
+export function assertExternalAlphaFactoryKeys(config: ExternalAlphaWorkConfig) {
+  const keyDigest = (pem: string) => {
+    const key = createPublicKey(pem);
+    if (key.asymmetricKeyType !== "ed25519") throw Error("EXTERNAL_ALPHA_FACTORY_KEY");
+    return createHash("sha256").update(key.export({ type: "spki", format: "der" })).digest("hex");
+  };
+  const receipts = config.factory.receiptKeys.map(k => {
+    const id = keyDigest(k.publicKey);
+    if (id !== k.keyId) throw Error("EXTERNAL_ALPHA_FACTORY_KEY");
+    return id;
+  });
+  const results = config.factory.resultVerification.resultKeys.map(k => keyDigest(k.publicKey));
+  if (new Set(receipts).size !== receipts.length || new Set(results).size !== results.length || results.some(id => receipts.includes(id)))
+    throw Error("EXTERNAL_ALPHA_FACTORY_KEY_SEPARATION");
+}
+
+/** Dedicated credential destination is independently pinned by the installation,
+ * not inferred from project names or a mutable default. Historical production
+ * (including canary) and staging hosts cannot become external-alpha targets. */
+export function assertExternalAlphaFactoryOrigin(config: ExternalAlphaWorkConfig, env: NodeJS.ProcessEnv = process.env): void {
+  try {
+    const origin = config.factory.origin, pin = env.MYEVE_EXTERNAL_ALPHA_FACTORY_ORIGIN;
+    const url = new URL(origin);
+    if (typeof window !== "undefined" || !pin || origin !== pin || url.origin !== origin || url.protocol !== "https:"
+      || url.username || url.password || url.port || url.pathname !== "/" || url.search || url.hash
+      || !vercelHost.test(url.hostname) || historicalFactoryHost.test(url.hostname)) throw Error();
+  } catch { throw Error("EXTERNAL_ALPHA_FACTORY_ORIGIN_BINDING"); }
+}
+
 /** Absent or invalid configuration means Work authority is unavailable (fail closed). */
 export function externalAlphaWorkConfig(
   env: NodeJS.ProcessEnv = process.env,
@@ -68,18 +101,8 @@ export function externalAlphaWorkConfig(
   if (!raw || Buffer.byteLength(raw) > 20000 || typeof window !== "undefined") return null;
   try {
     const config = externalAlphaWorkConfigSchema.parse(JSON.parse(raw));
-    const url = new URL(config.factory.origin);
-    if (
-      url.protocol !== "https:" ||
-      url.username ||
-      url.password ||
-      url.port ||
-      url.pathname !== "/" ||
-      url.search ||
-      url.hash ||
-      !productionHost.test(url.hostname)
-    )
-      return null;
+    assertExternalAlphaFactoryKeys(config);
+    assertExternalAlphaFactoryOrigin(config, env);
     return config;
   } catch {
     return null;
@@ -118,6 +141,8 @@ export function assertExternalAlphaWorkBinding(
   config: ExternalAlphaWorkConfig,
   env: NodeJS.ProcessEnv = process.env,
 ): void {
+  assertExternalAlphaFactoryKeys(config);
+  assertExternalAlphaFactoryOrigin(config, env);
   const r = config.factory.resultVerification;
   if (digest({ sourceDigest: r.sourceDigest, configurationDigest: r.configurationDigest }) !== policy.factoryVersion)
     throw Error("EXTERNAL_ALPHA_FACTORY_VERSION_BINDING");

@@ -1,3 +1,4 @@
+import { readExternalAlphaWork, type ExternalAlphaWorkReadback } from "../external-alpha/work-readback.ts";
 import { currentPublicationReadback, type PublicationReadback } from './publication-contract.ts';
 import { readJourneyAccounting, type JourneyAccounting } from "./journey-accounting.ts";
 import type {FactorySpend,FactorySpendSummary} from './factory-spend.ts';
@@ -15,6 +16,7 @@ import { WorkError, type Work } from "./types.ts";
 type CurrentManifest = ReturnType<typeof manifest>;
 
 export interface EngineeringWorkerProjection {
+  externalAlpha?: ExternalAlphaWorkReadback | null;
   publicationReadback?:PublicationReadback|null;
   factoryAccounting?:FactorySpendSummary;
   journeyAccounting?:JourneyAccounting;
@@ -143,6 +145,7 @@ export class EngineeringWorkerProjectionStore {
   private async snapshot(work: Work): Promise<EngineeringProjectionSnapshot> {
     const id = work.id;
     const journeyAccounting = await readJourneyAccounting(this.workStore,id);
+    const externalAlpha = await readExternalAlphaWork(this.workStore, work);
     const executionStore = new ExecutionStore(this.workStore);
     const scope = [this.workStore.principal.scopeId, this.workStore.principal.scopeKind, id];
     const [completionFunction]=await this.workStore.database.query(
@@ -262,7 +265,8 @@ export class EngineeringWorkerProjectionStore {
       throw new WorkError("native_result_integrity","The retained native result failed its integrity check.",503);
     const nativeResult=nativeProof ? {id:String(nativeRow.native_result_id),proof:nativeProof,
       contentHash:String(nativeRow.native_proof_hash),current:nativeProof.workVersion===work.version &&
-        nativeProof.criteriaVersion===work.criteriaVersion && Number(nativeRow.native_result_generation)===work.generation} : null;
+        nativeProof.criteriaVersion===work.criteriaVersion && Number(nativeRow.native_result_generation)===work.generation} : externalAlpha?.result ? { id: externalAlpha.result.resultId, proof: externalAlpha.result.proof,
+      contentHash: externalAlpha.result.contentHash, current: externalAlpha.result.current } : null;
     const nativePhase = nativeRow?.phase as NonNullable<EngineeringWorkerProjection["nativeDevelopment"]>["phase"];
     const completionRun=runRows.find(row=>row.id===(nativeRow?.route_run_id??currentRouteRun?.id));
     const completion=completionRun?.completion;
@@ -469,9 +473,26 @@ export class EngineeringWorkerProjectionStore {
     const lastMeaningfulActivity = latestTime(
       latestTime(latestTime(work.updatedAt, execution?.lastActivity), nativeDevelopment?.updatedAt), lastChange?.at);
     const publicationReadback=nativeResult&&nativeRow?.publication_state==='PR_OPEN'?currentPublicationReadback(nativeRow?.publication_remote,{owner:this.workStore.principal.scopeId,workId:id,resultId:nativeResult.id,resultHash:nativeResult.contentHash,version:work.version,generation:work.generation,candidate:nativeResult.proof.resultRevision??''}):null;
+    const externalActivity = externalAlpha ? {
+      status: externalAlpha.state === "UNKNOWN" ? "Needs reconciliation" : externalAlpha.result ? "Result retained"
+        : externalAlpha.factoryOutcome ? "Stopped" : ["ISSUED", "DISPATCHING", "CONSUMED"].includes(externalAlpha.state) ? "Awaiting Factory readback" : "Stopped",
+      activity: externalAlpha.result ? `${externalAlpha.result.current ? "Factory candidate" : "Historical Factory candidate"} retained; Factory outcome ${externalAlpha.result.producerOutcome}; producer checks ${externalAlpha.result.producerChecks}; independent verifier: ${externalAlpha.result.verdict}. Result remains ${externalAlpha.result.proof.outcome}.`
+        : externalAlpha.factoryOutcome ? `Factory outcome: ${externalAlpha.factoryOutcome}. No candidate Result or Proof was produced; authenticated cleanup and accounting settled.`
+        : `External-alpha authority: ${externalAlpha.state}. Retained state does not establish fresh Factory liveness.`,
+      nextStep: externalAlpha.state === "UNKNOWN" ? "Reconcile the existing request and retained exposure. No paid retry or new writer is allowed."
+        : externalAlpha.result ? "Review the retained Result and Proof. Publication and owner acceptance are not established."
+        : externalAlpha.factoryOutcome ? "Review the retained terminal outcome. No new authority is implied."
+        : "Reconcile the exact retained Factory request. Do not create or send a second dispatch.",
+    } : null;
     const projection: EngineeringWorkerProjection = {
+      externalAlpha,
       publicationReadback,
-      journeyAccounting,factoryAccounting,factoryPreparation, factoryWriter, runTruth, verification, draft, completionBudget, candidateHistory, completionStatus, nativeExecution, executionController,
+      journeyAccounting,factoryAccounting,factoryPreparation, factoryWriter, runTruth,
+      verification: externalAlpha?.result ? { candidateSha: externalAlpha.result.candidateSha, status: externalAlpha.result.verdict === "PARTIAL" ? "UNKNOWN" : externalAlpha.result.verdict,
+        jobStatus: "RETAINED", evidenceCount: externalAlpha.result.proof.evidence.length, evidenceHashes: externalAlpha.result.proof.artifactRefs.filter(r => r.startsWith("factory-evidence:")) } : verification,
+      draft, completionBudget, candidateHistory: externalAlpha?.result ? [{ sha: externalAlpha.result.candidateSha, checks: externalAlpha.result.verdict === "PARTIAL" ? "UNKNOWN" : externalAlpha.result.verdict,
+        failures: externalAlpha.result.proof.evidence.filter(e => e.state === "FAIL").map(e => e.criterionId), evidenceCount: externalAlpha.result.proof.evidence.length }] : candidateHistory,
+      completionStatus, nativeExecution, executionController,
       workId: work.id,
       title: work.title,
       objective: work.objective,
@@ -499,15 +520,15 @@ export class EngineeringWorkerProjectionStore {
         boundaryRecheckRequired: true,
       },
       qualificationMode: execution?.qualificationMode ?? null,
-      status: factoryActivity?.status ?? (factoryPreparation?.blocker?"Needs reconciliation":null) ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
-      activity: factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? ((nativeResult || result) ? "A Result from prior execution is retained. No execution is currently admitted." : "Work intent is saved; no execution has been admitted."),
-      nextStep: publicationReadback ? (publicationReadback.review.status==='FAIL'?'Inspect the independent review finding. Any correction requires a separately authorized candidate lifecycle; do not modify the published candidate.':'Review the observed publication and CI evidence; owner acceptance is a separate decision.') : factoryAccounting?.blocker && factoryWriter?.state==='TERMINAL' ? `Factory execution is fenced. ${factoryAccounting.blocker}. Accounting reconciliation grants no new execution authority.` : factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
+      status: externalActivity?.status ?? factoryActivity?.status ?? (factoryPreparation?.blocker?"Needs reconciliation":null) ?? truth?.status ?? commonBudgetBlocker?.status ?? completionBlocker?.status ?? routeActivity?.status ?? noExecutionStatus(work),
+      activity: externalActivity?.activity ?? factoryActivity?.activity ?? factoryPreparation?.blocker ?? truth?.activity ?? commonBudgetBlocker?.activity ?? completionBlocker?.activity ?? routeActivity?.activity ?? ((nativeResult || result) ? "A Result from prior execution is retained. No execution is currently admitted." : "Work intent is saved; no execution has been admitted."),
+      nextStep: externalActivity?.nextStep ?? (publicationReadback ? (publicationReadback.review.status==='FAIL'?'Inspect the independent review finding. Any correction requires a separately authorized candidate lifecycle; do not modify the published candidate.':'Review the observed publication and CI evidence; owner acceptance is a separate decision.') : factoryAccounting?.blocker && factoryWriter?.state==='TERMINAL' ? `Factory execution is fenced. ${factoryAccounting.blocker}. Accounting reconciliation grants no new execution authority.` : factoryActivity?.nextStep ?? (factoryPreparation?.blocker?"Reconcile the retained Factory request; no new dispatch identity is permitted.":null) ?? truth?.nextStep ?? commonBudgetBlocker?.nextStep ?? completionBlocker?.nextStep ?? (executionController ? executionController.nextOperation
         ? `Native ${executionController.phase}: ${executionController.nextOperation}. No repeated orientation; current authority must be rechecked.`
         : executionController.phase==="VERIFY" ? "Wait for independent protected verification and Result retention. Do not restart orientation."
         : executionController.phase==="COMPLETE" ? "Local implementation is complete; retain PARTIAL and use the reserved fresh read-only explanation."
         : `Native execution is blocked. ${executionController.known.plan?.blockers.join("; ") || (executionController.progress.recovery==="STOP" ? "Bounded no-progress recovery is exhausted." : "Recheck current authority and completion capacity.")} No productive operation is recommended.`
-        : routeActivity?.nextStep) ?? noExecutionNextStep(work, !!(nativeResult || result)),
-      readiness: truth?.readiness ?? { ready: false, reasons: publicationReadback ? [`Publication: PASS. GitHub CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. ${publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result remains PARTIAL.`] : nativeResult
+        : routeActivity?.nextStep) ?? noExecutionNextStep(work, !!(nativeResult || result))),
+      readiness: externalAlpha ? { ready: false, reasons: [externalAlpha.result ? `Independent verifier: ${externalAlpha.result.verdict}; Result: ${externalAlpha.result.proof.outcome}. Publication and owner acceptance are not established.` : "No independently verified candidate Result is retained."] } : truth?.readiness ?? { ready: false, reasons: publicationReadback ? [`Publication: PASS. GitHub CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. ${publicationReadback.review.summary} Owner acceptance: NOT_RUN. Current Result remains PARTIAL.`] : nativeResult
         ? [`${nativeRow?.producer==="MYFACTORY"?"Factory candidate / MyEve":"Native"} protected verification: ${verification.status}. Retained Result: ${nativeResult.proof.outcome}. Publication, CI, independent review and owner acceptance remain unverified.`]
         : ["No independently verified, current Result exists."] },
       currentRun: runTruth.activeRun ? {id:runTruth.activeRun.id,status:runTruth.activeRun.storedStatus,
@@ -517,7 +538,7 @@ export class EngineeringWorkerProjectionStore {
       latestResult: result
         ? { id: result.id, version: result.version, summary: result.summary, candidate: result.candidate, createdAt: result.createdAt }
         : nativeResult ? {id:nativeResult.id,version:nativeResult.proof.workVersion,
-          summary:publicationReadback?`Published candidate. CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. Owner acceptance: NOT_RUN. Result: PARTIAL.`:`${nativeRow?.producer==="MYFACTORY"?"Factory candidate":"Native development"}: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
+          summary:externalAlpha?.result ? externalActivity!.activity : publicationReadback?`Published candidate. CI: ${publicationReadback.ci.status}. Independent review: ${publicationReadback.review.status}. Owner acceptance: NOT_RUN. Result: PARTIAL.`:`${nativeRow?.producer==="MYFACTORY"?"Factory candidate":"Native development"}: ${nativeResult.proof.outcome}. Publication and acceptance are not established.`,
           candidate:nativeResult.proof.resultRevision??"",createdAt:nativeResult.proof.createdAt} : null,
       nativeDevelopment,
       nativeResult,
