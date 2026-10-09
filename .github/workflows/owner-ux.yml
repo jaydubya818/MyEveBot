@@ -41,7 +41,8 @@ jobs:
       - name: Context failure recovery
         working-directory: apps/eve
         run: |
-          npx vitest run lib/external-alpha/reconciliation.test.ts
+          node scripts/migrate-database.ts --check
+          npx vitest run lib/database-schema.test.ts lib/external-alpha/reconciliation.test.ts
           node --import tsx --test test/chat-turn-failure.test.mjs
       - name: Initialize disposable database and server
         working-directory: apps/eve
