@@ -9,7 +9,7 @@ import { AGENT_NAME, OWNER_NAME } from "@/lib/identity";
 
 function safeDestination(): string {
   const requested = new URLSearchParams(window.location.search).get("returnTo");
-  return requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/";
+  return requested?.startsWith("/") && !requested.startsWith("//") ? requested : "/today";
 }
 
 export default function LoginPage() {

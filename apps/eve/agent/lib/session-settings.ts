@@ -166,6 +166,12 @@ export async function bindExecutorRun(
     (typeof row.role_id === "string" ? row.role_id : null) !== (executor.roleId ?? null)
   )) throw new Error("Cannot change a persisted session executor binding.");
   if (threadId) {
+    // First-message dispatch can beat the browser's metadata save. Create the
+    // owner-bound row before binding, without overwriting any existing owner,
+    // Agent, Role, title or conversation. Conflicting inserts remain denied below.
+    await db().query(`INSERT INTO web_chat_threads(id,owner_id,title,updated_at)
+      VALUES($1,$2,'New conversation',$3) ON CONFLICT(id) DO NOTHING`,
+      [threadId, ownerId, Date.now()]);
     if (executor.kind === "on-demand-role") {
       await db().query(`UPDATE web_chat_threads SET role_id=$3 WHERE owner_id=$1 AND id=$2 AND role_id IS NULL AND agent_id IS NULL`, [ownerId, threadId, executor.roleId]);
     } else {

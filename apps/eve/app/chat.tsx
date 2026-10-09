@@ -1,6 +1,6 @@
 "use client";
 import { ChatWorkContext } from "@/components/owner/chat-work-context";
-import { chatWorkHeaders, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
+import { chatWorkHeaders, chatWorkOptions, changeChatWork, showChatWorkContext, type ChatWorkSelection } from "@/lib/chat-work-selection";
 import { WorkThread } from "@/components/owner/work-thread";
 
 import { toolPresentation } from "@/lib/tool-presentation";
@@ -102,7 +102,7 @@ import type { SolutionPack } from "@/lib/solution-packs";
 import type { RoleDefinition } from "@/lib/role-catalog";
 import { cn } from "@/lib/utils";
 import { reconcileChatSession } from "@/lib/chat-session";
-import { latestTurnFailed } from "@/app/chat-turn-failure";
+import { latestTurnFailed, latestTurnContextLimit } from "@/app/chat-turn-failure";
 import {
   saveThreadForCurrentOwner,
   subscribeToThreadOwnerConflicts,
@@ -653,6 +653,8 @@ type MainView =
   | "files";
 
 function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initialPrompt?: string }) {
+  const [handoffWorkId] = useState(() => new URL(window.location.href).searchParams.get("work"));
+  const [handoffPending, setHandoffPending] = useState(Boolean(handoffWorkId));
   const [index, setIndex] = useState<ThreadIndex>(loadThreadIndex);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef<HTMLElement>(null);
@@ -1130,9 +1132,9 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     showView("chat");
   }
 
-  function startPromptThread(title: string, text: string) {
+  function startPromptThread(title: string, text: string, workSelection?: ChatWorkSelection) {
     const meta = { ...newThreadMeta(), title, renamed: true };
-    saveLocalChat(meta.id, {});
+    saveLocalChat(meta.id, workSelection ? { workSelection } : {});
     putThreadMetaToServer(meta);
     setPendingDraft({ threadId: meta.id, text });
     setIndex((prev) => ({ activeId: meta.id, threads: [meta, ...prev.threads] }));
@@ -1140,16 +1142,38 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     showView("chat");
   }
 
+  // A Work handoff opens a fresh conversation only after an owner-scoped read.
+  // It never sends, resumes Work, or changes the context of existing history.
+  useEffect(() => {
+    if (!handoffWorkId) return;
+    const abort = new AbortController();
+    void fetch(`/api/chat-work?workId=${encodeURIComponent(handoffWorkId)}`, { cache: 'no-store', signal: AbortSignal.any([abort.signal, AbortSignal.timeout(15000)]) })
+      .then(async response => {
+        if (!response.ok) throw Error('Work unavailable');
+        const body = await response.json();
+        const work = chatWorkOptions(body.works).find(item => item.id === handoffWorkId);
+        if (!work || body.selectionAvailable === false) throw Error('Work unavailable');
+        if (abort.signal.aborted) return;
+        startPromptThread(work.title, '', {workId:work.id,title:work.title,intent:'observe'});
+        const url = new URL(window.location.href);url.searchParams.delete('work');
+        window.history.replaceState(null, '', url.pathname + url.search);
+        setHandoffPending(false);
+      }).catch(() => { if (!abort.signal.aborted) window.location.assign(`/work?kind=work&id=${encodeURIComponent(handoffWorkId)}`); });
+    return () => abort.abort();
+    // The immutable URL selection is consumed once; normal thread updates are unrelated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handoffWorkId]);
+
   // A reviewed owner-UX handoff only prefills the existing composer; it never sends.
   const initialPromptConsumed = useRef(false);
   useEffect(() => {
-    if (!initialPrompt || initialPromptConsumed.current) return;
+    if (!initialPrompt || handoffWorkId || initialPromptConsumed.current) return;
     initialPromptConsumed.current = true;
     startPromptThread("Plan my work", initialPrompt);
     try { ownerSessionStorage.removeItem("myeve-owner-conversation-draft"); } catch { /* Optional draft cleanup. */ }
     // Consume once: startPromptThread intentionally uses the current thread state.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialPrompt]);
+  }, [initialPrompt, handoffWorkId]);
 
   function useRole(role: RoleDefinition) {
     const meta: ThreadMeta = { ...newThreadMeta(), title: `Use ${role.name}`, renamed: true, roleId: role.id, roleName: role.name };
@@ -1274,6 +1298,7 @@ function ChatApp({ initialView, initialPrompt }: { initialView: MainView; initia
     });
   }
 
+  if (handoffPending) return <p role="status" className="p-6">Opening your Work conversation…</p>;
   return (
     <div className="owner-conversation flex h-dvh w-full">
       {sidebarOpen && (
@@ -2070,6 +2095,7 @@ function ChatThread({
     return projected.messages;
   }, [agent.data.messages, events, resumedEvents]);
   const failedTurn = useMemo(() => latestTurnFailed(events), [events]);
+  const contextLimit = useMemo(() => latestTurnContextLimit(events), [events]);
 
   // Backfill titles for threads restored from storage (e.g. the migrated
   // pre-threads chat) whose meta still has the placeholder title.
@@ -2507,8 +2533,8 @@ function ChatThread({
                     <Bubble variant="destructive">
                       <BubbleContent role="alert">
                         <p className="font-medium">Sofie couldn&rsquo;t finish this turn.</p>
-                        <p>Review the selected model and system status, then retry or send a new message.</p>
-                        <Button
+                        <p>{contextLimit ? "This conversation contains more context than Sofie can safely use. Start a new conversation with a shorter request. For existing Work, open it and choose Discuss with Sofie to keep its saved context." : "Review the selected model and system status, then retry or send a new message."}</p>
+                        {contextLimit ? <Button className="mt-3" size="sm" variant="secondary" onClick={onNewThread}>New conversation</Button> : <><Button
                           className="mt-3 me-2"
                           size="sm"
                           variant="secondary"
@@ -2526,6 +2552,7 @@ function ChatThread({
                         >
                           Review setup
                         </Button>
+                        </>}
                       </BubbleContent>
                     </Bubble>
                   </MessageScrollerItem>

@@ -31,13 +31,22 @@ jobs:
       - run: npx playwright install --with-deps chrome
       - name: Focused policy and owner-boundary contracts
         working-directory: apps/eve
-        run: npx vitest run lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
+        run: npx vitest run lib/external-alpha/context.test.ts lib/external-alpha/model.test.ts agent/instructions/persistent-agent.test.ts agent/lib/session-settings.test.ts lib/external-alpha/paid-paths.test.ts lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts lib/artifact-workspace-state.test.ts lib/artifact-client.test.ts lib/artifact-api.test.ts lib/files-api.test.ts app/api/files/route.test.ts
+      - name: PostgreSQL authority and thread isolation
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+        run: npx vitest run lib/external-alpha/work-controller-postgres.test.ts lib/product/work-thread-postgres.test.ts agent/lib/session-settings-postgres.test.ts
+      - name: Context failure recovery
+        working-directory: apps/eve
+        run: node --import tsx --test test/chat-turn-failure.test.mjs
       - name: Initialize disposable database and server
         working-directory: apps/eve
         run: |
           node --import tsx test/owner-ux/setup.ts
           node test/owner-ux/local-server.cjs > /tmp/owner-ux-server.log 2>&1 &
           for attempt in $(seq 1 60); do curl -fsS http://127.0.0.1:3173/login >/dev/null && break; sleep 2; done
+          curl --max-time 90 -fsS http://127.0.0.1:3173/api/auth/status >/dev/null
       - name: Browser, accessibility, and owner isolation
         working-directory: apps/eve
         run: npx playwright test -c test/owner-ux/playwright.config.cjs
@@ -51,3 +60,38 @@ jobs:
           path: |
             output/owner-ux
             /tmp/owner-ux-server.log
+  owner-journey-boundary:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ux_fixture
+          POSTGRES_PASSWORD: local-only
+          POSTGRES_DB: blocker_fixes
+        ports: ['55491:5432']
+        options: >-
+          --health-cmd "pg_isready -U ux_fixture -d blocker_fixes"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Start isolated unpaid journey fixture
+        working-directory: apps/eve
+        env:
+          MYEVE_EXTERNAL_ALPHA_TEST_DATABASE: postgresql://ux_fixture:local-only@localhost:55491/blocker_fixes
+        run: |
+          node --import tsx test/owner-journey/runner.ts > /tmp/owner-journey-server.log 2>&1 &
+          for attempt in $(seq 1 90); do rg -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log && break; sleep 2; done
+          rg -q 'server listening at http://127.0.0.1:3185/' /tmp/owner-journey-server.log
+          curl --max-time 90 -fsS http://127.0.0.1:3183/api/auth/status >/dev/null
+      - name: Known Golden Journey blocker reproduction and canonical readback
+        working-directory: apps/eve
+        env:
+          MYEVE_OWNER_JOURNEY: '1'
+        run: npx playwright test -c test/owner-journey/playwright.config.cjs

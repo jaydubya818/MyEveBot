@@ -4,6 +4,7 @@ import type { EngineeringWorkerProjection } from '@/lib/engineering/worker-proje
 import { ProductShell, ResourceState } from './product-shell';
 import { useProductResource } from './resource';
 import { WorkSummary } from './work-summary';
+import { WorkControls } from './work-controls';
 
 /** Observes saved progress. Refresh and reconnect never dispatch execution. */
 export function WorkDetail({workId}: {workId:string}) {
@@ -11,7 +12,7 @@ export function WorkDetail({workId}: {workId:string}) {
   return <ProductShell title="Work" description="The outcome, progress and evidence in one place.">
     <p><Link href="/work">← All Work</Link></p>
     <ResourceState {...source}/>
-    {source.data?.canonical && <WorkSummary work={source.data.canonical.projection}/>}
+    {source.data?.canonical && <><WorkSummary work={source.data.canonical.projection}/><WorkControls key={`${workId}:${source.data.canonical.projection.workVersion}:${source.data.canonical.projection.workGeneration}`} work={source.data.canonical.projection} onRefresh={source.refresh}/></>}
     {!source.loading && !source.error && source.data && !source.data.canonical && <p role="alert">This Work’s details are unavailable. <button onClick={source.refresh}>Refresh details</button></p>}
   </ProductShell>;
 }

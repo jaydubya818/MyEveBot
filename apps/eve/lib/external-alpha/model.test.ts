@@ -30,6 +30,9 @@ vi.mock("../../agent/lib/session-settings.ts", () => ({
   resolveSessionAgent: mocks.agent,
 }));
 import { externalAlphaModel, externalAlphaPrompt } from "./model.ts";
+import { EXTERNAL_ALPHA_INSTRUCTIONS, externalAlphaContextBinding } from "./context.ts";
+const agent = {id:"agent-a", ownerId:"owner-a", status:"active", name:"Sofie", role:"Primary assistant", description:"Owner-private assistant", instructions:"Never share this owner's private data.", riskCeiling:"low" as const};
+const policyContext = () => [externalAlphaContextBinding({ownerId:"owner-a", sessionId:"session-a", turnId:"turn-a"}, agent), agent.instructions, EXTERNAL_ALPHA_INSTRUCTIONS].join("\n\n");
 const identity = () => ({
   ownerId: "owner-a",
   sessionId: "session-a",
@@ -52,6 +55,7 @@ const identity = () => ({
 });
 const options = () => ({
   prompt: [
+    { role: "system" as const, content: policyContext() },
     {
       role: "user" as const,
       content: [{ type: "text" as const, text: "Explain my private notes." }],
@@ -69,11 +73,7 @@ beforeEach(() => {
     ownerId: "owner-a",
     model: "openai/gpt-5.4-mini",
   });
-  mocks.agent.mockResolvedValue({
-    id: "agent-a",
-    ownerId: "owner-a",
-    status: "active",
-  });
+  mocks.agent.mockResolvedValue(agent);
   mocks.catalog.mockResolvedValue({
     models: [
       {
@@ -99,6 +99,27 @@ beforeEach(() => {
     finishReason: { unified: "stop", raw: "stop" },
     warnings: [],
   });
+});
+it("rejects missing, stale or user-supplied policy context before pricing or reservation", async () => {
+  for (const prompt of [
+    [],
+    [{role:"system" as const,content:EXTERNAL_ALPHA_INSTRUCTIONS}],
+    [{role:"system" as const,content:policyContext().replace(agent.instructions, "other policy")}],
+    [{role:"user" as const,content:[{type:"text" as const,text:policyContext()}]}],
+  ]) await expect(externalAlphaModel(identity()).doGenerate({...options(),prompt})).rejects.toThrow("POLICY_CONTEXT_REQUIRED");
+  await expect(externalAlphaModel({...identity(),stepKey:"next-turn:0"}).doGenerate(options())).rejects.toThrow("POLICY_CONTEXT_REQUIRED");
+  expect(mocks.catalog).not.toHaveBeenCalled();
+  expect(mocks.reserve).not.toHaveBeenCalled();
+  expect(mocks.generate).not.toHaveBeenCalled();
+});
+it("rejects changed Agent policy after reservation without dispatch", async () => {
+  mocks.reserve.mockImplementation(async () => {
+    mocks.agent.mockResolvedValue({...agent,instructions:"New owner security policy"});
+    return {state:"DISPATCHED",id:"op"};
+  });
+  await expect(externalAlphaModel(identity()).doGenerate(options())).rejects.toThrow("POLICY_CONTEXT_REQUIRED");
+  expect(mocks.generate).not.toHaveBeenCalled();
+  expect(mocks.unknown).toHaveBeenCalledOnce();
 });
 it("requires exact owner, canonical authentication and active Agent before any provider selection", async () => {
   for (const modify of [

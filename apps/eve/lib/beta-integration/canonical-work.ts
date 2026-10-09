@@ -53,6 +53,14 @@ export class CanonicalBetaWork {
           "Refresh the current Work before changing control.",
           409,
         );
+      // Issuance takes this same Work lock. A generic control change must not
+      // invalidate an outstanding external-alpha request or its retained Result.
+      // Sofie's canonical stop/takeover path reconciles cleanup before control.
+      const [external] = (await c.query(
+        "SELECT id FROM external_alpha_work_authority WHERE owner_id=$1 AND work_id=$2 LIMIT 1",
+        [owner, workId],
+      )).rows;
+      if (external) throw new WorkError("external_alpha_control_required", "Review this Work with Sofie before changing its control.", 409);
       if (operation === "continue") {
         await c.query(
           "SELECT pg_advisory_xact_lock(hashtextextended($1,719))",

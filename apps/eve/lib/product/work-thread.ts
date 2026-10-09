@@ -8,7 +8,8 @@ export async function readWorkThread(beta: BetaIntegration, owner: string, threa
   const [thread] = await beta.query('SELECT id FROM web_chat_threads WHERE owner_id=$1 AND id=$2', [owner, threadId]);
   if (!thread) throw new WorkError('thread_not_found', 'Conversation not found.', 404);
   const rows = await beta.query(`
-    SELECT w.id, max(c.created_at) AS associated_at
+    WITH associations AS (
+    SELECT w.id, c.created_at AS associated_at
     FROM context_assemblies c
     JOIN agent_runs r ON r.id=c.agent_run_id AND r.owner_id=c.owner_id
       AND r.agent_id=c.agent_id AND r.session_id=c.session_id AND r.thread_id=c.thread_id
@@ -16,7 +17,16 @@ export async function readWorkThread(beta: BetaIntegration, owner: string, threa
     JOIN engineering_work w ON w.scope_id=c.owner_id AND w.scope_kind='personal'
       AND c.source_refs @> jsonb_build_array('engineering-work:' || w.id::text)
     WHERE c.owner_id=$1 AND c.thread_id=$2
-    GROUP BY w.id ORDER BY max(c.created_at) DESC,w.id DESC LIMIT 11 OFFSET $3`, [owner, threadId, offset]);
+    UNION ALL
+    SELECT w.id, e.created_at AS associated_at
+    FROM external_alpha_tool_effect e
+    JOIN agent_runs r ON r.owner_id=e.owner_id AND r.agent_id=e.agent_id AND r.session_id=e.session_id
+    JOIN agents a ON a.owner_id=r.owner_id AND a.id=r.agent_id
+    JOIN engineering_work w ON w.scope_id=e.owner_id AND w.scope_kind='personal'
+      AND w.id::text=e.result->'work'->>'id'
+    WHERE e.owner_id=$1 AND r.thread_id=$2 AND e.tool_name='engineering_work' AND e.state='COMPLETED'
+    ) SELECT id, max(associated_at) AS associated_at FROM associations
+    GROUP BY id ORDER BY max(associated_at) DESC,id DESC LIMIT 11 OFFSET $3`, [owner, threadId, offset]);
   const works = await Promise.all(rows.slice(0, 10).map(async row => ({
     ...await new CanonicalBetaWork(beta).projection(owner, String(row.id)),
     associatedAt: new Date(row.associated_at).toISOString(),

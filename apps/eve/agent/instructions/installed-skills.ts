@@ -1,6 +1,6 @@
-import { defineInstructions } from "eve/instructions";
+import { optionalDeploymentInstructions } from "../lib/optional-deployment-instructions.ts";
 
-export default defineInstructions({
+export default optionalDeploymentInstructions({
   markdown: `
 ## Project skills
 

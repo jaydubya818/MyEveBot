@@ -35,7 +35,7 @@ These are provenance candidates, **not proof of the screenshots' source**. The p
 
 Implemented shared shell and semantic tokens, narrow policy-aware navigation, Sofie thread-only rail, mobile menu, clean Today entry, Settings and Privacy. Removed global New Goal, repeated privacy boilerplate, alpha developer/model/setup controls, and denied publication/learning links. This intentionally touches multiple page wrappers because leaving one unchanged would retain shell switching.
 
-No migration, controller, accounting, FactoryVersion or authority change is introduced by the UX diff against the frozen source. The base merge inherits existing alpha migrations; those are not new UX migrations. Automatic Vercel deployment is disabled for this implementation branch.
+Checkpoint A introduced no migration, controller, accounting, FactoryVersion or authority change. Checkpoint H adds a restrictive generic-control fence for existing external-alpha authority and changes context admission; see `external-alpha-change-impact.md`. The base merge inherits existing alpha migrations; those are not new UX migrations. Automatic Vercel deployment is disabled for this implementation branch.
 
 Qualification and checkpoint verdicts are recorded separately. Checkpoint A is not UX1–UX9 release qualification. Work presentation, decisions, populated/fault fixtures, durable golden journey and final release impact remain to be completed.
 

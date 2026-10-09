@@ -121,7 +121,12 @@ export default defineAgent({
           return typeof value==='string'?gateway(value):value; };
         return {model:{specificationVersion:'v4' as const,provider:'myeve-scoped-selection',modelId:'authenticated-scope',supportedUrls:{},
           doGenerate:async(options:Parameters<ReturnType<typeof gateway>['doGenerate']>[0])=>(await resolve()).doGenerate(options),
-          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},modelContextWindowTokens:200_000};
+          doStream:async(options:Parameters<ReturnType<typeof gateway>['doStream']>[0])=>(await resolve()).doStream(options)},
+          // Eve estimates its full catalog before the alpha wrapper removes
+          // unavailable capabilities. Keep the existing framework token window;
+          // alpha admission separately enforces 32,000 bytes before any dispatch.
+          // Paid compaction remains denied, including on oversized histories.
+          modelContextWindowTokens:200_000};
       },
     },
   }),

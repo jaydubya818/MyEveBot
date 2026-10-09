@@ -7,6 +7,7 @@ import {
 } from "../../agent/lib/session-settings.ts";
 import { externalAlphaPolicy } from "./policy.ts";
 import { ExternalAlphaAllowance } from "./allowance.ts";
+import { EXTERNAL_ALPHA_CONTEXT_BYTES, EXTERNAL_ALPHA_OUTPUT_TOKENS, EXTERNAL_ALPHA_INSTRUCTIONS, externalAlphaContextBinding, omitUnavailableSkillCatalog } from "./context.ts";
 import type { ExecutionDatabase } from "../execution-types.ts";
 type Model = ReturnType<typeof gateway>;
 type Options = Parameters<Model["doGenerate"]>[0];
@@ -35,7 +36,7 @@ export const externalAlphaTools = new Set([
   "engineering_work",
   "engineering_factory",
 ]);
-export function externalAlphaPrompt(options: Options): Options {
+export function externalAlphaPrompt(options: Options, selectedWork = false): Options {
   if (
     options.prompt.some(
       (m) => m.role === "user" && m.content.some((p) => p.type !== "text"),
@@ -43,16 +44,20 @@ export function externalAlphaPrompt(options: Options): Options {
   )
     throw Error("EXTERNAL_ALPHA_TEXT_CONTEXT_REQUIRED");
   const tools = options.tools?.filter(
-    (t) => t.type === "function" && externalAlphaTools.has(t.name),
+    (t) => t.type === "function" && externalAlphaTools.has(t.name) &&
+      (!selectedWork || ["ask_question", "engineering_work", "engineering_factory"].includes(t.name)),
   );
-  const prompt = options.prompt;
-  if (Buffer.byteLength(JSON.stringify({ prompt, tools })) > 32000)
-    throw Error("EXTERNAL_ALPHA_CONTEXT_BOUND");
+  const prompt = options.prompt.map(message => message.role === "system"
+    ? { ...message, content: omitUnavailableSkillCatalog(message.content) }
+    : message);
+  const contextBytes = Buffer.byteLength(JSON.stringify({ prompt, tools }));
+  if (contextBytes > EXTERNAL_ALPHA_CONTEXT_BYTES)
+    throw Error(`EXTERNAL_ALPHA_CONTEXT_BOUND: ${contextBytes}/${EXTERNAL_ALPHA_CONTEXT_BYTES} bytes`);
   return {
     prompt,
     tools,
     toolChoice: { type: "auto" },
-    maxOutputTokens: 1024,
+    maxOutputTokens: EXTERNAL_ALPHA_OUTPUT_TOKENS,
     abortSignal: options.abortSignal,
     providerOptions: { gateway: { only: ["openai"] } },
   };
@@ -97,7 +102,18 @@ export function externalAlphaModel(
     if (!agent || agent.ownerId !== policy.ownerId || agent.status !== "active")
       throw Error("EXTERNAL_ALPHA_AGENT_REQUIRED");
     options.abortSignal?.throwIfAborted();
-    const scoped = externalAlphaPrompt(options);
+    const turn = input.stepKey.slice(0, input.stepKey.lastIndexOf(":"));
+    // Eve can skip a failed dynamic instruction resolver. Never pay for a turn
+    // without the successful current assembly and this Agent's exact policy.
+    function requirePolicy(currentAgent: NonNullable<typeof agent>) {
+      const binding = externalAlphaContextBinding({ownerId: policy!.ownerId, sessionId: input.sessionId!, turnId: turn, workId: current?.attributes?.myeveEngineeringWorkId}, currentAgent);
+      if (!currentAgent.instructions || !options.prompt.some(message => message.role === "system" && message.content.includes(binding) && message.content.includes(EXTERNAL_ALPHA_INSTRUCTIONS) && message.content.includes(currentAgent.instructions)))
+        throw Error("EXTERNAL_ALPHA_POLICY_CONTEXT_REQUIRED");
+    }
+    requirePolicy(agent);
+    // A conversation explicitly bound to Work does not need Agent/Goal management
+    // schemas. This narrows model visibility only; tool authority is unchanged.
+    const scoped = externalAlphaPrompt(options, typeof current.attributes?.myeveEngineeringWorkId === "string");
     // Read-only catalog request, no model dispatch. Refuse missing/invalid rates;
     // every paid operation reserves conservative bytes-as-tokens exposure first.
     const catalog = await Promise.race([
@@ -135,7 +151,6 @@ export function externalAlphaModel(
       db() as ExecutionDatabase,
       policy,
     );
-    const turn = input.stepKey.slice(0, input.stepKey.lastIndexOf(":"));
     const allowance = await budget.admit({
       kind: "CHAT",
       bindingId: input.sessionId + ":" + turn,
@@ -174,6 +189,7 @@ export function externalAlphaModel(
         dispatchAgent.status !== "active"
       )
         throw Error("EXTERNAL_ALPHA_AGENT_REVOKED");
+      requirePolicy(dispatchAgent);
       const dispatchRemaining =
         new Date(allowance.deadline).getTime() - Date.now();
       if (!Number.isFinite(dispatchRemaining) || dispatchRemaining <= 0)

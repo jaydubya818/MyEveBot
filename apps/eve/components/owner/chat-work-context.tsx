@@ -39,6 +39,7 @@ export function ChatWorkContext({ selection, locked, busy, onChange }: {
             onChange(work ? { workId: work.id, title: work.title, intent: "observe" } : undefined);
           }}>
           <option value="">No Work selected</option>
+          {selection && !works.some(work => work.id === selection.workId) && <option value={selection.workId}>{selection.title}</option>}
           {works.map(work => <option key={work.id} value={work.id}>{chatWorkOptionLabel(work)}</option>)}
         </select>
       </label>}

@@ -1,4 +1,4 @@
-import { defineInstructions } from "eve/instructions";
+import { optionalDeploymentInstructions } from "../lib/optional-deployment-instructions.ts";
 
 import { BUILTIN_ROLE_CATALOG } from "../../lib/builtin-role-catalog.ts";
 import { DELEGATION_BUDGETS } from "../../lib/delegation-policy.ts";
@@ -7,7 +7,7 @@ const packSummary = BUILTIN_ROLE_CATALOG.packs
   .map((pack) => `- ${pack.name}: ${pack.roles.map(({ role }) => role.name).join(", ")}`)
   .join("\n");
 
-export default defineInstructions({
+export default optionalDeploymentInstructions({
   markdown: `
 ## Role-based delegation
 
