@@ -436,11 +436,32 @@ test.skipIf(!connection || !factoryRoot)(
               { version: 2, digest: digest(next) },
             ],
             factoryVersion: pkg.factoryVersion,
+            resultFactoryVersion:
+              first.signed.manifest.execution.factoryVersion,
             paidOperations: 0,
             productionDeployments: 0,
             productionInstallations: 0,
             externalAlphaChanges: 0,
             referenceOnly: true,
+          },
+          null,
+          2,
+        ) + "\n",
+      );
+      // Preserve only synthetic, public-verifiable evidence; private signing keys stay in memory.
+      writeFileSync(
+        join(output, "golden-artifacts.json"),
+        JSON.stringify(
+          {
+            referenceOnly: true,
+            packages: [pkg, next],
+            runs: [first.run, second.run],
+            results: [first.signed, second.signed],
+            publicVerificationKeys: keys,
+            proofs: [
+              session.version(pkg.appId, 1).proof,
+              session.version(pkg.appId, 2).proof,
+            ],
           },
           null,
           2,
