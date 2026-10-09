@@ -2,7 +2,7 @@ import { z } from "zod";
 import type { InboxQuery } from "./contracts.ts";
 const date = z.string().datetime({ offset: true }).transform(value => new Date(value).toISOString());
 export const inboxQuerySchema = z.object({
-  view: z.enum(["inbox", "needs_you", "waiting", "archive", "thread"]).default("inbox"),
+  view: z.enum(["inbox", "needs_you", "waiting", "archive", "decision_history", "thread"]).default("inbox"),
   limit: z.number().int().min(1).max(100).default(50), cursor: z.string().max(1024).optional(),
   workId: z.string().min(1).max(255).optional(), correlationId: z.string().min(1).max(255).optional(),
   bucket: z.enum(["new_needs_you", "unresolved_important", "important", "resolved", "external_replies", "follow_up", "blocked"]).optional(),
@@ -36,6 +36,10 @@ export function queryPlan(ownerId: string, raw: InboxQuery, now: string, dialect
   else if (query.view === "needs_you") { where.push(needs); params.push(now); }
   else if (query.view === "waiting") where.push("status='WAITING'");
   else if (query.view === "archive") where.push("status IN ('RESOLVED','DISMISSED','SUPERSEDED')");
+  else if (query.view === "decision_history") {
+    where.push(`((kind IN ('DECISION','APPROVAL') AND (status IN ('RESOLVED','DISMISSED','SUPERSEDED') OR expires_at<=?)) OR ${field("responseId")} IS NOT NULL)`);
+    params.push(now);
+  }
   else if (query.view !== "thread") where.push(`(${live} OR (status='RESOLVED' AND kind='RESULT'))`);
   if (query.cursor) {
     const [score, deadline, id, binding] = z.tuple([z.number().int(), z.string().max(40), z.string().max(255), z.string()]).parse(JSON.parse(Buffer.from(query.cursor, "base64url").toString()));

@@ -23,6 +23,7 @@ export function DecisionCard({
     lock.current = true;
     setBusy(true);
     setError(null);
+    let saved = false;
     try {
       const result = preview
         ? {
@@ -41,6 +42,7 @@ export function DecisionCard({
               body: JSON.stringify({ decision, bindingHash: item.bindingHash }),
             },
           );
+      saved = true;
       onDecision(result.approval);
     } catch (cause) {
       setError(
@@ -49,8 +51,10 @@ export function DecisionCard({
           : "The decision was not confirmed. Refresh before trying again.",
       );
     } finally {
-      lock.current = false;
-      setBusy(false);
+      if (!saved) {
+        lock.current = false;
+        setBusy(false);
+      }
     }
   }
   return (

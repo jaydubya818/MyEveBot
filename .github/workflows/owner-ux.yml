@@ -31,7 +31,7 @@ jobs:
       - run: npx playwright install --with-deps chrome
       - name: Focused policy and owner-boundary contracts
         working-directory: apps/eve
-        run: npx vitest run lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts
+        run: npx vitest run lib/external-alpha/features.test.ts lib/external-alpha/proxy.test.ts lib/private-owner-boundary.test.ts lib/owner-browser-storage.test.ts lib/product/owner-work.test.ts lib/engineering/worker-projection.test.ts lib/universal-inbox/inbox.test.ts lib/universal-inbox/integration.test.ts lib/approvals.test.ts
       - name: Initialize disposable database and server
         working-directory: apps/eve
         run: |

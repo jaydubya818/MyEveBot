@@ -485,6 +485,15 @@ export async function betaRequest(
         },
       })(request);
       if (request.method === "POST" && response.ok) await beta.deliver(owner);
+      if (request.method === "GET" && response.ok) {
+        const page = await response.json() as import("../universal-inbox/contracts.ts").InboxPage;
+        const decisions = await Promise.all(page.items.filter(item => item.responseId).map(async item => {
+          const saved = await beta.responses().read(owner, item.responseId!);
+          if (!saved || saved.itemId !== item.id) return null;
+          return { itemId: item.id, prompt: saved.action.prompt, answer: saved.answer, status: saved.status, at: saved.createdAt, approvalId: saved.action.approval?.id ?? null };
+        }));
+        return Response.json({ ...page, decisions: decisions.filter(Boolean) }, { headers });
+      }
       return response;
     }
     const url = new URL(request.url),

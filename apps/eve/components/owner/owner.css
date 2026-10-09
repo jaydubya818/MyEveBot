@@ -654,3 +654,4 @@
 .owner-status[data-tone="success"] { color: var(--owner-accent); }
 .owner-status[data-tone="warning"], .owner-status[data-tone="attention"] { border: 1px solid #957b54; }
 @media(max-width:600px) { .owner-work-summary { padding: 20px; } }
+.owner-page button[aria-pressed="true"] { background: var(--color-kumo-tint); border-color: var(--owner-accent); box-shadow: inset 0 0 0 1px var(--owner-accent); }

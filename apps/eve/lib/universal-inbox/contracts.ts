@@ -97,7 +97,7 @@ export interface Evidence {
 }
 export interface InboxPage { version: typeof CONTRACT_VERSION; items: AttentionView[]; nextCursor: string | null }
 export interface InboxQuery {
-  view?: "inbox" | "needs_you" | "waiting" | "archive" | "thread";
+  view?: "inbox" | "needs_you" | "waiting" | "archive" | "decision_history" | "thread";
   limit?: number; cursor?: string; workId?: string; correlationId?: string;
   bucket?: "new_needs_you" | "unresolved_important" | "important" | "resolved" | "external_replies" | "follow_up" | "blocked";
   since?: string; until?: string;
