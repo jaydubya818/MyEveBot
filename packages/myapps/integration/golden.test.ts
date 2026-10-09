@@ -249,6 +249,7 @@ test.skipIf(!connection || !factoryRoot)(
         return {
           run,
           signed,
+          manifest: accepted.manifest,
           preview: store.createPreview(
             owner,
             candidate.appId,
@@ -437,7 +438,7 @@ test.skipIf(!connection || !factoryRoot)(
             ],
             factoryVersion: pkg.factoryVersion,
             resultFactoryVersion:
-              first.signed.manifest.execution.factoryVersion,
+              first.manifest.execution.factoryVersion,
             paidOperations: 0,
             productionDeployments: 0,
             productionInstallations: 0,
