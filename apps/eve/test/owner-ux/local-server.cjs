@@ -13,7 +13,7 @@ const fixture = http.createServer(async (req,res) => {
   if(req.method==='DELETE'){objects.delete(u.searchParams.get('pathname'));send(200,{deleted:true});return;}
   if(req.method==='PUT'){
     const pathname=u.searchParams.get('pathname');
-    if(!pathname?.startsWith('chat-files/')){send(400,{error:{code:'bad_request',message:'Invalid fixture path'}});return;}
+    if(!pathname || !/^(chat-files|artifacts)\//.test(pathname)){send(400,{error:{code:'bad_request',message:'Invalid fixture path'}});return;}
     if(objects.has(pathname)){send(409,{error:{code:'conflict',message:'Already exists'}});return;}
     const chunks=[];for await(const chunk of req)chunks.push(chunk);
     const bytes=Buffer.concat(chunks),url='https://fixture.private.blob.vercel-storage.com/'+pathname;

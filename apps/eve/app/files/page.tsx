@@ -1,5 +1,2 @@
-import { Chat } from "../chat";
-
-export default function FilesPage() {
-  return <Chat initialView="files" />;
-}
+import { redirect } from "next/navigation";
+export default function FilesPage() { redirect("/workspace"); }

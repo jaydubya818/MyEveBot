@@ -256,6 +256,12 @@ export function CommandPalette({
       ),
     );
 
+    if (needle.length >= 2 && destinationAllowed("/search")) list.push({
+      key: "action:workspace-search", kind: "action", label: `Find “${query.trim()}” in Work and Files`,
+      icon: <MagnifyingGlassIcon className="size-4" />,
+      run: () => { onClose(); window.location.assign(`/search?q=${encodeURIComponent(query.trim())}`); },
+    });
+
     const titleMatches = threads
       .filter(
         (thread) =>

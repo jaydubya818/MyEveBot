@@ -5,8 +5,8 @@ import { WorkError } from '../engineering/types.ts';
 import { ownerWorkPresentation } from './owner-work.ts';
 import { workState, type WorkLane } from './work-state.ts';
 
-export async function readWorkInbox(beta: BetaIntegration, owner: string, offset = 0) {
-  const rows = await beta.query(`SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' ORDER BY updated_at DESC,id DESC LIMIT 21 OFFSET $2`,[owner,offset]);
+export async function readWorkInbox(beta: BetaIntegration, owner: string, offset = 0, query = "") {
+  const rows = await beta.query(`SELECT id FROM engineering_work WHERE scope_id=$1 AND scope_kind='personal' AND ($3::text='' OR strpos(lower(title),lower($3))>0) ORDER BY updated_at DESC,id DESC LIMIT 21 OFFSET $2`,[owner,offset,query]);
   const works = await Promise.all(rows.slice(0,20).map(async row => {
     const {projection} = await new CanonicalBetaWork(beta).projection(owner,String(row.id));
     let publication: Awaited<ReturnType<OwnerPublication['view']>> | null = null;

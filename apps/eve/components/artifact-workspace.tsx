@@ -1,6 +1,7 @@
 "use client";
 
-import { upload } from "@vercel/blob/client";
+import { artifactMime, uploadArtifactBlob, uploadOwnerArtifact } from "@/lib/artifact-upload";
+import { useExternalLinksAllowed } from "@/components/owner/destination-gate";
 import { Badge, Button, Input, Loader } from "@cloudflare/kumo";
 import {
   ArrowClockwiseIcon,
@@ -40,45 +41,6 @@ import {
   type ArtifactScope,
 } from "@/lib/artifact-workspace-state";
 import { cn } from "@/lib/utils";
-
-function artifactMime(file: File): string {
-  if (file.type) return file.type;
-  const extension = file.name.split(".").at(-1)?.toLowerCase();
-  if (extension === "md" || extension === "markdown") return "text/markdown";
-  if (extension === "html" || extension === "htm") return "text/html";
-  if (extension === "pdf") return "application/pdf";
-  if (extension === "csv") return "text/csv";
-  if (extension === "xlsx") {
-    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-  }
-  if (extension === "pptx") {
-    return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-  }
-  return "application/octet-stream";
-}
-
-function acceptedArtifact(file: File): boolean {
-  const extension = file.name.split(".").at(-1)?.toLowerCase();
-  return ["md", "markdown", "html", "htm", "pdf", "csv", "xlsx", "pptx"].includes(
-    extension ?? "",
-  );
-}
-
-function safePathname(filename: string): string {
-  return filename
-    .normalize("NFKC")
-    .replaceAll(/[/\\\u0000-\u001f\u007f]/g, "-")
-    .replaceAll(/\s+/g, " ")
-    .trim()
-    .slice(0, 180) || "artifact";
-}
-
-async function fileSha256(file: File): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join(
-    "",
-  );
-}
 
 function formatBytes(size: number): string {
   if (size >= 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`;
@@ -143,11 +105,14 @@ export function ArtifactWorkspace({
   threadId,
   initialArtifactId,
   onArtifactChange,
+  hideLibrary = false,
 }: {
   threadId?: string;
+  hideLibrary?: boolean;
   initialArtifactId?: string | null;
   onArtifactChange?: (artifactId: string | null) => void;
 }) {
+  const sharingAllowed = useExternalLinksAllowed();
   const [scope, setScope] = useState<ArtifactScope>(
     initialArtifactId || !threadId ? "all" : "thread",
   );
@@ -329,7 +294,7 @@ export function ArtifactWorkspace({
         setSelection(null);
         setShareUrl(null);
         setShares([]);
-        void loadArtifactShares(selectedId, { fresh: force })
+        if (sharingAllowed) void loadArtifactShares(selectedId, { fresh: force })
           .then((nextShares) => {
             if (!cancelled) setShares(nextShares);
           })
@@ -368,7 +333,7 @@ export function ArtifactWorkspace({
     return () => {
       cancelled = true;
     };
-  }, [detailRevision, selectedId]);
+  }, [detailRevision, selectedId, sharingAllowed]);
 
   const artifact = detail?.artifact ?? null;
   const selectedVersion = useMemo(
@@ -421,63 +386,13 @@ export function ArtifactWorkspace({
     return () => clearTimeout(timer);
   }, [artifact, editable, editorText, savedText]);
 
-  async function uploadBlob(file: File, artifactId: string, versionId: string) {
-    if (!acceptedArtifact(file)) {
-      throw new Error("Use Markdown, HTML, PDF, CSV, XLSX, or PPTX.");
-    }
-    if (file.size > 50 * 1024 * 1024) throw new Error("Artifacts are limited to 50 MB.");
-    const pathname = `artifacts/${artifactId}/${versionId}/${safePathname(file.name)}`;
-    const [blob, sha256] = await Promise.all([
-      upload(pathname, file, {
-        access: "private",
-        handleUploadUrl: "/api/artifacts/upload",
-        clientPayload: JSON.stringify({ artifactId, versionId }),
-        contentType: artifactMime(file),
-        multipart: file.size > 5 * 1024 * 1024,
-      }),
-      fileSha256(file),
-    ]);
-    return { blob, sha256 };
-  }
-
   async function addArtifact(file: File) {
     setBusy(true);
     setError(null);
     try {
-      const artifactId = crypto.randomUUID();
-      const versionId = crypto.randomUUID();
-      const { blob, sha256 } = await uploadBlob(file, artifactId, versionId);
-      const response = await fetch("/api/artifacts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          artifactId,
-          versionId,
-          title: file.name.replace(/\.[^.]+$/, "") || file.name,
-          filename: file.name,
-          mimeType: artifactMime(file),
-          threadId,
-          blob: {
-            url: blob.url,
-            pathname: blob.pathname,
-            size: file.size,
-            sha256,
-          },
-        }),
-      });
-      const body = (await response.json()) as {
-        artifact?: ArtifactDescriptor;
-        error?: string;
-      };
-      if (!response.ok || body.artifact === undefined) {
-        throw new Error(body.error ?? "Could not register artifact.");
-      }
+      const uploaded = await uploadOwnerArtifact(file, threadId);
       setScope("all");
-      setSelectedId(body.artifact.id);
-      notifyArtifactsChanged({
-        artifactId: body.artifact.id,
-        versionId: body.artifact.currentVersionId,
-      });
+      setSelectedId(uploaded.id);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not upload artifact.");
     } finally {
@@ -491,7 +406,7 @@ export function ArtifactWorkspace({
     setError(null);
     try {
       const versionId = crypto.randomUUID();
-      const { blob, sha256 } = await uploadBlob(file, artifact.id, versionId);
+      const { blob, sha256 } = await uploadArtifactBlob(file, artifact.id, versionId);
       const response = await fetch(`/api/artifacts/${artifact.id}/versions`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -689,7 +604,7 @@ export function ArtifactWorkspace({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col md:flex-row">
-      <section className="flex max-h-64 w-full shrink-0 flex-col border-e border-kumo-hairline md:max-h-none md:w-48">
+      {!hideLibrary && <section className="flex max-h-64 w-full shrink-0 flex-col border-e border-kumo-hairline md:max-h-none md:w-48">
         <div className="flex items-center gap-1 border-b border-kumo-hairline p-2">
           <div role="tablist" aria-label="Artifact scope" className="flex min-w-0 flex-1 gap-1">
             {(threadId ? ["thread", "all"] as const : ["all"] as const).map((value) => (
@@ -783,7 +698,7 @@ export function ArtifactWorkspace({
             </ul>
           )}
         </div>
-      </section>
+      </section>}
 
       <section className="flex min-w-0 flex-1 flex-col">
         {detailLoading ? (
@@ -817,7 +732,7 @@ export function ArtifactWorkspace({
                 <p className="text-sm font-medium">Artifacts live here</p>
                 <p className="max-w-xs text-xs text-kumo-subtle">
                   Upload a document, or ask Sofie to create one. Revisions, drafts, comments,
-                  and shares stay attached to the artifact.
+                  and source information stay attached to the file.
                 </p>
                 <Button
                   size="sm"
@@ -834,7 +749,7 @@ export function ArtifactWorkspace({
           <>
             <header className="flex shrink-0 flex-wrap items-center gap-2 border-b border-kumo-hairline p-3">
               <div className="min-w-0 basis-full md:basis-auto md:flex-1">
-                <h3 className="truncate text-sm font-medium">{artifact.title}</h3>
+                {!hideLibrary && <h3 className="truncate text-sm font-medium">{artifact.title}</h3>}
                 <p className="truncate text-[11px] text-kumo-subtle">
                   {selectedVersion.filename} · {formatBytes(selectedVersion.sizeBytes)} ·
                   revision {selectedVersion.ordinal}
@@ -863,10 +778,9 @@ export function ArtifactWorkspace({
               )}
               <button type="button" aria-label="Download this revision"
                 onClick={() => window.open(`${contentUrl}&download=1`, "_blank", "noopener")}>Download</button>
-              <button type="button" aria-label="Share this revision for seven days" disabled={busy}
-                onClick={() => void share()}>Share</button>
-              {editingCurrent ? (
-                <Button
+              {sharingAllowed && <button type="button" aria-label="Share this revision for seven days" disabled={busy}
+                onClick={() => void share()}>Share</button>}
+              {editingCurrent ? (viewMode === "edit" && <Button
                   size="xs"
                   variant="primary"
                   disabled={busy || editorText === savedText}
@@ -900,7 +814,7 @@ export function ArtifactWorkspace({
                 </>
               )}
             </header>
-            {shareUrl !== null && (
+            {sharingAllowed && shareUrl !== null && (
               <div className="border-b border-kumo-hairline bg-kumo-tint px-3 py-2 text-xs">
                 Share copied · expires in 7 days ·{" "}
                 <a href={shareUrl} target="_blank" rel="noreferrer" className="underline">
@@ -1008,7 +922,7 @@ export function ArtifactWorkspace({
                         </li>
                       ))}
                   </ul>
-                  {shares.length > 0 && (
+                  {sharingAllowed && shares.length > 0 && (
                     <div className="border-t border-kumo-hairline pt-2">
                       <p className="mb-1 text-[10px] font-medium tracking-wide text-kumo-subtle uppercase">
                         Public shares

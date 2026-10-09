@@ -10,7 +10,7 @@ import type {
 import { ProductShell, ResourceState } from "./product-shell";
 import { useProductResource } from "./resource";
 import { Card, State, date } from "./primitives";
-import { useVisibleDestinations } from "./destination-gate";
+import { useVisibleDestinations, useExternalLinksAllowed } from "./destination-gate";
 import {
   searchArtifacts,
   searchAgents,
@@ -22,21 +22,23 @@ import {
 
 export function ProductSearch() {
   const productDestinations = useVisibleDestinations();
+  const fullProduct = useExternalLinksAllowed();
   const [query, setQuery] = useState("");
   const [settled, setSettled] = useState("");
+  useEffect(() => { setQuery(new URLSearchParams(window.location.search).get("q")?.slice(0,120) ?? ""); }, []);
   useEffect(() => {
     const timer = setTimeout(() => setSettled(query.trim()), 250);
     return () => clearTimeout(timer);
   }, [query]);
   const enabled = settled.length >= 2 && settled === query.trim();
   const goals = useProductResource<{ goals: GoalSummaryView[] }>(
-    enabled ? "/api/goals?limit=100" : null,
+    enabled && fullProduct ? "/api/goals?limit=100" : null,
   );
   const results = useProductResource<{ outcomes: OutcomeView[] }>(
-    enabled ? "/api/outcomes?limit=100" : null,
+    enabled && fullProduct ? "/api/outcomes?limit=100" : null,
   );
   const knowledge = useProductResource<OwnerKnowledgePage>(
-    enabled
+    enabled && fullProduct
       ? `/api/owner-knowledge?q=${encodeURIComponent(settled)}&limit=25`
       : null,
   );
@@ -45,11 +47,21 @@ export function ProductSearch() {
   }>(enabled ? `/api/artifacts?q=${encodeURIComponent(settled)}` : null);
   const agents = useProductResource<{
     agents: import("@/lib/agents").AgentView[];
-  }>(enabled ? "/api/agents" : null);
+  }>(enabled && fullProduct ? "/api/agents" : null);
   const conversations = useProductResource<{
     results: { id: string; title: string; snippet: string | null }[];
   }>(enabled ? `/api/threads/search?q=${encodeURIComponent(settled)}` : null);
+  const work = useProductResource<import("@/lib/product/work-inbox").WorkInboxView>(enabled ? `/api/work-inbox?q=${encodeURIComponent(settled)}` : null);
+  const files = useProductResource<{ files: import("@/lib/files-api").ChatFileView[] }>(enabled ? "/api/files" : null);
   const groups = [
+    { label: "Work", source: work, hits: (work.data?.works ?? []).map(item => ({
+      id: item.id, title: item.title, detail: item.display.summary,
+      href: `/work?kind=work&id=${encodeURIComponent(item.id)}`, source: "Your Work", status: item.display.status,
+    })) },
+    { label: "Uploaded files", source: files, hits: (files.data?.files ?? []).filter(item => `${item.filename} ${item.threadTitle ?? ""}`.toLowerCase().includes(settled.toLowerCase())).map(item => ({
+      id: item.id, title: item.filename, detail: item.threadTitle ?? "Uploaded in a conversation",
+      href: item.contentUrl, source: "Your Files", status: "Uploaded",
+    })) },
     {
       label: "Goals & work",
       source: goals,
@@ -66,7 +78,7 @@ export function ProductSearch() {
       hits: searchKnowledge(knowledge.data?.items ?? []),
     },
     {
-      label: "Artifacts",
+      label: "Documents",
       source: artifacts,
       hits: searchArtifacts(artifacts.data?.artifacts ?? [], query),
     },
@@ -87,11 +99,11 @@ export function ProductSearch() {
         status: "Recorded conversation",
       })),
     },
-  ];
+  ].filter(group => fullProduct || !["Goals & work", "Results", "Memory & knowledge", "Specialists"].includes(group.label));
   return (
     <ProductShell
       title="Search"
-      description="Find work, results, knowledge, artifacts, specialists and conversations. Sources and historical states remain visible."
+      description="Find your Work, files and conversations."
     >
       <label htmlFor="product-search">Search your workspace</label>
       <input
@@ -134,19 +146,9 @@ export function ProductSearch() {
           ))}
         </div>
       )}
-      <p className="owner-muted">
-        Goal and Result searches cover the latest 100 records. Knowledge returns
-        up to 25 matches
-        {knowledge.data?.hasMore
-          ? "; more matches are available in Knowledge"
-          : ""}
-        . An unavailable source is not an empty result.
-      </p>
-      <div className="owner-actions">
-        <Link href="/workspace">Search files and artifacts</Link>
-        <Link href="/chat">Search conversations with ⌘K</Link>
-        <Link href="/inbox">Search incoming email</Link>
-      </div>
+      {enabled && work.data?.nextOffset !== null && work.data && <p className="owner-muted">Showing the first 20 matching Work records. Refine the search to narrow the results.</p>}
+      {fullProduct && knowledge.data?.hasMore && <p className="owner-muted">Showing the first 25 knowledge matches. <Link href="/knowledge">Find more in Knowledge →</Link></p>}
+      <div className="owner-actions"><Link href="/workspace">Browse files</Link><Link href="/chat">Ask Sofie →</Link></div>
     </ProductShell>
   );
 }
