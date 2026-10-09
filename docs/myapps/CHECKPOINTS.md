@@ -49,3 +49,54 @@ WORK_REQUIRED and APPROVAL_REQUIRED outputs. One transaction binds the turn
 receipt and mutation. This qualifies reference routing, not live model behavior.
 
 Independent review, fresh clone and final composed Factory journey remain pending.
+
+## E–I: composed deterministic creation, verification, installation and update
+
+MyFactory E/F checkpoint `cf31a9d2865c3a4c478c55b6229212ab449a34ca` passed
+hosted run `37893432840`. The hardened controller checkpoint
+`d779b997ed4296c8a54dec8b9a5df01fe29f5123` passed hosted run `37894541802`;
+the exact remote SHA was verified. It binds independent Work admission to exact
+AppDigest, its actual Factory commit and trusted MyEve runtime source bytes.
+
+The G/H/I implementation has passed local qualification:
+
+- 17 MyEve contract/runtime/resolver/concurrency/fault tests; strict package build.
+- 19 affected MyFactory builder/preview/verifier/Result tests, including existing
+  tests, exact candidate admission, substitution, signature mismatch, interrupted
+  build UNKNOWN across restart, revocation and durable generation fencing.
+- Actual canonical WorkStore and all 80 canonical migrations on disposable
+  PostgreSQL 17; duplicate Work delivery converges and paused Work is denied.
+- Owner request fixture produces an inspectable AppSpec. A new canonical Work
+  admits an exact candidate. Separate verifier, canonical signed Result, private
+  synthetic preview and explicit browser installation are exercised together.
+- Human CRM changes are visible through typed agent queries; Sofie changes are
+  visible in the UI. Lead Sources update creates new Work, exact-base successor,
+  new verification/Proof/preview and explicit approval. v1 and data stay intact.
+- Browser verifies real forms, stages, notes, spend, follow-up, search, disabled
+  state, refresh, narrow viewport and generic second-owner query/action/Proof
+  denial. A response dropped after a committed action is safely retried once.
+- Nine critical UI surfaces have zero serious/critical axe findings and exact
+  screenshot comparisons on the same OS/Chromium. Update approval has its own
+  composed-journey screenshot comparison. This does not claim manual assistive
+  technology qualification or cross-platform pixel equality.
+- Injected storage failure after the version write rolls back installation and
+  approval; restart/retry preserves lead data and installs the exact successor.
+- Local 100-lead registry/resolver/query/action p95 measurements are below 1 ms;
+  browser load/navigation/agent-refresh measurements are recorded separately.
+  These are synthetic reference timings, not a production SLO.
+
+All new code remains in the isolated reference package, existing Factory builder
+extension, narrow CI workflows and documentation. Formatting expands earlier
+compact reference files for readability; no production application is refactored.
+Public disclosure self-review found only synthetic owners/data and public source
+pins. No credentials, production IDs or private evidence paths are committed.
+
+Repository decision: KEEP IN EXISTING REPOS. No MyApps repository/service created.
+Paid model operations, production deployments/installations, external-alpha
+changes, grants, publication and marketplace payments remain 0. Automatic
+installation/update/publication/repair and unrestricted access remain disabled.
+
+Final fresh-clone and hosted qualification of the G/H/I commit are run after this
+commit. Independent architecture/security review remains pending; a separate
+verifier is not a substitute for review of the implementation itself. Do not
+claim final foundation PASS until the final qualification report resolves it.

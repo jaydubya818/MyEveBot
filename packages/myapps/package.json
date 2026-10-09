@@ -3,6 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24.15 <25" },
-  "scripts": { "test": "node --test test/*.test.mjs" }
+  "engines": {
+    "node": ">=24.15 <25"
+  },
+  "files": [
+    "src",
+    "prototype",
+    "test/fixtures.mjs"
+  ],
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "typecheck": "tsc --noEmit --project tsconfig.json",
+    "build": "npm run typecheck && node --check prototype/app.js && node --check prototype/server.mjs"
+  }
 }

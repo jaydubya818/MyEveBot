@@ -16,3 +16,44 @@ jobs:
         with:
           node-version: 24
       - run: node --test packages/myapps/test/*.test.mjs
+  composed:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: jaydubya818/MyFactory
+          ref: d779b997ed4296c8a54dec8b9a5df01fe29f5123
+          path: .qualification/myfactory
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: node node_modules/playwright/cli.js install --with-deps chromium
+      - run: npm run build --workspace @myeve/myapps-reference
+      - run: node packages/myapps/browser/journey.mjs
+      - run: cp -R output/playwright/myapps /tmp/myapps-visual-baseline
+      - run: node packages/myapps/browser/journey.mjs
+        env:
+          MYAPPS_VISUAL_BASELINE_ROOT: /tmp/myapps-visual-baseline
+      - run: node packages/myapps/browser/performance.mjs
+      - run: node_modules/.bin/vitest run --config packages/myapps/vitest.config.ts
+        env:
+          MYAPPS_POSTGRES_URL: postgres://postgres@127.0.0.1:5432/postgres
+          MYFACTORY_SOURCE_ROOT: ${{ github.workspace }}/.qualification/myfactory
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-myapps-qualification
+          path: output/playwright/myapps/
+          retention-days: 7

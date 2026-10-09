@@ -93,7 +93,9 @@ retention must define owner export, archival, legal retention and purge separate
 
 Run `node --test packages/myapps/test/*.test.mjs` on Node 24.15 or newer in major 24.
 The tests use synthetic owners, non-routable contacts and temporary databases only.
-They do not establish production custody, PostgreSQL or live Sofie behavior.
+They do not establish production custody or live Sofie behavior. The composed
+Vitest journey additionally exercises canonical WorkStore against disposable
+PostgreSQL with all canonical migrations; App storage remains the SQLite reference.
 The reference limits an App's JSON state to 100 KiB and 1,000 leads; it is not a
 production CRM capacity claim. Dates are ISO calendar dates; metrics use explicit
 as-of and period-start dates; money uses integer cents; win rate uses basis points.
@@ -104,6 +106,8 @@ content, no verification APIs in the owner facade. Independent review is pending
 Public disclosure review covers only new files and synthetic fixtures; historical
 repository material is neither republished as evidence nor modified.
 
-Repository decision remains PENDING until the composed journey. Current evidence
-supports keeping runtime in MyEve and builder/verifier in MyFactory. A standalone
-repository/service is not presently justified.
+Repository decision: KEEP IN EXISTING REPOS. The composed journey works with
+MyEve's registry/runtime and MyFactory's builder/verifier. No independent API,
+persistence/control plane, deployment or release lifecycle was required. A new
+MyApps repository/service is not justified. Production integration remains a
+separate owner decision; see [INTEGRATION-PROPOSAL.md](INTEGRATION-PROPOSAL.md).
